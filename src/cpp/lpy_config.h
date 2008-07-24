@@ -30,8 +30,8 @@
  */
 
 
-#ifndef __pylsys_config_h__
-#define __pylsys_config_h__
+#ifndef __lpy_config_h__
+#define __lpy_config_h__
 
 /* ----------------------------------------------------------------------- */
 

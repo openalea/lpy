@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual C++ Express 2005
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pylsystems", "cpp\pylsystems.vcproj", "{CE919D8B-BBFC-4FA8-99E4-8324EE5FEE77}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lpy", "cpp\lpy.vcproj", "{CE919D8B-BBFC-4FA8-99E4-8324EE5FEE77}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wrappylsys", "wrapper\wrappylsys.vcproj", "{432DE2EC-508C-4072-9400-1E16CBAB9C78}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wraplpy", "wrapper\wraplpy.vcproj", "{432DE2EC-508C-4072-9400-1E16CBAB9C78}"
 	ProjectSection(ProjectDependencies) = postProject
 		{CE919D8B-BBFC-4FA8-99E4-8324EE5FEE77} = {CE919D8B-BBFC-4FA8-99E4-8324EE5FEE77}
 	EndProjectSection
