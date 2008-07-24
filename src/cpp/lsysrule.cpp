@@ -422,12 +422,11 @@ LsysRule::redundantParameter() const {
 bool
 LsysRule::match(const AxialTree& src,
 			   AxialTree::const_iterator pos,
-			   AxialTree& dest,
+			   const AxialTree& dest,
 			   AxialTree::const_iterator& endpos,
-               size_t * length,
+               boost::python::list& args,
                eDirection direction) const 
 {
-  boost::python::list args;
   boost::python::list args_pred;
   AxialTree::const_iterator endpos1;
   if (direction == eForward){
@@ -462,14 +461,6 @@ LsysRule::match(const AxialTree& src,
 	if(!src.rightmatch(__rightcontext,endpos1,endpos2,args_cd))return false;
 	args += args_cd;
   }
-  object result = apply(args);
-  if(result == object())return false;
-  else {
-    AxialTree prod = extract<AxialTree>(result)();
-    if(length!=NULL)*length = prod.size();
-    if(direction == eForward) dest += prod;
-    else dest.prepend(prod);
-  }
   if (direction == eForward)
     endpos = endpos1;
   else
@@ -477,16 +468,39 @@ LsysRule::match(const AxialTree& src,
   return true;
 }
 
+bool
+LsysRule::applyTo( AxialTree& dest, 
+				   const boost::python::list& args, 
+				   size_t * length,
+				   eDirection direction) const {
+  object result = apply(args);
+  if(result == object())return false;
+  else {
+    AxialTree prod = extract<AxialTree>(result)();
+	if (prod.size() == 1 && prod[0].getClass() == ModuleClass::Star){ 
+		if(length!=NULL)*length = 0;
+	}
+	else {
+		if(length!=NULL)*length = prod.size();
+		if(direction == eForward) dest += prod;
+		else dest.prepend(prod);
+	}
+  }
+  return true;
+}
+
 
 AxialTree
-LsysRule::process( const AxialTree& src ){
+LsysRule::process( const AxialTree& src ) const {
   AxialTree dest;
   AxialTree::const_iterator _it = src.begin();
   while(_it != src.end()){
-	if(!match(src,_it,dest,_it)){
+	boost::python::list args;
+	if(!match(src,_it,dest,_it,args)){
 	  dest.push_back(_it);
 	  ++_it;
 	}
+	else { applyTo(dest,args); }
   }
   return dest;
 }

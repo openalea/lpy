@@ -38,8 +38,8 @@ def test_LsRule():
     assert l.nbParameters() == 0
     assert len(l()) == len(res)
     assert len(l.process('FF')) == 2*len(res)
-    assert l.match('F',0)[1] == 1
-    assert l.reverse_match('FF',1)[1] == 0
+    assert l.match('F',0)[0] == 1
+    assert l.reverse_match('FFF')[0] == 1
 
 def lnLs(l = 8):
     if l == 0: return 1

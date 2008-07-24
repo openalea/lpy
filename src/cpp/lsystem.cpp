@@ -615,6 +615,7 @@ Lsystem::__step(AxialTree& workingstring,
   if ( query )__interpret(workingstring,__context.envturtle);
   if ( direction == eForward){
       AxialTree::const_iterator _it = workingstring.begin();
+      AxialTree::const_iterator _it3 = _it;
       AxialTree::const_iterator _endit = workingstring.end();
 
       while ( _it != _endit ) {
@@ -625,9 +626,10 @@ Lsystem::__step(AxialTree& workingstring,
               for(RulePtrSet::const_iterator _it2 = ruleset.begin();
                   _it2 != ruleset.end(); 
                   _it2++){
-                      if((*_it2)->match(workingstring,_it,targetstring,_it)){
-                          match = true;
-                          break;
+					  boost::python::list args;
+                      if((*_it2)->match(workingstring,_it,targetstring,_it3,args)){
+                          match = (*_it2)->applyTo(targetstring,args);
+						  if(match) { _it = _it3; break; }
                       }
               }
               if (!match){
@@ -639,6 +641,7 @@ Lsystem::__step(AxialTree& workingstring,
   }
   else {
       AxialTree::const_iterator _it = workingstring.end()-1;
+      AxialTree::const_iterator _it3 = _it;
       AxialTree::const_iterator _endit = workingstring.begin();
       bool ending = false;
       do {
@@ -647,9 +650,10 @@ Lsystem::__step(AxialTree& workingstring,
           for(RulePtrSet::const_iterator _it2 = ruleset.begin();
               _it2 != ruleset.end(); 
               _it2++){
-                  if((*_it2)->reverse_match(workingstring,_it,targetstring,_it)){
-                      match = true;
-                      break;
+				  boost::python::list args;
+                  if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args)){
+                      match = (*_it2)->reverseApplyTo(targetstring,args);
+                      if(match) { _it = _it3; break; }
                   }
           }
           if (!match){
@@ -685,11 +689,14 @@ Lsystem::__stepWithMatching(AxialTree& workingstring,
           for(RulePtrSet::const_iterator _it2 = ruleset.begin();
               _it2 != ruleset.end(); 
               _it2++){
-                  if((*_it2)->match(workingstring,_it,targetstring,_it3,&prodlength)){
-                      match = true;
-                      matching.append(distance(_it,_it3),prodlength);
-                      _it = _it3;
-                      break;
+				  boost::python::list args;
+                  if((*_it2)->match(workingstring,_it,targetstring,_it3,args)){
+                      match = (*_it2)->applyTo(targetstring,args,&prodlength);
+					  if (match){
+						matching.append(distance(_it,_it3),prodlength);
+						_it = _it3;
+						break;
+					  }
                   }
           }
           if (!match){              
@@ -709,6 +716,7 @@ Lsystem::__recursiveSteps(AxialTree& workingstring,
   ContextMaintainer c(&__context);
   if( workingstring.empty()) return workingstring;
   AxialTree::const_iterator _it = workingstring.begin();
+  AxialTree::const_iterator _it3 = _it;
   AxialTree::const_iterator _endit = workingstring.end();
   AxialTree targetstring;
   while ( _it != workingstring.end() ) {
@@ -719,9 +727,10 @@ Lsystem::__recursiveSteps(AxialTree& workingstring,
           bool match = false;
           for(RulePtrSet::const_iterator _it2 = ruleset.begin();
               _it2 != ruleset.end(); _it2++){
-                if((*_it2)->match(workingstring,_it,ltargetstring,_it)){
-                      match = true;
-                      break;
+				boost::python::list args;
+                if((*_it2)->match(workingstring,_it,ltargetstring,_it3,args)){
+                      match = (*_it2)->applyTo(ltargetstring,args);
+					  if(match) { _it = _it3; break; }
                   }
           }
           if (match){
@@ -764,12 +773,15 @@ Lsystem::__recursiveInterpretation(AxialTree& workingstring,
           bool match = false;
           for(RulePtrSet::const_iterator _it2 = ruleset.begin();
               _it2 != ruleset.end(); _it2++){
-                  if((*_it2)->match(workingstring,_it,ltargetstring,_it3)){
-                      match = true;
-                      dist = distance(_it,_it3);
-                      _it = _it3;
-		      _itn += dist;
-                      break;
+				  boost::python::list args;
+                  if((*_it2)->match(workingstring,_it,ltargetstring,_it3,args)){
+                      match = (*_it2)->applyTo(ltargetstring,args);
+					  if (match) {
+						dist = distance(_it,_it3);
+						_it = _it3;
+						_itn += dist;
+						break;
+					  }
                   }
           }
           if (match){

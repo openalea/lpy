@@ -6,7 +6,7 @@ def StartEach():
 
     
 def EndEach():
-  #print getIterationNb(),matched
+  print getIterationNb(),matched
   assert not matched is None
   if getIterationNb() == 5:
     assert matched == 1

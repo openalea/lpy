@@ -46,42 +46,50 @@ AxialTree::const_iterator getPos(const AxialTree& tree, int pos){
 }
 
 
-int match(LsysRule * rule,const AxialTree& tree, int pos, AxialTree& dest) {
+object match(LsysRule * rule,const AxialTree& tree, int pos, const AxialTree& dest) {
   AxialTree::const_iterator beg = getPos(tree,pos);
   AxialTree::const_iterator endpos;
-  if(!rule->match(tree,beg,dest,endpos))return -1;
-  return tree.pos(endpos);
+  boost::python::list args;
+  if(!rule->match(tree,beg,dest,endpos,args))return object(false);
+  return make_tuple(tree.pos(endpos),args);
 }
 
 object match2(LsysRule * rule,const AxialTree& tree, int pos ) {
   AxialTree::const_iterator beg = getPos(tree,pos);
   AxialTree::const_iterator endpos;
   AxialTree dest;
-  if(!rule->match(tree,beg,dest,endpos))return object(-1);
-  return make_tuple(dest,tree.pos(endpos));
+  boost::python::list args;
+  if(!rule->match(tree,beg,dest,endpos,args))return object(false);
+  return make_tuple(tree.pos(endpos),args);
 }
 
 object match1(LsysRule * rule,const AxialTree& tree) {
     return match2(rule,tree,0);
 }
 
-int reverse_match(LsysRule * rule,const AxialTree& tree, int pos, AxialTree& dest) {
+object reverse_match(LsysRule * rule,const AxialTree& tree, int pos, AxialTree& dest) {
   AxialTree::const_iterator beg = getPos(tree,pos);
   AxialTree::const_iterator endpos;
-  if(!rule->reverse_match(tree,beg,dest,endpos))return -1;
-  return tree.pos(endpos);
+  boost::python::list args;
+  if(!rule->reverse_match(tree,beg,dest,endpos,args))return object(false);
+  return make_tuple(tree.pos(endpos),args);
 }
 
 boost::python::object reverse_match2(LsysRule * rule,const AxialTree& tree, int pos) {
   AxialTree::const_iterator beg = getPos(tree,pos);
   AxialTree::const_iterator endpos;
   AxialTree dest;
-  if(!rule->reverse_match(tree,beg,dest,endpos))return object(-1);
-  return make_tuple(dest,tree.pos(endpos));
+  boost::python::list args;
+  if(!rule->reverse_match(tree,beg,dest,endpos,args))return object(false);
+  return make_tuple(tree.pos(endpos),args);
 }
 
 boost::python::object reverse_match1(LsysRule * rule,const AxialTree& tree) {
     return reverse_match2(rule,tree,-1);
+}
+
+bool applyTo(LsysRule * rule,AxialTree& tree,  boost::python::list args) {
+	return rule->applyTo(tree,args);
 }
 
 object call(LsysRule * rule) {
@@ -145,6 +153,7 @@ void export_LsysRule(){
 	.def("reverse_match", &reverse_match2)
 	.def("reverse_match", &reverse_match1)
 	.def("process", &LsysRule::process)
+	.def("applyTo", &applyTo)
 	.def("forwardCompatible", &LsysRule::forwardCompatible)
 	.def("backwardCompatible", &LsysRule::backwardCompatible)
 	;

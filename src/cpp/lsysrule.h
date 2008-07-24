@@ -109,19 +109,30 @@ public:
 
 	bool match(const AxialTree& src,
 			   AxialTree::const_iterator pos,
-			   AxialTree& dest,
+			   const AxialTree& dest,
 			   AxialTree::const_iterator& endpos,
-               size_t * length = NULL,
+			   boost::python::list& args,
                eDirection direction = eForward) const ;
 
     inline bool reverse_match(const AxialTree& src,
 			   AxialTree::const_iterator pos,
-			   AxialTree& dest,
+			   const AxialTree& dest,
 			   AxialTree::const_iterator& endpos,
-               size_t * length = NULL) const 
-    { return match(src,pos,dest,endpos,length,eBackward); }
+               boost::python::list& args) const 
+    { return match(src,pos,dest,endpos,args,eBackward); }
 
-	AxialTree process( const AxialTree& src );
+	bool applyTo( AxialTree& dest, 
+				  const boost::python::list& args, 
+				  size_t * length = NULL,
+				  eDirection direction = eForward) const;
+
+	inline bool reverseApplyTo( AxialTree& dest, 
+				  const boost::python::list& args, 
+				  size_t * length = NULL,
+				  eDirection direction = eForward) const
+	{ return applyTo(dest,args,length,eBackward); }
+
+	AxialTree process( const AxialTree& src ) const;
 
 	std::string str() const ;
 

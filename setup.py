@@ -5,7 +5,7 @@
 import os, sys
 pj = os.path.join
 
-f = pj(os.path.dirname(__file__),'src', 'openalea', 'lpy','__version__')
+f = pj(os.path.dirname(__file__),'src', 'openalea', 'lpy','__version__.py')
 d = {}
 execfile(f,d,d)
 

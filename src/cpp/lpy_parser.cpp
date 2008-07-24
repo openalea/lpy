@@ -790,8 +790,6 @@ std::string PYLSYS::lstring2py( std::string::const_iterator& beg,
 								int lineno){
   std::string result("[");
   std::vector<std::pair<size_t,std::string> > parsedstring = parselstring(beg, endpos, delim, lineno);
-  if (parsedstring.size() == 1 && parsedstring[0].first == ModuleClass::Star->getId())
-	  return "";
   bool first = true;
   for(std::vector<std::pair<size_t,std::string> >::const_iterator it = parsedstring.begin();
 	  it != parsedstring.end(); ++it){

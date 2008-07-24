@@ -4,6 +4,7 @@ def test_backward():
     """ Computation of the fibonnacci series using fast transfer in backward direction """
     l = Lsystem('fibonacci.lpy')
     a = l.iterate()
+    print a
     assert a[2][0] == 6765, "Lpy failed to compute fibonacci test"
     assert a[3][0] == 4181, "Lpy failed to compute fibonacci test"
     assert a[21][0] == 1, "Lpy failed to compute fibonacci test"
