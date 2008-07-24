@@ -1,8 +1,8 @@
 Metadata-Version: 1.0
 Name: pylsystems
 Version: 1.0.0
-Summary: Python L-systems Package.
-Home-page: http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=packages:visualization:plantgl:plantgl
+Summary: L-systems in Python Package.
+Home-page: http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=packages:vplants:lpy:main
 Author: Frederic Boudon
 Author-email: frederic.boudon@cirad.fr
 License: GPL

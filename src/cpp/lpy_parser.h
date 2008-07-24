@@ -31,7 +31,7 @@
 #ifndef __LPY_PARSER_H__
 #define __LPY_PARSER_H__
 
-#include "pylsys_config.h"
+#include "lpy_config.h"
 #include <string>
 #include <vector>
 

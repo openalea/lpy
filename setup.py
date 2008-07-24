@@ -5,21 +5,22 @@
 import os, sys
 pj = os.path.join
 
-sys.path.insert(0,pj(os.path.dirname(__file__),'src', 'openalea', 'pylsystems'))
-import __version__
+f = pj(os.path.dirname(__file__),'src', 'openalea', 'lpy','__version__')
+d = {}
+execfile(f,d,d)
 
 ##############
 # Setup script
 
 # Package name
-name = 'pylsystems'
+name = 'lpy'
 namespace = 'openalea'
 pkg_name= namespace + '.' + name
 
-version= __version__.LPY_VERSION_STR
+version= str(d['LPY_VERSION_MAJOR'])+'.'+str(d['LPY_VERSION_MINOR'])+'.'+str(d['LPY_VERSION_REV'])
 print pkg_name,': version =',version
 
-description= 'PyLsystems package for OpenAlea.' 
+description= 'Lindenmayer Systems in Python package for OpenAlea.' 
 long_description= '''
 A Python version of Lindenmayer Systems.
 Based on Dr. Prusinkiewicz et al. cpfg-lpfg specifications.
@@ -41,7 +42,7 @@ from setuptools import setup
 
 
 setup(
-    name="VPlants.PyLsystems",
+    name="VPlants.Lpy",
     version=version,
     description=description,
     long_description=long_description,
@@ -58,7 +59,7 @@ setup(
     
     # pure python  packages
     packages = [ pkg_name, pkg_name+'.gui', pkg_name+'.wralea' ],
-    py_modules = ['pylsysgui_postinstall'],
+    py_modules = ['lpygui_postinstall'],
 
     # python packages directory
     package_dir = { '' : 'src',},
@@ -77,11 +78,11 @@ setup(
     # Dependencies
     # entry_points
     entry_points = {
-        "wralea": ["pylsystem = openalea.pylsystems.wralea",],
-        'gui_scripts': ['lpy = openalea.pylsystems.gui.lsyswindow:main',]
+        "wralea": ["lpy = openalea.lpy.wralea",],
+        'gui_scripts': ['lpy = openalea.lpy.gui.lsyswindow:main',]
         },
     
-    postinstall_scripts = ['pylsysgui_postinstall'],
+    postinstall_scripts = ['lpygui_postinstall'],
     
     # Dependencies
     setup_requires = ['openalea.deploy'],

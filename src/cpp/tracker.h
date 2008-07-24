@@ -31,7 +31,7 @@
 #ifndef __LSYS_TRACKER_H__
 #define __LSYS_TRACKER_H__
 
-#include "pylsys_config.h"
+#include "lpy_config.h"
 #include <stddef.h>
 
 PYLSYS_BEGIN_NAMESPACE

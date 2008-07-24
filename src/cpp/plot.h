@@ -31,7 +31,7 @@
 #ifndef __plot_string_h__
 #define __plot_string_h__
 
-#include "pylsys_config.h"
+#include "lpy_config.h"
 #include "stringmatching.h"
 #include <plantgl/scenegraph/scene/scene.h>
 #include <plantgl/algo/modelling/pglturtle.h>

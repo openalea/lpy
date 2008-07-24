@@ -28,10 +28,10 @@
  # ---------------------------------------------------------------------------
  */
 
-#ifndef __PGL_STRINGINTERPRETER_H__
-#define __PGL_STRINGINTERPRETER_H__
+#ifndef __LPY_STRINGINTERPRETER_H__
+#define __LPY_STRINGINTERPRETER_H__
 
-#include "pylsys_config.h"
+#include "lpy_config.h"
 #include "stringmatching.h"
 #include <vector>
 #include <string>

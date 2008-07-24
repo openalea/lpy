@@ -31,7 +31,7 @@
 #ifndef __PGL_LSYSERROR_H__
 #define __PGL_LSYSERROR_H__
 
-#include "pylsys_config.h"
+#include "lpy_config.h"
 #include <string>
 
 PYLSYS_BEGIN_NAMESPACE

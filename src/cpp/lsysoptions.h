@@ -31,7 +31,7 @@
 #ifndef __LSYSOPTIONS_H__
 #define __LSYSOPTIONS_H__
 
-#include "pylsys_config.h"
+#include "lpy_config.h"
 #include <string>
 #include <memory>
 #include <vector>
