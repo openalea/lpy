@@ -9,12 +9,12 @@ sources= lib_env.ALEAGlob('*.cpp')
 
 # Add defines to export symbols on Windows
 DEFINES= list(lib_env['CPPDEFINES'])
-DEFINES.append('PYLSYS_MAKEDLL')
+DEFINES.append('LPY_MAKEDLL')
 
 lib_env.AppendUnique(LIBS= ['pgltool','pglmath','pglsg','pglalgo','pglgui'])
 
-inc= lib_env.ALEAIncludes( "pylsystems", includes )
+inc= lib_env.ALEAIncludes( "lpy", includes )
 
-lib = lib_env.ALEALibrary( "pylsystems",
+lib = lib_env.ALEALibrary( "lpy",
                            sources, 
                            CPPDEFINES = DEFINES )

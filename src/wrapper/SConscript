@@ -2,7 +2,10 @@
 
 Import( "env" )
 
-py_dir = '../openalea/pylsystems'
+import os.path
+pj = os.path.join
+
+py_dir = pj(os.path.pardir,'openalea','lpy')
 
 # Build wrappers as shared libraries
 lib_env=env.Copy()
@@ -11,8 +14,8 @@ lib_env.AppendUnique( CPPPATH = ['$QT4_CPPPATH/Qt'] )
 
 
 sources= lib_env.ALEAGlob( '*.cpp' )
-target= "_pylsystems"
+target= "__lpy_kernel__"
 
-lib_env.AppendUnique(LIBS= ['pylsystems','pgltool','pglmath','pglsg','pglalgo','pglgui'])
+lib_env.AppendUnique(LIBS= ['lpy','pgltool','pglmath','pglsg','pglalgo','pglgui'])
 lib_env.ALEAWrapper( py_dir, target, sources )
 
