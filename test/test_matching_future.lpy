@@ -1,0 +1,19 @@
+
+matched = False
+
+def End():
+  assert matched 
+
+Axiom: A[I[E]H]HB[C[E]D]D
+
+derivation length: 1
+ignore: +-
+
+production:
+
+A[I]H < B :
+    global matched
+    matched = True
+    produce B
+
+endlsystem

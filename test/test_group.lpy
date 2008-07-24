@@ -1,0 +1,54 @@
+previousmatch = None
+currentmatch = None
+match0 = False
+
+def StartEach():
+  global currentmatch,match0
+  prev = getGroup()
+  if getGroup() == 1: useGroup(2)
+  else:               useGroup(1)
+  print 'Group:',prev,'-->',getGroup()
+  currentmatch = None
+  match0 = False
+
+def EndEach():
+  global previousmatch
+  assert match0 and "Rules of group 0 do no apply every time"
+  assert (not currentmatch is None) and "No matching"
+  assert currentmatch != previousmatch and "group did not change correctly"
+  previousmatch = currentmatch
+  
+Axiom: AC
+
+derivation length: 6
+production:
+
+group 1:
+A :
+  global currentmatch
+  assert currentmatch is None, "already matching"
+  currentmatch = 1
+  produce a
+
+group 2:
+a :
+  global currentmatch
+  assert currentmatch is None, "already matching"
+  currentmatch = 2
+  produce A
+
+endgroup
+
+C :
+  global match0
+  match0 = True
+  produce C
+
+homomorphism:
+
+A :
+  produce F(1)
+a :
+  produce f(0.5)@O(0.5)
+
+endlsystem

@@ -1,0 +1,33 @@
+from math import sqrt
+
+nbValue = 20
+
+Axiom: +(90);(3)A(nbValue)
+
+#def Start():
+#
+
+derivation length: 2
+
+production:
+I(k) >> I(i)I(j):
+	#print 'Transform I(',k,') > I(',i,')I(',j,')'
+	newval = i+j
+	if newval>=0 :
+		produce I(newval)
+	else:
+		produce 
+decomposition:
+maximum depth: 100
+A(i) :
+	if i>0:
+		produce I(1)A(i-1)
+	else:
+		#print 'Backward'
+		backward()
+		produce
+homomorphism:
+I(i) :
+	produce f(0.1)F(0.9)[-(135);(4)f(sqrt(2.0)*0.5)@L(str(i))]
+endlsystem
+

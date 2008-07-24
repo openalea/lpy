@@ -1,0 +1,20 @@
+# -*-python-*-
+Import( "env" )
+lib_env= env.Copy()
+lib_env.EnableQt4Modules( [ 'QtCore', 'QtGui', 'QtOpenGL'])
+lib_env.AppendUnique( CPPPATH = ['$QT4_CPPPATH/Qt'] )
+
+includes= lib_env.ALEAGlob('*.h')
+sources= lib_env.ALEAGlob('*.cpp')
+
+# Add defines to export symbols on Windows
+DEFINES= list(lib_env['CPPDEFINES'])
+DEFINES.append('PYLSYS_MAKEDLL')
+
+lib_env.AppendUnique(LIBS= ['pgltool','pglmath','pglsg','pglalgo','pglgui'])
+
+inc= lib_env.ALEAIncludes( "pylsystems", includes )
+
+lib = lib_env.ALEALibrary( "pylsystems",
+                           sources, 
+                           CPPDEFINES = DEFINES )

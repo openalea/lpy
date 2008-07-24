@@ -1,0 +1,36 @@
+from math import *
+
+def Axiom():
+	res = AxialTree(K(1,0))
+	for i in range (1,100):
+		res += AxialTree(K(1,i))
+	return res
+	
+
+Axiom: K(1,0)K(1,1)K(1,2)
+
+consider: K
+derivation length: 100
+production:
+
+
+K(x,i)K(y,j) << K(z,m) :
+	if(z == 1):
+		produce K(x+y,m)K(1,m+1)
+
+homomorphism:
+
+K(x,i):
+	logx = log(x)
+	if(logx < 1):
+		logx = 1
+	if i % 4 == 0:
+		produce [F(logx)f(1);;;@L(str(x))]&(90)F(logx)^(90)
+	elif i % 4 == 1:
+		produce [F(logx)f(1);;;@L(str(x))]+(90)F(logx)-(90)
+	elif i % 4 == 2:
+		produce [F(logx)f(1);;;@L(str(x))]^(90)F(logx)&(90)
+	elif i % 4 == 3:
+		produce [F(logx)f(1);;;@L(str(x))]-(90)F(logx)+(90)
+
+endlsystem

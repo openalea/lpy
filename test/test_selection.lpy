@@ -1,0 +1,19 @@
+def Start():
+    setSelectionRequired(True)
+    pass
+
+Axiom: N [ + N N ] [ - N ] N 
+
+derivation length: 3
+production:
+
+X --> %
+
+homomorphism:
+maximum depth: 2
+
+N --> ABA
+A --> fFf
+B --> @O
+
+endlsystem

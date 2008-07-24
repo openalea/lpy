@@ -1,0 +1,18 @@
+# -*-python-*-
+
+Import( "env" )
+
+py_dir = '../openalea/pylsystems'
+
+# Build wrappers as shared libraries
+lib_env=env.Copy()
+lib_env.EnableQt4Modules( [ 'QtCore', 'QtGui', 'QtOpenGL'])
+lib_env.AppendUnique( CPPPATH = ['$QT4_CPPPATH/Qt'] )
+
+
+sources= lib_env.ALEAGlob( '*.cpp' )
+target= "_pylsystems"
+
+lib_env.AppendUnique(LIBS= ['pylsystems','pgltool','pglmath','pglsg','pglalgo','pglgui'])
+lib_env.ALEAWrapper( py_dir, target, sources )
+

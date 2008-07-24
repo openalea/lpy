@@ -1,0 +1,31 @@
+matched = None
+
+def StartEach():
+    global matched
+    matched = None
+
+    
+def EndEach():
+  #print getIterationNb(),matched
+  assert not matched is None
+  if getIterationNb() == 5:
+    assert matched == 1
+  else:
+    assert matched == 2
+
+Axiom: I(5)
+
+derivation length: 6
+production:
+
+I(0) :
+    global matched
+    matched = 1
+    produce *
+
+I(x):
+    global matched
+    matched = 2
+    produce I(x-1)
+
+endlsystem

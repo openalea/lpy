@@ -1,0 +1,5 @@
+
+Axiom: -(90)#(0.01)F(50.)
+production:
+F(x) : produce F(x/3.)+(60)F(x/3.)-(120)F(x/3.)+(60)F(x/3.)
+endlsystem

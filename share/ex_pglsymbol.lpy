@@ -1,0 +1,25 @@
+from openalea.plantgl.all import *
+from math import radians
+
+Axiom: ;(1)+(10)_(2)F(10);(0)@g(Paraboloid(10,10,2,False))F(7)
+
+derivation length: 100
+production:
+
+F(x) --> F(x+0.2)
+
+@g(p) :
+  p.radius +=0.15
+  p.height +=0.2
+  #produce @g(p)
+
+_(x) --> _(x+0.02)
+homomorphism:
+
+
+endlsystem
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	from openalea.plantgl.all import Material,Color3
+	context.turtle.setMaterial(0,Material('Yellow',Color3(60,60,15),3,Color3(40,40,40),Color3(0,0,0),1,0))

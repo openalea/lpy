@@ -1,0 +1,18 @@
+
+Axiom: #(0.1)A
+
+derivation length: 10
+production:
+
+
+A :    
+    produce F(1)[-(60)X(5)B][+(60)X(5)B]A
+
+B :
+    produce F(1)B
+
+X(d):
+    if d > 0:
+        produce X(d-1)
+    else:
+        produce F(0.3)%

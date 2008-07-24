@@ -1,0 +1,23 @@
+from random import uniform
+
+matched = False
+
+def End():
+    assert matched == True, "?P and ?H not matched"
+
+Axiom: I(10)?P?H?L
+
+derivation length: 1
+production: 
+
+
+I(x) > ?P(p)?H(h)?L(l):
+    global matched
+    matched = True
+    produce I(x)
+
+homomorphism:
+
+I(x) --> F(x)
+
+endlsystem

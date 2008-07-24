@@ -1,0 +1,41 @@
+def nprod():
+  nproduce D
+
+matched = False
+
+def StartEach():
+    global matched
+    matched = False
+
+def EndEach():
+    assert matched == True, 'No matching found'
+
+
+Axiom: A
+
+derivation length: 4
+production:
+
+A :
+  global matched
+  nproduce I
+  matched = True
+  produce B
+
+B:
+  global matched
+  nproduce C
+  matched = True
+
+C:
+  global matched
+  nprod()
+  matched = True
+
+D:
+  global matched
+  matched = True
+  produce
+
+I -->
+endlsystem
