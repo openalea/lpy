@@ -40,9 +40,9 @@ def EndEach():
 
 derivation length: STEPS
 
-ignore: [+-_WI/!;
+ignore: [+-eWI/!;
 
-Axiom: [#(1),(3)+(90)f(GL)[-(180)F(2*GL)][-(90)f(1)-(90)f(0.5,0)/(70)h]]SM
+Axiom: [_(1),(3)+(90)f(GL)[-(180)F(2*GL)][-(90)f(1)-(90)f(0.5,0)/(70)h]]SM
 
 production:
 f(m,t)/(n)h : 
@@ -51,7 +51,7 @@ f(m,t)/(n)h :
 
 f(m,t)--> f(m+(GL-1)/(DL+0.5),t)
 
-S --> E/(30)+(10);(1,0)!(1*Wscale,0.015*Wscale)_(E0,0)d(DL)A(0,NR1)B
+S --> E/(30)+(10);(1,0)!(1*Wscale,0.015*Wscale)e(E0,0)d(DL)A(0,NR1)B
 
 E > g -->  [f(2)-(90)f(0.5,0)/(70)h]
 
@@ -84,10 +84,10 @@ f < A(n,m) > * :
 * < 5 > * --> 6
 * < Y > * --> *
 
-* < _(e,i) > g --> _(e,EI)
-* < _(e,i) > * : 
+* < e(e,i) > g --> e(e,EI)
+* < e(e,i) > * : 
 	if e>EM :
-		produce _(e-i,i)
+		produce e(e-i,i)
 
 +(i,j) > g --> +(i+1,1)
 +(i,j) : 
@@ -104,7 +104,7 @@ f < A(n,m) > * :
 
 A(n,m)B : 
 	if n == 0 and m == 0 :
-		produce I(PL,INR)/(90)0+(0,0)[;(1,0)!(1*Wscale,0.020*Wscale)_(E0,0)+aFA(PL,NR1)B][;(1,0)!(1*Wscale,0.010*Wscale)_(E0,0)-bFA(PL,NR2)B][--L][++L]
+		produce I(PL,INR)/(90)0+(0,0)[;(1,0)!(1*Wscale,0.020*Wscale)e(E0,0)+aFA(PL,NR1)B][;(1,0)!(1*Wscale,0.010*Wscale)e(E0,0)-bFA(PL,NR2)B][--L][++L]
 
 A(n,m) :
 	# in the absence of the bug, a branch  is created #
@@ -134,10 +134,16 @@ B --> ;(4)@O(BSC)
 1 --> [;(4)!(2*Iscale)@O(c)[-F(c)++F(c/2)]+F(c)--F(c/2)]f
 3 --> [;(4)!(2*Iscale)@O(c)[-F(c)++F(c/2)]+F(c)--F(c/2)]f
 5 --> [;(4)!(2*Iscale)@O(c)[-F(c)++F(c/2)]+F(c)--F(c/2)]f
-f --> [_(0);(4)!(2*Iscale)@O(c)[-F(c)++F(c/2)]+F(c)--F(c/2)]f
-h --> [_(0);(4)!(2*Iscale)@O(c)[-F(c)++F(c/2)]+F(c)--F(c/2)]f
+f --> [e(0);(4)!(2*Iscale)@O(c)[-F(c)++F(c/2)]+F(c)--F(c/2)]f
+h --> [e(0);(4)!(2*Iscale)@O(c)[-F(c)++F(c/2)]+F(c)--F(c/2)]f
 g --> g[;(4)|!(2*Iscale)@O(c)[-F(c)++F(c/2)]+F(c)--F(c/2)]
 
 H(n,m) --> ;(2){-F(2)++F(2)-|-F(2)++F(2)-}
 
 endlsystem
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	from openalea.plantgl.all import Material,Color3
+	context.options.setSelection("Selection Required",0)
+	context.options.setSelection("Module declaration",0)

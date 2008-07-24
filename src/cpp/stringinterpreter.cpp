@@ -70,6 +70,7 @@ void StringInterpreter::initCommand(){
   addCommand("/","Roll left  around Heading vector");
   addCommand("\\","Roll right around Heading vector");
   addCommand("|","Turn around 180 around Up vector");
+  addCommand("_","Increase the current line width or set it if a parameter is given. Replace #");
   //addCommand("#","Increase the current line width or set it if a parameter is given");
   addCommand("!","Decrease the current line width or set it if a parameter is given");
   addCommand(";","Increase the current material index or set it if a parameter is given");
@@ -94,7 +95,6 @@ void StringInterpreter::initCommand(){
   addCommand("?U","Request up vector information");
   addCommand("?L","Request left vector information");
 
-  addCommand("_","* Increase the current line width or set it if a parameter is given. Replace #");
   addCommand("@g","* Draw a custom geometry");
   addCommand("?R","* Request right vector information");
 }

@@ -402,16 +402,20 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         else:
             self.saveas()
     def initialisationCode(self):
-        header = "def "+LsysContext.InitialisationFunctionName+"(context):\n\tfrom openalea.plantgl.all import Material,Color3\n"
+        header = "def "+LsysContext.InitialisationFunctionName+"(context):\n"
         defaultlist = PglTurtle().getColorList()
         currentlist = self.lsystem.context().turtle.getColorList()
         nbdefault = len(defaultlist)
         nbcurrent = len(currentlist)
         init_txt = ''
+        firstcol = True
         for i in xrange(nbcurrent):
             if ( (i >= nbdefault) or 
                  (not currentlist[i].isSimilar(defaultlist[i])) or 
                  (currentlist[i].name != defaultlist[i].name)):
+                if firstcol :
+                    init_txt += "\tfrom openalea.plantgl.all import Material,Color3\n"
+                    firstcol = False
                 init_txt += '\tcontext.turtle.setMaterial('+str(i)+','+str(currentlist[i])+')\n'
         if not self.lsystem.context().is_animation_timestep_to_default():
                 init_txt += '\tcontext.animation_timestep = '+str(self.getTimeStep())+'\n'

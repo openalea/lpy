@@ -1,18 +1,15 @@
 from math import *
 
-def Axiom():
-	res = AxialTree("K(1,0)")
-	for i in range (1,100):
-		res += AxialTree("K(1,"+str(i)+")")
-	return res
-	
 
-Axiom: Axiom()
+Axiom: A
 
 consider: K
 derivation length: 3
 production:
 
+A :
+    for i in xrange(100):
+      nproduce K(1,i)
 
 K(x,i)K(y,j) << K(z,m) :
 	if(z == 1):

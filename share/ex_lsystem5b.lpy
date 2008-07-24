@@ -1,11 +1,6 @@
 from math import *
 
-def Axiom():
-	res = AxialTree(K(1,0))
-	for i in range (1,100):
-		res += AxialTree(K(1,i))
-	return res
-	
+
 
 Axiom: K(1,0)K(1,1)K(1,2)
 

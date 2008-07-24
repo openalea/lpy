@@ -72,7 +72,7 @@ void export_Options(){
 	.def("__getitem__",&get_item<LsysOption>,return_internal_reference<>())
 	.def("__len__",&LsysOption::size)
 	.def("currentValue",&LsysOption::currentValue,return_value_policy<return_by_value>())
-	.def("isToDefault",&LsysOption::defaultValueId)
+	.def("isToDefault",&LsysOption::isToDefault)
 	;
 	class_<LsysOptions,boost::noncopyable> ("LsysOptions", init<>("LsysOptions()"))
 	.def("activate",&LsysOptions::activate,args("value"))

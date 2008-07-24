@@ -82,9 +82,9 @@ homomorphism:
 
 I(b,m,v,c) : 
 	if SHOW_COUNT:
-		produce #((c*0.01)**0.7);(color[m])F(LEN)@c[|f(LEN/3.)^(90)f(LEN)&(90);(4)@L(str(int(round(c))))] 
+		produce _((c*0.01)**0.7);(color[m])F(LEN)@c[|f(LEN/3.)^(90)f(LEN)&(90);(4)@L(str(int(round(c))))] 
 	elif SHOW_FLUX  :
-		produce #((c*0.01)**0.7);(color[m])F(LEN)@c[|f(LEN/3.)^(90)f(LEN)&(90);(4)@L(str(int(round(v))))]
+		produce _((c*0.01)**0.7);(color[m])F(LEN)@c[|f(LEN/3.)^(90)f(LEN)&(90);(4)@L(str(int(round(v))))]
 
 endlsystem
 

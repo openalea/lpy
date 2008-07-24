@@ -13,7 +13,7 @@ def Start():
     # random.seed(23)
 	pass
 
-Axiom: #(0.3)@GsG(1)A(1.0)
+Axiom: _(0.3)@GsG(1)A(1.0)
 
 derivation length: 400
 production:
@@ -43,7 +43,7 @@ k(s):
     else:
         produce k(s+stepleaf)
 
-m(120,s) --> *
+m(120,s) --> 
 m(t,s) --> m(t+1,s)
 
 homomorphism:

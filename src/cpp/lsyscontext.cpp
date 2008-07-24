@@ -237,6 +237,7 @@ void LsysContext::init_options()
 	LsysOption* option = options.add("Selection Required","Set whether selection check in GUI is required or not. Selection is then transform in X module in the Lstring.","Interaction");
 	option->addValue("Disabled",this,&LsysContext::setSelectionRequired,false,"Disable Selection Check.");
 	option->addValue("Enabled",this,&LsysContext::setSelectionRequired,true,"Enable Selection Check.");
+	option->setDefault(0);
 	/** module matching option */
 	option = options.add("Module matching","Specify the way module are match to rules pattern","Matching");
 	option->addValue("Simple",&ParamModule::setMatchingMethod,ParamModule::eSimple,"Simple module matching : Same name and same number of arguments . '*' module allowed.");
