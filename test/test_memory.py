@@ -1,4 +1,4 @@
-from openalea.pylsystems import *
+from openalea.lpy import *
 
 #def test_String( nb = 1, size = 100):
 #    """ Test creation of str """

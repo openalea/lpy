@@ -1,4 +1,4 @@
-from openalea.pylsystems import *
+from openalea.lpy import *
 
 def test_nproduce(verbose = False):
     """ Test use of nproduce """

@@ -1,4 +1,4 @@
-from openalea.pylsystems import *
+from openalea.lpy import *
 
 def test_backward():
     """ Computation of the fibonnacci series using fast transfer in backward direction """

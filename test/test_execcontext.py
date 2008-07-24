@@ -1,4 +1,4 @@
-from openalea.pylsystems import *
+from openalea.lpy import *
 from sys import getrefcount
 
 def test_context():

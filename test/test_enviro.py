@@ -1,5 +1,5 @@
 from openalea.plantgl.all import *
-from openalea.pylsystems import *
+from openalea.lpy import *
 
 def test_enviro():
     """ Test whether environment module ?P works """

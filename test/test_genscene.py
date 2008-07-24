@@ -1,4 +1,4 @@
-from openalea.pylsystems import *
+from openalea.lpy import *
 from openalea.plantgl.all import *
 
 def sc2dict(s):

@@ -1,4 +1,4 @@
-from openalea.pylsystems import *
+from openalea.lpy import *
 
 def test_lstring2py():
 	""" Test use of lstring2py """
