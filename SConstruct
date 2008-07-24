@@ -30,7 +30,7 @@ prefix= prj_env['build_prefix']
 BuildDir( prefix, '.' )
 
 prj_env.Prepend(LIBPATH='$build_libdir')
-prj_env.Append( CPPPATH = pj( '$build_includedir','pylsystems' ) )
+prj_env.Append( CPPPATH = pj( '$build_includedir','lpy' ) )
 
 # Build stage
 SConscript( pj(prefix,"src/cpp/SConscript"),
