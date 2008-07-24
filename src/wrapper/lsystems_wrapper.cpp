@@ -55,11 +55,7 @@ void cleanLsys()
 #endif
 }
 
-#ifdef PYLSYS_DEBUG
-BOOST_PYTHON_MODULE(_pylsystems_d)
-#else
-BOOST_PYTHON_MODULE(_pylsystems)
-#endif
+BOOST_PYTHON_MODULE(__lpy_kernel__)
 {
 	export_Options();
     export_Module();

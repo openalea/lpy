@@ -1,2 +1,2 @@
 from __version__ import *
-from _pylsystems import *
+from __lpy_kernel__ import *

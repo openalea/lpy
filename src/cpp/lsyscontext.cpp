@@ -112,7 +112,7 @@ void createDefaultContext()
 		DEFAULT_LSYSCONTEXT->copyObject("__builtins__",LsysContext::globalContext());
 		DEFAULT_LSYSCONTEXT->copyObject("__doc__",LsysContext::globalContext());
         // import pylsystems
-        DEFAULT_LSYSCONTEXT->execute("from openalea.pylsystems import *");
+        DEFAULT_LSYSCONTEXT->execute("from openalea.lpy import *");
     }
 }
 
