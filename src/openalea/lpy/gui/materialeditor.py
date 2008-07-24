@@ -1,6 +1,6 @@
 from openalea.plantgl.all import *
 try:
-    from openalea.pylsystems import *
+    from openalea.lpy import *
     InitialisationFunctionName = LsysContext.InitialisationFunctionName
 except:
     InitialisationFunctionName = '__initialiseContext__'

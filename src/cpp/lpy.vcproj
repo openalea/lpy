@@ -64,6 +64,7 @@
 				AdditionalLibraryDirectories="C:\Python25\libs;$(BOOSTDIR)\lib;&quot;..\..\..\PlantGL\lib&quot;;$(QTDIR)\lib"
 				IgnoreDefaultLibraryNames="boost_python-vc80-mt-gd-1_35.lib"
 				GenerateDebugInformation="true"
+				ImportLibrary="$(TargetDir)../lib/$(TargetName).lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -121,7 +122,7 @@
 				RuntimeLibrary="2"
 				WarningLevel="1"
 				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
+				DebugInformationFormat="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -140,6 +141,7 @@
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				ImportLibrary="$(TargetDir)/../lib/$(TargetName).lib"
 				TargetMachine="1"
 			/>
 			<Tool

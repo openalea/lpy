@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'lsysmainwindow.ui'
+# Form implementation generated from reading ui file 'lpymainwindow.ui'
 #
-# Created: Fri Jun 06 15:01:42 2008
+# Created: Thu Jul 24 15:28:15 2008
 #      by: PyQt4 UI code generator 4.4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -34,7 +34,7 @@ class Ui_MainWindow(object):
         self.tab.setObjectName("tab")
         self.vboxlayout = QtGui.QVBoxLayout(self.tab)
         self.vboxlayout.setObjectName("vboxlayout")
-        self.codeeditor = LsysCodeEditor(self.tab)
+        self.codeeditor = LpyCodeEditor(self.tab)
         self.codeeditor.setEnabled(True)
         font = QtGui.QFont()
         font.setFamily("Courier New")
@@ -575,5 +575,5 @@ class Ui_MainWindow(object):
         self.actionReplace.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+H", None, QtGui.QApplication.UnicodeUTF8))
         self.actionParseDebug.setText(QtGui.QApplication.translate("MainWindow", "Parse Debug", None, QtGui.QApplication.UnicodeUTF8))
 
-from lsyscodeeditor import LsysCodeEditor
+from lpycodeeditor import LpyCodeEditor
 from materialeditor import MaterialEditor

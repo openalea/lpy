@@ -90,7 +90,7 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
             index = text.indexOf(commentExp,index+length+2)
     
 
-class LsysCodeEditor(QTextEdit):
+class LpyCodeEditor(QTextEdit):
     def __init__(self,parent):
         QTextEdit.__init__(self,parent)
         self.editor = None

@@ -29,7 +29,7 @@ def EndEach():
     pass
 
 
-Axiom: [,(2)-(5)/(35)#(16),(4)F(I0*10)A(0)]        
+Axiom: [,(2)-(5)/(35)_(16),(4)F(I0*10)A(0)]        
 
 production:
 derivation length:TALL
@@ -66,6 +66,12 @@ G(s) : produce G(s*SRATE)
 ~l(s,t) : if t < T0 and s<600: produce ~l(s*LRATE,t+1)
 &(a) : if a<135: produce &(a+BANGI)
 -(a,t) : if a<90 and t<T0: produce -(a+BANGL,t+1)
-#(r) : if r<20 : produce #(r+0.5)
+_(r) : if r<20 : produce _(r+0.5)
 
 endlsystem
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	from openalea.plantgl.all import Material,Color3
+	context.options.setSelection("Selection Required",0)
+	context.options.setSelection("Module declaration",0)

@@ -1,5 +1,5 @@
 
-from openalea.pylsystems import Lsystem,AxialTree,generateScene
+from openalea.lpy import Lsystem,AxialTree,generateScene
 from openalea.plantgl.all import Viewer,PglTurtle
 import PyQt4.QtCore as qt
 
@@ -67,21 +67,20 @@ def Tree2Scene(axialtree, lsystem = None):
     if type(axialtree) != AxialTree:
         axialtree = AxialTree(axialtree)
     if lsystem:
-        lsystem.interpret(axialtree,lsystem.context().turtle)
-        return lsystem.context().turtle.getScene()
+        return lsystem.sceneInterpretation(axialtree)
     else:
         return (generateScene(axialtree),)
 
 
-WithLsysGui = True
+WithLpyGui = True
 try:
-    from openalea.pylsysgui.lsyswindow import LSysWindow
+    from openalea.lpy.gui.lpystudio import LPyWindow
     from openalea.visualea.node_widget import NodeWidget
 
-    class LSysWidget(NodeWidget, LSysWindow):
+    class LSysWidget(NodeWidget,  LPyWindow):
         def __init__(self, node, parent):
 
-            LSysWindow.__init__(self, parent)
+             LPyWindow.__init__(self, parent)
             NodeWidget.__init__(self, node)
             qt.QObject.connect(self.codeeditor,qt.SIGNAL('textChanged()'),self.updateNode)
         def notify(self, sender, event):
@@ -103,6 +102,6 @@ try:
 
 
 except:
-    print "Import PyLsysGui has failed"
-    WithLsysGui = False
+    print "Import lpy.gui has failed"
+    WithLpyGui = False
 

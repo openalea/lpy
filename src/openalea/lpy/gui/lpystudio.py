@@ -11,8 +11,9 @@ try:
 except:
 	shell = None
 from openalea.plantgl.all import *
-from openalea.pylsystems import *
-import openalea.pylsystems as pylsys
+
+from openalea.lpy import *
+#import openalea.lpy as lpy
 from code import InteractiveInterpreter as Interpreter
 
 # Restore default signal handler for CTRL+C
@@ -20,7 +21,7 @@ import signal; signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 # Generate GUI if necessary
 uidir    = os.path.dirname(__file__)
-uiprefix = os.path.join(uidir, 'lsysmainwindow')
+uiprefix = os.path.join(uidir, 'lpymainwindow')
 uifname  = uiprefix + '.ui'
 pyfname  = uiprefix + '.py'
 
@@ -31,7 +32,6 @@ if (os.path.exists(uifname) and
     fstream = file(pyfname,'w')
     uic.compileUi(uifname,fstream)
     fstream.close()
-    import lsysmainwindow as lsmw
 
 
 logofilename = os.path.join(uidir,'biglogo.png')
@@ -41,11 +41,11 @@ del uiprefix
 del uifname
 del pyfname
 
-import lsysmainwindow as lsmw
+import lpymainwindow as lsmw
 from computationtask import *
 
 aboutTxt = """<b>L-Py</b><br> A Python version of <b>Lindenmayer Systems</b>.<br>
-Version :"""+pylsys.LPY_VERSION_STR+"""<br>
+Version :"""+LPY_VERSION_STR+"""<br>
 Based on P. Prusinkiewicz et al. Lstudio/cpfg-lpfg specifications.<br>
 Implemented by F. Boudon for Virtual Plants.<br>See:http://www-sop.inria.fr/virtualplants/
 """
@@ -81,10 +81,10 @@ F(length,topradius) : The second argument of this turtle command has been added 
 ignore(str)   : symbol to ignore.
 consider(str) : symbol to consider.
 
-These functions are imported from openalea.pylsystems module. Other data structures and functionnalities are available in the module. You can check them with help(openalea.pylsystems).
+These functions are imported from openalea.lpy module. Other data structures and functionnalities are available in the module. You can check them with help(openalea.lpy).
 """
         
-class LSysWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
+class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
     def __init__(self, parent=None, withinterpreter = True):
         """
         @param parent : parent window
@@ -161,7 +161,7 @@ class LSysWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
             self.menuTools.addAction(action)
             self.interpreter.locals['tree'] = self.tree
             self.interpreter.runcode('from openalea.plantgl.all import *')
-            self.interpreter.runcode('from openalea.pylsystems import *')
+            self.interpreter.runcode('from openalea.lpy import *')
         else:
             self.interpreter = None
         settings = self.getSettings()
@@ -262,7 +262,7 @@ class LSysWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.printTitle()
     textfileedition = property(getFileTextEdition,setFileTextEdition)
     def printTitle(self):
-        t = 'PyLsystems - '
+        t = 'L-Py - '
         if self.textedition:
             t += '*'
         if self.fname is None:
@@ -340,7 +340,7 @@ class LSysWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
     def openfile(self,fname = None):
         if fname is None:
             self.fname = str(QFileDialog.getOpenFileName(self,"Open Py Lsystems file",self.fname if self.fname else '.',
-                                                      "PyLsystems Files (*.lpy);;All Files (*.*)"))
+                                                      "Py Lsystems Files (*.lpy);;All Files (*.*)"))
             self.appendInHistory(self.fname)
         else :
          if not os.path.exists(fname):
@@ -424,7 +424,7 @@ class LSysWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         else:
             return ''
     def saveas(self):
-        self.fname = str(QFileDialog.getSaveFileName(self,"Open Py Lsystems file",self.fname if self.fname else '.',"PyLsystems Files (*.lpy);;All Files (*.*)"))
+        self.fname = str(QFileDialog.getSaveFileName(self,"Open Py Lsystems file",self.fname if self.fname else '.',"Py Lsystems Files (*.lpy);;All Files (*.*)"))
         if self.fname:
             self.savefile()
     def run(self):
@@ -514,7 +514,7 @@ class LSysWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
             self.graberror()        
         self.releaseCR()
     def getSettings(self):
-        settings = QSettings(QSettings.IniFormat, QSettings.UserScope,'OpenAlea','PyLsystems')
+        settings = QSettings(QSettings.IniFormat, QSettings.UserScope,'OpenAlea','LPy')
         return settings
     def closeEvent(self,e):
         Viewer.stop()        
@@ -575,7 +575,7 @@ class LSysWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.history = []
         self.createRecentMenu()
     def about(self):
-        QMessageBox.about(self,"PyLsystems",aboutTxt)
+        QMessageBox.about(self,"LPy",aboutTxt)
     def aboutVPlants(self):
       try:
         if hasattr(self,'splash'):
@@ -631,12 +631,11 @@ def main():
         pix = QPixmap(logofilename)
         splash = QSplashScreen(pix)
         splash.show()
-        #splash.showMessage("PyLsystems",Qt.AlignBottom|Qt.AlignHCenter)
-        splash.showMessage("<b>L-Py - "+pylsys.LPY_VERSION_STR+"</b>",Qt.AlignBottom|Qt.AlignHCenter)        
+        splash.showMessage("<b>L-Py - "+LPY_VERSION_STR+"</b>",Qt.AlignBottom|Qt.AlignHCenter)        
         qapp.processEvents()
     except:
         splash = None
-    w = LSysWindow()
+    w = LPyWindow()
     w.show()
     if splash:
         splash.finish(w)

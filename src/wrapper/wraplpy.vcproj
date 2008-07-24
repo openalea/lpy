@@ -60,7 +60,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="boost_python-vc80-mt-1_35.lib pgltool-d.lib pglalgo-d.lib pglgui-d.lib"
-				OutputFile="../openalea/pylsystems_d/_pylsystems_d.pyd"
+				OutputFile="../openalea/lpy_d/__lpy_kernel__.pyd"
 				AdditionalLibraryDirectories="C:\Python25\libs;&quot;..\..\..\PlantGL\lib&quot;;$(BOOSTDIR)\lib"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
@@ -134,7 +134,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="boost_python-vc80-mt-1_35.lib pgltools.lib pglalgo.lib pglgui.lib"
-				OutputFile="../openalea/pylsystems/_pylsystems.pyd"
+				OutputFile="../openalea/lpy/__lpy_kernel__.pyd"
 				AdditionalLibraryDirectories="C:\Python25\libs;$(BOOSTDIR)\lib;&quot;..\..\..\PlantGL\lib&quot;"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"

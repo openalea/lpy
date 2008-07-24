@@ -54,7 +54,7 @@
        </attribute>
        <layout class="QVBoxLayout" >
         <item>
-         <widget class="LsysCodeEditor" name="codeeditor" >
+         <widget class="LpyCodeEditor" name="codeeditor" >
           <property name="enabled" >
            <bool>true</bool>
           </property>
@@ -1022,9 +1022,9 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>LsysCodeEditor</class>
+   <class>LpyCodeEditor</class>
    <extends>QTextEdit</extends>
-   <header>lsyscodeeditor.h</header>
+   <header>lpycodeeditor.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
