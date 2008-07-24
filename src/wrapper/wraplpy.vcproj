@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="pylsystems"
-	ProjectGUID="{CE919D8B-BBFC-4FA8-99E4-8324EE5FEE77}"
-	RootNamespace="pylsystems"
+	Name="wraplpy"
+	ProjectGUID="{432DE2EC-508C-4072-9400-1E16CBAB9C78}"
+	RootNamespace="wraplpy"
 	>
 	<Platforms>
 		<Platform
@@ -39,10 +39,10 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(BOOSTDIR);C:\Python25\include;&quot;..\..\..\PlantGL\src\cpp&quot;;$(QTDIR)\include"
-				PreprocessorDefinitions="PYLSYS_MAKEDLL"
-				MinimalRebuild="false"
-				BasicRuntimeChecks="0"
+				AdditionalIncludeDirectories="../cpp;$(BOOSTDIR);C:\Python25\include;&quot;..\..\..\PlantGL\src\cpp&quot;;;$(QTDIR)\include"
+				PreprocessorDefinitions="PYLSYS_DEBUG"
+				MinimalRebuild="true"
+				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				WarningLevel="1"
 				Detect64BitPortabilityProblems="true"
@@ -59,9 +59,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="boost_python-vc80-mt-1_35.lib pgltool-d.lib pglmath-d.lib pglsg-d.lib pglalgo-d.lib pglgui-d.lib"
-				OutputFile="../../bin/pylsystems-d.dll"
-				AdditionalLibraryDirectories="C:\Python25\libs;$(BOOSTDIR)\lib;&quot;..\..\..\PlantGL\lib&quot;;$(QTDIR)\lib"
+				AdditionalDependencies="boost_python-vc80-mt-1_35.lib pgltool-d.lib pglalgo-d.lib pglgui-d.lib"
+				OutputFile="../openalea/pylsystems_d/_pylsystems_d.pyd"
+				AdditionalLibraryDirectories="C:\Python25\libs;&quot;..\..\..\PlantGL\lib&quot;;$(BOOSTDIR)\lib"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
 				TargetMachine="1"
@@ -116,12 +116,11 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="$(BOOSTDIR);C:\Python25\include;&quot;..\..\..\PlantGL\src\cpp&quot;;$(QTDIR)\include"
-				PreprocessorDefinitions="PYLSYS_MAKEDLL"
+				AdditionalIncludeDirectories="../cpp;$(BOOSTDIR);C:\Python25\include;&quot;..\..\..\PlantGL\src\cpp&quot;;$(QTDIR)\include"
 				RuntimeLibrary="2"
-				WarningLevel="1"
+				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
+				DebugInformationFormat="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -134,9 +133,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="boost_python-vc80-mt-1_35.lib pgltools.lib pglmath.lib pglsg.lib pglalgo.lib pglgui.lib QtCore4.lib"
-				OutputFile="../../bin/pylsystems.dll"
-				AdditionalLibraryDirectories="C:\Python25\libs;$(BOOSTDIR)\lib;&quot;..\..\..\PlantGL\lib&quot;;$(QTDIR)\lib"
+				AdditionalDependencies="boost_python-vc80-mt-1_35.lib pgltools.lib pglalgo.lib pglgui.lib"
+				OutputFile="../openalea/pylsystems/_pylsystems.pyd"
+				AdditionalLibraryDirectories="C:\Python25\libs;$(BOOSTDIR)\lib;&quot;..\..\..\PlantGL\lib&quot;"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -177,115 +176,51 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\axialtree.cpp"
+				RelativePath=".\export_axialtree.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\axialtree.h"
+				RelativePath=".\export_lsyscontext.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\error.cpp"
+				RelativePath=".\export_lsysoptions.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\error.h"
+				RelativePath=".\export_lsysrule.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\lpy_parser.cpp"
+				RelativePath=".\export_lsystem.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\lpy_parser.h"
+				RelativePath=".\export_lsystem.h"
 				>
 			</File>
 			<File
-				RelativePath=".\lsyscontext.cpp"
+				RelativePath=".\export_mod.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\lsyscontext.h"
+				RelativePath=".\export_parser.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\lsysoptions.cpp"
+				RelativePath=".\export_plot.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\lsysoptions.h"
+				RelativePath=".\export_stringinterpreter.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\lsysrule.cpp"
+				RelativePath=".\export_stringmatching.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\lsysrule.h"
-				>
-			</File>
-			<File
-				RelativePath=".\lsystem.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\lsystem.h"
-				>
-			</File>
-			<File
-				RelativePath=".\mod.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\mod.h"
-				>
-			</File>
-			<File
-				RelativePath=".\moduleclass.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\moduleclass.h"
-				>
-			</File>
-			<File
-				RelativePath=".\plot.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\plot.h"
-				>
-			</File>
-			<File
-				RelativePath=".\predefinedmodules.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\pylsys_config.h"
-				>
-			</File>
-			<File
-				RelativePath=".\stringinterpreter.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\stringinterpreter.h"
-				>
-			</File>
-			<File
-				RelativePath=".\stringmatching.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\stringmatching.h"
-				>
-			</File>
-			<File
-				RelativePath=".\tracker.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\tracker.h"
+				RelativePath=".\lsystems_wrapper.cpp"
 				>
 			</File>
 		</Filter>
