@@ -35,62 +35,62 @@
 
 /* ----------------------------------------------------------------------- */
 
-/*! \def PYLSYS_NODLL
+/*! \def LPY_NODLL
     \brief Not creating dll
 
     Uncomment to use this functionnality
         Do nothing on other platform than windows
 */
-/*! \def PYLSYS_DLL
+/*! \def LPY_DLL
     \brief Using lib as a dll
 
     Uncomment to use this functionnality
         Do nothing on other platform than windows
 */
-/*! \def PYLSYS_MAKEDLL
+/*! \def LPY_MAKEDLL
     \brief Creating dll
 
     Uncomment to use this functionnality
         Do nothing on other platform than windows
 */
 #if defined(_WIN32)
-#if defined(PYLSYS_NODLL)
-#undef PYLSYS_MAKEDLL
-#undef PYLSYS_DLL
+#if defined(LPY_NODLL)
+#undef LPY_MAKEDLL
+#undef LPY_DLL
 #else
-#ifndef PYLSYS_DLL
-#define PYLSYS_DLL
+#ifndef LPY_DLL
+#define LPY_DLL
 #endif
 #endif
 
-#if defined(PYLSYS_MAKEDLL)
-#ifndef PYLSYS_DLL
-#define PYLSYS_DLL
+#if defined(LPY_MAKEDLL)
+#ifndef LPY_DLL
+#define LPY_DLL
 #endif
 #endif
 
-#ifdef PYLSYS_DLL
+#ifdef LPY_DLL
 
-#ifdef PYLSYS_MAKEDLL             /* create a Geom DLL library */
-#define PYLSYS_API  __declspec(dllexport)
-#undef PYLSYS_FWDEF
+#ifdef LPY_MAKEDLL             /* create a Geom DLL library */
+#define LPY_API  __declspec(dllexport)
+#undef LPY_FWDEF
 #else                                                   /* use a Geom DLL library */
-#define PYLSYS_API  __declspec(dllimport)
+#define LPY_API  __declspec(dllimport)
 #endif
 
-#define PYLSYS_TEMPLATE_API(T) template class PYLSYS_API T;
+#define LPY_TEMPLATE_API(T) template class LPY_API T;
 #endif
 
 #else // OS != _WIN32
 
-#undef PYLSYS_MAKEDLL             /* ignore these for other platforms */
-#undef PYLSYS_DLL
+#undef LPY_MAKEDLL             /* ignore these for other platforms */
+#undef LPY_DLL
 
 #endif
 
-#ifndef PYLSYS_API
-#define PYLSYS_API
-#define PYLSYS_TEMPLATE_API(T) 
+#ifndef LPY_API
+#define LPY_API
+#define LPY_TEMPLATE_API(T) 
 #endif
 
 
@@ -98,67 +98,67 @@
 
 #ifdef NO_NAMESPACE
 
-#ifdef PYLSYS_NAMESPACE
-#undef PYLSYS_NAMESPACE
+#ifdef LPY_NAMESPACE
+#undef LPY_NAMESPACE
 #endif
 
-#ifdef PYLSYS_NAMESPACE_NAME
-#undef PYLSYS_NAMESPACE_NAME
+#ifdef LPY_NAMESPACE_NAME
+#undef LPY_NAMESPACE_NAME
 #endif
 
 #else
 
 /// Macro that enable the tools namespace
-#define PYLSYS_NAMESPACE
+#define LPY_NAMESPACE
 
 #endif
 
-#ifdef PYLSYS_NAMESPACE
+#ifdef LPY_NAMESPACE
 
 
-#ifndef PYLSYS_NAMESPACE_NAME
+#ifndef LPY_NAMESPACE_NAME
 
 /// Macro that contains the tools namespace name
-#define PYLSYS_NAMESPACE_NAME PYLSYS
+#define LPY_NAMESPACE_NAME LPY
 #endif
 
 /// Macro for beginning the tools namespace.
-#define PYLSYS_BEGIN_NAMESPACE namespace PYLSYS_NAMESPACE_NAME {
+#define LPY_BEGIN_NAMESPACE namespace LPY_NAMESPACE_NAME {
 
 /// Macro for ending the tools namespace.
-#define PYLSYS_END_NAMESPACE };
+#define LPY_END_NAMESPACE };
 
 /// Macro for using the tools namespace.
-#define PYLSYS_USING_NAMESPACE using namespace PYLSYS_NAMESPACE_NAME;
+#define LPY_USING_NAMESPACE using namespace LPY_NAMESPACE_NAME;
 
 /// Macro for using an object of the tools namespace.
-#define PYLSYS_USING(obj) using PYLSYS_NAMESPACE_NAME::obj;
+#define LPY_USING(obj) using LPY_NAMESPACE_NAME::obj;
 
 /// Macro to use an object from the tools namespace.
-#define PYLSYS(obj) PYLSYS_NAMESPACE_NAME::obj
+#define LPY(obj) LPY_NAMESPACE_NAME::obj
 
 #else
 
 #ifdef _MSC_VER 
-#  pragma message "namespace PYLSYS not used"
+#  pragma message "namespace LPY not used"
 #else
-#  warning namespace PYLSYS not used
+#  warning namespace LPY not used
 #endif
 
 /// Macro for beginning the tools namespace.
-#define PYLSYS_BEGIN_NAMESPACE  
+#define LPY_BEGIN_NAMESPACE  
 
 /// Macro for ending the tools namespace.
-#define PYLSYS_END_NAMESPACE  
+#define LPY_END_NAMESPACE  
 
 /// Macro for using the tools namespace.
-#define PYLSYS_USING_NAMESPACE  
+#define LPY_USING_NAMESPACE  
 
 /// Macro for using an object of the tools namespace.
-#define PYLSYS_USING(obj)
+#define LPY_USING(obj)
 
 /// Macro to use an object from the tools namespace.
-#define PYLSYS(obj) obj
+#define LPY(obj) obj
 
 #endif
 

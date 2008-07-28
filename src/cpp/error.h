@@ -34,25 +34,25 @@
 #include "lpy_config.h"
 #include <string>
 
-PYLSYS_BEGIN_NAMESPACE
+LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
-PYLSYS_API void LsysError(const std::string& error);
+LPY_API void LsysError(const std::string& error);
 
-PYLSYS_API void LsysError(const std::string& error,const std::string& filename, int lineno);
+LPY_API void LsysError(const std::string& error,const std::string& filename, int lineno);
 
-PYLSYS_API void LsysSyntaxError(const std::string& error);
+LPY_API void LsysSyntaxError(const std::string& error);
 
-PYLSYS_API void LsysSyntaxError(const std::string& error,const std::string& filename, int lineno);
+LPY_API void LsysSyntaxError(const std::string& error,const std::string& filename, int lineno);
 
-PYLSYS_API void LsysWarning(const std::string& error);
+LPY_API void LsysWarning(const std::string& error);
 
-PYLSYS_API void LsysWarning(const std::string& error,const std::string& filename, int lineno);
+LPY_API void LsysWarning(const std::string& error,const std::string& filename, int lineno);
 
 /*---------------------------------------------------------------------------*/
 
-PYLSYS_END_NAMESPACE
+LPY_END_NAMESPACE
 
 #endif
 

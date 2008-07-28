@@ -37,57 +37,20 @@
 #include <string>
 #include <plantgl/algo/modelling/turtle.h>
 
-PYLSYS_BEGIN_NAMESPACE
+LPY_BEGIN_NAMESPACE
 
-class ParamModule;
 class AxialTree;
 
 /*---------------------------------------------------------------------------*/
 
-class PYLSYS_API StringInterpreter {
-public:
+std::string LPY_API helpTurtle(const std::string& command );
+std::string LPY_API helpTurtle() ;
 
-    StringInterpreter(PGL::Turtle* turtle);
-    ~StringInterpreter();
-
-	const PGL::Turtle& getTurtle() const;
-	PGL::Turtle& getTurtle();
-	void setTurtle(PGL::Turtle* turtle);
-    
-    std::string help(const std::string& command);
-    void printHelp(const std::string& command);
-
-	void interpret(ParamModule& mod);
-		
-    void interpret(AxialTree& tree);   
-    void interpret(AxialTree& tree, const StringMatching& matching);   
-
-protected:
-
-    void initCommand();
-
-    void addCommand(const std::string& command,
-					const std::string& comment);
-
-	PGL::Turtle * __turtle;
-  
-	std::vector<std::pair<std::string,std::string> > __comments;
-};
+void LPY_API interpret(AxialTree& tree, PGL::Turtle& turtle);
+void LPY_API interpret(AxialTree& tree, PGL::Turtle& turtle, const StringMatching& matching);
 
 /*---------------------------------------------------------------------------*/
 
-
-std::string PYLSYS_API helpTurtle(const std::string& command );
-std::string PYLSYS_API helpTurtle() ;
-
-void PYLSYS_API printHelpTurtle(const std::string& command );
-void PYLSYS_API printHelpTurtle() ;
-
-void PYLSYS_API interpret(AxialTree& tree);
-void PYLSYS_API interpret(AxialTree& tree, PGL::Turtle& turtle);
-
-/*---------------------------------------------------------------------------*/
-
-PYLSYS_END_NAMESPACE
+LPY_END_NAMESPACE
 
 #endif

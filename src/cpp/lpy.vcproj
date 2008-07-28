@@ -40,7 +40,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="$(BOOSTDIR);C:\Python25\include;&quot;..\..\..\PlantGL\src\cpp&quot;;$(QTDIR)\include"
-				PreprocessorDefinitions="PYLSYS_MAKEDLL"
+				PreprocessorDefinitions="LPY_MAKEDLL"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="3"
@@ -118,7 +118,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="$(BOOSTDIR);C:\Python25\include;&quot;..\..\..\PlantGL\src\cpp&quot;;$(QTDIR)\include"
-				PreprocessorDefinitions="PYLSYS_MAKEDLL"
+				PreprocessorDefinitions="LPY_MAKEDLL"
 				RuntimeLibrary="2"
 				WarningLevel="1"
 				Detect64BitPortabilityProblems="true"

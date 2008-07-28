@@ -38,7 +38,7 @@
 
 using namespace boost::python;
 
-PYLSYS_BEGIN_NAMESPACE
+LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
@@ -1011,4 +1011,4 @@ AxialTree::leftfind(const AxialTree& a,
 }
 
 
-PYLSYS_END_NAMESPACE
+LPY_END_NAMESPACE

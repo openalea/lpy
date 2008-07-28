@@ -34,7 +34,7 @@
 #include "tracker.h"
 #include <stack>
 using namespace boost::python;
-PYLSYS_USING_NAMESPACE
+LPY_USING_NAMESPACE
 
 
 /*---------------------------------------------------------------------------*/
@@ -327,11 +327,11 @@ LsysContext::isIgnored(const Module& module) const{
 }
 
 void 
-PYLSYS::consider(const std::string& modules)
+LPY::consider(const std::string& modules)
 { LsysContext::currentContext()->consider(modules); }
 
 void 
-PYLSYS::ignore(const std::string& modules)
+LPY::ignore(const std::string& modules)
 { LsysContext::currentContext()->ignore(modules); }
 
 std::string
@@ -366,7 +366,7 @@ LsysContext::declare(ModuleClassPtr module)
 	__modules.push_back(module);
 }
 
-void PYLSYS::declare(const std::string& modules)
+void LPY::declare(const std::string& modules)
 { LsysContext::currentContext()->declare(modules); }
 
 /*---------------------------------------------------------------------------*/
@@ -553,13 +553,13 @@ LsysContext::nproduce(const boost::python::list& prod)
     __nproduction += prod;
 }
 
-void PYLSYS::nproduce(const AxialTree& prod)
+void LPY::nproduce(const AxialTree& prod)
 { LsysContext::currentContext()->nproduce(prod); }
 
-void PYLSYS::nproduce(const boost::python::list& prod)
+void LPY::nproduce(const boost::python::list& prod)
 { LsysContext::currentContext()->nproduce(prod); }
 
-void PYLSYS::nproduce(const std::string& prod)
+void LPY::nproduce(const std::string& prod)
 { LsysContext::currentContext()->nproduce(AxialTree(prod)); }
 
 void 
@@ -570,10 +570,10 @@ LsysContext::reset_nproduction()
 
 /*---------------------------------------------------------------------------*/
 
-void PYLSYS::useGroup(size_t gid)
+void LPY::useGroup(size_t gid)
 { LsysContext::currentContext()->useGroup(gid); }
 
-size_t PYLSYS::getGroup()
+size_t LPY::getGroup()
 { return LsysContext::currentContext()->getGroup(); }
 
 /*---------------------------------------------------------------------------*/
@@ -591,7 +591,7 @@ void LsysContext::setIterationNb(size_t val)
     __iteration_nb = val; 
 }
 
-size_t PYLSYS::getIterationNb()
+size_t LPY::getIterationNb()
 { return LsysContext::currentContext()->getIterationNb(); }
 
 /*---------------------------------------------------------------------------*/
@@ -633,11 +633,11 @@ LsysContext::setSelectionRequired(bool enabled)
 }
 
 void 
-PYLSYS::setSelectionRequired(bool enabled)
+LPY::setSelectionRequired(bool enabled)
 { LsysContext::currentContext()->setSelectionRequired(enabled); }
 
 bool 
-PYLSYS::isSelectionRequired()
+LPY::isSelectionRequired()
 { return LsysContext::currentContext()->isSelectionRequired(); }
 
 /*---------------------------------------------------------------------------*/

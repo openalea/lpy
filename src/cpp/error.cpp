@@ -33,17 +33,17 @@
 #include <boost/python.hpp>
 #include <sstream>
 
-PYLSYS_BEGIN_NAMESPACE
+LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
-PYLSYS_API void LsysError(const std::string& error)
+LPY_API void LsysError(const std::string& error)
 {
     PyErr_SetString(PyExc_ValueError, error.c_str());
 	boost::python::throw_error_already_set();
 }
 
-PYLSYS_API void LsysError(const std::string& error,const std::string& filename, int lineno)
+LPY_API void LsysError(const std::string& error,const std::string& filename, int lineno)
 {
 	if (!filename.empty() || lineno >=0){
 		std::stringstream stream;
@@ -54,13 +54,13 @@ PYLSYS_API void LsysError(const std::string& error,const std::string& filename, 
 	else LsysError(error);
 }
 
-PYLSYS_API void LsysSyntaxError(const std::string& error)
+LPY_API void LsysSyntaxError(const std::string& error)
 {
     PyErr_SetString(PyExc_SyntaxError, error.c_str());
 	boost::python::throw_error_already_set();
 }
 
-PYLSYS_API void LsysSyntaxError(const std::string& error,const std::string& filename, int lineno)
+LPY_API void LsysSyntaxError(const std::string& error,const std::string& filename, int lineno)
 {
 	if (!filename.empty() || lineno >=0){
 		std::stringstream stream;	
@@ -71,17 +71,17 @@ PYLSYS_API void LsysSyntaxError(const std::string& error,const std::string& file
 	else LsysSyntaxError(error);
 }
 
-PYLSYS_API void LsysWarning(const std::string& error)
+LPY_API void LsysWarning(const std::string& error)
 {
     PyErr_WarnEx(PyExc_Warning,error.c_str(),1);
 }
 
-PYLSYS_API void LsysWarning(const std::string& error,const std::string& filename, int lineno)
+LPY_API void LsysWarning(const std::string& error,const std::string& filename, int lineno)
 {
     PyErr_WarnExplicit(PyExc_Warning,error.c_str(),filename.empty()?"<string>":filename.c_str(),lineno,NULL,NULL);
 }
 
 /*---------------------------------------------------------------------------*/
 
-PYLSYS_END_NAMESPACE
+LPY_END_NAMESPACE
 

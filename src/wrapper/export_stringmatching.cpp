@@ -31,7 +31,7 @@
 #include "stringmatching.h"
 #include <boost/python.hpp>
 using namespace boost::python;
-PYLSYS_USING_NAMESPACE
+LPY_USING_NAMESPACE
 
 
 object values(StringMatching::const_iterator& it){

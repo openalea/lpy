@@ -32,7 +32,7 @@
 #include "tracker.h"
 #include <iostream>
 
-PYLSYS_USING_NAMESPACE
+LPY_USING_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 

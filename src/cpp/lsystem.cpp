@@ -38,7 +38,7 @@
 using namespace boost::python;
 TOOLS_USING_NAMESPACE
 PGL_USING_NAMESPACE
-PYLSYS_USING_NAMESPACE
+LPY_USING_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
@@ -675,7 +675,7 @@ Lsystem::__stepWithMatching(AxialTree& workingstring,
   ContextMaintainer c(&__context);
   if( workingstring.empty()) return workingstring;
   AxialTree targetstring;
-  if ( query )PYLSYS::interpret(workingstring);
+  if ( query )LPY::interpret(workingstring,__context.turtle);
   AxialTree::const_iterator _it = workingstring.begin();
   AxialTree::const_iterator _it3 = _it;
   AxialTree::const_iterator _endit = workingstring.end();
@@ -952,14 +952,14 @@ Lsystem::__interpret(AxialTree& wstring, PGL::Turtle& t){
       __recursiveInterpretation(wstring,homomorphism,t,__homomorphism_max_depth);
     }
     else {
-		PYLSYS::interpret(wstring,t);
+		LPY::interpret(wstring,t);
     }
 }
 
 void 
 Lsystem::__plot( AxialTree& workstring ){
     __interpret(workstring,__context.turtle);
-    PYLSYS::plot(__context.turtle.getScene());
+    LPY::plot(__context.turtle.getScene());
 }
 
 #include <plantgl/tool/sequencer.h>

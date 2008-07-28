@@ -34,11 +34,11 @@
 #include <vector>
 #include "error.h"
 
-PYLSYS_BEGIN_NAMESPACE
+LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
-class PYLSYS_API StringMatching {
+class LPY_API StringMatching {
 public:
     enum eIdPolicy {
         eIncreasing,
@@ -46,7 +46,7 @@ public:
     };
 
 protected:
-    struct PYLSYS_API StringMark {
+    struct LPY_API StringMark {
         StringMark(size_t o = 0,size_t t = 0,eIdPolicy i = eIncreasing):original(o),target(t),idpolicy(i) {}
         size_t original;
         size_t target;
@@ -57,7 +57,7 @@ protected:
     StringMarkList __matching;
 
 public:
-    struct PYLSYS_API const_iterator {
+    struct LPY_API const_iterator {
         friend class StringMatching;
     protected:
         StringMarkList::const_iterator __iter;
@@ -99,7 +99,7 @@ public:
 
 /*---------------------------------------------------------------------------*/
 
-PYLSYS_END_NAMESPACE
+LPY_END_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 

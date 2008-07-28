@@ -32,7 +32,7 @@
 #include <boost/python/make_constructor.hpp>
 
 using namespace boost::python;
-PYLSYS_USING_NAMESPACE
+LPY_USING_NAMESPACE
 PGL_USING_NAMESPACE
 
 PglTurtle * lsc_turtle(LsysContext * l){

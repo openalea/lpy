@@ -40,16 +40,17 @@
 
 /*---------------------------------------------------------------------------*/
 
-PYLSYS_BEGIN_NAMESPACE
+LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
 class ParamModule;
 class ModuleClass;
 typedef RCPtr<ModuleClass> ModuleClassPtr;
+typedef std::vector<ModuleClassPtr> ModuleClassVector;
 
 
-class PYLSYS_API ModuleClass : public TOOLS(RefCountObject) {
+class LPY_API ModuleClass : public TOOLS(RefCountObject) {
 public:
 
 	ModuleClass(const std::string& name);
@@ -61,9 +62,15 @@ public:
 	inline void desactivate() { active = false; }
 	inline bool isActive() const { return active; }
 	virtual void interpret(ParamModule& m, PGL::Turtle& t) ;
+	virtual std::string getDocumentation() const { return ""; }
+	virtual bool isPredefined() const { return false; }
 
 	std::string name;
 	std::vector<std::string> aliases;
+
+	static ModuleClassVector& getPredefinedClasses();
+	static void clearPredefinedClasses();
+	static void createPredefinedClasses();
 
 	static ModuleClassPtr None;
 	static ModuleClassPtr LeftBracket;
@@ -110,17 +117,26 @@ public:
 	static ModuleClassPtr Surface;
 	static ModuleClassPtr CpfgSurface;
 	static ModuleClassPtr PglShape;
-	static void clearPredefinedModules();
 
+protected:
+	static ModuleClassVector * PredefinedClasses;
 private:
 	size_t id;
 	bool active;
 	static size_t MAXID;
 };
 
+class LPY_API PredefinedModuleClass : public ModuleClass {
+public:
+	PredefinedModuleClass(const std::string& name, const std::string& documentation);
+	PredefinedModuleClass(const std::string& name, const std::string& alias, const std::string& documentation);
+	~PredefinedModuleClass();
+	bool isPredefined() const { return true; }
+	std::string documentation;
+	std::string getDocumentation() const { return documentation; }
+};
 
-
-class PYLSYS_API ModuleClassTable {
+class LPY_API ModuleClassTable {
 public:
 	friend class ModuleClass;
 
@@ -135,6 +151,7 @@ public:
 	ModuleClassPtr alias(const std::string& aliasname, const std::string& name);
 	ModuleClassPtr getClass(const std::string&) ;
 	ModuleClassPtr getClass(size_t id) const ;
+	ModuleClassPtr findClass(const std::string&) const ;
 
 	bool remove(const std::string& name);
 	bool remove(const ModuleClass * moduleclass);
@@ -159,7 +176,7 @@ protected:
 	size_t maxnamelength;
 
 	void clear();
-	void registerCpfgPredefinedModule();
+	void registerPredefinedModule();
 
 private:
 	friend class ModuleClassTableGarbageCollector; 
@@ -170,7 +187,7 @@ private:
 };
 
 
-PYLSYS_END_NAMESPACE
+LPY_END_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 #endif

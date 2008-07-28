@@ -36,12 +36,14 @@
 #include <algorithm>
 #include <iostream>
 
-PYLSYS_BEGIN_NAMESPACE
+LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
 ModuleClassTable& ModuleClassTable::get() { 
-	if (!ModuleClassTable::__INSTANCE)ModuleClassTable::__INSTANCE = new ModuleClassTable();
+	if (!ModuleClassTable::__INSTANCE){
+		ModuleClassTable::__INSTANCE = new ModuleClassTable();
+	}
 	return *__INSTANCE; 
 }
 
@@ -64,7 +66,7 @@ ModuleClassTableGarbageCollector ModuleClassTableGarbageCollector::__INSTANCE;
 
 void ModuleClassTable::clearModuleClasses()
 {
-	ModuleClass::clearPredefinedModules();
+	ModuleClass::clearPredefinedClasses();
 
 	if (ModuleClassTable::__INSTANCE) {
 			delete ModuleClassTable::__INSTANCE; 
@@ -108,12 +110,11 @@ ModuleClassTable::ModuleClassTable():
 mandatory_declaration(false), maxnamelength(0)
 {
 	IncTracker(ModuleClassTable)
-	reset();
+	registerPredefinedModule();
 }
 
 ModuleClassTable::~ModuleClassTable()
 {
-	// std::cerr << "Deleting module class table." << std::endl;
 	clear();
 	ModuleClassTable::__INSTANCE = NULL;
 	DecTracker(ModuleClassTable)
@@ -129,60 +130,17 @@ void
 ModuleClassTable::reset()
 {
 	clear();
-	registerCpfgPredefinedModule();
+	registerPredefinedModule();
 }
 
 /*---------------------------------------------------------------------------*/
 
 void 
-ModuleClassTable::registerCpfgPredefinedModule()
+ModuleClassTable::registerPredefinedModule()
 {
-	declare(ModuleClass::None);
-	declare(ModuleClass::LeftBracket);
-	declare(ModuleClass::RightBracket);
-	declare(ModuleClass::ExactRightBracket);
-	declare(ModuleClass::Cut);
-	declare(ModuleClass::Star);
-	declare(ModuleClass::QueryPosition);
-	declare(ModuleClass::QueryHeading);
-	declare(ModuleClass::QueryUp);
-	declare(ModuleClass::QueryLeft);
-	declare(ModuleClass::QueryRigth);	
-	declare(ModuleClass::F);
-	declare(ModuleClass::f);	
-	declare(ModuleClass::G);
-	declare(ModuleClass::g);
-	declare(ModuleClass::X);
-	declare(ModuleClass::StartGC);
-	declare(ModuleClass::EndGC);
-	declare(ModuleClass::StartPolygon);
-	declare(ModuleClass::EndPolygon);
-	declare(ModuleClass::SetPosition);
-	declare(ModuleClass::SetHeading);
-	declare(ModuleClass::Left);
-	declare(ModuleClass::Right);
-	declare(ModuleClass::Up);
-	declare(ModuleClass::Down);
-	declare(ModuleClass::RollL);
-	declare(ModuleClass::RollR);
-	declare(ModuleClass::TurnAround);
-	declare(ModuleClass::RollToVert);
-	declare(ModuleClass::Sphere);
-	declare(ModuleClass::Circle);
-	declare(ModuleClass::Label);
-	declare(ModuleClass::IncWidth);
-	declare(ModuleClass::DecWidth);
-	declare(ModuleClass::SetWidth);
-	declare(ModuleClass::IncColor);
-	declare(ModuleClass::DecColor);
-	declare(ModuleClass::SetColor);
-	declare(ModuleClass::DivScale);
-	declare(ModuleClass::MultScale);
-	declare(ModuleClass::SetScale);
-	declare(ModuleClass::Surface);
-	declare(ModuleClass::CpfgSurface);
-	declare(ModuleClass::PglShape);
-
+	for(ModuleClassVector::const_iterator it = ModuleClass::getPredefinedClasses().begin();
+		it != ModuleClass::getPredefinedClasses().end(); ++it) 
+		declare(*it);
 }
 
 
@@ -266,6 +224,15 @@ ModuleClassTable::getClass(const std::string& name)
 		if (mandatory_declaration) LsysError("Undefined module '"+name+"'.");
 		else { itname->second->activate(); return itname->second; }
 	}
+	return itname->second;
+}
+
+ModuleClassPtr
+ModuleClassTable::findClass(const std::string& name) const
+{
+	ModuleClassMap::const_iterator itname;
+	if((itname = modulenamemap.find(name)) == modulenamemap.end() || (!itname->second->isActive()))
+		return ModuleClassPtr(0);
 	return itname->second;
 }
 
@@ -368,4 +335,4 @@ ModuleClassTable::find(std::string::const_iterator beg,
 
 /*---------------------------------------------------------------------------*/
 
-PYLSYS_END_NAMESPACE
+LPY_END_NAMESPACE

@@ -32,46 +32,16 @@
 #include "axialtree.h"
 
 #include <boost/python.hpp>
+#include <plantgl/python/extract_list.h>
+
 using namespace boost::python;
-PYLSYS_USING_NAMESPACE
+LPY_USING_NAMESPACE
 PGL_USING_NAMESPACE
 
 /* ----------------------------------------------------------------------- */
 
-template<class T, 
-	 template < typename > class extractor_t = boost::python::extract, 
-	 class result_type = std::vector<T> >
-struct extract_vec {
-
-	typedef T element_type;
-	typedef extractor_t<T> extractor_type;
-
-	extract_vec(boost::python::object _pylist):pylist(_pylist) {}
-	boost::python::object pylist;
-
-	result_type extract() const {
-		result_type result;
-        if (pylist.ptr() == Py_None) return result;
-		boost::python::object iter_obj = boost::python::object( boost::python::handle<>( PyObject_GetIter( pylist.ptr() ) ) );
-		while( true )
-		{
-			boost::python::object obj; 
-			try {  obj = iter_obj.attr( "next" )(); }
-			catch( boost::python::error_already_set ){ PyErr_Clear(); break; }
-			element_type val = extractor_type( obj )();
-			result.push_back( val );
-		}
-		return result;
-	}
-
-	inline result_type operator()() const { return extract(); }
-	inline operator result_type () const { return extract(); }
-};
-/* ----------------------------------------------------------------------- */
-
-
 object generateScene(AxialTree& a,PglTurtle& t){
-    ScenePtr sc = PYLSYS::scene(a,t);
+    ScenePtr sc = LPY::scene(a,t);
     return object(sc);
 }
 
@@ -130,8 +100,8 @@ void pyCleanGetSelectionFunction(){
 
 void export_plot()
 {
-  def("plot",(void(*)(AxialTree&,PglTurtle&))&PYLSYS::plot);
-  def("plot",(void(*)(AxialTree&))&PYLSYS::plot);
+  def("plot",(void(*)(AxialTree&,PglTurtle&))&LPY::plot);
+  def("plot",(void(*)(AxialTree&))&LPY::plot);
   def("generateScene",&generateScene);
   def("generateScene",&generateScene1);
   def("registerPglPlotFunction",&pyRegisterPglPlotFunction);

@@ -30,9 +30,10 @@
 
 #include "axialtree.h"
 #include <plantgl/tool/util_string.h>
+#include <plantgl/python/export_list.h>
 
 using namespace boost::python;
-PYLSYS_USING_NAMESPACE
+LPY_USING_NAMESPACE
 
 std::string getname(Module * m){
   return m->name();
@@ -113,38 +114,6 @@ std::string mc_repr(ModuleClassPtr mc){
 	return res;
 }
 
-template <class T>
-struct make_object {
-	typedef T obj_type;
-
-    const obj_type& __c_obj;
-
-    make_object(const T& c_obj) : __c_obj(c_obj) {}
-    boost::python::object operator()() const { return boost::python::object(__c_obj); }
-};
-
-template <class T, class Translator = make_object<typename T::value_type> >
-struct make_list {
-	typedef T list_type;
-    typedef typename T::const_iterator list_const_iterator;
-    typedef typename T::value_type list_element_type;
-
-    list_const_iterator __c_list_begin;
-    list_const_iterator __c_list_end;
-
-    make_list(const T& c_list): __c_list_begin(c_list.begin()),__c_list_end(c_list.end()){}
-    make_list(const list_const_iterator& c_list_begin,
-              const list_const_iterator& c_list_end): 
-            __c_list_begin(c_list_begin),__c_list_end(c_list_end){}
-
-    boost::python::object operator()() const {
-        boost::python::list l;
-        for (list_const_iterator it = __c_list_begin; it != __c_list_end; ++it)
-            l.append(Translator(*it)());
-        return l;
-    }
-};
-
 boost::python::object py_modaliases(ModuleClass * m) {
 	return make_list<std::vector<std::string> >(m->aliases)();
 }
@@ -157,6 +126,10 @@ boost::python::object py_modnames(ModuleClassTable * m) {
 	return make_list<std::vector<std::string> >(m->getNames())();
 }
 
+boost::python::object py_predefinedclasses() {
+	return make_list<ModuleClassVector>(ModuleClass::getPredefinedClasses())();
+}
+
 void export_Module(){
 
 	class_<ModuleClass,ModuleClassPtr,boost::noncopyable>
@@ -164,8 +137,11 @@ void export_Module(){
 	.add_property("name",make_getter(&ModuleClass::name))
 	.add_property("id",&ModuleClass::getId)	
 	.add_property("aliases",&py_modaliases)
+	.add_property("documentation",&ModuleClass::getDocumentation)
 	.def("__repr__",&mc_repr)
 	.def("getReferenceCount",&ModuleClass::getReferenceCount)
+	.def("isPredefined",&ModuleClass::isPredefined)
+	.add_static_property("predefinedClasses",py_predefinedclasses)
 	;
 
 	class_<ModuleClassTable,boost::noncopyable>
@@ -214,7 +190,7 @@ void export_Module(){
 	.def("isQuery", &Module::isQuery)
 	.def("isNull", &Module::isNull)
 	.def("isCut", &Module::isCut)
-	.def("getClass", &Module::getClass)
+	.add_property("mclass", &Module::getClass)
 	;
 
   {

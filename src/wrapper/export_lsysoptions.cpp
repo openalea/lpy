@@ -31,7 +31,7 @@
 #include "lsysoptions.h"
 #include <boost/python.hpp>
 using namespace boost::python;
-PYLSYS_USING_NAMESPACE
+LPY_USING_NAMESPACE
 
 template <class T>
 const typename T::element_type * get_item(T * obj, int index) 

@@ -35,17 +35,17 @@
 #include <string>
 #include <vector>
 
-PYLSYS_BEGIN_NAMESPACE
+LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
 
-std::string PYLSYS_API lstring2py(const std::string& lcode);
+std::string LPY_API lstring2py(const std::string& lcode);
 
-std::string PYLSYS_API lstring2py(const std::string& lcode,
+std::string LPY_API lstring2py(const std::string& lcode,
 				 std::string::const_iterator& beg);
 
-std::string PYLSYS_API lstring2py(std::string::const_iterator& beg,
+std::string LPY_API lstring2py(std::string::const_iterator& beg,
 				 std::string::const_iterator endpos,
 				 char delim = '\n',
 				 int lineno = -1);
@@ -79,6 +79,6 @@ bool isValidVariableName(const std::string& args);
 
 /*---------------------------------------------------------------------------*/
 
-PYLSYS_END_NAMESPACE
+LPY_END_NAMESPACE
 
 #endif

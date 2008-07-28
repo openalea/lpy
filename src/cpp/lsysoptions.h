@@ -36,11 +36,11 @@
 #include <memory>
 #include <vector>
 
-PYLSYS_BEGIN_NAMESPACE
+LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
-class PYLSYS_API LsysOptionValue {
+class LPY_API LsysOptionValue {
 public:
 	LsysOptionValue(const std::string& name, 
 					const std::string& comment = "");
@@ -114,7 +114,7 @@ public:
 
 /*---------------------------------------------------------------------------*/
 
-class PYLSYS_API LsysOption {
+class LPY_API LsysOption {
 public:
 	typedef LsysOptionValue element_type;
 	typedef std::vector<LsysOption::element_type *> OptionValueList;
@@ -190,7 +190,7 @@ protected:
 
 /*---------------------------------------------------------------------------*/
 
-class PYLSYS_API LsysOptions {
+class LPY_API LsysOptions {
 public:
 	typedef LsysOption element_type;
 	typedef std::vector<LsysOptions::element_type *>  OptionList;
@@ -218,7 +218,7 @@ protected:
 	OptionList __options;
 };
 
-PYLSYS_END_NAMESPACE
+LPY_END_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 

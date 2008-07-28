@@ -36,7 +36,7 @@
 using namespace boost::python;
 TOOLS_USING_NAMESPACE
 PGL_USING_NAMESPACE
-PYLSYS_USING_NAMESPACE
+LPY_USING_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
@@ -776,15 +776,15 @@ LsysRule::parseDefinition(const std::string& definition){
 
 /*---------------------------------------------------------------------------*/
 
-std::string PYLSYS::lstring2py(const std::string& lcode,
+std::string LPY::lstring2py(const std::string& lcode,
 				 std::string::const_iterator& beg)
 { return lstring2py(beg,lcode.end()); }
 
-std::string PYLSYS::lstring2py(const std::string& lcode)
+std::string LPY::lstring2py(const std::string& lcode)
 { std::string::const_iterator beg = lcode.begin();
   return lstring2py(beg,lcode.end()); }
 
-std::string PYLSYS::lstring2py( std::string::const_iterator& beg,
+std::string LPY::lstring2py( std::string::const_iterator& beg,
 								std::string::const_iterator endpos,
 								char delim,
 								int lineno){
@@ -808,7 +808,7 @@ std::string PYLSYS::lstring2py( std::string::const_iterator& beg,
 /*---------------------------------------------------------------------------*/
 
 std::vector<std::pair<size_t,std::string> > 
-PYLSYS::parselstring( std::string::const_iterator& beg,
+LPY::parselstring( std::string::const_iterator& beg,
 					  std::string::const_iterator endpos,
 					  char delim,
 					  int lineno)
@@ -884,7 +884,7 @@ PYLSYS::parselstring( std::string::const_iterator& beg,
 
 /*---------------------------------------------------------------------------*/
 
-std::vector<std::string> PYLSYS::parse_moddeclaration(std::string::const_iterator& beg,
+std::vector<std::string> LPY::parse_moddeclaration(std::string::const_iterator& beg,
 													  std::string::const_iterator endpos,
 													  char delim)
 {
@@ -933,7 +933,7 @@ std::vector<std::string> PYLSYS::parse_moddeclaration(std::string::const_iterato
 
 /*---------------------------------------------------------------------------*/
 
-std::string PYLSYS::trim(const std::string& str)
+std::string LPY::trim(const std::string& str)
 {
 	/// triming name
 	std::string::const_iterator _itb = str.begin();
@@ -945,7 +945,7 @@ std::string PYLSYS::trim(const std::string& str)
 	return std::string(_itb,_ite);
 }
 
-std::vector<std::string> PYLSYS::parse_arguments(std::string::const_iterator beg,
+std::vector<std::string> LPY::parse_arguments(std::string::const_iterator beg,
 										 std::string::const_iterator end)
 {
 	std::vector<std::string> result;
@@ -1003,7 +1003,7 @@ std::vector<std::string> PYLSYS::parse_arguments(std::string::const_iterator beg
 	return result;
 }
 
-bool PYLSYS::isValidVariableName(const std::string& arg)
+bool LPY::isValidVariableName(const std::string& arg)
 {
 	if (arg.empty())return false;
 	std::string::const_iterator _si = arg.begin();

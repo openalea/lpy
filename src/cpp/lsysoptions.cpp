@@ -32,7 +32,7 @@
 #include "error.h"
 #include "tracker.h"
 
-PYLSYS_USING_NAMESPACE
+LPY_USING_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 

@@ -33,29 +33,13 @@
 
 #include <boost/python.hpp>
 using namespace boost::python;
-PYLSYS_USING_NAMESPACE
+LPY_USING_NAMESPACE
 PGL_USING_NAMESPACE
 
 void export_StringInterpreter()
 {
-  class_< StringInterpreter,boost::noncopyable >("StringInterpreter", init< Turtle* >("StringInterpreter(Turtle)"))
-    .def("interpret", (void (StringInterpreter::*)(AxialTree&))&StringInterpreter::interpret )
-    .def("interpret", (void (StringInterpreter::*)(ParamModule&))&StringInterpreter::interpret )
-    .def("help", &StringInterpreter::help )
-    .def("printHelp", &StringInterpreter::printHelp )
-    .def("getTurtle", (const PGL::Turtle& (StringInterpreter::*)() const)&StringInterpreter::getTurtle, return_internal_reference<>())
-    .def("helpTurtle",(std::string(*)())&PYLSYS::helpTurtle)
-    .def("helpTurtle",(std::string(*)(const std::string&))&PYLSYS::helpTurtle)
-    .staticmethod("helpTurtle")
-    .def("printHelpTurtle",(void(*)())&PYLSYS::printHelpTurtle)
-    .def("printHelpTurtle",(void(*)(const std::string&))&PYLSYS::printHelpTurtle)
-    .staticmethod("printHelpTurtle")
-    ;
-
-  def("helpTurtle",(std::string(*)())&PYLSYS::helpTurtle);
-  def("helpTurtle",(std::string(*)(const std::string&))&PYLSYS::helpTurtle);
-  def("printHelpTurtle",(void(*)())&PYLSYS::printHelpTurtle);
-  def("printHelpTurtle",(void(*)(const std::string&))&PYLSYS::printHelpTurtle);
-  def("interpret",(void(*)(AxialTree&,Turtle&))&PYLSYS::interpret);
-  def("interpret",(void(*)(AxialTree&))&PYLSYS::interpret);
+  def("helpTurtle",(std::string(*)())&LPY::helpTurtle);
+  def("helpTurtle",(std::string(*)(const std::string&))&LPY::helpTurtle);
+  def("interpret",(void(*)(AxialTree&,Turtle&))&LPY::interpret);
+  def("interpret",(void(*)(AxialTree&,Turtle&,const StringMatching&))&LPY::interpret);
 }

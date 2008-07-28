@@ -36,7 +36,7 @@
 #include <plantgl/scenegraph/scene/scene.h>
 #include <plantgl/algo/modelling/pglturtle.h>
 
-PYLSYS_BEGIN_NAMESPACE
+LPY_BEGIN_NAMESPACE
 
 class AxialTree;
 
@@ -45,29 +45,29 @@ class AxialTree;
 typedef void (*PlotFunction)(const PGL(ScenePtr)&);
 typedef std::vector<uint_t> (*GetSelectFunction)();
 
-void PYLSYS_API registerPglPlotFunction(PlotFunction func);
-void PYLSYS_API cleanPglPlotFunction();
-void PYLSYS_API registerGetSelectionFunction(GetSelectFunction func);
-void PYLSYS_API cleanGetSelectionFunction();
+void LPY_API registerPglPlotFunction(PlotFunction func);
+void LPY_API cleanPglPlotFunction();
+void LPY_API registerGetSelectionFunction(GetSelectFunction func);
+void LPY_API cleanGetSelectionFunction();
 
-void PYLSYS_API plot(const PGL(ScenePtr)&);
-std::vector<uint_t> PYLSYS_API getSelection();
+void LPY_API plot(const PGL(ScenePtr)&);
+std::vector<uint_t> LPY_API getSelection();
 
-void PYLSYS_API plot(AxialTree& tree);
-void PYLSYS_API plot(AxialTree& tree, PGL::PglTurtle& turtle);
+void LPY_API plot(AxialTree& tree);
+void LPY_API plot(AxialTree& tree, PGL::PglTurtle& turtle);
 
-void PYLSYS_API plot(AxialTree& tree, StringMatching& matching);
-void PYLSYS_API plot(AxialTree& tree, StringMatching& matching, PGL::PglTurtle& turtle);
+void LPY_API plot(AxialTree& tree, StringMatching& matching);
+void LPY_API plot(AxialTree& tree, StringMatching& matching, PGL::PglTurtle& turtle);
 
-PGL(ScenePtr) PYLSYS_API scene(AxialTree& tree);
-PGL(ScenePtr) PYLSYS_API scene(AxialTree& tree, PGL::PglTurtle& turtle);
+PGL(ScenePtr) LPY_API scene(AxialTree& tree);
+PGL(ScenePtr) LPY_API scene(AxialTree& tree, PGL::PglTurtle& turtle);
 
-PGL(ScenePtr) PYLSYS_API scene(AxialTree& tree, StringMatching& matching);
-PGL(ScenePtr) PYLSYS_API scene(AxialTree& tree, StringMatching& matching, PGL::PglTurtle& turtle);
+PGL(ScenePtr) LPY_API scene(AxialTree& tree, StringMatching& matching);
+PGL(ScenePtr) LPY_API scene(AxialTree& tree, StringMatching& matching, PGL::PglTurtle& turtle);
 
 /*---------------------------------------------------------------------------*/
 
-PYLSYS_END_NAMESPACE
+LPY_END_NAMESPACE
 
 #endif
 

@@ -37,11 +37,11 @@
 
 #include "moduleclass.h"
 
-PYLSYS_BEGIN_NAMESPACE
+LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
-class PYLSYS_API Module {
+class LPY_API Module {
 public:
   Module();
   Module(const std::string& c);
@@ -83,7 +83,7 @@ private:
 
 /*---------------------------------------------------------------------------*/
 
-class PYLSYS_API LsysVar {
+class LPY_API LsysVar {
   public:
 	LsysVar(const std::string&);
 	std::string str() const;
@@ -98,7 +98,7 @@ class PYLSYS_API LsysVar {
 /*---------------------------------------------------------------------------*/
 #define VECTORMODULE
 
-class PYLSYS_API ParamModule : public Module {
+class LPY_API ParamModule : public Module {
 public:
 #ifdef VECTORMODULE
     typedef std::vector<boost::python::object> ParameterList;
@@ -214,7 +214,7 @@ private:
   static eMatchingMethod MATCHINGMETHOD;
 };
 
-PYLSYS_END_NAMESPACE
+LPY_END_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 #endif

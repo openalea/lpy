@@ -37,7 +37,7 @@
 #include <plantgl/math/util_vector.h>
 
 using namespace boost::python;
-PYLSYS_USING_NAMESPACE
+LPY_USING_NAMESPACE
 
 Module::Module() : 
 	__mclass(ModuleClass::None)

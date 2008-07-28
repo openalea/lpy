@@ -35,9 +35,9 @@
 
 /*---------------------------------------------------------------------------*/
 
-PYLSYS_BEGIN_NAMESPACE
+LPY_BEGIN_NAMESPACE
 
-class PYLSYS_API LsysRule {
+class LPY_API LsysRule {
 
 public:
 	// LsysRule();
@@ -175,6 +175,6 @@ private:
 
 /*---------------------------------------------------------------------------*/
 
-PYLSYS_END_NAMESPACE
+LPY_END_NAMESPACE
 
 #endif

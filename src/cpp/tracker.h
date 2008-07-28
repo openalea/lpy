@@ -34,7 +34,7 @@
 #include "lpy_config.h"
 #include <stddef.h>
 
-PYLSYS_BEGIN_NAMESPACE
+LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
@@ -42,7 +42,7 @@ PYLSYS_BEGIN_NAMESPACE
 
 #ifdef TRACKER_ENABLED
 
-class PYLSYS_API Tracker {
+class LPY_API Tracker {
 public:
 
 	static size_t Module;
@@ -71,7 +71,7 @@ public:
 #endif
 
 
-PYLSYS_END_NAMESPACE
+LPY_END_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 

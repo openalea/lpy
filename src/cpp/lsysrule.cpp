@@ -35,7 +35,7 @@
 #include <boost/version.hpp>
 #include <sstream>
 using namespace boost::python;
-PYLSYS_USING_NAMESPACE
+LPY_USING_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 

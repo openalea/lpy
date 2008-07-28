@@ -38,11 +38,11 @@
 #include <plantgl/tool/util_hashset.h>
 #include <QtCore/QReadWriteLock>
 
-PYLSYS_BEGIN_NAMESPACE
+LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
-class PYLSYS_API LsysContext {
+class LPY_API LsysContext {
 public:
   friend class Lsystem;
 
@@ -222,7 +222,7 @@ protected:
 
 /*---------------------------------------------------------------------------*/
 
-class PYLSYS_API LocalContext : public LsysContext {
+class LPY_API LocalContext : public LsysContext {
 public:
   LocalContext(bool with_initialisation = true);
   ~LocalContext();
@@ -249,7 +249,7 @@ protected:
 
 /*---------------------------------------------------------------------------*/
 
-class PYLSYS_API GlobalContext : public LsysContext {
+class LPY_API GlobalContext : public LsysContext {
 public:
   GlobalContext();
   ~GlobalContext();
@@ -275,17 +275,17 @@ protected:
 
 /*---------------------------------------------------------------------------*/
 
-void PYLSYS_API consider(const std::string& modules);
-void PYLSYS_API ignore(const std::string& modules);
-void PYLSYS_API nproduce(const AxialTree& prod);
-void PYLSYS_API nproduce(const boost::python::list& prod);
-void PYLSYS_API nproduce(const std::string& modules);
-void PYLSYS_API useGroup(size_t gid);
-size_t PYLSYS_API getGroup();
-void PYLSYS_API setSelectionRequired(bool enabled);
-bool PYLSYS_API isSelectionRequired();
-size_t PYLSYS_API getIterationNb();
-void PYLSYS_API declare(const std::string& modules);
+void LPY_API consider(const std::string& modules);
+void LPY_API ignore(const std::string& modules);
+void LPY_API nproduce(const AxialTree& prod);
+void LPY_API nproduce(const boost::python::list& prod);
+void LPY_API nproduce(const std::string& modules);
+void LPY_API useGroup(size_t gid);
+size_t LPY_API getGroup();
+void LPY_API setSelectionRequired(bool enabled);
+bool LPY_API isSelectionRequired();
+size_t LPY_API getIterationNb();
+void LPY_API declare(const std::string& modules);
 
 /*---------------------------------------------------------------------------*/
 
@@ -302,7 +302,7 @@ struct ContextMaintainer {
     ~ContextMaintainer() { if (is_set) context->done();  }
 };
 
-PYLSYS_END_NAMESPACE
+LPY_END_NAMESPACE
 /*---------------------------------------------------------------------------*/
 
 #endif

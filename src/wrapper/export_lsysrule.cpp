@@ -32,7 +32,7 @@
 using namespace boost::python;
 #include <string>
 
-PYLSYS_USING_NAMESPACE
+LPY_USING_NAMESPACE
 
 AxialTree::const_iterator getPos(const AxialTree& tree, int pos){
   if(pos < 0)pos += tree.size();

@@ -32,11 +32,11 @@
 
 #include <boost/python.hpp>
 using namespace boost::python;
-PYLSYS_USING_NAMESPACE
+LPY_USING_NAMESPACE
 
 /* ----------------------------------------------------------------------- */
 
 void export_parser()
 {
-	def("lstring2py",(std::string(*)(const std::string&))&PYLSYS::lstring2py);
+	def("lstring2py",(std::string(*)(const std::string&))&LPY::lstring2py);
 }

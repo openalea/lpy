@@ -31,7 +31,7 @@
 #include "lsystem.h"
 using namespace boost::python;
 #include <string>
-PYLSYS_USING_NAMESPACE
+LPY_USING_NAMESPACE
 
 const LsysRule& prodRule(Lsystem * lsys, int pos, int group)
 { 

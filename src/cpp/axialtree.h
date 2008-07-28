@@ -40,18 +40,18 @@
 #include <QtCore/QSharedData>
 #endif
 
-PYLSYS_BEGIN_NAMESPACE
+LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
-PYLSYS_API enum eDirection {
+LPY_API enum eDirection {
       eForward,
       eBackward
 } ;
 
 /*---------------------------------------------------------------------------*/
 
-class PYLSYS_API AxialTree {
+class LPY_API AxialTree {
 protected:
   
   typedef std::vector<ParamModule> ModuleList;
@@ -351,6 +351,6 @@ protected:
 
 /*---------------------------------------------------------------------------*/
 
-PYLSYS_END_NAMESPACE
+LPY_END_NAMESPACE
 
 #endif

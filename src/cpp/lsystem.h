@@ -37,7 +37,7 @@
 #include "stringinterpreter.h"
 #include <QtCore/QMutex>
 
-PYLSYS_BEGIN_NAMESPACE
+LPY_BEGIN_NAMESPACE
 
 #define MULTI_THREADED_LSYSTEM
 
@@ -48,7 +48,7 @@ typedef std::vector<const LsysRule *> RulePtrSet;
 
 /*---------------------------------------------------------------------------*/
 
-class PYLSYS_API Lsystem {
+class LPY_API Lsystem {
 public:
   /** The different type of rules */
   enum eRuleType {
@@ -271,6 +271,6 @@ private:
 
 /*---------------------------------------------------------------------------*/
 
-PYLSYS_END_NAMESPACE
+LPY_END_NAMESPACE
 
 #endif

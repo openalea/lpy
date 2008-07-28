@@ -31,7 +31,7 @@
 #include "tracker.h"
 #include <iostream>
 
-PYLSYS_BEGIN_NAMESPACE
+LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
@@ -67,6 +67,6 @@ void Tracker::printReport(){
 
 #endif
 
-PYLSYS_END_NAMESPACE
+LPY_END_NAMESPACE
 
 /*---------------------------------------------------------------------------*/

@@ -38,23 +38,23 @@
 
 PGL_USING_NAMESPACE
 TOOLS_USING_NAMESPACE
-PYLSYS_USING_NAMESPACE
+LPY_USING_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
 static PlotFunction __PLOT = &PGLViewerApplication::display;
 
-void PYLSYS::registerPglPlotFunction(PlotFunction func)
+void LPY::registerPglPlotFunction(PlotFunction func)
 {
     __PLOT = func;
 }
 
-void PYLSYS::cleanPglPlotFunction()
+void LPY::cleanPglPlotFunction()
 {
     __PLOT = &PGLViewerApplication::display;
 }
 
-void PYLSYS::plot(const PGL(ScenePtr)& s)
+void LPY::plot(const PGL(ScenePtr)& s)
 {
     __PLOT(s);
 }
@@ -63,60 +63,58 @@ void PYLSYS::plot(const PGL(ScenePtr)& s)
 
 static GetSelectFunction __GETSELECT = &ViewerApplication::getSelection;
 
-void PYLSYS::registerGetSelectionFunction(GetSelectFunction func)
+void LPY::registerGetSelectionFunction(GetSelectFunction func)
 {
     __GETSELECT = func;
 }
 
-void PYLSYS::cleanGetSelectionFunction()
+void LPY::cleanGetSelectionFunction()
 {
     __GETSELECT = &PGLViewerApplication::getSelection;
 }
 
-std::vector<uint_t> PYLSYS::getSelection()
+std::vector<uint_t> LPY::getSelection()
 {
     return __GETSELECT();
 }
 
 /*---------------------------------------------------------------------------*/
 
-void PYLSYS::plot(AxialTree& tree){
+void LPY::plot(AxialTree& tree){
   plot(tree,LsysContext::currentContext()->turtle);
 }
 
-void PYLSYS::plot(AxialTree& tree, PglTurtle& turtle){
-  // PGLViewerApplication::display(PYLSYS::scene(tree,turtle));
-  __PLOT(PYLSYS::scene(tree,turtle));
+void LPY::plot(AxialTree& tree, PglTurtle& turtle){
+  // PGLViewerApplication::display(LPY::scene(tree,turtle));
+  __PLOT(LPY::scene(tree,turtle));
 }
 
-void PYLSYS::plot(AxialTree& tree,StringMatching& matching){
+void LPY::plot(AxialTree& tree,StringMatching& matching){
   plot(tree,matching,LsysContext::currentContext()->turtle);
 }
 
-void PYLSYS::plot(AxialTree& tree,StringMatching& matching, PglTurtle& turtle){
-  // PGLViewerApplication::display(PYLSYS::scene(tree,turtle));
-  __PLOT(PYLSYS::scene(tree,matching,turtle));
+void LPY::plot(AxialTree& tree,StringMatching& matching, PglTurtle& turtle){
+  // PGLViewerApplication::display(LPY::scene(tree,turtle));
+  __PLOT(LPY::scene(tree,matching,turtle));
 }
 
 /*---------------------------------------------------------------------------*/
 
-ScenePtr PYLSYS::scene(AxialTree& tree){
+ScenePtr LPY::scene(AxialTree& tree){
   return scene(tree,LsysContext::currentContext()->turtle);
 }
 
-ScenePtr PYLSYS::scene(AxialTree& tree, PglTurtle& turtle){
-  StringInterpreter s(&turtle);
-  s.interpret(tree);
+ScenePtr LPY::scene(AxialTree& tree, PglTurtle& turtle){
+  interpret(tree,turtle);
   return turtle.getScene();
 }
 
-ScenePtr PYLSYS::scene(AxialTree& tree,StringMatching& matching){
+ScenePtr LPY::scene(AxialTree& tree,StringMatching& matching){
   return scene(tree,matching,LsysContext::currentContext()->turtle);
 }
 
-ScenePtr PYLSYS::scene(AxialTree& tree,StringMatching& matching, PglTurtle& turtle){
-  StringInterpreter s(&turtle);
-  s.interpret(tree,matching);
+ScenePtr LPY::scene(AxialTree& tree,StringMatching& matching, PglTurtle& turtle){
+  interpret(tree,turtle,matching);
   return turtle.getScene();
 }
 
