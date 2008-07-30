@@ -6,6 +6,11 @@ def test_modclasstable():
     ncl = ModuleClassTable.get().getNames()
     nclnb2 = sum([1+len(m.aliases) for m in cl])
     assert len(ncl) == nclnb2
+    ids = [i.id for i in ModuleClassTable.get().getClasses()]
+    ids.sort()
+    #cl.sort(lambda x,y : cmp(x.id,y.id))
+    #print cl
+    assert ids == range(len(ids)) and "All predefined modules are not registered or other modules are still registered"
 
 lcode1 = """
 module BABA

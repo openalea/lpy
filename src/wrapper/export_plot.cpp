@@ -32,6 +32,10 @@
 #include "axialtree.h"
 
 #include <boost/python.hpp>
+#include <plantgl/scenegraph/pgl_version.h>
+#if PGL_VERSION < 0x020700
+#error You should upgrade your version of PlantGL
+#endif
 #include <plantgl/python/extract_list.h>
 
 using namespace boost::python;

@@ -265,7 +265,12 @@ DeclareModuleBegin(pglshape,"Draw a geometry at the turtle's current location an
 			else 
 				pg->customGeometry(boost::python::extract<PGL::GeometryPtr>(m.getAt(0))(),m._getReal(1));
 #else
-				pg->customGeometry(boost::python::extract<PGL::GeometryPtr>(m.getAt(0))());
+#ifdef _MSC_VER
+#pragma message("Second argument of @g will be disabled. Upgrade PlantGL.")
+#else
+#warning Second argument of @g will be disabled. Upgrade PlantGL.
+#endif
+			pg->customGeometry(boost::python::extract<PGL::GeometryPtr>(m.getAt(0))());
 #endif
 		}
 	}
