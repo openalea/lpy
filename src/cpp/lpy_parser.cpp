@@ -820,7 +820,9 @@ LPY::parselstring( std::string::const_iterator& beg,
   std::string::const_iterator _it2 = _it;
   bool first = true;
   while(_it != endpos && *_it != delim){
-	if(*_it == '(')
+	if(*_it == '#') // skip comments
+		while(_it != endpos && *_it != '\n' && *_it != delim)++_it;
+	else if(*_it == '(')
 		LsysSyntaxError("Found module named  '('","",lineno);
 	else if(*_it == ')')
 		LsysSyntaxError("Found module named  ')'","",lineno);

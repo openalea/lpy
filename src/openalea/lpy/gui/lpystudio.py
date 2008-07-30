@@ -480,8 +480,11 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         else:
             return ''
     def saveas(self):
+        bckupname = self.getBackupName()
         self.fname = str(QFileDialog.getSaveFileName(self,"Open Py Lsystems file",self.fname if self.fname else '.',"Py Lsystems Files (*.lpy);;All Files (*.*)"))
         if self.fname:
+            if bckupname and os.path.exists(bckupname):
+                os.remove(bckupname)
             self.savefile()
     def run(self):
       self.acquireCR()
