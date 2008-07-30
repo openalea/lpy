@@ -26,8 +26,9 @@ uifname  = uiprefix + '.ui'
 pyfname  = uiprefix + '.py'
 
 if (os.path.exists(uifname) and 
-    os.access(pyfname,os.F_OK|os.W_OK) and
-    os.stat(pyfname).st_mtime < os.stat(uifname).st_mtime ) :
+    not os.path.exists(pyfname) or
+    (os.access(pyfname,os.F_OK|os.W_OK) and
+    os.stat(pyfname).st_mtime < os.stat(uifname).st_mtime )) :
     print 'Generate Ui'
     fstream = file(pyfname,'w')
     uic.compileUi(uifname,fstream)
@@ -93,6 +94,11 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         ComputationTaskManager.__init__(self)
         lsmw.Ui_MainWindow.__init__(self)
         self.setupUi(self)
+        #self.addDockWidget(Qt.LeftDockWidgetArea,self.materialDock)
+        #self.addDockWidget(Qt.LeftDockWidgetArea,self.parametersDock)
+        #self.addDockWidget(Qt.LeftDockWidgetArea,self.descriptionDock)
+        #self.tabifyDockWidget(self.materialDock,self.parametersDock)
+        #self.tabifyDockWidget(self.parametersDock,self.descriptionDock)
         self.lsystem = None
         self.fname = None
         self.tree = None
@@ -101,6 +107,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.setTimeStep(50)
         self.textedition = False
         self._textfileedition = False
+        self.backupEnabled = True
         self.desc_items = {'__authors__'   : self.authorsEdit,
                           '__institutes__': self.intitutesEdit,
                           '__copyright__' : self.copyrightEdit,
@@ -126,6 +133,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         QObject.connect(self.actionAnimate, SIGNAL('triggered(bool)'),self.animate)
         QObject.connect(self.actionStep, SIGNAL('triggered(bool)'),self.step)
         QObject.connect(self.actionRewind, SIGNAL('triggered(bool)'),self.rewind)
+        #QObject.connect(self.actionStop, SIGNAL('triggered(bool)'),self.cancelTask)
         QObject.connect(self.actionComment, SIGNAL('triggered(bool)'),self.codeeditor.comment)
         QObject.connect(self.actionUncomment, SIGNAL('triggered(bool)'),self.codeeditor.uncomment)
         QObject.connect(self.actionInsertTab, SIGNAL('triggered(bool)'),self.codeeditor.tab)
@@ -162,6 +170,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
             self.interpreter.locals['tree'] = self.tree
             self.interpreter.runcode('from openalea.plantgl.all import *')
             self.interpreter.runcode('from openalea.lpy import *')
+            self.addDockWidget(Qt.BottomDockWidgetArea,self.interpreterDock)
         else:
             self.interpreter = None
         settings = self.getSettings()
@@ -171,7 +180,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         settings.beginGroup('threading')
         self.with_thread = settings.value('activated',QVariant(False)).toBool() 
         settings.endGroup()
-        #self.cancelButton.setEnabled(self.with_thread)
+        self.cancelButton.setEnabled(self.with_thread)
         self.actionUseThread.setChecked(self.with_thread)
         QObject.connect(self.actionUseThread,SIGNAL('triggered()'),self.toggleUseThread)
         settings.beginGroup('animation')
@@ -209,7 +218,8 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.stepButton.setEnabled(enabled)
         self.rewindButton.setEnabled(enabled)
         self.clearButton.setEnabled(enabled)
-        self.cancelButton.setEnabled(not enabled)    
+        self.cancelButton.setEnabled(not enabled)  
+        pass
     def plotScene(self,scene):
       if self.thread() != QThread.currentThread():
         #Viewer.display(scene)
@@ -282,7 +292,14 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.firstView = True
         if not self.fname is None:
             self.lsystem.filename = self.fname
+    def getBackupName(self):
+        if self.fname:
+            return os.path.join(os.path.dirname(self.fname),'#'+os.path.basename(self.fname)+'#')
     def updateLsystemCode(self):
+        if self.backupEnabled:
+            if self.fname:
+                bckupname = self.getBackupName()
+                self.saveToFile(bckupname)
         self.lsystem.clear()
         if self.fname:
             self.lsystem.filename = self.fname
@@ -335,12 +352,27 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         for editor in self.desc_items.itervalues():
             editor.clear()
         self.setTimeStep(self.lsystem.context().animation_timestep)
+        bckupname = self.getBackupName()
+        if bckupname and os.path.exists(bckupname):
+            os.remove(bckupname)
         self.fname = None
         self.textfileedition = False
+        #self.documentNames.addTab('New')
     def openfile(self,fname = None):
+        if self.textfileedition:
+            answer = QMessageBox.warning(self,"Discard Changes","Do you want to save previous document ?",
+                                     QMessageBox.Save,QMessageBox.Discard,QMessageBox.Cancel)
+            if answer == QMessageBox.Save:
+                self.savefile()
+            elif answer == QMessageBox.Cancel:
+                return
         if fname is None:
+            bckupname = self.getBackupName()
+            if bckupname and os.path.exists(bckupname):
+               os.remove(bckupname)
             self.fname = str(QFileDialog.getOpenFileName(self,"Open Py Lsystems file",self.fname if self.fname else '.',
                                                       "Py Lsystems Files (*.lpy);;All Files (*.*)"))
+                                                     
             self.appendInHistory(self.fname)
         else :
          if not os.path.exists(fname):
@@ -348,6 +380,9 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
             QMessageBox.warning(self,"Inexisting file","File '"+fname+"' does not exist anymore.",QMessageBox.Ok)
             fname = None
          else:
+            bckupname = self.getBackupName()
+            if bckupname and os.path.exists(bckupname):
+               os.remove(bckupname)
             self.fname = fname            
             self.appendInHistory(self.fname)
         if self.fname:
@@ -381,26 +416,31 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
           self.releaseCR()
     def savefile(self):
         if self.fname:
+            bckupname = self.getBackupName()
+            if bckupname and os.path.exists(bckupname):
+                os.remove(bckupname)
             if os.path.exists(self.fname):
                 shutil.copy(self.fname,self.fname+'~')
-            f = file(self.fname,'w')
-            lsyscode = self.codeeditor.toPlainText()
-            f.write(lsyscode)
-            matinitcode = self.initialisationCode()
-            creditsinitcode = self.creditsCode()
-            if len(matinitcode) > 0 or len(creditsinitcode) > 0:
-                if lsyscode[-1] != '\n':
-                    f.write('\n')
-                f.write('###### INITIALISATION ######\n\n')
-                f.write(matinitcode)
-                f.write(creditsinitcode)
-            f.close()
+            self.saveToFile(self.fname)
             self.textfileedition = False
             self.statusBar().showMessage("Save file '"+self.fname+"'",2000)
             self.appendInHistory(self.fname)
             self.lsystem.filename = self.fname
         else:
             self.saveas()
+    def saveToFile(self,fname):
+        f = file(fname,'w')
+        lsyscode = self.codeeditor.toPlainText()
+        f.write(lsyscode)
+        matinitcode = self.initialisationCode()
+        creditsinitcode = self.creditsCode()
+        if len(matinitcode) > 0 or len(creditsinitcode) > 0:
+            if lsyscode[-1] != '\n':
+                f.write('\n')
+            f.write('###### INITIALISATION ######\n\n')
+            f.write(matinitcode)
+            f.write(creditsinitcode)
+        f.close()
     def initialisationCode(self):
         header = "def "+LsysContext.InitialisationFunctionName+"(context):\n"
         defaultlist = PglTurtle().getColorList()
