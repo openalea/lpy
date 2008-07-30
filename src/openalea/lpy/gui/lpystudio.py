@@ -297,7 +297,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
             return os.path.join(os.path.dirname(self.fname),'#'+os.path.basename(self.fname)+'#')
     def updateLsystemCode(self):
         if self.backupEnabled:
-            if self.fname:
+            if self.fname and self.textfileedition:
                 bckupname = self.getBackupName()
                 self.saveToFile(bckupname)
         self.lsystem.clear()
@@ -388,13 +388,25 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         if self.fname:
           self.statusBar().showMessage("Load file '"+self.fname+"'",2000)
           self.acquireCR()
+          recovery = False
+          readname = self.fname
+          bckupname = self.getBackupName()
+          if bckupname and os.path.exists(bckupname):
+            answer = QMessageBox.warning(self,"Recovery mode","A backup file '"+os.path.basename(bckupname)+"' exists. Do you want to recover ?",QMessageBox.Ok,QMessageBox.Discard)
+            if answer == QMessageBox.Ok:
+                recovery = True
+                readname = bckupname
+            elif answer == QMessageBox.Discard:
+                os.remove(bckupname)          
           try:
             self.setNewLsystem()
-            f = file(self.fname,'r')
+            f = file(readname,'r')
             txt = f.read()
             txts = txt.split('###### INITIALISATION ######')
             self.codeeditor.setText(txts[0])
             self.textfileedition = False
+            if recovery:
+                self.textfileedition = True
             if len(txts) == 2:
                 context = self.lsystem.context()
                 context.execute(txts[1])
@@ -587,6 +599,10 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
             elif answer == QMessageBox.Cancel:
                 e.ignore()
                 return
+            else:
+                bckupname = self.getBackupName()
+                if bckupname and os.path.exists(bckupname):
+                    os.remove(bckupname)
         e.accept()
     def appendInHistory(self,fname):
         if fname is None:
