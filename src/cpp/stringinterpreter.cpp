@@ -77,6 +77,7 @@ std::string LPY::helpTurtle() {
 		it != ModuleClass::getPredefinedClasses().end(); ++it) 
 	{
 	  const ModuleClassPtr& m = *it;
+	  if (m == ModuleClass::None) continue;
 	  stream << m->name;
 	  if (!m->aliases.empty()){
 		  stream << " ( ";

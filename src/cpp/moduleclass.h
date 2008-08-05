@@ -85,8 +85,6 @@ public:
 	static ModuleClassPtr QueryRigth;
 	static ModuleClassPtr F;
 	static ModuleClassPtr f;
-	static ModuleClassPtr G;
-	static ModuleClassPtr g;
 	static ModuleClassPtr X;
 	static ModuleClassPtr StartGC;
 	static ModuleClassPtr EndGC;

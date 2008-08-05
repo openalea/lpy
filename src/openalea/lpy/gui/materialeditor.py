@@ -87,7 +87,11 @@ class MaterialEditor (QGLWidget):
         glEndList()
     def paintGL(self):
         w = self.width()
+        if w == 0:
+            w = 1
         h = self.height()
+        if h == 0:
+            h = 1
         cursorselection = -1
         if self.mousepos != None:            
             cursorselection = self.selectedColor(self.mousepos.x(),self.mousepos.y())
@@ -186,6 +190,7 @@ class MaterialEditor (QGLWidget):
                 editMaterialInDialog(color,self)
             except:
                 print 'editMaterialInDialog not supported by your version of PlantGL'
+        self.emit('valueChanged()')
     def contextMenuEvent(self,event):
         self.menuselection = self.selectedColor(event.x(),event.y())
         menu = QMenu("Color Edit",self)
@@ -216,6 +221,7 @@ class MaterialEditor (QGLWidget):
             if self.cutaction == True:
                 self.turtle.removeColor(self.copyselection)
             self.cutaction = None
+            self.emit('valueChanged()')
         self.menuselection = None
     def removematerial(self):
         if not self.menuselection is None and len(self.turtle.getColorList()) > self.menuselection:
@@ -226,6 +232,7 @@ class MaterialEditor (QGLWidget):
                 self.selectionend = None
             else:
                 self.turtle.removeColor(self.menuselection)
+            self.emit('valueChanged()')
     def interpolatematerial(self):
         if not self.selectionend is None :
             beg = self.selectionbegin
@@ -245,6 +252,7 @@ class MaterialEditor (QGLWidget):
                                                    fmat.shininess * (1-iratio)+lmat.shininess*iratio,
                                                    fmat.transparency * (1-iratio)+lmat.transparency*iratio))
             self.selectionbegin,self.selectionend = None,None
+            self.emit('valueChanged()')
 
 if __name__ == '__main__':
     from PyQt4.Qt import *

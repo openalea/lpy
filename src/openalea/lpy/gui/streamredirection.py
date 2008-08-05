@@ -69,7 +69,8 @@ class GraphicalStreamRedirection:
     
     def __init__(self):
         """  capture all interactive input/output """
-        sys.stdout   = ThreadedRedirection(self)
+        #sys.stdout   = ThreadedRedirection(self)
+        sys.stdout   = MultipleRedirection(sys.stdout, self)
         sys.stderr   = MultipleRedirection(sys.stderr, self)
         sys.stdin    = self
     

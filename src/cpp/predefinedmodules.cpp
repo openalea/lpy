@@ -288,8 +288,6 @@ ModuleClassPtr ModuleClass::RightBracket;
 ModuleClassPtr ModuleClass::ExactRightBracket;
 ModuleClassPtr ModuleClass::F;
 ModuleClassPtr ModuleClass::f;
-ModuleClassPtr ModuleClass::G;
-ModuleClassPtr ModuleClass::g;
 ModuleClassPtr ModuleClass::X;
 ModuleClassPtr ModuleClass::Cut;
 ModuleClassPtr ModuleClass::Star;
@@ -344,8 +342,6 @@ void ModuleClass::createPredefinedClasses() {
 	ExactRightBracket = new DeclaredModule(pop)("=]");
 	F = new DeclaredModule(F)("F");
 	f = new DeclaredModule(f)("f");
-	G = new DeclaredModule(F)("G");
-	g = new DeclaredModule(f)("g");
 	X = new PredefinedModuleClass("X","MouseIns","Module inserted just before module selected by user in visualisation."); 
 	Cut = new PredefinedModuleClass("%","Cut","Cut the remainder of the current branch in the string.");
 	Star = new PredefinedModuleClass("*","Used to specify Null production (produce *) or matching of any module in rules predecessor.");
@@ -428,8 +424,6 @@ void ModuleClass::clearPredefinedClasses()
 		ModuleClass::Star = NULL;
 		ModuleClass::Cut = NULL;
 		ModuleClass::X = NULL;
-		ModuleClass::g = NULL;
-		ModuleClass::G = NULL;
 		ModuleClass::f = NULL;
 		ModuleClass::F = NULL;
 		ModuleClass::ExactRightBracket = NULL;

@@ -96,7 +96,6 @@ class LpyCodeEditor(QTextEdit):
         self.editor = None
         self.setAcceptDrops(True)
         self.setWordWrapMode(QTextOption.WrapAnywhere)
-        self.syntaxhighlighter = LpySyntaxHighlighter(self)
         self.findEdit = None
         self.matchCaseButton = None
         self.wholeWordButton = None
@@ -107,6 +106,10 @@ class LpyCodeEditor(QTextEdit):
         self.replaceAllButton = None
         self.indentation = '  '
         self.hasError = False
+        self.defaultdoc = self.document().clone()
+        self.setDocument(self.defaultdoc)
+        self.syntaxhighlighter = LpySyntaxHighlighter(self)
+        #self.syntaxhighlighter.setDocument(self.defaultdoc)
     def initWithButtons(self,findEdit,
                        matchCaseButton,
                        wholeWordButton,
@@ -274,7 +277,10 @@ class LpyCodeEditor(QTextEdit):
         cursor.movePosition(QTextCursor.StartOfLine,QTextCursor.MoveAnchor)
         while cursor.position() <= end:
             cursor.insertText('#')
+            oldpos = cursor.position()
             cursor.movePosition(QTextCursor.Down,QTextCursor.MoveAnchor)
+            if cursor.position() == oldpos:
+                break
             end+=1
         cursor.endEditBlock()
         cursor.setPosition(pos,QTextCursor.MoveAnchor)
@@ -304,9 +310,12 @@ class LpyCodeEditor(QTextEdit):
         cursor.beginEditBlock()
         cursor.setPosition(beg,QTextCursor.MoveAnchor)
         cursor.movePosition(QTextCursor.StartOfLine,QTextCursor.MoveAnchor)
-        while cursor.position() <= end:
+        while cursor.position() <= end :
             cursor.insertText('\t')
+            oldpos = cursor.position()
             cursor.movePosition(QTextCursor.Down,QTextCursor.MoveAnchor)
+            if cursor.position() == oldpos:
+                break
             end+=1
         cursor.endEditBlock()
         cursor.setPosition(pos,QTextCursor.MoveAnchor)
