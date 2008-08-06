@@ -138,7 +138,7 @@ ModuleClassTable::reset()
 void 
 ModuleClassTable::registerPredefinedModule()
 {
-	for(ModuleClassVector::const_iterator it = ModuleClass::getPredefinedClasses().begin();
+	for(ModuleClassList::const_iterator it = ModuleClass::getPredefinedClasses().begin();
 		it != ModuleClass::getPredefinedClasses().end(); ++it) 
 		declare(*it);
 }
@@ -239,15 +239,15 @@ ModuleClassTable::findClass(const std::string& name) const
 ModuleClassPtr
 ModuleClassTable::getClass(size_t id) const
 {
-	ModuleClassList::const_iterator it;
+	ModuleClassIdMap::const_iterator it;
 	if((it = modulenamelist.find(id)) == modulenamelist.end() || !it->second->isActive())
 		LsysError("Undefined module with id "+TOOLS(number)(id)+".");
 	return it->second;
 }
 
-std::vector<ModuleClassPtr> ModuleClassTable::getClasses() const {
-	std::vector<ModuleClassPtr> res;
-	for(ModuleClassList::const_iterator itid = modulenamelist.begin();
+ModuleClassList ModuleClassTable::getClasses() const {
+	ModuleClassList res;
+	for(ModuleClassIdMap::const_iterator itid = modulenamelist.begin();
 		itid != modulenamelist.end(); ++itid)
 		if(itid->second->isActive())
 			res.push_back(itid->second);
@@ -278,7 +278,7 @@ ModuleClassTable::remove(const std::string& name)
 			}
 			else {
 				// no more name reference this modclass, so remove it from idmap.
-				ModuleClassList::iterator itid = modulenamelist.find(it->second->getId());
+				ModuleClassIdMap::iterator itid = modulenamelist.find(it->second->getId());
 				if (itid != modulenamelist.end())modulenamelist.erase(itid);
 			}
 		}
@@ -307,7 +307,7 @@ bool ModuleClassTable::remove(const ModuleClass * moduleclass)
 		}
 		else ++itname;
 	}
-	ModuleClassList::iterator itid = modulenamelist.find(moduleclass->getId());
+	ModuleClassIdMap::iterator itid = modulenamelist.find(moduleclass->getId());
 	if (itid != modulenamelist.end())modulenamelist.erase(itid);
 	return has_removed;
 }

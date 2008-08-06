@@ -80,7 +80,16 @@ const LsysRule& homRule(Lsystem * lsys, int pos, int group)
 
 
 AxialTree lsys_axiom(Lsystem * lsys) { return lsys->getAxiom(); }
+
 void lsys_setCode1(Lsystem * lsys, const std::string& code) { return lsys->set(code); }
+object lsys_setCode2(Lsystem * lsys, const std::string& code, bool debug) { 
+	if (!debug) { lsys->set(code); return object(); }
+	else {
+		std::string pycode;
+		lsys->set(code,&pycode); 
+		return object(pycode);
+	}
+}
 
 AxialTree py_iter(Lsystem * lsys, size_t beg, size_t end, const AxialTree& wstring)
 { return lsys->iterate(beg,end,wstring); }
@@ -107,7 +116,7 @@ void export_Lsystem(){
 	.def("code", &Lsystem::code)
 	.def("read", &Lsystem::read)
 	.def("set", &lsys_setCode1)
-	.def("set", &Lsystem::set)
+	.def("set", &lsys_setCode2)
 	.def("plot", (void(Lsystem::*)(AxialTree&))&Lsystem::plot)
 	.def("iterate", (AxialTree(Lsystem::*)())&Lsystem::iterate)
 	.def("iterate", (AxialTree(Lsystem::*)(size_t))&Lsystem::iterate)

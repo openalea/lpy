@@ -103,16 +103,18 @@ class LpySimulation:
     def getBackupName(self):
         if self.fname:
             return os.path.join(os.path.dirname(self.fname),'#'+os.path.basename(self.fname)+'#')
-    def restoreState(self):
+    def restoreState(self):        
         self.lpywidget.textEditionWatch = False
         te, tf = self.textedition, self._edited
-        if self.textdocument is None:
+        firstinit = self.textdocument is None
+        if firstinit:            
+            self.textdocument = self.lpywidget.codeeditor.document().clone()
+        self.lpywidget.codeeditor.syntaxhighlighter.setDocument(self.textdocument)
+        self.lpywidget.codeeditor.setDocument(self.textdocument)
+        self.lpywidget.codeeditor.syntaxhighlighter.rehighlight()
+        if firstinit:                        
             self.lpywidget.codeeditor.clear()
             self.lpywidget.codeeditor.setText(self.code)
-        else:
-            self.lpywidget.codeeditor.syntaxhighlighter.setDocument(self.textdocument)
-            self.lpywidget.codeeditor.setDocument(self.textdocument)
-            self.lpywidget.codeeditor.syntaxhighlighter.rehighlight()
         self.textedition, self._edited = te, tf
         for key,editor in self.lpywidget.desc_items.iteritems():
             editor.setText(self.desc_items[key])
@@ -158,7 +160,8 @@ class LpySimulation:
         if self.fname:
             self.lsystem.filename = self.fname
         self.code = str(self.lpywidget.codeeditor.toPlainText())
-        self.lsystem.set(self.code,self.lpywidget.actionParseDebug.isChecked())
+        res = self.lsystem.set(self.code,self.lpywidget.actionParseDebug.isChecked())
+        if not res is None: print res
     def close(self):
         if self._edited:
             answer = QMessageBox.warning(self.lpywidget,self.getShortName(),"Do you want to save this document ?",

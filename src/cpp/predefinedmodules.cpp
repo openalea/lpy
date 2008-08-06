@@ -253,7 +253,7 @@ DeclareModuleBegin(surface,"Draw the predefined surface at the turtle's current 
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(pglshape,"Draw a geometry at the turtle's current location and orientation. Params : surface name (by default, 'l' exists), a scale factor (optional, should be positive).")
+DeclareModuleBegin(pglshape,"Draw a geometry at the turtle's current location and orientation. Params : a geometric model, a scale factor (optional, should be positive).")
 {
 	if(!m.hasArg())LsysWarning("Argument missing for module "+m.name());
 	else {
@@ -335,7 +335,7 @@ std::vector<ModuleClassPtr>& ModuleClass::getPredefinedClasses()
 
 void ModuleClass::createPredefinedClasses() {
 	if(!ModuleClass::PredefinedClasses)
-		ModuleClass::PredefinedClasses = new ModuleClassVector();
+		ModuleClass::PredefinedClasses = new ModuleClassList();
 	None = new PredefinedModuleClass("","None Module.");
 	LeftBracket = new DeclaredModule(push)("[","SB");
 	RightBracket = new DeclaredModule(pop)("]","EB");

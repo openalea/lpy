@@ -127,7 +127,7 @@ bool notOnlySpace(std::string::const_iterator beg, std::string::const_iterator e
 #define WindowSpecificEndline 13
 
 void 
-Lsystem::set( const std::string&   _rules , bool debug){
+Lsystem::set( const std::string&   _rules , std::string * pycode){
   ACQUIRE_RESSOURCE
   std::string filename = getFilename();
   __clear();
@@ -418,7 +418,7 @@ Lsystem::set( const std::string&   _rules , bool debug){
                       ss << group << '.';
                       LsysError(ss.str(),filename,lineno);
                   }
-                  else if(debug) std::cerr << "Use group " << group << " from line " << lineno << std::endl;
+                  // else if(debug) std::cerr << "Use group " << group << " from line " << lineno << std::endl;
               }
               else LsysParserSyntaxError("Cannot find value for group");
 			  toendline(rules,_it);
@@ -546,8 +546,12 @@ Lsystem::set( const std::string&   _rules , bool debug){
 		  }
 		  break;
 		case '#': // python comments before rules
+		  if(!rule.empty()){
+            PROCESS_RULE(rule,code,addedcode,mode,group)
+		  }
+		  beg = _it;
 		  toendline(rules,_it);
-		  rule += std::string(beg,_it);
+		  code += std::string(beg,_it);
 		  break;
 		case ' ':
 		case '\t':
@@ -598,8 +602,9 @@ Lsystem::set( const std::string&   _rules , bool debug){
   }
   if (mode == -1)
    code.append(beg,_it);
-  code+='\n'+addedcode;
-  if(debug) std::cerr << code << std::endl;
+  if (!addedcode.empty())
+	code+='\n'+addedcode;
+  if(pycode) *pycode = code;
   __context.execute(code);
   __importPyFunctions();
   if (__context.hasObject(LsysContext::AxiomVariable)){
@@ -683,8 +688,8 @@ void LsysRule::set( const std::string& rule ){
 			|| __newrightcontext.hasQueryModule()
 			|| __rightcontext.hasQueryModule();
   parseParameters();
-  if (arrow)parseDefinition("produce "+std::string(endheader+3,rule.end()));
-  else parseDefinition(std::string(endheader+1,rule.end()));
+  if (arrow)__definition = " produce "+std::string(endheader+3,rule.end());
+  else __definition =  std::string(endheader+1,rule.end());
 }
 
 /*---------------------------------------------------------------------------*/
@@ -753,26 +758,6 @@ LsysRule::parseHeader( const std::string& header){
   if(!ncd.empty())__newrightcontext = AxialTree::QueryTree(ncd);
 }
 
-void
-LsysRule::parseDefinition(const std::string& definition){
-  std::string::const_iterator _it = definition.begin();
-  while(_it != definition.end() && (*_it == ' ' || *_it == '\t'))_it++;
-  if(_it == definition.end()) __definition = "\tpass\n";
-  else {
-	if(*_it == '\n'){
-	  __definition = std::string(_it+1,definition.end());
-	  size_t i = 0;
-	  _it = __definition.begin();
-	  while(_it != __definition.end() && (*_it == ' ' || *_it == '\t'))
-	  { _it++; i++; }
-	  if(_it == __definition.end())
-		__definition = "\tpass\n";
-	}
-	else {
-	  __definition = '\t' + std::string(_it,definition.end());
-	}
-  }
-}
 
 /*---------------------------------------------------------------------------*/
 

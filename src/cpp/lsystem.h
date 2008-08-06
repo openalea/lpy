@@ -88,7 +88,7 @@ public:
 
   /** build from file/string */
   void read( const std::string& filename );
-  void set( const std::string& rules , bool debug = false);
+  void set( const std::string& rules , std::string * pycode = NULL);
 
   /** set rules */
   void addRule( const LsysRule& rule, int type, size_t group );

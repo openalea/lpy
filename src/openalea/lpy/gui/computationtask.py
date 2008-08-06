@@ -107,5 +107,5 @@ class ComputationTaskManager:
             exc_info = sys.exc_info()
         tb.print_exception(*exc_info)
         self.errorEvent(exc_info)
-        QMessageBox.warning(self,"Exception","An error occured.",QMessageBox.Ok)
+        QMessageBox.warning(self,"Exception",'An error occured:"'+exc_info[1].message+'"',QMessageBox.Ok)
                 

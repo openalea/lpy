@@ -30,6 +30,7 @@
 
 #include "lsyscontext.h"
 #include <boost/python/make_constructor.hpp>
+#include <plantgl/python/export_list.h>
 
 using namespace boost::python;
 LPY_USING_NAMESPACE
@@ -46,6 +47,10 @@ bool py_isForward() { return LsysContext::currentContext()->isForward(); }
 std::string getInitialisationFunctionName() { return LsysContext::InitialisationFunctionName; }
 
 LsysContext * create_a_context() { return new LocalContext(); }
+
+boost::python::object py_LcDeclaredModules(LsysContext * c) {
+	return make_list<ModuleClassList>(c->declaredModules())();
+}
 
 void export_LsysContext(){
 
@@ -78,6 +83,9 @@ void export_LsysContext(){
 	.def("ignoring",       &LsysContext::ignoring)
 	.def("keyword",        &LsysContext::keyword)
 	.def("declare",        (void(LsysContext::*)(const std::string&))&LsysContext::declare)
+	.def("undeclare",      (void(LsysContext::*)(const std::string&))&LsysContext::undeclare)
+	.def("isDeclared",     (bool(LsysContext::*)(const std::string&))&LsysContext::isDeclared)
+	.def("declaredModules", &py_LcDeclaredModules)
 	.def("updateNamespace",&LsysContext::updateNamespace)
 	.def("getNamespace",   
 	(void (LsysContext::*)(dict&) const)&LsysContext::getNamespace)
@@ -132,5 +140,7 @@ void export_LsysContext(){
     def("setSelectionRequired", &setSelectionRequired);
     def("getIterationNb", &getIterationNb);
 	def("declare", &declare);
+	def("undeclare", &undeclare);
+	def("isDeclared", &isDeclared);
 
 }

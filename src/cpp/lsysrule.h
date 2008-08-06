@@ -151,7 +151,6 @@ public:
 protected:
 
 	void parseHeader( const std::string& name);
-	void parseDefinition(const std::string& definition);
 	void parseParameters();
 
 	size_t __id;

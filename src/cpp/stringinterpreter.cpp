@@ -73,7 +73,7 @@ std::string LPY::helpTurtle(const std::string& command){
 
 std::string LPY::helpTurtle() { 
     std::stringstream stream;
-	for(ModuleClassVector::const_iterator it = ModuleClass::getPredefinedClasses().begin();
+	for(ModuleClassList::const_iterator it = ModuleClass::getPredefinedClasses().begin();
 		it != ModuleClass::getPredefinedClasses().end(); ++it) 
 	{
 	  const ModuleClassPtr& m = *it;

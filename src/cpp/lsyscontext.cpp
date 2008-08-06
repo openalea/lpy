@@ -369,6 +369,46 @@ LsysContext::declare(ModuleClassPtr module)
 void LPY::declare(const std::string& modules)
 { LsysContext::currentContext()->declare(modules); }
 
+void 
+LsysContext::undeclare(const std::string& modules)
+{
+	std::vector<std::string> moduleclasses = parse_moddeclaration(modules);
+	bool iscurrent = isCurrent();
+	for(std::vector<std::string>::const_iterator it = moduleclasses.begin();
+		it != moduleclasses.end(); ++it)
+	{
+		ModuleClassPtr mod = ModuleClassTable::get().getClass(*it);
+		undeclare(mod);
+	}
+}
+
+void 
+LsysContext::undeclare(ModuleClassPtr module)
+{
+	ModuleClassList::iterator it = std::find(__modules.begin(),__modules.end(),module);
+	if (it == __modules.end()) LsysError("Cannot undeclare module '"+module->name+"'. Not declared in this scope.");
+	else { __modules.erase(it); if (isCurrent())module->activate(false); }
+}
+
+void LPY::undeclare(const std::string& modules)
+{ LsysContext::currentContext()->undeclare(modules); }
+
+bool LsysContext::isDeclared(const std::string& module)
+{
+	ModuleClassPtr mod = ModuleClassTable::get().getClass(module);
+	if(mod.isNull()) return false;
+	else return isDeclared(mod);
+}
+
+bool LsysContext::isDeclared(ModuleClassPtr module)
+{
+	ModuleClassList::iterator it = std::find(__modules.begin(),__modules.end(),module);
+	return it != __modules.end();
+}
+
+void LPY::isDeclared(const std::string& module)
+{ LsysContext::currentContext()->isDeclared(module); }
+
 /*---------------------------------------------------------------------------*/
 
 bool 

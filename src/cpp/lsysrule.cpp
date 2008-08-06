@@ -206,12 +206,13 @@ LsysRule::getCoreCode() const{
             res << ',';
 	    res << *_it;
   }
-  res << ") : #" << name() << "\n";
+  res << ") :"; //  #" << name() << "\n";
   std::string definition;
   std::string::const_iterator _beg = __definition.begin();
   std::string::const_iterator _it = _beg;
   while( _it != __definition.end()){
 	if (*_it == '\n') { ++llineno; _it++;}
+	else if (*_it == '#') { while(_it != __definition.end() && *_it != '\n') _it++; }
 	else if (*_it == 'p' && std::distance(_it,__definition.end())> 7){
 	  if(std::string(_it,_it+7) == "produce"){
 		definition.insert(definition.end(),_beg,_it);

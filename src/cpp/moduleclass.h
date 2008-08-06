@@ -47,7 +47,7 @@ LPY_BEGIN_NAMESPACE
 class ParamModule;
 class ModuleClass;
 typedef RCPtr<ModuleClass> ModuleClassPtr;
-typedef std::vector<ModuleClassPtr> ModuleClassVector;
+typedef std::vector<ModuleClassPtr> ModuleClassList;
 
 
 class LPY_API ModuleClass : public TOOLS(RefCountObject) {
@@ -68,7 +68,7 @@ public:
 	std::string name;
 	std::vector<std::string> aliases;
 
-	static ModuleClassVector& getPredefinedClasses();
+	static ModuleClassList& getPredefinedClasses();
 	static void clearPredefinedClasses();
 	static void createPredefinedClasses();
 
@@ -117,7 +117,7 @@ public:
 	static ModuleClassPtr PglShape;
 
 protected:
-	static ModuleClassVector * PredefinedClasses;
+	static ModuleClassList * PredefinedClasses;
 private:
 	size_t id;
 	bool active;
@@ -157,7 +157,7 @@ public:
 	void reset();
 	size_t size() const { return modulenamelist.size(); }
 	bool empty() const { return modulenamelist.empty(); }
-	std::vector<ModuleClassPtr> getClasses() const ;
+	ModuleClassList getClasses() const ;
 	std::vector<std::string> getNames() const ;
 
 	static void setMandatoryDeclaration(bool value) { get().mandatory_declaration = value; }
@@ -168,9 +168,9 @@ public:
 protected:
 
 	typedef  hash_map_string<ModuleClass *> ModuleClassMap;
-    typedef STDEXT::hash_map<size_t,ModuleClass *> ModuleClassList;
+    typedef STDEXT::hash_map<size_t,ModuleClass *> ModuleClassIdMap;
 	ModuleClassMap  modulenamemap;
-	ModuleClassList modulenamelist;
+	ModuleClassIdMap modulenamelist;
 	size_t maxnamelength;
 
 	void clear();

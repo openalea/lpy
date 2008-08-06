@@ -46,7 +46,7 @@ Here comes the python commands that control the simulation.
 <tr><td><b>module <i>name</i>    </b></td><td> declaration of module name.</td></tr>
 <tr><td><b>consider: <i>name</i> </b></td><td> symbol to consider.</td></tr>
 <tr><td><b>ignore: <i>name</i>   </b></td><td> symbol to ignore.</td></tr>
-<tr><td><b>group <i>id</i>:      </b></td><td> following rules will be accociated to group <i>id</i>.</td></tr>
+<tr><td><b>group <i>id</i>:      </b></td><td> following rules will be associated to group <i>id</i>.</td></tr>
 <tr><td><b>Axiom: <i>Lstring</i> </b></td><td> declaration of the axiom of the Lsystem</td></tr>
 <tr><td><b>produce <i>Lstring</i> </b></td><td> produce an <i>Lstring</i> and return.</td></tr>
 <tr><td><b>nproduce <i>Lstring</i> </b></td><td> produce an <i>Lstring</i> whithout returning.</td></tr>
@@ -62,9 +62,7 @@ Here comes the python commands that control the simulation.
 
 <H3>These commands have been added to the original cpfg-lpfg specification:</H3>
 <table>
-<tr><td><b>context()     </b></td><td> Get context of execution of the l-system. To use with care.</td></tr>
-<tr><td><b>ignore(str)   </b></td><td> symbol to ignore.</td></tr>
-<tr><td><b>consider(str) </b></td><td> symbol to consider.</td></tr>
+<tr><td><b>context()     </b></td><td> Get context of execution of the L-system. To use with care.</td></tr>
 </table>
 <BR><BR>
 All these functions are imported from openalea.lpy module. Other data structures and functionnalities are available in the module. You can check them with <b>help(openalea.lpy)</b>.<BR>

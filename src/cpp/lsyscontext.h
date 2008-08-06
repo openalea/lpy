@@ -168,6 +168,12 @@ public:
   /** module declaration. */
   void declare(const std::string& modules);
   void declare(ModuleClassPtr module);
+  void undeclare(const std::string& modules);
+  void undeclare(ModuleClassPtr module);
+  bool isDeclared(const std::string& module);
+  bool isDeclared(ModuleClassPtr module);
+  ModuleClassList declaredModules() const { return __modules; }
+
 
   /** Iteration number property. Only set by Lsystem. Access by all other. */
 public:
@@ -198,7 +204,6 @@ protected:
   bool __ignore_method;
 
   /// attributes for module declaration
-  typedef std::vector<ModuleClassPtr> ModuleClassList;
   ModuleClassList __modules;
 
   /// next iteration control
@@ -286,6 +291,8 @@ void LPY_API setSelectionRequired(bool enabled);
 bool LPY_API isSelectionRequired();
 size_t LPY_API getIterationNb();
 void LPY_API declare(const std::string& modules);
+void LPY_API undeclare(const std::string& modules);
+void LPY_API isDeclared(const std::string& module);
 
 /*---------------------------------------------------------------------------*/
 

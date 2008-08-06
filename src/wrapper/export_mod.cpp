@@ -131,7 +131,7 @@ boost::python::object py_modnames(ModuleClassTable * m) {
 }
 
 boost::python::object py_predefinedclasses() {
-	return make_list<ModuleClassVector>(ModuleClass::getPredefinedClasses())();
+	return make_list<ModuleClassList>(ModuleClass::getPredefinedClasses())();
 }
 
 void export_Module(){

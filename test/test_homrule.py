@@ -3,9 +3,10 @@ from openalea.plantgl.all import Scene
 
 def test_addHomRule():
     """ Regression around 010708 """
-    l = Lsystem()
-    l.makeCurrent()
+    gc = LsysContext() # create a global context
+    gc.makeCurrent()
     s="PANNN[+ANNN][-ANNN]AN"
+    l = Lsystem()
     tree = AxialTree(s) 
     l.addHomRule('N --> F', 0)
     geom_tree = l.homomorphism(tree)

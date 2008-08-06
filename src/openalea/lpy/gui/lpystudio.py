@@ -180,8 +180,12 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
             self.interpreterDock.show()    
         t,v,trb = exc_info
         st = tb.extract_tb(trb)[-1]
-        if st[0] == '<string>':
+        if st[0] == '<string>' :
             self.codeeditor.hightlightError(st[1])
+        elif t == SyntaxError:
+            lst = v.message.split(':')
+            if len(lst) == 2 and lst[0] == '<string>':
+                self.codeeditor.hightlightError(int(lst[1]))
     def toggleUseThread(self):
         ComputationTaskManager.toggleUseThread(self)
     def toggleFitAnimationView(self):
@@ -246,6 +250,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
             else:
                 self.acquireCR()
                 try:
+                    self.currentSimulation().saveState()
                     self.createNewLsystem(fname)
                     self.currentSimulation().restoreState()
                     self.statusBar().showMessage("Load file '"+fname+"'",2000)

@@ -240,7 +240,7 @@ Lsystem::str() const {
 
   if(!__context.__modules.empty()){
 	s << "module ";
-	for(LsysContext::ModuleClassList::const_iterator it = __context.__modules.begin();
+	for(ModuleClassList::const_iterator it = __context.__modules.begin();
 		it != __context.__modules.end(); ++it){
 		if(it != __context.__modules.begin()) s << ',';
 		s << (*it)->name; 
