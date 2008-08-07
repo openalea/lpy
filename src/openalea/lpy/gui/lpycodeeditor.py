@@ -1,5 +1,5 @@
 from PyQt4.QtCore import QRegExp,QObject,Qt,SIGNAL
-from PyQt4.QtGui import QTextEdit,QSyntaxHighlighter,QTextDocument,QTextCharFormat,QFont,QTextCursor,QTextOption,QLabel
+from PyQt4.QtGui import QTextEdit,QSyntaxHighlighter,QTextDocument,QTextCharFormat,QFont,QTextCursor,QTextOption,QLabel, QColor
 
 
 class LpySyntaxHighlighter(QSyntaxHighlighter):
@@ -17,23 +17,42 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
         for pattern in self.lpykeywords:
             self.rules.append((QRegExp(pattern),keywordFormat))
         keywordFormat = QTextCharFormat()
-        keywordFormat.setForeground(Qt.darkBlue)
+        keywordFormat.setForeground(Qt.blue)
         keywordFormat.setFontWeight(QFont.Bold)
-        self.pykeywords = ['class','if','else','elif','while','def','None','not','is','for','range','xrange',
-                           'True','False','from','import','lambda','or','and','print','pass','in','return','global',
-                           'as','int','float','str','tuple','list','assert']
+        self.pykeywords = ['class','if','else','elif','while','None','not','is', 'def',
+                            'for','range','xrange', 'True','False','from','import',
+                            'lambda','or','and','print','pass','in','return','global',
+                            'as','int','float','str','tuple','list','assert']
         for pattern in self.pykeywords:
             self.rules.append((QRegExp(pattern),keywordFormat))
+        self.delimiterFormat = QTextCharFormat()
+        self.delimiterFormat.setForeground(Qt.darkBlue)
+        self.delimiterFormat.setFontWeight(QFont.Bold)
+        self.delimiterkeywords = '[](){}+-*/:<>='
         self.exprules = []
         self.prodFormat = QTextCharFormat()
         self.prodFormat.setForeground(Qt.black)
         self.prodFormat.setFontWeight(QFont.Bold)
         self.prodkeywords = ['Axiom:','produce','nproduce','-->','module']
         for pattern in self.prodkeywords:
-            self.exprules.append((QRegExp(pattern+'.*$'),len(pattern),self.prodFormat))
+            self.exprules.append((QRegExp(pattern+'.*$'),len(pattern),self.prodFormat,1))
+        self.funcFormat = QTextCharFormat()
+        self.funcFormat.setForeground(Qt.magenta)
+        self.exprules.append((QRegExp('def.*\('),3,self.funcFormat,1))
+        self.stringFormat = QTextCharFormat()
+        self.stringFormat.setForeground(Qt.darkGray)
+        self.exprules.append((QRegExp('\".*\"'),0,self.stringFormat,0))
+        self.exprules.append((QRegExp("\'.*\'"),0,self.stringFormat,0))
+        self.tabFormat = QTextCharFormat()
+        self.tabFormat.setBackground(QColor(220,220,220))
+        self.spaceFormat = QTextCharFormat()
+        self.spaceFormat.setBackground(QColor(240,240,240))
+        self.tabRule = QRegExp("^[ \t]+")
+        self.numberFormat = QTextCharFormat()
+        self.numberFormat.setForeground(Qt.red)
+        self.exprules.append((QRegExp('\d+(\.\d+)?(e[\+\-]?\d+)?'),0,self.numberFormat,0))        
         self.commentFormat = QTextCharFormat()
         self.commentFormat.setForeground(Qt.darkGreen)
-        #self.commentFormat.setFontWeight(QFont.Bold)
         self.lsysruleExp = QRegExp('.+:')
         self.lsysruleExp2 = QRegExp('.+\-\->')
         self.commentExp = QRegExp('#.+$')
@@ -54,6 +73,9 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
             self.setCurrentBlockState(0)
         else:
             self.setCurrentBlockState(self.previousBlockState())
+        for i,c in enumerate(text):
+            if str(c) in self.delimiterkeywords:
+                self.setFormat(i, 1, self.delimiterFormat)
         if self.currentBlockState() == 1:
             if lentxt > 0 and not str(text[0]) in " \t":
                 index = text.indexOf(self.lsysruleExp)
@@ -80,8 +102,16 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
             while index >= 0:
                 length = expression.matchedLength()
                 if index == 0 or not text.at(index-1).isLetterOrNumber():
-                    self.setFormat(index+rule[1], length, rule[2])
+                    self.setFormat(index+rule[1], length-rule[1]-rule[3], rule[2])
                 index = text.indexOf(expression, index + length)
+        index = text.indexOf(self.tabRule);
+        if index >= 0:
+            length = self.tabRule.matchedLength()
+            for i in xrange(index,index+length):
+                if text.at(i).toAscii() == '\t':
+                    self.setFormat(i, 1 , self.tabFormat)
+                else:
+                    self.setFormat(i, 1 , self.spaceFormat)
         commentExp = self.commentExp #if self.currentBlockState() == 0 else self.ruleCommentExp
         index = text.indexOf(commentExp)
         while index >= 0:
@@ -104,6 +134,7 @@ class LpyCodeEditor(QTextEdit):
         self.replaceEdit = None
         self.replaceButton = None
         self.replaceAllButton = None
+        self.replaceTab = True
         self.indentation = '  '
         self.hasError = False
         self.defaultdoc = self.document().clone()
@@ -184,11 +215,12 @@ class LpyCodeEditor(QTextEdit):
             cursor.insertText(txt)
             cursor.endEditBlock()
     def tabEvent(self):
-        cursor = self.textCursor()
-        cursor.joinPreviousEditBlock()
-        cursor.deletePreviousChar() 
-        cursor.insertText(self.indentation)
-        cursor.endEditBlock()        
+        if self.replaceTab:
+            cursor = self.textCursor()
+            cursor.joinPreviousEditBlock()
+            cursor.deletePreviousChar() 
+            cursor.insertText(self.indentation)
+            cursor.endEditBlock()        
     def getFindOptions(self):
         options = QTextDocument.FindFlags()
         if self.matchCaseButton.isChecked():
@@ -338,6 +370,7 @@ class LpyCodeEditor(QTextEdit):
         cursor.endEditBlock()
         cursor.setPosition(pos,QTextCursor.MoveAnchor)
     def hightlightError(self,lineno):
+        self.editor.textEditionWatch = False
         if self.hasError:
             self.clearErrorHightlight()
         cursor = self.textCursor()
@@ -347,8 +380,12 @@ class LpyCodeEditor(QTextEdit):
         errorformat = QTextCharFormat() 
         errorformat.setBackground(Qt.yellow)
         cursor.setCharFormat(errorformat)
-        #self.setTextCursor(cursor)
+        prevcursor = self.textCursor()
+        self.setTextCursor(cursor)
+        self.ensureCursorVisible()
+        self.setTextCursor(prevcursor)
         self.hasError = True
+        self.editor.textEditionWatch = True
     def clearErrorHightlight(self):
         cursor = self.textCursor()
         self.undo()

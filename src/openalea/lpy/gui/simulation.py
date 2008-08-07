@@ -1,6 +1,8 @@
+from PyQt4.QtCore import QObject, SIGNAL
 from PyQt4.QtGui import *
 from openalea.lpy import *
 from openalea.plantgl.all import PglTurtle, Viewer
+import optioneditordelegate as oed
 import os, shutil
 
 defaultcode = "Axiom: \n\nderivation length: 1\nproduction:\n\n\nhomomorphism:\n\n\nendlsystem"
@@ -19,6 +21,9 @@ class LpySimulation:
         self._oldedited = False
         self.code = defaultcode
         self.textdocument = None
+        self.cursor = None
+        self.optionModel = None
+        self.optionDelegate = None
         self.firstView = True
         self.desc_items = {'__authors__'    : '' ,
                           '__institutes__'  : '' ,
@@ -112,14 +117,21 @@ class LpySimulation:
         self.lpywidget.codeeditor.syntaxhighlighter.setDocument(self.textdocument)
         self.lpywidget.codeeditor.setDocument(self.textdocument)
         self.lpywidget.codeeditor.syntaxhighlighter.rehighlight()
-        if firstinit:                        
+        if firstinit:
             self.lpywidget.codeeditor.clear()
             self.lpywidget.codeeditor.setText(self.code)
+        if not self.cursor is None:
+            self.lpywidget.codeeditor.setTextCursor(self.cursor)
+            self.lpywidget.codeeditor.horizontalScrollBar().setValue(self.hvalue)
+            self.lpywidget.codeeditor.verticalScrollBar().setValue(self.vvalue)
+        if self.optionModel is None:
+            self.initializeParametersTable()
+        self.lpywidget.parametersTable.setModel(self.optionModel)
+        self.lpywidget.parametersTable.setItemDelegateForColumn(1,self.optionDelegate)
         self.textedition, self._edited = te, tf
         for key,editor in self.lpywidget.desc_items.iteritems():
             editor.setText(self.desc_items[key])
         self.lpywidget.setTimeStep(self.lsystem.context().animation_timestep)
-        self.lpywidget.initializeParametersTable(self.lsystem)
         self.lpywidget.materialed.turtle = self.lsystem.context().turtle
         self.lpywidget.materialed.updateGL()
         if not self.lpywidget.interpreter is None:
@@ -133,12 +145,37 @@ class LpySimulation:
     def saveState(self):
         self.code = str(self.lpywidget.codeeditor.toPlainText())
         if self.textdocument is None:
+            print 'custom document clone'
             self.textdocument = self.lpywidget.codeeditor.document().clone()
+        self.cursor = self.lpywidget.codeeditor.textCursor()
+        self.hvalue = self.lpywidget.codeeditor.horizontalScrollBar().value()
+        self.vvalue = self.lpywidget.codeeditor.verticalScrollBar().value()
         for key,editor in self.lpywidget.desc_items.iteritems():
             if type(editor) == QLineEdit:
                 self.desc_items[key] = editor.text()
             else:
                 self.desc_items[key] = editor.toPlainText()
+    def initializeParametersTable(self):
+        self.optionModel = QStandardItemModel(0, 2)
+        self.optionModel.setHorizontalHeaderLabels(["Parameter", "Value" ])
+        options = self.lsystem.context().options
+        self.optionDelegate = oed.OptionEditorDelegate()
+        category = None
+        categoryItem = None
+        indexitem = 0
+        for i in xrange(len(options)):
+            option = options[i]
+            if option.category != category:
+                category = option.category
+            si = QStandardItem(option.name)
+            si.setToolTip(option.comment)
+            si.setEditable(False)
+            self.optionModel.setItem(indexitem, 0, si)
+            si = QStandardItem(option.currentValue())
+            si.option = option
+            self.optionModel.setItem(indexitem, 1, si)
+            indexitem += 1
+        QObject.connect(self.optionModel,SIGNAL('itemChanged(QStandardItem*)'),self.textEdited)
     def creditsCode(self):
         txt = ''
         for key,value in self.desc_items.iteritems():             
@@ -175,6 +212,8 @@ class LpySimulation:
         return True
     def save(self):
         if self.fname:
+            if self.isCurrent():
+                self.saveState()
             bckupname = self.getBackupName()
             if bckupname and os.path.exists(bckupname):
                 os.remove(bckupname)
@@ -197,8 +236,6 @@ class LpySimulation:
     def saveToFile(self,fname):
         self.saveState()
         f = file(fname,'w')
-        if self.isCurrent():
-            self.code = str(self.lpywidget.codeeditor.toPlainText())
         f.write(self.code)
         matinitcode = self.initialisationCode()
         creditsinitcode = self.creditsCode()

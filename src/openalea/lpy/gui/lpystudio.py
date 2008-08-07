@@ -3,7 +3,6 @@ from PyQt4.QtGui import *
 import os
 import shutil
 import traceback as tb
-import optioneditordelegate as oed
 import compile_ui as ui
 import documentation as doc
 import settings
@@ -135,6 +134,14 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
                 self.newfile()
             else:
                 self.currentSimulation().restoreState()
+    def closeEvent(self,e):
+        Viewer.stop()    
+        settings.saveState(self)
+        for simu in reversed(self.simulations):
+            if not simu.close():
+                e.ignore()
+                return
+        e.accept()
     def taskRunningEvent(self):
         self.statusBar().showMessage('A task is already running !',5000)
         raise Exception('A task is already running')
@@ -148,6 +155,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.actionStep.setEnabled(enabled)
         self.actionRewind.setEnabled(enabled)
         self.actionClear.setEnabled(enabled)
+        self.actionClose.setEnabled(enabled)
         self.actionStop.setEnabled(not enabled)  
         pass
     def plotScene(self,scene):
@@ -180,11 +188,11 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
             self.interpreterDock.show()    
         t,v,trb = exc_info
         st = tb.extract_tb(trb)[-1]
-        if st[0] == '<string>' :
-            self.codeeditor.hightlightError(st[1])
-        elif t == SyntaxError:
+        if st[0] == '<string>' :            
+            self.codeeditor.hightlightError(st[1])            
+        elif t == SyntaxError:            
             lst = v.message.split(':')
-            if len(lst) == 2 and lst[0] == '<string>':
+            if len(lst) == 3 and lst[0] == '<string>':
                 self.codeeditor.hightlightError(int(lst[1]))
     def toggleUseThread(self):
         ComputationTaskManager.toggleUseThread(self)
@@ -311,14 +319,6 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         except:
             self.graberror()        
         self.releaseCR()
-    def closeEvent(self,e):
-        Viewer.stop()    
-        settings.saveState(self)
-        for simu in self.simulations:
-            if not simu.close():
-                e.ignore()
-                return
-        e.accept()
     def appendInHistory(self,fname):
         if fname is None:
             print 'Wrong added file in history'
@@ -352,29 +352,6 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
     def clearHistory(self):
         self.history = []
         self.createRecentMenu()
-    def initializeParametersTable(self,lsystem):
-        #self.parametersTable.clear()
-        self.optionModel = QStandardItemModel(0, 2)
-        self.optionModel.setHorizontalHeaderLabels(["Parameter", "Value" ])
-        self.parametersTable.setModel(self.optionModel)
-        options = lsystem.context().options
-        self.delegate = oed.OptionEditorDelegate()
-        self.parametersTable.setItemDelegateForColumn(1,self.delegate)
-        category = None
-        categoryItem = None
-        indexitem = 0
-        for i in xrange(len(options)):
-            option = options[i]
-            if option.category != category:
-                category = option.category
-            si = QStandardItem(option.name)
-            si.setToolTip(option.comment)
-            si.setEditable(False)
-            self.optionModel.setItem(indexitem, 0, si)
-            si = QStandardItem(option.currentValue())
-            si.option = option
-            self.optionModel.setItem(indexitem, 1, si)
-            indexitem += 1
 
 
 def main():

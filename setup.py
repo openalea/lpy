@@ -79,7 +79,7 @@ setup(
     # entry_points
     entry_points = {
         "wralea": ["lpy = openalea.lpy.wralea",],
-        'gui_scripts': ['lpy = openalea.lpy.gui.lsyswindow:main',]
+        'gui_scripts': ['lpy = openalea.lpy.gui.lpystudio:main',]
         },
     
     postinstall_scripts = ['lpygui_postinstall'],

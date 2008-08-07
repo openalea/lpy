@@ -1,5 +1,6 @@
 from PyQt4.QtCore import QSettings, QVariant, QRect, QStringList
 from PyQt4.QtGui import QApplication
+import os
 
 
 def getSettings():
@@ -10,6 +11,7 @@ def restoreState(lpywidget):
     settings = getSettings()
     settings.beginGroup('history')
     lpywidget.history = [ str(i) for i in settings.value('RecentFiles').toStringList() if not i is None and len(i) > 0]
+    openedfiles = [ str(i) for i in settings.value('OpenedFiles').toStringList() if not i is None and len(i) > 0]
     settings.endGroup()
     settings.beginGroup('threading')
     lpywidget.with_thread = settings.value('activated',QVariant(False)).toBool() 
@@ -35,12 +37,16 @@ def restoreState(lpywidget):
     if settings.status() != QSettings.NoError:
         raise 'settings error'
     del settings
-    
+    if len(openedfiles) > 0:
+        for f in openedfiles:
+            if os.path.exists(f):
+                lpywidget.openfile(f)
     
 def saveState(lpywidget):
     settings = getSettings()
     settings.beginGroup('history')
     settings.setValue('RecentFiles',QVariant(QStringList(lpywidget.history)))
+    settings.setValue('OpenedFiles',QVariant(QStringList([i.fname for i in lpywidget.simulations if not i.fname is None])))
     settings.endGroup()
     settings.beginGroup('threading')
     settings.setValue('activated',QVariant(lpywidget.with_thread)) 
