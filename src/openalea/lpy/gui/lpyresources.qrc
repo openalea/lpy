@@ -1,5 +1,8 @@
 <RCC>
   <qresource prefix="/images" >
+    <file>icons/resetzoom.png</file>
+    <file>icons/zoomout.png</file>
+    <file>icons/zoomin.png</file>
     <file>icons/codefile-red.png</file>
     <file>icons/closetab.png</file>
     <file>icons/codefile.png</file>

@@ -114,9 +114,7 @@ class LpySimulation:
         firstinit = self.textdocument is None
         if firstinit:            
             self.textdocument = self.lpywidget.codeeditor.document().clone()
-        self.lpywidget.codeeditor.syntaxhighlighter.setDocument(self.textdocument)
-        self.lpywidget.codeeditor.setDocument(self.textdocument)
-        self.lpywidget.codeeditor.syntaxhighlighter.rehighlight()
+        self.lpywidget.codeeditor.setLpyDocument(self.textdocument)
         if firstinit:
             self.lpywidget.codeeditor.clear()
             self.lpywidget.codeeditor.setText(self.code)
@@ -189,7 +187,7 @@ class LpySimulation:
         if not self.lpywidget.interpreter is None:
             self.lpywidget.interpreter.locals['tree'] = self.tree
     def updateLsystemCode(self):
-        if self.lpywidget.backupEnabled:
+        if self.lpywidget.codeBackupEnabled:
             if self.fname and self._edited:
                 bckupname = self.getBackupName()
                 self.saveToFile(bckupname)
@@ -197,7 +195,7 @@ class LpySimulation:
         if self.fname:
             self.lsystem.filename = self.fname
         self.code = str(self.lpywidget.codeeditor.toPlainText())
-        res = self.lsystem.set(self.code,self.lpywidget.actionParseDebug.isChecked())
+        res = self.lsystem.set(self.code,self.lpywidget.showPyCode)
         if not res is None: print res
     def close(self):
         if self._edited:
@@ -217,9 +215,10 @@ class LpySimulation:
             bckupname = self.getBackupName()
             if bckupname and os.path.exists(bckupname):
                 os.remove(bckupname)
-            if os.path.exists(self.fname):
+            if os.path.exists(self.fname) and self.lpywidget.fileBackupEnabled:
                 shutil.copy(self.fname,self.fname+'~')
             self.saveToFile(self.fname)
+            self.mtime = os.stat(self.fname).st_mtime
             self.setEdited(False)
             self.lpywidget.statusBar().showMessage("Save file '"+self.fname+"'",2000)
             self.lpywidget.appendInHistory(self.fname)
@@ -245,7 +244,7 @@ class LpySimulation:
             f.write('###### INITIALISATION ######\n\n')
             f.write(matinitcode)
             f.write(creditsinitcode)
-        f.close()
+        f.close()        
     def initialisationCode(self):
         header = "def "+LsysContext.InitialisationFunctionName+"(context):\n"
         defaultlist = PglTurtle().getColorList()
@@ -305,6 +304,12 @@ class LpySimulation:
         else:
             for key in self.desc_items.iterkeys():
                 self.desc_items[key] = ''
+        self.mtime = os.stat(self.fname).st_mtime
+        if self.textdocument:
+            self.lpywidget.textEditionWatch = False
+            self.textdocument.clear()
+            self.textdocument.setPlainText(self.code)
+            self.lpywidget.textEditionWatch = True
     def reload(self):
         if self.fname:
             self.open(self.fname)
@@ -355,3 +360,16 @@ class LpySimulation:
         self.setTree(None,0)
     def cancel(self):
         self.lsystem.early_return = True
+    def monitorfile(self):
+        if not hasattr(self,'monitoring'):
+          self.monitoring = True
+          if not self.fname is None:
+            if not os.path.exists(self.fname):
+                answer = QMessageBox.warning(self.lpywidget,"Removed file","File '"+os.path.basename(self.fname)+"' do not exists anymore. Do you want to keep it in editor ?",QMessageBox.Yes,QMessageBox.No)
+                if answer == QMessageBox.No:
+                    self.lpywidget.closeDocument(self.index)
+            elif os.stat(self.fname).st_mtime > self.mtime :
+                answer = QMessageBox.warning(self.lpywidget,"File has changed","File '"+os.path.basename(self.fname)+"' has changed on disk. Do you want to reload it ?",QMessageBox.Yes,QMessageBox.No)
+                if answer == QMessageBox.Yes:
+                    self.reload()
+          del self.monitoring

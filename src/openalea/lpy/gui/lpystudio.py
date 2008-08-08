@@ -7,6 +7,7 @@ import compile_ui as ui
 import documentation as doc
 import settings
 import lpydock
+import lpypreferences
 from simulation import LpySimulation
 from openalea.plantgl.all import *
 
@@ -35,15 +36,23 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         ComputationTaskManager.__init__(self)
         lsmw.Ui_MainWindow.__init__(self)
         self.withinterpreter = withinterpreter
-        self.setupUi(self)
+        self.setupUi(self)        
         lpydock.initDocks(self)
+        self.preferences = lpypreferences.LpyPreferences(self)
         icon = QIcon()
         icon.addPixmap(QPixmap(":/images/icons/history.png"),QIcon.Normal,QIcon.Off)
         self.menuRecents.setIcon(icon)
         self.simulations = []
         self.currentSimulationId = None
         self.history = []
-        self.backupEnabled = True
+        self.historymaxsize = 50 
+        self.fileBackupEnabled = True
+        self.codeBackupEnabled = True
+        self.fitAnimationView = True
+        self.with_thread = False
+        self.showPyCode = False
+        self.reloadAtStartup = True
+        self.fileMonitoring = True
         self.desc_items = {'__authors__'   : self.authorsEdit,
                           '__institutes__': self.intitutesEdit,
                           '__copyright__' : self.copyrightEdit,
@@ -55,10 +64,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         
         self.frameFind.hide() 
         self.frameReplace.hide() 
-        self.codeeditor.initWithButtons(self.findEdit,self.matchCaseButton,self.wholeWordButton,
-                                        self.findNextButton,self.findPreviousButton,
-                                        self.replaceEdit,self.replaceButton,self.replaceAllButton,self.statusBar())
-        self.codeeditor.editor = self
+        self.codeeditor.initWithEditor(self)        
         self.newfile()
         self.currentSimulation().restoreState()
         self.textEditionWatch = False
@@ -80,6 +86,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         QObject.connect(self.actionInsertTab, SIGNAL('triggered(bool)'),self.codeeditor.tab)
         QObject.connect(self.actionRemoveTab, SIGNAL('triggered(bool)'),self.codeeditor.untab)
         QObject.connect(self.actionSyntax, SIGNAL('triggered(bool)'),self.codeeditor.setSyntaxHighLightActivation)
+        QObject.connect(self.actionPreferences, SIGNAL('triggered(bool)'),self.preferences.show)
         QObject.connect(self.animtimestep, SIGNAL('valueChanged(int)'),self.setTimeStep)
         QObject.connect(self.animtimeSpinBox, SIGNAL('valueChanged(double)'),self.setTimeStep)
         QObject.connect(self.codeeditor, SIGNAL('textChanged()'),self.textEdited)
@@ -101,8 +108,6 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         QObject.connect(self.menuRecents,SIGNAL("triggered(QAction *)"),self.recentMenuAction)
         self.printTitle()
         settings.restoreState(self)
-        self.actionUseThread.setChecked(self.with_thread)
-        self.actionFitAnimationView.setChecked(self.fitAnimationView)
         self.createRecentMenu()
         self.textEditionWatch = True
     def currentSimulation(self):
@@ -112,9 +117,13 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
             if not self.currentSimulationId is None:
                 self.currentSimulation().saveState()
             self.currentSimulationId = id        
+            self.currentSimulation().monitorfile()
             self.currentSimulation().restoreState()
         if self.documentNames.currentIndex() != id:
             self.documentNames.setCurrentIndex(id)
+    def focusInEvent ( self, event ):
+        self.currentSimulation().monitorfile()
+        return QMainWindow.focusInEvent ( self, event )
     def closeDoc(self):
         self.closeDocument()
     def closeDocument(self,id = None):
@@ -125,8 +134,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
                 self.simulations[i].index = i-1
             self.textEditionWatch = False
             defaultdoc = self.codeeditor.defaultdoc
-            self.codeeditor.syntaxhighlighter.setDocument(defaultdoc)                
-            self.codeeditor.setDocument(defaultdoc)
+            self.codeeditor.setLpyDocument(defaultdoc)
             self.simulations.pop(id)            
             self.textEditionWatch = True
             if len(self.simulations) == 0:
@@ -194,6 +202,10 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
             lst = v.message.split(':')
             if len(lst) == 3 and lst[0] == '<string>':
                 self.codeeditor.hightlightError(int(lst[1]))
+    def setToolBarApp(self,value):
+        self.toolBar.setToolButtonStyle({'Icons' : Qt.ToolButtonIconOnly, 'Texts' : Qt.ToolButtonTextOnly , 'Icons and texts' : Qt.ToolButtonTextBesideIcon }[str(value)])
+    def getToolBarApp(self):
+        return { Qt.ToolButtonIconOnly : (0,'Icons') , Qt.ToolButtonTextOnly : (1,'Texts') , Qt.ToolButtonTextBesideIcon : (2,'Icons and texts') }[self.toolBar.toolButtonStyle()]
     def toggleUseThread(self):
         ComputationTaskManager.toggleUseThread(self)
     def toggleFitAnimationView(self):
@@ -283,7 +295,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.registerTask(task)
       except:
         self.graberror()
-      self.releaseCR()
+        self.releaseCR()
     def step(self):
       self.acquireCR()
       simu = self.currentSimulation()
@@ -311,7 +323,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.registerTask(task)
       except:
         self.graberror()
-      self.releaseCR()
+        self.releaseCR()
     def clear(self):
         self.acquireCR()
         try:
@@ -325,11 +337,12 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         fname = str(fname)
         if not fname in self.history:
             self.history.insert(0,fname)
-            self.createRecentMenu()
         elif fname == self.history[0]:
             self.history.remove(fname)
             self.history.insert(0,fname)
-            self.createRecentMenu()
+        if len(self.history) > self.historymaxsize:
+            del self.history[self.historymaxsize:]
+        self.createRecentMenu()        
     def removeInHistory(self,fname):
         fname = str(fname)
         if fname in self.history:

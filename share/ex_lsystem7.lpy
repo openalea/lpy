@@ -21,16 +21,14 @@ n = 1
 s = 0
 
 def Start():
+	global c,n
 	print("Start")
-	global c
 	c=SI+2*SINC
-	global n
 	n = 1
 
 def StartEach():
-	global s
+	global s,n
 	s=0
-	global n
 	#print("Step "+str(n))
 	n=n+1
 
@@ -141,9 +139,3 @@ g --> g[;(4)|!(2*Iscale)@O(c)[-F(c)++F(c/2)]+F(c)--F(c/2)]
 H(n,m) --> ;(2){-F(2)++F(2)-|-F(2)++F(2)-}
 
 endlsystem
-###### INITIALISATION ######
-
-def __initialiseContext__(context):
-	from openalea.plantgl.all import Material,Color3
-	context.options.setSelection("Selection Required",0)
-	context.options.setSelection("Module declaration",0)

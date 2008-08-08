@@ -140,25 +140,20 @@ class LpyCodeEditor(QTextEdit):
         self.defaultdoc = self.document().clone()
         self.setDocument(self.defaultdoc)
         self.syntaxhighlighter = LpySyntaxHighlighter(self)
+        self.zoomFactor = 0
+        self.editionFont = None
         #self.syntaxhighlighter.setDocument(self.defaultdoc)
-    def initWithButtons(self,findEdit,
-                       matchCaseButton,
-                       wholeWordButton,
-                       nextButton,
-                       previousButton,
-                       replaceEdit,
-                       replaceButton,
-                       replaceAllButton,
-                       statusBar):
-        self.findEdit = findEdit
-        self.matchCaseButton = matchCaseButton
-        self.wholeWordButton = wholeWordButton
-        self.nextButton = nextButton
-        self.previousButton = previousButton
-        self.replaceEdit = replaceEdit
-        self.replaceButton = replaceButton
-        self.replaceAllButton = replaceAllButton
-        self.statusBar = statusBar
+    def initWithEditor(self,lpyeditor):
+        self.editor = lpyeditor
+        self.findEdit = lpyeditor.findEdit
+        self.matchCaseButton = lpyeditor.matchCaseButton
+        self.wholeWordButton = lpyeditor.wholeWordButton
+        self.nextButton = lpyeditor.findNextButton
+        self.previousButton = lpyeditor.findPreviousButton
+        self.replaceEdit = lpyeditor.replaceEdit
+        self.replaceButton = lpyeditor.replaceButton
+        self.replaceAllButton = lpyeditor.replaceAllButton
+        self.statusBar = lpyeditor.statusBar()
         self.positionLabel = QLabel(self.statusBar)
         self.statusBar.addPermanentWidget(self.positionLabel)
         QObject.connect(self.findEdit, SIGNAL('textEdited(const QString&)'),self.findText)
@@ -168,6 +163,44 @@ class LpyCodeEditor(QTextEdit):
         QObject.connect(self.replaceButton, SIGNAL('pressed()'),self.replaceText)
         QObject.connect(self.replaceAllButton, SIGNAL('pressed()'),self.replaceAllText)
         QObject.connect(self, SIGNAL('cursorPositionChanged()'),self.printCursorPosition)
+        QObject.connect(lpyeditor.actionZoomIn, SIGNAL('triggered()'),self.zoomInEvent)
+        QObject.connect(lpyeditor.actionZoomOut, SIGNAL('triggered()'),self.zoomOutEvent)
+        QObject.connect(lpyeditor.actionNoZoom, SIGNAL('triggered()'),self.resetZoom)
+        self.defaultEditionFont = self.currentFont()
+        self.defaultPointSize = self.currentFont().pointSize()
+    def focusInEvent ( self, event ):
+        self.editor.currentSimulation().monitorfile()
+        return QTextEdit.focusInEvent ( self, event )
+    def setReplaceTab(self,value):
+        self.replaceTab = value
+    def tabSize(self):
+        return len(self.indentation)
+    def setTabSize(self, value):
+        assert value > 0
+        self.indentation = ' '*value
+        self.setTabStopWidth(value*self.currentFont().pointSize())
+    def setLpyDocument(self,document):
+        self.syntaxhighlighter.setDocument(document)
+        LpyCodeEditor.setDocument(self,document)
+        self.syntaxhighlighter.rehighlight()
+        self.applyZoom()
+        if not self.editionFont is None and self.editionFont!= document.defaultFont() :
+            document.setDefaultFont(self.editionFont)
+    def zoomInEvent(self):
+        self.zoomFactor += 1
+        self.zoomIn()
+    def zoomOutEvent(self):
+        self.zoomFactor -= 1
+        self.zoomOut()
+    def resetZoom(self):
+        if self.zoomFactor > 0:
+            self.zoomOut(self.zoomFactor)
+        elif self.zoomFactor < 0:
+            self.zoomIn(-self.zoomFactor)
+        self.zoomFactor = 0
+    def applyZoom(self):
+        self.zoomIn()
+        self.zoomOut()
     def printCursorPosition(self):
         cursor = self.textCursor()
         self.positionLabel.setText('Line '+str(cursor.blockNumber()+1)+', Column '+str(cursor.columnNumber())+' ('+str(cursor.position())+')')
@@ -391,4 +424,18 @@ class LpyCodeEditor(QTextEdit):
         self.undo()
         self.setTextCursor(cursor)
         self.hasError = False
-        
+    def setEditionFontFamily(self,font):
+        font.setPointSize( self.currentFont().pointSize() )
+        self.setEditionFont(font)
+    def setEditionFontSize(self,p):
+        f = self.editionFont
+        if self.editionFont is None:
+            f = QFont(self.defaultEditionFont)
+        f.setPointSize( p )
+        self.setEditionFont(f)
+    def setEditionFont(self,font):
+        self.editionFont = font
+        self.document().setDefaultFont(font)
+    def isFontToDefault(self):
+        if self.editionFont is None : return True
+        return str(self.editionFont.family()) == str(self.defaultEditionFont.family()) and self.editionFont.pointSize() == self.defaultEditionFont.pointSize()

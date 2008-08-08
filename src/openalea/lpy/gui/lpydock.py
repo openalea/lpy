@@ -11,6 +11,8 @@ def initDocks(lpywidget):
     lpywidget.addDockWidget(Qt.LeftDockWidgetArea,lpywidget.helpDock)
     action = lpywidget.helpDock.toggleViewAction()
     action.setShortcut(QApplication.translate("MainWindow", "F1", None, QApplication.UnicodeUTF8))
+    lpywidget.helpDock.hide()
+    lpywidget.helpDock.setFloating(True)
     icon = QIcon()
     icon.addPixmap(QPixmap(":/images/icons/book.png"),QIcon.Normal,QIcon.Off)
     action.setIcon(icon)
@@ -30,6 +32,7 @@ def initDocks(lpywidget):
         #lpywidget.interpreter.locals['lsystem'] = lpywidget.lsystem
         #lpywidget.interpreter.locals['tree'] = lpywidget.tree
         lpywidget.interpreter.locals['window'] = lpywidget
+        lpywidget.interpreter.locals['clear'] = lpywidget.shell.clear
         lpywidget.interpreter.runcode('from openalea.plantgl.all import *')
         lpywidget.interpreter.runcode('from openalea.lpy import *')
         lpywidget.addDockWidget(Qt.BottomDockWidgetArea,lpywidget.interpreterDock)

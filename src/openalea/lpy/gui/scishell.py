@@ -126,6 +126,7 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
 
     def clear(self):
         """ Clear shell """
+        QsciScintilla.clear(self)
 
 
     def get_interpreter(self):

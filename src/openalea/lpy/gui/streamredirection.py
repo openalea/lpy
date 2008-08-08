@@ -22,6 +22,9 @@ from PyQt4.QtGui import QApplication
 from PyQt4.QtCore import QThread, QEvent
 
 RedirectionEventId = QEvent.User+100
+sys_stderr = None
+sys_stdout = None
+sys_stdin = None
 
 class MultipleRedirection:
     """ Dummy file which redirects stream to multiple file """
@@ -69,10 +72,17 @@ class GraphicalStreamRedirection:
     
     def __init__(self):
         """  capture all interactive input/output """
-        #sys.stdout   = ThreadedRedirection(self)
-        sys.stdout   = MultipleRedirection(sys.stdout, self)
-        sys.stderr   = MultipleRedirection(sys.stderr, self)
+        global sys_stdout, sys_stderr, sys_stdin
+        if sys_stdout is None:
+            sys_stdout = sys.stdout
+        if sys_stderr is None:
+            sys_stderr = sys.stderr
+        if sys_stdin is None:
+            sys_stdin = sys.stdin
+        sys.stdout   = ThreadedRedirection(self)
+        sys.stderr   = MultipleRedirection(sys_stderr, self)
         sys.stdin    = self
+        self.multipleStdOutRedirection()
     
     def customEvent(self,event):
         """ custom event processing. Redirection to write """
@@ -81,3 +91,16 @@ class GraphicalStreamRedirection:
         else:
             self.__class__.__bases__[0].customEvent(self)
             
+    def multipleStdOutRedirection(self,enabled = True):
+        """ make multiple (sys.stdout/pyconsole) or single (pyconsole) redirection of stdout """
+        if enabled:
+            sys.stdout   = MultipleRedirection(sys_stdout, self)
+        else:
+            sys.stdout   = ThreadedRedirection(self)
+        
+    def multipleStdErrRedirection(self,enabled = True):
+        """ make multiple (sys.stderr/pyconsole) or single (pyconsole) redirection of stderr """
+        if enabled:
+            sys.stderr   = MultipleRedirection(sys_stderr, self)
+        else:
+            sys.stderr   = ThreadedRedirection(self)
