@@ -816,12 +816,6 @@
     <addaction name="actionFind" />
     <addaction name="actionReplace" />
     <addaction name="separator" />
-    <addaction name="actionZoomIn" />
-    <addaction name="actionZoomOut" />
-    <addaction name="actionNoZoom" />
-    <addaction name="separator" />
-    <addaction name="actionSyntax" />
-    <addaction name="separator" />
     <addaction name="actionPreferences" />
    </widget>
    <widget class="QMenu" name="menuHelp" >
@@ -837,6 +831,13 @@
     <property name="title" >
      <string>View</string>
     </property>
+    <addaction name="actionZoomIn" />
+    <addaction name="actionZoomOut" />
+    <addaction name="actionNoZoom" />
+    <addaction name="separator" />
+    <addaction name="actionSyntax" />
+    <addaction name="actionTabHightlight" />
+    <addaction name="separator" />
    </widget>
    <addaction name="menuFile" />
    <addaction name="menuL_systems" />
@@ -1119,6 +1120,10 @@
    </property>
   </action>
   <action name="actionComment" >
+   <property name="icon" >
+    <iconset resource="lpyresources.qrc" >
+     <normaloff>:/images/icons/next-green.png</normaloff>:/images/icons/next-green.png</iconset>
+   </property>
    <property name="text" >
     <string>Comment Block</string>
    </property>
@@ -1127,16 +1132,28 @@
    </property>
   </action>
   <action name="actionUncomment" >
+   <property name="icon" >
+    <iconset resource="lpyresources.qrc" >
+     <normaloff>:/images/icons/prev-green.png</normaloff>:/images/icons/prev-green.png</iconset>
+   </property>
    <property name="text" >
     <string>Uncomment Block</string>
    </property>
   </action>
   <action name="actionInsertTab" >
+   <property name="icon" >
+    <iconset resource="lpyresources.qrc" >
+     <normaloff>:/images/icons/next.png</normaloff>:/images/icons/next.png</iconset>
+   </property>
    <property name="text" >
     <string>Insert Tab</string>
    </property>
   </action>
   <action name="actionRemoveTab" >
+   <property name="icon" >
+    <iconset resource="lpyresources.qrc" >
+     <normaloff>:/images/icons/prev.png</normaloff>:/images/icons/prev.png</iconset>
+   </property>
    <property name="text" >
     <string>Remove Tab</string>
    </property>
@@ -1196,6 +1213,14 @@
   <action name="actionPreferences" >
    <property name="text" >
     <string>Preferences...</string>
+   </property>
+  </action>
+  <action name="actionTabHightlight" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>Tab Hightlight</string>
    </property>
   </action>
  </widget>

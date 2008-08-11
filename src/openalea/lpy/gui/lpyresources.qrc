@@ -1,5 +1,9 @@
 <RCC>
   <qresource prefix="/images" >
+    <file>icons/prev-green.png</file>
+    <file>icons/next-green.png</file>
+    <file>icons/next.png</file>
+    <file>icons/prev.png</file>
     <file>icons/resetzoom.png</file>
     <file>icons/zoomout.png</file>
     <file>icons/zoomin.png</file>

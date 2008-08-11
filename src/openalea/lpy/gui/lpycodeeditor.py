@@ -59,8 +59,12 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
         self.ruleCommentExp = QRegExp('[ \t]+#.+$')
         self.setCurrentBlockState(0)
         self.activated = True
+        self.tabviewactivated = True
     def setActivation(self,value):
         self.activated = value
+        self.rehighlight()
+    def setTabViewActivation(self,value):
+        self.tabviewactivated = value
         self.rehighlight()
     def highlightBlock(self,text):
       if self.activated:
@@ -104,14 +108,15 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
                 if index == 0 or not text.at(index-1).isLetterOrNumber():
                     self.setFormat(index+rule[1], length-rule[1]-rule[3], rule[2])
                 index = text.indexOf(expression, index + length)
-        index = text.indexOf(self.tabRule);
-        if index >= 0:
-            length = self.tabRule.matchedLength()
-            for i in xrange(index,index+length):
-                if text.at(i).toAscii() == '\t':
-                    self.setFormat(i, 1 , self.tabFormat)
-                else:
-                    self.setFormat(i, 1 , self.spaceFormat)
+        if self.tabviewactivated:
+            index = text.indexOf(self.tabRule);
+            if index >= 0:
+                length = self.tabRule.matchedLength()
+                for i in xrange(index,index+length):
+                    if text.at(i).toAscii() == '\t':
+                        self.setFormat(i, 1 , self.tabFormat)
+                    else:
+                        self.setFormat(i, 1 , self.spaceFormat)
         commentExp = self.commentExp #if self.currentBlockState() == 0 else self.ruleCommentExp
         index = text.indexOf(commentExp)
         while index >= 0:
@@ -321,6 +326,10 @@ class LpyCodeEditor(QTextEdit):
         self.syntaxhighlighter.setActivation(value)
     def isSyntaxHighLightActivated(self):
         return self.syntaxhighlighter.activated
+    def setTabHighLightActivation(self,value):
+        self.syntaxhighlighter.setTabViewActivation(value)
+    def isTabHighLightActivated(self):
+        return self.syntaxhighlighter.tabviewactivated
     def canInsertFromMimeData(self,source):
         if source.hasUrls():
             return True
@@ -339,7 +348,7 @@ class LpyCodeEditor(QTextEdit):
         pos = cursor.position()
         cursor.beginEditBlock()
         cursor.setPosition(beg,QTextCursor.MoveAnchor)
-        cursor.movePosition(QTextCursor.StartOfLine,QTextCursor.MoveAnchor)
+        cursor.movePosition(QTextCursor.StartOfBlock,QTextCursor.MoveAnchor)
         while cursor.position() <= end:
             cursor.insertText('#')
             oldpos = cursor.position()
@@ -356,7 +365,7 @@ class LpyCodeEditor(QTextEdit):
         pos = cursor.position()
         cursor.beginEditBlock()
         cursor.setPosition(beg,QTextCursor.MoveAnchor)
-        cursor.movePosition(QTextCursor.StartOfLine,QTextCursor.MoveAnchor)
+        cursor.movePosition(QTextCursor.StartOfBlock,QTextCursor.MoveAnchor)
         while cursor.position() <= end:
             m = cursor.movePosition(QTextCursor.NextCharacter,QTextCursor.KeepAnchor)
             if True:
@@ -374,14 +383,18 @@ class LpyCodeEditor(QTextEdit):
         pos = cursor.position()
         cursor.beginEditBlock()
         cursor.setPosition(beg,QTextCursor.MoveAnchor)
-        cursor.movePosition(QTextCursor.StartOfLine,QTextCursor.MoveAnchor)
+        cursor.movePosition(QTextCursor.StartOfBlock,QTextCursor.MoveAnchor)
         while cursor.position() <= end :
-            cursor.insertText('\t')
+            if self.replaceTab:
+                cursor.insertText(self.indentation)
+                end+=len(self.indentation)
+            else:
+                cursor.insertText('\t')
+                end+=1
             oldpos = cursor.position()
             cursor.movePosition(QTextCursor.Down,QTextCursor.MoveAnchor)
             if cursor.position() == oldpos:
                 break
-            end+=1
         cursor.endEditBlock()
         cursor.setPosition(pos,QTextCursor.MoveAnchor)
     def untab(self):
@@ -391,15 +404,20 @@ class LpyCodeEditor(QTextEdit):
         pos = cursor.position()
         cursor.beginEditBlock()
         cursor.setPosition(beg,QTextCursor.MoveAnchor)
-        cursor.movePosition(QTextCursor.StartOfLine,QTextCursor.MoveAnchor)
+        cursor.movePosition(QTextCursor.StartOfBlock,QTextCursor.MoveAnchor)
         while cursor.position() <= end:
             m = cursor.movePosition(QTextCursor.NextCharacter,QTextCursor.KeepAnchor)
-            if True:
-                if cursor.selectedText() == '\t':
-                        cursor.deleteChar()
-                end-=1
+            if cursor.selectedText() == '\t':
+                cursor.deleteChar()
+            else:
+                for i in xrange(len(self.indentation)-1):
+                    b = cursor.movePosition(QTextCursor.NextCharacter,QTextCursor.KeepAnchor)
+                    if not b : break
+                if cursor.selectedText() == self.indentation:
+                    cursor.removeSelectedText()                    
+            end-=1
             cursor.movePosition(QTextCursor.Down,QTextCursor.MoveAnchor)
-            cursor.movePosition(QTextCursor.Left,QTextCursor.MoveAnchor)
+            cursor.movePosition(QTextCursor.StartOfBlock,QTextCursor.MoveAnchor)
         cursor.endEditBlock()
         cursor.setPosition(pos,QTextCursor.MoveAnchor)
     def hightlightError(self,lineno):

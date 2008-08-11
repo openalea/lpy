@@ -85,7 +85,8 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         QObject.connect(self.actionUncomment, SIGNAL('triggered(bool)'),self.codeeditor.uncomment)
         QObject.connect(self.actionInsertTab, SIGNAL('triggered(bool)'),self.codeeditor.tab)
         QObject.connect(self.actionRemoveTab, SIGNAL('triggered(bool)'),self.codeeditor.untab)
-        QObject.connect(self.actionSyntax, SIGNAL('triggered(bool)'),self.codeeditor.setSyntaxHighLightActivation)
+        QObject.connect(self.actionSyntax, SIGNAL('triggered(bool)'),self.setSyntaxHighLightActivation)
+        QObject.connect(self.actionTabHightlight, SIGNAL('triggered(bool)'),self.setTabHighLightActivation)
         QObject.connect(self.actionPreferences, SIGNAL('triggered(bool)'),self.preferences.show)
         QObject.connect(self.animtimestep, SIGNAL('valueChanged(int)'),self.setTimeStep)
         QObject.connect(self.animtimeSpinBox, SIGNAL('valueChanged(double)'),self.setTimeStep)
@@ -203,9 +204,9 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
             if len(lst) == 3 and lst[0] == '<string>':
                 self.codeeditor.hightlightError(int(lst[1]))
     def setToolBarApp(self,value):
-        self.toolBar.setToolButtonStyle({'Icons' : Qt.ToolButtonIconOnly, 'Texts' : Qt.ToolButtonTextOnly , 'Icons and texts' : Qt.ToolButtonTextBesideIcon }[str(value)])
+        self.toolBar.setToolButtonStyle({'Icons' : Qt.ToolButtonIconOnly, 'Texts' : Qt.ToolButtonTextOnly , 'Icons and texts' : Qt.ToolButtonTextBesideIcon, 'Texts below icons' : Qt.ToolButtonTextUnderIcon }[str(value)])
     def getToolBarApp(self):
-        return { Qt.ToolButtonIconOnly : (0,'Icons') , Qt.ToolButtonTextOnly : (1,'Texts') , Qt.ToolButtonTextBesideIcon : (2,'Icons and texts') }[self.toolBar.toolButtonStyle()]
+        return { Qt.ToolButtonIconOnly : (0,'Icons') , Qt.ToolButtonTextOnly : (1,'Texts') , Qt.ToolButtonTextBesideIcon : (2,'Icons and texts'), Qt.ToolButtonTextUnderIcon : (3,'Texts below icons')  }[self.toolBar.toolButtonStyle()]
     def toggleUseThread(self):
         ComputationTaskManager.toggleUseThread(self)
     def toggleFitAnimationView(self):
@@ -365,7 +366,15 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
     def clearHistory(self):
         self.history = []
         self.createRecentMenu()
-
+    def setSyntaxHighLightActivation(self,value):
+        self.textEditionWatch = False
+        self.codeeditor.setSyntaxHighLightActivation(value)
+        self.textEditionWatch = True
+    def setTabHighLightActivation(self,value):
+        self.textEditionWatch = False
+        self.codeeditor.setTabHighLightActivation(value)
+        self.textEditionWatch = True
+        
 
 def main():
     qapp = QApplication([])

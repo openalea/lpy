@@ -40,6 +40,7 @@ LPY_USING_NAMESPACE
 /*---------------------------------------------------------------------------*/
 
 const std::string LsysContext::InitialisationFunctionName("__initialiseContext__");
+const std::string LsysContext::InitialisationBeginTag("###### INITIALISATION ######");
 const std::string LsysContext::AxiomVariable("__axiom__");
 const std::string LsysContext::DerivationLengthVariable("__derivation_length__");
 const std::string LsysContext::DecompositionMaxDepthVariable("__decomposition_max_depth__");
@@ -544,13 +545,34 @@ LsysContext::endEach(){
   func("EndEach");
 }
 
-void LsysContext::initialise()
+bool LsysContext::initialise()
 {
   ContextMaintainer c(this);
+  return __initialise();
+}
+
+bool LsysContext::__initialise()
+{
   reference_existing_object::apply<LsysContext*>::type converter;
   PyObject* obj = converter( this );
   object real_obj = object( handle<>( obj ) );
-  if (hasObject(InitialisationFunctionName))getObject(InitialisationFunctionName)(real_obj);
+  if (hasObject(InitialisationFunctionName)){
+	  getObject(InitialisationFunctionName)(real_obj);
+	  return true;
+  }
+  else return false;
+}
+
+
+size_t LsysContext::__initialiseFrom(const std::string& lcode)
+{
+	ContextMaintainer c(this);
+	size_t pos = lcode.find(InitialisationBeginTag);
+	if (pos != std::string::npos) {
+		execute(std::string(lcode.begin()+pos,lcode.end()));
+		if (__initialise()) return pos;
+	}
+	return std::string::npos;
 }
 
 void 

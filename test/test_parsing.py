@@ -1,4 +1,5 @@
 from openalea.lpy import *
+import traceback as tb
 
 def test_lstring2py():
 	""" Test use of lstring2py """
@@ -48,8 +49,26 @@ def test_parsingcorrespondance():
     # It work only because rules are simple and do not necessitate new lines of code.
     assert lcode.count('\n') == pycode.count('\n') and "lines correspondance is maybe not preserved." 
 
-if __name__ == '__main__':
-    import traceback as tb
+fakecode = """
+Axiom: A
+###### INITIALISATION ######
+def """+LsysContext.InitialisationFunctionName+"""(context):
+	context.options.setSelection("Module declaration",1)
+"""
+
+def test_options_init(verbose = False):
+    l = Lsystem()
+    try:
+        l.set(fakecode)
+        raised = False
+    except:
+        if verbose:
+            tb.print_exc()
+        raised = True
+    if not raised:
+        raise Exception('Parsing options were not respected')
+
+if __name__ == '__main__':    
     test_func = [ (n,v) for n,v in globals().items() if 'test' in n]
     test_func.sort(lambda x,y : cmp(x[1].func_code.co_firstlineno,y[1].func_code.co_firstlineno))
     for tfn,tf in test_func:

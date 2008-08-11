@@ -77,14 +77,14 @@ class LpySimulation:
         else : return os.path.splitext(os.path.basename(self.fname))[0]
     def getTabName(self):
         t = ''
-        if self.textedition:
-            t += '*'
+        #if self.textedition:
+        #    t += '*'
         if self.fname is None:
             t += 'New'
         else:
             t += os.path.splitext(os.path.basename(self.fname))[0]
-        if self._edited:
-            t += '*'
+        #if self._edited:
+        #    t += '*'
         return t
     def registerTab(self):
         icon = QIcon()
@@ -241,7 +241,7 @@ class LpySimulation:
         if len(matinitcode) > 0 or len(creditsinitcode) > 0:
             if self.code[-1] != '\n':
                 f.write('\n')
-            f.write('###### INITIALISATION ######\n\n')
+            f.write(LsysContext.InitialisationBeginTag+'\n\n')
             f.write(matinitcode)
             f.write(creditsinitcode)
         f.close()        
@@ -286,14 +286,16 @@ class LpySimulation:
                 os.remove(bckupname)          
         f = file(readname,'r')
         txt = f.read()
-        txts = txt.split('###### INITIALISATION ######')            
+        txts = txt.split(LsysContext.InitialisationBeginTag)            
         self.code = txts[0]
         self.textedition = recovery
         self.setEdited(recovery)
         if len(txts) == 2:
             context = self.lsystem.context()
-            context.execute(txts[1])
-            context.initialise()
+            init = context.initialiseFrom(LsysContext.InitialisationBeginTag+txts[1])
+            if init is None:
+                import warnings
+                warnings.warn('initialisation failed')
             if context.has_key(context.InitialisationFunctionName):
                 del context[context.InitialisationFunctionName]
             for key in self.desc_items.iterkeys():

@@ -24,7 +24,7 @@ def test_autodelcontext():
     l.makeCurrent()
     l = Lsystem()
     l.makeCurrent()
-
+    
 if __name__ == '__main__':
     import traceback as tb
     test_func = [ (n,v) for n,v in globals().items() if 'test' in n]

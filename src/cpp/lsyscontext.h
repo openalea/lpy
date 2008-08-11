@@ -48,6 +48,7 @@ public:
 
   /** string value of python variable containing lsystem informations. */
   static const std::string InitialisationFunctionName;
+  static const std::string InitialisationBeginTag;
   static const std::string AxiomVariable;
   static const std::string DerivationLengthVariable;
   static const std::string DecompositionMaxDepthVariable;
@@ -91,7 +92,8 @@ public:
   void setEndEach(boost::python::object func);
 
   /// initialise context using python function in namespace.
-  void initialise();
+  bool initialise();
+  size_t initialiseFrom(const std::string& lcode);
 
   /** compilation of code into the python namespace */
   void execute(const std::string&)  ;
@@ -182,6 +184,10 @@ protected:
   void setIterationNb(size_t) ;
 
 protected:
+  /// initialise context using python function in namespace.
+  bool __initialise();
+  size_t __initialiseFrom(const std::string& lcode);
+
   /** Event when context is made current, release, pushed or restore */
   virtual void currentEvent();
   virtual void doneEvent();

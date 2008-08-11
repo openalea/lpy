@@ -74,6 +74,11 @@
               <string>Icons and texts</string>
              </property>
             </item>
+            <item>
+             <property name="text" >
+              <string>Texts below icons</string>
+             </property>
+            </item>
            </widget>
           </item>
          </layout>
@@ -166,6 +171,14 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tabEditing" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>276</width>
+        <height>198</height>
+       </rect>
+      </property>
       <attribute name="title" >
        <string>Editing</string>
       </attribute>
@@ -232,6 +245,14 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tabFile" >
+      <property name="geometry" >
+       <rect>
+        <x>180</x>
+        <y>262</y>
+        <width>952</width>
+        <height>688</height>
+       </rect>
+      </property>
       <attribute name="title" >
        <string>File</string>
       </attribute>
@@ -340,8 +361,8 @@
      <widget class="QWidget" name="tabExecution" >
       <property name="geometry" >
        <rect>
-        <x>0</x>
-        <y>0</y>
+        <x>4</x>
+        <y>30</y>
         <width>276</width>
         <height>198</height>
        </rect>

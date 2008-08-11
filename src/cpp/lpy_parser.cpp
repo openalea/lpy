@@ -72,34 +72,30 @@ has_pattern(const std::string& src,
 }
 
 
+
 inline 
-void ToEndlineCheckColon(const std::string& text,std::string::const_iterator& _it, std::string& filename, int& lineno){
+void ToEndlineCheckColon(std::string::const_iterator& _it, std::string::const_iterator _end, std::string& filename, int& lineno){
     bool colon = false;
-    while( _it!=text.end() && (*_it)!='\n') {
+    while( _it!=_end && (*_it)!='\n') {
         ++_it;
         if ((*_it)!=':')colon = true;
     }
     if (!colon) LsysWarning("Colon missing.",filename,lineno);
-    if(_it!=text.end() && (*_it)=='\n') { ++lineno; ++_it; /* std::cerr << 'b' << lineno << ':' << std::distance(text.begin(),_it) << std::endl; */ }
-}
-
-
-inline 
-void ToEndline(const std::string& text,std::string::const_iterator& _it,int& lineno){
-	while( _it!=text.end() && (*_it)!='\n') ++_it;
-    if(_it!=text.end() && (*_it)=='\n') { ++lineno; ++_it; /* std::cerr << 'b' << lineno << ':' << std::distance(text.begin(),_it) << std::endl; */ }
+    if(_it!=_end && (*_it)=='\n') { ++lineno; ++_it; }
 }
 
 inline 
-void ToEndlineA(const std::string& text,std::string::const_iterator& _it,int& lineno){
-    while( _it!=text.end() && (*_it)!='\n' && (*_it)!='A' && (*_it)!='n' ) ++_it;
-    if(_it!=text.end() && ((*_it)=='\n' || (*_it)=='A' || (*_it)=='n')) 
+void ToEndline(std::string::const_iterator& _it, std::string::const_iterator _end,int& lineno){
+	while( _it!=_end && (*_it)!='\n') ++_it;
+    if(_it!=_end && (*_it)=='\n') { ++lineno; ++_it; }
+}
+
+inline 
+void ToEndlineA(std::string::const_iterator& _it,std::string::const_iterator _end, int& lineno){
+    while( _it!=_end && (*_it)!='\n' && (*_it)!='A' && (*_it)!='n' ) ++_it;
+    if(_it!=_end && ((*_it)=='\n' || (*_it)=='A' || (*_it)=='n')) 
     { 
-        if((*_it)=='\n'){
-            ++lineno;
-//            std::cerr << 'c' << lineno << ':' << std::distance(text.begin(),_it)  << std::endl;
-            ++_it; 
-        }
+        if((*_it)=='\n') { ++lineno; ++_it; }
     }
 }
 
@@ -126,6 +122,20 @@ bool notOnlySpace(std::string::const_iterator beg, std::string::const_iterator e
 
 #define WindowSpecificEndline 13
 
+size_t LsysContext::initialiseFrom(const std::string& _lcode)
+{
+	ContextMaintainer c(this);
+#ifndef _WIN32
+  std::string _lcode_ = _lcode;
+  for(std::string::iterator _itEr = _lcode_.begin(); _itEr != _lcode_.end(); ++_itEr)
+  	if (*_itEr == WindowSpecificEndline) _lcode_.erase(_itEr);
+  const std::string& lcode = _lcode_;
+#else
+  const std::string& lcode = _lcode;
+#endif
+  return __initialiseFrom(lcode);
+}
+
 void 
 Lsystem::set( const std::string&   _rules , std::string * pycode){
   ACQUIRE_RESSOURCE
@@ -143,6 +153,8 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
   const std::string& rules = _rules;
 #endif
   std::string::const_iterator _it = rules.begin();
+  std::string::const_iterator endcode = rules.end();
+  std::string::const_iterator endpycode = endcode;
   std::string::const_iterator _it2 = _it;
   std::string::const_iterator beg = rules.begin();
   bool inmodulecode = false;
@@ -158,93 +170,108 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
   int mode = -1;
   int lineno = 1;
   int group = 0;
-  while(_it!=rules.end()){
+  // Retrieve of lpy format version
+  float lpyversion = 1.0;
+  if (has_pattern(_it,endcode,"# - lpy version : ")) {
+	  while(_it != endcode && (*_it == ' ' || *_it == '\t')) ++_it;
+	  _it2 = _it;
+	  toendline(_it,endpycode);
+	  std::string::const_iterator _it3 = _it;
+	  while(_it3 != _it2 && (*_it3 == ' ' || *_it3 == '\t' || *_it3 == '\n')) --_it3;
+	  lpyversion = atof(std::string(_it2,_it3).c_str());
+  }
+
+  //  context initialisation
+  size_t initpos = __context.__initialiseFrom(rules);
+  if (initpos != std::string::npos) endpycode = rules.begin()+initpos;
+
+  while(_it!=endpycode){
 	switch(mode){
 	case -1:
 	  {
 		switch(*_it){
 		case 'A':
 		  _it2 = _it;
-		  if(has_pattern(rules,_it,"Axiom") && 
+		  if(has_pattern(_it,endpycode,"Axiom") && 
 			 (_it2 == rules.begin() || *(_it2-1) == '\n')){
             code += std::string(beg,_it2);
 			beg = _it;
-			while( _it!=rules.end() && (*_it)!=':' && (*_it)!='\n')
+			while( _it!=endpycode && (*_it)!=':' && (*_it)!='\n')
 			  _it++;
-			if(_it!=rules.end() && (*_it)==':'){
+			if(_it!=endpycode && (*_it)==':'){
 			  _it++;
               axiom_lineno = lineno;
               code += LsysContext::AxiomVariable + " = ";
-              code += lstring2py(_it,rules.end(),'\n',lineno);
+              code += lstring2py(_it,endpycode,'\n',lineno);
 			}
             else LsysParserSyntaxError("Cannot find ':' after Axiom");
 			beg = _it;
 		  }
-		  else if(has_pattern(rules,_it,"AxialTree")){
+		  else if(has_pattern(_it,endpycode,"AxialTree")){
 			code += std::string(beg,_it)+'(';
-			while (_it!=rules.end()&&*_it!='(')_it++;
-			if(_it!=rules.end()){
+			while (_it!=endpycode&&*_it!='(')_it++;
+			if(_it!=endpycode){
 			  _it++;
-			  code += lstring2py(_it,rules.end(),')',lineno);
-			  if(_it!=rules.end())_it++;
+			  code += lstring2py(_it,endpycode,')',lineno);
+			  if(_it!=endpycode)_it++;
 			}
 			code += ')';
 			beg = _it;
-			toendlineA(rules,_it);
+			toendlineA(_it,endpycode);
 		  }
-          else {if(_it!=rules.end())++_it; toendlineA(rules,_it); }
+          else {if(_it!=endpycode)++_it; toendlineA(_it,endpycode); }
 		  break;
 		case 'n':
 		  _it2 = _it;
-          if(has_pattern(rules,_it,"nproduce")){
+          if(has_pattern(_it,endpycode,"nproduce")){
 			code += std::string(beg,_it)+'(';
-			if(_it!=rules.end()){
-			  code += lstring2py(_it,rules.end(),'\n',lineno);
+			if(_it!=endpycode){
+			  code += lstring2py(_it,endpycode,'\n',lineno);
 			}
 			code += ')';
 			beg = _it;
-			toendlineA(rules,_it);
+			toendlineA(_it,endpycode);
 		  }
-          else {if(_it!=rules.end())++_it; toendlineA(rules,_it); }
+          else {if(_it!=endpycode)++_it; toendlineA(_it,endpycode); }
 		  break;
 		case 'm':
 		  _it2 = _it;
-          if(has_pattern(rules,_it,"module")){
+          if(has_pattern(_it,endpycode,"module")){
             code+=std::string(beg,_it2);
-			std::vector<std::string> modules = parse_moddeclaration(_it,rules.end());
+			std::vector<std::string> modules = parse_moddeclaration(_it,endpycode);
 			code+="# "+std::string(_it2,_it);
 			for(std::vector<std::string>::const_iterator itmod = modules.begin(); itmod != modules.end(); ++itmod){
 				ModuleClassPtr mod = ModuleClassTable::get().declare(*itmod);
 				__context.declare(mod);
 			}
 			beg = _it;
-			toendlineA(rules,_it);
+			toendlineA(_it,endpycode);
 		  }
-          else {if(_it!=rules.end())++_it; toendlineA(rules,_it); }
+          else {if(_it!=endpycode)++_it; toendlineA(_it,endpycode); }
 		  break;
 		case 'p':
 		  _it2 = _it;
-		  if(has_pattern(rules,_it,"production")){
+		  if(has_pattern(_it,endpycode,"production")){
             code+=std::string(beg,_it2);
-			toendlineC(rules,_it);
+			toendlineC(_it,endpycode);
             code+="# "+std::string(_it2,_it);
 			beg = _it;
 			mode = 0;
 		  }
-		  else toendlineA(rules,_it);
+		  else toendlineA(_it,endpycode);
 		  break;
 		case 'd':
 		  _it2 = _it;
-		  if(has_pattern(rules,_it,"derivation length")){
+		  if(has_pattern(_it,endpycode,"derivation length")){
             code+=std::string(beg,_it2);
 			beg = _it;
-			while( _it!=rules.end() && (*_it)!=':' && (*_it)!='\n')
+			while( _it!=endpycode && (*_it)!=':' && (*_it)!='\n')
 			  _it++;
-			if(_it!=rules.end() && (*_it)==':'){
+			if(_it!=endpycode && (*_it)==':'){
 			  _it++;
 			  beg = _it;
-			  toendline(rules,_it);
-			  if(beg != rules.end())
+			  toendline(_it,endpycode);
+			  if(beg != endpycode)
                 if (notOnlySpace(beg,_it)){
                     code+=LsysContext::DerivationLengthVariable+" = "+std::string(beg,_it);
                     max_derivation_lineno = lineno-1;
@@ -255,20 +282,20 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
             else LsysParserSyntaxError("Cannot find ':' after derivation length");
 			beg = _it;
 		  }
-		  else toendlineA(rules,_it);
+		  else toendlineA(_it,endpycode);
 		  break;
 		case 'c':
 		  _it2 = _it;
-		  if(has_pattern(rules,_it,"consider")){
+		  if(has_pattern(_it,endpycode,"consider")){
             code+=std::string(beg,_it2);
 			beg = _it;
-			while( _it!=rules.end() && (*_it)!=':' && (*_it)!='\n')
+			while( _it!=endpycode && (*_it)!=':' && (*_it)!='\n')
 			  _it++;
-			if(_it!=rules.end() && (*_it)==':'){
+			if(_it!=endpycode && (*_it)==':'){
 			  _it++;
 			  beg = _it;
-			  toendline(rules,_it);
-			  if(beg != rules.end())
+			  toendline(_it,endpycode);
+			  if(beg != endpycode)
 				__context.consider(std::string(beg,_it));
               else LsysParserSyntaxError("Cannot find value for consider");
 			}
@@ -276,27 +303,27 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
             code+="# "+std::string(_it2,_it);
 			beg = _it;
 		  }
-		  else toendlineA(rules,_it);
+		  else toendlineA(_it,endpycode);
 		  break;
 		case 'e':
           _it2 = _it;
-		  if(has_pattern(rules,_it,"endlsystem")){
+		  if(has_pattern(_it,endpycode,"endlsystem")){
             LsysParserSyntaxError("endlsystem found before production statement.");
 		  }
-          else toendlineA(rules,_it);
+          else toendlineA(_it,endpycode);
 		  break;
 		case 'i':
 		  _it2 = _it;
-		  if(has_pattern(rules,_it,"ignore")){
+		  if(has_pattern(_it,endpycode,"ignore")){
             code+=std::string(beg,_it2);
 			beg = _it;
-			while( _it!=rules.end() && (*_it)!=':' && (*_it)!='\n')
+			while( _it!=endpycode && (*_it)!=':' && (*_it)!='\n')
 			  _it++;
-			if(_it!=rules.end() && (*_it)==':'){
+			if(_it!=endpycode && (*_it)==':'){
 			  _it++;
 			  beg = _it;
-			  toendline(rules,_it);
-			  if(beg != rules.end())
+			  toendline(_it,endpycode);
+			  if(beg != endpycode)
 				__context.ignore(std::string(beg,_it));
               else LsysParserSyntaxError("Cannot find value for ignore");
 			}
@@ -304,10 +331,10 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
             code+="# "+std::string(_it2,_it);
 			beg = _it;
 		  }
-		  else toendlineA(rules,_it);
+		  else toendlineA(_it,endpycode);
 		  break;
 		default:
-		  toendlineA(rules,_it);
+		  toendlineA(_it,endpycode);
 		  break;
 		}
 	  }
@@ -318,20 +345,20 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
 		switch(*_it){
 		case 'e':
           _it2 = _it;
-		  if(has_pattern(rules,_it,"endlsystem")){
+		  if(has_pattern(_it,endpycode,"endlsystem")){
 			if(!rule.empty()){
               PROCESS_RULE(rule,code,addedcode,mode,group)
 			}
-			toendline(rules,_it);
+			toendline(_it,endpycode);
             code+="# "+std::string(_it2,_it);
 			mode = -1;
             beg = _it;
 		  }
-		  else if(has_pattern(rules,_it,"endgroup")){
+		  else if(has_pattern(_it,endpycode,"endgroup")){
 			if(!rule.empty()){
               PROCESS_RULE(rule,code,addedcode,mode,group)
 			}
-			toendline(rules,_it);
+			toendline(_it,endpycode);
             code+="# "+std::string(_it2,_it);
 			group = 0;
             beg = _it;
@@ -341,7 +368,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
               PROCESS_RULE(rule,code,addedcode,mode,group)
 			}
 			beg = _it;
-			toendline(rules,_it);
+			toendline(_it,endpycode);
 			rule += std::string(beg,_it);
 		  }
 		  break;
@@ -350,14 +377,14 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
               PROCESS_RULE(rule,code,addedcode,mode,group)
 		  }
 		  _it2 = _it;
-		  if(mode == 0 && has_pattern(rules,_it,"derivation length")){
-			while( _it!=rules.end() && (*_it)!=':' && (*_it)!='\n')
+		  if(mode == 0 && has_pattern(_it,endpycode,"derivation length")){
+			while( _it!=endpycode && (*_it)!=':' && (*_it)!='\n')
 			  _it++;
-			if(_it!=rules.end() && (*_it)==':'){
+			if(_it!=endpycode && (*_it)==':'){
 			  _it++;
 			  beg = _it;
-			  toendline(rules,_it);
-			  if(beg != rules.end()){
+			  toendline(_it,endpycode);
+			  if(beg != endpycode){
                 if (notOnlySpace(beg,_it))
                     code+=LsysContext::DerivationLengthVariable+" = "+std::string(beg,_it);
                 else LsysParserSyntaxError("Cannot find value for derivation length");
@@ -366,20 +393,20 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
 			}
             else LsysParserSyntaxError("Cannot find ':' after derivation length");
 		  }
-		  else if(has_pattern(rules,_it,"decomposition")){
+		  else if(has_pattern(_it,endpycode,"decomposition")){
 			mode = 1;
-			toendlineC(rules,_it);
+			toendlineC(_it,endpycode);
             code+='#'+std::string(_it2,_it);
 			beg = _it;
 		  }
-		  else if(has_pattern(rules,_it,"def")){
+		  else if(has_pattern(_it,endpycode,"def")){
 			mode = -1;
 			beg = _it2;
             LsysParserWarning("a python function is declared inside production section. Switching to python mode.");
 		  }
 		  else {
 			beg = _it;
-			toendline(rules,_it);
+			toendline(_it,endpycode);
 			rule += std::string(beg,_it);
 		  }
 		  break;
@@ -388,15 +415,15 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
             PROCESS_RULE(rule,code,addedcode,mode,group)
 		  }
 		  _it2 = _it;
-          if(has_pattern(rules,_it,"homomorphism")){
-			toendlineC(rules,_it);
+          if(has_pattern(_it,endpycode,"homomorphism")){
+			toendlineC(_it,endpycode);
             code+="# "+std::string(_it2,_it);
 			beg = _it;
 			mode = 2;
 		  }
 		  else {
 			beg = _it;
-			toendline(rules,_it);
+			toendline(_it,endpycode);
 			rule += std::string(beg,_it);
 		  }
 		  break;
@@ -405,11 +432,11 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
               PROCESS_RULE(rule,code,addedcode,mode,group)
 		  }
 		  _it2 = _it;
-		  if(mode == 0 && has_pattern(rules,_it,"group ")){
+		  if(mode == 0 && has_pattern(_it,endpycode,"group ")){
             beg = _it;
-			while( _it!=rules.end() && (*_it)!=':' && (*_it)!='\n')
+			while( _it!=endpycode && (*_it)!=':' && (*_it)!='\n')
 			  _it++;
-			if(_it!=rules.end() && (*_it)==':'){
+			if(_it!=endpycode && (*_it)==':'){
               if (notOnlySpace(beg,_it)){
                   group = __context.readInt(std::string(beg,_it));
                   if (group < 0) {
@@ -421,14 +448,14 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
                   // else if(debug) std::cerr << "Use group " << group << " from line " << lineno << std::endl;
               }
               else LsysParserSyntaxError("Cannot find value for group");
-			  toendline(rules,_it);
+			  toendline(_it,endpycode);
               code+="# "+std::string(_it2,_it);
 			}
             else LsysParserSyntaxError("Cannot find value and ':' after group");
 		  }
 		  else {
 			beg = _it;
-			toendline(rules,_it);
+			toendline(_it,endpycode);
 			rule += std::string(beg,_it);
 		  }
 		  break;
@@ -437,15 +464,15 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
             PROCESS_RULE(rule,code,addedcode,mode,group)
 		  }
 		  _it2 = _it;
-		  if(has_pattern(rules,_it,"production")){
-			toendlineC(rules,_it);
+		  if(has_pattern(_it,endpycode,"production")){
+			toendlineC(_it,endpycode);
             code+="# "+std::string(_it2,_it);
 			beg = _it;
 			mode = 0;
 		  }
 		  else {
 			beg = _it;
-			toendline(rules,_it);
+			toendline(_it,endpycode);
 			rule += std::string(beg,_it);
 		  }
 		  break;
@@ -454,14 +481,14 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
             PROCESS_RULE(rule,code,addedcode,mode,group)
 		  }
 		  _it2 = _it;
-		  if((mode == 1||mode == 2) && has_pattern(rules,_it,"maximum depth")){
-			while( _it!=rules.end() && (*_it)!=':' && (*_it)!='\n')_it++;
-			if(_it!=rules.end() && (*_it)==':'){
+		  if((mode == 1||mode == 2) && has_pattern(_it,endpycode,"maximum depth")){
+			while( _it!=endpycode && (*_it)!=':' && (*_it)!='\n')_it++;
+			if(_it!=endpycode && (*_it)==':'){
 			  _it++;
 			  beg = _it;
-			  toendline(rules,_it);
+			  toendline(_it,endpycode);
               // code+='#'+std::string(_it2,_it);
-			  if(beg != rules.end()){
+			  if(beg != endpycode){
                   if (notOnlySpace(beg,_it)){
                       std::string var;
                       switch (mode){
@@ -487,7 +514,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
 		  }
 		  else {
 			beg = _it;
-			toendline(rules,_it);
+			toendline(_it,endpycode);
 			rule += std::string(beg,_it);
 		  }
 		  break;
@@ -496,14 +523,14 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
             PROCESS_RULE(rule,code,addedcode,mode,group)
 		  }
 		  _it2 = _it;
-		  if(has_pattern(rules,_it,"consider")){
-			while( _it!=rules.end() && (*_it)!=':' && (*_it)!='\n')_it++;
-			if(_it!=rules.end() && (*_it)==':'){
+		  if(has_pattern(_it,endpycode,"consider")){
+			while( _it!=endpycode && (*_it)!=':' && (*_it)!='\n')_it++;
+			if(_it!=endpycode && (*_it)==':'){
 			  _it++;
 			  beg = _it;
-			  toendline(rules,_it);
+			  toendline(_it,endpycode);
               code+="# "+std::string(_it2,_it);
-			  if(beg != rules.end())
+			  if(beg != endpycode)
 				__context.consider(std::string(beg,_it));
               else LsysParserSyntaxError("Cannot find value for consider");
 			}
@@ -511,7 +538,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
 		  }
 		  else {
 			beg = _it;
-			toendline(rules,_it);
+			toendline(_it,endpycode);
 			rule += std::string(beg,_it);
 		  }
 		  break;
@@ -520,28 +547,28 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
             PROCESS_RULE(rule,code,addedcode,mode,group)
 		  }
 		  _it2 = _it;
-		  if(has_pattern(rules,_it,"ignore")){
-			while( _it!=rules.end() && (*_it)!=':' && (*_it)!='\n')_it++;
-			if(_it!=rules.end() && (*_it)==':'){
+		  if(has_pattern(_it,endpycode,"ignore")){
+			while( _it!=endpycode && (*_it)!=':' && (*_it)!='\n')_it++;
+			if(_it!=endpycode && (*_it)==':'){
 			  _it++;
 			  beg = _it;
-			  toendline(rules,_it);
+			  toendline(_it,endpycode);
               code+="# "+std::string(_it2,_it);
-			  if(beg != rules.end())
+			  if(beg != endpycode)
 				__context.ignore(std::string(beg,_it));
               else LsysParserSyntaxError("Cannot find value for ignore");
 			}
             else LsysParserSyntaxError("Cannot find ':' after ignore");
 		  }
-		  if(has_pattern(rules,_it,"interpretation")){
-			toendlineC(rules,_it);
+		  if(has_pattern(_it,endpycode,"interpretation")){
+			toendlineC(_it,endpycode);
             code+="# "+std::string(_it2,_it);
 			beg = _it;
 			mode = 2;
 		  }
 		  else {
 			beg = _it;
-			toendline(rules,_it);
+			toendline(_it,endpycode);
 			rule += std::string(beg,_it);
 		  }
 		  break;
@@ -550,7 +577,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
             PROCESS_RULE(rule,code,addedcode,mode,group)
 		  }
 		  beg = _it;
-		  toendline(rules,_it);
+		  toendline(_it,endpycode);
 		  code += std::string(beg,_it);
 		  break;
 		case ' ':
@@ -558,7 +585,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
 		  if(rule.empty())
               LsysParserSyntaxError("Ill-formed construct.");
 		  beg = _it;
-		  toendline(rules,_it);
+		  toendline(_it,endpycode);
 		  rule += std::string(beg,_it);
 		  break;
 		case '\n':
@@ -585,14 +612,14 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
             PROCESS_RULE(rule,code,addedcode,mode,group)
 		  }
 		  beg = _it;
-		  toendline(rules,_it);
+		  toendline(_it,endpycode);
 		  rule += std::string(beg,_it);
 		  break;
 		}
 	  break;
 	case 3:
-	  if(_it != rules.end())code += std::string(_it,rules.end());
-	  _it = rules.end();
+	  if(_it != endpycode)code += std::string(_it,endpycode);
+	  _it = endpycode;
 	default:
 	  break;
 	}

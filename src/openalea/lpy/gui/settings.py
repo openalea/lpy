@@ -35,6 +35,9 @@ def restoreState(lpywidget):
     syntaxhlght = settings.value('highlighted',QVariant(True)).toBool()
     lpywidget.codeeditor.setSyntaxHighLightActivation(syntaxhlght)
     lpywidget.actionSyntax.setChecked(syntaxhlght)
+    tabhlght = settings.value('tabview',QVariant(True)).toBool()
+    lpywidget.codeeditor.setTabHighLightActivation(tabhlght)
+    lpywidget.actionTabHightlight.setChecked(tabhlght)
     settings.endGroup()
     settings.beginGroup('appearance')
     if settings.contains('state'):
@@ -106,6 +109,7 @@ def saveState(lpywidget):
         settings.endGroup()
     settings.beginGroup('syntax')
     settings.setValue('highlighted',QVariant(lpywidget.codeeditor.isSyntaxHighLightActivated()))
+    settings.setValue('tabview',QVariant(lpywidget.codeeditor.isTabHighLightActivated()))
     settings.endGroup()
     if settings.status() != QSettings.NoError:
             raise Exception('settings error')

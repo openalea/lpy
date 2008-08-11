@@ -59,14 +59,18 @@ C(t) :
         produce D%
     else: produce *
 
-D : produce ,(1)@O(35)F(80)&(10)F(60)&(10)F(40)
-F(s) : produce F(s*SRATE)
-f(s) : produce f(s*SRATE)
-G(s) : produce G(s*SRATE)
-~l(s,t) : if t < T0 and s<600: produce ~l(s*LRATE,t+1)
-&(a) : if a<135: produce &(a+BANGI)
--(a,t) : if a<90 and t<T0: produce -(a+BANGL,t+1)
-_(r) : if r<20 : produce _(r+0.5)
+D --> ,(1)@O(35)F(80)&(10)F(60)&(10)F(40)
+F(s) --> F(s*SRATE)
+f(s) --> f(s*SRATE)
+G(s) --> G(s*SRATE)
+~l(s,t) : 
+    if t < T0 and s<600: produce ~l(s*LRATE,t+1)
+&(a) : 
+    if a<135: produce &(a+BANGI)
+-(a,t) : 
+    if a<90 and t<T0: produce -(a+BANGL,t+1)
+_(r) : 
+    if r<20 : produce _(r+0.5)
 
 endlsystem
 ###### INITIALISATION ######

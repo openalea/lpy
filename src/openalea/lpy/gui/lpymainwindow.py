@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'lpymainwindow.ui'
 #
-# Created: Fri Aug 08 17:41:37 2008
+# Created: Mon Aug 11 11:48:21 2008
 #      by: PyQt4 UI code generator 4.4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -461,12 +461,24 @@ class Ui_MainWindow(object):
         self.actionSyntax.setCheckable(True)
         self.actionSyntax.setObjectName("actionSyntax")
         self.actionComment = QtGui.QAction(MainWindow)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/images/icons/next-green.png"),QtGui.QIcon.Normal,QtGui.QIcon.Off)
+        self.actionComment.setIcon(icon)
         self.actionComment.setObjectName("actionComment")
         self.actionUncomment = QtGui.QAction(MainWindow)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/images/icons/prev-green.png"),QtGui.QIcon.Normal,QtGui.QIcon.Off)
+        self.actionUncomment.setIcon(icon)
         self.actionUncomment.setObjectName("actionUncomment")
         self.actionInsertTab = QtGui.QAction(MainWindow)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/images/icons/next.png"),QtGui.QIcon.Normal,QtGui.QIcon.Off)
+        self.actionInsertTab.setIcon(icon)
         self.actionInsertTab.setObjectName("actionInsertTab")
         self.actionRemoveTab = QtGui.QAction(MainWindow)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/images/icons/prev.png"),QtGui.QIcon.Normal,QtGui.QIcon.Off)
+        self.actionRemoveTab.setIcon(icon)
         self.actionRemoveTab.setObjectName("actionRemoveTab")
         self.actionReplace = QtGui.QAction(MainWindow)
         self.actionReplace.setObjectName("actionReplace")
@@ -495,6 +507,9 @@ class Ui_MainWindow(object):
         self.actionNoZoom.setObjectName("actionNoZoom")
         self.actionPreferences = QtGui.QAction(MainWindow)
         self.actionPreferences.setObjectName("actionPreferences")
+        self.actionTabHightlight = QtGui.QAction(MainWindow)
+        self.actionTabHightlight.setCheckable(True)
+        self.actionTabHightlight.setObjectName("actionTabHightlight")
         self.menuL_systems.addAction(self.actionRun)
         self.menuL_systems.addAction(self.actionAnimate)
         self.menuL_systems.addSeparator()
@@ -529,17 +544,18 @@ class Ui_MainWindow(object):
         self.menuEdit.addAction(self.actionFind)
         self.menuEdit.addAction(self.actionReplace)
         self.menuEdit.addSeparator()
-        self.menuEdit.addAction(self.actionZoomIn)
-        self.menuEdit.addAction(self.actionZoomOut)
-        self.menuEdit.addAction(self.actionNoZoom)
-        self.menuEdit.addSeparator()
-        self.menuEdit.addAction(self.actionSyntax)
-        self.menuEdit.addSeparator()
         self.menuEdit.addAction(self.actionPreferences)
         self.menuHelp.addAction(self.actionAbout)
         self.menuHelp.addAction(self.actionAboutQt)
         self.menuHelp.addAction(self.actionAboutVPlants)
         self.menuHelp.addSeparator()
+        self.menuView.addAction(self.actionZoomIn)
+        self.menuView.addAction(self.actionZoomOut)
+        self.menuView.addAction(self.actionNoZoom)
+        self.menuView.addSeparator()
+        self.menuView.addAction(self.actionSyntax)
+        self.menuView.addAction(self.actionTabHightlight)
+        self.menuView.addSeparator()
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuL_systems.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
@@ -668,6 +684,7 @@ class Ui_MainWindow(object):
         self.actionZoomOut.setText(QtGui.QApplication.translate("MainWindow", "Zoom Out", None, QtGui.QApplication.UnicodeUTF8))
         self.actionNoZoom.setText(QtGui.QApplication.translate("MainWindow", "Zoom 1:1", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPreferences.setText(QtGui.QApplication.translate("MainWindow", "Preferences...", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionTabHightlight.setText(QtGui.QApplication.translate("MainWindow", "Tab Hightlight", None, QtGui.QApplication.UnicodeUTF8))
 
 from lpycodeeditor import LpyCodeEditor
 from materialeditor import MaterialEditor
