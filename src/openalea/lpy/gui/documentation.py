@@ -64,6 +64,14 @@ Here comes the python commands that control the simulation.
 <table>
 <tr><td><b>context()     </b></td><td> Get context of execution of the L-system. To use with care.</td></tr>
 </table>
+
+<H3>The following objects and commands are also accessible from within the lpy shell:</H3>
+<table>
+<tr><td><b>lstring     </b></td><td> contains the last computed lsystem string of the current simulation.</td></tr>
+<tr><td><b>lsystem     </b></td><td> reference to the internal lsystem object representing the current simulation.</td></tr>
+<tr><td><b>window   </b></td><td> reference to lpy widget object.</td></tr>
+<tr><td><b>clear()   </b></td><td> to clear the shell.</td></tr>
+</table>
 <BR><BR>
 All these functions are imported from openalea.lpy module. Other data structures and functionnalities are available in the module. You can check them with <b>help(openalea.lpy)</b>.<BR>
 

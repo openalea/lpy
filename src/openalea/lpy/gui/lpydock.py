@@ -29,8 +29,6 @@ def initDocks(lpywidget):
         action.setShortcut(QApplication.translate("MainWindow", "Ctrl+P", None, QApplication.UnicodeUTF8))
         lpywidget.menuView.addSeparator()
         lpywidget.menuView.addAction(action)
-        #lpywidget.interpreter.locals['lsystem'] = lpywidget.lsystem
-        #lpywidget.interpreter.locals['tree'] = lpywidget.tree
         lpywidget.interpreter.locals['window'] = lpywidget
         lpywidget.interpreter.locals['clear'] = lpywidget.shell.clear
         lpywidget.interpreter.runcode('from openalea.plantgl.all import *')

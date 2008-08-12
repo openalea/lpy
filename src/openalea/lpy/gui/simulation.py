@@ -133,7 +133,7 @@ class LpySimulation:
         self.lpywidget.materialed.turtle = self.lsystem.context().turtle
         self.lpywidget.materialed.updateGL()
         if not self.lpywidget.interpreter is None:
-            self.lpywidget.interpreter.locals['tree'] = self.tree
+            self.lpywidget.interpreter.locals['lstring'] = self.tree
             self.lpywidget.interpreter.locals['lsystem'] = self.lsystem
         self.lpywidget.printTitle()
         self.lpywidget.setTimeStep(self.lsystem.context().animation_timestep)
@@ -185,7 +185,7 @@ class LpySimulation:
         self.nbiterations = nbiterations
         self.lpywidget.statusBar().showMessage('Nb Iterations : '+str(self.nbiterations),5000)
         if not self.lpywidget.interpreter is None:
-            self.lpywidget.interpreter.locals['tree'] = self.tree
+            self.lpywidget.interpreter.locals['lstring'] = self.tree
     def updateLsystemCode(self):
         if self.lpywidget.codeBackupEnabled:
             if self.fname and self._edited:
