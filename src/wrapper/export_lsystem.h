@@ -34,7 +34,7 @@
 void export_Options();
 void export_Module();
 void export_AxialTree();
-void export_StringInterpreter();
+void export_Interpretation();
 void export_LsysRule();
 void export_LsysContext();
 void export_Lsystem();

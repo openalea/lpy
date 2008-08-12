@@ -28,7 +28,7 @@
  # ---------------------------------------------------------------------------
  */
 
-#include "stringinterpreter.h"
+#include "interpretation.h"
 #include "axialtree.h"
 
 #include <boost/python.hpp>
@@ -36,7 +36,7 @@ using namespace boost::python;
 LPY_USING_NAMESPACE
 PGL_USING_NAMESPACE
 
-void export_StringInterpreter()
+void export_Interpretation()
 {
   def("helpTurtle",(std::string(*)())&LPY::helpTurtle);
   def("helpTurtle",(std::string(*)(const std::string&))&LPY::helpTurtle);

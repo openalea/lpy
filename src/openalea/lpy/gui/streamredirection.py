@@ -29,23 +29,17 @@ sys_stdin = None
 class MultipleRedirection:
     """ Dummy file which redirects stream to multiple file """
 
-    def __init__(self, stream, guistream):
+    def __init__(self, *streams):
         """ The stream is redirect to the file list 'files' """
 
-        self.stream = stream
-        self.guistream = guistream
+        self.streams = streams
 
     def write(self, str):
         """ Emulate write function """
 
-        self.stream.write(str)
-        if self.guistream.thread() != QThread.currentThread():
-            e = QEvent(QEvent.Type(RedirectionEventId))
-            e.txt = str
-            QApplication.postEvent(self.guistream,e)
-            pass
-        else:
-            self.guistream.write(str)
+        for stream in self.streams:
+            stream.write(str)
+
 
 class ThreadedRedirection:
     """ Dummy file which redirects stream to threaded gui output """
@@ -80,10 +74,15 @@ class GraphicalStreamRedirection:
         if sys_stdin is None:
             sys_stdin = sys.stdin
         sys.stdout   = ThreadedRedirection(self)
-        sys.stderr   = MultipleRedirection(sys_stderr, self)
+        sys.stderr   = MultipleRedirection(sys_stderr, ThreadedRedirection(self))
         sys.stdin    = self
-        self.multipleStdOutRedirection()
-    
+        #self.multipleStdOutRedirection()
+
+    def __del__(self):
+        sys.stdout   = sys_stdout
+        sys.stderr   = sys_stderr
+        sys.stdin    = sys_stdin
+        
     def customEvent(self,event):
         """ custom event processing. Redirection to write """
         if event.type() == RedirectionEventId:
@@ -94,13 +93,13 @@ class GraphicalStreamRedirection:
     def multipleStdOutRedirection(self,enabled = True):
         """ make multiple (sys.stdout/pyconsole) or single (pyconsole) redirection of stdout """
         if enabled:
-            sys.stdout   = MultipleRedirection(sys_stdout, self)
+            sys.stdout   = MultipleRedirection(sys_stdout, ThreadedRedirection(self))
         else:
             sys.stdout   = ThreadedRedirection(self)
         
     def multipleStdErrRedirection(self,enabled = True):
         """ make multiple (sys.stderr/pyconsole) or single (pyconsole) redirection of stderr """
         if enabled:
-            sys.stderr   = MultipleRedirection(sys_stderr, self)
+            sys.stderr   = MultipleRedirection(sys_stderr, ThreadedRedirection(self))
         else:
             sys.stderr   = ThreadedRedirection(self)

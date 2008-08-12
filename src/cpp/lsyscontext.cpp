@@ -40,7 +40,6 @@ LPY_USING_NAMESPACE
 /*---------------------------------------------------------------------------*/
 
 const std::string LsysContext::InitialisationFunctionName("__initialiseContext__");
-const std::string LsysContext::InitialisationBeginTag("###### INITIALISATION ######");
 const std::string LsysContext::AxiomVariable("__axiom__");
 const std::string LsysContext::DerivationLengthVariable("__derivation_length__");
 const std::string LsysContext::DecompositionMaxDepthVariable("__decomposition_max_depth__");
@@ -350,7 +349,7 @@ LsysContext::keyword() const{
 void 
 LsysContext::declare(const std::string& modules)
 {
-	std::vector<std::string> moduleclasses = parse_moddeclaration(modules);
+	std::vector<std::string> moduleclasses = LpyParsing::parse_moddeclaration(modules);
 	bool iscurrent = isCurrent();
 	for(std::vector<std::string>::const_iterator it = moduleclasses.begin();
 		it != moduleclasses.end(); ++it)
@@ -373,7 +372,7 @@ void LPY::declare(const std::string& modules)
 void 
 LsysContext::undeclare(const std::string& modules)
 {
-	std::vector<std::string> moduleclasses = parse_moddeclaration(modules);
+	std::vector<std::string> moduleclasses = LpyParsing::parse_moddeclaration(modules);
 	bool iscurrent = isCurrent();
 	for(std::vector<std::string>::const_iterator it = moduleclasses.begin();
 		it != moduleclasses.end(); ++it)
@@ -567,7 +566,7 @@ bool LsysContext::__initialise()
 size_t LsysContext::__initialiseFrom(const std::string& lcode)
 {
 	ContextMaintainer c(this);
-	size_t pos = lcode.find(InitialisationBeginTag);
+	size_t pos = lcode.find(LpyParsing::InitialisationBeginTag);
 	if (pos != std::string::npos) {
 		execute(std::string(lcode.begin()+pos,lcode.end()));
 		if (__initialise()) return pos;

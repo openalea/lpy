@@ -32,7 +32,6 @@
 #define __PGL_LSYSCONTEXT_H__
 
 #include "axialtree.h"
-#include "stringinterpreter.h"
 #include "lsysoptions.h"
 #include <plantgl/algo/modelling/pglturtle.h>
 #include <plantgl/tool/util_hashset.h>
@@ -48,7 +47,6 @@ public:
 
   /** string value of python variable containing lsystem informations. */
   static const std::string InitialisationFunctionName;
-  static const std::string InitialisationBeginTag;
   static const std::string AxiomVariable;
   static const std::string DerivationLengthVariable;
   static const std::string DecompositionMaxDepthVariable;

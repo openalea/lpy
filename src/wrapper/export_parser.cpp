@@ -31,12 +31,42 @@
 #include "lpy_parser.h"
 
 #include <boost/python.hpp>
+#include <plantgl/python/export_list.h>
+
 using namespace boost::python;
 LPY_USING_NAMESPACE
 
 /* ----------------------------------------------------------------------- */
+std::string getInitialisationBeginTag() { return LpyParsing::InitialisationBeginTag; }
+std::string getVersionTag() { return LpyParsing::VersionTag; }
+
+boost::python::object py_getformats() {
+	return make_list<std::vector<float> >(LpyParsing::getSupportedFormat())();
+}
+
+bool isFormatDefined(const std::string& s) {  
+	std::string::const_iterator it = s.begin(); 
+	float format = LpyParsing::getFormatVersion(it,s.end()); 
+	return it != s.begin(); 
+}
 
 void export_parser()
 {
-	def("lstring2py",(std::string(*)(const std::string&))&LPY::lstring2py);
+	def("lstring2py",(std::string(*)(const std::string&))&LpyParsing::lstring2py);
+
+	class_<LpyParsing>("LpyParsing",no_init)
+		.add_static_property("InitialisationBeginTag",&getInitialisationBeginTag)
+		.add_static_property("VersionTag",&getVersionTag)
+		.add_static_property("formats",&py_getformats)
+		.add_static_property("DefaultFormat",make_getter(&LpyParsing::LPY_DEFAULT_FORMAT_VERSION))
+		.def("isSupportedFormat",&LpyParsing::isSupportedFormat)
+		.staticmethod("isSupportedFormat")
+		.def("getFormatVersion",(float (*)(const std::string&)) &LpyParsing::getFormatVersion)
+		.staticmethod("getFormatVersion")
+		.def("isFormatDefined",&isFormatDefined)
+		.staticmethod("isFormatDefined")
+		.def("lstring2py",(std::string(*)(const std::string&))&LpyParsing::lstring2py)
+		.staticmethod("lstring2py")
+	;
+
 }

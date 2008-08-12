@@ -48,8 +48,20 @@ LPY_USING_NAMESPACE
 #define RELEASE_RESSOURCE
 #endif
 
+/*---------------------------------------------------------------------------*/
 
+const std::string LpyParsing::InitialisationBeginTag("###### INITIALISATION ######");
+const std::string LpyParsing::VersionTag("# -*- lpy version: %f -*-");
 
+/*---------------------------------------------------------------------------*/
+
+const float LpyParsing::LPY_FORMAT_VERSION = 1.0f;
+const float LpyParsing::LPY_DEFAULT_FORMAT_VERSION = 1.0f;
+const std::vector<float> LpyParsing::getSupportedFormat() { std::vector<float> res; res.push_back(LPY_FORMAT_VERSION); return res; }
+
+bool LpyParsing::isSupportedFormat(float format) { return ( 1.0f <= format && format <= LPY_FORMAT_VERSION); }
+
+/*---------------------------------------------------------------------------*/
 
 inline bool
 has_pattern(std::string::const_iterator& pos,
@@ -71,7 +83,7 @@ has_pattern(const std::string& src,
  return has_pattern(pos,src.end(),pattern);
 }
 
-
+/*---------------------------------------------------------------------------*/
 
 inline 
 void ToEndlineCheckColon(std::string::const_iterator& _it, std::string::const_iterator _end, std::string& filename, int& lineno){
@@ -103,6 +115,8 @@ void ToEndlineA(std::string::const_iterator& _it,std::string::const_iterator _en
 #define toendlineA(a,b) ToEndlineA(a,b,lineno)
 #define toendlineC(a,b) ToEndlineCheckColon(a,b,filename,lineno)
 
+/*---------------------------------------------------------------------------*/
+
 inline 
 bool notOnlySpace(std::string::const_iterator beg, std::string::const_iterator end){
 	while( beg!=end) 
@@ -110,6 +124,33 @@ bool notOnlySpace(std::string::const_iterator beg, std::string::const_iterator e
         else ++beg;
 	return false;
 }
+
+/*---------------------------------------------------------------------------*/
+
+float LpyParsing::getFormatVersion(const std::string& lcode) {
+  return getFormatVersion(lcode.begin(),lcode.end());
+}
+
+float LpyParsing::getFormatVersion(std::string::const_iterator& it, std::string::const_iterator endcode) {
+  // Retrieve of lpy format version
+  float lpyversion = LPY_DEFAULT_FORMAT_VERSION;
+  size_t p = VersionTag.find("%f");
+  std::string::const_iterator _it = it;
+
+  if (has_pattern(_it,endcode,std::string(VersionTag.begin(),VersionTag.begin()+p))) {
+	  std::string::const_iterator _it2 = _it;
+	  while(_it != endcode && (*_it != ' ' && *_it != '\t'  && *_it != '\n')) { ++_it; }
+	  std::string::const_iterator _it3 = _it;
+	  if (has_pattern(_it,endcode,std::string(VersionTag.begin()+p+2,VersionTag.end())) && (_it != endcode && *_it == '\n')){
+		lpyversion = atof(std::string(_it2,_it3).c_str());
+		it = _it+1;
+	  }
+  }
+  return lpyversion;
+}
+
+/*---------------------------------------------------------------------------*/
+
 
 #define PROCESS_RULE(rulecode,code,addedcode,mode,group) \
 	LsysRule& r = __addRule(rulecode,mode,group,lineno - std::count(rule.begin(),rule.end(),'\n')); \
@@ -171,16 +212,15 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
   int lineno = 1;
   int group = 0;
   // Retrieve of lpy format version
-  float lpyversion = 1.0;
-  if (has_pattern(_it,endcode,"# - lpy version : ")) {
-	  while(_it != endcode && (*_it == ' ' || *_it == '\t')) ++_it;
-	  _it2 = _it;
-	  toendline(_it,endpycode);
-	  std::string::const_iterator _it3 = _it;
-	  while(_it3 != _it2 && (*_it3 == ' ' || *_it3 == '\t' || *_it3 == '\n')) --_it3;
-	  lpyversion = atof(std::string(_it2,_it3).c_str());
+  float lpyversion = LpyParsing::getFormatVersion(_it2,endpycode);
+  if (!LpyParsing::isSupportedFormat(lpyversion)){
+	  std::stringstream stream;
+	  stream << "Not supported lpy format : " << lpyversion << ". Supported = " << LpyParsing::LPY_FORMAT_VERSION << ".";
+	  LsysError(stream.str(),filename,0);
   }
-
+  // version has been found. lineno should be increment.
+  else if (_it != _it2) { _it = _it2; ++lineno; }
+  
   //  context initialisation
   size_t initpos = __context.__initialiseFrom(rules);
   if (initpos != std::string::npos) endpycode = rules.begin()+initpos;
@@ -202,7 +242,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
 			  _it++;
               axiom_lineno = lineno;
               code += LsysContext::AxiomVariable + " = ";
-              code += lstring2py(_it,endpycode,'\n',lineno);
+              code += LpyParsing::lstring2py(_it,endpycode,'\n',lineno);
 			}
             else LsysParserSyntaxError("Cannot find ':' after Axiom");
 			beg = _it;
@@ -212,7 +252,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
 			while (_it!=endpycode&&*_it!='(')_it++;
 			if(_it!=endpycode){
 			  _it++;
-			  code += lstring2py(_it,endpycode,')',lineno);
+			  code += LpyParsing::lstring2py(_it,endpycode,')',lineno);
 			  if(_it!=endpycode)_it++;
 			}
 			code += ')';
@@ -226,7 +266,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
           if(has_pattern(_it,endpycode,"nproduce")){
 			code += std::string(beg,_it)+'(';
 			if(_it!=endpycode){
-			  code += lstring2py(_it,endpycode,'\n',lineno);
+			  code += LpyParsing::lstring2py(_it,endpycode,'\n',lineno);
 			}
 			code += ')';
 			beg = _it;
@@ -238,7 +278,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
 		  _it2 = _it;
           if(has_pattern(_it,endpycode,"module")){
             code+=std::string(beg,_it2);
-			std::vector<std::string> modules = parse_moddeclaration(_it,endpycode);
+			std::vector<std::string> modules = LpyParsing::parse_moddeclaration(_it,endpycode);
 			code+="# "+std::string(_it2,_it);
 			for(std::vector<std::string>::const_iterator itmod = modules.begin(); itmod != modules.end(); ++itmod){
 				ModuleClassPtr mod = ModuleClassTable::get().declare(*itmod);
@@ -788,15 +828,15 @@ LsysRule::parseHeader( const std::string& header){
 
 /*---------------------------------------------------------------------------*/
 
-std::string LPY::lstring2py(const std::string& lcode,
+std::string LpyParsing::lstring2py(const std::string& lcode,
 				 std::string::const_iterator& beg)
 { return lstring2py(beg,lcode.end()); }
 
-std::string LPY::lstring2py(const std::string& lcode)
+std::string LpyParsing::lstring2py(const std::string& lcode)
 { std::string::const_iterator beg = lcode.begin();
   return lstring2py(beg,lcode.end()); }
 
-std::string LPY::lstring2py( std::string::const_iterator& beg,
+std::string LpyParsing::lstring2py( std::string::const_iterator& beg,
 								std::string::const_iterator endpos,
 								char delim,
 								int lineno){
@@ -820,7 +860,7 @@ std::string LPY::lstring2py( std::string::const_iterator& beg,
 /*---------------------------------------------------------------------------*/
 
 std::vector<std::pair<size_t,std::string> > 
-LPY::parselstring( std::string::const_iterator& beg,
+LpyParsing::parselstring( std::string::const_iterator& beg,
 					  std::string::const_iterator endpos,
 					  char delim,
 					  int lineno)
@@ -898,7 +938,7 @@ LPY::parselstring( std::string::const_iterator& beg,
 
 /*---------------------------------------------------------------------------*/
 
-std::vector<std::string> LPY::parse_moddeclaration(std::string::const_iterator& beg,
+std::vector<std::string> LpyParsing::parse_moddeclaration(std::string::const_iterator& beg,
 													  std::string::const_iterator endpos,
 													  char delim)
 {
@@ -947,7 +987,7 @@ std::vector<std::string> LPY::parse_moddeclaration(std::string::const_iterator& 
 
 /*---------------------------------------------------------------------------*/
 
-std::string LPY::trim(const std::string& str)
+std::string LpyParsing::trim(const std::string& str)
 {
 	/// triming name
 	std::string::const_iterator _itb = str.begin();
@@ -959,7 +999,7 @@ std::string LPY::trim(const std::string& str)
 	return std::string(_itb,_ite);
 }
 
-std::vector<std::string> LPY::parse_arguments(std::string::const_iterator beg,
+std::vector<std::string> LpyParsing::parse_arguments(std::string::const_iterator beg,
 										 std::string::const_iterator end)
 {
 	std::vector<std::string> result;
@@ -1017,7 +1057,7 @@ std::vector<std::string> LPY::parse_arguments(std::string::const_iterator beg,
 	return result;
 }
 
-bool LPY::isValidVariableName(const std::string& arg)
+bool LpyParsing::isValidVariableName(const std::string& arg)
 {
 	if (arg.empty())return false;
 	std::string::const_iterator _si = arg.begin();

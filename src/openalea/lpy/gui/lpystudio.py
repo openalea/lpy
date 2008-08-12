@@ -379,6 +379,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
 def main():
     qapp = QApplication([])
     splash = doc.splashLPy()
+    qapp.processEvents()
     w = LPyWindow()
     w.show()
     if splash:

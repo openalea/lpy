@@ -34,7 +34,6 @@
 #include "lsysrule.h"
 #include "lsyscontext.h"
 #include "stringmatching.h"
-#include "stringinterpreter.h"
 #include <QtCore/QMutex>
 
 LPY_BEGIN_NAMESPACE

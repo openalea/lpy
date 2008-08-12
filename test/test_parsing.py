@@ -68,6 +68,27 @@ def test_options_init(verbose = False):
     if not raised:
         raise Exception('Parsing options were not respected')
 
+def test_format_reading(verbose = False):
+    version = 2.5
+    s = LpyParsing.VersionTag % version 
+    s+='\n'
+    read_version = LpyParsing.getFormatVersion(s)
+    assert read_version == version
+    supported_versions = LpyParsing.formats
+    for v in supported_versions:
+        assert LpyParsing.isSupportedFormat(v)
+    assert not LpyParsing.isSupportedFormat(max(supported_versions)+1)
+    l = Lsystem()
+    try :
+        l.set(s)
+        raised = False
+    except:
+        if verbose:
+            tb.print_exc()
+        raised = True
+    if not raised:
+        raise Exception('Unsupported lpy format do not raise exception!')
+    
 if __name__ == '__main__':    
     test_func = [ (n,v) for n,v in globals().items() if 'test' in n]
     test_func.sort(lambda x,y : cmp(x[1].func_code.co_firstlineno,y[1].func_code.co_firstlineno))

@@ -141,7 +141,7 @@ class LpySimulation:
             self.lpywidget.documentNames.setCurrentIndex(self.index)
         self.lpywidget.textEditionWatch = True
     def saveState(self):
-        self.code = str(self.lpywidget.codeeditor.toPlainText())
+        self.code = str(self.lpywidget.codeeditor.toPlainText().toAscii())
         if self.textdocument is None:
             print 'custom document clone'
             self.textdocument = self.lpywidget.codeeditor.document().clone()
@@ -178,7 +178,7 @@ class LpySimulation:
         txt = ''
         for key,value in self.desc_items.iteritems():             
             if len(value) > 0:
-                txt += key+' = """'+str(value)+'"""\n'
+                txt += key+' = """'+str(value.toAscii())+'"""\n'
         return txt
     def setTree(self,tree,nbiterations):
         self.tree = tree
@@ -194,7 +194,7 @@ class LpySimulation:
         self.lsystem.clear()
         if self.fname:
             self.lsystem.filename = self.fname
-        self.code = str(self.lpywidget.codeeditor.toPlainText())
+        self.code = str(self.lpywidget.codeeditor.toPlainText().toAscii())
         res = self.lsystem.set(self.code,self.lpywidget.showPyCode)
         if not res is None: print res
     def close(self):
@@ -241,7 +241,7 @@ class LpySimulation:
         if len(matinitcode) > 0 or len(creditsinitcode) > 0:
             if self.code[-1] != '\n':
                 f.write('\n')
-            f.write(LsysContext.InitialisationBeginTag+'\n\n')
+            f.write(LpyParsing.InitialisationBeginTag+'\n\n')
             f.write(matinitcode)
             f.write(creditsinitcode)
         f.close()        
@@ -286,13 +286,13 @@ class LpySimulation:
                 os.remove(bckupname)          
         f = file(readname,'r')
         txt = f.read()
-        txts = txt.split(LsysContext.InitialisationBeginTag)            
+        txts = txt.split(LpyParsing.InitialisationBeginTag)            
         self.code = txts[0]
         self.textedition = recovery
         self.setEdited(recovery)
         if len(txts) == 2:
             context = self.lsystem.context()
-            init = context.initialiseFrom(LsysContext.InitialisationBeginTag+txts[1])
+            init = context.initialiseFrom(LpyParsing.InitialisationBeginTag+txts[1])
             if init is None:
                 import warnings
                 warnings.warn('initialisation failed')

@@ -180,6 +180,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\export_interpretation.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\export_lsyscontext.cpp"
 				>
 			</File>
@@ -209,10 +213,6 @@
 			</File>
 			<File
 				RelativePath=".\export_plot.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\export_stringinterpreter.cpp"
 				>
 			</File>
 			<File

@@ -218,7 +218,7 @@ LsysRule::getCoreCode() const{
 		definition.insert(definition.end(),_beg,_it);
 		_it += 7;
 		definition += "return ";
-		definition += lstring2py(_it,__definition.end(),'\n',lineno==-1?lineno:lineno+llineno);
+		definition += LpyParsing::lstring2py(_it,__definition.end(),'\n',lineno==-1?lineno:lineno+llineno);
 		_beg = _it;
 	  }
 	  else _it++;
@@ -228,7 +228,7 @@ LsysRule::getCoreCode() const{
 		definition.insert(definition.end(),_beg,_it);
 		_it += 8;
 		definition += "nproduce(";
-		definition += lstring2py(_it,__definition.end(),'\n',lineno==-1?lineno:lineno+llineno);
+		definition += LpyParsing::lstring2py(_it,__definition.end(),'\n',lineno==-1?lineno:lineno+llineno);
         definition += ')';
 		_beg = _it;
 	  }

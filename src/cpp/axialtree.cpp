@@ -159,7 +159,7 @@ void AxialTree::clear()
 AxialTree 
 AxialTree::QueryTree(const std::string& s){
   AxialTree a;
-  std::vector<std::pair<size_t,std::string> > parsedstring = parselstring(s);
+  std::vector<std::pair<size_t,std::string> > parsedstring = LpyParsing::parselstring(s);
   a.__string().reserve(parsedstring.size());
   for(std::vector<std::pair<size_t,std::string> >::const_iterator it = parsedstring.begin();
 	  it != parsedstring.end(); ++it){
@@ -228,7 +228,7 @@ AxialTree& AxialTree::operator+=(const ParamModule& m){
 }
 
 AxialTree& AxialTree::operator+=(const std::string& s){
-  std::vector<std::pair<size_t,std::string> > parsedstring = parselstring(s);
+  std::vector<std::pair<size_t,std::string> > parsedstring = LpyParsing::parselstring(s);
 
   size_t newcapacity = size()+parsedstring.size();
   if (__conststring().capacity() < newcapacity)

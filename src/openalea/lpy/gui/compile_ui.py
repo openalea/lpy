@@ -25,7 +25,9 @@ def compile_rc (rcfname) :
     if sys.platform == 'posix':
         exe = 'pyrcc4'
     else:
-        exe = os.path.join(sys.prefix,'pyrcc4')
+        exe = os.path.join(sys.prefix,'pyrcc4.bat')
+        if not os.path.exists(exe):
+            exe = 'pyrcc4'
     cmd = '%s %s > %s' % (exe,rcfname, pyfname)
     os.system(cmd)
 

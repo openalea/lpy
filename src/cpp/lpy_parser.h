@@ -38,44 +38,59 @@
 LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
+class LPY_API LpyParsing {
+public:
 
+	static const float LPY_FORMAT_VERSION;
+	static const float LPY_DEFAULT_FORMAT_VERSION;
+    static const std::string InitialisationBeginTag;
+    static const std::string VersionTag;
 
-std::string LPY_API lstring2py(const std::string& lcode);
+	static const std::vector<float> getSupportedFormat() ; 
+	static bool isSupportedFormat(float format);
+	static float getFormatVersion(const std::string& lcode) ; 
+	static float getFormatVersion(std::string::const_iterator& beg,
+								  std::string::const_iterator endpos) ; 
 
-std::string LPY_API lstring2py(const std::string& lcode,
+	static std::string lstring2py(const std::string& lcode);
+
+	static std::string lstring2py(const std::string& lcode,
 				 std::string::const_iterator& beg);
 
-std::string LPY_API lstring2py(std::string::const_iterator& beg,
+	static std::string lstring2py(std::string::const_iterator& beg,
 				 std::string::const_iterator endpos,
 				 char delim = '\n',
 				 int lineno = -1);
 
 
-std::vector<std::pair<size_t,std::string> > parselstring(
+	static std::vector<std::pair<size_t,std::string> > parselstring(
 				 std::string::const_iterator& beg,
 				 std::string::const_iterator endpos,
 				 char delim = '\n',
 				 int lineno = -1);
 
-inline std::vector<std::pair<size_t,std::string> > parselstring(const std::string& lcode)
-{ std::string::const_iterator beg = lcode.begin(); return parselstring(beg,lcode.end()); }
+	static inline std::vector<std::pair<size_t,std::string> > parselstring(const std::string& lcode)
+		{ std::string::const_iterator beg = lcode.begin(); return parselstring(beg,lcode.end()); }
 
-std::vector<std::string> parse_moddeclaration(std::string::const_iterator& beg,
+	static std::vector<std::string> parse_moddeclaration(std::string::const_iterator& beg,
 											  std::string::const_iterator endpos,
 											  char delim = '\n');
 
-inline std::vector<std::string> parse_moddeclaration(std::string modules)
-{ std::string::const_iterator it = modules.begin(); return parse_moddeclaration(it, modules.end()); }
+	static inline std::vector<std::string> parse_moddeclaration(std::string modules)
+		{ std::string::const_iterator it = modules.begin(); return parse_moddeclaration(it, modules.end()); }
 
-std::vector<std::string> parse_arguments(std::string::const_iterator beg,
-										 std::string::const_iterator end);
+	static std::vector<std::string> parse_arguments(std::string::const_iterator beg,
+						 						    std::string::const_iterator end);
 
-inline std::vector<std::string> parse_arguments(const std::string& args)
-{ return parse_arguments(args.begin(),args.end()); }
+	static inline std::vector<std::string> parse_arguments(const std::string& args)
+		{ return parse_arguments(args.begin(),args.end()); }
 
-std::string trim(const std::string& str);
+	static std::string trim(const std::string& str);
 
-bool isValidVariableName(const std::string& args);
+	static bool isValidVariableName(const std::string& args);
+
+
+};
 
 /*---------------------------------------------------------------------------*/
 

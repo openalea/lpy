@@ -45,7 +45,6 @@ void py_forward() { LsysContext::currentContext()->forward(); }
 bool py_isForward() { return LsysContext::currentContext()->isForward(); }
 
 std::string getInitialisationFunctionName() { return LsysContext::InitialisationFunctionName; }
-std::string getInitialisationBeginTag() { return LsysContext::InitialisationBeginTag; }
 
 LsysContext * create_a_context() { return new LocalContext(); }
 
@@ -66,7 +65,6 @@ void export_LsysContext(){
 	.def( "__init__", make_constructor( &create_a_context ), "LsysContext()" ) 
 	.add_property("turtle",make_getter(&LsysContext::turtle,return_value_policy<reference_existing_object>()))
 	.add_static_property("InitialisationFunctionName",&getInitialisationFunctionName)
-	.add_static_property("InitialisationBeginTag",&getInitialisationBeginTag)
 	.add_property("animation_timestep",&LsysContext::get_animation_timestep,&LsysContext::set_animation_timestep)
 	.add_property("options",make_getter(&LsysContext::options,return_value_policy<reference_existing_object>()))
     .def("is_animation_timestep_to_default",&LsysContext::is_animation_timestep_to_default)

@@ -195,6 +195,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\interpretation.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\interpretation.h"
+				>
+			</File>
+			<File
 				RelativePath=".\lpy_config.h"
 				>
 			</File>
@@ -264,14 +272,6 @@
 			</File>
 			<File
 				RelativePath=".\predefinedmodules.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\stringinterpreter.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\stringinterpreter.h"
 				>
 			</File>
 			<File

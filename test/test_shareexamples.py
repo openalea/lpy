@@ -9,6 +9,7 @@ def get_share_examples():
     return lpyfiles
 
 def test_share_examples():
+    """ Test all lpy examples from share/ repository """
     for lfile in get_share_examples():
         try:
             l = Lsystem(lfile)

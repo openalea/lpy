@@ -249,10 +249,10 @@ ParamModule::ParamModule(size_t classid, const std::string& args):
 ParamModule 
 ParamModule::QueryModule(const std::string& name) 
 {
-  std::vector<std::pair<size_t,std::string> > parsedstring = parselstring(name);
+	std::vector<std::pair<size_t,std::string> > parsedstring = LpyParsing::parselstring(name);
   if(parsedstring.size() != 1)LsysError("Invalid query module "+name);
   ParamModule m(parsedstring[0].first);
-  std::vector<std::string> args = parse_arguments(parsedstring[0].second);
+  std::vector<std::string> args = LpyParsing::parse_arguments(parsedstring[0].second);
   for(std::vector<std::string>::const_iterator itarg = args.begin(); itarg != args.end(); ++itarg){
     bool notvar = false;
 	if (ParamModule::getMatchingMethod() == eWithStarNValueConstraint){
@@ -260,7 +260,7 @@ ParamModule::QueryModule(const std::string& name)
 		if(o != object()){ appendParam(m.__args,o); notvar = true; }
 	}
 	if (!notvar){
-		if(isValidVariableName(*itarg))
+		if(LpyParsing::isValidVariableName(*itarg))
 			appendParam(m.__args,object(LsysVar(*itarg)));
 		else LsysError(*itarg+" is not defined");
 	}
@@ -272,7 +272,7 @@ ParamModule
 ParamModule::QueryModule(size_t classid, const std::string& argstr) 
 {
   ParamModule m(classid);
-  std::vector<std::string> args = parse_arguments(argstr);
+  std::vector<std::string> args = LpyParsing::parse_arguments(argstr);
   for(std::vector<std::string>::const_iterator itarg = args.begin(); itarg != args.end(); ++itarg){
     bool notvar = false;
 	if (ParamModule::getMatchingMethod() == eWithStarNValueConstraint){
@@ -280,7 +280,7 @@ ParamModule::QueryModule(size_t classid, const std::string& argstr)
 		if(o != object()){ appendParam(m.__args,o); notvar = true; }
 	}
 	if (!notvar){
-		if(isValidVariableName(*itarg))
+		if(LpyParsing::isValidVariableName(*itarg))
 			appendParam(m.__args,object(LsysVar(*itarg)));
 		else LsysError(*itarg+" is not defined");
 	}

@@ -29,7 +29,7 @@
  */
 
 #include "lsystem.h"
-#include "stringinterpreter.h"
+#include "interpretation.h"
 #include "plot.h"
 #include "tracker.h"
 #include <QtCore/QThread>

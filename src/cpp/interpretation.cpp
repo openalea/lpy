@@ -31,7 +31,7 @@
 
 #include "mod.h"
 #include "axialtree.h"
-#include "stringinterpreter.h"
+#include "interpretation.h"
 #include "lsyscontext.h"
 #include "tracker.h"
 #include <sstream>
