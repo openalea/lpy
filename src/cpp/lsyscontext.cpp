@@ -557,6 +557,7 @@ bool LsysContext::__initialise()
   object real_obj = object( handle<>( obj ) );
   if (hasObject(InitialisationFunctionName)){
 	  getObject(InitialisationFunctionName)(real_obj);
+	  currentEvent();
 	  return true;
   }
   else return false;
