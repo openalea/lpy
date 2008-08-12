@@ -128,7 +128,8 @@ bool notOnlySpace(std::string::const_iterator beg, std::string::const_iterator e
 /*---------------------------------------------------------------------------*/
 
 float LpyParsing::getFormatVersion(const std::string& lcode) {
-  return getFormatVersion(lcode.begin(),lcode.end());
+  std::string::const_iterator it = lcode.begin();
+  return getFormatVersion(it,lcode.end());
 }
 
 float LpyParsing::getFormatVersion(std::string::const_iterator& it, std::string::const_iterator endcode) {

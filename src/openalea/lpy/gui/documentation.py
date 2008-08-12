@@ -101,13 +101,24 @@ def getSpecification():
             modname =  '<td><b>'+nsplits[0]+'</b></td><td><b>'+nsplits[1].split(')')[0]+'</b></td>'
         else:
             modname =  '<td><b>'+parts[0]+'</b></td><td></td>'
-        return '<tr>'+modname+'<td>'+parts[1]+'</td></tr>'
+        return '<tr>'+modname+'<td>'+parts[1]+'</td></tr>\n'
     ht = helpTurtle()
     
     ht = '<table>'+''.join([lineprocess(l) for l in ht.split('\n')])+'</table>'
     #ht = ht.replace('\n','<BR>')
     txt = specificationheadertxt+ht+specificationtxt
     return txt
+
+def getWikiSpecification():
+    spec = getSpecification()
+    spec = spec.replace('<b>',"''").replace('</b>',"''")
+    spec = spec.replace('<i>',"//").replace('</i>',"//")
+    spec = spec.replace('<td>',"|").replace('</td></tr>',"|").replace('</td>',"").replace('</tr>',"").replace('<tr>',"")
+    spec = spec.replace('<H1>',"======").replace('</H1>',"======")
+    spec = spec.replace('<H2>',"=====").replace('</H2>',"=====")
+    spec = spec.replace('<H3>',"").replace('</H3>',"")
+    spec = spec.replace('<table>',"").replace('</table>',"")
+    return spec
     
 def aboutLpy(parent):
     QMessageBox.about(parent,"LPy",aboutTxt)
