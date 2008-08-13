@@ -17,7 +17,7 @@ name = 'lpy'
 namespace = 'openalea'
 pkg_name= namespace + '.' + name
 
-version= str(d['LPY_VERSION_MAJOR'])+'.'+str(d['LPY_VERSION_MINOR'])+'.'+str(d['LPY_VERSION_REV'])
+version= LPY_NUM_VERSION_STR
 print pkg_name,': version =',version
 
 description= 'Lindenmayer Systems in Python package for OpenAlea.' 

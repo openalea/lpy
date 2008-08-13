@@ -174,12 +174,6 @@ class LpySimulation:
             self.optionModel.setItem(indexitem, 1, si)
             indexitem += 1
         QObject.connect(self.optionModel,SIGNAL('itemChanged(QStandardItem*)'),self.textEdited)
-    def creditsCode(self):
-        txt = ''
-        for key,value in self.desc_items.iteritems():             
-            if len(value) > 0:
-                txt += key+' = """'+str(value.toAscii())+'"""\n'
-        return txt
     def setTree(self,tree,nbiterations):
         self.tree = tree
         self.nbiterations = nbiterations
@@ -260,17 +254,23 @@ class LpySimulation:
                 if firstcol :
                     init_txt += "\tfrom openalea.plantgl.all import Material,Color3\n"
                     firstcol = False
-                init_txt += '\tcontext.turtle.setMaterial('+str(i)+','+str(currentlist[i])+')\n'
+                init_txt += '\tcontext.turtle.setMaterial('+repr(i)+','+str(currentlist[i])+')\n'
         if not self.lsystem.context().is_animation_timestep_to_default():
                 init_txt += '\tcontext.animation_timestep = '+str(self.getTimeStep())+'\n'
         options = self.lsystem.context().options
         for i in xrange(len(options)):
             if not options[i].isToDefault():
-                init_txt += '\tcontext.options.setSelection("'+options[i].name+'",'+str(options[i].selection)+')\n'
+                init_txt += '\tcontext.options.setSelection('+repr(options[i].name)+','+str(options[i].selection)+')\n'
         if len(init_txt) > 0:
             return header+init_txt
         else:
             return '' 
+    def creditsCode(self):
+        txt = ''
+        for key,value in self.desc_items.iteritems():             
+            if len(value) > 0:
+                txt += key+' = '+repr(str(value.toAscii()))+'\n'
+        return txt
     def open(self,fname):
         self.setFname(fname)
         assert self._fname == fname
@@ -284,7 +284,7 @@ class LpySimulation:
                 readname = bckupname
             elif answer == QMessageBox.Discard:
                 os.remove(bckupname)          
-        f = file(readname,'r')
+        f = file(readname,'rU')
         txt = f.read()
         txts = txt.split(LpyParsing.InitialisationBeginTag)            
         self.code = txts[0]
