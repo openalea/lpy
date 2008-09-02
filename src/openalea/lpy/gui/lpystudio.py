@@ -1,14 +1,15 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import os
+import stat
+import sys
 import shutil
 import traceback as tb
-import compile_ui as ui
-import documentation as doc
-import settings
-import lpydock
-import lpypreferences
-from simulation import LpySimulation
+import openalea.lpy.gui.documentation as doc
+import openalea.lpy.gui.settings as settings
+import openalea.lpy.gui.lpydock as lpydock
+import openalea.lpy.gui.lpypreferences as lpypreferences
+from openalea.lpy.gui.simulation import LpySimulation
 from openalea.plantgl.all import *
 
 from openalea.lpy import *
@@ -16,15 +17,20 @@ from openalea.lpy import *
 # Restore default signal handler for CTRL+C
 import signal; signal.signal(signal.SIGINT, signal.SIG_DFL)
 
+# Add local dir as import dir
+sys.path = ['']+sys.path
+
 # Generate GUI if necessary
-ldir    = os.path.dirname(__file__)
-ui.check_ui_generation(os.path.join(ldir, 'lpymainwindow.ui'))
-ui.check_rc_generation(os.path.join(ldir, 'lpyresources.qrc'))
-del ldir
+if True:
+    import openalea.lpy.gui.compile_ui as ui
+    ldir    = os.path.dirname(__file__)
+    ui.check_ui_generation(os.path.join(ldir, 'lpymainwindow.ui'))
+    ui.check_rc_generation(os.path.join(ldir, 'lpyresources.qrc'))
+    del ldir
 
 
-import lpymainwindow as lsmw
-from computationtask import *
+import openalea.lpy.gui.lpymainwindow as lsmw
+from openalea.lpy.gui.computationtask import *
 
         
 class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :

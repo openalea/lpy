@@ -140,6 +140,8 @@ class LpySimulation:
         if self.lpywidget.documentNames.currentIndex() != self.index:
             self.lpywidget.documentNames.setCurrentIndex(self.index)
         self.lpywidget.textEditionWatch = True
+        if not self.fname is None:
+            os.chdir(os.path.dirname(self.fname))
     def saveState(self):
         self.code = str(self.lpywidget.codeeditor.toPlainText().toAscii())
         if self.textdocument is None:
@@ -221,8 +223,10 @@ class LpySimulation:
             self.saveas()
     def saveas(self):
         bckupname = self.getBackupName()
-        self.fname = str(QFileDialog.getSaveFileName(self.lpywidget,"Open Py Lsystems file",self.fname if self.fname else '.',"Py Lsystems Files (*.lpy);;All Files (*.*)"))
-        if self.fname:
+        fname = str(QFileDialog.getSaveFileName(self.lpywidget,"Open Py Lsystems file",self.fname if self.fname else '.',"Py Lsystems Files (*.lpy);;All Files (*.*)"))
+        if fname:
+            self.fname = fname
+            os.chdir(os.path.dirname(fname))
             if bckupname and os.path.exists(bckupname):
                 os.remove(bckupname)
             self.save()
@@ -283,7 +287,8 @@ class LpySimulation:
                 recovery = True
                 readname = bckupname
             elif answer == QMessageBox.Discard:
-                os.remove(bckupname)          
+                os.remove(bckupname)     
+        os.chdir(os.path.dirname(self.fname))
         f = file(readname,'rU')
         txt = f.read()
         txts = txt.split(LpyParsing.InitialisationBeginTag)            
