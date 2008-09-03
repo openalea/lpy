@@ -31,4 +31,8 @@
     <file>icons/rewind.png</file>
     <file>icons/step.png</file>
   </qresource>
+  <qresource prefix="/logo" >
+    <file>logo.png</file>
+    <file>biglogo.png</file>
+  </qresource>
 </RCC>

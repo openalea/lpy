@@ -13,8 +13,8 @@
    <string>L-Py</string>
   </property>
   <property name="windowIcon" >
-   <iconset>
-    <normaloff>logo.png</normaloff>logo.png</iconset>
+   <iconset resource="lpyresources.qrc" >
+    <normaloff>:/logo/logo.png</normaloff>:/logo/logo.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget" >
    <property name="geometry" >

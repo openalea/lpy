@@ -3,7 +3,7 @@ from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QPixmap,QSplashScreen,QMessageBox
 import os
 
-logofilename = os.path.join(os.path.dirname(__file__),'biglogo.png')
+logofilename = ':/logo/biglogo.png'
 
 infoTxt = "Virtual Plants Team.\nCIRAD-INRIA-INRA\nSee:http://www-sop.inria.fr/virtualplants/"
 
@@ -137,7 +137,7 @@ def splashLPy():
 
 def vplantsDialog(txt, parent = None):
     if parent and not hasattr(parent,'splash'):
-        if not os.path.exists(logofilename): raise Exception('No logo image')
+        #if not os.path.exists(logofilename): raise Exception('No logo image')
         pix = QPixmap(logofilename)
         splash = QSplashScreen(pix)
     else:

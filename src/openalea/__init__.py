@@ -11,3 +11,7 @@ try:
     set_path()
 except:
     pass
+
+import modulefinder
+for p in __path__:
+   modulefinder.AddPackagePath(__name__, p)

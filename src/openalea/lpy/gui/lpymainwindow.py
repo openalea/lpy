@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'lpymainwindow.ui'
 #
-# Created: Mon Aug 11 11:48:21 2008
+# Created: Wed Sep 03 18:32:32 2008
 #      by: PyQt4 UI code generator 4.4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -14,7 +14,7 @@ class Ui_MainWindow(object):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(759,626)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("logo.png"),QtGui.QIcon.Normal,QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(":/logo/logo.png"),QtGui.QIcon.Normal,QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setGeometry(QtCore.QRect(0,55,759,552))

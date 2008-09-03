@@ -1,11 +1,14 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import os
-import compile_ui as ui
 
-ldir    = os.path.dirname(__file__)
-ui.check_ui_generation(os.path.join(ldir, 'lpyprefwidget.ui'))
-del ldir
+try:
+    import openalea.lpy.gui.py2exe_release
+except:
+    import compile_ui as ui
+    ldir    = os.path.dirname(__file__)
+    ui.check_ui_generation(os.path.join(ldir, 'lpyprefwidget.ui'))
+    del ldir
 
 import lpyprefwidget
 

@@ -1,9 +1,16 @@
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+import sys
 import os
 import stat
-import sys
 import shutil
+
+# for py2exe
+try:
+    import openalea.lpy.gui.py2exe_release
+    sys.path.insert(0, os.path.join(sys.prefix, "setuptools-0.6c8_svn15fix.egg"))
+    sys.path.insert(0, os.path.join(sys.prefix, "pyopengl-3.0.0b2-py2.5.egg"))
+
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
 import traceback as tb
 import openalea.lpy.gui.documentation as doc
 import openalea.lpy.gui.settings as settings
@@ -21,7 +28,9 @@ import signal; signal.signal(signal.SIGINT, signal.SIG_DFL)
 sys.path = ['']+sys.path
 
 # Generate GUI if necessary
-if True:
+try:
+    import openalea.lpy.gui.py2exe_release
+except:
     import openalea.lpy.gui.compile_ui as ui
     ldir    = os.path.dirname(__file__)
     ui.check_ui_generation(os.path.join(ldir, 'lpymainwindow.ui'))
