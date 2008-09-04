@@ -26,6 +26,12 @@ sys_stderr = None
 sys_stdout = None
 sys_stdin = None
 
+try:
+    import openalea.lpy.gui.py2exe_release
+    py2exe_release = True
+except:
+    py2exe_release = False
+    
 class MultipleRedirection:
     """ Dummy file which redirects stream to multiple file """
 
@@ -74,7 +80,10 @@ class GraphicalStreamRedirection:
         if sys_stdin is None:
             sys_stdin = sys.stdin
         sys.stdout   = ThreadedRedirection(self)
-        sys.stderr   = MultipleRedirection(sys_stderr, ThreadedRedirection(self))
+        if py2exe_release:
+            sys.stderr   = ThreadedRedirection(self)
+        else:
+            sys.stderr   = MultipleRedirection(sys_stderr, ThreadedRedirection(self))
         sys.stdin    = self
         #self.multipleStdOutRedirection()
 

@@ -8,15 +8,18 @@ try:
     import openalea.lpy.gui.py2exe_release
     sys.path.insert(0, os.path.join(sys.prefix, "setuptools-0.6c8_svn15fix.egg"))
     sys.path.insert(0, os.path.join(sys.prefix, "pyopengl-3.0.0b2-py2.5.egg"))
+    py2exe_release = True
+except:
+    py2exe_release = False
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import traceback as tb
-import openalea.lpy.gui.documentation as doc
-import openalea.lpy.gui.settings as settings
-import openalea.lpy.gui.lpydock as lpydock
-import openalea.lpy.gui.lpypreferences as lpypreferences
-from openalea.lpy.gui.simulation import LpySimulation
+import documentation as doc
+import settings
+import lpydock
+import lpypreferences
+from simulation import LpySimulation
 from openalea.plantgl.all import *
 
 from openalea.lpy import *
@@ -28,18 +31,16 @@ import signal; signal.signal(signal.SIGINT, signal.SIG_DFL)
 sys.path = ['']+sys.path
 
 # Generate GUI if necessary
-try:
-    import openalea.lpy.gui.py2exe_release
-except:
-    import openalea.lpy.gui.compile_ui as ui
+if not py2exe_release:
+    import compile_ui as ui
     ldir    = os.path.dirname(__file__)
     ui.check_ui_generation(os.path.join(ldir, 'lpymainwindow.ui'))
     ui.check_rc_generation(os.path.join(ldir, 'lpyresources.qrc'))
     del ldir
 
 
-import openalea.lpy.gui.lpymainwindow as lsmw
-from openalea.lpy.gui.computationtask import *
+import lpymainwindow as lsmw
+from computationtask import *
 
         
 class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
