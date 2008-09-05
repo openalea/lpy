@@ -186,6 +186,8 @@ class LpySimulation:
         if self.lpywidget.codeBackupEnabled:
             if self.fname and self._edited:
                 bckupname = self.getBackupName()
+                if self.isCurrent():
+                    self.saveState()
                 self.saveToFile(bckupname)
         self.lsystem.clear()
         if self.fname:
@@ -231,7 +233,6 @@ class LpySimulation:
                 os.remove(bckupname)
             self.save()
     def saveToFile(self,fname):
-        self.saveState()
         f = file(fname,'w')
         f.write(self.code)
         matinitcode = self.initialisationCode()
