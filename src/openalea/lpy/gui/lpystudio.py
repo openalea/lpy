@@ -89,6 +89,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         QObject.connect(self.actionNew,SIGNAL('triggered(bool)'),self.newfile)
         QObject.connect(self.actionOpen,SIGNAL('triggered(bool)'),lambda : self.openfile())
         QObject.connect(self.actionSave,SIGNAL('triggered(bool)'),lambda : self.savefile())
+        QObject.connect(self.actionSaveAll,SIGNAL('triggered(bool)'),lambda : self.saveallfiles())
         QObject.connect(self.actionSaveAs,SIGNAL('triggered(bool)'),self.saveas)
         QObject.connect(self.actionClose,SIGNAL('triggered(bool)'),self.closeDoc)
         QObject.connect(self.actionClear,SIGNAL('triggered(bool)'),self.clearHistory)
@@ -213,16 +214,20 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
             self.interpreterDock.show()    
         t,v,trb = exc_info
         st = tb.extract_tb(trb)[-1]
-        if st[0] == '<string>' :            
+        self.lastexception = v
+        if st[0] == '<string>' :
             self.codeeditor.hightlightError(st[1])            
-        elif t == SyntaxError:            
+        elif t == SyntaxError:
             lst = v.message.split(':')
             if len(lst) == 3 and lst[0] == '<string>':
                 self.codeeditor.hightlightError(int(lst[1]))
+            elif v.filename == '<string>':
+                self.codeeditor.hightlightError(v.lineno)
     def setToolBarApp(self,value):
-        self.toolBar.setToolButtonStyle({'Icons' : Qt.ToolButtonIconOnly, 'Texts' : Qt.ToolButtonTextOnly , 'Icons and texts' : Qt.ToolButtonTextBesideIcon, 'Texts below icons' : Qt.ToolButtonTextUnderIcon }[str(value)])
+        for bar in [self.FileBar,self.LsytemBar]:
+            bar.setToolButtonStyle({'Icons' : Qt.ToolButtonIconOnly, 'Texts' : Qt.ToolButtonTextOnly , 'Icons and texts' : Qt.ToolButtonTextBesideIcon, 'Texts below icons' : Qt.ToolButtonTextUnderIcon }[str(value)])
     def getToolBarApp(self):
-        return { Qt.ToolButtonIconOnly : (0,'Icons') , Qt.ToolButtonTextOnly : (1,'Texts') , Qt.ToolButtonTextBesideIcon : (2,'Icons and texts'), Qt.ToolButtonTextUnderIcon : (3,'Texts below icons')  }[self.toolBar.toolButtonStyle()]
+        return { Qt.ToolButtonIconOnly : (0,'Icons') , Qt.ToolButtonTextOnly : (1,'Texts') , Qt.ToolButtonTextBesideIcon : (2,'Icons and texts'), Qt.ToolButtonTextUnderIcon : (3,'Texts below icons')  }[self.FileBar.toolButtonStyle()]
     def toggleUseThread(self):
         ComputationTaskManager.toggleUseThread(self)
     def toggleFitAnimationView(self):
@@ -300,6 +305,13 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.currentSimulation().save()
     def saveas(self):
         self.currentSimulation().saveas()
+    def saveallfiles(self):
+        nbsaving = 0
+        for sim in self.simulations:
+            if sim.isEdited():
+                sim.save()
+                nbsaving += 1
+        self.statusBar().showMessage("No file to save." if nbsaving == 0 else "%i file(s) saved." % nbsaving)
     def run(self):
       self.acquireCR()
       try:

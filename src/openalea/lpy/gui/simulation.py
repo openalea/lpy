@@ -298,16 +298,18 @@ class LpySimulation:
         if len(txts) == 2:
             context = self.lsystem.context()
             init = context.initialiseFrom(LpyParsing.InitialisationBeginTag+txts[1])
-            if init is None:
-                import warnings
-                warnings.warn('initialisation failed')
             if context.has_key(context.InitialisationFunctionName):
                 del context[context.InitialisationFunctionName]
             for key in self.desc_items.iterkeys():
                 if context.has_key(key):
                     self.desc_items[key] = context[key]
+                    if init is None:
+                        init = True
                 else:
                     self.desc_items[key] = ''
+            if init is None:
+                import warnings
+                warnings.warn('initialisation failed')
         else:
             for key in self.desc_items.iterkeys():
                 self.desc_items[key] = ''

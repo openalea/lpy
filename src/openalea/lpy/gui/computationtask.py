@@ -107,5 +107,8 @@ class ComputationTaskManager:
             exc_info = sys.exc_info()
         tb.print_exception(*exc_info)
         self.errorEvent(exc_info)
-        QMessageBox.warning(self,"Exception",'An error occured:"'+exc_info[1].message+'"',QMessageBox.Ok)
+        msg = exc_info[1].message
+        if len(msg) == 0 and exc_info[0] == SyntaxError:
+            msg = exc_info[1].msg
+        QMessageBox.warning(self,"Exception",'An error occured:"'+msg+'"',QMessageBox.Ok)
                 

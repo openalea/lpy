@@ -78,10 +78,10 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
         else:
             self.setCurrentBlockState(self.previousBlockState())
         for i,c in enumerate(text):
-            if str(c) in self.delimiterkeywords:
+            if str(c.toAscii()) in self.delimiterkeywords:
                 self.setFormat(i, 1, self.delimiterFormat)
         if self.currentBlockState() == 1:
-            if lentxt > 0 and not str(text[0]) in " \t":
+            if lentxt > 0 and not str(text[0].toAscii()) in " \t":
                 index = text.indexOf(self.lsysruleExp)
                 if index >= 0:
                     length = self.lsysruleExp.matchedLength()

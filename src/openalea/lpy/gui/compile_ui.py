@@ -28,7 +28,7 @@ def compile_rc (rcfname) :
         exe = os.path.join(sys.prefix,'pyrcc4.bat')
         if not os.path.exists(exe):
             exe = 'pyrcc4'
-    cmd = '%s %s > %s' % (exe,rcfname, pyfname)
+    cmd = '%s "%s" > "%s"' % (exe,rcfname, pyfname)
     os.system(cmd)
 
 def check_ui_generation(uifname):

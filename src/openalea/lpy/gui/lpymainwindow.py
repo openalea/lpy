@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'lpymainwindow.ui'
+# Form implementation generated from reading ui file 'd:\fred\mes documents\develop\vplants\trunk\lpy\src\openalea\lpy\gui\lpymainwindow.ui'
 #
-# Created: Wed Sep 03 18:32:32 2008
+# Created: Fri Sep 05 11:11:38 2008
 #      by: PyQt4 UI code generator 4.4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -349,14 +349,19 @@ class Ui_MainWindow(object):
         self.statusbar.setGeometry(QtCore.QRect(0,607,759,19))
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
-        self.toolBar = QtGui.QToolBar(MainWindow)
-        self.toolBar.setGeometry(QtCore.QRect(0,21,759,34))
+        self.FileBar = QtGui.QToolBar(MainWindow)
+        self.FileBar.setGeometry(QtCore.QRect(0,21,352,34))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("logo.png"),QtGui.QIcon.Normal,QtGui.QIcon.Off)
-        self.toolBar.setWindowIcon(icon)
-        self.toolBar.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
-        self.toolBar.setObjectName("toolBar")
-        MainWindow.addToolBar(QtCore.Qt.TopToolBarArea,self.toolBar)
+        self.FileBar.setWindowIcon(icon)
+        self.FileBar.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
+        self.FileBar.setObjectName("FileBar")
+        MainWindow.addToolBar(QtCore.Qt.TopToolBarArea,self.FileBar)
+        self.LsytemBar = QtGui.QToolBar(MainWindow)
+        self.LsytemBar.setGeometry(QtCore.QRect(352,21,407,34))
+        self.LsytemBar.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
+        self.LsytemBar.setObjectName("LsytemBar")
+        MainWindow.addToolBar(QtCore.Qt.TopToolBarArea,self.LsytemBar)
         self.actionOpen = QtGui.QAction(MainWindow)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/images/icons/fileopen.png"),QtGui.QIcon.Normal,QtGui.QIcon.Off)
@@ -510,6 +515,11 @@ class Ui_MainWindow(object):
         self.actionTabHightlight = QtGui.QAction(MainWindow)
         self.actionTabHightlight.setCheckable(True)
         self.actionTabHightlight.setObjectName("actionTabHightlight")
+        self.actionSaveAll = QtGui.QAction(MainWindow)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/images/icons/filesaveall.png"),QtGui.QIcon.Normal,QtGui.QIcon.Off)
+        self.actionSaveAll.setIcon(icon)
+        self.actionSaveAll.setObjectName("actionSaveAll")
         self.menuL_systems.addAction(self.actionRun)
         self.menuL_systems.addAction(self.actionAnimate)
         self.menuL_systems.addSeparator()
@@ -522,6 +532,7 @@ class Ui_MainWindow(object):
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionSave)
         self.menuFile.addAction(self.actionSaveAs)
+        self.menuFile.addAction(self.actionSaveAll)
         self.menuFile.addAction(self.actionClose)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.menuRecents.menuAction())
@@ -561,17 +572,16 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuEdit.menuAction())
         self.menubar.addAction(self.menuView.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
-        self.toolBar.addAction(self.actionNew)
-        self.toolBar.addAction(self.actionOpen)
-        self.toolBar.addAction(self.actionSave)
-        self.toolBar.addAction(self.actionClose)
-        self.toolBar.addSeparator()
-        self.toolBar.addAction(self.actionRewind)
-        self.toolBar.addAction(self.actionRun)
-        self.toolBar.addAction(self.actionAnimate)
-        self.toolBar.addAction(self.actionStep)
-        self.toolBar.addAction(self.actionStop)
-        self.toolBar.addSeparator()
+        self.FileBar.addAction(self.actionNew)
+        self.FileBar.addAction(self.actionOpen)
+        self.FileBar.addAction(self.actionSave)
+        self.FileBar.addAction(self.actionSaveAll)
+        self.FileBar.addAction(self.actionClose)
+        self.LsytemBar.addAction(self.actionRewind)
+        self.LsytemBar.addAction(self.actionRun)
+        self.LsytemBar.addAction(self.actionAnimate)
+        self.LsytemBar.addAction(self.actionStep)
+        self.LsytemBar.addAction(self.actionStop)
 
         self.retranslateUi(MainWindow)
         self.toolBox.setCurrentIndex(0)
@@ -636,7 +646,8 @@ class Ui_MainWindow(object):
         self.menuEdit.setTitle(QtGui.QApplication.translate("MainWindow", "Edit", None, QtGui.QApplication.UnicodeUTF8))
         self.menuHelp.setTitle(QtGui.QApplication.translate("MainWindow", "Help", None, QtGui.QApplication.UnicodeUTF8))
         self.menuView.setTitle(QtGui.QApplication.translate("MainWindow", "View", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "toolBar", None, QtGui.QApplication.UnicodeUTF8))
+        self.FileBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "File Bar", None, QtGui.QApplication.UnicodeUTF8))
+        self.LsytemBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Lsystem Bar", None, QtGui.QApplication.UnicodeUTF8))
         self.actionOpen.setText(QtGui.QApplication.translate("MainWindow", "Open", None, QtGui.QApplication.UnicodeUTF8))
         self.actionOpen.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+O", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSave.setText(QtGui.QApplication.translate("MainWindow", "Save", None, QtGui.QApplication.UnicodeUTF8))
@@ -685,6 +696,7 @@ class Ui_MainWindow(object):
         self.actionNoZoom.setText(QtGui.QApplication.translate("MainWindow", "Zoom 1:1", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPreferences.setText(QtGui.QApplication.translate("MainWindow", "Preferences...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionTabHightlight.setText(QtGui.QApplication.translate("MainWindow", "Tab Hightlight", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSaveAll.setText(QtGui.QApplication.translate("MainWindow", "Save All", None, QtGui.QApplication.UnicodeUTF8))
 
 from lpycodeeditor import LpyCodeEditor
 from materialeditor import MaterialEditor

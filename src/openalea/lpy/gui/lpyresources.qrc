@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/images" >
+    <file>icons/filesaveall.png</file>
     <file>icons/prev-green.png</file>
     <file>icons/next-green.png</file>
     <file>icons/next.png</file>
