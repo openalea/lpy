@@ -28,7 +28,7 @@ Here comes the python commands that control the simulation.
 <tr><td><b>def Start()   </b></td><td> is called at the beginning of the simulation.</td></tr>
 <tr><td><b>def End()     </b></td><td> is called at the end of the simulation.</td></tr>
 <tr><td><b>def StartEach() </b></td><td> is called before each derivation step.</td></tr>
-<tr><td><b>def EndEach()   </b></td><td> is called at the end of the simulation.</td></tr>
+<tr><td><b>def EndEach([lstring,scene]) </b></td><td> is called at the end of the simulation. One or two arguments can be optionally defined to receive the current lstring and its geometric interpretation. </td></tr>
 </table>
 
 <H3>Python commands that control the rule application:</H3>
