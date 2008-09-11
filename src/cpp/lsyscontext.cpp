@@ -192,7 +192,8 @@ __direction(eForward),
 __group(0),
 __selection_required(false),
 __animation_step(DefaultAnimationTimeStep),
-__iteration_nb(0)
+__iteration_nb(0),
+__nbargs_of_endeach(0)
 {
 	IncTracker(LsysContext)
 	init_options();
@@ -206,7 +207,8 @@ LsysContext::LsysContext(const LsysContext& lsys):
   __nproduction(lsys.__nproduction),
   __selection_required(lsys.__selection_required),
   __animation_step(lsys.__animation_step),
-  __iteration_nb(0)
+  __iteration_nb(0),
+  __nbargs_of_endeach(0)
 {
 	IncTracker(LsysContext)
 	init_options();
@@ -222,6 +224,7 @@ LsysContext::operator=(const LsysContext& lsys)
   __nproduction = lsys.__nproduction;
   __selection_required = lsys.__selection_required;
   __animation_step =lsys.__animation_step;
+  __nbargs_of_endeach =lsys.__nbargs_of_endeach;
   return *this;
 }
 
@@ -261,6 +264,7 @@ LsysContext::clear(){
   __group = 0;
   __selection_required = false;
   __iteration_nb = 0;
+  __nbargs_of_endeach = 0;
   __modules.clear();
   clearNamespace();
 }
@@ -544,6 +548,30 @@ LsysContext::endEach(){
   func("EndEach");
 }
 
+void
+LsysContext::endEach(AxialTree& lstring){
+  ContextMaintainer c(this);
+  if (hasObject("EndEach")){
+	reference_existing_object::apply<AxialTree*>::type converter;
+	PyObject* obj = converter( &lstring );
+	object real_obj = object( handle<>( obj ) );
+	getObject("EndEach")(real_obj);
+  }
+}
+
+void
+LsysContext::endEach(AxialTree& lstring, const PGL::ScenePtr& scene)
+{
+  ContextMaintainer c(this);
+  if (hasObject("EndEach")){
+	reference_existing_object::apply<AxialTree*>::type converter;
+	PyObject* obj = converter( &lstring );
+	object real_obj = object( handle<>( obj ) );
+	getObject("EndEach")(real_obj, scene);
+  }
+}
+
+
 bool LsysContext::initialise()
 {
   ContextMaintainer c(this);
@@ -593,12 +621,22 @@ LsysContext::setStartEach(object func){
 void 
 LsysContext::setEndEach(object func){
   setObject("EndEach",func);
+  check_init_functions();
 }
 
 void 
 LsysContext::func(const std::string& funcname){
   ContextMaintainer c(this);
   if (hasObject(funcname))getObject(funcname)();
+}
+
+void 
+LsysContext::check_init_functions()
+{
+	if (hasObject("EndEach")) {
+		__nbargs_of_endeach = extract<size_t>(getObject("EndEach").attr("func_code").attr("co_argcount"))();
+	}
+	else __nbargs_of_endeach = 0;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -865,6 +903,16 @@ GlobalContext::compile(const std::string& name, const std::string& code) {
   }
   return object();
 }
+
+boost::python::object GlobalContext::__reprFunc;
+
+boost::python::object 
+GlobalContext::getFunctionRepr() {
+	if(__reprFunc == boost::python::object())
+		__reprFunc = globalContext()->getObject("__builtins__").attr("__dict__")["repr"];
+	return __reprFunc;
+}
+
 
 /*---------------------------------------------------------------------------*/
 

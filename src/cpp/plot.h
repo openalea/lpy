@@ -44,14 +44,18 @@ class AxialTree;
 
 typedef void (*PlotFunction)(const PGL(ScenePtr)&);
 typedef std::vector<uint_t> (*GetSelectFunction)();
+typedef void (*SaveImageFunction)(const std::string&, const std::string&);
 
 void LPY_API registerPglPlotFunction(PlotFunction func);
 void LPY_API cleanPglPlotFunction();
 void LPY_API registerGetSelectionFunction(GetSelectFunction func);
 void LPY_API cleanGetSelectionFunction();
+void LPY_API registerSaveImageFunction(SaveImageFunction func);
+void LPY_API cleanSaveImageFunction();
 
 void LPY_API plot(const PGL(ScenePtr)&);
 std::vector<uint_t> LPY_API getSelection();
+void saveImage(const std::string&, const std::string& format = "PNG");
 
 void LPY_API plot(AxialTree& tree);
 void LPY_API plot(AxialTree& tree, PGL::PglTurtle& turtle);

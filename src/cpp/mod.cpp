@@ -521,15 +521,14 @@ ParamModule::_strArg() const
   list args;
 #ifdef VECTORMODULE
   for (ParameterList::const_iterator it = __args.begin(); it != __args.end(); ++it)
-       args.append(it->attr("__str__")());
+       args.append(boost::python::str(*it));
 #else
   try { 
       object iter_obj = object( handle<>( PyObject_GetIter( __args.ptr() ) ) );
       while( 1 )
         {
           object obj = iter_obj.attr( "next" )();
-          object val = obj.attr("__str__")();
-          args.append(val);
+          args.append(boost::python::str(obj));
         }
     }
   catch( error_already_set ){ PyErr_Clear(); }
@@ -542,16 +541,19 @@ ParamModule::_reprArg() const
 { 
   boost::python::str res(",");
   list args;
+  boost::python::object repr = GlobalContext::getFunctionRepr();
 #ifdef VECTORMODULE
+  
   for (ParameterList::const_iterator it = __args.begin(); it != __args.end(); ++it)
-       args.append(it->attr("__repr__")());
+       // args.append(it->attr("__repr__")());
+	   args.append(repr(*it));
 #else
   try { 
       object iter_obj = object( handle<>( PyObject_GetIter( __args.ptr() ) ) );
       while( 1 )
         {
           object obj = iter_obj.attr( "next" )();
-          object val = obj.attr("__repr__")();
+          object val = repr(obj);
           args.append(val);
         }
     }

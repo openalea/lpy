@@ -82,12 +82,17 @@ public:
   void end();
   void startEach();
   void endEach();
+  void endEach(AxialTree&);
+  void endEach(AxialTree&, const PGL::ScenePtr&);
 
   /** The Start, End, StartEach and EndEach initialisation */
   void setStart(boost::python::object func);
   void setEnd(boost::python::object func);
   void setStartEach(boost::python::object func);
   void setEndEach(boost::python::object func);
+  void check_init_functions();
+  size_t getEndEachNbArgs() const { return  __nbargs_of_endeach; }
+
 
   /// initialise context using python function in namespace.
   bool initialise();
@@ -227,6 +232,8 @@ protected:
   size_t __iteration_nb;
   QReadWriteLock __iteration_nb_lock;
 
+  size_t __nbargs_of_endeach;
+
 };
 
 /*---------------------------------------------------------------------------*/
@@ -275,11 +282,14 @@ public:
   virtual boost::python::object
 	compile(const std::string& name, const std::string& code)  ;
 
+  static boost::python::object getFunctionRepr();
 protected:
   virtual PyObject * Namespace() const ;
 
   boost::python::handle<> __namespace;
   boost::python::dict __local_namespace;
+  static boost::python::object __reprFunc;
+
 };
 
 /*---------------------------------------------------------------------------*/

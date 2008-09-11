@@ -80,6 +80,28 @@ std::vector<uint_t> LPY::getSelection()
 
 /*---------------------------------------------------------------------------*/
 
+static void pglSaveImage(const std::string& fname, const std::string& format)
+{ ViewerApplication::saveImage(fname,format); }
+
+static SaveImageFunction __SAVEIMAGE = &pglSaveImage;
+
+void LPY::registerSaveImageFunction(SaveImageFunction func)
+{
+    __SAVEIMAGE = func;
+}
+
+void LPY::cleanSaveImageFunction()
+{
+    __SAVEIMAGE = &pglSaveImage;
+}
+
+void LPY::saveImage(const std::string& fname, const std::string& format)
+{
+    return __SAVEIMAGE(fname,format);
+}
+
+/*---------------------------------------------------------------------------*/
+
 void LPY::plot(AxialTree& tree){
   plot(tree,LsysContext::currentContext()->turtle);
 }

@@ -1,5 +1,5 @@
 from openalea.lpy.gui.lpystudio import *
-import sys
+import sys,os
 
 class TLPyWindow (LPyWindow):
     def __init__(self,*args):
@@ -9,6 +9,7 @@ class TLPyWindow (LPyWindow):
 if sys.platform == 'win32':
     qapp = None
     widget = None
+    testfile = os.path.join(os.getcwd(),'fibonacci.lpy')
 
     def init_app():
         global qapp, widget
@@ -25,7 +26,7 @@ if sys.platform == 'win32':
     
     def test_open():
         """ Test open of document in Lpy widget """
-        widget.openfile('fibonacci.lpy')
+        widget.openfile(testfile)
         qapp.processEvents()
         
     def test_run():

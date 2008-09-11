@@ -76,7 +76,13 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
                           '__references__' : self.referenceEdit }
         self.com_mutex = QMutex()
         self.com_waitcondition = QWaitCondition()
-        registerPglPlotFunction(self.plotScene)
+        class Plotter:
+            def __init__(self,parent):
+                self.parent = parent
+            def plot(self,scene):
+                self.parent.plotScene(scene)
+        self.plotter = Plotter(self)
+        registerPlotter(self.plotter)
         
         self.frameFind.hide() 
         self.frameReplace.hide() 
@@ -274,9 +280,13 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         return None
     def openfile(self,fname = None):
         if fname is None:
-            fname = str(QFileDialog.getOpenFileName(self,"Open Py Lsystems file",self.currentSimulation().fname if self.currentSimulation().fname else '.',
-                                                      "Py Lsystems Files (*.lpy);;All Files (*.*)"))
-                                                     
+            initialname = os.path.dirname(self.currentSimulation().fname) if self.currentSimulation().fname else '.'
+            fname = QFileDialog.getOpenFileName(self, "Open Py Lsystems file",
+                                                    initialname,
+                                                    "Py Lsystems Files (*.lpy);;All Files (*.*)"
+                                                    )
+            if not fname: return
+            fname = str(fname)
             self.appendInHistory(fname)
         else :
          if not os.path.exists(fname):

@@ -55,31 +55,16 @@ object generateScene1(AxialTree& a){
 }
 
 
-static boost::python::object * MyPglPlotFunction = NULL;
+static boost::python::object * MyPlotter = NULL;
 
-static void pyCustomPglPlotFunction(const ScenePtr& sc)
+static void pyCustomPglPlot(const ScenePtr& sc)
 {    
-    (*MyPglPlotFunction)(sc);
+	MyPlotter->attr("plot")(sc);
 }
 
-void pyRegisterPglPlotFunction(boost::python::object func)
-{
-	if (MyPglPlotFunction)delete MyPglPlotFunction;
-    MyPglPlotFunction = new object(func);
-    registerPglPlotFunction(pyCustomPglPlotFunction);
-}
-
-void pyCleanPglPlotFunction(){
-	if (MyPglPlotFunction)delete MyPglPlotFunction;
-	MyPglPlotFunction = NULL;
-	cleanPglPlotFunction();
-}
-
-static boost::python::object * MySelectFunction = NULL;
-
-static std::vector<uint_t> pyCustomSelectFunction()
+static std::vector<uint_t> pyCustomSelect()
 {    
-    boost::python::object sel = (*MySelectFunction)(); 
+    boost::python::object sel = MyPlotter->attr("selection")(); 
     extract<uint_t> ei(sel);
     if (ei.check()){ // selection is only one id.
         std::vector<uint_t> res;
@@ -89,18 +74,28 @@ static std::vector<uint_t> pyCustomSelectFunction()
     else return extract_vec<uint_t>(sel)();
 }
 
-void pyRegisterSelectFunction(boost::python::object func)
-{
-	if (MySelectFunction)delete MySelectFunction;
-    MySelectFunction = new object(func);
-    registerGetSelectionFunction(pyCustomSelectFunction);
+static void pyCustomSave(const std::string& fname, const std::string& format )
+{    
+	MyPlotter->attr("save")(fname,format);
 }
 
-void pyCleanGetSelectionFunction(){
-	if (MySelectFunction)delete MySelectFunction;
-	MySelectFunction = NULL;
-	cleanGetSelectionFunction();
+void pyRegisterPlotter(boost::python::object plotter)
+{
+	if (MyPlotter)delete MyPlotter;
+    MyPlotter = new object(plotter);
+    registerPglPlotFunction(pyCustomPglPlot);
+    registerGetSelectionFunction(pyCustomSelect);
+    registerSaveImageFunction(pyCustomSave);
 }
+
+void pyCleanPlotter(){
+	if (MyPlotter)delete MyPlotter;
+	MyPlotter = NULL;
+	cleanPglPlotFunction();
+	cleanGetSelectionFunction();
+	cleanSaveImageFunction();
+}
+
 
 void export_plot()
 {
@@ -108,9 +103,7 @@ void export_plot()
   def("plot",(void(*)(AxialTree&))&LPY::plot);
   def("generateScene",&generateScene);
   def("generateScene",&generateScene1);
-  def("registerPglPlotFunction",&pyRegisterPglPlotFunction);
-  def("cleanPglPlotFunction",&pyCleanPglPlotFunction);
-  def("registerGetSelectionFunction",&pyRegisterSelectFunction);
-  def("cleanGetSelectionFunction",&cleanGetSelectionFunction);
+  def("registerPlotter",&pyRegisterPlotter);
+  def("cleanPlotter",&pyCleanPlotter);
 
 }

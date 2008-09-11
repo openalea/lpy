@@ -1,22 +1,20 @@
 from openalea.lpy import *
 
-def display(sc):
-    pass
-
-selectionAsked = False
-def selection():
-    global selectionAsked
-    if not selectionAsked:
-        print 'selection'
-        selectionAsked = True
-        return [3]
+class Plotter:
+    def __init__(self):
+        self.selectionAsked = False
+    def display(self,sc):
+        pass
+    def selection(self):
+        if not self.selectionAsked:
+            print 'selection'
+            self.selectionAsked = True
+            return [3]
 
 def test_selection():
     """ Test customisation of the plot and selection procedure """
-    global selectionAsked
-    selectionAsked = False
-    registerPglPlotFunction(display)
-    registerGetSelectionFunction(selection)
+    plot = Plotter()
+    registerPlotter(plot)
     l = Lsystem('test_selection.lpy')
     ln = len(l.axiom)
     l.context().makeCurrent()
@@ -29,10 +27,9 @@ def test_selection():
     res = l.iterate(1,1,res)
     print res
     assert len(res) == ln-2
-    assert selectionAsked and "Selection has not been asked"
+    assert plot.selectionAsked and "Selection has not been asked"
     l.done()
-    cleanPglPlotFunction()
-    cleanGetSelectionFunction()
+    cleanPlotter()
 
 if __name__ == '__main__':
     test_selection()

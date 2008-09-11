@@ -830,7 +830,7 @@ AxialTree
 Lsystem::__iterate( size_t starting_iter , 
                     size_t nb_iter , 
                     const AxialTree& wstring, 
-                    bool previouslyinterpreted ){
+                    bool previouslyinterpreted){
   if(starting_iter == 0) __context.start();
   if ( __rules.empty() || wstring.empty() ){
 	  if(starting_iter+nb_iter == __max_derivation) __context.end();
@@ -887,7 +887,20 @@ Lsystem::__iterate( size_t starting_iter ,
             if (decmatching) matching = true;
 		  }
 		}
-		__context.endEach();
+		switch (__context.getEndEachNbArgs()){
+			default:
+			case 0:
+				__context.endEach();
+				break;
+			case 1:
+				__context.endEach(workstring);
+				break;
+			case 2:
+				__interpret(workstring,__context.turtle);
+				__context.endEach(workstring,__context.turtle.getScene());
+				break;
+	        }
+
 	  }
 	  if(starting_iter+i == __max_derivation) __context.end();
 	}
@@ -963,7 +976,7 @@ Lsystem::__plot( AxialTree& workstring ){
 }
 
 #include <plantgl/tool/sequencer.h>
-#include <plantgl/gui/viewer/pglapplication.h>
+// #include <plantgl/gui/viewer/pglapplication.h>
 
 AxialTree
 Lsystem::animate(const AxialTree& workstring,double dt,size_t beg,size_t nb_iter){
@@ -977,10 +990,10 @@ Lsystem::animate(const AxialTree& workstring,double dt,size_t beg,size_t nb_iter
     __plot(tree);
     if (nb_iter > 0 && !isEarlyReturnEnabled()){
 	  for (size_t i = beg; i < beg+nb_iter; i++){
-		tree = __iterate(i,1,tree,true);
+	    tree = __iterate(i,1,tree,true);
 		timer.touch();
         timer.setTimeStep(__context.get_animation_timestep());
-        __plot(tree);
+		__plot(tree);
         if(isEarlyReturnEnabled()) break;
 	  }
 	}
@@ -1007,15 +1020,14 @@ Lsystem::record(const std::string& prefix,
     AxialTree tree = __axiom;
     ContextMaintainer c(&__context);
     if (beg > 0) tree = __iterate(0,beg,tree);
-	PGLViewerApplication::display(ScenePtr(new Scene()));
     __plot(tree);
 	int fill = (int)ceil(log10((float)beg+nb_iter+1));
-	PGLViewerApplication::saveImage(prefix+conv_number(beg,fill)+".png");
+	LPY::saveImage(prefix+conv_number(beg,fill)+".png");
     if (nb_iter > 0){
 	  for (size_t i = beg+1; i <= beg+nb_iter; i++){
 		tree = __iterate(i-1,1,tree,true);
         __plot(tree);
-		PGLViewerApplication::saveImage(prefix+conv_number(i,fill)+".png");
+		LPY::saveImage(prefix+conv_number(i,fill)+".png");
         if(isEarlyReturnEnabled()) break;
 	  }
 	}

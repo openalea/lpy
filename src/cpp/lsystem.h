@@ -208,7 +208,7 @@ protected:
  AxialTree __iterate( size_t starting_iter , 
                       size_t nb_iter , 
                       const AxialTree& workstring, 
-                      bool previouslyinterpreted = false  );
+                      bool previouslyinterpreted = false);
 
  AxialTree __step(AxialTree& workingstring,
 				   const RulePtrSet& ruleset,

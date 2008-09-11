@@ -726,7 +726,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
           else LsysError("Homomorphism maximum length has an invalid value.",filename,homomorphism_max_depth_lineno); 
       }
   }
-  __context.initialise();
+  __context.check_init_functions();
   RELEASE_RESSOURCE
 }
 

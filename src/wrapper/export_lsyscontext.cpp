@@ -98,7 +98,7 @@ void export_LsysContext(){
 	.def("start",          &LsysContext::start)
 	.def("end",            &LsysContext::end)
 	.def("startEach",      &LsysContext::startEach)
-	.def("endEach",        &LsysContext::endEach)
+	.def("endEach",        (void(LsysContext::*)())&LsysContext::endEach)
 	.def("initialise",     &LsysContext::initialise)
 	.def("initialiseFrom", &py_LcInitFrom)
 	.def("setStart",       &LsysContext::setStart)
