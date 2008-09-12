@@ -9,7 +9,7 @@ pj= os.path.join
 name='pylsystems'
 
 options = Options(['../options.py', 'options.py'], ARGUMENTS )
-tools = ['boost_python', 'plantgl','qt4']
+tools = ['boost_python', 'vplants.plantgl','qt4']
 
 env = ALEASolution(options, tools)
 env.Append( CPPPATH = pj( '$build_includedir','lpy' ) )

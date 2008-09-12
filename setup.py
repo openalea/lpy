@@ -87,7 +87,7 @@ setup(
     # Dependencies
     setup_requires = ['openalea.deploy'],
     dependency_links = ['http://openalea.gforge.inria.fr/pi'],
-    install_requires = ['PyOpenGL', 'plantgl'],
+    install_requires = ['PyOpenGL', 'vplants.plantgl'],
 
     )
 
