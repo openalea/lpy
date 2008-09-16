@@ -9,6 +9,7 @@ f = pj(os.path.dirname(__file__),'src', 'openalea', 'lpy','__version__.py')
 d = {}
 execfile(f,d,d)
 
+    
 ##############
 # Setup script
 
@@ -39,6 +40,7 @@ license= 'Cecill V2'
 build_prefix= "build-scons"
 
 from setuptools import setup
+from openalea.deploy.binary_deps import binary_deps
 
 
 setup(
@@ -87,7 +89,7 @@ setup(
     # Dependencies
     setup_requires = ['openalea.deploy'],
     dependency_links = ['http://openalea.gforge.inria.fr/pi'],
-    install_requires = ['PyOpenGL', 'vplants.plantgl'],
+    install_requires = ['PyOpenGL', binary_deps('vplants.plantgl')],
 
     )
 
