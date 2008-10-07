@@ -80,7 +80,7 @@ try:
     class LSysWidget(NodeWidget,  LPyWindow):
         def __init__(self, node, parent):
 
-             LPyWindow.__init__(self, parent)
+            LPyWindow.__init__(self, parent)
             NodeWidget.__init__(self, node)
             qt.QObject.connect(self.codeeditor,qt.SIGNAL('textChanged()'),self.updateNode)
         def notify(self, sender, event):
