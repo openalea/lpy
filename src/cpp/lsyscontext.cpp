@@ -400,7 +400,7 @@ void LPY::undeclare(const std::string& modules)
 bool LsysContext::isDeclared(const std::string& module)
 {
 	ModuleClassPtr mod = ModuleClassTable::get().getClass(module);
-	if(mod.isNull()) return false;
+	if(!mod) return false;
 	else return isDeclared(mod);
 }
 

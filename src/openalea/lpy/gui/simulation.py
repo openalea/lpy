@@ -5,7 +5,7 @@ from openalea.plantgl.all import PglTurtle, Viewer
 import optioneditordelegate as oed
 import os, shutil
 
-defaultcode = "Axiom: \n\nderivation length: 1\nproduction:\n\n\nhomomorphism:\n\n\nendlsystem"
+defaultcode = "Axiom: \n\nderivation length: 1\nproduction:\n\n\nhomomorphism:\n\n\nendlsystem\b"
 
 class LpySimulation:
     def __init__(self,lpywidget,index = 0, fname = None):

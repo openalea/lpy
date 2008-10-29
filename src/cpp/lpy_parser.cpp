@@ -893,7 +893,7 @@ LpyParsing::parselstring( std::string::const_iterator& beg,
 		size_t mod_id;
 		std::string mod_args;
 		ModuleClassPtr mod = ModuleClassTable::get().find(_it,endpos);
-		if (mod.isNull()){
+		if (!mod){
 			LsysSyntaxError(std::string("Invalid symbol '")+*_it+"' in AxialTree.","",lineno);
 			// mod = ModuleClassTable::get().declare(*_it); ++_it; 
 		}

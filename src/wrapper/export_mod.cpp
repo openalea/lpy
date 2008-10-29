@@ -35,6 +35,7 @@
 #error You should upgrade your version of PlantGL
 #endif
 #include <plantgl/python/export_list.h>
+#include <plantgl/python/export_refcountptr.h>
 
 using namespace boost::python;
 LPY_USING_NAMESPACE

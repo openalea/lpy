@@ -140,7 +140,7 @@ ModuleClassTable::registerPredefinedModule()
 {
 	for(ModuleClassList::const_iterator it = ModuleClass::getPredefinedClasses().begin();
 		it != ModuleClass::getPredefinedClasses().end(); ++it) 
-		declare(*it);
+		declare(it->get());
 }
 
 
@@ -154,8 +154,8 @@ ModuleClassTable::declare(const std::string& name)
 	{
 		ModuleClassPtr info = new ModuleClass(name);
 		if(maxnamelength < name.size())maxnamelength = name.size();
-		modulenamemap[name] = info;
-		modulenamelist[info->getId()] = info;
+		modulenamemap[name] = info.get();
+		modulenamelist[info->getId()] = info.get();
 		// std::cerr << "declare '" << name << "' first time with id " << info->getId() << std::endl;
 		return info;
 	}
