@@ -190,7 +190,8 @@ class MaterialEditor (QGLWidget):
                 res = editMaterialInDialog(color,self)
                 if res is None or res == QDialog.Accepted:
                     self.emit(SIGNAL('valueChanged()'))
-            except:
+            except Exception, e:
+                print e
                 print 'editMaterialInDialog not supported by your version of PlantGL'        
     def contextMenuEvent(self,event):
         self.menuselection = self.selectedColor(event.x(),event.y())
