@@ -1,7 +1,7 @@
 from openalea.core import *
 from lpy_nodes import WithLpyGui
 
-__name__ = "L-Py"
+__name__ = "vplants.l-py"
 __version__ = '0.0.1'
 __license__ = 'CECILL-C'
 __authors__ = 'Frederic Boudon'
@@ -84,6 +84,7 @@ run_node = Factory( name="run",
                   inputs=(dict(name='LSystem', interface=None, value=None),
                           dict(name='Axiom', interface=ITextStr, value=''),
                           dict(name='DerivationLength', interface=IInt, value=-1),
+                          dict(name='Parameters', interface=IDict, value={}),
                           ),
                   
                   outputs=(dict(name='AxialTree', interface=None),)

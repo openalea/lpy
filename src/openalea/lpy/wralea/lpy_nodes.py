@@ -38,15 +38,18 @@ def animate(lsystem, timestep):
         lsystem.animate(timestep * 0.01)
 
     
-def run(lsystem, axiom = '', nbstep = -1):
+def run(lsystem, axiom = '', nbstep = -1, parameters = {}):
     """ Run a lsystem """
+    c_iter = lsystem.getLastIterationNb()
     if nbstep < 0:
-        nbstep = lsystem.derivationLength
+        nbstep = lsystem.derivationLength - c_iter
     if len(axiom) == 0:
         axiom = lsystem.axiom
     elif type(axiom) == str:
         axiom = AxialTree(axiom)
-    return (lsystem.iterate(nbstep,axiom),)
+    if len(parameters) > 0:
+        l.context().updateNamespace(parameters)
+    return (lsystem.iterate(c_iter,nbstep,axiom),)
 
 def plot(axiom = '', lsystem = None):
     """ Plot a string """
@@ -59,6 +62,7 @@ def plot(axiom = '', lsystem = None):
         lsystem.plot(axiom)
     else:
         plot(axiom)
+    return (axiom,)
         
 
 def Tree2Scene(axialtree, lsystem = None):
@@ -72,7 +76,7 @@ def Tree2Scene(axialtree, lsystem = None):
         return (generateScene(axialtree),)
 
 
-WithLpyGui = True
+WithLpyGui = False
 try:
     from openalea.lpy.gui.lpystudio import LPyWindow
     from openalea.visualea.node_widget import NodeWidget
