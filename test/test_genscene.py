@@ -1,6 +1,7 @@
 from openalea.lpy import *
 from openalea.plantgl.all import *
 
+
 def sc2dict(s):
     d = {}
     for i in s:
@@ -8,10 +9,10 @@ def sc2dict(s):
             d[i.id] = []
         d[i.id].append(i)
     return d
-            
+
 
 lcode = """
-Axiom:A 
+Axiom:A
 production:
 A --> A[+A]A[-A]
 homomorphism:
@@ -21,15 +22,17 @@ B --> F
 C --> f@Of
 endlsystem
 """
+
+
 def test_generateScene():
     """ Test Lsystem generation of a scene using homomorphism """
     l = Lsystem()
-    l.set(lcode)    
+    l.set(lcode)
     a = l.iterate()
     sc = l.sceneInterpretation(a)
     assert len(sc) == 4*3
     d = sc2dict(sc)
     assert len(d) == 4
-    
+
 if __name__ == '__main__':
     test_generateScene()
