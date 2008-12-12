@@ -18,7 +18,7 @@ else:
     
 lsystem_node = Factory( name="LSystem", 
                    description="Build a LSystem object", 
-                   category="Simulation", 
+                   category="scene.lsystem", 
                    nodemodule="lpy_nodes",
                    nodeclass="lsystem",
                    widgetclass = widgetclass,
@@ -35,7 +35,7 @@ __all__.append('lsystem_node')
 
 axialtree_node = Factory( name="AxialTree", 
                   description="Build an AxialTree object", 
-                  category="Simulation", 
+                  category="scene.lsystem", 
                   nodemodule="lpy_nodes",
                   nodeclass="axialtree",
 
@@ -47,7 +47,7 @@ __all__.append('axialtree_node')
 
 write_lstring = Factory( name="writeLstring", 
                   description="Write an axialtree object", 
-                  category="Simulation", 
+                  category="scene.lsystem", 
                   nodemodule="lpy_nodes",
                   nodeclass="writeLstring",
 
@@ -62,7 +62,7 @@ __all__.append('write_lstring')
 
 animate_node = Factory( name="animate", 
                   description="Animate a LSystem", 
-                  category="Simulation", 
+                  category="scene.lsystem", 
                   nodemodule="lpy_nodes",
                   nodeclass="animate",
 
@@ -77,7 +77,7 @@ __all__.append('animate_node')
 
 run_node = Factory( name="run", 
                   description="Run a LSystem", 
-                  category="Simulation", 
+                  category="scene.lsystem", 
                   nodemodule="lpy_nodes",
                   nodeclass="run",
 
@@ -94,7 +94,7 @@ __all__.append('run_node')
 
 plot_node = Factory( name="plot", 
                   description="Plot a LSystem", 
-                  category="Simulation", 
+                  category="scene.lsystem", 
                   nodemodule="lpy_nodes",
                   nodeclass="plot",
 
@@ -108,7 +108,7 @@ __all__.append('plot_node')
 
 generate_scene = Factory( name="generateScene", 
                   description="Generate a scene from an AxialTree", 
-                  category="Simulation", 
+                  category="scene.lsystem", 
                   nodemodule="lpy_nodes",
                   nodeclass="Tree2Scene",
 
