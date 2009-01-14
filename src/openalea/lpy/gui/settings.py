@@ -12,9 +12,11 @@ def restoreState(lpywidget):
     settings = getSettings()
     settings.beginGroup('history')
     lpywidget.history = [ str(i) for i in settings.value('RecentFiles').toStringList() if not i is None and len(i) > 0]
-    openedfiles = [ str(i) for i in settings.value('OpenedFiles').toStringList() if not i is None and len(i) > 0]
+    openedfiles = [ str(i) for i in settings.value('OpenedFiles').toStringList() if not i is None and len(i) > 0]    
     val, ok = settings.value('MaxSize',QVariant(lpywidget.historymaxsize)).toInt()
     if ok: lpywidget.historymaxsize = val
+    lastfocus, ok = settings.value('LastFocus',QVariant(-1)).toInt()
+    if not ok: lastfocus = -1
     settings.endGroup()
     settings.beginGroup('file')
     lpywidget.reloadAtStartup = settings.value('reloadstartup',QVariant(lpywidget.reloadAtStartup)).toBool()
@@ -71,6 +73,8 @@ def restoreState(lpywidget):
         for f in openedfiles:
             if os.path.exists(f):
                 lpywidget.openfile(f)
+        if lastfocus != -1:
+            lpywidget.openfile(openedfiles[lastfocus])
   #except:
   #  print "cannot restore state from ini file"    
     
@@ -80,6 +84,7 @@ def saveState(lpywidget):
     settings.setValue('RecentFiles',QVariant(QStringList(lpywidget.history)))
     settings.setValue('OpenedFiles',QVariant(QStringList([i.fname for i in lpywidget.simulations if not i.fname is None])))
     settings.setValue('MaxSize',QVariant(lpywidget.historymaxsize))
+    settings.setValue('LastFocus',QVariant(lpywidget.currentSimulationId))
     settings.endGroup()
     settings.beginGroup('file')
     settings.setValue('reloadstartup',QVariant(lpywidget.reloadAtStartup))
