@@ -167,8 +167,8 @@ public:
 
 protected:
 
-	typedef  hash_map_string<ModuleClass *> ModuleClassMap;
-    typedef STDEXT::hash_map<size_t,ModuleClass *> ModuleClassIdMap;
+	typedef  pgl_hash_map_string<ModuleClass *> ModuleClassMap;
+    typedef pgl_hash_map<size_t,ModuleClass *> ModuleClassIdMap;
 	ModuleClassMap  modulenamemap;
 	ModuleClassIdMap modulenamelist;
 	size_t maxnamelength;

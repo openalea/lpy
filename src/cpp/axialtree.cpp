@@ -32,6 +32,7 @@
 #include "axialtree.h"
 #include "lpy_parser.h"
 #include "tracker.h"
+#include "matching.h"
 #include <boost/python.hpp>
 #include <iostream>
 
@@ -756,11 +757,8 @@ bool AxialTree::match(const AxialTree& a,
 					  AxialTree::const_iterator it,
 					  AxialTree::const_iterator& resultingpos) const
 { 
-  for (AxialTree::const_iterator it2 = a.const_begin(); it2 != a.const_end(); ++it2)
-	if(isEnd(it) || !it->match(*it2))return false;
-	else ++it;
-  resultingpos = it;
-  return true; 
+  list params;
+  return MatchingEngine::match(it,const_end(),a.const_begin(),a.const_end(),resultingpos,params);
 }
 
 bool AxialTree::match(const AxialTree& a, 
@@ -768,14 +766,7 @@ bool AxialTree::match(const AxialTree& a,
 					  AxialTree::const_iterator& resultingpos,
 					  list& params) const
 { 
-  list lp;
-  for (AxialTree::const_iterator it2 = a.const_begin(); it2 != a.const_end(); ++it2){
-	if(isEnd(it) || !it->match(*it2,lp))return false;
-	else { ++it; }
-  }
-  params += lp;
-  resultingpos = it;
-  return true; 
+	return MatchingEngine::match(it,const_end(),a.const_begin(),a.const_end(),resultingpos,params);
 }
 
 bool AxialTree::reverse_match(const AxialTree& a, 

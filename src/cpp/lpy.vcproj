@@ -247,6 +247,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\matching.h"
+				>
+			</File>
+			<File
 				RelativePath=".\mod.cpp"
 				>
 			</File>

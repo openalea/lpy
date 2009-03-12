@@ -193,101 +193,101 @@ public:
 					    const_iterator start,
 						const_iterator stop) const;
 
-	inline const_iterator find(const ParamModule& module) const
-	{ return find(module.name(),module.argSize(),const_begin(),const_end()); }
+	inline const_iterator find(const ParamModule& pattern) const
+	{ return find(pattern.name(),pattern.argSize(),const_begin(),const_end()); }
 
-	inline const_iterator find(const ParamModule& module, 
+	inline const_iterator find(const ParamModule& pattern, 
 					    const_iterator start) const
-	{ return find(module.name(),module.argSize(),start,const_end()); }
+	{ return find(pattern.name(),pattern.argSize(),start,const_end()); }
 
-	inline const_iterator find(const ParamModule& module, 
+	inline const_iterator find(const ParamModule& pattern, 
 					    const_iterator start,
 						const_iterator stop) const
-	{ return find(module.name(),module.argSize(),start,stop); }
+	{ return find(pattern.name(),pattern.argSize(),start,stop); }
 
-	inline const_iterator find(const AxialTree& modules) const
-	{ return find(modules,begin(),const_end()); }
+	inline const_iterator find(const AxialTree& pattern) const
+	{ return find(pattern,begin(),const_end()); }
 
-	inline const_iterator find(const AxialTree& modules, 
+	inline const_iterator find(const AxialTree& pattern, 
 					    const_iterator start) const
-	{ return find(modules,start,const_end()); }
+	{ return find(pattern,start,const_end()); }
 
-	const_iterator find(const AxialTree& modules, 
+	const_iterator find(const AxialTree& pattern, 
 					    const_iterator start,
 						const_iterator stop) const;
 
-	bool match(const ParamModule& a, 
+	bool match(const ParamModule& pattern, 
 			   const_iterator pos) const;
 
-	bool match(const AxialTree& a, 
+	bool match(const AxialTree& pattern, 
 			   const_iterator  pos) const;
 
-	bool match(const AxialTree& a, 
+	bool match(const AxialTree& pattern, 
 			   const_iterator  pos,
 			   const_iterator& resultingpos,
 			   boost::python::list& params) const;
 
-	bool match(const AxialTree& a, 
+	bool match(const AxialTree& pattern, 
 			   const_iterator  pos,
 			   const_iterator& resultingpos) const;
 
-	bool reverse_match(const AxialTree& a, 
+	bool reverse_match(const AxialTree& pattern, 
 			   const_iterator  pos) const;
 
-	bool reverse_match(const AxialTree& a, 
+	bool reverse_match(const AxialTree& pattern, 
 			   const_iterator  pos,
 			   const_iterator& resultingpos,
 			   boost::python::list& params) const;
 
-	bool reverse_match(const AxialTree& a, 
+	bool reverse_match(const AxialTree& pattern, 
 			   const_iterator  pos,
 			   const_iterator& resultingpos) const;
 
-	bool rightmatch(const AxialTree& a, 
+	bool rightmatch(const AxialTree& pattern, 
 					const_iterator pos,
 					const_iterator& resultingpos,
 					boost::python::list& params) const;
 
-	bool rightmatch(const AxialTree& a, 
+	bool rightmatch(const AxialTree& pattern, 
 					const_iterator pos,
 					const_iterator& resultingpos) const;
 
-	bool rightmatch(const AxialTree& a, 
+	bool rightmatch(const AxialTree& pattern, 
 					const_iterator pos) const;
 
-	bool leftmatch(const AxialTree& a,  
+	bool leftmatch(const AxialTree& pattern,  
 					const_iterator pos,
 					const_iterator& resultingpos,
 					boost::python::list& params) const;
 
-	bool leftmatch(const AxialTree& a,  
+	bool leftmatch(const AxialTree& pattern,  
 					const_iterator pos,
 					const_iterator& resultingpos) const;
 
-	bool leftmatch(const AxialTree& a,  
+	bool leftmatch(const AxialTree& pattern,  
 					const_iterator pos) const;
 
-	const_iterator rightfind(const AxialTree& a,
+	const_iterator rightfind(const AxialTree& pattern,
 							 const_iterator start,
 						     const_iterator stop) const;
 
-	inline const_iterator rightfind(const AxialTree& a,
+	inline const_iterator rightfind(const AxialTree& pattern,
 							 const_iterator start) const
-	{ return rightfind(a,start,const_end()); }
+	{ return rightfind(pattern,start,const_end()); }
 
-	inline const_iterator rightfind(const AxialTree& a) const
-	{ return rightfind(a,const_begin(),const_end()); }
+	inline const_iterator rightfind(const AxialTree& pattern) const
+	{ return rightfind(pattern,const_begin(),const_end()); }
 
-	const_iterator leftfind(const AxialTree& a,
+	const_iterator leftfind(const AxialTree& pattern,
 							 const_iterator start,
 						     const_iterator stop) const;
 
-	inline const_iterator leftfind(const AxialTree& a,
+	inline const_iterator leftfind(const AxialTree& pattern,
 							 const_iterator start) const
-	{ return leftfind(a,start,const_end()); }
+	{ return leftfind(pattern,start,const_end()); }
 
-	inline const_iterator leftfind(const AxialTree& a) const
-	{ return leftfind(a,const_begin(),const_end()); }
+	inline const_iterator leftfind(const AxialTree& pattern) const
+	{ return leftfind(pattern,const_begin(),const_end()); }
 
 	AxialTree replace(const ParamModule&, const ParamModule&) const;
 	AxialTree replace(const ParamModule&, const AxialTree&) const;
