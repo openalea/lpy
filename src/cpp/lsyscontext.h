@@ -208,7 +208,7 @@ protected:
   void init_options();
 
   /// attributes for ignore and consider
-  typedef STDEXT::hash_map<size_t,ModuleClassPtr> ModuleClassSet;
+  typedef pgl_hash_map<size_t,ModuleClassPtr> ModuleClassSet;
   ModuleClassSet __keyword;
   bool __ignore_method;
 
