@@ -63,6 +63,12 @@ public:
   /// A const iterator used to iterate through an AxialTree.
   typedef ModuleList::const_iterator const_iterator;
 
+  /// An iterator used to iterate through an AxialTree.
+  typedef ModuleList::reverse_iterator reverse_iterator;
+
+  /// A const iterator used to iterate through an AxialTree.
+  typedef ModuleList::const_reverse_iterator const_reverse_iterator;
+
   AxialTree();
   AxialTree(const AxialTree&);
   AxialTree(const std::string&);
@@ -106,6 +112,36 @@ public:
 
   inline bool isBegin(ModuleList::const_iterator it) const
   { return (const_begin() == it); }
+
+  /// Returns an iterator at the beginning of \e self.
+  inline reverse_iterator rbegin()
+   { return __string().rbegin(); }
+
+  /// Returns an iterator at the beginning of \e self.
+  inline const_reverse_iterator rbegin() const
+   { return __conststring().rbegin(); }
+
+  /// Returns an iterator at the beginning of \e self.
+  inline const_reverse_iterator const_rbegin() const
+   { return __conststring().rbegin(); }
+
+  /// Returns an iterator at the end of \e self.
+  inline reverse_iterator rend()
+  { return __string().rend(); }
+
+  /// Returns a const iterator at the end of \e self.
+  inline const_reverse_iterator rend() const
+  { return __conststring().rend(); }
+
+  /// Returns a const iterator at the end of \e self.
+  inline const_reverse_iterator const_rend() const
+  { return __conststring().rend(); }
+
+  inline bool isReverseEnd(ModuleList::const_reverse_iterator it) const
+  { return (const_rend() == it); }
+
+  inline bool isReverseBegin(ModuleList::const_reverse_iterator it) const
+  { return (const_rbegin() == it); }
 
 
 	AxialTree& operator+=(const ParamModule&);
@@ -302,9 +338,11 @@ public:
 
     //!  Return iterator on endBracket ']' or end of string. If pos is on a '[', startingBeforePos allows to say if search should start from just before the '[' or after.
 	const_iterator endBracket(const_iterator pos, bool startingBeforePos = false) const;
-	iterator endBracket(iterator pos, bool startingBeforePos = false) const;
+	iterator endBracket(iterator pos, bool startingBeforePos = false);
+
     //!  Return iterator on beginBracket '[' or begin of string. If pos is on a ']', startingAfterPos allows to say if search should start from just after the ']' or after.
 	const_iterator beginBracket(const_iterator pos, bool startingAfterPos = false) const;
+	iterator beginBracket(iterator pos, bool startingAfterPos = false);
 
 	bool wellBracketed() const;
 	bool isAPath() const;
@@ -348,6 +386,7 @@ protected:
   
 
 };
+
 
 /*---------------------------------------------------------------------------*/
 

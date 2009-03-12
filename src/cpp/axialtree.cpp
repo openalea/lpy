@@ -30,6 +30,7 @@
 
 #include "mod.h"
 #include "axialtree.h"
+#include "axialtree_manip.h"
 #include "lpy_parser.h"
 #include "tracker.h"
 #include "matching.h"
@@ -665,49 +666,25 @@ AxialTree::directSon(const_iterator pos) const
 AxialTree::const_iterator 
 AxialTree::endBracket(AxialTree::const_iterator pos, bool startingBeforePos) const
 { 
-  if(isEnd(pos))return pos;
-  if(!startingBeforePos && pos->isLeftBracket())++pos;
-  int bracket= 0;
-  while(!isEnd(pos) && (bracket>0 || !pos->isRightBracket())){
-	if(pos->isLeftBracket()) bracket++;
-	else if(pos->isRightBracket()) bracket--;
-	++pos;
-  }
-  return pos; 
+	return LPY::endBracket(pos,end(),startingBeforePos);
 }
 
 AxialTree::iterator 
-AxialTree::endBracket(AxialTree::iterator pos, bool startingBeforePos) const
+AxialTree::endBracket(AxialTree::iterator pos, bool startingBeforePos)
 { 
-  if(isEnd(pos))return pos;
-  if(!startingBeforePos && pos->isLeftBracket())++pos;
-  int bracket= 0;
-  while(!isEnd(pos) && (bracket>0 || !pos->isRightBracket())){
-	if(pos->isLeftBracket()) bracket++;
-	else if(pos->isRightBracket()) bracket--;
-	++pos;
-  }
-  return pos; 
+	return LPY::endBracket(pos,end(),startingBeforePos);
 }
 
 AxialTree::const_iterator 
 AxialTree::beginBracket(AxialTree::const_iterator pos, bool startingAfterPos) const
 { 
-  if(!isEnd(pos) && pos->isLeftBracket())return pos;
-  if(isBegin(pos) ) return const_end();
-  if(isEnd(pos))--pos;
-  else if(!startingAfterPos && pos->isRightBracket())--pos;
-  int bracket= 0;
-  while(!isBegin(pos) && (bracket>0 || !pos->isLeftBracket())){
-	if(pos->isRightBracket()) bracket++;
-	else if(pos->isLeftBracket()) bracket--;
-	--pos;
-  }
-  if(isBegin(pos)) {
-	if(bracket == 0 && pos->isLeftBracket())return pos;
-	else return const_end();
-  }
-  return pos; 
+	return LPY::beginBracket(pos,begin(),end(),startingAfterPos);
+}
+
+AxialTree::iterator 
+AxialTree::beginBracket(AxialTree::iterator pos, bool startingAfterPos)
+{ 
+	return LPY::beginBracket(pos,begin(),end(),startingAfterPos);
 }
 
 bool
@@ -745,77 +722,56 @@ AxialTree::hasQueryModule() const
   return false; 
 }
 
-bool AxialTree::match(const ParamModule& a, AxialTree::const_iterator it) const
-{ return it->match(a); }
+bool AxialTree::match(const ParamModule& pattern, AxialTree::const_iterator it) const
+{ return it->match(pattern); }
 
 
-bool AxialTree::match(const AxialTree& a, 
+bool AxialTree::match(const AxialTree& pattern, 
 					  AxialTree::const_iterator it) const
-{ AxialTree::const_iterator res; return match(a,it,res); }
+{ AxialTree::const_iterator res; return match(pattern,it,res); }
 
-bool AxialTree::match(const AxialTree& a, 
+bool AxialTree::match(const AxialTree& pattern, 
 					  AxialTree::const_iterator it,
 					  AxialTree::const_iterator& resultingpos) const
 { 
   list params;
-  return MatchingEngine::match(it,const_end(),a.const_begin(),a.const_end(),resultingpos,params);
+  return MatchingEngine::match(it,const_end(),pattern.const_begin(),pattern.const_end(),resultingpos,params);
 }
 
-bool AxialTree::match(const AxialTree& a, 
+bool AxialTree::match(const AxialTree& pattern, 
 					  AxialTree::const_iterator it,
 					  AxialTree::const_iterator& resultingpos,
 					  list& params) const
 { 
-	return MatchingEngine::match(it,const_end(),a.const_begin(),a.const_end(),resultingpos,params);
+	return MatchingEngine::match(it,const_end(),pattern.const_begin(),pattern.const_end(),resultingpos,params);
 }
 
-bool AxialTree::reverse_match(const AxialTree& a, 
+bool AxialTree::reverse_match(const AxialTree& pattern, 
 					  AxialTree::const_iterator it) const
-{ AxialTree::const_iterator res; return reverse_match(a,it,res); }
+{ AxialTree::const_iterator res; return reverse_match(pattern,it,res); }
 
-bool AxialTree::reverse_match(const AxialTree& a, 
+bool AxialTree::reverse_match(const AxialTree& pattern, 
 					  AxialTree::const_iterator it,
 					  AxialTree::const_iterator& resultingpos) const
 { 
- for (ModuleList::const_reverse_iterator it2 = a.__conststring().rbegin(); it2 != a.__conststring().rend(); ){
-	if(!it->match(*it2))return false;
-    else {
-        ++it2;
-        if (isBegin(it)){
-            if (it2 != a.__conststring().rend())return false;
-        }
-        else --it;
-    }
- }
- resultingpos = it;
- return true; 
+  list params;
+  if (isEnd(it)) return false;
+  return MatchingEngine::reverse_match(it,begin(),pattern.const_rbegin(),pattern.const_rend(),resultingpos,params);
 }
 
-bool AxialTree::reverse_match(const AxialTree& a, 
+
+bool AxialTree::reverse_match(const AxialTree& pattern, 
 					  AxialTree::const_iterator it,
 					  AxialTree::const_iterator& resultingpos,
 					  list& params) const
 { 
-  list lp;
-  for (ModuleList::const_reverse_iterator it2 = a.__conststring().rbegin(); it2 != a.__conststring().rend(); ){
-    list lmp;
-	if(isEnd(it) || !it->match(*it2,lmp)) return false; 
-    else { 
-        ++it2;
-        if (isBegin(it)){
-			if (it2 != a.__conststring().rend()) return false;
-        }
-        else --it;
-        lmp += lp; lp = lmp; 
-    }
-  }
-  params += lp;
-  resultingpos = it;
-  return true; 
+  if (isEnd(it)) return false;
+  return MatchingEngine::reverse_match(it,begin(),pattern.const_rbegin(),pattern.const_rend(),resultingpos,params);
 }
-bool AxialTree::rightmatch(const AxialTree& a, 
+ 
+bool AxialTree::rightmatch(const AxialTree& pattern, 
 						   AxialTree::const_iterator it) const
-{ AxialTree::const_iterator res; return rightmatch(a,it,res); }
+{ AxialTree::const_iterator res; return rightmatch(pattern,it,res); }
 
 bool AxialTree::rightmatch(const AxialTree& a, 
 						   AxialTree::const_iterator it,
