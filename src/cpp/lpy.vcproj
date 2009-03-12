@@ -247,6 +247,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\matching.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\matching.h"
 				>
 			</File>

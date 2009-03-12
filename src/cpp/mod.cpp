@@ -30,6 +30,7 @@
 
 
 #include "mod.h"
+#include "matching.h"
 #include "lsyscontext.h"
 #include "lpy_parser.h"
 #include "tracker.h"
@@ -255,7 +256,7 @@ ParamModule::QueryModule(const std::string& name)
   std::vector<std::string> args = LpyParsing::parse_arguments(parsedstring[0].second);
   for(std::vector<std::string>::const_iterator itarg = args.begin(); itarg != args.end(); ++itarg){
     bool notvar = false;
-	if (ParamModule::getMatchingMethod() == eWithStarNValueConstraint){
+	if (MatchingEngine::getModuleMatchingMethod() == MatchingEngine::eMWithStarNValueConstraint){
 		object o = LsysContext::currentContext()->try_evaluate(*itarg);
 		if(o != object()){ appendParam(m.__args,o); notvar = true; }
 	}
@@ -275,7 +276,7 @@ ParamModule::QueryModule(size_t classid, const std::string& argstr)
   std::vector<std::string> args = LpyParsing::parse_arguments(argstr);
   for(std::vector<std::string>::const_iterator itarg = args.begin(); itarg != args.end(); ++itarg){
     bool notvar = false;
-	if (ParamModule::getMatchingMethod() == eWithStarNValueConstraint){
+	if (MatchingEngine::getModuleMatchingMethod() == MatchingEngine::eMWithStarNValueConstraint){
 		object o = LsysContext::currentContext()->try_evaluate(*itarg);
 		if(o != object()){ appendParam(m.__args,o); notvar = true; }
 	}
@@ -629,20 +630,27 @@ ParamModule::operator+(const object& o) const
 }
 
 /*---------------------------------------------------------------------------*/
+bool ParamModule::match(const std::string& _name, size_t nbargs) const
+{ return name() == _name && argSize() == nbargs; }
 
+bool ParamModule::match(const ParamModule& pattern) const 
+{ list l; return MatchingEngine::module_match(*this,pattern,l); }
+//	return (this->*MATCHINGFUNC)(m); }
+
+bool ParamModule::match(const ParamModule& pattern, list& l) const 
+{ return MatchingEngine::module_match(*this,pattern,l); }
+// { return (this->*MATCHINGFUNCARG)(m, l); }
+
+/*
 ParamModule::MatchingFunc ParamModule::MATCHINGFUNC = (ParamModule::MatchingFunc)&ParamModule::match3;
 ParamModule::MatchingFuncWithArg ParamModule::MATCHINGFUNCARG = (ParamModule::MatchingFuncWithArg)&ParamModule::match3;
 ParamModule::eMatchingMethod ParamModule::MATCHINGMETHOD(ParamModule::eDefaultMatchingMethod);
 
 ParamModule::eMatchingMethod ParamModule::getMatchingMethod() {  
   	return ParamModule::MATCHINGMETHOD; 
-/*	if (MATCHINGFUNC == &ParamModule::match1) return eSimple;
-	else if(MATCHINGFUNC == &ParamModule::match2) return eWithStar;
-	else return eWithStarNValueConstraint;*/
 }
 
 void ParamModule::setMatchingMethod(eMatchingMethod t){
-	// std::cerr << "matching set to" << int(t) << std::endl;
 	ParamModule::MATCHINGMETHOD = t;
 	switch(t){
 		case eSimple:
@@ -659,12 +667,10 @@ void ParamModule::setMatchingMethod(eMatchingMethod t){
 				break;
 	}
 }
-
-bool ParamModule::match(const ParamModule&m) const { return (this->*MATCHINGFUNC)(m); }
-bool ParamModule::match(const ParamModule&m, list& l) const { return (this->*MATCHINGFUNCARG)(m, l); }
+*/
 
 /*---------------------------------------------------------------------------*/
-
+/*
 bool ParamModule::match1(const ParamModule& m) const
 {
   // return isStar() || m.isStar() || (sameName(m) && argSize() == m.argSize());
@@ -763,7 +769,7 @@ bool ParamModule::match2(const ParamModule& m, list& l) const
 	  return true;
 	}
   }
-  else if(isStar())return m.match2(*this);
+  else if(isStar())return m.match2(*this,l);
   else {
 	if (!sameName(m)) return false;
 	size_t s = m.argSize();
@@ -1028,8 +1034,6 @@ bool ParamModule::match3(const ParamModule& m, list& l) const
 	}
 	return true;
   }
-}
+}*/
 
-bool ParamModule::match(const std::string& _name, size_t nbargs) const
-{ return name() == _name && argSize() == nbargs; }
 

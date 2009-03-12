@@ -315,9 +315,9 @@ struct ContextMaintainer {
     LsysContext * context;
 
     ContextMaintainer(LsysContext * _context) : 
-        is_set(!context->isCurrent()), context(_context)
+        is_set(!_context->isCurrent()), context(_context)
     { 
-      if (is_set) context->makeCurrent(); 
+		if (is_set) context->makeCurrent(); 
     }
 
     ~ContextMaintainer() { if (is_set) context->done();  }

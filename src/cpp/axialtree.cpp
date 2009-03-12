@@ -558,109 +558,31 @@ AxialTree::replace(const AxialTree& i, const AxialTree& j) const{
 std::vector<AxialTree::const_iterator> 
 AxialTree::roots() const
 { 
-  std::vector<const_iterator> res;
-  if (empty()) return res;
-  AxialTree::const_iterator i = const_begin();
-  if(i->isRightBracket())return res;
-  else if(i->isLeftBracket()){
-	while(!isEnd(i) && (i->isBracket() || i->isIgnored())){
-	  while(!isEnd(i) && i->isLeftBracket()){
-		std::vector<AxialTree::const_iterator> res2 = sons(i);
-		if(!res2.empty())
-		  res.insert(res.end(),res2.begin(),res2.end());
-		i = endBracket(i);
-		if( isEnd(i)) return res;
-		++i;
-	  }
-	  while(!isEnd(i) && !i->isBracket() && i->isIgnored())++i;
-	}
-	if( !isEnd(i) && !i->isRightBracket()){
-	  res.push_back(i);
-	}
-	// std::vector<const_iterator> res2 = sons(i);
-	// if(!res2.empty())res.insert(res.end(),res2.begin(),res2.end());
-  }
-  else if(i->isIgnored()){
-	std::vector<const_iterator> res2 = sons(i);
-	if(!res2.empty())res.insert(res.end(),res2.begin(),res2.end());
-  }
-  else res.push_back(i);
-  return res;
+	return LPY::roots(const_begin(),const_end());
 }
 
 AxialTree::const_iterator 
 AxialTree::father(const_iterator pos) const
 {
-  if( isBegin(pos)) return end();
-  --pos;
-  while(!isEnd(pos) && !isBegin(pos) && (pos->isBracket() || pos->isIgnored())){
-	while( !isBegin(pos) && (pos->isLeftBracket() || pos->isIgnored()))--pos;
-	while(!isEnd(pos) && !isBegin(pos) && pos->isRightBracket()){
-	  pos = beginBracket(pos);
-	  if( !isEnd(pos) ) --pos;
-	}
-  }
-  if( isEnd(pos) ) return pos;
-  else if( isBegin(pos) && (pos->isLeftBracket() || pos->isIgnored())) return end();
-  else return pos;
+  return LPY::father(pos,const_begin(),const_end());
+
 }
 
 std::vector<AxialTree::const_iterator> 
 AxialTree::sons(AxialTree::const_iterator pos) const
 { 
-  std::vector<AxialTree::const_iterator> result; 
-  if( isEnd(pos) || pos->isRightBracket()) return result;
-  ++pos;
-  while(!isEnd(pos) && (pos->isBracket() || pos->isIgnored())){
-	while(!isEnd(pos) && !pos->isBracket() && pos->isIgnored())++pos;
-	while(!isEnd(pos) && pos->isLeftBracket()){
-	  std::vector<AxialTree::const_iterator> res = sons(pos);
-	  if(!res.empty())
-		result.insert(result.end(),res.begin(),res.end());
-	  pos = endBracket(pos);
-	  if( isEnd(pos)) return result;
-	  ++pos;
-	}
-  }
-  if( !isEnd(pos) && !pos->isRightBracket()){
-	result.push_back(pos);
-  }
-  return result;
+	return LPY::sons(pos,const_end());
 }
 
 std::vector<AxialTree::const_iterator> 
 AxialTree::lateralSons(AxialTree::const_iterator pos) const{
-  std::vector<AxialTree::const_iterator> result; 
-  if( isEnd(pos) || pos->isRightBracket()) return result;
-  ++pos;
-  while(!isEnd(pos) && (pos->isBracket() || pos->isIgnored())){
-	while(!isEnd(pos) && !pos->isBracket() && pos->isIgnored())++pos;
-	while(!isEnd(pos) && pos->isLeftBracket()){
-	  std::vector<AxialTree::const_iterator> res = sons(pos);
-	  result.insert(result.end(),res.begin(),res.end());
-	  pos = endBracket(pos);
-	  if( isEnd(pos)) return result;
-	  ++pos;
-	}
-  }
-  return result;
+	return LPY::lateralSons(pos,const_end());
 }
 
 AxialTree::const_iterator 
 AxialTree::directSon(const_iterator pos) const
 {
-  if( isEnd(pos) || pos->isRightBracket()) return end();
-  ++pos;
-  while(!isEnd(pos) && (pos->isBracket() || pos->isIgnored())){
-	while(!isEnd(pos) && !pos->isBracket() && pos->isIgnored())++pos;
-	while(!isEnd(pos) && pos->isLeftBracket()){
-	  pos = endBracket(pos);
-	  if( isEnd(pos)) return end();
-	  ++pos;
-	}
-  }
-  if( isEnd(pos) || pos->isRightBracket()) return end();
-  else return pos;
+	return LPY::directSon(pos,const_end());
 }
 
 AxialTree::const_iterator 
@@ -690,14 +612,7 @@ AxialTree::beginBracket(AxialTree::iterator pos, bool startingAfterPos)
 bool
 AxialTree::wellBracketed() const
 { 
-  int bracket= 0;
-  AxialTree::const_iterator pos = const_begin();
-  while(!isEnd(pos) && bracket>= 0){
-	if(pos->isLeftBracket()) ++bracket;
-	else if(pos->isRightBracket()) --bracket;
-	++pos;
-  }
-  return (bracket == 0); 
+	return LPY::wellBracketed(const_begin(),const_end());
 }
 
 bool
@@ -773,108 +688,20 @@ bool AxialTree::rightmatch(const AxialTree& pattern,
 						   AxialTree::const_iterator it) const
 { AxialTree::const_iterator res; return rightmatch(pattern,it,res); }
 
-bool AxialTree::rightmatch(const AxialTree& a, 
+bool AxialTree::rightmatch(const AxialTree& pattern, 
 						   AxialTree::const_iterator it,
 						   AxialTree::const_iterator& resultingpos) const{
-  if(a.empty())return true;
-  const_iterator it2 = a.const_begin();
-  while(!isEnd(it) && !a.isEnd(it2)){
-	if(it->isIgnored()){ ++it; }
-	else if(it2->isStar()){ ++it; ++it2; }
-	if(it2->isStar()){
-		if(it->match(*it2)){ ++it; ++it2; }
-		else return false;
-	}
-	else if(!it2->isBracket()){
-	  if(!it->isBracket()) {
-		if(it->match(*it2)){ ++it; ++it2; }
-		else return false;
-	  }
-	  else { // it->isBracket()
-		if(it->isRightBracket())return false;
-		else if(it->isLeftBracket()) {
-		  it = endBracket(it);
-		  if(!isEnd(it))++it;
-		}
-	  }
-	}
-	else { // it2->isBracket()
-	  if(it2->isRightBracket()){
-		if(it->isRightBracket()) { ++it; ++it2; }
-		else { 
-		  if(it2->isExactRightBracket())return false;
-		  else {
-            // search start before it to avoid matching A[B]C with A[B[]C]C
-			it = endBracket(it,true);
-			if(!isEnd(it))++it; 
-			++it2; 
-		  }
-		}
-	  }
-	  else { // it2->isLeftBracket()
-		if(!it->isLeftBracket())return false;
-		else { ++it; ++it2;	}
-	  }
-	}
-  }
-  if(a.isEnd(it2)){
-	resultingpos = it;
-	return true;
-  }
-  else return false;
+  if(pattern.empty())return true;
+  list params;
+  return MatchingEngine::right_match(it,const_end(),pattern.const_begin(),pattern.const_end(),resultingpos,params);
 }
 
-bool AxialTree::rightmatch(const AxialTree& a, 
+bool AxialTree::rightmatch(const AxialTree& pattern, 
 						   AxialTree::const_iterator it,
 						   AxialTree::const_iterator& resultingpos,
 						   list& params) const{
-  if(a.empty())return true;
-  const_iterator it2 = a.const_begin();
-  while(!isEnd(it) && !a.isEnd(it2)){
-	if(it->isIgnored()){ ++it; }
-	if(it2->isStar()){
-		list lp;
-		if(it->match(*it2,lp)){ params += lp; ++it; ++it2; }
-		else return false;
-	}
-	else if(!it2->isBracket()){
-	  if(!it->isBracket()) {
-		list lp;
-		if(it->match(*it2,lp)){ params += lp; ++it; ++it2; }
-		else return false;
-	  }
-	  else { // it->isBracket()
-		if(it->isRightBracket())return false;
-		else if(it->isLeftBracket()) {
-		  it = endBracket(it);
-		  if(!isEnd(it))++it;
-		}
-	  }
-	}
-	else { // it2->isBracket()
-	  if(it2->isRightBracket()){
-		if(it->isRightBracket()) { ++it; ++it2; }
-		else { 
-		  if(it2->isExactRightBracket())return false;
-		  else {
-            // search start before it to avoid matching A[B]C with A[B[]C]C
-			it = endBracket(it,true);
-			if(!isEnd(it))++it; 
-			++it2; 
-		  }
-		}
-	  }
-	  else { // it2->isLeftBracket()
-		if(!it->isLeftBracket())return false;
-		else { ++it; ++it2;	}
-	  }
-	}
-  }
-  if(a.isEnd(it2)){
-	resultingpos = it;
-	return true;
-  }
-  else return false;
+  if(pattern.empty())return true;
+  return MatchingEngine::right_match(it,const_end(),pattern.const_begin(),pattern.const_end(),resultingpos,params);
 }
 
 AxialTree::const_iterator
@@ -888,62 +715,25 @@ AxialTree::rightfind(const AxialTree& a,
   else return _it;
 }
 
-bool AxialTree::leftmatch(const AxialTree& a, 
-						  AxialTree::const_iterator it2,
+bool AxialTree::leftmatch(const AxialTree& pattern, 
+						  AxialTree::const_iterator it,
 						  AxialTree::const_iterator& resultingpos,
 						  list& params) const{
-  if(a.empty())return true;
-  if(isBegin(it2))return false;
-  list lparams;
-  const_iterator it = a.end()-1;
-  it2 = father(it2);
-  list lp;
-  while(!a.isBegin(it) && !isEnd(it2) && it2->match(*it,lp) ){
-	  lparams += lp; 
-	  --it; 
-	  if(it->isStar() || it->isBracket()){ 
-		--it; --it2; while(!isBegin(it2)&&it2->isIgnored())--it2;}
-	  else  it2 = father(it2);
-	  lp = list();
-  }
-  if(a.isBegin(it)){
-	if(!isEnd(it2) && it2->match(*it,lp)){
-	  lparams += lp ;
-	  resultingpos = it2;
-	  params += lparams;
-	  return true;
-	}
-	else return false;
-  }
-  else return false;
+  if(pattern.empty())return true;
+  return MatchingEngine::left_match(it,const_begin(),const_end(),pattern.const_rbegin(),pattern.const_rend(),resultingpos,params);
 }
 
-bool AxialTree::leftmatch(const AxialTree& a, 
-						  AxialTree::const_iterator it2,
+bool AxialTree::leftmatch(const AxialTree& pattern, 
+						  AxialTree::const_iterator it,
 						  AxialTree::const_iterator& resultingpos) const{
-  if(a.empty())return true;
-  if(isBegin(it2))return false;
-  const_iterator it = a.end()-1;
-  it2 = father(it2);
-  while(!a.isBegin(it) && !isBegin(it2) && !isEnd(it2) && (it2->match(*it) || it->isStar())){
-	  --it; 
-	  if(it->isStar() || it->isBracket()){ // Star and Bracket can match Bracket.
-		--it2; while(!isBegin(it2)&&it2->isIgnored())--it2;
-	  }
-	  else it2 = father(it2); 
-  }
-  if(a.isBegin(it)){
-	if(!isEnd(it2) && it2->match(*it) ){
-	  resultingpos = it2;
-	  return true;
-	}
-	else return false;
-  }
-  else return false;
+
+  if(pattern.empty())return true;
+  list params;
+  return MatchingEngine::left_match(it,const_begin(),const_end(),pattern.const_rbegin(),pattern.const_rend(),resultingpos,params);
 }
 
 bool AxialTree::leftmatch(const AxialTree& a, AxialTree::const_iterator it) const
-{ AxialTree::const_iterator res; return rightmatch(a,it,res); }
+{ AxialTree::const_iterator res; return leftmatch(a,it,res); }
 
 AxialTree::const_iterator
 AxialTree::leftfind(const AxialTree& a,

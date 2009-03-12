@@ -72,6 +72,127 @@ Iterator beginBracket(Iterator pos, Iterator string_begin, Iterator string_end, 
 }
 
 
+template<class Iterator>
+Iterator father(Iterator pos, Iterator string_begin, Iterator string_end)
+{
+  if( pos == string_begin ) return string_end;
+  --pos;
+  while((pos != string_end) && (pos != string_begin) && (pos->isBracket() || pos->isIgnored())){
+	while( (pos != string_begin) && (pos->isLeftBracket() || pos->isIgnored()))--pos;
+	while((pos != string_end) && (pos != string_begin) && pos->isRightBracket()){
+	  pos = beginBracket(pos,string_begin,string_end);
+	  if( pos != string_end ) --pos;
+	}
+  }
+  if( pos == string_end ) return pos;
+  else if( (pos == string_begin) && (pos->isLeftBracket() || pos->isIgnored())) return string_end;
+  else return pos;
+}
+
+template<class Iterator>
+bool wellBracketed(Iterator string_begin, Iterator string_end) 
+{ 
+  int bracket= 0;
+  AxialTree::const_iterator pos = string_begin;
+  while((pos != string_end) && bracket>= 0){
+	if(pos->isLeftBracket()) ++bracket;
+	else if(pos->isRightBracket()) --bracket;
+	++pos;
+  }
+  return (bracket == 0); 
+}
+
+template<class Iterator>
+std::vector<Iterator>  sons(Iterator pos, Iterator string_end)
+{ 
+  std::vector<Iterator> result; 
+  if( (pos == string_end) || pos->isRightBracket()) return result;
+  ++pos;
+  while((pos != string_end) && (pos->isBracket() || pos->isIgnored())){
+	while((pos != string_end) && !pos->isBracket() && pos->isIgnored())++pos;
+	while((pos != string_end) && pos->isLeftBracket()){
+	  std::vector<Iterator> res = sons(pos,string_end);
+	  if(!res.empty())
+		result.insert(result.end(),res.begin(),res.end());
+	  pos = endBracket(pos,string_end);
+	  if( pos == string_end ) return result;
+	  ++pos;
+	}
+  }
+  if( (pos != string_end) && !pos->isRightBracket()){
+	result.push_back(pos);
+  }
+  return result;
+}
+
+template<class Iterator>
+Iterator directSon(Iterator pos, Iterator string_end) 
+{
+  if( (pos == string_end) || pos->isRightBracket()) return string_end;
+  ++pos;
+  while((pos != string_end) && (pos->isBracket() || pos->isIgnored())){
+	while((pos != string_end) && !pos->isBracket() && pos->isIgnored())++pos;
+	while((pos != string_end) && pos->isLeftBracket()){
+	  pos = endBracket(pos,string_end);
+	  if( pos == string_end ) return string_end;
+	  ++pos;
+	}
+  }
+  if( (pos == string_end) || pos->isRightBracket()) return string_end;
+  else return pos;
+}
+
+
+template<class Iterator>
+std::vector<Iterator> lateralSons(Iterator pos, Iterator string_end) {
+  std::vector<Iterator> result; 
+  if( (pos == string_end) || pos->isRightBracket()) return result;
+  ++pos;
+  while((pos != string_end) && (pos->isBracket() || pos->isIgnored())){
+	while((pos != string_end) && !pos->isBracket() && pos->isIgnored())++pos;
+	while((pos != string_end) && pos->isLeftBracket()){
+	  std::vector<Iterator> res = sons(pos,string_end);
+	  result.insert(result.end(),res.begin(),res.end());
+	  pos = endBracket(pos,string_end);
+	  if( pos == string_end ) return result;
+	  ++pos;
+	}
+  }
+  return result;
+}
+
+template<class Iterator>
+std::vector<Iterator> roots(Iterator string_begin, Iterator string_end) 
+{ 
+  std::vector<Iterator> res;
+  if (string_begin == string_end) return res;
+  AxialTree::const_iterator i = string_begin;
+  if(i->isRightBracket())return res;
+  else if(i->isLeftBracket()){
+	while((i != string_end) && (i->isBracket() || i->isIgnored())){
+	  while((i != string_end) && i->isLeftBracket()){
+		std::vector<Iterator> res2 = sons(i,string_end);
+		if(!res2.empty())
+		  res.insert(res.end(),res2.begin(),res2.end());
+		i = endBracket(i,string_end);
+		if( i == string_end ) return res;
+		++i;
+	  }
+	  while((i != string_end) && !i->isBracket() && i->isIgnored())++i;
+	}
+	if( (i != string_end) && !i->isRightBracket()){
+	  res.push_back(i);
+	}
+	// std::vector<const_iterator> res2 = sons(i);
+	// if(!res2.empty())res.insert(res.end(),res2.begin(),res2.end());
+  }
+  else if(i->isIgnored()){
+	std::vector<Iterator> res2 = sons(i,string_end);
+	if(!res2.empty())res.insert(res.end(),res2.begin(),res2.end());
+  }
+  else res.push_back(i);
+  return res;
+}
 /*---------------------------------------------------------------------------*/
 
 LPY_END_NAMESPACE

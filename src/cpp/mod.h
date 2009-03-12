@@ -43,6 +43,9 @@ LPY_BEGIN_NAMESPACE
 
 class LPY_API Module {
 public:
+   friend class MatchingEngine;
+   friend class MatchingEngineImplementation;
+
   Module();
   Module(const std::string& c);
   Module(size_t classid);
@@ -180,8 +183,9 @@ public:
 
   bool match(const ParamModule&m) const;
   bool match(const ParamModule&m,boost::python::list&) const;
+  bool match(const std::string&, size_t nbargs) const;
 
-  bool match1(const ParamModule&) const;
+/*  bool match1(const ParamModule&) const;
   bool match2(const ParamModule&) const;
   bool match3(const ParamModule&) const;
 
@@ -189,7 +193,6 @@ public:
   bool match2(const ParamModule&,boost::python::list&) const;
   bool match3(const ParamModule&,boost::python::list&) const;
 
-  bool match(const std::string&, size_t nbargs) const;
 
   enum eMatchingMethod {
 	eSimple = 0,
@@ -199,7 +202,7 @@ public:
   };
 
   static void setMatchingMethod(eMatchingMethod);
-  static eMatchingMethod getMatchingMethod();
+  static eMatchingMethod getMatchingMethod();*/
 
   inline void interpret(PGL::Turtle& t) { getClass()->interpret(*this,t); }
 protected:
@@ -207,11 +210,11 @@ protected:
   ParameterList __args;
 
 private:
-  typedef bool (ParamModule::*MatchingFunc)(const ParamModule&) const;
+ /* typedef bool (ParamModule::*MatchingFunc)(const ParamModule&) const;
   typedef bool (ParamModule::*MatchingFuncWithArg)(const ParamModule&,boost::python::list&) const;
   static MatchingFunc MATCHINGFUNC;
   static MatchingFuncWithArg MATCHINGFUNCARG;
-  static eMatchingMethod MATCHINGMETHOD;
+  static eMatchingMethod MATCHINGMETHOD;*/
 };
 
 LPY_END_NAMESPACE

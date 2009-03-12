@@ -29,6 +29,7 @@
  */
 
 #include "lsystem.h"
+#include "matching.h"
 #include "lpy_parser.h"
 #include <plantgl/tool/util_string.h>
 #include <QtCore/QFileInfo>
@@ -1062,7 +1063,7 @@ bool LpyParsing::isValidVariableName(const std::string& arg)
 {
 	if (arg.empty())return false;
 	std::string::const_iterator _si = arg.begin();
-	if(*_si == '*' && ParamModule::getMatchingMethod() != ParamModule::eSimple){
+	if(*_si == '*' && MatchingEngine::getModuleMatchingMethod() != MatchingEngine::eMSimple){
 		if(arg.size() == 1)return false;
 		else ++_si;
 	}

@@ -29,6 +29,7 @@
  */
 
 #include "axialtree.h"
+#include "matching.h"
 #include <plantgl/tool/util_string.h>
 #include <plantgl/scenegraph/pgl_version.h>
 #if PGL_VERSION < 0x020700
@@ -102,9 +103,9 @@ object func(ParamModule * m1,object b){ \
 } 
 
 MATCHING(match);
-MATCHING(match1);
+/*MATCHING(match1);
 MATCHING(match2);
-MATCHING(match3);
+MATCHING(match3);*/
 
 
 std::string mc_repr(ModuleClassPtr mc){
@@ -144,7 +145,7 @@ void export_Module(){
 	.add_property("aliases",&py_modaliases)
 	.add_property("documentation",&ModuleClass::getDocumentation)
 	.def("__repr__",&mc_repr)
-	.def("getReferenceCount",&ModuleClass::getReferenceCount)
+	.def("getReferenceCount",&ModuleClass::use_count)
 	.def("isPredefined",&ModuleClass::isPredefined)
 	.add_static_property("predefinedClasses",py_predefinedclasses)
 	;
@@ -238,18 +239,19 @@ void export_Module(){
     .def(self == self)
     .def(self != self)
 	.def("match",  &match)
-	.def("match1", &match1)
+	/*.def("match1", &match1)
 	.def("match2", &match2)
-	.def("match3", &match3)
+	.def("match3", &match3)*/
 	.def("match", (bool(ParamModule::*)(const std::string&,size_t)const)
 					  &ParamModule::match)
 	.add_property("args",&ParamModule::getArgs,&ParamModule::setArgs)
-	.add_static_property("matchingMethod",&ParamModule::getMatchingMethod)
+	.add_static_property("matchingMethod",&MatchingEngine::getModuleMatchingMethod)
 	;
-  enum_<ParamModule::eMatchingMethod>("eMatchingMethod")
-	  .value("eSimple",ParamModule::eSimple)
-	  .value("eWithStar",ParamModule::eWithStar)
-	  .value("eWithStarNValueConstraint",ParamModule::eWithStarNValueConstraint);
+  enum_<MatchingEngine::eModuleMatchingMethod>("eMatchingMethod")
+	  .value("eSimple",MatchingEngine::eMSimple)
+	  .value("eWithStar",MatchingEngine::eMWithStar)
+	  .value("eWithStarNValueConstraint",MatchingEngine::eMWithStarNValueConstraint)
+	  .export_values();
 
   }
   def("QueryModule",  (ParamModule(*)(size_t, const std::string&))&ParamModule::QueryModule);

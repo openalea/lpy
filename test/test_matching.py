@@ -597,10 +597,6 @@ def matching_run(fname):
 def test_simple_match() : 
     """ Simple matching """
     matching_run('test_simple_matching.lpy')
-def test_axial_match() : 
-    """ Test matching with axial tree context modification"""
-    matching_run('test_axial_matching.lpy')
-#def test_match_future() : matching_run('test_matching_future.lpy')
     
 ########################################################
 

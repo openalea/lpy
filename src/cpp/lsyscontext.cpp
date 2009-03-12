@@ -30,6 +30,7 @@
 
 #include "lsyscontext.h"
 #include "lsysrule.h"
+#include "matching.h"
 #include "lpy_parser.h"
 #include "tracker.h"
 #include <stack>
@@ -135,6 +136,9 @@ void
 LsysContext::makeCurrent() 
 { 
   LsysContext * previous = currentContext();
+  if (previous == this) {
+	  LsysWarning("Multiple activation of same context!");
+  }
   LSYSCONTEXT_STACK.push_back(previous);
   CURRENT_LSYSCONTEXT = this;
   previous->pushedEvent(CURRENT_LSYSCONTEXT);
@@ -156,7 +160,9 @@ LsysContext::done()
 
 bool 
 LsysContext::isCurrent() const 
-{ return CURRENT_LSYSCONTEXT == this; }
+{ 
+  return CURRENT_LSYSCONTEXT == this; 
+}
 
 
 void LsysContext::currentEvent()
@@ -242,11 +248,17 @@ void LsysContext::init_options()
 	option->addValue("Enabled",this,&LsysContext::setSelectionRequired,true,"Enable Selection Check.");
 	option->setDefault(0);
 	/** module matching option */
-	option = options.add("Module matching","Specify the way module are match to rules pattern","Matching");
-	option->addValue("Simple",&ParamModule::setMatchingMethod,ParamModule::eSimple,"Simple module matching : Same name and same number of arguments . '*' module allowed.");
-	option->addValue("Extension : *args",&ParamModule::setMatchingMethod,ParamModule::eWithStar,"Add matching rule that * module can match any module and allow *args to match a number of module arguments");
-	option->addValue("Extensions : *args and arg value constraints",&ParamModule::setMatchingMethod,ParamModule::eWithStarNValueConstraint,"With * module and *args. A module argument can also be set to a given value adding thus a new matching constraint.");
-	option->setDefault(2);
+	option = options.add("Module matching","Specify the way modules are matched to rules pattern","Matching");
+	option->addValue("Simple",&MatchingEngine::setModuleMatchingMethod,MatchingEngine::eMSimple,"Simple module matching : Same name and same number of arguments . '*' module allowed.");
+	option->addValue("Extension : *args",&MatchingEngine::setModuleMatchingMethod,MatchingEngine::eMWithStar,"Add matching rule that * module can match any module and allow *args to match a number of module arguments");
+	option->addValue("Extensions : *args and arg value constraints",&MatchingEngine::setModuleMatchingMethod,MatchingEngine::eMWithStarNValueConstraint,"With * module and *args. A module argument can also be set to a given value adding thus a new matching constraint.");
+	option->setDefault(MatchingEngine::eDefaultModuleMatching);
+	option->setGlobal(true);
+	/** string matching option */
+	option = options.add("String matching","Specify the way strings are matched to rules pattern","Matching");
+	option->addValue("As String",&MatchingEngine::setStringMatchingMethod,MatchingEngine::eString,"String is considered as a simple string.");
+	option->addValue("As AxialTree",&MatchingEngine::setStringMatchingMethod,MatchingEngine::eAxialTree,"String is considered as an axial tree and some modules can be skipped.");
+	option->setDefault(MatchingEngine::eDefaultStringMatching);
 	option->setGlobal(true);
 	/** module declaration option */
 	option = options.add("Module declaration","Specify if module declaration is mandatory.","Module");
