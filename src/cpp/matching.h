@@ -54,6 +54,7 @@ public:
   enum eStringMatchingMethod {
 			eString = 0,
 			eAxialTree,
+			eMsAxialTree,
 			eDefaultStringMatching = eAxialTree
   };
 
@@ -103,7 +104,7 @@ public:
 
 /*---------------------------------------------------------------------------*/
 
-class LPY_API MatchingEngineImplementation {
+class LPY_API MatchingImplementation : public MatchingEngine {
 public:
 	static bool simple_module_matching(const ParamModule& module, 
 									   const ParamModule& pattern, 
@@ -145,6 +146,15 @@ public:
 								AxialTree::const_reverse_iterator  pattern_rend,
 								AxialTree::const_iterator& matching_end,
 								boost::python::list& params);
+
+	static bool mstree_left_match(AxialTree::const_iterator  matching_start,
+		                        AxialTree::const_iterator  string_begin,
+								AxialTree::const_iterator  string_end,
+								AxialTree::const_reverse_iterator  pattern_rbegin,
+								AxialTree::const_reverse_iterator  pattern_rend,
+								AxialTree::const_iterator& matching_end,
+								boost::python::list& params);
+
 };
 
 /*---------------------------------------------------------------------------*/

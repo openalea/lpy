@@ -568,6 +568,20 @@ AxialTree::father(const_iterator pos) const
 
 }
 
+AxialTree::const_iterator 
+AxialTree::complex(const_iterator pos, int scale) const
+{
+  return LPY::complex(pos,scale,const_begin(),const_end());
+
+}
+
+AxialTree::const_iterator 
+AxialTree::complex(const_iterator pos) const
+{
+  return LPY::complex(pos,pos->scale()+1,const_begin(),const_end());
+
+}
+
 std::vector<AxialTree::const_iterator> 
 AxialTree::sons(AxialTree::const_iterator pos) const
 { 

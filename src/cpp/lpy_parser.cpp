@@ -280,11 +280,15 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
 		  _it2 = _it;
           if(has_pattern(_it,endpycode,"module")){
             code+=std::string(beg,_it2);
-			std::vector<std::string> modules = LpyParsing::parse_moddeclaration(_it,endpycode);
+			std::pair<std::vector<std::string>,std::string> modules = LpyParsing::parse_moddeclaration(_it,endpycode);
 			code+="# "+std::string(_it2,_it);
-			for(std::vector<std::string>::const_iterator itmod = modules.begin(); itmod != modules.end(); ++itmod){
+			int scale = ModuleClass::DEFAULT_SCALE;
+			if(!modules.second.empty())
+			scale = extract<int>(__context.evaluate(modules.second))();
+			for(std::vector<std::string>::const_iterator itmod = modules.first.begin(); itmod != modules.first.end(); ++itmod){
 				ModuleClassPtr mod = ModuleClassTable::get().declare(*itmod);
 				__context.declare(mod);
+				if(scale != ModuleClass::DEFAULT_SCALE)mod->setScale(scale);
 			}
 			beg = _it;
 			toendlineA(_it,endpycode);
@@ -940,7 +944,7 @@ LpyParsing::parselstring( std::string::const_iterator& beg,
 
 /*---------------------------------------------------------------------------*/
 
-std::vector<std::string> LpyParsing::parse_moddeclaration(std::string::const_iterator& beg,
+std::vector<std::string> LpyParsing::parse_modlist(std::string::const_iterator& beg,
 													  std::string::const_iterator endpos,
 													  char delim)
 {
@@ -966,20 +970,34 @@ std::vector<std::string> LpyParsing::parse_moddeclaration(std::string::const_ite
 		result.push_back(m);
 	}
   }
+  beg = _it;
+  return result;
+}
+
+std::pair<std::vector<std::string>,std::string> LpyParsing::parse_moddeclaration(std::string::const_iterator& beg,
+													  std::string::const_iterator endpos,
+													  char delim)
+{
+  std::pair<std::vector<std::string>,std::string> result;
+  std::string::const_iterator _it = beg;
+  result.first = LpyParsing::parse_modlist(_it,endpos,delim);
   std::string scalevalue;
   if (_it != endpos && *_it == ':') {
+    ++_it;
 	while ((*_it == ' ' || *_it == '\t' || *_it == '\n')&& *_it != delim)++_it;
-	if (!has_pattern(_it,endpos,"scale"))
-		LsysSyntaxError("Invalid module attribute in module declaration");
+	if (!has_pattern(_it,endpos,"scale")){
+		LsysSyntaxError("Invalid module attribute in module declaration ('scale' missing)");
+	}
 	while ((*_it == ' ' || *_it == '\t' || *_it == '\n')&& *_it != delim)++_it;
 	if (_it == endpos || *_it == delim || *_it != '=')
-		LsysSyntaxError("Invalid module attribute in module declaration");
+		LsysSyntaxError("Invalid module attribute in module declaration ('=' missing).");
 	else _it++;
 	while ((*_it == ' ' || *_it == '\t' || *_it == '\n')&& *_it != delim)++_it;
 	std::string::const_iterator bm = _it;
 	while(_it != endpos && *_it != ',' && *_it != ' ' && *_it != '\t' && *_it != '\n' && *_it != '#' && *_it != delim) ++_it;
 	if (bm != _it){
 		scalevalue = std::string(bm,_it);
+		result.second = scalevalue;
 	}
   }
   beg = _it;

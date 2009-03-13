@@ -148,6 +148,7 @@ void export_Module(){
 	.def("getReferenceCount",&ModuleClass::use_count)
 	.def("isPredefined",&ModuleClass::isPredefined)
 	.add_static_property("predefinedClasses",py_predefinedclasses)
+	.add_property("scale",&ModuleClass::getScale,&ModuleClass::setScale)
 	;
 
 	class_<ModuleClassTable,boost::noncopyable>
@@ -197,6 +198,7 @@ void export_Module(){
 	.def("isNull", &Module::isNull)
 	.def("isCut", &Module::isCut)
 	.add_property("mclass", &Module::getClass)
+	.def("scale", &Module::scale)
 	;
 
   {

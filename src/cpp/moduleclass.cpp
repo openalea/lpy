@@ -77,6 +77,7 @@ void ModuleClassTable::clearModuleClasses()
 /*---------------------------------------------------------------------------*/
 
 size_t ModuleClass::MAXID(0);
+int ModuleClass::DEFAULT_SCALE = -1;
 
 /*---------------------------------------------------------------------------*/
 
@@ -103,6 +104,29 @@ ModuleClass::~ModuleClass()
 void ModuleClass::interpret(ParamModule& m, PGL::Turtle& t) { 
 }
 
+
+void ModuleClass::create_vtable()
+{
+	__vtable = new ModuleVTable(this);
+}
+
+void ModuleClass::setProperty(ModulePropertyPtr prop)
+{
+	if(!__vtable)create_vtable();
+	__vtable->setProperty(prop);
+}
+
+bool ModuleClass::removeProperty(const std::string& name)
+{
+	if(__vtable)return __vtable->removeProperty(name);
+	else return false;
+}
+
+void ModuleClass::setScale(int scale)
+{
+	if(!__vtable)create_vtable();
+	__vtable->scale = scale;
+}
 
 /*---------------------------------------------------------------------------*/
 

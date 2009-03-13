@@ -42,21 +42,27 @@ LPY_BEGIN_NAMESPACE
 
 #ifdef TRACKER_ENABLED
 
+#define TRACKER_CLASS_APPLY(MACRO) \
+	MACRO(Module) \
+	MACRO(AxialTree) \
+	MACRO(LsysContext) \
+	MACRO(LsysOptionValue) \
+	MACRO(LsysOption) \
+	MACRO(LsysOptions) \
+	MACRO(LsysRule) \
+	MACRO(Lsystem) \
+	MACRO(ModuleProperty) \
+	MACRO(ModuleVTable) \
+	MACRO(ModuleClass) \
+	MACRO(ModuleClassTable) \
+	MACRO(StringInterpreter) \
+	MACRO(StringMatching)
+
+#define TRACKER_CLASS_DECLARE(mclass) static size_t mclass;
+
 class LPY_API Tracker {
 public:
-
-	static size_t Module;
-	static size_t AxialTree;
-	static size_t LsysContext;
-	static size_t LsysOptionValue;
-	static size_t LsysOption;
-	static size_t LsysOptions;
-	static size_t LsysRule;
-	static size_t Lsystem;
-	static size_t ModuleClass;
-	static size_t ModuleClassTable;
-	static size_t StringInterpreter;
-	static size_t StringMatching;
+	TRACKER_CLASS_APPLY(TRACKER_CLASS_DECLARE)
 	static void printReport();
 };
 

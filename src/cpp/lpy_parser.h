@@ -72,12 +72,17 @@ public:
 	static inline std::vector<std::pair<size_t,std::string> > parselstring(const std::string& lcode)
 		{ std::string::const_iterator beg = lcode.begin(); return parselstring(beg,lcode.end()); }
 
-	static std::vector<std::string> parse_moddeclaration(std::string::const_iterator& beg,
+	static std::vector<std::string> parse_modlist(std::string::const_iterator& beg,
 											  std::string::const_iterator endpos,
 											  char delim = '\n');
 
-	static inline std::vector<std::string> parse_moddeclaration(std::string modules)
-		{ std::string::const_iterator it = modules.begin(); return parse_moddeclaration(it, modules.end()); }
+	static inline std::vector<std::string> parse_modlist(std::string modules)
+		{ std::string::const_iterator it = modules.begin(); return parse_modlist(it, modules.end()); }
+
+	static std::pair<std::vector<std::string>,std::string> 
+			parse_moddeclaration(std::string::const_iterator& beg,
+											  std::string::const_iterator endpos,
+											  char delim = '\n');
 
 	static std::vector<std::string> parse_arguments(std::string::const_iterator beg,
 						 						    std::string::const_iterator end);

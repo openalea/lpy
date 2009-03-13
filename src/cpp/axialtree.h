@@ -335,6 +335,8 @@ public:
 	std::vector<const_iterator> sons(const_iterator pos) const;
 	std::vector<const_iterator> lateralSons(const_iterator pos) const;
 	const_iterator directSon(const_iterator pos) const;
+	const_iterator complex(const_iterator pos, int scale) const;
+	const_iterator complex(const_iterator pos) const;
 
     //!  Return iterator on endBracket ']' or end of string. If pos is on a '[', startingBeforePos allows to say if search should start from just before the '[' or after.
 	const_iterator endBracket(const_iterator pos, bool startingBeforePos = false) const;

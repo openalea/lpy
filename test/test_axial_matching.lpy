@@ -5,8 +5,12 @@ def Start():
   global matched
   matched = False
   
-def End():
+def EndEach(lstring):
   assert matched == True
+  print lstring[0].scale()
+  print lstring[2].scale()
+
+module A : scale = 3
 
 Axiom: A(1)[E]B(2)[+(60)C(3)[E][E]D(4)]D(5)
 

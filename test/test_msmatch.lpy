@@ -1,0 +1,32 @@
+module A,C : scale = 1
+module T,B : scale = 2
+
+Axiom: TA(1)[BA(4)]A(2)[BA(3)C]
+
+matched = False
+
+def Start():
+  global matched
+  matched = False
+  
+def EndEach(lstring):
+  print lstring
+  assert matched == True
+
+derivation length: 1
+production:
+
+TA(x)B < C:
+    global matched
+    matched = True
+    print x
+    produce C
+
+homomorphism:
+
+
+endlsystem
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	context.options.setSelection('String matching',2)

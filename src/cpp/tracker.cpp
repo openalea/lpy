@@ -37,6 +37,10 @@ LPY_BEGIN_NAMESPACE
 
 #ifdef TRACKER_ENABLED
 
+#define TRACKER_CLASS_IMP_DECLARE(mclass) size_t Tracker::mclass(0);
+
+TRACKER_CLASS_APPLY(TRACKER_CLASS_IMP_DECLARE)
+/*
 size_t Tracker::Module(0);
 size_t Tracker::AxialTree(0);
 size_t Tracker::LsysContext(0);
@@ -45,13 +49,19 @@ size_t Tracker::LsysOption(0);
 size_t Tracker::LsysOptions(0);
 size_t Tracker::LsysRule(0);
 size_t Tracker::Lsystem(0);
+size_t Tracker::ModuleProperty(0);
+size_t Tracker::ModuleVTable(0);
 size_t Tracker::ModuleClass(0);
 size_t Tracker::ModuleClassTable(0);
 size_t Tracker::StringInterpreter(0);
-size_t Tracker::StringMatching(0);
+size_t Tracker::StringMatching(0);*/
+
+#define TRACKER_CLASS_PRINT(mclass) std::cerr << #mclass " count : " << Tracker::mclass << std::endl;
 
 void Tracker::printReport(){
-	std::cerr << "Module count : " << Tracker::Module << std::endl;
+	TRACKER_CLASS_APPLY(TRACKER_CLASS_PRINT)
+
+/*	std::cerr << "Module count : " << Tracker::Module << std::endl;
 	std::cerr << "AxialTree count : " << Tracker::AxialTree << std::endl;
 	std::cerr << "LsysContext count : " << Tracker::LsysContext << std::endl;
 	std::cerr << "LsysOptionValue count : " << Tracker::LsysOptionValue << std::endl;
@@ -59,10 +69,12 @@ void Tracker::printReport(){
 	std::cerr << "LsysOptions count : " << Tracker::LsysOptions << std::endl;
 	std::cerr << "LsysRule count : " << Tracker::LsysRule << std::endl;
 	std::cerr << "Lsystem count : " << Tracker::Lsystem << std::endl;
+	std::cerr << "ModuleProperty count : " << Tracker::ModuleProperty << std::endl;
+	std::cerr << "ModuleVTable count : " << Tracker::ModuleVTable << std::endl;
 	std::cerr << "ModuleClass count : " << Tracker::ModuleClass << std::endl;
 	std::cerr << "ModuleClassTable count : " << Tracker::ModuleClassTable << std::endl;
 	std::cerr << "StringInterpreter count : " << Tracker::StringInterpreter << std::endl;
-	std::cerr << "StringMatching count : " << Tracker::StringMatching << std::endl;
+	std::cerr << "StringMatching count : " << Tracker::StringMatching << std::endl; */
 }
 
 #endif

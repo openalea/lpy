@@ -1,18 +1,19 @@
 from openalea.lpy import *
 import warnings
 
-def matching_run(code,optionvalues = range(2)): 
+def matching_run(code,optionvalues = range(3)): 
     if type(optionvalues) == int:
         optionvalues = [optionvalues]
     for i in range(2):
         l = Lsystem()
-        l.context().options.setSelection('String matching',i)
         if i in optionvalues:
             l.set(code)
+            l.context().options.setSelection('String matching',i)
             l.iterate()
         else:
             try:
                 l.set(code)
+                l.context().options.setSelection('String matching',i)
                 l.iterate()
                 print "Test do not fail for unsupported string matching mode : %i." % i
                 warnings.warn("Test do not fail for unsupported string matching mode : %i." % i)
@@ -24,7 +25,14 @@ def test_axial_match() :
     f = open('test_axial_matching.lpy')
     code = f.read()
     f.close()
-    matching_run(code,1)
+    matching_run(code,[1,2])
+
+def test_ms_match() : 
+    """ Test matching with multiscale axial tree context modification"""
+    f = open('test_msmatch.lpy')
+    code = f.read()
+    f.close()
+    matching_run(code,2)
 
 #def test_match_future() : matching_run('test_matching_future.lpy')
 

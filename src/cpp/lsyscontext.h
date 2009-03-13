@@ -44,6 +44,7 @@ LPY_BEGIN_NAMESPACE
 class LPY_API LsysContext {
 public:
   friend class Lsystem;
+  friend class ModuleVTable;
 
   /** string value of python variable containing lsystem informations. */
   static const std::string InitialisationFunctionName;
@@ -133,9 +134,11 @@ public:
   void done() ;
 
   /** static functions to access context */
-  static LsysContext * currentContext();
-  static LsysContext * globalContext();
-  static LsysContext * defaultContext();
+  static inline LsysContext * currentContext() { return current(); }
+  static LsysContext * current();
+  static inline LsysContext * globalContext() { return global(); }
+  static LsysContext * global();
+  static LsysContext * defaultContext() ;
   static void cleanContexts();
 
   /** control of the direction of next iteration */
@@ -179,6 +182,8 @@ public:
   bool isDeclared(ModuleClassPtr module);
   ModuleClassList declaredModules() const { return __modules; }
 
+  void setModuleScale(const std::string& modules, int scale);
+
 
   /** Iteration number property. Only set by Lsystem. Access by all other. */
 public:
@@ -214,6 +219,7 @@ protected:
 
   /// attributes for module declaration
   ModuleClassList __modules;
+  ModuleVTableList __modulesvtables;
 
   /// next iteration control
   eDirection __direction;

@@ -36,7 +36,7 @@
 #include <plantgl/tool/util_hashmap.h>
 #include <plantgl/tool/rcobject.h>
 #include <plantgl/algo/modelling/turtle.h>
-
+#include "modulevtable.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -52,14 +52,22 @@ typedef std::vector<ModuleClassPtr> ModuleClassList;
 
 class LPY_API ModuleClass : public TOOLS(RefCountObject) {
 public:
+    static int DEFAULT_SCALE;
+
+	friend class ModuleVTable;
+	friend class LsysContext;
 
 	ModuleClass(const std::string& name);
 	ModuleClass(const std::string& name, const std::string& alias);
 	~ModuleClass();
 
 	size_t getId() const { return id; }
-	inline void activate(bool value = true) { active = value; }
-	inline void desactivate() { active = false; }
+
+	inline void activate(bool value = true) 
+	{ active = value; if (!active && __vtable)__vtable->desactivate(); }
+	inline void desactivate() 
+	{ active = false; if ( __vtable)__vtable->desactivate();}
+
 	inline bool isActive() const { return active; }
 	virtual void interpret(ParamModule& m, PGL::Turtle& t) ;
 	virtual std::string getDocumentation() const { return ""; }
@@ -116,12 +124,28 @@ public:
 	static ModuleClassPtr CpfgSurface;
 	static ModuleClassPtr PglShape;
 
+	inline int getScale() const 
+	{ if (__vtable) return __vtable->scale; 
+	  else return DEFAULT_SCALE; }
+
+	void setScale(int scale);
+
+	inline ModulePropertyPtr getProperty(const std::string& name) const 
+	{ if (__vtable) return __vtable->getProperty(name); else return ModulePropertyPtr(); }
+
+	void setProperty(ModulePropertyPtr prop);
+	bool removeProperty(const std::string& name);
+
 protected:
 	static ModuleClassList * PredefinedClasses;
 private:
 	size_t id;
 	bool active;
 	static size_t MAXID;
+
+	ModuleVTablePtr __vtable;
+	void create_vtable();
+
 };
 
 class LPY_API PredefinedModuleClass : public ModuleClass {
@@ -133,6 +157,7 @@ public:
 	std::string documentation;
 	std::string getDocumentation() const { return documentation; }
 };
+
 
 class LPY_API ModuleClassTable {
 public:
@@ -184,6 +209,7 @@ private:
     ~ModuleClassTable();
 };
 
+/*---------------------------------------------------------------------------*/
 
 LPY_END_NAMESPACE
 

@@ -77,6 +77,8 @@ public:
   bool isConsidered() const;
   bool isIgnored() const;
 
+  inline int scale() const { return __mclass->getScale(); }
+
 protected:
   void setClass(size_t cid);
 
@@ -185,37 +187,22 @@ public:
   bool match(const ParamModule&m,boost::python::list&) const;
   bool match(const std::string&, size_t nbargs) const;
 
-/*  bool match1(const ParamModule&) const;
-  bool match2(const ParamModule&) const;
-  bool match3(const ParamModule&) const;
-
-  bool match1(const ParamModule&,boost::python::list&) const;
-  bool match2(const ParamModule&,boost::python::list&) const;
-  bool match3(const ParamModule&,boost::python::list&) const;
-
-
-  enum eMatchingMethod {
-	eSimple = 0,
-	eWithStar,
-	eWithStarNValueConstraint,
-	eDefaultMatchingMethod = eWithStarNValueConstraint
-  };
-
-  static void setMatchingMethod(eMatchingMethod);
-  static eMatchingMethod getMatchingMethod();*/
 
   inline void interpret(PGL::Turtle& t) { getClass()->interpret(*this,t); }
 protected:
   ParamModule();
   ParameterList __args;
 
-private:
- /* typedef bool (ParamModule::*MatchingFunc)(const ParamModule&) const;
-  typedef bool (ParamModule::*MatchingFuncWithArg)(const ParamModule&,boost::python::list&) const;
-  static MatchingFunc MATCHINGFUNC;
-  static MatchingFuncWithArg MATCHINGFUNCARG;
-  static eMatchingMethod MATCHINGMETHOD;*/
 };
+
+/*---------------------------------------------------------------------------*/
+
+inline bool is_lower_scale(int scale1, int scale2) { return scale1 < scale2; }
+inline bool is_eq_scale(int scale1, int scale2)    { return scale1 == scale2; }
+inline bool is_upper_scale(int scale1, int scale2) { return scale1 > scale2; }
+
+/*---------------------------------------------------------------------------*/
+
 
 LPY_END_NAMESPACE
 

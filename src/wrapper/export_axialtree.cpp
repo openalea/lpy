@@ -31,111 +31,10 @@
 #include "axialtree.h"
 using namespace boost::python;
 LPY_USING_NAMESPACE
+#define bp boost::python
 
-int findmod(AxialTree * tree,
-		 const ParamModule& mod, 
-		 int start, int stop){
-  if(start < 0)start += tree->size();
-  if(stop <= 0)stop  += tree->size();
-  AxialTree::const_iterator beg = tree->begin();
-  if(start > 0 && start < tree->size())beg += start;
-  else if(start != 0){
-	PyErr_SetString(PyExc_IndexError, "index out of range");
-    throw_error_already_set();
-  }
-  AxialTree::const_iterator end = tree->end();
-  if(stop > 0 && stop <= tree->size())end = tree->begin() + stop;
-  else {
-	PyErr_SetString(PyExc_IndexError, "index out of range");
-    throw_error_already_set();
-  }
-  AxialTree::const_iterator res = tree->find(mod,beg,end);
-  if(res == tree->end())return -1;
-  else return tree->pos(res);
-}
-/*
-int find(AxialTree * tree,
-		 const std::string& name, 
-		 size_t nbparam,
-		 int start, int stop){
-  if(start < 0)start += tree->size();
-  if(stop <= 0)stop  += tree->size();
-  AxialTree::const_iterator beg = tree->begin();
-  if(start > 0 && start < tree->size())beg += start;
-  else if(start != 0){
-	PyErr_SetString(PyExc_IndexError, "index out of range");
-    throw_error_already_set();
-  }
-  AxialTree::const_iterator end = tree->end();
-  if(stop > 0 && stop <= tree->size())end = tree->begin() + stop;
-  else {
-	PyErr_SetString(PyExc_IndexError, "index out of range");
-    throw_error_already_set();
-  }
-  AxialTree::const_iterator res = tree->find(name,nbparam,beg,end);
-  if(res == tree->end())return -1;
-  else return tree->pos(res);
-}
 
-int findletter(AxialTree * tree,
-		 const std::string& name, 
-		 int start, int stop){
-  if(start < 0)start += tree->size();
-  if(stop <= 0)stop  += tree->size();
-  AxialTree::const_iterator beg = tree->begin();
-  if(start > 0 && start < tree->size())beg += start;
-  else if(start != 0){
-	PyErr_SetString(PyExc_IndexError, "index out of range");
-    throw_error_already_set();
-  }
-  AxialTree::const_iterator end = tree->end();
-  if(stop > 0 && stop <= tree->size())end = tree->begin() + stop;
-  else {
-	PyErr_SetString(PyExc_IndexError, "index out of range");
-    throw_error_already_set();
-  }
-  AxialTree::const_iterator res = tree->find(name,beg,end);
-  if(res == tree->end())return -1;
-  else return tree->pos(res);
-}*/
-
-int find(AxialTree * tree,const std::string& name, int start, int stop)
-{ return findmod(tree,ParamModule::QueryModule(name),start,stop); }
-
-int find(AxialTree * tree, const std::string& name, int start)
-{ return findmod(tree,ParamModule::QueryModule(name),start,0); }
-
-// int find(AxialTree * tree, const std::string& name, size_t nbparam)
-// { return findmod(tree,name,nbparam,0,0); }
-
-int find(AxialTree * tree, const std::string& name)
-{ return findmod(tree,ParamModule::QueryModule(name),0,0); }
-
-int find(AxialTree * tree, const ParamModule& mod, int start, int stop)
-{ return findmod(tree,mod,start,stop); }
-
-int find(AxialTree * tree, const ParamModule& mod, int start)
-{ return findmod(tree,mod,start,0); }
-
-int find(AxialTree * tree, const ParamModule& mod)
-{ return findmod(tree,mod,0,0); }
-
-object roots(AxialTree * tree)
-{ 
-  std::vector<AxialTree::const_iterator> res = tree->roots();
-  if (res.empty()) return object(-1);
-  else if (res.size() == 1) 
-	return object(tree->pos(res[0]));
-  else {
-	list l;
-	for(std::vector<AxialTree::const_iterator>::const_iterator _it = res.begin();
-		_it != res.end(); _it++)
-		  l.append(tree->pos(*_it));
-	return l;
-  }
-}
-
-int father(AxialTree * tree, int pos)
+AxialTree::const_iterator int_to_iter(AxialTree * tree, int pos)
 { 
   if(pos < 0)pos += tree->size();
   AxialTree::const_iterator beg = tree->begin();
@@ -144,322 +43,90 @@ int father(AxialTree * tree, int pos)
 	PyErr_SetString(PyExc_IndexError, "index out of range");
     throw_error_already_set();
   }
-  AxialTree::const_iterator res = tree->father(beg);
-  if (res == tree->end()) return -1;
-  else return tree->pos(res);
+  return beg;
 }
+
+int iter_to_int(AxialTree * tree, AxialTree::const_iterator pos)
+{ 
+  if (pos == tree->end()) return -1;
+  else return tree->pos(pos);
+}
+
+boost::python::object veciter_to_list(AxialTree * tree, std::vector<AxialTree::const_iterator> res)
+{
+  if (res.empty()) return object(-1);
+  else if (res.size() == 1) 
+	return object(tree->pos(res[0]));
+  else {
+	list l;
+	for(std::vector<AxialTree::const_iterator>::const_iterator _it = res.begin();
+		_it != res.end(); _it++)
+		  l.append(tree->pos(*_it));
+	return l;
+  }
+}
+
+int findmod(AxialTree * tree, const ParamModule& mod, int start, int stop){
+  return iter_to_int(tree,tree->find(mod,int_to_iter(tree,start),int_to_iter(tree,stop)));
+}
+
+int find(AxialTree * tree,const std::string& name, int start, int stop)
+{ return findmod(tree,ParamModule::QueryModule(name),start,stop); }
+
+object roots(AxialTree * tree)
+{ return veciter_to_list(tree,tree->roots()); }
+
+int father(AxialTree * tree, int pos)
+{ return iter_to_int(tree,tree->father(int_to_iter(tree,pos))); }
 
 object sons(AxialTree * tree, int pos)
-{ 
-  if(pos < 0)pos += tree->size();
-  AxialTree::const_iterator beg = tree->begin();
-  if(pos > 0 && pos < tree->size())beg += pos;
-  else if(pos != 0){
-	PyErr_SetString(PyExc_IndexError, "index out of range");
-    throw_error_already_set();
-  }
-  std::vector<AxialTree::const_iterator> res = tree->sons(beg);
-  if (res.empty()) return object(-1);
-  else if (res.size() == 1) 
-	return object(tree->pos(res[0]));
-  else {
-	list l;
-	for(std::vector<AxialTree::const_iterator>::const_iterator _it = res.begin();
-		_it != res.end(); _it++)
-		  l.append(tree->pos(*_it));
-	return l;
-  }
-}
+{ return veciter_to_list(tree,tree->sons(int_to_iter(tree,pos))); }
 
 object lateralSons(AxialTree * tree, int pos)
-{ 
-  if(pos < 0)pos += tree->size();
-  AxialTree::const_iterator beg = tree->begin();
-  if(pos > 0 && pos < tree->size())beg += pos;
-  else if(pos != 0){
-	PyErr_SetString(PyExc_IndexError, "index out of range");
-    throw_error_already_set();
-  }
-  std::vector<AxialTree::const_iterator> res = tree->lateralSons(beg);
-  if (res.empty()) return object(-1);
-  else if (res.size() == 1) 
-	return object(tree->pos(res[0]));
-  else {
-	list l;
-	for(std::vector<AxialTree::const_iterator>::const_iterator _it = res.begin();
-		_it != res.end(); _it++)
-		  l.append(tree->pos(*_it));
-	return l;
-  }
-}
+{ return veciter_to_list(tree,tree->lateralSons(int_to_iter(tree,pos))); }
 
 int directSon(AxialTree * tree, int pos)
-{ 
-  if(pos < 0)pos += tree->size();
-  AxialTree::const_iterator beg = tree->begin();
-  if(pos > 0 && pos < tree->size())beg += pos;
-  else if(pos != 0){
-	PyErr_SetString(PyExc_IndexError, "index out of range");
-    throw_error_already_set();
-  }
-  AxialTree::const_iterator res = tree->directSon(beg);
-  if (res == tree->end()) return -1;
-  else return tree->pos(res);
-}
+{ return iter_to_int(tree,tree->directSon(int_to_iter(tree,pos))); }
 
-int endBracket2(AxialTree * tree, int pos, bool startingBeforePos) {
-  if(pos < 0)pos += tree->size();
-  AxialTree::const_iterator beg = tree->begin();
-  if(pos > 0 && pos < tree->size())beg += pos;
-  else if(pos != 0){
-	PyErr_SetString(PyExc_IndexError, "index out of range");
-    throw_error_already_set();
-  }
-  AxialTree::const_iterator res = tree->endBracket(beg,startingBeforePos);
-  if(res == tree->end())return -1;
-  else return tree->pos(res);
-}
+int endBracket(AxialTree * tree, int pos, bool startingBeforePos) 
+{ return iter_to_int(tree,tree->endBracket(int_to_iter(tree,pos),startingBeforePos)); }
 
-int endBracket(AxialTree * tree, int pos) {
-  return endBracket2(tree,pos,false);
-}
+int beginBracket(AxialTree * tree, int pos, bool startingAfterPos) 
+{ return iter_to_int(tree,tree->beginBracket(int_to_iter(tree,pos),startingAfterPos)); }
 
-int beginBracket2(AxialTree * tree, int pos, bool startingAfterPos) {
-  if(pos < 0)pos += tree->size();
-  AxialTree::const_iterator beg = tree->begin();
-  if(pos > 0 && pos < tree->size())beg += pos;
-  else if(pos != 0){
-	PyErr_SetString(PyExc_IndexError, "index out of range");
-    throw_error_already_set();
-  }
-  AxialTree::const_iterator res = tree->beginBracket(beg,startingAfterPos);
-  if(res == tree->end())return -1;
-  else return tree->pos(res);
-}
+int complex1(AxialTree * tree, int pos, int scale)
+{ return iter_to_int(tree,tree->complex(int_to_iter(tree,pos),scale)); }
 
-int beginBracket(AxialTree * tree, int pos, bool startingAfterPos) {
-    return beginBracket2(tree, pos, false);
-}
+int complex(AxialTree * tree, int pos)
+{ return iter_to_int(tree,tree->complex(int_to_iter(tree,pos))); }
 
-bool match(AxialTree * tree, const ParamModule& a, int pos) {
-  if(pos < 0)pos += tree->size();
-  AxialTree::const_iterator beg = tree->begin();
-  if(pos > 0 && pos < tree->size())beg += pos;
-  else if(pos != 0){
-	PyErr_SetString(PyExc_IndexError, "index out of range");
-    throw_error_already_set();
-  }
-  return tree->match(a,beg);
-}
+#define PY_MATCH_WRAPPER(matchfunc) \
+  bool py_##matchfunc(AxialTree * tree, const ParamModule& a, int pos) \
+  {  return tree->matchfunc(a,int_to_iter(tree,pos)); } \
+  \
+  bool py_##matchfunc(AxialTree * tree, const tuple& a, int pos)  \
+  {  return tree->matchfunc(ParamModule(a),int_to_iter(tree,pos)); } \
+  \
+  bool py_##matchfunc(AxialTree * tree, const AxialTree& a, int pos)  \
+  {  return tree->matchfunc(a,int_to_iter(tree,pos)); } \
+  \
+  bool py_##matchfunc(AxialTree * tree, const std::string& a, int pos)  \
+  {  return tree->matchfunc(AxialTree::QueryTree(a),int_to_iter(tree,pos)); } \
+  \
+  bool py_##matchfunc(AxialTree * tree, const list& a, int pos)  \
+  {  return tree->matchfunc(AxialTree(a),int_to_iter(tree,pos)); } \
 
-bool match(AxialTree * tree, const tuple& a, int pos) {
-  if(pos < 0)pos += tree->size();
-  AxialTree::const_iterator beg = tree->begin();
-  if(pos > 0 && pos < tree->size())beg += pos;
-  else if(pos != 0){
-	PyErr_SetString(PyExc_IndexError, "index out of range");
-    throw_error_already_set();
-  }
-  return tree->match(ParamModule(a),beg);
-}
+#define PY_MATCH_WRAPPER_DEC(matchfunc) \
+	def( #matchfunc,  (bool (*)(AxialTree*,const AxialTree&,int))&py_##matchfunc ) \
+    .def( #matchfunc,  (bool (*)(AxialTree*,const ParamModule&,int))&py_##matchfunc )  \
+    .def( #matchfunc,  (bool (*)(AxialTree*,const list&,int))&py_##matchfunc )  \
+    .def( #matchfunc,  (bool (*)(AxialTree*,const tuple&,int))&py_##matchfunc )  \
+    .def( #matchfunc,  (bool (*)(AxialTree*,const std::string&,int))&py_##matchfunc )  \
 
-bool match(AxialTree * tree, const AxialTree& a, int pos) {
-  if(pos < 0)pos += tree->size();
-  AxialTree::const_iterator beg = tree->begin();
-  if(pos > 0 && pos < tree->size())beg += pos;
-  else if(pos != 0){
-	PyErr_SetString(PyExc_IndexError, "index out of range");
-    throw_error_already_set();
-  }
-  return tree->match(a,beg);
-}
-
-bool match(AxialTree * tree, const std::string& a, int pos) {
-  if(pos < 0)pos += tree->size();
-  AxialTree::const_iterator beg = tree->begin();
-  if(pos > 0 && pos < tree->size())beg += pos;
-  else if(pos != 0){
-	PyErr_SetString(PyExc_IndexError, "index out of range");
-    throw_error_already_set();
-  }
-  return tree->match(AxialTree::QueryTree(a),beg);
-}
-
-bool match(AxialTree * tree, const list& a, int pos) {
-  if(pos < 0)pos += tree->size();
-  AxialTree::const_iterator beg = tree->begin();
-  if(pos > 0 && pos < tree->size())beg += pos;
-  else if(pos != 0){
-	PyErr_SetString(PyExc_IndexError, "index out of range");
-    throw_error_already_set();
-  }
-  return tree->match(AxialTree(a),beg);
-}
-
-bool reverse_match(AxialTree * tree, const ParamModule& a, int pos) {
-  if(pos < 0)pos += tree->size();
-  AxialTree::const_iterator beg = tree->begin();
-  if(pos > 0 && pos < tree->size())beg += pos;
-  else if(pos != 0){
-	PyErr_SetString(PyExc_IndexError, "index out of range");
-    throw_error_already_set();
-  }
-  return tree->reverse_match(a,beg);
-}
-
-bool reverse_match(AxialTree * tree, const tuple& a, int pos) {
-  if(pos < 0)pos += tree->size();
-  AxialTree::const_iterator beg = tree->begin();
-  if(pos > 0 && pos < tree->size())beg += pos;
-  else if(pos != 0){
-	PyErr_SetString(PyExc_IndexError, "index out of range");
-    throw_error_already_set();
-  }
-  return tree->reverse_match(ParamModule(a),beg);
-}
-
-bool reverse_match(AxialTree * tree, const AxialTree& a, int pos) {
-  if(pos < 0)pos += tree->size();
-  AxialTree::const_iterator beg = tree->begin();
-  if(pos > 0 && pos < tree->size())beg += pos;
-  else if(pos != 0){
-	PyErr_SetString(PyExc_IndexError, "index out of range");
-    throw_error_already_set();
-  }
-  return tree->reverse_match(a,beg);
-}
-
-bool reverse_match(AxialTree * tree, const std::string& a, int pos) {
-  if(pos < 0)pos += tree->size();
-  AxialTree::const_iterator beg = tree->begin();
-  if(pos > 0 && pos < tree->size())beg += pos;
-  else if(pos != 0){
-	PyErr_SetString(PyExc_IndexError, "index out of range");
-    throw_error_already_set();
-  }
-  return tree->reverse_match(AxialTree::QueryTree(a),beg);
-}
-
-bool reverse_match(AxialTree * tree, const list& a, int pos) {
-  if(pos < 0)pos += tree->size();
-  AxialTree::const_iterator beg = tree->begin();
-  if(pos > 0 && pos < tree->size())beg += pos;
-  else if(pos != 0){
-	PyErr_SetString(PyExc_IndexError, "index out of range");
-    throw_error_already_set();
-  }
-  return tree->reverse_match(AxialTree(a),beg);
-}
-
-bool leftmatch(AxialTree * tree, const ParamModule& a, int pos) {
-  if(pos < 0)pos += tree->size();
-  AxialTree::const_iterator beg = tree->begin();
-  if(pos > 0 && pos < tree->size())beg += pos;
-  else if(pos != 0){
-	PyErr_SetString(PyExc_IndexError, "index out of range");
-    throw_error_already_set();
-  }
-  return tree->leftmatch(AxialTree(a),beg);
-}
-
-bool leftmatch(AxialTree * tree, const tuple& a, int pos) {
-  if(pos < 0)pos += tree->size();
-  AxialTree::const_iterator beg = tree->begin();
-  if(pos > 0 && pos < tree->size())beg += pos;
-  else if(pos != 0){
-	PyErr_SetString(PyExc_IndexError, "index out of range");
-    throw_error_already_set();
-  }
-  return tree->leftmatch(AxialTree(ParamModule(a)),beg);
-}
-
-bool leftmatch(AxialTree * tree, const AxialTree& a, int pos) {
-  if(pos < 0)pos += tree->size();
-  AxialTree::const_iterator beg = tree->begin();
-  if(pos > 0 && pos < tree->size())beg += pos;
-  else if(pos != 0){
-	PyErr_SetString(PyExc_IndexError, "index out of range");
-    throw_error_already_set();
-  }
-  return tree->leftmatch(a,beg);
-}
-
-bool leftmatch(AxialTree * tree, const std::string& a, int pos) {
-  if(pos < 0)pos += tree->size();
-  AxialTree::const_iterator beg = tree->begin();
-  if(pos > 0 && pos < tree->size())beg += pos;
-  else if(pos != 0){
-	PyErr_SetString(PyExc_IndexError, "index out of range");
-    throw_error_already_set();
-  }
-  return tree->leftmatch(AxialTree::QueryTree(a),beg);
-}
-
-bool leftmatch(AxialTree * tree, const list& a, int pos) {
-  if(pos < 0)pos += tree->size();
-  AxialTree::const_iterator beg = tree->begin();
-  if(pos > 0 && pos < tree->size())beg += pos;
-  else if(pos != 0){
-	PyErr_SetString(PyExc_IndexError, "index out of range");
-    throw_error_already_set();
-  }
-  return tree->leftmatch(AxialTree(a),beg);
-}
-
-bool rightmatch(AxialTree * tree, const ParamModule& a, int pos) {
-  if(pos < 0)pos += tree->size();
-  AxialTree::const_iterator beg = tree->begin();
-  if(pos > 0 && pos < tree->size())beg += pos;
-  else if(pos != 0){
-	PyErr_SetString(PyExc_IndexError, "index out of range");
-    throw_error_already_set();
-  }
-  return tree->rightmatch(AxialTree(a),beg);
-}
-
-bool rightmatch(AxialTree * tree, const tuple& a, int pos) {
-  if(pos < 0)pos += tree->size();
-  AxialTree::const_iterator beg = tree->begin();
-  if(pos > 0 && pos < tree->size())beg += pos;
-  else if(pos != 0){
-	PyErr_SetString(PyExc_IndexError, "index out of range");
-    throw_error_already_set();
-  }
-  return tree->rightmatch(AxialTree(ParamModule(a)),beg);
-}
-
-bool rightmatch(AxialTree * tree, const AxialTree& a, int pos) {
-  if(pos < 0)pos += tree->size();
-  AxialTree::const_iterator beg = tree->begin();
-  if(pos > 0 && pos < tree->size())beg += pos;
-  else if(pos != 0){
-	PyErr_SetString(PyExc_IndexError, "index out of range");
-    throw_error_already_set();
-  }
-  return tree->rightmatch(a,beg);
-}
-
-bool rightmatch(AxialTree * tree, const std::string& a, int pos) {
-  if(pos < 0)pos += tree->size();
-  AxialTree::const_iterator beg = tree->begin();
-  if(pos > 0 && pos < tree->size())beg += pos;
-  else if(pos != 0){
-	PyErr_SetString(PyExc_IndexError, "index out of range");
-    throw_error_already_set();
-  }
-  return tree->rightmatch(AxialTree::QueryTree(a),beg);
-}
-
-bool rightmatch(AxialTree * tree, const list& a, int pos) {
-  if(pos < 0)pos += tree->size();
-  AxialTree::const_iterator beg = tree->begin();
-  if(pos > 0 && pos < tree->size())beg += pos;
-  else if(pos != 0){
-	PyErr_SetString(PyExc_IndexError, "index out of range");
-    throw_error_already_set();
-  }
-  return tree->rightmatch(AxialTree(a),beg);
-}
+PY_MATCH_WRAPPER(match)
+PY_MATCH_WRAPPER(reverse_match)
+PY_MATCH_WRAPPER(leftmatch)
+PY_MATCH_WRAPPER(rightmatch)
 
 template <class T>
 AxialTree
@@ -586,44 +253,25 @@ void export_AxialTree() {
     .def( "count", (size_t(AxialTree::*)(const std::string& name)const)&AxialTree::count ) 
     .def( "count", (size_t(AxialTree::*)(const std::string& name, size_t nbparam)const)&AxialTree::count ) 
     .def( "count", (size_t(AxialTree::*)(const ParamModule&)const)&AxialTree::count ) 
-    .def( "find", (int (*)(AxialTree*,const ParamModule&))&find ) 
-    .def( "find", (int (*)(AxialTree*,const ParamModule&,int))&find ) 
-    .def( "find", (int (*)(AxialTree*,const ParamModule&,int,int))&find ) 
-    .def( "find", (int (*)(AxialTree*,const std::string&))&find ) 
-    .def( "find", (int (*)(AxialTree*,const std::string&,int))&find ) 
-    .def( "find", (int (*)(AxialTree*,const std::string&,int,int))&find ) 
+    .def( "find", (int (*)(AxialTree*,const ParamModule&,int,int))&find, (bp::arg("pattern"),bp::arg("start")=0,bp::arg("end")=-1) ) 
+    .def( "find", (int (*)(AxialTree*,const std::string&,int,int))&find, (bp::arg("pattern"),bp::arg("start")=0,bp::arg("end")=-1)) 
     .def( "replace",&replace ) 
-    .def( "match",  (bool (*)(AxialTree*,const AxialTree&,int))&match ) 
-    .def( "match",  (bool (*)(AxialTree*,const ParamModule&,int))&match ) 
-    .def( "match",  (bool (*)(AxialTree*,const list&,int))&match ) 
-    .def( "match",  (bool (*)(AxialTree*,const tuple&,int))&match ) 
-    .def( "match",  (bool (*)(AxialTree*,const std::string&,int))&match ) 
-    .def( "reverse_match",  (bool (*)(AxialTree*,const AxialTree&,int))&reverse_match ) 
-    .def( "reverse_match",  (bool (*)(AxialTree*,const ParamModule&,int))&reverse_match ) 
-    .def( "reverse_match",  (bool (*)(AxialTree*,const list&,int))&reverse_match ) 
-    .def( "reverse_match",  (bool (*)(AxialTree*,const tuple&,int))&reverse_match ) 
-    .def( "reverse_match",  (bool (*)(AxialTree*,const std::string&,int))&reverse_match ) 
-    .def( "leftmatch",  (bool (*)(AxialTree*,const AxialTree&,int))&leftmatch ) 
-    .def( "leftmatch",  (bool (*)(AxialTree*,const ParamModule&,int))&leftmatch ) 
-    .def( "leftmatch",  (bool (*)(AxialTree*,const list&,int))&leftmatch ) 
-    .def( "leftmatch",  (bool (*)(AxialTree*,const tuple&,int))&leftmatch ) 
-    .def( "leftmatch",  (bool (*)(AxialTree*,const std::string&,int))&leftmatch ) 
-    .def( "rightmatch",  (bool (*)(AxialTree*,const AxialTree&,int))&rightmatch ) 
-    .def( "rightmatch",  (bool (*)(AxialTree*,const ParamModule&,int))&rightmatch ) 
-    .def( "rightmatch",  (bool (*)(AxialTree*,const list&,int))&rightmatch ) 
-    .def( "rightmatch",  (bool (*)(AxialTree*,const tuple&,int))&rightmatch ) 
-    .def( "rightmatch",  (bool (*)(AxialTree*,const std::string&,int))&rightmatch ) 
+	.PY_MATCH_WRAPPER_DEC(match)
+	.PY_MATCH_WRAPPER_DEC(reverse_match)
+	.PY_MATCH_WRAPPER_DEC(leftmatch)
+	.PY_MATCH_WRAPPER_DEC(rightmatch)
+
     .def( "roots", (object (*)(AxialTree*))&roots ) 
-    .def( "father", (int (*)(AxialTree*,int))&father ) 
-    .def( "sons", (object (*)(AxialTree*,int))&sons ) 
-    .def( "lateralSons", (object (*)(AxialTree*,int))&lateralSons ) 
-    .def( "directSon", (int (*)(AxialTree*,int))&directSon ) 
-    .def( "endBracket", (int (*)(AxialTree*,int))&endBracket ) 
-    .def( "endBracket", &endBracket2 ) 
-    .def( "beginBracket", (int (*)(AxialTree*,int))&beginBracket ) 
-    .def( "beginBracket", &beginBracket2 ) 
+    .def( "father", (int (*)(AxialTree*,int))&father, args("pos") ) 
+    .def( "sons", (object (*)(AxialTree*,int))&sons, args("pos") ) 
+    .def( "lateralSons", (object (*)(AxialTree*,int))&lateralSons, args("pos") ) 
+    .def( "directSon", (int (*)(AxialTree*,int))&directSon, args("pos") ) 
+    .def( "endBracket", (int (*)(AxialTree*,int))&endBracket, (bp::arg("startingBeforePos")=false) ) 
+	.def( "beginBracket", (int (*)(AxialTree*,int))&beginBracket, (bp::arg("startingAfterPos")=false) ) 
     .def( "wellBracketed", &AxialTree::wellBracketed )
     .def( "isAPath", &AxialTree::isAPath )
+    .def( "complex", &complex1, args("pos") ) 
+    .def( "complex", &complex, args("pos","scale") ) 
     .def( "hasQueryModule", &AxialTree::hasQueryModule )
 	;
     axialtree_from_str();

@@ -99,7 +99,7 @@ void LsysContext::cleanContexts(){
 }
 
 LsysContext *
-LsysContext::globalContext()
+LsysContext::global()
 { 
     if(!GLOBAL_LSYSCONTEXT) GLOBAL_LSYSCONTEXT = new GlobalContext();
 	return GLOBAL_LSYSCONTEXT; 
@@ -126,7 +126,7 @@ LsysContext::defaultContext()
 }
 
 LsysContext *
-LsysContext::currentContext()
+LsysContext::current()
 { 
     if(!CURRENT_LSYSCONTEXT) CURRENT_LSYSCONTEXT = defaultContext();
 	return CURRENT_LSYSCONTEXT; 
@@ -171,11 +171,15 @@ void LsysContext::currentEvent()
 		(*it)->activateSelection();
 	for(ModuleClassList::const_iterator it = __modules.begin(); it != __modules.end(); ++it)
 		(*it)->activate();
+	for(ModuleVTableList::const_iterator it = __modulesvtables.begin(); it != __modulesvtables.end(); ++it)
+		(*it)->activate();
 }
 
 void LsysContext::doneEvent()
 {
 	for(ModuleClassList::const_iterator it = __modules.begin(); it != __modules.end(); ++it)
+		(*it)->desactivate();
+	for(ModuleVTableList::const_iterator it = __modulesvtables.begin(); it != __modulesvtables.end(); ++it)
 		(*it)->desactivate();
 		// ModuleClassTable::get().remove(*it);
 }
@@ -257,7 +261,8 @@ void LsysContext::init_options()
 	/** string matching option */
 	option = options.add("String matching","Specify the way strings are matched to rules pattern","Matching");
 	option->addValue("As String",&MatchingEngine::setStringMatchingMethod,MatchingEngine::eString,"String is considered as a simple string.");
-	option->addValue("As AxialTree",&MatchingEngine::setStringMatchingMethod,MatchingEngine::eAxialTree,"String is considered as an axial tree and some modules can be skipped.");
+	option->addValue("As AxialTree",&MatchingEngine::setStringMatchingMethod,MatchingEngine::eAxialTree,"String is considered as an axial tree and some modules can be skipped according to tree connectivity.");
+	option->addValue("As Multiscale AxialTree",&MatchingEngine::setStringMatchingMethod,MatchingEngine::eMsAxialTree,"String is considered as a multi scale axial tree and some modules can be skipped according to module scale.");
 	option->setDefault(MatchingEngine::eDefaultStringMatching);
 	option->setGlobal(true);
 	/** module declaration option */
@@ -365,7 +370,7 @@ LsysContext::keyword() const{
 void 
 LsysContext::declare(const std::string& modules)
 {
-	std::vector<std::string> moduleclasses = LpyParsing::parse_moddeclaration(modules);
+	std::vector<std::string> moduleclasses = LpyParsing::parse_modlist(modules);
 	bool iscurrent = isCurrent();
 	for(std::vector<std::string>::const_iterator it = moduleclasses.begin();
 		it != moduleclasses.end(); ++it)
@@ -388,7 +393,7 @@ void LPY::declare(const std::string& modules)
 void 
 LsysContext::undeclare(const std::string& modules)
 {
-	std::vector<std::string> moduleclasses = LpyParsing::parse_moddeclaration(modules);
+	std::vector<std::string> moduleclasses = LpyParsing::parse_modlist(modules);
 	bool iscurrent = isCurrent();
 	for(std::vector<std::string>::const_iterator it = moduleclasses.begin();
 		it != moduleclasses.end(); ++it)
@@ -403,7 +408,15 @@ LsysContext::undeclare(ModuleClassPtr module)
 {
 	ModuleClassList::iterator it = std::find(__modules.begin(),__modules.end(),module);
 	if (it == __modules.end()) LsysError("Cannot undeclare module '"+module->name+"'. Not declared in this scope.");
-	else { __modules.erase(it); if (isCurrent())module->activate(false); }
+	else { 
+			__modules.erase(it); 
+			if(module->__vtable){
+				ModuleVTableList::iterator it = 
+					find(__modulesvtables.begin(),__modulesvtables.end(),module->__vtable);
+				__modulesvtables.erase(it);
+			}
+			if (isCurrent())module->desactivate(); 
+		 }
 }
 
 void LPY::undeclare(const std::string& modules)
@@ -424,6 +437,20 @@ bool LsysContext::isDeclared(ModuleClassPtr module)
 
 void LPY::isDeclared(const std::string& module)
 { LsysContext::currentContext()->isDeclared(module); }
+
+void LsysContext::setModuleScale(const std::string& modules, int scale)
+{
+	std::vector<std::string> moduleclasses = LpyParsing::parse_modlist(modules);
+	if (moduleclasses.size() > 0){
+		ContextMaintainer cm(this);
+		for(std::vector<std::string>::const_iterator it = moduleclasses.begin();
+			it != moduleclasses.end(); ++it)
+		{
+			ModuleClassPtr mod = ModuleClassTable::get().getClass(*it);
+			if(mod)mod->setScale(scale);
+		}
+	}
+}
 
 /*---------------------------------------------------------------------------*/
 

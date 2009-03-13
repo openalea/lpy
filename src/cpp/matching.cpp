@@ -64,11 +64,11 @@ bool MatchingEngine::module_match(const ParamModule& module,
 {
   switch(ModuleMatchingMethod){
    case eMSimple:
-	return MatchingEngineImplementation::simple_module_matching(module,pattern,params);
+	return MatchingImplementation::simple_module_matching(module,pattern,params);
    case eMWithStar:
-	return MatchingEngineImplementation::module_matching_with_star(module,pattern,params);
+	return MatchingImplementation::module_matching_with_star(module,pattern,params);
    default:
-	return MatchingEngineImplementation::module_matching_with_star_and_valueconstraints(module,pattern,params);
+	return MatchingImplementation::module_matching_with_star_and_valueconstraints(module,pattern,params);
   }
 }
 
@@ -80,7 +80,7 @@ bool MatchingEngine::match(AxialTree::const_iterator  matching_start,
 						   AxialTree::const_iterator& matching_end,
 						   boost::python::list& params) 
 {
-	return MatchingEngineImplementation::string_exact_match(matching_start,string_end,
+	return MatchingImplementation::string_exact_match(matching_start,string_end,
 						                              pattern_begin,pattern_end,
 						                              matching_end,params);
 }
@@ -92,7 +92,7 @@ bool MatchingEngine::reverse_match(AxialTree::const_iterator matching_start,
 								   AxialTree::const_iterator& matching_end,
 								   boost::python::list& params)
 { 
-	return MatchingEngineImplementation::string_exact_reverse_match(matching_start,string_begin,
+	return MatchingImplementation::string_exact_reverse_match(matching_start,string_begin,
 						                               pattern_rbegin,pattern_rend,
 						                               matching_end,params);
 }
@@ -106,11 +106,15 @@ bool MatchingEngine::right_match(AxialTree::const_iterator  matching_start,
 {
 	switch(StringMatchingMethod){
 		case eString:
-			return MatchingEngineImplementation::string_exact_match(matching_start,string_end,
+			return MatchingImplementation::string_exact_match(matching_start,string_end,
 						                              pattern_begin,pattern_end,
 						                              matching_end,params);
+/*		case eMsAxialTree:
+			return MatchingImplementation::mstree_right_match(matching_start,string_end,
+						                              pattern_begin,pattern_end,
+						                              matching_end,params);*/
 		default:
-			return MatchingEngineImplementation::tree_right_match(matching_start,string_end,
+			return MatchingImplementation::tree_right_match(matching_start,string_end,
 						                              pattern_begin,pattern_end,
 						                              matching_end,params);
 	}
@@ -126,11 +130,15 @@ bool MatchingEngine::left_match(AxialTree::const_iterator  matching_start,
 {
 	switch(StringMatchingMethod){
 		case eString:
-			return MatchingEngineImplementation::string_exact_reverse_match(matching_start,string_begin,
+			return MatchingImplementation::string_exact_reverse_match(matching_start,string_begin,
+						                                 pattern_rbegin,pattern_rend,
+						                                 matching_end,params);
+		case eMsAxialTree:
+			return MatchingImplementation::mstree_left_match(matching_start,string_begin,string_end,
 						                                 pattern_rbegin,pattern_rend,
 						                                 matching_end,params);
 		default:
-			return MatchingEngineImplementation::tree_left_match(matching_start,string_begin,string_end,
+			return MatchingImplementation::tree_left_match(matching_start,string_begin,string_end,
 						                                 pattern_rbegin,pattern_rend,
 						                                 matching_end,params);
 	}
@@ -139,7 +147,7 @@ bool MatchingEngine::left_match(AxialTree::const_iterator  matching_start,
 /*---------------------------------------------------------------------------*/
 
 bool 
-MatchingEngineImplementation::simple_module_matching(const ParamModule& module, 
+MatchingImplementation::simple_module_matching(const ParamModule& module, 
 													 const ParamModule& pattern, 
 													 boost::python::list& l)
 {
@@ -150,7 +158,7 @@ MatchingEngineImplementation::simple_module_matching(const ParamModule& module,
   return false;
 }
 
-bool MatchingEngineImplementation::module_matching_with_star(const ParamModule& module, 
+bool MatchingImplementation::module_matching_with_star(const ParamModule& module, 
 															 const ParamModule& pattern, 
 									                         boost::python::list& l)
 {
@@ -221,7 +229,7 @@ bool MatchingEngineImplementation::module_matching_with_star(const ParamModule& 
   }
 }
 
-bool MatchingEngineImplementation::module_matching_with_star_and_valueconstraints(
+bool MatchingImplementation::module_matching_with_star_and_valueconstraints(
 										  const ParamModule& module, 
 									      const ParamModule& pattern, 
 									      boost::python::list& l)
@@ -365,7 +373,7 @@ bool MatchingEngineImplementation::module_matching_with_star_and_valueconstraint
 /*---------------------------------------------------------------------------*/
 
 
-bool MatchingEngineImplementation::string_exact_match(AxialTree::const_iterator  matching_start,
+bool MatchingImplementation::string_exact_match(AxialTree::const_iterator  matching_start,
 						   AxialTree::const_iterator  string_end,
 						   AxialTree::const_iterator  pattern_begin,
 						   AxialTree::const_iterator  pattern_end,
@@ -375,7 +383,7 @@ bool MatchingEngineImplementation::string_exact_match(AxialTree::const_iterator 
 	AxialTree::const_iterator it = matching_start;
 	boost::python::list lp;
 	for (AxialTree::const_iterator it2 = pattern_begin; it2 != pattern_end; ++it2){
-		if( it == string_end || !it->match(*it2,lp))return false;
+		if( it == string_end || !module_match(*it,*it2,lp))return false;
 		else { ++it; }
 	}
 	params += lp;
@@ -383,7 +391,7 @@ bool MatchingEngineImplementation::string_exact_match(AxialTree::const_iterator 
 	return true; 	
 }
 
-bool MatchingEngineImplementation::string_exact_reverse_match(AxialTree::const_iterator matching_start,
+bool MatchingImplementation::string_exact_reverse_match(AxialTree::const_iterator matching_start,
 								   AxialTree::const_iterator  string_begin,
 								   AxialTree::const_reverse_iterator  pattern_rbegin,
 								   AxialTree::const_reverse_iterator  pattern_rend,
@@ -394,7 +402,7 @@ bool MatchingEngineImplementation::string_exact_reverse_match(AxialTree::const_i
 	boost::python::list lp;
 	for (AxialTree::const_reverse_iterator it2 = pattern_rbegin; it2 != pattern_rend; ){
 		boost::python::list lmp;
-		if(!it->match(*it2,lmp)) return false; 
+		if(!module_match(*it,*it2,lmp)) return false; 
 		else { 
 			++it2;
 			if (it == string_begin){
@@ -410,7 +418,7 @@ bool MatchingEngineImplementation::string_exact_reverse_match(AxialTree::const_i
 }
 
 
-bool MatchingEngineImplementation::tree_right_match(AxialTree::const_iterator  matching_start,
+bool MatchingImplementation::tree_right_match(AxialTree::const_iterator  matching_start,
 								 AxialTree::const_iterator  string_end,
 								 AxialTree::const_iterator  pattern_begin,
 								 AxialTree::const_iterator  pattern_end,
@@ -423,13 +431,13 @@ bool MatchingEngineImplementation::tree_right_match(AxialTree::const_iterator  m
 		if(it->isIgnored()){ ++it; }
 		if(it2->isStar()){
 			boost::python::list lp;
-			if(it->match(*it2,lp)){ params += lp; ++it; ++it2; }
+			if(module_match(*it,*it2,lp)){ params += lp; ++it; ++it2; }
 			else return false;
 		}
 		else if(!it2->isBracket()){
 			if(!it->isBracket()) {
 				boost::python::list lp;
-				if(it->match(*it2,lp)){ params += lp; ++it; ++it2; }
+				if(module_match(*it,*it2,lp)){ params += lp; ++it; ++it2; }
 				else return false;
 			}
 			else { // it->isBracket()
@@ -466,7 +474,7 @@ bool MatchingEngineImplementation::tree_right_match(AxialTree::const_iterator  m
 	else return false;
 }
 
-bool MatchingEngineImplementation::tree_left_match(AxialTree::const_iterator  matching_start,
+bool MatchingImplementation::tree_left_match(AxialTree::const_iterator  matching_start,
 								AxialTree::const_iterator  string_begin,
 								AxialTree::const_iterator  string_end,
 								AxialTree::const_reverse_iterator  pattern_rbegin,
@@ -481,7 +489,7 @@ bool MatchingEngineImplementation::tree_left_match(AxialTree::const_iterator  ma
 	boost::python::list lparams;
 	while(it2 != pattern_rend && it != string_end){
 		boost::python::list lp;
-		if (! it->match(*it2,lp) ) return false;
+		if (! module_match(*it,*it2,lp) ) return false;
 		lparams += lp; 
 		++it2; 
 		if (it2 == pattern_rend) break;
@@ -502,6 +510,47 @@ bool MatchingEngineImplementation::tree_left_match(AxialTree::const_iterator  ma
 	else return false;
 }
 
+
+bool MatchingImplementation::mstree_left_match(AxialTree::const_iterator matching_start,
+								   AxialTree::const_iterator  string_begin,
+								   AxialTree::const_iterator  string_end,
+								   AxialTree::const_reverse_iterator  pattern_rbegin,
+								   AxialTree::const_reverse_iterator  pattern_rend,
+								   AxialTree::const_iterator& matching_end,
+								   boost::python::list& params)
+{ 
+	AxialTree::const_iterator it = matching_start;
+	if(it == string_begin) return false;
+	AxialTree::const_reverse_iterator it2 = pattern_rbegin;
+	if(it2 == pattern_rend) return false;
+	it = predecessor_at_scale(it,it2->scale(),string_begin,string_end);
+	boost::python::list lparams;
+	while(it2 != pattern_rend && it != string_end){
+		boost::python::list lp;
+		if (! module_match(*it,*it2,lp) ) { 
+			return false;
+		}
+		lparams += lp; 
+		++it2; 
+		if (it2 == pattern_rend) break;
+		if(it2->isStar() || it2->isBracket()){ 
+			++it2; --it; 
+			while(it->isIgnored()) {
+				if (it != string_begin) --it;
+				else return false;
+			}
+		}
+		else {
+			it = predecessor_at_scale(it,it2->scale(),string_begin,string_end);
+		}
+	}
+	if((it2 == pattern_rend)){
+		matching_end = it;
+		params += lparams;
+		return true;
+	}
+	else return false;
+}
 
 LPY_END_NAMESPACE
 

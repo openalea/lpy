@@ -97,6 +97,19 @@ def test_nodeclaration_withgloballydeclaredmodule():
     assert failed and "Mandatory module declaration do not work"
     #lc.done()
  
+def test_scale_declaration():
+    """ Test if we had a scale property declaration to a class """
+    a = AxialTree('T')
+    assert a[0].mclass.scale == -1
+    a[0].mclass.scale = 5
+    assert a[0].mclass.scale == 5
+    l = LsysContext()
+    l.makeCurrent()
+    b = AxialTree('T')
+    assert b[0].mclass.scale == -1
+    l.done()
+    assert b[0].mclass.scale == 5
+ 
  
 if __name__ == '__main__':
     import traceback as tb

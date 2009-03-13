@@ -130,8 +130,8 @@ Iterator directSon(Iterator pos, Iterator string_end)
 {
   if( (pos == string_end) || pos->isRightBracket()) return string_end;
   ++pos;
-  while((pos != string_end) && (pos->isBracket() || pos->isIgnored())){
-	while((pos != string_end) && !pos->isBracket() && pos->isIgnored())++pos;
+  while((pos != string_end) && (pos->isLeftBracket() || pos->isIgnored())){
+	while((pos != string_end) && !pos->isLeftBracket() && pos->isIgnored())++pos;
 	while((pos != string_end) && pos->isLeftBracket()){
 	  pos = endBracket(pos,string_end);
 	  if( pos == string_end ) return string_end;
@@ -193,6 +193,34 @@ std::vector<Iterator> roots(Iterator string_begin, Iterator string_end)
   else res.push_back(i);
   return res;
 }
+
+template<class Iterator>
+Iterator complex(Iterator pos, int scale, Iterator string_begin, Iterator string_end)
+{
+  if( pos == string_begin ) return string_end;
+  if( !is_lower_scale(pos->scale(),scale)) return string_end;
+  pos = father(pos,string_begin, string_end);
+  while(pos != string_end && is_lower_scale(pos->scale(),scale)){
+	  pos = father(pos,string_begin, string_end);
+  }
+  if (pos == string_end) return string_end;
+  if (is_eq_scale(pos->scale(),scale))  return pos;
+  else return string_end;
+}
+
+template<class Iterator>
+Iterator predecessor_at_scale(Iterator pos, int scale, Iterator string_begin, Iterator string_end)
+{
+  if( pos == string_begin ) return string_end;
+  pos = father(pos,string_begin, string_end);
+  while(pos != string_end && is_lower_scale(pos->scale(),scale)){
+	  pos = father(pos,string_begin, string_end);
+  }
+  if (pos == string_end) return string_end;
+  if (is_eq_scale(pos->scale(),scale))  return pos;
+  else return string_end;
+}
+
 /*---------------------------------------------------------------------------*/
 
 LPY_END_NAMESPACE

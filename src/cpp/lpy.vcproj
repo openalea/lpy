@@ -187,6 +187,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\axialtree_manip.h"
+				>
+			</File>
+			<File
 				RelativePath=".\error.cpp"
 				>
 			</File>
@@ -268,6 +272,14 @@
 			</File>
 			<File
 				RelativePath=".\moduleclass.h"
+				>
+			</File>
+			<File
+				RelativePath=".\modulevtable.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\modulevtable.h"
 				>
 			</File>
 			<File

@@ -92,7 +92,8 @@ void export_LsysContext(){
 	.def("undeclare",      (void(LsysContext::*)(const std::string&))&LsysContext::undeclare)
 	.def("isDeclared",     (bool(LsysContext::*)(const std::string&))&LsysContext::isDeclared)
 	.def("declaredModules", &py_LcDeclaredModules)
-	.def("updateNamespace",&LsysContext::updateNamespace)
+	.def("declaredModules", &py_LcDeclaredModules)
+	.def("setModuleScale",&LsysContext::setModuleScale)
 	.def("getNamespace",   
 	(void (LsysContext::*)(dict&) const)&LsysContext::getNamespace)
 	.def("start",          &LsysContext::start)
@@ -117,10 +118,16 @@ void export_LsysContext(){
 	.def("done",           &LsysContext::done)
 	.def("currentContext", &LsysContext::currentContext,return_value_policy<reference_existing_object>())
 	.staticmethod("currentContext")
+	.def("current", &LsysContext::current,return_value_policy<reference_existing_object>())
+	.staticmethod("current")
 	.def("defaultContext", &LsysContext::defaultContext,return_value_policy<reference_existing_object>())
 	.staticmethod("defaultContext")
+	.def("default", &LsysContext::defaultContext,return_value_policy<reference_existing_object>())
+	.staticmethod("default")
 	.def("globalContext", &LsysContext::globalContext,return_value_policy<reference_existing_object>())
 	.staticmethod("globalContext")
+	.def("global", &LsysContext::global,return_value_policy<reference_existing_object>())
+	.staticmethod("global")
 	.def("backward",      &LsysContext::backward)
 	.def("forward",      &LsysContext::forward)
 	.def("isForward",      &LsysContext::isForward)
@@ -132,6 +139,7 @@ void export_LsysContext(){
     .def("setSelectionRequired", &LsysContext::setSelectionRequired)
     .def("getIterationNb", &LsysContext::getIterationNb)
 	;
+
 	def("consider",      &consider);
 	def("ignore",      &ignore);
 	def("context", &LsysContext::currentContext,return_value_policy<reference_existing_object>());
