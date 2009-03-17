@@ -199,6 +199,7 @@ protected:
 
 inline bool is_lower_scale(int scale1, int scale2) { return scale1 < scale2; }
 inline bool is_eq_scale(int scale1, int scale2)    { return scale1 == scale2; }
+inline bool is_neq_scale(int scale1, int scale2)    { return scale1 != scale2; }
 inline bool is_upper_scale(int scale1, int scale2) { return scale1 > scale2; }
 
 /*---------------------------------------------------------------------------*/

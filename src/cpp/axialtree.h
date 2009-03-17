@@ -260,12 +260,18 @@ public:
 
 	bool match(const AxialTree& pattern, 
 			   const_iterator  pos,
+			   const_iterator& resultingpos) const;
+
+	bool match(const AxialTree& pattern, 
+			   const_iterator  pos,
 			   const_iterator& resultingpos,
 			   boost::python::list& params) const;
 
 	bool match(const AxialTree& pattern, 
 			   const_iterator  pos,
-			   const_iterator& resultingpos) const;
+			   const_iterator& resultingpos,
+			   const_iterator& last_matched,
+			   boost::python::list& params) const;
 
 	bool reverse_match(const AxialTree& pattern, 
 			   const_iterator  pos) const;
@@ -280,16 +286,22 @@ public:
 			   const_iterator& resultingpos) const;
 
 	bool rightmatch(const AxialTree& pattern, 
-					const_iterator pos,
-					const_iterator& resultingpos,
-					boost::python::list& params) const;
+					const_iterator pos) const;
 
 	bool rightmatch(const AxialTree& pattern, 
 					const_iterator pos,
 					const_iterator& resultingpos) const;
 
 	bool rightmatch(const AxialTree& pattern, 
-					const_iterator pos) const;
+					const_iterator pos,
+					const_iterator& resultingpos,
+					boost::python::list& params) const;
+
+	bool rightmatch(const AxialTree& pattern, 
+					const_iterator pos,
+					const_iterator last_matched,
+					const_iterator& resultingpos,
+					boost::python::list& params) const;
 
 	bool leftmatch(const AxialTree& pattern,  
 					const_iterator pos,

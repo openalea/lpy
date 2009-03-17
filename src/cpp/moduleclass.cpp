@@ -226,10 +226,13 @@ ModuleClassTable::alias(const std::string& aliasname, const std::string& name)
 		return info;
 	}
 	else {
-		if (*italias == *itname)
+		if (*italias == *itname){
 			LsysWarning("Redeclaration of alias '"+aliasname+"'.");
+			return itname->second;
+		}
 		else {
-			LsysWarning("Redeclaration of alias '"+aliasname+"' as '"+name+"' (previously '"+italias->second->name+"').");
+			LsysError("Redeclaration of alias '"+aliasname+"' as '"+name+"' (previously '"+italias->second->name+"').");
+			return italias->second;
 		}
 	}
 }

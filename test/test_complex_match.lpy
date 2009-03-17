@@ -1,0 +1,33 @@
+matched = False
+
+def Start():
+  global matched
+  matched = False
+  
+def EndEach(lstring):
+  assert matched == True
+  
+module P : scale = 3
+module B : scale = 2
+module N : scale = 1
+
+Axiom: PBN(0)BN(1)
+
+derivation length: 1
+production:
+
+P < N(x):
+    if x == 1:
+      global matched
+      matched = True
+    
+
+
+homomorphism:
+
+
+endlsystem
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	context.options.setSelection('String matching',3)

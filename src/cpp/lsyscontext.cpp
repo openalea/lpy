@@ -262,7 +262,8 @@ void LsysContext::init_options()
 	option = options.add("String matching","Specify the way strings are matched to rules pattern","Matching");
 	option->addValue("As String",&MatchingEngine::setStringMatchingMethod,MatchingEngine::eString,"String is considered as a simple string.");
 	option->addValue("As AxialTree",&MatchingEngine::setStringMatchingMethod,MatchingEngine::eAxialTree,"String is considered as an axial tree and some modules can be skipped according to tree connectivity.");
-	option->addValue("As Multiscale AxialTree",&MatchingEngine::setStringMatchingMethod,MatchingEngine::eMsAxialTree,"String is considered as a multi scale axial tree and some modules can be skipped according to module scale.");
+	option->addValue("As Multi-level AxialTree",&MatchingEngine::setStringMatchingMethod,MatchingEngine::eMLevelAxialTree,"String is considered as a multi level axial tree and some modules can be skipped according to module level. Level are not ordered.");
+	option->addValue("As Multiscale AxialTree",&MatchingEngine::setStringMatchingMethod,MatchingEngine::eMScaleAxialTree,"String is considered as a multi scale axial tree and some modules can be skipped according to module scale.");
 	option->setDefault(MatchingEngine::eDefaultStringMatching);
 	option->setGlobal(true);
 	/** module declaration option */

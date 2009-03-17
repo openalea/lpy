@@ -18,7 +18,6 @@ def test_matchingmode():
         l.iterate()
 
 lcodebeg = """
-#print ParamModule.matchingMethod
 matched = False
 
 def StartEach():
@@ -387,11 +386,27 @@ def test_match_left_context():
     l.iterate()
 
 ########################################################
+lcode_lcp = """
+Axiom : C(1)B(2)A(3)
+production:
+C(x)B(y) < A(z) :    
+    assert x == 1 and y == 2 and z == 3 and "Wrong argument values"
+    global matched
+    matched = True
+"""
+
+def test_match_left_context_with_param():
+    """ Test matching of module with left context with parameters """
+    l = Lsystem()
+    l.set(lcodebeg+lcode_lcp)
+    l.iterate()
+
+########################################################
 
 lcode_rc = """
-Axiom : BA
+Axiom : AB
 production:
-B > A :
+A > B :
     global matched
     matched = True
 """
@@ -400,6 +415,23 @@ def test_match_right_context():
     """ Test matching of module with right context """
     l = Lsystem()
     l.set(lcodebeg+lcode_rc)
+    l.iterate()
+
+########################################################
+
+lcode_rcp = """
+Axiom : A(1)B(2)C(3)
+production:
+A(x) > B(y)C(z) :
+    assert x == 1 and y == 2 and z == 3 and "Wrong argument values"
+    global matched
+    matched = True
+"""
+
+def test_match_right_context_with_params():
+    """ Test matching of module with right context with parameters """
+    l = Lsystem()
+    l.set(lcodebeg+lcode_rcp)
     l.iterate()
 
 ########################################################

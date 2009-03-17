@@ -54,7 +54,8 @@ public:
   enum eStringMatchingMethod {
 			eString = 0,
 			eAxialTree,
-			eMsAxialTree,
+			eMLevelAxialTree,
+			eMScaleAxialTree,
 			eDefaultStringMatching = eAxialTree
   };
 
@@ -76,10 +77,12 @@ public:
 			   AxialTree::const_iterator  pattern_begin,
 			   AxialTree::const_iterator  pattern_end,
 			   AxialTree::const_iterator& matching_end,
+			   AxialTree::const_iterator& last_matched,
 			   boost::python::list& params) ;
 
 	static bool reverse_match(AxialTree::const_iterator matching_start,
 					 AxialTree::const_iterator  string_begin,
+					 AxialTree::const_iterator  string_end,
 					 AxialTree::const_reverse_iterator  pattern_rbegin,
 					 AxialTree::const_reverse_iterator  pattern_rend,
 					 AxialTree::const_iterator& matching_end,
@@ -90,6 +93,7 @@ public:
 		AxialTree::const_iterator  string_end,
 		AxialTree::const_iterator  pattern_begin,
 		AxialTree::const_iterator  pattern_end,
+		AxialTree::const_iterator  last_matched,
 		AxialTree::const_iterator& matching_end,
 		boost::python::list& params);
 
@@ -123,11 +127,13 @@ public:
 							 AxialTree::const_iterator  pattern_begin,
 							 AxialTree::const_iterator  pattern_end,
 							 AxialTree::const_iterator& matching_end,
+						     AxialTree::const_iterator& last_matched,
 							 boost::python::list& params) ;
 
 	static bool string_exact_reverse_match(AxialTree::const_iterator matching_start,
 		                             AxialTree::const_iterator  string_begin,
-									 AxialTree::const_reverse_iterator  pattern_rbegin,
+									 AxialTree::const_iterator  string_end,
+					                 AxialTree::const_reverse_iterator  pattern_rbegin,
 									 AxialTree::const_reverse_iterator  pattern_rend,
 									 AxialTree::const_iterator& matching_end,
 									 boost::python::list& params);
@@ -136,6 +142,7 @@ public:
 		                         AxialTree::const_iterator  string_end,
 								 AxialTree::const_iterator  pattern_begin,
 								 AxialTree::const_iterator  pattern_end,
+							     AxialTree::const_iterator  last_matched,
 								 AxialTree::const_iterator& matching_end,
 								 boost::python::list& params);
 
@@ -155,6 +162,29 @@ public:
 								AxialTree::const_iterator& matching_end,
 								boost::python::list& params);
 
+	static bool mltree_left_match(AxialTree::const_iterator  matching_start,
+		                        AxialTree::const_iterator  string_begin,
+								AxialTree::const_iterator  string_end,
+								AxialTree::const_reverse_iterator  pattern_rbegin,
+								AxialTree::const_reverse_iterator  pattern_rend,
+								AxialTree::const_iterator& matching_end,
+								boost::python::list& params);
+
+	static bool mstree_right_match(AxialTree::const_iterator  matching_start,
+		                         AxialTree::const_iterator  string_end,
+								 AxialTree::const_iterator  pattern_begin,
+								 AxialTree::const_iterator  pattern_end,
+								 AxialTree::const_iterator  last_matched,
+								 AxialTree::const_iterator& matching_end,
+								 boost::python::list& params);
+
+	static bool mltree_right_match(AxialTree::const_iterator  matching_start,
+		                         AxialTree::const_iterator  string_end,
+								 AxialTree::const_iterator  pattern_begin,
+								 AxialTree::const_iterator  pattern_end,
+								 AxialTree::const_iterator  last_matched,
+								 AxialTree::const_iterator& matching_end,
+								 boost::python::list& params);
 };
 
 /*---------------------------------------------------------------------------*/

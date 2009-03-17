@@ -74,7 +74,10 @@ def restoreState(lpywidget):
             if os.path.exists(f):
                 lpywidget.openfile(f)
         if lastfocus != -1:
-            lpywidget.openfile(openedfiles[lastfocus])
+            try:
+                lpywidget.openfile(openedfiles[lastfocus])
+            except:
+                pass
   #except:
   #  print "cannot restore state from ini file"    
     

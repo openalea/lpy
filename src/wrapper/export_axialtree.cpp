@@ -29,6 +29,7 @@
  */
 
 #include "axialtree.h"
+#include "axialtree_manip.h"
 using namespace boost::python;
 LPY_USING_NAMESPACE
 #define bp boost::python
@@ -73,32 +74,44 @@ int findmod(AxialTree * tree, const ParamModule& mod, int start, int stop){
 int find(AxialTree * tree,const std::string& name, int start, int stop)
 { return findmod(tree,ParamModule::QueryModule(name),start,stop); }
 
-object roots(AxialTree * tree)
+object py_roots(AxialTree * tree)
 { return veciter_to_list(tree,tree->roots()); }
 
-int father(AxialTree * tree, int pos)
+int py_father(AxialTree * tree, int pos)
 { return iter_to_int(tree,tree->father(int_to_iter(tree,pos))); }
 
-object sons(AxialTree * tree, int pos)
+object py_sons(AxialTree * tree, int pos)
 { return veciter_to_list(tree,tree->sons(int_to_iter(tree,pos))); }
 
-object lateralSons(AxialTree * tree, int pos)
+object py_lateralSons(AxialTree * tree, int pos)
 { return veciter_to_list(tree,tree->lateralSons(int_to_iter(tree,pos))); }
 
-int directSon(AxialTree * tree, int pos)
+int py_directSon(AxialTree * tree, int pos)
 { return iter_to_int(tree,tree->directSon(int_to_iter(tree,pos))); }
 
-int endBracket(AxialTree * tree, int pos, bool startingBeforePos) 
+int py_endBracket(AxialTree * tree, int pos, bool startingBeforePos) 
 { return iter_to_int(tree,tree->endBracket(int_to_iter(tree,pos),startingBeforePos)); }
 
-int beginBracket(AxialTree * tree, int pos, bool startingAfterPos) 
+int py_beginBracket(AxialTree * tree, int pos, bool startingAfterPos) 
 { return iter_to_int(tree,tree->beginBracket(int_to_iter(tree,pos),startingAfterPos)); }
 
-int complex1(AxialTree * tree, int pos, int scale)
+int py_complex1(AxialTree * tree, int pos, int scale)
 { return iter_to_int(tree,tree->complex(int_to_iter(tree,pos),scale)); }
 
-int complex(AxialTree * tree, int pos)
+int py_complex(AxialTree * tree, int pos)
 { return iter_to_int(tree,tree->complex(int_to_iter(tree,pos))); }
+
+int py_successor_at_scale(AxialTree * tree, int pos, int scale)
+{ return iter_to_int(tree,successor_at_scale(int_to_iter(tree,pos),scale,tree->const_end())); }
+
+int py_successor_at_level(AxialTree * tree, int pos, int scale)
+{ return iter_to_int(tree,successor_at_level(int_to_iter(tree,pos),scale,tree->const_end())); }
+
+int py_predecessor_at_scale(AxialTree * tree, int pos, int scale)
+{ return iter_to_int(tree,predecessor_at_scale(int_to_iter(tree,pos),scale,tree->const_begin(),tree->const_end())); }
+
+int py_predecessor_at_level(AxialTree * tree, int pos, int scale)
+{ return iter_to_int(tree,predecessor_at_level(int_to_iter(tree,pos),scale,tree->const_begin(),tree->const_end())); }
 
 #define PY_MATCH_WRAPPER(matchfunc) \
   bool py_##matchfunc(AxialTree * tree, const ParamModule& a, int pos) \
@@ -260,18 +273,21 @@ void export_AxialTree() {
 	.PY_MATCH_WRAPPER_DEC(reverse_match)
 	.PY_MATCH_WRAPPER_DEC(leftmatch)
 	.PY_MATCH_WRAPPER_DEC(rightmatch)
-
-    .def( "roots", (object (*)(AxialTree*))&roots ) 
-    .def( "father", (int (*)(AxialTree*,int))&father, args("pos") ) 
-    .def( "sons", (object (*)(AxialTree*,int))&sons, args("pos") ) 
-    .def( "lateralSons", (object (*)(AxialTree*,int))&lateralSons, args("pos") ) 
-    .def( "directSon", (int (*)(AxialTree*,int))&directSon, args("pos") ) 
-    .def( "endBracket", (int (*)(AxialTree*,int))&endBracket, (bp::arg("startingBeforePos")=false) ) 
-	.def( "beginBracket", (int (*)(AxialTree*,int))&beginBracket, (bp::arg("startingAfterPos")=false) ) 
+    .def( "roots", (object (*)(AxialTree*))&py_roots ) 
+    .def( "father", (int (*)(AxialTree*,int))&py_father, args("pos") ) 
+    .def( "sons", (object (*)(AxialTree*,int))&py_sons, args("pos") ) 
+    .def( "lateralSons", (object (*)(AxialTree*,int))&py_lateralSons, args("pos") ) 
+    .def( "directSon", (int (*)(AxialTree*,int))&py_directSon, args("pos") ) 
+    .def( "endBracket", (int (*)(AxialTree*,int))&py_endBracket, (bp::arg("startingBeforePos")=false) ) 
+	.def( "beginBracket", (int (*)(AxialTree*,int))&py_beginBracket, (bp::arg("startingAfterPos")=false) ) 
     .def( "wellBracketed", &AxialTree::wellBracketed )
     .def( "isAPath", &AxialTree::isAPath )
-    .def( "complex", &complex1, args("pos") ) 
-    .def( "complex", &complex, args("pos","scale") ) 
+    .def( "complex", &py_complex1, args("pos") ) 
+    .def( "complex", &py_complex, args("pos","scale") ) 
+    .def( "successor_at_scale", &py_successor_at_scale, args("pos","scale") ) 
+    .def( "successor_at_level", &py_successor_at_level, args("pos","level") ) 
+    .def( "predecessor_at_scale", &py_predecessor_at_scale, args("pos","scale") ) 
+    .def( "predecessor_at_level", &py_predecessor_at_level, args("pos","level") ) 
     .def( "hasQueryModule", &AxialTree::hasQueryModule )
 	;
     axialtree_from_str();

@@ -130,6 +130,13 @@ Iterator directSon(Iterator pos, Iterator string_end)
 {
   if( (pos == string_end) || pos->isRightBracket()) return string_end;
   ++pos;
+  return directSonFromPreviousPos(pos,string_end);
+}
+
+template<class Iterator>
+Iterator directSonFromPreviousPos(Iterator pos, Iterator string_end) 
+{
+  // remove ignored modules and lateral branches
   while((pos != string_end) && (pos->isLeftBracket() || pos->isIgnored())){
 	while((pos != string_end) && !pos->isLeftBracket() && pos->isIgnored())++pos;
 	while((pos != string_end) && pos->isLeftBracket()){
@@ -212,9 +219,155 @@ template<class Iterator>
 Iterator predecessor_at_scale(Iterator pos, int scale, Iterator string_begin, Iterator string_end)
 {
   if( pos == string_begin ) return string_end;
-  pos = father(pos,string_begin, string_end);
+  int previousscale = pos->scale();
+  pos = father(pos,string_begin, string_end); 
+  if( pos == string_end ) return string_end;
+  int curscale = pos->scale();
+  if (!is_upper_scale(scale,previousscale)) { // mean that we look for a predecessor, not a complex
+    // Go up into complex.
+	while(pos != string_end && is_upper_scale(curscale,previousscale)){
+	  pos = father(pos,string_begin, string_end);
+	  previousscale = curscale;
+	  curscale = pos->scale();
+	}
+  }
+  // Skip predecessor components to go to the complex at good scale
   while(pos != string_end && is_lower_scale(pos->scale(),scale)){
 	  pos = father(pos,string_begin, string_end);
+  }
+  if (pos == string_end) return string_end;
+  if (is_eq_scale(pos->scale(),scale))  return pos;
+  else return string_end;
+}
+
+template<class Iterator>
+Iterator successor_at_scale(Iterator pos, int scale, 
+							Iterator string_end,
+							bool fromPreviousPosition = false, 
+							int previous_scale = -1)
+{
+  if( pos == string_end ) return string_end;  
+  if(fromPreviousPosition) pos = directSonFromPreviousPos(pos, string_end);
+  else {
+	previous_scale = pos->scale();
+	pos = directSon(pos, string_end);
+  }
+  if (!is_lower_scale(scale,previous_scale)) { // mean that we look for a successor, not a components
+    // Skip successor components
+    while(pos != string_end && is_lower_scale(pos->scale(),scale)){
+	  pos = directSon(pos,string_end);
+    }
+    if (pos == string_end) return string_end;
+  }
+  // If exists, we are on the sons or at least one of its complex.
+  int curscale = pos->scale();
+  if (is_upper_scale(curscale,scale)) { // We look for a component of current module
+    // Go down into components.
+	do {
+	  pos = directSon(pos,string_end);
+	  if (pos == string_end) return string_end;	  
+	  previous_scale = curscale;
+	  curscale = pos->scale();
+	} while(pos != string_end && is_lower_scale(curscale,previous_scale) && is_upper_scale(curscale,scale));
+  }
+  if (pos == string_end) return string_end;
+  if (is_eq_scale(pos->scale(),scale))  return pos;
+  else return string_end;
+}
+
+
+template<class Iterator>
+Iterator predecessor_at_level(Iterator pos, int scale, Iterator string_begin, Iterator string_end)
+{
+  if( pos == string_begin ) return string_end;
+  pos = father(pos,string_begin, string_end);
+  // Skip predecessors at other levels
+  while(pos != string_end && is_neq_scale(pos->scale(),scale)){
+	  pos = father(pos,string_begin, string_end);
+  }
+  if (pos == string_end) return string_end;
+  if (is_eq_scale(pos->scale(),scale))  return pos;
+  else return string_end;
+}
+
+template<class Iterator>
+Iterator successor_at_level(Iterator pos, int scale, Iterator string_end, bool fromPreviousPosition = false)
+{
+  if( pos == string_end ) return string_end;
+  if(fromPreviousPosition) pos = directSonFromPreviousPos(pos, string_end);
+  else pos = directSon(pos, string_end);
+  // Skip successors at other levels
+  while(pos != string_end && is_neq_scale(pos->scale(),scale)){
+	  pos = directSon(pos, string_end);
+  }
+  if (pos == string_end) return string_end;
+  if (is_eq_scale(pos->scale(),scale))  return pos;
+  else return string_end;
+}
+
+template<class Iterator>
+Iterator next_module(Iterator pos, Iterator string_end, bool fromPreviousPosition = false) 
+{
+	if(!fromPreviousPosition) ++pos;
+	while(pos != string_end && pos->isIgnored()){ ++pos; }
+	return pos;
+}
+
+template<class Iterator>
+Iterator previous_module(Iterator pos, Iterator string_begin, Iterator string_end, bool fromPreviousPosition = false) 
+{
+	if(!fromPreviousPosition){
+		if(pos == string_begin) return string_end;
+		--pos;
+	}
+	while(pos != string_begin && pos->isIgnored()){ --pos; }
+	return pos;
+}
+
+template<class Iterator>
+Iterator next_module_at_scale(Iterator pos, int scale, 
+							Iterator string_end,
+							bool fromPreviousPosition = false, 
+							int previous_scale = -1)
+{
+  if( pos == string_end ) return string_end;  
+  if(fromPreviousPosition) pos = next_module(pos, string_end,true);
+  else {
+	previous_scale = pos->scale();
+	pos = next_module(pos, string_end);
+  }
+  if (!is_lower_scale(scale,previous_scale)) { // mean that we look for a successor, not a components
+	// Skip successor components
+	while(pos != string_end && is_lower_scale(pos->scale(),scale)){
+	  pos = next_module(pos,string_end);
+	}
+	if (pos == string_end) return string_end;
+  }
+  // If exists, we are on the successor or at least one of its complex.
+  int curscale = pos->scale();
+  if (is_upper_scale(curscale,scale)) { // We look for a component of current module
+    // Go down into components.
+	do {
+	  pos = next_module(pos,string_end);
+	  if (pos == string_end) return string_end;	  
+	  previous_scale = curscale;
+	  curscale = pos->scale();
+	} while(pos != string_end && is_lower_scale(curscale,previous_scale) && is_upper_scale(curscale,scale));
+  }
+  if (pos == string_end) return string_end;
+  if (is_eq_scale(pos->scale(),scale))  return pos;
+  else return string_end;
+}
+
+template<class Iterator>
+Iterator next_module_at_level(Iterator pos, int scale, Iterator string_end, bool fromPreviousPosition = false)
+{
+  if( pos == string_end ) return string_end;
+  if(fromPreviousPosition) pos = next_module(pos, string_end, true);
+  else pos = next_module(pos, string_end);
+  // Skip successors at other levels
+  while(pos != string_end && is_neq_scale(pos->scale(),scale)){
+	  pos = next_module(pos, string_end);
   }
   if (pos == string_end) return string_end;
   if (is_eq_scale(pos->scale(),scale))  return pos;

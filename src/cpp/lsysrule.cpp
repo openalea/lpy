@@ -430,8 +430,9 @@ LsysRule::match(const AxialTree& src,
 {
   boost::python::list args_pred;
   AxialTree::const_iterator endpos1;
+  AxialTree::const_iterator last_match = pos;
   if (direction == eForward){
-   if(!src.match(__predecessor,pos,endpos1,args_pred))
+   if(!src.match(__predecessor,pos,endpos1,last_match,args_pred))
  	 return false;
   }
   else{
@@ -454,12 +455,12 @@ LsysRule::match(const AxialTree& src,
   args += args_pred;
   if(direction == eBackward && !__newrightcontext.empty()){
 	boost::python::list args_ncg;
-	if(!dest.rightmatch(__newrightcontext,dest.begin(),endpos2,args_ncg))return false;
+	if(!dest.rightmatch(__newrightcontext,dest.begin(),last_match,endpos2,args_ncg))return false;
 	args += args_ncg;
   }
   if(!__rightcontext.empty()){
 	boost::python::list args_cd;
-	if(!src.rightmatch(__rightcontext,endpos1,endpos2,args_cd))return false;
+	if(!src.rightmatch(__rightcontext,endpos1,last_match,endpos2,args_cd))return false;
 	args += args_cd;
   }
   if (direction == eForward)

@@ -1,0 +1,76 @@
+module I,L : scale = 1
+module U,E : scale = 2
+
+nbUnit = 8
+nbINode   = 3
+nodesize = 0.6
+internodesize = 0.8
+unitwidth = 0.3
+nodewidth = 0.4
+
+def EndEach(lstring):
+  #print lstring
+  pass 
+
+Axiom: _(nodewidth)G
+
+derivation length: 300
+production:
+
+decomposition:
+
+G :
+  nproduce ELU(1)I(1)
+  for i in xrange(nbINode-1):
+      nproduce I(0)
+  for i in xrange(nbUnit-1):
+    nproduce U(0)
+    for j in xrange(nbINode):
+      nproduce I(0)
+  produce EL
+
+production:
+
+I(x) < I(y):
+  if x == 1: produce I(1)
+
+I(x) > L:
+  if x == 1: produce I(-1)
+
+L < I(x) :
+  if x == -1: produce I(1)
+
+I(x) > I(y):
+  if y == -1: produce I(-1)
+  
+I(x):
+  if x != 0 : produce I(0)
+
+
+
+U(x) > E:
+  if x == 1: produce U(-1)
+
+E < U(x) :
+  if x == -1: produce U(1)
+
+U(x) < U(y):
+  if x == 1: produce U(1)
+
+U(x) > U(y):
+  if y == -1: produce U(-1)
+
+U(x):
+  if x != 0 : produce U(0)
+
+homomorphism:
+
+U(x) --> f(nodesize)[;(1 if x ==0 else 3)_(unitwidth)F(nbINode*(internodesize+nodesize))]
+I(x) --> f(nodesize/2.);(1 if x ==0 else 2)F(internodesize)f(nodesize/2.)
+
+endlsystem
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	context.options.setSelection('Module matching',0)
+	context.options.setSelection('String matching',3)

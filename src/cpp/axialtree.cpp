@@ -664,7 +664,7 @@ bool AxialTree::match(const AxialTree& pattern,
 					  AxialTree::const_iterator& resultingpos) const
 { 
   list params;
-  return MatchingEngine::match(it,const_end(),pattern.const_begin(),pattern.const_end(),resultingpos,params);
+  return match(pattern,it,resultingpos,params);
 }
 
 bool AxialTree::match(const AxialTree& pattern, 
@@ -672,7 +672,17 @@ bool AxialTree::match(const AxialTree& pattern,
 					  AxialTree::const_iterator& resultingpos,
 					  list& params) const
 { 
-	return MatchingEngine::match(it,const_end(),pattern.const_begin(),pattern.const_end(),resultingpos,params);
+	AxialTree::const_iterator last_matched; 
+	return match(pattern,it,resultingpos,last_matched,params); 
+}
+
+bool AxialTree::match(const AxialTree& pattern, 
+					  AxialTree::const_iterator it,
+					  AxialTree::const_iterator& resultingpos,
+					  AxialTree::const_iterator& last_matched,
+					  list& params) const
+{ 
+	return MatchingEngine::match(it,const_end(),pattern.const_begin(),pattern.const_end(),resultingpos,last_matched,params);
 }
 
 bool AxialTree::reverse_match(const AxialTree& pattern, 
@@ -685,7 +695,7 @@ bool AxialTree::reverse_match(const AxialTree& pattern,
 { 
   list params;
   if (isEnd(it)) return false;
-  return MatchingEngine::reverse_match(it,begin(),pattern.const_rbegin(),pattern.const_rend(),resultingpos,params);
+  return MatchingEngine::reverse_match(it,begin(),end(),pattern.const_rbegin(),pattern.const_rend(),resultingpos,params);
 }
 
 
@@ -695,7 +705,7 @@ bool AxialTree::reverse_match(const AxialTree& pattern,
 					  list& params) const
 { 
   if (isEnd(it)) return false;
-  return MatchingEngine::reverse_match(it,begin(),pattern.const_rbegin(),pattern.const_rend(),resultingpos,params);
+  return MatchingEngine::reverse_match(it,begin(),end(),pattern.const_rbegin(),pattern.const_rend(),resultingpos,params);
 }
  
 bool AxialTree::rightmatch(const AxialTree& pattern, 
@@ -705,17 +715,24 @@ bool AxialTree::rightmatch(const AxialTree& pattern,
 bool AxialTree::rightmatch(const AxialTree& pattern, 
 						   AxialTree::const_iterator it,
 						   AxialTree::const_iterator& resultingpos) const{
-  if(pattern.empty())return true;
   list params;
-  return MatchingEngine::right_match(it,const_end(),pattern.const_begin(),pattern.const_end(),resultingpos,params);
+  return rightmatch(pattern,it,resultingpos,params);
 }
 
 bool AxialTree::rightmatch(const AxialTree& pattern, 
 						   AxialTree::const_iterator it,
 						   AxialTree::const_iterator& resultingpos,
 						   list& params) const{
+  return rightmatch(pattern,it,it,resultingpos,params);
+}
+
+bool AxialTree::rightmatch(const AxialTree& pattern, 
+						   AxialTree::const_iterator it,
+						   AxialTree::const_iterator last_matched,
+						   AxialTree::const_iterator& resultingpos,
+						   list& params) const{
   if(pattern.empty())return true;
-  return MatchingEngine::right_match(it,const_end(),pattern.const_begin(),pattern.const_end(),resultingpos,params);
+  return MatchingEngine::right_match(it,const_end(),pattern.const_begin(),pattern.const_end(),last_matched, resultingpos,params);
 }
 
 AxialTree::const_iterator

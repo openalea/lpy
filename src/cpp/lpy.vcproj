@@ -259,6 +259,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\matching_tmpl.h"
+				>
+			</File>
+			<File
 				RelativePath=".\mod.cpp"
 				>
 			</File>

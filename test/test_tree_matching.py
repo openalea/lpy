@@ -1,11 +1,25 @@
 from openalea.lpy import *
 import warnings
 
-def matching_run(code,optionvalues = range(3)): 
+lcodebeg = """
+matched = False
+
+def StartEach():
+    global matched
+    matched = False
+
+    
+def EndEach():
+  print matched
+  assert matched
+"""
+
+def matching_run(code,optionvalues = range(4)): 
     if type(optionvalues) == int:
         optionvalues = [optionvalues]
-    for i in range(2):
+    for i in range(4):
         l = Lsystem()
+        print 'option =',i
         if i in optionvalues:
             l.set(code)
             l.context().options.setSelection('String matching',i)
@@ -25,15 +39,35 @@ def test_axial_match() :
     f = open('test_axial_matching.lpy')
     code = f.read()
     f.close()
-    matching_run(code,[1,2])
+    matching_run(code,range(1,4))
 
 def test_ms_match() : 
     """ Test matching with multiscale axial tree context modification"""
     f = open('test_msmatch.lpy')
     code = f.read()
     f.close()
-    matching_run(code,2)
+    matching_run(code,range(2,4))
 
+def test_ms_match2() : 
+    """ Test matching with multiscale axial tree context modification 2"""
+    code = lcodebeg+"""
+module L,I : scale = 1
+module E,U : scale = 2
+Axiom: ELU(0)I(1)I(2)U(3)I(4)I(5)I(6)EL
+production:
+U(x) > E:
+    global matched
+    matched = True
+"""
+    matching_run(code,range(2,4))
+
+def test_axial_msmatch() : 
+    """ Test matching with axial tree context modification"""
+    f = open('test_axial_msmatch.lpy')
+    code = f.read()
+    f.close()
+    matching_run(code,range(2,4))
+    
 #def test_match_future() : matching_run('test_matching_future.lpy')
 
 ########################################################
