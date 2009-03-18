@@ -5,6 +5,7 @@
 #include <plantgl/tool/util_hashmap.h>
 #include <plantgl/tool/rcobject.h>
 #include <boost/python.hpp>
+#include <vector>
 
 /*---------------------------------------------------------------------------*/
 
@@ -28,7 +29,7 @@ class LPY_API ModuleProperty : public BaseModuleProperty {
 public:
 	typedef Type element_type;
 
-	ModuleProperty(const std::string& name, element_type value) : 
+	ModuleProperty(const std::string& name, element_type _value) : 
 		BaseModuleProperty(name), value(_value) {}
 
     element_type value;
