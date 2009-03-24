@@ -12,9 +12,9 @@ def EndEach(lstring):
   #print lstring
   pass 
 
-Axiom: _(nodewidth)G
+Axiom: _(nodewidth)-(90)G
 
-derivation length: 300
+derivation length: nbINode*nbUnit*6
 production:
 
 decomposition:
@@ -31,35 +31,19 @@ G :
 
 production:
 
-I(x) < I(y):
-  if x == 1: produce I(1)
-
-I(x) > L:
-  if x == 1: produce I(-1)
-
-L < I(x) :
-  if x == -1: produce I(1)
-
-I(x) > I(y):
-  if y == -1: produce I(-1)
-  
+I(1) < I(y) --> I(1)
+I(1) > L --> I(-1)
+L < I(-1) --> I(1)
+I(x) > I(-1) --> I(-1)
 I(x):
   if x != 0 : produce I(0)
 
 
 
-U(x) > E:
-  if x == 1: produce U(-1)
-
-E < U(x) :
-  if x == -1: produce U(1)
-
-U(x) < U(y):
-  if x == 1: produce U(1)
-
-U(x) > U(y):
-  if y == -1: produce U(-1)
-
+U(1) > E --> U(-1)
+E < U(-1) --> U(1)
+U(1) < U(y) --> U(1)
+U(x) > U(-1) --> U(-1)
 U(x):
   if x != 0 : produce U(0)
 
@@ -72,5 +56,6 @@ endlsystem
 ###### INITIALISATION ######
 
 def __initialiseContext__(context):
-	context.options.setSelection('Module matching',0)
+	from openalea.plantgl.all import Material,Color3
+	context.turtle.setMaterial(1,Material('Brown',Color3(6,4,1),13.8333,Color3(40,40,40),Color3(0,0,0),1,0))
 	context.options.setSelection('String matching',3)

@@ -8,6 +8,7 @@ pj = os.path.join
 f = pj(os.path.dirname(__file__),'src', 'openalea', 'lpy','__version__.py')
 d = {}
 execfile(f,d,d)
+version = d['LPY_NUM_VERSION_STR']
 
 py2exe_file = pj(os.path.dirname(__file__),'src', 'openalea', 'lpy','gui','py2exe_release.py')
 if not os.path.exists(py2exe_file):
@@ -22,7 +23,6 @@ name = 'lpy'
 namespace = 'openalea'
 pkg_name= namespace + '.' + name
 
-version= '1.0.0'
 print pkg_name,': version =',version
 
 description= 'Lindenmayer Systems in Python package for OpenAlea.' 
@@ -69,7 +69,7 @@ setup(
     py_modules = ['lpygui_postinstall'],
 
     # python packages directory
-    package_dir = { '' : 'src',},
+    package_dir = { '' : 'src','openalea.plantgl' : '../PlantGL/src/plantgl'},
                    
     # Add package platform libraries if any
     include_package_data = True,
@@ -77,8 +77,8 @@ setup(
     zip_safe = False,
 
     # Specific options of openalea.deploy
-    lib_dirs = {'lib' : 'lib',},
-    bin_dirs = {'bin':  'bin',},
+    lib_dirs = {'lib' : 'lib','../PlantGL/lib' :'lib'},
+    bin_dirs = {'bin':  'bin','../PlantGL/bin' :'bin'},
     #inc_dirs = {'include' : pj(build_prefix, 'include') },
     share_dirs = {'share' : 'share', },
 

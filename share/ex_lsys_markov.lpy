@@ -4,7 +4,7 @@ p2 = 0.250000
 m = 0
 
 
-Axiom: #(1)[f(50)+90f(10)]-(90)P(1,0)
+Axiom: _(1)[f(50)+90f(10)]-(90)P(1,0)
 derivation length: 100
 
 # A = branching state

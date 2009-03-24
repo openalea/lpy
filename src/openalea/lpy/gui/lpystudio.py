@@ -6,8 +6,10 @@ import shutil
 # for py2exe
 try:
     import openalea.lpy.gui.py2exe_release
-    sys.path.insert(0, os.path.join(sys.prefix, "setuptools-0.6c8_svn15fix.egg"))
-    sys.path.insert(0, os.path.join(sys.prefix, "pyopengl-3.0.0b2-py2.5.egg"))
+    import os
+    #os.chdir(__path__)
+    #sys.path.insert(0, os.path.join(sys.prefix, "setuptools-0.6c9-py2.5.egg"))
+    sys.path.insert(0, os.path.join(sys.prefix))
     py2exe_release = True
 except:
     py2exe_release = False

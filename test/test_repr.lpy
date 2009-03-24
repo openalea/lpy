@@ -1,0 +1,19 @@
+class A:
+  def __init__(self):
+    pass
+
+def EndEach(lstring):
+    print lstring
+    print repr(lstring)
+
+Axiom: B(A())
+
+derivation length: 1
+production:
+
+B(a) --> B(a)
+
+homomorphism:
+
+
+endlsystem

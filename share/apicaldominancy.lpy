@@ -22,7 +22,7 @@ def End():
 def txt(val):
 	return str(round(val,2))[:5]
 
-Axiom: #(0.5)R(0)M(mstate,0)
+Axiom: _(0.5)R(0)M(mstate,0)
 
 derivation length: 500
 ignore: +-

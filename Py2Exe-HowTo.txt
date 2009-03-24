@@ -1,0 +1,4 @@
+- launch python p2esetup.py py2exe
+- copy C:\Python25\Lib\site-packages\OpenGL into dist\
+- copy C:\Python25\Lib\site-packages\setuptools-xxx-pyxx.egg into dist\
+- run nsis on lpy-bundle.nsi
