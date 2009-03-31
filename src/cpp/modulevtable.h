@@ -52,7 +52,7 @@ typedef RCPtr<ModuleClass> ModuleClassPtr;
 /// Module Virtual Table
 class LPY_API ModuleVTable : public TOOLS(RefCountObject) {
 public:
-	typedef pgl_hash_map<std::string,ModulePropertyPtr> PropertyMap;
+	typedef pgl_hash_map_string<ModulePropertyPtr> PropertyMap;
 	friend class ModuleClass;
 	ModuleVTable(ModuleClassPtr owner = ModuleClassPtr());
 	~ModuleVTable();
