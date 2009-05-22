@@ -145,7 +145,7 @@ public:
 	std::string getCoreCode() const;
 	std::string getCallerCode() const;
 	
-	bool redundantParameter() const;
+	int redundantParameter() const;
 
 	int lineno;
 protected:
@@ -167,6 +167,7 @@ protected:
 	bool __hasquery;
 private:
     void __precall_function( size_t nbargs = 0 ) const;
+    void __precall_function( size_t nbargs,  const boost::python::object& obj ) const;
     // boost::python::object __call_function( const boost::python::tuple& ) const;
     boost::python::object __postcall_function( boost::python::object ) const;
 

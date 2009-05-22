@@ -82,10 +82,10 @@ int ModuleClass::DEFAULT_SCALE = -1;
 /*---------------------------------------------------------------------------*/
 
 ModuleClass::ModuleClass(const std::string& _name):
-TOOLS(RefCountObject)(), name(_name), id(MAXID), active(true) {MAXID++; IncTracker(ModuleClass) }
+TOOLS(RefCountObject)(), name(_name), onlyInPattern(false), id(MAXID), active(true) {MAXID++; IncTracker(ModuleClass) }
 
 ModuleClass::ModuleClass(const std::string& _name, const std::string& alias):
-TOOLS(RefCountObject)(), name(_name), id(MAXID), active(true) {
+TOOLS(RefCountObject)(), name(_name), onlyInPattern(false), id(MAXID), active(true) {
 	MAXID++; 
 	aliases.push_back(alias);
 	IncTracker(ModuleClass)
@@ -126,6 +126,28 @@ void ModuleClass::setScale(int scale)
 {
 	if(!__vtable)create_vtable();
 	__vtable->scale = scale;
+}
+/*---------------------------------------------------------------------------*/
+
+const char * PredefinedModuleClass::CATEGORY_NAME[] = {
+		"None",
+		"Structure",
+		"Rotation",
+		"Position",
+		"Scale",
+		"Primitive",
+		"Width",
+		"Color",
+	    "Tropism",
+		"Request",
+		"String Manipulation",
+		"Pattern Matching",
+		"User Defined"
+};
+
+std::string PredefinedModuleClass::getCategoryName(eCategory cat){
+	assert(cat < eLastCategory);
+	return CATEGORY_NAME[cat];
 }
 
 /*---------------------------------------------------------------------------*/
@@ -237,6 +259,24 @@ ModuleClassTable::alias(const std::string& aliasname, const std::string& name)
 	}
 }
 
+void 
+ModuleClassTable::alias(const std::string& aliasname, ModuleClassPtr module)
+{
+	ModuleClassMap::iterator italias;
+	if(module->isActive()){
+		LsysError("Inactive module '"+module->name+"' for alias.");
+	}
+	if ((italias = modulenamemap.find(aliasname)) == modulenamemap.end())
+	{
+		if(maxnamelength < aliasname.size())maxnamelength = aliasname.size();
+		module->aliases.push_back(aliasname);
+		modulenamemap[aliasname] = module;
+	}
+	else {
+		LsysError("Redeclaration of alias '"+aliasname+"' as '"+module->name+"' (previously '"+italias->second->name+"').");
+	}
+}
+
 
 
 ModuleClassPtr
@@ -264,7 +304,7 @@ ModuleClassTable::findClass(const std::string& name) const
 }
 
 ModuleClassPtr
-ModuleClassTable::getClass(size_t id) const
+ModuleClassTable::findClass(size_t id) const
 {
 	ModuleClassIdMap::const_iterator it;
 	if((it = modulenamelist.find(id)) == modulenamelist.end() || !it->second->isActive())
@@ -343,19 +383,23 @@ bool ModuleClassTable::remove(const ModuleClass * moduleclass)
 
 ModuleClassPtr 
 ModuleClassTable::find(std::string::const_iterator beg, 
-					   std::string::const_iterator end)
+					   std::string::const_iterator end,
+					   size_t& nsize)
 {
-	size_t wordlength = std::min<size_t>(maxnamelength,std::distance(beg,end));
+	size_t wordlength = std::min<size_t>(maxnamelength+1,std::distance(beg,end));
 	ModuleClassMap::iterator itname;
 	for (size_t w = wordlength; w > 0; --w){
-		if((itname = modulenamemap.find(std::string(beg,beg+w))) != modulenamemap.end() && 
-			itname->second->isActive())
+		itname = modulenamemap.find(std::string(beg,beg+w));
+		if(itname != modulenamemap.end() && itname->second->isActive()){
+			nsize = w;
 			return itname->second;
+		}
 	}
 	if (mandatory_declaration) return ModuleClassPtr();
 	else { 
 		ModuleClassPtr modclass = declare(*beg);
 		LsysContext::currentContext()->declare(modclass);
+		nsize = 1;
 		return modclass;
 	}
 }

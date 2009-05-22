@@ -74,6 +74,8 @@ public:
   bool isCut() const;
   bool isNull() const;
   bool isStar() const;
+  bool isRepExp() const;
+  bool isGetIterator() const;
   bool isConsidered() const;
   bool isIgnored() const;
 
@@ -96,8 +98,15 @@ class LPY_API LsysVar {
 	std::string varname() const;
 	void setName(const std::string& );
 	bool isArgs() const;
+	bool isCompatible(const boost::python::object& value) const;
+	void setCondition(const std::string& textualcondition, int lineno = -1);
+	inline std::string textualcondition() const { return __textualcondition; }
+
   protected:
 	std::string __name;
+	bool __hasCondition;
+	std::string __textualcondition;
+	boost::python::object __condition;
 };
 
 /*---------------------------------------------------------------------------*/
@@ -112,7 +121,7 @@ public:
 #endif
 
   static ParamModule QueryModule(const std::string& name);
-  static ParamModule QueryModule(size_t classid, const std::string& args);
+  static ParamModule QueryModule(size_t classid, const std::string& args, int lineno = -1);
   ParamModule(const std::string& name);
   ParamModule(const ParamModule& name);
   ParamModule(size_t classid);
@@ -192,6 +201,8 @@ public:
 protected:
   ParamModule();
   ParameterList __args;
+
+  void __processQueryModule(const std::string& argstr, int lineno = -1);
 
 };
 

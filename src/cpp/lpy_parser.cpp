@@ -280,15 +280,40 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
 		  _it2 = _it;
           if(has_pattern(_it,endpycode,"module")){
             code+=std::string(beg,_it2);
-			std::pair<std::vector<std::string>,std::string> modules = LpyParsing::parse_moddeclaration(_it,endpycode);
+			LpyParsing::ModLineDeclatation modules = LpyParsing::parse_moddeclaration(_it,endpycode);
 			code+="# "+std::string(_it2,_it);
 			int scale = ModuleClass::DEFAULT_SCALE;
 			if(!modules.second.empty())
 			scale = extract<int>(__context.evaluate(modules.second))();
-			for(std::vector<std::string>::const_iterator itmod = modules.first.begin(); itmod != modules.first.end(); ++itmod){
-				ModuleClassPtr mod = ModuleClassTable::get().declare(*itmod);
-				__context.declare(mod);
+			for(LpyParsing::ModDeclarationList::const_iterator itmod = modules.first.begin(); 
+				 itmod != modules.first.end(); ++itmod){
+				ModuleClassPtr mod;
+				if(itmod->second.empty()){
+					mod = ModuleClassTable::get().declare(itmod->first);
+				    __context.declare(mod);
+				}
+				else {
+					mod = ModuleClassTable::get().alias(itmod->first,itmod->second);
+					__context.declareAlias(itmod->second,mod);
+				}
 				if(scale != ModuleClass::DEFAULT_SCALE)mod->setScale(scale);
+			}
+			beg = _it;
+			toendlineA(_it,endpycode);
+		  }
+          else {if(_it!=endpycode)++_it; toendlineA(_it,endpycode); }
+		  break;
+		case 'u':
+		  _it2 = _it;
+          if(has_pattern(_it,endpycode,"undeclare")){
+            code+=std::string(beg,_it2);
+			LpyParsing::ModDeclarationList modules = LpyParsing::parse_modlist(_it,endpycode,false);
+			code+="# "+std::string(_it2,_it);
+			for(LpyParsing::ModDeclarationList::const_iterator itmod = modules.begin(); 
+				 itmod != modules.end(); ++itmod){
+				ModuleClassPtr mod = ModuleClassTable::get().findClass(itmod->first);
+				if(mod)__context.undeclare(mod);
+				else LsysError("Cannot undeclare a not declared module",filename,lineno);
 			}
 			beg = _it;
 			toendlineA(_it,endpycode);
@@ -766,19 +791,73 @@ void LsysRule::set( const std::string& rule ){
 }
 
 /*---------------------------------------------------------------------------*/
+std::string::const_iterator next_element(std::string::const_iterator _it2,
+											 std::string::const_iterator end)
+{
+    if(_it2 != end){
+		  if(*_it2 == '"'){ // skip string
+			_it2++;
+			while(_it2 != end && *_it2 != '"')_it2++;
+		  }
+		  else if(*_it2 == '\''){ // skip string
+			_it2++;
+			while(_it2 != end && *_it2 != '\'')_it2++;
+		  }
+		  else if(*_it2 == '('){ // skip expression
+			int nbOpenParenthesis = 1;
+			while(_it2 != end && (*_it2 != ')' || nbOpenParenthesis > 0)){
+				_it2++;
+				if(_it2 != end)
+					if(*_it2 == '(') ++nbOpenParenthesis;
+					else if (*_it2 == ')') --nbOpenParenthesis;
+					// skip strings
+					else if(*_it2 == '"') { _it2++; while(_it2 != end && *_it2 != '"')_it2++; }
+					else if(*_it2 == '\''){ _it2++; while(_it2 != end && *_it2 != '\'')_it2++; }
+			}
+		  }
+		  else if(*_it2 == '['){ // skip array
+			int nbOpenBracket = 1;
+			while(_it2 != end && (*_it2 != ']' || nbOpenBracket > 0)){
+				_it2++;
+				if(_it2 != end)
+					if(*_it2 == '[') ++nbOpenBracket;
+					else if (*_it2 == ']') --nbOpenBracket;
+					// skip strings
+					else if(*_it2 == '"') { _it2++; while(_it2 != end && *_it2 != '"')_it2++; }
+					else if(*_it2 == '\''){ _it2++; while(_it2 != end && *_it2 != '\'')_it2++; }
+			}
+		  }
+		  else if(*_it2 == '{'){ // skip dict
+			int nbOpenBracket = 1;
+			while(_it2 != end && (*_it2 != '}' || nbOpenBracket > 0)){
+				_it2++;
+				if(_it2 != end)
+					if(*_it2 == '{') ++nbOpenBracket;
+					else if (*_it2 == '}') --nbOpenBracket;
+					// skip strings
+					else if(*_it2 == '"') { _it2++; while(_it2 != end && *_it2 != '"')_it2++; }
+					else if(*_it2 == '\''){ _it2++; while(_it2 != end && *_it2 != '\'')_it2++; }
+			}
+		  }
+		  else _it2++;
+	}
+	return _it2;
+}
+/*---------------------------------------------------------------------------*/
 	
 // cg < ncg << pred >> ncd > cd
 void 
 LsysRule::parseHeader( const std::string& header){
   std::string::const_iterator it = header.begin();
   std::string::const_iterator beg = header.begin();
+  std::string::const_iterator end = header.end();
   std::string cg;
   std::string ncg;
   std::string pred;
   std::string ncd;
   std::string cd;
   bool begncd = false;
-  while(it != header.end()){
+  while(it != end){
 	if(*it == '<'){
 	  if(!pred.empty())LsysError("Ill-formed Rule Header : "+header,"",lineno);
 	  if(*(it+1) == '<'){
@@ -812,23 +891,24 @@ LsysRule::parseHeader( const std::string& header){
       if(pred.empty())LsysError("Ill-formed Rule Header : No Predecessor found : "+header,"",lineno);
 	  beg = it+1;
     }
-	it++;
+	it = next_element(it,end);
+	// it++;
   }
   if(pred.empty()){
 	pred = std::string(beg,it);
 	if(pred.empty()) LsysError("Ill-formed Rule Header : No Predecessor found : "+header,"",lineno);
   }
-  else if (beg != header.end()){
+  else if (beg !=end){
       if (begncd)ncd = std::string(beg,it);
       else cd = std::string(beg,it);
   }
   if (!ncg.empty() && !ncd.empty())LsysError("Ill-formed Rule Header : New left and right contexts found : "+header,"",lineno);
 
-  __predecessor = AxialTree::QueryTree(pred);
-  if(!cg.empty())__leftcontext = AxialTree::QueryTree(cg);
-  if(!ncg.empty())__newleftcontext = AxialTree::QueryTree(ncg);
-  if(!cd.empty())__rightcontext = AxialTree::QueryTree(cd);
-  if(!ncd.empty())__newrightcontext = AxialTree::QueryTree(ncd);
+  __predecessor = AxialTree::QueryTree(pred,lineno);
+  if(!cg.empty())__leftcontext = AxialTree::QueryTree(cg,lineno);
+  if(!ncg.empty())__newleftcontext = AxialTree::QueryTree(ncg,lineno);
+  if(!cd.empty())__rightcontext = AxialTree::QueryTree(cd,lineno);
+  if(!ncd.empty())__newrightcontext = AxialTree::QueryTree(ncd,lineno);
 }
 
 
@@ -842,12 +922,13 @@ std::string LpyParsing::lstring2py(const std::string& lcode)
 { std::string::const_iterator beg = lcode.begin();
   return lstring2py(beg,lcode.end()); }
 
+/*---------------------------------------------------------------------------*/
+
 std::string LpyParsing::lstring2py( std::string::const_iterator& beg,
-								std::string::const_iterator endpos,
-								char delim,
-								int lineno){
+								    std::string::const_iterator endpos,
+								    char delim, int lineno){
   std::string result("[");
-  std::vector<std::pair<size_t,std::string> > parsedstring = parselstring(beg, endpos, delim, lineno);
+  std::vector<std::pair<size_t,std::string> > parsedstring = parselstring(beg, endpos, delim, lineno,true);
   bool first = true;
   for(std::vector<std::pair<size_t,std::string> >::const_iterator it = parsedstring.begin();
 	  it != parsedstring.end(); ++it){
@@ -869,7 +950,8 @@ std::vector<std::pair<size_t,std::string> >
 LpyParsing::parselstring( std::string::const_iterator& beg,
 					  std::string::const_iterator endpos,
 					  char delim,
-					  int lineno)
+					  int lineno,
+					  bool production)
 {
   // std::cerr << "parse '" << std::string(beg,endpos) << "'" << std::endl;
   std::vector<std::pair<size_t,std::string> > result;
@@ -878,8 +960,12 @@ LpyParsing::parselstring( std::string::const_iterator& beg,
   std::string::const_iterator _it2 = _it;
   bool first = true;
   while(_it != endpos && *_it != delim){
-	if(*_it == '#') // skip comments
+	if(*_it == '#') {// skip comments
+		if(LsysContext::current()->warnWithSharpModule()){
+			LsysWarning("Found symbol '#'. Consider as begining of comments","",lineno);
+		}
 		while(_it != endpos && *_it != '\n' && *_it != delim)++_it;
+	}
 	else if(*_it == '(')
 		LsysSyntaxError("Found module named  '('","",lineno);
 	else if(*_it == ')')
@@ -896,14 +982,16 @@ LpyParsing::parselstring( std::string::const_iterator& beg,
 #endif
 	else {
 		size_t mod_id;
+		size_t namesize = 0;
 		std::string mod_args;
-		ModuleClassPtr mod = ModuleClassTable::get().find(_it,endpos);
+		ModuleClassPtr mod = ModuleClassTable::get().find(_it,endpos,namesize);
 		if (!mod){
 			LsysSyntaxError(std::string("Invalid symbol '")+*_it+"' in AxialTree.","",lineno);
 			// mod = ModuleClassTable::get().declare(*_it); ++_it; 
 		}
-		else {_it += mod->name.size(); }
-		mod_id = mod->getId(); 
+		else {_it += namesize; }
+		while(_it != endpos && (*_it == ' ' || *_it == '\t'))++_it;
+		mod_id = mod->getId();
 		bool has_arg = false;
 		if (mod == ModuleClass::CpfgSurface){
 			if (_it != endpos && *_it != '('){
@@ -915,21 +1003,41 @@ LpyParsing::parselstring( std::string::const_iterator& beg,
 		if(_it != endpos && *_it == '('){
 			// look for parameters
 			++_it;
-			if(_it == endpos){
-				LsysSyntaxError("Invalid syntax in AxialTree","",lineno);
-			}
+			if(_it == endpos) LsysSyntaxError("Invalid syntax in AxialTree","",lineno);
 			_it2 = _it;
+            std::string::const_iterator lastcoma = _it2;
 			int parenthesis = 0;
 			while(_it != endpos && (*_it != ')' || parenthesis > 0)){
-				if(*_it == ')') parenthesis--;
-				else if (*_it == '(') parenthesis++;
-				_it++;
-				if(_it == endpos){
-					LsysSyntaxError("Invalid syntax in AxialTree","",lineno);
+				switch(*_it){
+					case ')': parenthesis--; break;
+					case '(': parenthesis++; break;
+					case '#': while(_it != endpos && *_it != '\n')++_it;break;
+					case '"': while(_it != endpos && *_it != '"')++_it;break;
+					case '\'': while(_it != endpos && *_it != '\'')++_it;break;
+					case ',': lastcoma = _it;break;
+					default: break;
 				}
+				++_it;
+				if(_it == endpos)
+					LsysSyntaxError("Invalid syntax in AxialTree","",lineno);
 			}
 			if(_it != endpos)_it++;
-			mod_args += std::string(_it2,_it-1);
+			bool without_unpacking = true;
+			if(lastcoma!= endpos && production){
+				// Simulation of unpacking of arguments
+				if(*lastcoma == ',')++lastcoma;
+				while(lastcoma != endpos && (*lastcoma == ' ' || *lastcoma == '\t') )++lastcoma;
+				if(*lastcoma == '*'){
+					std::string::const_iterator lit = lastcoma+1;
+					if (isValidVariableName(lastcoma+1,_it-1)){
+						mod_args += std::string(_it2,lastcoma);
+						mod_args += "PackedArgs(";
+						mod_args += std::string(lastcoma+1,_it);
+						without_unpacking = false;
+					}
+				}
+			}
+			if(without_unpacking)  mod_args += std::string(_it2,_it-1);
 			has_arg = (mod_args.size() > 0);
 		}
 		std::pair<size_t,std::string> amod;
@@ -944,19 +1052,23 @@ LpyParsing::parselstring( std::string::const_iterator& beg,
 
 /*---------------------------------------------------------------------------*/
 
-std::vector<std::string> LpyParsing::parse_modlist(std::string::const_iterator& beg,
-													  std::string::const_iterator endpos,
-													  char delim)
+LpyParsing::ModDeclarationList 
+LpyParsing::parse_modlist(std::string::const_iterator& beg,
+						  std::string::const_iterator endpos,
+						  bool allow_alias,
+						  char delim)
 {
   bool first = true;
-  std::vector<std::string> result;
+  ModDeclarationList result;
   std::string::const_iterator _it = beg;
   while(_it != endpos && *_it != delim){
 	while ((*_it == ' ' || *_it == '\t' || *_it == '\n')&& *_it != delim)++_it;
 	if (_it == endpos || *_it == delim || *_it == ':' || *_it == '#') break;
+	bool isAlias ;
 	if (!first){
-		if(*_it != ',')
-			LsysSyntaxError("Invalid syntax in module declaration");
+		if(*_it != ',' && *_it != '=') LsysSyntaxError("Invalid syntax in module declaration");
+	    isAlias = (*_it == '=');
+		if (!allow_alias) LsysSyntaxError("Invalid syntax in module declaration");
 		++_it;
 		while (_it != endpos && (*_it == ' ' || *_it == '\t' || *_it == '\n')&& *_it != delim)++_it;
 		if (_it == endpos || *_it == delim)
@@ -964,21 +1076,25 @@ std::vector<std::string> LpyParsing::parse_modlist(std::string::const_iterator& 
 	}
 	else first = false;
 	std::string::const_iterator bm = _it;
-	while(_it != endpos && *_it != ',' && *_it != ' ' && *_it != '\t' && *_it != '\n' && *_it != ':' && *_it != '#' && *_it != delim) ++_it;
+	while(_it != endpos && *_it != ',' && *_it != ' ' && *_it != '\t' && *_it != '\n' && *_it != ':' && '*_it' != '=' && *_it != '#' && *_it != delim) ++_it;
 	if (bm != _it){
 		std::string m(bm,_it);
-		result.push_back(m);
+		if(isAlias)result.back().second = m;
+		else result.push_back(ModDeclaration(m,""));
 	}
   }
   beg = _it;
   return result;
 }
 
-std::pair<std::vector<std::string>,std::string> LpyParsing::parse_moddeclaration(std::string::const_iterator& beg,
-													  std::string::const_iterator endpos,
-													  char delim)
+/*---------------------------------------------------------------------------*/
+
+LpyParsing::ModLineDeclatation 
+LpyParsing::parse_moddeclaration(std::string::const_iterator& beg,
+								 std::string::const_iterator endpos,
+								 char delim)
 {
-  std::pair<std::vector<std::string>,std::string> result;
+  ModLineDeclatation result;
   std::string::const_iterator _it = beg;
   result.first = LpyParsing::parse_modlist(_it,endpos,delim);
   std::string scalevalue;
@@ -1019,6 +1135,8 @@ std::string LpyParsing::trim(const std::string& str)
 	return std::string(_itb,_ite);
 }
 
+/*---------------------------------------------------------------------------*/
+
 std::vector<std::string> LpyParsing::parse_arguments(std::string::const_iterator beg,
 										 std::string::const_iterator end)
 {
@@ -1027,45 +1145,7 @@ std::vector<std::string> LpyParsing::parse_arguments(std::string::const_iterator
 	std::string::const_iterator _it2 = _it;
 	while(_it2 != end){
 		while(_it2 != end && *_it2 != ',' && *_it2 != ')'){
-		  if(*_it2 == '"'){ // skip string
-			_it2++;
-			while(_it2 != end && *_it2 != '"')_it2++;
-		  }
-		  else if(*_it2 == '\''){ // skip string
-			_it2++;
-			while(_it2 != end && *_it2 != '\'')_it2++;
-		  }
-		  else if(*_it2 == '('){ // skip expression
-			_it2++;
-			int nbOpenParenthesis = 0;
-			while(_it2 != end && *_it2 != ')' && nbOpenParenthesis != 0){
-				_it2++;
-				if(_it2 != end)
-					if(*_it2 == '(') ++nbOpenParenthesis;
-					else if (*_it2 == ')') --nbOpenParenthesis;
-			}
-		  }
-		  else if(*_it2 == '['){ // skip array
-			_it2++;
-			int nbOpenBracket = 0;
-			while(_it2 != end && *_it2 != ']' && nbOpenBracket != 0){
-				_it2++;
-				if(_it2 != end)
-					if(*_it2 == '[') ++nbOpenBracket;
-					else if (*_it2 == ']') --nbOpenBracket;
-			}
-		  }
-		  else if(*_it2 == '{'){ // skip dict
-			_it2++;
-			int nbOpenBracket = 0;
-			while(_it2 != end && *_it2 != '}' && nbOpenBracket != 0){
-				_it2++;
-				if(_it2 != end)
-					if(*_it2 == '{') ++nbOpenBracket;
-					else if (*_it2 == '}') --nbOpenBracket;
-			}
-		  }
-		  if(_it2 != end)_it2++;
+			_it2 = next_element(_it2,end);
 		}
 		if(_it != _it2){
 			/// triming name
@@ -1077,17 +1157,46 @@ std::vector<std::string> LpyParsing::parse_arguments(std::string::const_iterator
 	return result;
 }
 
-bool LpyParsing::isValidVariableName(const std::string& arg)
+bool LpyParsing::isValidVariableName(std::string::const_iterator beg,
+						 			 std::string::const_iterator end)
 {
-	if (arg.empty())return false;
-	std::string::const_iterator _si = arg.begin();
-	if(*_si == '*' && MatchingEngine::getModuleMatchingMethod() != MatchingEngine::eMSimple){
-		if(arg.size() == 1)return false;
-		else ++_si;
+	if (beg == end)return false;
+	while(beg != end && (*beg == ' ' || *beg == '\t'))++beg;
+	if (beg == end)return false;
+	if(*beg == '*' && MatchingEngine::getModuleMatchingMethod() != MatchingEngine::eMSimple){
+		++beg;
+		if(beg == end)return false;
+		else {while(beg != end && (*beg == ' ' || *beg == '\t'))++beg; }
 	}
 	bool b = true;
-	while(_si != arg.end() && (b = (isalnum(*_si) || *_si == '_')))_si++;
+	if(beg != end && (isalpha(*beg) || *beg == '_')) ++beg;
+	else return false;
+	while(beg != end && (b = (isalnum(*beg) || *beg == '_')))beg++;
 	return b;
+}
+
+std::pair<std::string,std::string> LpyParsing::parse_variable(std::string::const_iterator beg,
+						 						             std::string::const_iterator end,
+															 int lineno)
+{
+	std::string::const_iterator it = beg;
+	while (it != end && *it == ' ' && *it == '\t')++it;
+	std::string::const_iterator begname = it;
+	std::string::const_iterator begfilter = begname;
+	if(it == end)LsysError("Error parsing variable name","",lineno);
+	if(*it == '*'){ ++it; begfilter = it; }
+	if(it != end && (isalpha(*it) || *it == '_'))++it;
+	else LsysError("Error parsing variable name","",lineno);
+	while(it != end && (isalnum(*it) || *it == '_'))++it;
+	std::string varname(begname,it);
+	while (it != end && *it == ' ' && *it == '\t')++it;
+	if(it == end) return std::pair<std::string,std::string>(varname,"");
+	if (*it == 'i' && (++it) != end &&  *it == 'f'){
+		while (it != end && *it == ' ' && *it == '\t')++it;
+		if(it == end)LsysError("Error parsing filter of variable","",lineno);
+		begfilter = it;
+	}
+	return std::pair<std::string,std::string>(varname,std::string(begfilter,end));
 }
 
 

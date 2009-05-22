@@ -28,47 +28,49 @@
  # ---------------------------------------------------------------------------
  */
 
-#include <iostream>
-#include <boost/python.hpp>
-#include "export_lsystem.h"
-#include "moduleclass.h"
-#include "lsyscontext.h"
-#include "tracker.h"
-#include <plantgl/gui/base/application.h>
-#include <plantgl/python/exception_core.h>
+#ifndef __PGL_AXIALTREE_ITER_H__
+#define __PGL_AXIALTREE_ITER_H__
 
-using namespace boost::python;
-LPY_USING_NAMESPACE
+#include "axialtree.h"
+#include "axialtree_manip.h"
 
 
-void cleanLsys() 
-{
-#ifdef TRACKER_ENABLED
-	std::cerr << "****** pre-cleaning *******" << std::endl;
-	Tracker::printReport();
-#endif
-	LsysContext::cleanContexts();
-	ModuleClassTable::clearModuleClasses ();
-	ViewerApplication::exit ();
-#ifdef TRACKER_ENABLED
-	std::cerr << "****** post-cleaning ******" << std::endl;
-	Tracker::printReport();
-#endif
-}
+LPY_BEGIN_NAMESPACE
 
-BOOST_PYTHON_MODULE(__lpy_kernel__)
-{
-	define_stl_exceptions();
-	export_Options();
-    export_Module();
-    export_AxialTree();
-    export_Interpretation();
-    export_LsysRule();
-    export_LsysContext();
-    export_Lsystem();
-    export_plot();
-	export_parser();
-    export_StringMatching();
-	// def("cleanLsys",&cleanLsys);
-	Py_AtExit(&cleanLsys);
+
+/*---------------------------------------------------------------------------*/
+
+
+template<class Lstring, class Iterator = typename Lstring::const_iterator>
+struct PyLstringIterator{
+public:
+	typedef Lstring string_type;
+	typedef Iterator iterator_type;
+	typedef typename string_type::element_type element_type;
+
+	iterator_type current;
+	iterator_type end;
+	PyLstringIterator(iterator_type _beg, iterator_type _end):
+	    current(_beg),end(_end) {}
+
+	PyLstringIterator(const Lstring& lstring):
+	    current(lstring.begin()),end(lstring.end()) {}
+
+	const element_type& next() {
+		if(current == end) throw PythonExc_StopIteration();
+		else { const element_type& val = *current; ++current; return val; }
+	}
+
+	size_t size() { return std::distance(current,end); }
+
+	void toEndBracket( bool startingBeforePos = false)
+	{ current = endBracket(current,end,startingBeforePos); }
 };
+
+typedef PyLstringIterator<AxialTree> PyAxialTreeIterator;
+
+/*---------------------------------------------------------------------------*/
+
+LPY_END_NAMESPACE
+
+#endif

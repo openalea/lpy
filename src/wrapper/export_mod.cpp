@@ -29,6 +29,7 @@
  */
 
 #include "axialtree.h"
+#include "packedargs.h"
 #include "matching.h"
 #include <plantgl/tool/util_string.h>
 #include <plantgl/scenegraph/pgl_version.h>
@@ -39,6 +40,7 @@
 #include <plantgl/python/export_refcountptr.h>
 
 using namespace boost::python;
+#define bp boost::python
 LPY_USING_NAMESPACE
 
 std::string getname(Module * m){
@@ -113,7 +115,7 @@ std::string mc_repr(ModuleClassPtr mc){
 	if (!mc->aliases.empty()){
 		res+=",['" + mc->aliases[0];
 		for(size_t i = 1; i < mc->aliases.size(); ++i)
-			res+= "',"+mc->aliases[i];
+			res+= "','"+mc->aliases[i];
 		res += "']";
 	}
 	res += ")";
@@ -136,7 +138,15 @@ boost::python::object py_predefinedclasses() {
 	return make_list<ModuleClassList>(ModuleClass::getPredefinedClasses())();
 }
 
+PredefinedModuleClass::eCategory py_get_category(ModuleClass * mod)
+{
+	if(mod->isPredefined()) return ((PredefinedModuleClass*)mod)->getCategory();
+	else return PredefinedModuleClass::eUserDefined;
+}
+
 void export_Module(){
+
+	class_<PackedArgs> ("PackedArgs", init<boost::python::list>("PackedArgs"));
 
 	class_<ModuleClass,ModuleClassPtr,boost::noncopyable>
 	("ModuleClass", no_init)
@@ -149,7 +159,24 @@ void export_Module(){
 	.def("isPredefined",&ModuleClass::isPredefined)
 	.add_static_property("predefinedClasses",py_predefinedclasses)
 	.add_property("scale",&ModuleClass::getScale,&ModuleClass::setScale)
+	.add_property("category",&ModuleClass::getScale,&ModuleClass::setScale)
 	;
+
+	enum_<PredefinedModuleClass::eCategory>("ModuleCategory")
+		.value("None",PredefinedModuleClass::eNone)
+		.value("Structure",PredefinedModuleClass::eStructure)
+		.value("Rotation",PredefinedModuleClass::eRotation)
+		.value("Position",PredefinedModuleClass::ePosition)
+		.value("Scale",PredefinedModuleClass::eScale)
+		.value("Primitive",PredefinedModuleClass::ePrimitive)
+		.value("Width",PredefinedModuleClass::eWidth)
+		.value("Color",PredefinedModuleClass::eColor)
+	    .value("Tropism",PredefinedModuleClass::eTropism)
+		.value("Request",PredefinedModuleClass::eRequest)
+		.value("StringManipulation",PredefinedModuleClass::eStringManipulation)
+		.value("PatternMatching",PredefinedModuleClass::ePatternMatching)
+		.value("UserDefined",PredefinedModuleClass::eUserDefined)
+		;
 
 	class_<ModuleClassTable,boost::noncopyable>
 	("ModuleClassTable", no_init)
@@ -162,8 +189,8 @@ void export_Module(){
 	.def("empty",&ModuleClassTable::empty)
 	.def("getClasses",&py_modclasses)
 	.def("getNames",&py_modnames)
-	.def("getClass",(ModuleClassPtr(ModuleClassTable::*)(const std::string&) )&ModuleClassTable::getClass)
-	.def("getClass",(ModuleClassPtr(ModuleClassTable::*)(size_t) const )&ModuleClassTable::getClass)
+	.def("find",(ModuleClassPtr(ModuleClassTable::*)(const std::string&) const)&ModuleClassTable::findClass)
+	.def("find",(ModuleClassPtr(ModuleClassTable::*)(size_t) const )&ModuleClassTable::findClass)
 	.def("remove",(bool(ModuleClassTable::*)(const ModuleClass *))&ModuleClassTable::remove)
 	.def("remove",(bool(ModuleClassTable::*)(const std::string&))&ModuleClassTable::remove)
 	.def("declare",(ModuleClassPtr(ModuleClassTable::*)(const std::string&))&ModuleClassTable::declare)
@@ -256,6 +283,6 @@ void export_Module(){
 	  .export_values();
 
   }
-  def("QueryModule",  (ParamModule(*)(size_t, const std::string&))&ParamModule::QueryModule);
+  def("QueryModule",  (ParamModule(*)(size_t, const std::string&, int))&ParamModule::QueryModule,(bp::arg("id"),bp::arg("params"),bp::arg("lineno")=-1));
   def("QueryModule",  (ParamModule(*)(const std::string&))&ParamModule::QueryModule);
 }

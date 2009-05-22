@@ -2,15 +2,16 @@
 #define __matching_tpl_h__
 
 #include "matching.h"
+#include "axialtree_iter.h"
 #include <boost/python.hpp>
 
 LPY_BEGIN_NAMESPACE
-
+#define bp boost::python
 /*---------------------------------------------------------------------------*/
 
 struct BPListManager {
 public:
-	typedef boost::python::list element_type;
+	typedef bp::list element_type;
 	static inline void append_args(element_type& value, const element_type& elements){
 		value += elements;
 	}
@@ -19,7 +20,40 @@ public:
 		elements += value;
 		value = elements;
 	}
+
+	static element_type fusion_args(const std::vector<element_type>& values){
+		element_type res;
+		if(!values.empty()){
+			size_t nbvar = len(values[0]);
+			for(size_t i = 0; i < nbvar; ++i){
+				element_type resi;
+				for(std::vector<element_type>::const_iterator it = values.begin(); it != values.end(); ++it)
+					resi.append((*it)[i]);
+				res.append(resi);
+			}
+		}
+		return res;
+	}
 };
+
+template<class argtype, class PIterator, class Iterator>
+void process_get_iterator(PIterator pattern, 
+						  Iterator it, 
+						  Iterator string_end, 
+						  argtype& params){
+	if(pattern->argSize() == 0) LsysWarning("?I should have at least one argument to hold iterator");
+	PyAxialTreeIterator pyiter(it,string_end);
+	if(pattern->argSize() > 1) { 
+		LsysWarning("?I have too much arguments. Shoud be only one");
+		argtype lp;
+		lp.append(bp::object(pyiter));
+		for (size_t i = 1; i < pattern->argSize(); ++i) lp.append(bp::object());
+		params += lp;
+	}
+	else params.append(pyiter);
+
+}
+
 
 /*---------------------------------------------------------------------------*/
 
@@ -231,6 +265,7 @@ struct TreeRightMatcher : public ArgsContainer
 {
 	typedef typename ArgsContainer::element_type argtype;
 	typedef _NextElement<Iterator,PIterator> NextElement;
+	typedef TreeRightMatcher<_NextElement,Iterator,PIterator,ArgsContainer> MType;
 
 	static bool match(Iterator matching_start, Iterator  string_end,
 					  PIterator pattern_begin, PIterator  pattern_end, 
@@ -243,15 +278,39 @@ struct TreeRightMatcher : public ArgsContainer
 		// printf("m '%s' - '%s'\n",it2->name().c_str(),it->name().c_str());
 		it = NextElement::initial_next(it,it2,last_matched,string_end);				
 		bool nextpattern = true;
+		bool nextsrc = true;
 		while(it != string_end && it2 != pattern_end){
-			// printf("m '%s' - '%s'\n",it2->name().c_str(),it->name().c_str());
 			nextpattern = true;
+			nextsrc = true;
 			if(it2->isStar()){
 				argtype lp;
 				if(MatchingEngine::module_match(*it,*it2,lp)){ 
 					append_args(lparams,lp);
 				}
 				else return false;
+			}
+			else if(it2->isGetIterator()){
+				process_get_iterator(it2,it,string_end,lparams);
+				nextsrc = false;
+			}
+			else if(it2->isRepExp()){
+				std::vector<argtype> llp;
+				AxialTree lpattern = bp::extract<AxialTree>(it2->getAt(0))();
+				size_t miniter = 0;
+				if (it2->argSize() > 1) miniter = bp::extract<size_t>(it2->getAt(1))();
+				size_t maxiter = 1000;
+				if (it2->argSize() == 3) maxiter = bp::extract<size_t>(it2->getAt(2))();
+				else if (it2->argSize() == 2) maxiter = miniter;
+				bool ok = true;
+				size_t numiter = 0;
+				while(ok && numiter < maxiter) {
+					argtype lp;
+					if((ok = MType::match(it,string_end,lpattern.begin(),lpattern.end(),last_matched,it,lp)))
+					{  llp.push_back(lp); last_matched = it; ++it; ++numiter; }
+			     }
+				if (numiter < miniter) return false;
+				--it;
+				append_args(lparams,fusion_args(llp)); 
 			}
 			else if(!it2->isBracket()){ // matching a pattern module
 				if(!it->isBracket()) {
@@ -285,9 +344,14 @@ struct TreeRightMatcher : public ArgsContainer
 				}
 			}
 			if (nextpattern) ++it2;
-			if(it!=string_end && it2 != pattern_end) {
+			if (nextsrc && it!=string_end && it2 != pattern_end) {
+				last_matched = it;
 				it = NextElement::next(it,it2,string_end);				
 			}
+		}
+		if(it2 != pattern_end && it2->isGetIterator()){
+			process_get_iterator(it2,it,string_end,lparams);
+			++it2;
 		}
 		if(it2 == pattern_end){
 			matching_end = it;

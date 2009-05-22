@@ -33,16 +33,16 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
         self.prodFormat = QTextCharFormat()
         self.prodFormat.setForeground(Qt.black)
         self.prodFormat.setFontWeight(QFont.Bold)
-        self.prodkeywords = ['Axiom:','produce','nproduce','-->','module']
+        self.prodkeywords = ['Axiom:','produce','nproduce','-->','module','ignore:','consider:']
         for pattern in self.prodkeywords:
-            self.exprules.append((QRegExp(pattern+'.*$'),len(pattern),self.prodFormat,1))
+            self.exprules.append((QRegExp(pattern+'.*$'),len(pattern),self.prodFormat,0))
         self.funcFormat = QTextCharFormat()
         self.funcFormat.setForeground(Qt.magenta)
         self.exprules.append((QRegExp('def.*\('),3,self.funcFormat,1))
         self.stringFormat = QTextCharFormat()
         self.stringFormat.setForeground(Qt.darkGray)
-        self.exprules.append((QRegExp('\".*\"'),0,self.stringFormat,0))
-        self.exprules.append((QRegExp("\'.*\'"),0,self.stringFormat,0))
+        self.exprules.append((QRegExp('\"[^\"]*\"'),0,self.stringFormat,0))
+        self.exprules.append((QRegExp("\'[^\']*\'"),0,self.stringFormat,0))
         self.tabFormat = QTextCharFormat()
         self.tabFormat.setBackground(QColor(220,220,220))
         self.spaceFormat = QTextCharFormat()

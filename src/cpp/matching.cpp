@@ -267,10 +267,17 @@ bool MatchingImplementation::module_matching_with_star_and_valueconstraints(
 			boost::python::list largs;
 			largs.append(module.name());
 			largs += module.getArgs();
-			l.append(largs); return true; 
+			if (!v.isCompatible(largs))return false;
+			l.append(largs); 
+			return true; 
 		}
 		else {
-		  if(s2 == 0){ l.append(module.name()); return true; }
+		  if(s2 == 0){ 
+			 boost::python::object largs(module.name()); 
+			 if (!v.isCompatible(largs))return false;
+			 l.append(largs); 
+			 return true; 
+		  }
 		  else return false;
 		}
 	  }
@@ -323,12 +330,16 @@ bool MatchingImplementation::module_matching_with_star_and_valueconstraints(
 		  else {
 			if (s2 < s-2) return false;
 			else {
-			  if(s == 2){ l.append(module.getArgs()); return true; }
+			  if(s == 2){
+				  if(!v.isCompatible(module.getArgs()))return false;
+				  l.append(module.getArgs()); return true; 
+			  }
 			  else if (s2 == s-2) lastargval = boost::python::list();
 			  else lastargval = module.getslice(s-2,s2);
 			}
 		  }
 		}
+		if(!v.isCompatible(lastargval))return false;
 	  }
 	  for(size_t i = 1; i < s-1; i++){
 		boost::python::object oi = pattern.getAt(i);
@@ -336,7 +347,10 @@ bool MatchingImplementation::module_matching_with_star_and_valueconstraints(
 		if(!e.check()){
 		  if (oi != module.getAt(i-1+beg))return false;
 		}
-		else l.append(module.getAt(i-1+beg));
+		else { 
+			if(!e().isCompatible(module.getAt(i-1+beg))) return false; 
+			l.append(module.getAt(i-1+beg));
+		}
 	  }
 	  if(lastarg)l.append(lastargval);
 	  return true;
@@ -366,10 +380,14 @@ bool MatchingImplementation::module_matching_with_star_and_valueconstraints(
 		}
 		else {
 		  if (s2 < s - 1) return false;
-		  if(s == 1){ l.append(module.getArgs());return true; }
+		  if(s == 1){ 
+			  if(!v.isCompatible(module.getArgs()))return false; 
+			  l.append(module.getArgs());return true; 
+		  }
 		  else if (s2 == s - 1) lastargval = boost::python::list();
 		  else lastargval = module.getslice(s-1,s2);
 		}
+		if(!v.isCompatible(lastargval)) return false; 
 	  }
 	  for(size_t i = 0; i < s-1; i++){
 		boost::python::object oi = pattern.getAt(i);
@@ -377,7 +395,10 @@ bool MatchingImplementation::module_matching_with_star_and_valueconstraints(
 		if(!e.check()){
 		  if (oi != module.getAt(i))return false;
 		}
-		else l.append(module.getAt(i));
+		else {
+			if(!e().isCompatible(module.getAt(i))) return false; 
+			l.append(module.getAt(i));
+		}
 	  }
 	  if(lastarg)l.append(lastargval);
 	}

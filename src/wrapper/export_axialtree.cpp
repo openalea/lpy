@@ -30,6 +30,8 @@
 
 #include "axialtree.h"
 #include "axialtree_manip.h"
+#include "axialtree_iter.h"
+#include <plantgl/python/export_list.h>
 using namespace boost::python;
 LPY_USING_NAMESPACE
 #define bp boost::python
@@ -203,6 +205,8 @@ replace(AxialTree * tree, const object& a, const object& b) {
   return AxialTree();
 }
 
+boost::python::object py_varnames(AxialTree * tree)
+{ return make_list(tree->getVarNames()); }
 
 struct axialtree_from_str {
   static void* convertible(PyObject* py_obj){
@@ -221,6 +225,9 @@ struct axialtree_from_str {
 	boost::python::converter::registry::push_back( &convertible, &construct, boost::python::type_id<AxialTree>()); 
   } 
 }; 
+
+PyAxialTreeIterator py_at_iter(AxialTree * tree) { return PyAxialTreeIterator(*tree); }
+PyAxialTreeIterator py_ati_iter(PyAxialTreeIterator * it) { return *it; }
 
 void export_AxialTree() {
 
@@ -289,8 +296,18 @@ void export_AxialTree() {
     .def( "predecessor_at_scale", &py_predecessor_at_scale, args("pos","scale") ) 
     .def( "predecessor_at_level", &py_predecessor_at_level, args("pos","level") ) 
     .def( "hasQueryModule", &AxialTree::hasQueryModule )
+    .def( "varnames", &py_varnames )
+    .def( "__iter__", &py_at_iter )
 	;
     axialtree_from_str();
     def("QueryTree", &AxialTree::QueryTree);
+
+  class_<PyAxialTreeIterator >
+	("AxialTreeIterator", init<AxialTree>("AxialTreeIterator(AxialTree)"))
+	.def("next",&PyAxialTreeIterator::next,return_internal_reference<>())
+	.def("__length_hint__",&PyAxialTreeIterator::size)
+    .def( "__iter__", &py_ati_iter )
+	.def( "toEndBracket", &PyAxialTreeIterator::toEndBracket, (bp::arg("startingBeforePos")=false) )
+	;
 
 }

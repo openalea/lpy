@@ -52,11 +52,13 @@ LPY_API enum eDirection {
 /*---------------------------------------------------------------------------*/
 
 class LPY_API AxialTree {
-protected:
-  
-  typedef std::vector<ParamModule> ModuleList;
-
 public:
+  /// The type of element contained in the axialtree.
+  typedef ParamModule element_type;
+
+  /// The type of the module container
+  typedef std::vector<element_type> ModuleList;
+
   /// An iterator used to iterate through an AxialTree.
   typedef ModuleList::iterator iterator;
 
@@ -80,7 +82,7 @@ public:
   ~AxialTree();
   AxialTree& operator=(const AxialTree&);
   
-  static AxialTree QueryTree(const std::string&);
+  static AxialTree QueryTree(const std::string&, int lineno = -1);
 
 
   /// Returns an iterator at the beginning of \e self.
@@ -368,6 +370,9 @@ public:
 
     bool operator==(const AxialTree&) const;
     inline bool operator!=(const AxialTree& other) const { return !operator==(other); }
+
+	// Get the list of all variables used
+    std::vector<std::string> getVarNames() const;
 
 private:
 

@@ -95,13 +95,16 @@ def getSpecification():
     def lineprocess(l):
         if len(l) == 0: return ''
         parts = l.split(':',1)
-        assert len(parts) == 2
-        if '(' in parts[0]:
+        if len(parts) == 1:
+           return '<tr><td colspan=3 align="center"><H3>'+l+'</H3></td></tr>\n'
+        else:
+          assert len(parts) == 2
+          if '(' in parts[0]:
             nsplits = parts[0].split('(')
             modname =  '<td><b>'+nsplits[0]+'</b></td><td><b>'+nsplits[1].split(')')[0]+'</b></td>'
-        else:
+          else:
             modname =  '<td><b>'+parts[0]+'</b></td><td></td>'
-        return '<tr>'+modname+'<td>'+parts[1]+'</td></tr>\n'
+          return '<tr>'+modname+'<td>'+parts[1]+'</td></tr>\n'
     ht = helpTurtle()
     
     ht = '<table>'+''.join([lineprocess(l) for l in ht.split('\n')])+'</table>'
@@ -113,6 +116,7 @@ def getWikiSpecification():
     spec = getSpecification()
     spec = spec.replace('<b>',"''").replace('</b>',"''")
     spec = spec.replace('<i>',"//").replace('</i>',"//")
+    spec = spec.replace('<td colspan=3 align="center"><H3>',"|**__").replace('</H3></td>',"__**|||")
     spec = spec.replace('<td>',"|").replace('</td></tr>',"|").replace('</td>',"").replace('</tr>',"").replace('<tr>',"")
     spec = spec.replace('<H1>',"======").replace('</H1>',"======")
     spec = spec.replace('<H2>',"=====").replace('</H2>',"=====")

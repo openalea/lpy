@@ -35,14 +35,25 @@
 #include <plantgl/algo/modelling/pglturtle.h>
 
 LPY_BEGIN_NAMESPACE
+TOOLS_USING_NAMESPACE
+PGL_USING_NAMESPACE
+#define bp boost::python
 
 /*---------------------------------------------------------------------------*/
 
-PredefinedModuleClass::PredefinedModuleClass(const std::string& name, const std::string& doc):
-ModuleClass(name), documentation(doc) { PredefinedClasses->push_back(this); }
+PredefinedModuleClass::PredefinedModuleClass(const std::string& name, const std::string& doc, eCategory _category):
+ModuleClass(name), documentation(doc), category(_category) 
+{
+	if(category == ePatternMatching) onlyInPattern = true;
+	PredefinedClasses->push_back(this); 
+}
 
-PredefinedModuleClass::PredefinedModuleClass(const std::string& name, const std::string& alias, const std::string& doc):
-ModuleClass(name,alias), documentation(doc) { PredefinedClasses->push_back(this); }
+PredefinedModuleClass::PredefinedModuleClass(const std::string& name, const std::string& alias, const std::string& doc, eCategory _category):
+ModuleClass(name,alias), documentation(doc), category(_category) 
+{ 
+	if(category == ePatternMatching) onlyInPattern = true;
+	PredefinedClasses->push_back(this); 
+}
 
 PredefinedModuleClass::~PredefinedModuleClass() {}
 
@@ -50,28 +61,28 @@ PredefinedModuleClass::~PredefinedModuleClass() {}
 #define DeclaredModule(modname) modname##ModuleClass
 #define DeclareModuleEnd };
 
-#define DeclareModuleBegin(modname, doc) \
+#define DeclareModuleBegin(modname, doc, category) \
 class DeclaredModule(modname) : public PredefinedModuleClass  { \
 public: \
-	DeclaredModule(modname) (const std::string& name) :  PredefinedModuleClass(name,doc) { } \
-	DeclaredModule(modname) (const std::string& name, const std::string& alias) :  PredefinedModuleClass(name,alias,doc) { } \
+	DeclaredModule(modname) (const std::string& name) :  PredefinedModuleClass(name,doc,category) { } \
+	DeclaredModule(modname) (const std::string& name, const std::string& alias) :  PredefinedModuleClass(name,alias,doc,category) { } \
 	~DeclaredModule(modname)() {} \
 	void interpret(ParamModule& m, PGL::Turtle& t)
 
-#define DeclareSimpleModule(modname,doc) DeclareModuleBegin(modname,doc) { t.modname(); } DeclareModuleEnd
-#define DeclareModuleReal1(modname,doc) \
-	DeclareModuleBegin(modname,doc) {  \
+#define DeclareSimpleModule(modname,doc,category) DeclareModuleBegin(modname,doc,category) { t.modname(); } DeclareModuleEnd
+#define DeclareModuleReal1(modname,doc,category) \
+	DeclareModuleBegin(modname,doc,category) {  \
 		switch (m.argSize()) { \
 			case 0:  t.modname(); break; \
 			default:  t.modname(m._getReal(0)); break; } \
      } \
 	DeclareModuleEnd \
 
-DeclareSimpleModule(push,"Push the state in the stack.")
-DeclareSimpleModule(pop,"Pop last state from turtle stack and make it the its current state.")
+DeclareSimpleModule(push,"Push the state in the stack.",eStructure)
+DeclareSimpleModule(pop,"Pop last state from turtle stack and make it the its current state.",eStructure)
 
 
-DeclareModuleBegin(F, "Move forward and draw. Params: length , topradius.")
+DeclareModuleBegin(F, "Move forward and draw. Params: length , topradius.",ePrimitive)
 {
 	size_t nbargs = m.argSize();
 	switch (nbargs) {
@@ -82,7 +93,7 @@ DeclareModuleBegin(F, "Move forward and draw. Params: length , topradius.")
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(f, "Move forward and without draw. Params: length.")
+DeclareModuleBegin(f, "Move forward and without draw. Params: length.",ePrimitive)
 {
 	size_t nbargs = m.argSize();
 	switch (nbargs) {
@@ -92,32 +103,32 @@ DeclareModuleBegin(f, "Move forward and without draw. Params: length.")
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(GetPos,"Request position vector information. Params : x,y,z or v (optional, default=Vector3, filled by Turtle).")
+DeclareModuleBegin(GetPos,"Request position vector information. Params : x,y,z or v (optional, default=Vector3, filled by Turtle).",eRequest)
 { m._setValues(t.getPosition()); }
 DeclareModuleEnd
 
-DeclareModuleBegin(GetHead,"Request heading vector information. Params : x,y,z or v (optional, default=Vector3, filled by Turtle).")
+DeclareModuleBegin(GetHead,"Request heading vector information. Params : x,y,z or v (optional, default=Vector3, filled by Turtle).",eRequest)
 { m._setValues(t.getHeading()); }
 DeclareModuleEnd
 
-DeclareModuleBegin(GetUp,"Request up vector information. Params : x,y,z or v (optional, default=Vector3, filled by Turtle).")
+DeclareModuleBegin(GetUp,"Request up vector information. Params : x,y,z or v (optional, default=Vector3, filled by Turtle).",eRequest)
 { m._setValues(t.getUp()); }
 DeclareModuleEnd
 
-DeclareModuleBegin(GetLeft,"Request left vector information. Params : x,y,z or v (optional, default=Vector3, filled by Turtle).")
+DeclareModuleBegin(GetLeft,"Request left vector information. Params : x,y,z or v (optional, default=Vector3, filled by Turtle).",eRequest)
 { m._setValues(t.getLeft()); }
 DeclareModuleEnd
 
-DeclareModuleBegin(GetRight,"Request right vector information. Params : x,y,z or v (optional, default=Vector3, filled by Turtle).")
+DeclareModuleBegin(GetRight,"Request right vector information. Params : x,y,z or v (optional, default=Vector3, filled by Turtle).",eRequest)
 { m._setValues(-t.getLeft()); }
 DeclareModuleEnd
 
-DeclareSimpleModule(startGC, "Start a new generalized cylinder.")
-DeclareSimpleModule(stopGC,  "Pop generalized cylinder from the stack and render it.")
-DeclareSimpleModule(startPolygon,"Start a new polygon.")
-DeclareSimpleModule(stopPolygon,"Pop a polygon from the stack and render it.")
+DeclareSimpleModule(startGC, "Start a new generalized cylinder.",ePrimitive)
+DeclareSimpleModule(stopGC,  "Pop generalized cylinder from the stack and render it.",ePrimitive)
+DeclareSimpleModule(startPolygon,"Start a new polygon.",ePrimitive)
+DeclareSimpleModule(stopPolygon,"Pop a polygon from the stack and render it.",ePrimitive)
 
-DeclareModuleBegin(MoveTo,"Set the turtle position. Params : x, y, z (optionals, default = 0).")
+DeclareModuleBegin(MoveTo,"Set the turtle position. Params : x, y, z (optionals, default = 0).",ePosition)
 {
 	size_t nbargs = m.argSize();
 	switch (nbargs) {
@@ -129,7 +140,7 @@ DeclareModuleBegin(MoveTo,"Set the turtle position. Params : x, y, z (optionals,
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(SetHead,"Set the turtle Heading and Up vector. Params: hx, hy, hz, ux, uy, uz (optionals, default=0,0,1, 1,0,0).")
+DeclareModuleBegin(SetHead,"Set the turtle Heading and Up vector. Params: hx, hy, hz, ux, uy, uz (optionals, default=0,0,1, 1,0,0).",eRotation)
 {
 	size_t nbargs = m.argSize();
 	switch (nbargs) {
@@ -147,17 +158,17 @@ DeclareModuleBegin(SetHead,"Set the turtle Heading and Up vector. Params: hx, hy
 }
 DeclareModuleEnd
 
-DeclareModuleReal1(left,  "Turn left  around Up vector. Params : angle (optional, in degrees).")
-DeclareModuleReal1(right, "Turn right around Up vector. Params : angle (optional, in degrees).")
-DeclareModuleReal1(up,    "Pitch up around Left vector. Params : angle (optional, in degrees).")
-DeclareModuleReal1(down,  "Pitch down around Left vector. Params : angle (optional, in degrees).")
-DeclareModuleReal1(rollL, "Roll left  around Heading vector. Params : angle (optional, in degrees).")
-DeclareModuleReal1(rollR, "Roll right  around Heading vector. Params : angle (optional, in degrees).")
+DeclareModuleReal1(left,  "Turn left  around Up vector. Params : angle (optional, in degrees).",eRotation)
+DeclareModuleReal1(right, "Turn right around Up vector. Params : angle (optional, in degrees).",eRotation)
+DeclareModuleReal1(up,    "Pitch up around Left vector. Params : angle (optional, in degrees).",eRotation)
+DeclareModuleReal1(down,  "Pitch down around Left vector. Params : angle (optional, in degrees).",eRotation)
+DeclareModuleReal1(rollL, "Roll left  around Heading vector. Params : angle (optional, in degrees).",eRotation)
+DeclareModuleReal1(rollR, "Roll right  around Heading vector. Params : angle (optional, in degrees).",eRotation)
 
 #if PGL_VERSION >= 0x020501
-DeclareSimpleModule(turnAround, "Turn around 180deg the Up vector.")
+DeclareSimpleModule(turnAround, "Turn around 180deg the Up vector.",eRotation)
 #else
-DeclareModuleBegin(turnAround)
+DeclareModuleBegin(turnAround,eRotation)
 { t.left(180); }
 DeclareModuleEnd
 
@@ -168,81 +179,81 @@ DeclareModuleEnd
 #endif
 #endif
 
-DeclareSimpleModule(rollToVert, "Roll to Vertical : Roll the turtle around the H axis so that H and U lie in a common vertical plane with U closest to up")
-DeclareModuleReal1(sphere,"Draw a sphere. Params : radius (optional, should be positive, default = line width).")
-DeclareModuleReal1(circle,"Draw a circle. Params : radius (optional, should be positive, default = line width).")
+DeclareSimpleModule(rollToVert, "Roll to Vertical : Roll the turtle around the H axis so that H and U lie in a common vertical plane with U closest to up",eRotation)
+DeclareModuleReal1(sphere,"Draw a sphere. Params : radius (optional, should be positive, default = line width).",ePrimitive)
+DeclareModuleReal1(circle,"Draw a circle. Params : radius (optional, should be positive, default = line width).",ePrimitive)
 
-DeclareModuleBegin(label,"Draw a text label.")
+DeclareModuleBegin(label,"Draw a text label.",ePrimitive)
 {
 	if(!m.hasArg())LsysWarning("Argument missing for module "+m.name());
 	else t.label(m._getString(0));
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(incWidth,"Increase the current line width or set it if a parameter is given. Params : line width (optional).")
+DeclareModuleBegin(incWidth,"Increase the current line width or set it if a parameter is given. Params : line width (optional).",eWidth)
 {
 	if (!m.hasArg())t.incWidth();
 	else t.setWidth(m._getReal(0));
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(decWidth,"Decrease the current line width or set it if a parameter is given. Params : line width (optional).")
+DeclareModuleBegin(decWidth,"Decrease the current line width or set it if a parameter is given. Params : line width (optional).",eWidth)
 {
 	if (!m.hasArg())t.decWidth();
 	else t.setWidth(m._getReal(0));
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(setWidth,"Set current line width. Params : line width.")
+DeclareModuleBegin(setWidth,"Set current line width. Params : line width.",eWidth)
 {
 	if(!m.hasArg())LsysWarning("Argument missing for module "+m.name());
 	else t.setWidth(m._getReal(0));
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(incColor,"Increase the current material index or set it if a parameter is given. Params : color index (optional, positive int).")
+DeclareModuleBegin(incColor,"Increase the current material index or set it if a parameter is given. Params : color index (optional, positive int).",eColor)
 {
 	if (!m.hasArg())t.incColor();
 	else t.setColor(m._getInt(0));
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(decColor,"Decrease the current material index or set it if a parameter is given. Params : color index (optional, positive int).")
+DeclareModuleBegin(decColor,"Decrease the current material index or set it if a parameter is given. Params : color index (optional, positive int).",eColor)
 {
 	if (!m.hasArg())t.decColor();
 	else t.setColor(m._getInt(0));
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(setColor,"Set the current material index. Params : color index (positive int).")
+DeclareModuleBegin(setColor,"Set the current material index. Params : color index (positive int).",eColor)
 {
 	if(!m.hasArg())LsysWarning("Argument missing for module "+m.name());
 	else t.setColor(m._getInt(0));
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(divScale,"Divides the current turtle scale by a scale factor, Params : scale factor (optional, default = 1.0).")
+DeclareModuleBegin(divScale,"Divides the current turtle scale by a scale factor, Params : scale factor (optional, default = 1.0).",eScale)
 {
 	if (!m.hasArg())t.divScale();
 	else t.divScale(m._getReal(0));
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(multScale,"Multiplies the current turtle scale by a scale factor, Params : scale factor (optional, default = 1.0).")
+DeclareModuleBegin(multScale,"Multiplies the current turtle scale by a scale factor, Params : scale factor (optional, default = 1.0).",eScale)
 {
 	if (!m.hasArg())t.multScale();
 	else t.multScale(m._getReal(0));
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(scale,"Set the current turtle scale, Params : scale (optional, default = 1.0).")
+DeclareModuleBegin(scale,"Set the current turtle scale, Params : scale (optional, default = 1.0).",eScale)
 {
 	if (!m.hasArg())t.scale();
 	else t.scale(m._getReal(0));
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(surface,"Draw the predefined surface at the turtle's current location and orientation. Params : surface name (by default, 'l' exists), scale factor (optional, default= 1.0, should be positive).")
+DeclareModuleBegin(surface,"Draw the predefined surface at the turtle's current location and orientation. Params : surface name (by default, 'l' exists), scale factor (optional, default= 1.0, should be positive).",ePrimitive)
 {
 	size_t nbargs = m.argSize();
 	switch (nbargs) {
@@ -253,7 +264,7 @@ DeclareModuleBegin(surface,"Draw the predefined surface at the turtle's current 
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(pglshape,"Draw a geometry at the turtle's current location and orientation. Params : a geometric model, a scale factor (optional, should be positive).")
+DeclareModuleBegin(pglshape,"Draw a geometry at the turtle's current location and orientation. Params : a geometric model, a scale factor (optional, should be positive).",ePrimitive)
 {
 	if(!m.hasArg())LsysWarning("Argument missing for module "+m.name());
 	else {
@@ -278,53 +289,65 @@ DeclareModuleBegin(pglshape,"Draw a geometry at the turtle's current location an
 DeclareModuleEnd
 
 
+DeclareModuleBegin(elasticity,"Set Branch Elasticity. Params : real value (optional, default= 0.0, should be between [0,1]).",eTropism)
+{
+	size_t nbargs = m.argSize();
+	switch (nbargs) {
+		case 1:  {
+				real_t val = m._getReal(0);
+				if (val < 0 || val > 1) LsysWarning("Invalid elasticity value");
+				else t.setElasticity(val); 
+				 }
+			break;
+		default: t.setElasticity(); break;
+	}
+}
+DeclareModuleEnd
+
+DeclareModuleBegin(tropism,"Set Tropism. Params : Vector3 (optional, default= (1,0,0)).",eTropism)
+{
+	size_t nbargs = m.argSize();
+	switch (nbargs) {
+		case 0: t.setTropism(); break;
+		case 1:{
+			bp::extract<Vector3> ex (m.getAt(0));
+			if (ex.check()) t.setTropism(ex()); 
+			else t.setTropism(m._getReal(0));
+			   }
+			break;
+		case 2:{
+			bp::extract<Vector2> ex (m.getAt(0));
+			if (ex.check()) t.setTropism(Vector3(ex(),0)); 
+			else t.setTropism(m._getReal(0),m._getReal(1));	
+			   }
+			break;
+		case 3:
+		default:
+			t.setTropism(m._getReal(0),m._getReal(1),m._getReal(2)); 
+			break;
+	}
+}
+DeclareModuleEnd
+
+DeclareModuleBegin(setcontour,"Set Cross Section of Generalized Cylinder. Params : Curve2D.",ePrimitive)
+{
+	size_t nbargs = m.argSize();
+	switch (nbargs) {
+		case 0: LsysWarning("missing argument to SetContour"); break;
+		default:
+			t.setCrossSection(bp::extract<Curve2DPtr>(m.getAt(0))()); 
+			break;
+	}
+}
+DeclareModuleEnd
 /*---------------------------------------------------------------------------*/
 
 std::vector<ModuleClassPtr> * ModuleClass::PredefinedClasses = NULL;
 
-ModuleClassPtr ModuleClass::None;
-ModuleClassPtr ModuleClass::LeftBracket;
-ModuleClassPtr ModuleClass::RightBracket;
-ModuleClassPtr ModuleClass::ExactRightBracket;
-ModuleClassPtr ModuleClass::F;
-ModuleClassPtr ModuleClass::f;
-ModuleClassPtr ModuleClass::X;
-ModuleClassPtr ModuleClass::Cut;
-ModuleClassPtr ModuleClass::Star;
-ModuleClassPtr ModuleClass::QueryPosition;
-ModuleClassPtr ModuleClass::QueryHeading;
-ModuleClassPtr ModuleClass::QueryUp;
-ModuleClassPtr ModuleClass::QueryLeft;
-ModuleClassPtr ModuleClass::QueryRigth;
-ModuleClassPtr ModuleClass::StartGC;
-ModuleClassPtr ModuleClass::EndGC;
-ModuleClassPtr ModuleClass::StartPolygon;
-ModuleClassPtr ModuleClass::EndPolygon;
-ModuleClassPtr ModuleClass::SetPosition;
-ModuleClassPtr ModuleClass::SetHeading;
-ModuleClassPtr ModuleClass::Left;
-ModuleClassPtr ModuleClass::Right;
-ModuleClassPtr ModuleClass::Up;
-ModuleClassPtr ModuleClass::Down;
-ModuleClassPtr ModuleClass::RollL;
-ModuleClassPtr ModuleClass::RollR;
-ModuleClassPtr ModuleClass::TurnAround;
-ModuleClassPtr ModuleClass::RollToVert;
-ModuleClassPtr ModuleClass::Sphere;
-ModuleClassPtr ModuleClass::Circle;
-ModuleClassPtr ModuleClass::Label;
-ModuleClassPtr ModuleClass::IncWidth;
-ModuleClassPtr ModuleClass::DecWidth;
-ModuleClassPtr ModuleClass::SetWidth;
-ModuleClassPtr ModuleClass::IncColor;
-ModuleClassPtr ModuleClass::DecColor;
-ModuleClassPtr ModuleClass::SetColor;
-ModuleClassPtr ModuleClass::DivScale;
-ModuleClassPtr ModuleClass::MultScale;
-ModuleClassPtr ModuleClass::SetScale;
-ModuleClassPtr ModuleClass::Surface;
-ModuleClassPtr ModuleClass::CpfgSurface;
-ModuleClassPtr ModuleClass::PglShape;
+#define CORE_DEC_PM(MName) ModuleClassPtr ModuleClass::MName;
+
+PREDEFINED_MODULE_APPLY(CORE_DEC_PM)
+
 
 std::vector<ModuleClassPtr>& ModuleClass::getPredefinedClasses()
 {
@@ -339,12 +362,15 @@ void ModuleClass::createPredefinedClasses() {
 	None = new PredefinedModuleClass("","None Module.");
 	LeftBracket = new DeclaredModule(push)("[","SB");
 	RightBracket = new DeclaredModule(pop)("]","EB");
-	ExactRightBracket = new DeclaredModule(pop)("=]");
+	// ExactRightBracket = new DeclaredModule(pop)("=]");
+	ExactRightBracket = new PredefinedModuleClass("=]","Match exactly a closing bracket",PredefinedModuleClass::ePatternMatching);
 	F = new DeclaredModule(F)("F");
 	f = new DeclaredModule(f)("f");
-	X = new PredefinedModuleClass("X","MouseIns","Module inserted just before module selected by user in visualisation."); 
-	Cut = new PredefinedModuleClass("%","Cut","Cut the remainder of the current branch in the string.");
-	Star = new PredefinedModuleClass("*","Used to specify Null production (produce *) or matching of any module in rules predecessor.");
+	X = new PredefinedModuleClass("X","MouseIns","Module inserted just before module selected by user in visualisation.",PredefinedModuleClass::eStringManipulation); 
+	Cut = new PredefinedModuleClass("%","Cut","Cut the remainder of the current branch in the string.",PredefinedModuleClass::eStringManipulation);
+	Star = new PredefinedModuleClass("*","Used to specify Null production (produce *) or matching of any module in rules predecessor.",PredefinedModuleClass::ePatternMatching);
+	RepExp = new PredefinedModuleClass("x","repexp","Used to specify matching of a repetition of modules in rules right context.",PredefinedModuleClass::ePatternMatching);
+	RepExp->aliases.push_back("all");
 	QueryPosition = new DeclaredModule(GetPos)("?P","GetPos");
 	QueryHeading = new DeclaredModule(GetHead)("?H","GetHead");
 	QueryUp = new DeclaredModule(GetUp)("?U","GetUp");
@@ -379,7 +405,14 @@ void ModuleClass::createPredefinedClasses() {
 	Surface = new DeclaredModule(surface)("surface");
 	CpfgSurface = new DeclaredModule(surface)("~");
 	PglShape = new DeclaredModule(pglshape)("@g","PglShape");
+	Elasticity = new DeclaredModule(elasticity)("@Ts","Elasticity");
+	Tropism = new DeclaredModule(tropism)("@Tp","Tropism");
+	SetContour = new DeclaredModule(setcontour)("SetContour");
+	GetIterator = new PredefinedModuleClass("?I","GetIterator","Request an iterator over the current Lstring.",PredefinedModuleClass::ePatternMatching);
+	New = new PredefinedModuleClass("new","newmodule","Create a new module whose class is given by first argument",PredefinedModuleClass::eStringManipulation);
 }
+
+#define CLEAR_PM(MName) ModuleClass::MName = NULL;
 
 void ModuleClass::clearPredefinedClasses()
 {
@@ -387,49 +420,7 @@ void ModuleClass::clearPredefinedClasses()
 		ModuleClass::PredefinedClasses->clear();
 		delete ModuleClass::PredefinedClasses;
 		ModuleClass::PredefinedClasses = NULL;
-		ModuleClass::PglShape = NULL;
-		ModuleClass::CpfgSurface = NULL;
-		ModuleClass::Surface = NULL;
-		ModuleClass::SetScale = NULL;
-		ModuleClass::MultScale = NULL;
-		ModuleClass::DivScale = NULL;
-		ModuleClass::SetColor = NULL;
-		ModuleClass::DecColor = NULL;
-		ModuleClass::IncColor = NULL;
-		ModuleClass::SetWidth = NULL;
-		ModuleClass::DecWidth = NULL;
-		ModuleClass::IncWidth = NULL;
-		ModuleClass::Label = NULL;
-		ModuleClass::Circle = NULL;
-		ModuleClass::Sphere = NULL;
-		ModuleClass::RollToVert = NULL;
-		ModuleClass::TurnAround = NULL;
-		ModuleClass::RollR = NULL;
-		ModuleClass::RollL = NULL;
-		ModuleClass::Down = NULL;
-		ModuleClass::Up = NULL;
-		ModuleClass::Right = NULL;
-		ModuleClass::Left = NULL;
-		ModuleClass::SetHeading = NULL;
-		ModuleClass::SetPosition = NULL;
-		ModuleClass::EndPolygon = NULL;
-		ModuleClass::StartPolygon = NULL;
-		ModuleClass::EndGC = NULL;
-		ModuleClass::StartGC = NULL;
-		ModuleClass::QueryRigth = NULL;
-		ModuleClass::QueryLeft = NULL;
-		ModuleClass::QueryUp = NULL;
-		ModuleClass::QueryHeading = NULL;
-		ModuleClass::QueryPosition = NULL;
-		ModuleClass::Star = NULL;
-		ModuleClass::Cut = NULL;
-		ModuleClass::X = NULL;
-		ModuleClass::f = NULL;
-		ModuleClass::F = NULL;
-		ModuleClass::ExactRightBracket = NULL;
-		ModuleClass::RightBracket = NULL;
-		ModuleClass::LeftBracket = NULL;
-		ModuleClass::None = NULL;
+		PREDEFINED_MODULE_APPLY(CLEAR_PM)
 	}
 }
 

@@ -71,13 +71,23 @@ std::string LPY::helpTurtle(const std::string& command){
 
 /*---------------------------------------------------------------------------*/
 
+inline bool cmp_modclass(const ModuleClassPtr& a, const ModuleClassPtr& b)
+{  return static_pointer_cast<PredefinedModuleClass>(a)->getCategory() < static_pointer_cast<PredefinedModuleClass>(b)->getCategory(); }
+
 std::string LPY::helpTurtle() { 
     std::stringstream stream;
-	for(ModuleClassList::const_iterator it = ModuleClass::getPredefinedClasses().begin();
-		it != ModuleClass::getPredefinedClasses().end(); ++it) 
+	ModuleClassList pf = ModuleClass::getPredefinedClasses();
+	stable_sort(pf.begin(),pf.end(),cmp_modclass);
+	PredefinedModuleClass::eCategory pcat = PredefinedModuleClass::eNone;
+	for(ModuleClassList::const_iterator it = pf.begin(); it != pf.end(); ++it) 
 	{
 	  const ModuleClassPtr& m = *it;
 	  if (m == ModuleClass::None) continue;
+	  PredefinedModuleClass::eCategory ccat = static_pointer_cast<PredefinedModuleClass>(m)->getCategory();
+	  if(ccat != pcat){
+		  stream << PredefinedModuleClass::getCategoryName(ccat) << std::endl;
+		  pcat = ccat;
+	  }
 	  stream << m->name;
 	  if (!m->aliases.empty()){
 		  stream << " ( ";

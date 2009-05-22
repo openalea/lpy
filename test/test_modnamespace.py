@@ -97,6 +97,14 @@ def test_nodeclaration_withgloballydeclaredmodule():
     assert failed and "Mandatory module declaration do not work"
     #lc.done()
  
+def test_alias_declared():
+    """ Test name of module originally declared as alias """
+    a = AxialTree('GetUp')
+    assert len(a) == 1
+    a = AxialTree('RepExp')
+    assert len(a) == 1 and a == AxialTree('x')
+
+
 def test_scale_declaration():
     """ Test if we had a scale property declaration to a class """
     a = AxialTree('T')

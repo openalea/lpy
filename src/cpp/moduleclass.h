@@ -49,6 +49,58 @@ class ModuleClass;
 typedef RCPtr<ModuleClass> ModuleClassPtr;
 typedef std::vector<ModuleClassPtr> ModuleClassList;
 
+#define PREDEFINED_MODULE_APPLY(MACRO) \
+	MACRO(None) \
+	MACRO(LeftBracket) \
+	MACRO(RightBracket) \
+	MACRO(ExactRightBracket) \
+	MACRO(Cut) \
+	MACRO(Star) \
+	MACRO(RepExp) \
+	MACRO(QueryPosition) \
+	MACRO(QueryHeading) \
+	MACRO(QueryUp) \
+	MACRO(QueryLeft) \
+	MACRO(QueryRigth) \
+	MACRO(F) \
+	MACRO(f) \
+	MACRO(X) \
+	MACRO(StartGC) \
+	MACRO(EndGC) \
+	MACRO(StartPolygon) \
+	MACRO(EndPolygon) \
+	MACRO(SetPosition) \
+	MACRO(SetHeading) \
+	MACRO(Left) \
+	MACRO(Right) \
+	MACRO(Up) \
+	MACRO(Down) \
+	MACRO(RollL) \
+	MACRO(RollR) \
+	MACRO(TurnAround) \
+	MACRO(RollToVert) \
+	MACRO(Sphere) \
+	MACRO(Circle) \
+	MACRO(Label) \
+	MACRO(IncWidth) \
+	MACRO(DecWidth) \
+	MACRO(SetWidth) \
+	MACRO(IncColor) \
+	MACRO(DecColor) \
+	MACRO(SetColor) \
+	MACRO(DivScale) \
+	MACRO(MultScale) \
+	MACRO(SetScale) \
+	MACRO(Surface) \
+	MACRO(CpfgSurface) \
+	MACRO(PglShape) \
+	MACRO(Elasticity) \
+	MACRO(Tropism) \
+	MACRO(SetContour) \
+	MACRO(GetIterator) \
+	MACRO(New) \
+
+#define DECLARE_PM(MName) static ModuleClassPtr MName;
 
 class LPY_API ModuleClass : public TOOLS(RefCountObject) {
 public:
@@ -80,49 +132,7 @@ public:
 	static void clearPredefinedClasses();
 	static void createPredefinedClasses();
 
-	static ModuleClassPtr None;
-	static ModuleClassPtr LeftBracket;
-	static ModuleClassPtr RightBracket;
-	static ModuleClassPtr ExactRightBracket;
-	static ModuleClassPtr Cut;
-	static ModuleClassPtr Star;
-	static ModuleClassPtr QueryPosition;
-	static ModuleClassPtr QueryHeading;
-	static ModuleClassPtr QueryUp;
-	static ModuleClassPtr QueryLeft;
-	static ModuleClassPtr QueryRigth;
-	static ModuleClassPtr F;
-	static ModuleClassPtr f;
-	static ModuleClassPtr X;
-	static ModuleClassPtr StartGC;
-	static ModuleClassPtr EndGC;
-	static ModuleClassPtr StartPolygon;
-	static ModuleClassPtr EndPolygon;
-	static ModuleClassPtr SetPosition;
-	static ModuleClassPtr SetHeading;
-	static ModuleClassPtr Left;
-	static ModuleClassPtr Right;
-	static ModuleClassPtr Up;
-	static ModuleClassPtr Down;
-	static ModuleClassPtr RollL;
-	static ModuleClassPtr RollR;
-	static ModuleClassPtr TurnAround;
-	static ModuleClassPtr RollToVert;
-	static ModuleClassPtr Sphere;
-	static ModuleClassPtr Circle;
-	static ModuleClassPtr Label;
-	static ModuleClassPtr IncWidth;
-	static ModuleClassPtr DecWidth;
-	static ModuleClassPtr SetWidth;
-	static ModuleClassPtr IncColor;
-	static ModuleClassPtr DecColor;
-	static ModuleClassPtr SetColor;
-	static ModuleClassPtr DivScale;
-	static ModuleClassPtr MultScale;
-	static ModuleClassPtr SetScale;
-	static ModuleClassPtr Surface;
-	static ModuleClassPtr CpfgSurface;
-	static ModuleClassPtr PglShape;
+    PREDEFINED_MODULE_APPLY(DECLARE_PM)
 
 	inline int getScale() const 
 	{ if (__vtable) return __vtable->scale; 
@@ -135,12 +145,15 @@ public:
 
 	void setProperty(ModulePropertyPtr prop);
 	bool removeProperty(const std::string& name);
+	bool isOnlyInPattern() const { return onlyInPattern; }
 
 protected:
 	static ModuleClassList * PredefinedClasses;
+	bool onlyInPattern;
 private:
 	size_t id;
 	bool active;
+
 	static size_t MAXID;
 
 	ModuleVTablePtr __vtable;
@@ -149,13 +162,42 @@ private:
 };
 
 class LPY_API PredefinedModuleClass : public ModuleClass {
+    static const char * CATEGORY_NAME[];
 public:
-	PredefinedModuleClass(const std::string& name, const std::string& documentation);
-	PredefinedModuleClass(const std::string& name, const std::string& alias, const std::string& documentation);
+	enum eCategory {
+		eNone = 0,
+		eStructure,
+		eRotation,
+		ePosition,
+		eScale,
+		ePrimitive,
+		eWidth,
+		eColor,
+	    eTropism,
+		eRequest,
+		eStringManipulation,
+		ePatternMatching,
+		eUserDefined,
+		eLastCategory = eUserDefined
+	} ;
+	static std::string getCategoryName(eCategory);
+
+	PredefinedModuleClass(const std::string& name, 
+						  const std::string& documentation,
+						  eCategory category = eNone);
+
+	PredefinedModuleClass(const std::string& name, 
+						  const std::string& alias, 
+						  const std::string& documentation,
+						  eCategory category = eNone);
+
 	~PredefinedModuleClass();
 	bool isPredefined() const { return true; }
-	std::string documentation;
 	std::string getDocumentation() const { return documentation; }
+	eCategory getCategory() const { return category; }
+	std::string documentation;
+	eCategory category;
+
 };
 
 
@@ -172,8 +214,12 @@ public:
 	bool declare(ModuleClass * moduleclass);
 
 	ModuleClassPtr alias(const std::string& aliasname, const std::string& name);
+	void alias(const std::string& aliasname, ModuleClassPtr module);
+	/// get a class. If it does not exist, create it
 	ModuleClassPtr getClass(const std::string&) ;
-	ModuleClassPtr getClass(size_t id) const ;
+	/// find an existing class
+	ModuleClassPtr findClass(size_t id) const ;
+	/// find an existing class
 	ModuleClassPtr findClass(const std::string&) const ;
 
 	bool remove(const std::string& name);
@@ -188,7 +234,8 @@ public:
 	static void setMandatoryDeclaration(bool value) { get().mandatory_declaration = value; }
 	bool mandatory_declaration;
 
-	ModuleClassPtr find(std::string::const_iterator beg, std::string::const_iterator end);
+	ModuleClassPtr find(std::string::const_iterator beg, std::string::const_iterator end,
+					    size_t& nsize);
 
 protected:
 

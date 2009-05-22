@@ -166,6 +166,10 @@ public:
   bool isSelectionRequired() const;
   void setSelectionRequired(bool enabled);
 
+  /// Specify whether a warning should be made if found sharp module
+  inline bool warnWithSharpModule() const { return __warn_with_sharp_module; }
+  void setWarnWithSharpModule(bool);
+
   /** Turtles and interpretation structures */
   PGL(PglTurtle) turtle;
   PGL(Turtle)    envturtle;
@@ -181,6 +185,7 @@ public:
   bool isDeclared(const std::string& module);
   bool isDeclared(ModuleClassPtr module);
   ModuleClassList declaredModules() const { return __modules; }
+  void declareAlias(const std::string& aliasName, ModuleClassPtr module);
 
   void setModuleScale(const std::string& modules, int scale);
 
@@ -221,6 +226,9 @@ protected:
   ModuleClassList __modules;
   ModuleVTableList __modulesvtables;
 
+  typedef pgl_hash_map_string<ModuleClassPtr> AliasSet;
+  AliasSet __aliases;
+
   /// next iteration control
   eDirection __direction;
   size_t __group;
@@ -229,6 +237,9 @@ protected:
 
   /// selection required property
   bool __selection_required;
+
+  /// Warn if found sharp module
+  bool __warn_with_sharp_module;
 
   /// animation step property and its mutex
   double __animation_step;

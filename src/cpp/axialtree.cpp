@@ -159,13 +159,13 @@ void AxialTree::clear()
 #endif
 
 AxialTree 
-AxialTree::QueryTree(const std::string& s){
+AxialTree::QueryTree(const std::string& s, int lineno){
   AxialTree a;
-  std::vector<std::pair<size_t,std::string> > parsedstring = LpyParsing::parselstring(s);
+  std::vector<std::pair<size_t,std::string> > parsedstring = LpyParsing::parselstring(s,lineno);
   a.__string().reserve(parsedstring.size());
   for(std::vector<std::pair<size_t,std::string> >::const_iterator it = parsedstring.begin();
 	  it != parsedstring.end(); ++it){
-		a.__string().push_back(ParamModule::QueryModule(it->first,it->second));
+		a.__string().push_back(ParamModule::QueryModule(it->first,it->second,lineno));
   }
   return a;
 }
@@ -778,5 +778,16 @@ AxialTree::leftfind(const AxialTree& a,
   else return _it;
 }
 
+
+// Get the list of all variables used
+std::vector<std::string> AxialTree::getVarNames() const
+{
+  std::vector<std::string> res;
+  for(const_iterator _it = begin(); _it !=end(); ++_it){
+	std::vector<std::string> modvar = _it->getVarNames();
+	res.insert(res.end(),modvar.begin(),modvar.end());
+  }
+  return res;
+}
 
 LPY_END_NAMESPACE

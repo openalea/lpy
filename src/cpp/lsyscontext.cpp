@@ -173,6 +173,8 @@ void LsysContext::currentEvent()
 		(*it)->activate();
 	for(ModuleVTableList::const_iterator it = __modulesvtables.begin(); it != __modulesvtables.end(); ++it)
 		(*it)->activate();
+	for(AliasSet::const_iterator it = __aliases.begin(); it != __aliases.end(); ++it)
+	    { ModuleClassTable::get().alias(it->first,it->second); }
 }
 
 void LsysContext::doneEvent()
@@ -181,7 +183,8 @@ void LsysContext::doneEvent()
 		(*it)->desactivate();
 	for(ModuleVTableList::const_iterator it = __modulesvtables.begin(); it != __modulesvtables.end(); ++it)
 		(*it)->desactivate();
-		// ModuleClassTable::get().remove(*it);
+	for(AliasSet::const_iterator it = __aliases.begin(); it != __aliases.end(); ++it)
+	    { ModuleClassTable::get().remove(it->first); }
 }
 
 void LsysContext::pushedEvent(LsysContext * newEvent)
@@ -201,6 +204,7 @@ __ignore_method(true),
 __direction(eForward),
 __group(0),
 __selection_required(false),
+__warn_with_sharp_module(true),
 __animation_step(DefaultAnimationTimeStep),
 __iteration_nb(0),
 __nbargs_of_endeach(0)
@@ -216,6 +220,7 @@ LsysContext::LsysContext(const LsysContext& lsys):
   __group(lsys.__group),
   __nproduction(lsys.__nproduction),
   __selection_required(lsys.__selection_required),
+  __warn_with_sharp_module(lsys.__warn_with_sharp_module),
   __animation_step(lsys.__animation_step),
   __iteration_nb(0),
   __nbargs_of_endeach(0)
@@ -233,6 +238,7 @@ LsysContext::operator=(const LsysContext& lsys)
   __group = lsys.__group;
   __nproduction = lsys.__nproduction;
   __selection_required = lsys.__selection_required;
+  __warn_with_sharp_module = lsys.__warn_with_sharp_module;
   __animation_step =lsys.__animation_step;
   __nbargs_of_endeach =lsys.__nbargs_of_endeach;
   return *this;
@@ -251,6 +257,11 @@ void LsysContext::init_options()
 	option->addValue("Disabled",this,&LsysContext::setSelectionRequired,false,"Disable Selection Check.");
 	option->addValue("Enabled",this,&LsysContext::setSelectionRequired,true,"Enable Selection Check.");
 	option->setDefault(0);
+	/** Warning with sharp module option */
+	option = options.add("Warning with sharp module","Set whether a warning is made when sharp symbol is met when parsing (compatibility with cpfg).","Parsing");
+	option->addValue("Disabled",this,&LsysContext::setWarnWithSharpModule,false,"Disable Warning.");
+	option->addValue("Enabled",this,&LsysContext::setWarnWithSharpModule,true,"Enable Warning.");
+	option->setDefault(0);	
 	/** module matching option */
 	option = options.add("Module matching","Specify the way modules are matched to rules pattern","Matching");
 	option->addValue("Simple",&MatchingEngine::setModuleMatchingMethod,MatchingEngine::eMSimple,"Simple module matching : Same name and same number of arguments . '*' module allowed.");
@@ -276,6 +287,7 @@ void LsysContext::init_options()
 
 void 
 LsysContext::clear(){
+  // if(isCurrent())done();
   __keyword.clear();
   __ignore_method = true;
   __direction = eForward;
@@ -284,6 +296,8 @@ LsysContext::clear(){
   __iteration_nb = 0;
   __nbargs_of_endeach = 0;
   __modules.clear();
+  __modulesvtables.clear();
+  __aliases.clear();
   clearNamespace();
 }
 
@@ -371,13 +385,17 @@ LsysContext::keyword() const{
 void 
 LsysContext::declare(const std::string& modules)
 {
-	std::vector<std::string> moduleclasses = LpyParsing::parse_modlist(modules);
+	LpyParsing::ModDeclarationList moduleclasses = LpyParsing::parse_modlist(modules);
 	bool iscurrent = isCurrent();
-	for(std::vector<std::string>::const_iterator it = moduleclasses.begin();
+	for(LpyParsing::ModDeclarationList::const_iterator it = moduleclasses.begin();
 		it != moduleclasses.end(); ++it)
 	{
-		ModuleClassPtr mod = ModuleClassTable::get().declare(*it);
-		__modules.push_back(mod);
+		ModuleClassPtr mod;
+		if(it->second.empty()){
+			mod = ModuleClassTable::get().declare(it->first);
+			__modules.push_back(mod);
+		}
+		else mod = ModuleClassTable::get().alias(it->first,it->second);
 		mod->activate(iscurrent);
 	}
 }
@@ -394,12 +412,12 @@ void LPY::declare(const std::string& modules)
 void 
 LsysContext::undeclare(const std::string& modules)
 {
-	std::vector<std::string> moduleclasses = LpyParsing::parse_modlist(modules);
+	LpyParsing::ModDeclarationList moduleclasses = LpyParsing::parse_modlist(modules,false);
 	bool iscurrent = isCurrent();
-	for(std::vector<std::string>::const_iterator it = moduleclasses.begin();
+	for(LpyParsing::ModDeclarationList::const_iterator it = moduleclasses.begin();
 		it != moduleclasses.end(); ++it)
 	{
-		ModuleClassPtr mod = ModuleClassTable::get().getClass(*it);
+		ModuleClassPtr mod = ModuleClassTable::get().getClass(it->first);
 		undeclare(mod);
 	}
 }
@@ -420,6 +438,7 @@ LsysContext::undeclare(ModuleClassPtr module)
 		 }
 }
 
+
 void LPY::undeclare(const std::string& modules)
 { LsysContext::currentContext()->undeclare(modules); }
 
@@ -439,15 +458,18 @@ bool LsysContext::isDeclared(ModuleClassPtr module)
 void LPY::isDeclared(const std::string& module)
 { LsysContext::currentContext()->isDeclared(module); }
 
+void LsysContext::declareAlias(const std::string& alias, ModuleClassPtr module)
+{ __aliases[alias] = module; }
+
 void LsysContext::setModuleScale(const std::string& modules, int scale)
 {
-	std::vector<std::string> moduleclasses = LpyParsing::parse_modlist(modules);
+	LpyParsing::ModDeclarationList moduleclasses = LpyParsing::parse_modlist(modules,false);
 	if (moduleclasses.size() > 0){
 		ContextMaintainer cm(this);
-		for(std::vector<std::string>::const_iterator it = moduleclasses.begin();
+		for(LpyParsing::ModDeclarationList::const_iterator it = moduleclasses.begin();
 			it != moduleclasses.end(); ++it)
 		{
-			ModuleClassPtr mod = ModuleClassTable::get().getClass(*it);
+			ModuleClassPtr mod = ModuleClassTable::get().getClass(it->first);
 			if(mod)mod->setScale(scale);
 		}
 	}
@@ -779,6 +801,17 @@ LPY::setSelectionRequired(bool enabled)
 bool 
 LPY::isSelectionRequired()
 { return LsysContext::currentContext()->isSelectionRequired(); }
+
+/*---------------------------------------------------------------------------*/
+
+void 
+LsysContext::setWarnWithSharpModule(bool enabled)
+{ 
+	if (__warn_with_sharp_module != enabled){
+		__warn_with_sharp_module = enabled; 
+		options.setSelection("Warning with sharp module",(size_t)__warn_with_sharp_module);
+	}
+}
 
 /*---------------------------------------------------------------------------*/
 

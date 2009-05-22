@@ -36,6 +36,7 @@
 #include <sstream>
 using namespace boost::python;
 LPY_USING_NAMESPACE
+#define bp boost::python
 
 /*---------------------------------------------------------------------------*/
 
@@ -273,6 +274,16 @@ void LsysRule::__precall_function( size_t nbargs ) const
       LsysError(res.str());
     }
 }
+void LsysRule::__precall_function( size_t nbargs, const bp::object& args ) const
+{
+  LsysContext::currentContext()->reset_nproduction();
+  if (nbargs != __formalparameters.size()) {
+      std::stringstream res;
+      res << name() << " takes exactly " << __formalparameters.size() << " argument(s) (" << nbargs << " given).\n"
+		  << bp::extract<std::string>(bp::str(args))();
+      LsysError(res.str());
+    }
+}
 
 /*
 boost::python::object LsysRule::__call_function( const boost::python::tuple& arglist)
@@ -332,7 +343,7 @@ LsysRule::apply( const list& args ) const
   // if (!compiled())compile();
   if (!compiled()) LsysError("Python code of rule not compiled");
   size_t argsize = len(args);
-  __precall_function(argsize);
+  __precall_function(argsize,args);
   return  __postcall_function(argsize?__function(args):__function()); 
   // return  __postcall_function(argsize?__call_function(list2tuple(args)):__function()); 
 }
@@ -342,7 +353,7 @@ LsysRule::apply( const tuple& args ) const
 { 
   if (!compiled()) LsysError("Python code of rule not compiled");
   size_t argsize = len(args);
-  __precall_function(argsize);
+  __precall_function(argsize,args);
   return  __postcall_function(argsize?__function(args):__function()); 
   // return  __postcall_function(argsize?__call_function(args):__function()); 
 }
@@ -355,67 +366,39 @@ LsysRule::apply( ) const
   return __postcall_function(__function()); 
 }
 
+template<class T>
+inline void extend_vec(T& v, const T& v2) { v.insert(v.end(),v2.begin(),v2.end()); }
 
 void 
 LsysRule::parseParameters(){
   __formalparameters.clear();
-  if(!__leftcontext.empty()){
-	for(AxialTree::const_iterator _it = __leftcontext.begin(); 
-	_it !=__leftcontext.end(); ++_it){
-	  for(size_t i = 0; i < _it->argSize(); i++){
-		extract<LsysVar> var(_it->getAt(i));
-		if(var.check())	__formalparameters.push_back(var().varname());
-	  }
-	}
-  }
-  if(!__newleftcontext.empty()){
-	for(AxialTree::const_iterator _it = __newleftcontext.begin(); 
-		_it !=__newleftcontext.end(); ++_it)
-	  for(size_t i = 0; i < _it->argSize(); ++i){
-		extract<LsysVar> var(_it->getAt(i));
-		if(var.check())	__formalparameters.push_back(var().varname());
-	  }
-  }
-  if(!__predecessor.empty()){
-	for(AxialTree::const_iterator _it = __predecessor.begin(); 
-		_it !=__predecessor.end(); ++_it)
-	  for(size_t i = 0; i < _it->argSize(); ++i){
-		extract<LsysVar> var(_it->getAt(i));
-		if(var.check())	__formalparameters.push_back(var().varname());
-	  }
-  }
-  if(!__newrightcontext.empty()){
-	for(AxialTree::const_iterator _it = __newrightcontext.begin(); 
-		_it !=__newrightcontext.end(); ++_it)
-	  for(size_t i = 0; i < _it->argSize(); i++){
-		extract<LsysVar> var(_it->getAt(i));
-		if(var.check())	__formalparameters.push_back(var().varname());
-	  }
-  }
-  if(!__rightcontext.empty()){
-	for(AxialTree::const_iterator _it = __rightcontext.begin(); 
-		_it !=__rightcontext.end(); ++_it)
-	  for(size_t i = 0; i < _it->argSize(); i++){
-		extract<LsysVar> var(_it->getAt(i));
-		if(var.check())	__formalparameters.push_back(var().varname());
-	  }
-  }
-  if(redundantParameter()){
-      LsysError("Ill-formed Rule Header : Multiple definition of parameter : "+uname());
+  if(!__leftcontext.empty())
+	extend_vec(__formalparameters,__leftcontext.getVarNames());
+  if(!__newleftcontext.empty())
+	extend_vec(__formalparameters,__newleftcontext.getVarNames());
+  if(!__predecessor.empty())
+	extend_vec(__formalparameters,__predecessor.getVarNames());  
+  if(!__newrightcontext.empty())
+	extend_vec(__formalparameters,__newrightcontext.getVarNames());  
+  if(!__rightcontext.empty())
+	extend_vec(__formalparameters,__rightcontext.getVarNames());
+  int rp = redundantParameter();
+  if(rp != -1){
+      LsysError("Ill-formed Rule Header : Multiple definition of parameter "+__formalparameters[rp]+": "+uname());
   }
 }
 
-bool
+int
 LsysRule::redundantParameter() const {
-    if (__formalparameters.empty()) return false;
+    if (__formalparameters.empty()) return -1;
     std::vector<std::string>::const_iterator _first = __formalparameters.begin();
     std::vector<std::string>::const_iterator _last = __formalparameters.end() - 1;
     while (_first != _last) {
       if (std::find(_first + 1,__formalparameters.end(),*_first) 
-				!= __formalparameters.end()) return true;
+				!= __formalparameters.end()) return distance(__formalparameters.begin(),_first);
       _first++;
     };
-    return false;
+    return -1;
 }
         
 /*---------------------------------------------------------------------------*/

@@ -187,6 +187,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\axialtree_iter.h"
+				>
+			</File>
+			<File
 				RelativePath=".\axialtree_manip.h"
 				>
 			</File>
