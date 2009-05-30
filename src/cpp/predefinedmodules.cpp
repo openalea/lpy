@@ -409,7 +409,7 @@ void ModuleClass::createPredefinedClasses() {
 	Tropism = new DeclaredModule(tropism)("@Tp","Tropism");
 	SetContour = new DeclaredModule(setcontour)("SetContour");
 	GetIterator = new PredefinedModuleClass("?I","GetIterator","Request an iterator over the current Lstring.",PredefinedModuleClass::ePatternMatching);
-	New = new PredefinedModuleClass("new","newmodule","Create a new module whose class is given by first argument",PredefinedModuleClass::eStringManipulation);
+	New = new PredefinedModuleClass("new","newmodule","Create a new module whose class is given by first argument.",PredefinedModuleClass::eStringManipulation);
 }
 
 #define CLEAR_PM(MName) ModuleClass::MName = NULL;
@@ -422,6 +422,30 @@ void ModuleClass::clearPredefinedClasses()
 		ModuleClass::PredefinedClasses = NULL;
 		PREDEFINED_MODULE_APPLY(CLEAR_PM)
 	}
+}
+
+/*---------------------------------------------------------------------------*/
+
+
+const char * PredefinedModuleClass::CATEGORY_NAME[] = {
+		"None",
+		"Structure",
+		"Rotation",
+		"Position",
+		"Scale",
+		"Primitive",
+		"Width",
+		"Color",
+	    "Tropism",
+		"Request",
+		"String Manipulation",
+		"Pattern Matching",
+		"User Defined"
+};
+
+std::string PredefinedModuleClass::getCategoryName(eCategory cat){
+	assert(cat < eLastCategory);
+	return CATEGORY_NAME[cat];
 }
 
 /*---------------------------------------------------------------------------*/

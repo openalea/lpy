@@ -407,7 +407,7 @@ void ParamModule::__processQueryModule(const std::string& argstr, int lineno){
 				    notvar = true;
 				}
 			  }
-			  catch (boost::python::error_already_set) { }
+			  catch (boost::python::error_already_set) { PyErr_Print(); }
 			  if (!notvar) {
 			      object o = LsysContext::currentContext()->try_evaluate(*itarg);
 			      if(o != object()){ appendParam(__args,o); notvar = true; }
@@ -546,6 +546,23 @@ ParamModule::getVarNames() const
 	  for(size_t i = 0; i < argSize(); i++){
 		  extract<LsysVar> v(getAt(i));
 		  if(v.check()) res.push_back(v().varname());
+	  }
+  }
+  return res;
+}
+
+size_t 
+ParamModule::getVarNb() const
+{ 
+  size_t res = 0;
+  if (isRepExp()) {
+	extract<AxialTree> t(getAt(0));
+	if(t.check()) return t().getVarNb();
+  }
+  else {
+	  for(size_t i = 0; i < argSize(); i++){
+		  extract<LsysVar> v(getAt(i));
+		  if(v.check()) res+=1;
 	  }
   }
   return res;

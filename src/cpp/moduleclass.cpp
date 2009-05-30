@@ -105,6 +105,16 @@ void ModuleClass::interpret(ParamModule& m, PGL::Turtle& t) {
 }
 
 
+void ModuleClass::activate(bool value) 
+{	
+	active = value; 
+    if (!active)
+		if(__vtable)__vtable->desactivate(); 
+	else 
+		if (!ModuleClassTable::get().isDeclared(this))
+			ModuleClassTable::get().declare(this);
+}
+
 void ModuleClass::create_vtable()
 {
 	__vtable = new ModuleVTable(this);
@@ -127,29 +137,6 @@ void ModuleClass::setScale(int scale)
 	if(!__vtable)create_vtable();
 	__vtable->scale = scale;
 }
-/*---------------------------------------------------------------------------*/
-
-const char * PredefinedModuleClass::CATEGORY_NAME[] = {
-		"None",
-		"Structure",
-		"Rotation",
-		"Position",
-		"Scale",
-		"Primitive",
-		"Width",
-		"Color",
-	    "Tropism",
-		"Request",
-		"String Manipulation",
-		"Pattern Matching",
-		"User Defined"
-};
-
-std::string PredefinedModuleClass::getCategoryName(eCategory cat){
-	assert(cat < eLastCategory);
-	return CATEGORY_NAME[cat];
-}
-
 /*---------------------------------------------------------------------------*/
 
 ModuleClassTable::ModuleClassTable():
@@ -231,13 +218,21 @@ bool ModuleClassTable::declare(ModuleClass * moduleclass)
 	}
 	return true;
 }
+
+bool ModuleClassTable::isDeclared(const ModuleClass * moduleclass) const
+{
+	return (modulenamelist.find(moduleclass->getId()) != modulenamelist.end());
+}
+
+
 ModuleClassPtr 
 ModuleClassTable::alias(const std::string& aliasname, const std::string& name)
 {
 	ModuleClassMap::iterator itname;
 	ModuleClassMap::iterator italias;
 	if((itname = modulenamemap.find(name)) == modulenamemap.end() || !itname->second->isActive()){
-		LsysError("Undefined module '"+name+"' for alias.");
+		if(itname == modulenamemap.end())LsysError("Undefined module '"+name+"' for alias.");
+		else LsysError("Inactive module '"+name+"' for alias.");
 	}
 	if ((italias = modulenamemap.find(aliasname)) == modulenamemap.end())
 	{
@@ -253,8 +248,17 @@ ModuleClassTable::alias(const std::string& aliasname, const std::string& name)
 			return itname->second;
 		}
 		else {
-			LsysError("Redeclaration of alias '"+aliasname+"' as '"+name+"' (previously '"+italias->second->name+"').");
-			return italias->second;
+			if (itname->second->isActive()){
+			    LsysError("Redeclaration of alias '"+aliasname+"' as '"+name+"' (previously '"+italias->second->name+"').");
+				return italias->second;
+			}
+			else {
+				remove(itname->second);
+				ModuleClass * info = itname->second;
+				info->aliases.push_back(aliasname);
+				modulenamemap[aliasname] = info;
+				return info;
+			}
 		}
 	}
 }
@@ -263,7 +267,7 @@ void
 ModuleClassTable::alias(const std::string& aliasname, ModuleClassPtr module)
 {
 	ModuleClassMap::iterator italias;
-	if(module->isActive()){
+	if(!module->isActive()){
 		LsysError("Inactive module '"+module->name+"' for alias.");
 	}
 	if ((italias = modulenamemap.find(aliasname)) == modulenamemap.end())

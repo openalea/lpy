@@ -115,10 +115,8 @@ public:
 
 	size_t getId() const { return id; }
 
-	inline void activate(bool value = true) 
-	{ active = value; if (!active && __vtable)__vtable->desactivate(); }
-	inline void desactivate() 
-	{ active = false; if ( __vtable)__vtable->desactivate();}
+	void activate(bool value = true) ;
+	inline void desactivate() { activate(false); }
 
 	inline bool isActive() const { return active; }
 	virtual void interpret(ParamModule& m, PGL::Turtle& t) ;
@@ -212,6 +210,7 @@ public:
 	ModuleClassPtr declare(const std::string& name);
 	ModuleClassPtr declare(const char name) { std::string n(1,name); return declare(n); }
 	bool declare(ModuleClass * moduleclass);
+	bool isDeclared(const ModuleClass * moduleclass) const;
 
 	ModuleClassPtr alias(const std::string& aliasname, const std::string& name);
 	void alias(const std::string& aliasname, ModuleClassPtr module);

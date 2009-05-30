@@ -190,6 +190,10 @@ public:
   void setModuleScale(const std::string& modules, int scale);
 
 
+  /// return if no matching
+  bool return_if_no_matching;
+  inline void setReturnIfNoMatching(bool enabled) { return_if_no_matching = enabled; }
+
   /** Iteration number property. Only set by Lsystem. Access by all other. */
 public:
   size_t getIterationNb();

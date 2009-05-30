@@ -185,6 +185,7 @@ public:
   virtual LsysVar _getVar(int) const;
   bool hasOnlyVar() const;
   std::vector<std::string> getVarNames() const;
+  size_t getVarNb() const;
 
   virtual void _setValues(real_t,real_t,real_t) ;
   void _setValues(const TOOLS(Vector3)& v) { _setValues(v.x(),v.y(),v.z()); }

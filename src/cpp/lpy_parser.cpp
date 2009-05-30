@@ -294,7 +294,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
 				}
 				else {
 					mod = ModuleClassTable::get().alias(itmod->first,itmod->second);
-					__context.declareAlias(itmod->second,mod);
+					__context.declareAlias(itmod->first,mod);
 				}
 				if(scale != ModuleClass::DEFAULT_SCALE)mod->setScale(scale);
 			}
@@ -798,10 +798,12 @@ std::string::const_iterator next_element(std::string::const_iterator _it2,
 		  if(*_it2 == '"'){ // skip string
 			_it2++;
 			while(_it2 != end && *_it2 != '"')_it2++;
+			if(_it2 != end)_it2++;
 		  }
 		  else if(*_it2 == '\''){ // skip string
 			_it2++;
 			while(_it2 != end && *_it2 != '\'')_it2++;
+			if(_it2 != end)_it2++;
 		  }
 		  else if(*_it2 == '('){ // skip expression
 			int nbOpenParenthesis = 1;
@@ -961,8 +963,11 @@ LpyParsing::parselstring( std::string::const_iterator& beg,
   bool first = true;
   while(_it != endpos && *_it != delim){
 	if(*_it == '#') {// skip comments
+		++_it;
 		if(LsysContext::current()->warnWithSharpModule()){
-			LsysWarning("Found symbol '#'. Consider as begining of comments","",lineno);
+		    while(_it != endpos && (*_it == ' ' || *_it == '\t'))++_it;
+			if(_it != endpos && *_it == '(') LsysSyntaxError("Found symbol '#' after Lstring. Considered as begining of comments in Lpy (Compatibility pb with cpfg). Use '_' instead.","",lineno);
+			else LsysWarning("Found symbol '#' after Lstring. Considered as begining of comments","",lineno);
 		}
 		while(_it != endpos && *_it != '\n' && *_it != delim)++_it;
 	}
@@ -1064,7 +1069,7 @@ LpyParsing::parse_modlist(std::string::const_iterator& beg,
   while(_it != endpos && *_it != delim){
 	while ((*_it == ' ' || *_it == '\t' || *_it == '\n')&& *_it != delim)++_it;
 	if (_it == endpos || *_it == delim || *_it == ':' || *_it == '#') break;
-	bool isAlias ;
+	bool isAlias = false;
 	if (!first){
 		if(*_it != ',' && *_it != '=') LsysSyntaxError("Invalid syntax in module declaration");
 	    isAlias = (*_it == '=');

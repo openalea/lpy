@@ -373,6 +373,7 @@ public:
 
 	// Get the list of all variables used
     std::vector<std::string> getVarNames() const;
+    size_t getVarNb() const;
 
 private:
 

@@ -839,6 +839,7 @@ Lsystem::__iterate( size_t starting_iter ,
   AxialTree workstring = wstring;
   if (!workstring.empty() && nb_iter > 0){
 	bool matching = true;
+	bool no_match_no_return = !__context.return_if_no_matching;
 	if(!__rules.empty()){
       eDirection ndir;
       RulePtrSet production;
@@ -846,7 +847,7 @@ Lsystem::__iterate( size_t starting_iter ,
       RulePtrSet decomposition;
       bool decompositionHasQuery;
 	  size_t i = 0;
-	  for(; matching && i < nb_iter; ++i){
+	  for(; (matching||no_match_no_return) && i < nb_iter; ++i){
         if(isEarlyReturnEnabled()) break;
         if (__context.isSelectionRequired()){
             std::vector<uint_t> sel = getSelection();

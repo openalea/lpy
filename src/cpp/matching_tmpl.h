@@ -310,7 +310,15 @@ struct TreeRightMatcher : public ArgsContainer
 			     }
 				if (numiter < miniter) return false;
 				--it;
-				append_args(lparams,fusion_args(llp)); 
+				if(numiter == 0){
+					size_t nbvar = lpattern.getVarNb();
+					for(size_t i = 0; i < nbvar; ++i){
+						lparams.append(argtype());
+					}
+				}
+				else { 
+					append_args(lparams,fusion_args(llp)); 
+				}
 			}
 			else if(!it2->isBracket()){ // matching a pattern module
 				if(!it->isBracket()) {

@@ -205,6 +205,7 @@ __direction(eForward),
 __group(0),
 __selection_required(false),
 __warn_with_sharp_module(true),
+return_if_no_matching(true),
 __animation_step(DefaultAnimationTimeStep),
 __iteration_nb(0),
 __nbargs_of_endeach(0)
@@ -252,16 +253,28 @@ LsysContext::~LsysContext()
 
 void LsysContext::init_options()
 {
-	/** selection required option */
-	LsysOption* option = options.add("Selection Required","Set whether selection check in GUI is required or not. Selection is then transform in X module in the Lstring.","Interaction");
-	option->addValue("Disabled",this,&LsysContext::setSelectionRequired,false,"Disable Selection Check.");
-	option->addValue("Enabled",this,&LsysContext::setSelectionRequired,true,"Enable Selection Check.");
-	option->setDefault(0);
+	LsysOption* option;
 	/** Warning with sharp module option */
 	option = options.add("Warning with sharp module","Set whether a warning is made when sharp symbol is met when parsing (compatibility with cpfg).","Parsing");
 	option->addValue("Disabled",this,&LsysContext::setWarnWithSharpModule,false,"Disable Warning.");
 	option->addValue("Enabled",this,&LsysContext::setWarnWithSharpModule,true,"Enable Warning.");
-	option->setDefault(0);	
+	option->setDefault(1);	
+	/** early return when no matching option */
+	option = options.add("Early return when no matching","Set whether the L-systems end prematurely if no matching has occured in the last iteration.","Processing");
+	option->addValue("Disabled",this,&LsysContext::setReturnIfNoMatching,false,"Disable early return.");
+	option->addValue("Enabled",this,&LsysContext::setReturnIfNoMatching,true,"Enable early return.");
+	option->setDefault(1);	
+	/** selection required option */
+	option = options.add("Selection Required","Set whether selection check in GUI is required or not. Selection is then transform in X module in the Lstring.","Interaction");
+	option->addValue("Disabled",this,&LsysContext::setSelectionRequired,false,"Disable Selection Check.");
+	option->addValue("Enabled",this,&LsysContext::setSelectionRequired,true,"Enable Selection Check.");
+	option->setDefault(0);
+	/** module declaration option */
+	option = options.add("Module declaration","Specify if module declaration is mandatory.","Module");
+	option->addValue("On the fly",&ModuleClassTable::setMandatoryDeclaration,false,"Module declaration is made on the fly when parsing string.");
+	option->addValue("Mandatory",&ModuleClassTable::setMandatoryDeclaration,true,"Module declaration is mandatory before use in string.");
+	option->setDefault(0);
+	option->setGlobal(true);
 	/** module matching option */
 	option = options.add("Module matching","Specify the way modules are matched to rules pattern","Matching");
 	option->addValue("Simple",&MatchingEngine::setModuleMatchingMethod,MatchingEngine::eMSimple,"Simple module matching : Same name and same number of arguments . '*' module allowed.");
@@ -277,17 +290,10 @@ void LsysContext::init_options()
 	option->addValue("As Multiscale AxialTree",&MatchingEngine::setStringMatchingMethod,MatchingEngine::eMScaleAxialTree,"String is considered as a multi scale axial tree and some modules can be skipped according to module scale.");
 	option->setDefault(MatchingEngine::eDefaultStringMatching);
 	option->setGlobal(true);
-	/** module declaration option */
-	option = options.add("Module declaration","Specify if module declaration is mandatory.","Module");
-	option->addValue("On the fly",&ModuleClassTable::setMandatoryDeclaration,false,"Module declaration is made on the fly when parsing string.");
-	option->addValue("Mandatory",&ModuleClassTable::setMandatoryDeclaration,true,"Module declaration is mandatory before use in string.");
-	option->setDefault(0);
-	option->setGlobal(true);
 }
 
 void 
 LsysContext::clear(){
-  // if(isCurrent())done();
   __keyword.clear();
   __ignore_method = true;
   __direction = eForward;

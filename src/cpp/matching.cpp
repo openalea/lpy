@@ -293,7 +293,11 @@ bool MatchingImplementation::module_matching_with_star_and_valueconstraints(
 		  beg = 1;
 	  }
 	  else if (s2 < s-2) return false;
-	  else l.append(module.name());
+	  else {
+		  boost::python::object no(module.name());
+		  if (!e1().isCompatible(no))return false;
+		  l.append(no);
+	  }
 	  boost::python::object of = pattern.getAt(s-1);
 	  bool lastarg = false;
 	  boost::python::object lastargval;

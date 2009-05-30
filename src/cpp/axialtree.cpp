@@ -790,4 +790,14 @@ std::vector<std::string> AxialTree::getVarNames() const
   return res;
 }
 
+// Get the list of all variables used
+size_t AxialTree::getVarNb() const
+{
+  size_t res = 0;
+  for(const_iterator _it = begin(); _it !=end(); ++_it){
+	res += _it->getVarNb();
+  }
+  return res;
+}
+
 LPY_END_NAMESPACE
