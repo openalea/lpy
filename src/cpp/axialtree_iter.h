@@ -33,6 +33,7 @@
 
 #include "axialtree.h"
 #include "axialtree_manip.h"
+#include <plantgl/python/exception.h>
 
 
 LPY_BEGIN_NAMESPACE

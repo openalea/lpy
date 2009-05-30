@@ -1081,7 +1081,7 @@ LpyParsing::parse_modlist(std::string::const_iterator& beg,
 	}
 	else first = false;
 	std::string::const_iterator bm = _it;
-	while(_it != endpos && *_it != ',' && *_it != ' ' && *_it != '\t' && *_it != '\n' && *_it != ':' && '*_it' != '=' && *_it != '#' && *_it != delim) ++_it;
+	while(_it != endpos && *_it != ',' && *_it != ' ' && *_it != '\t' && *_it != '\n' && *_it != ':' && *_it != '=' && *_it != '#' && *_it != delim) ++_it;
 	if (bm != _it){
 		std::string m(bm,_it);
 		if(isAlias)result.back().second = m;
