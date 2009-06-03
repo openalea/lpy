@@ -359,7 +359,7 @@ std::vector<ModuleClassPtr>& ModuleClass::getPredefinedClasses()
 void ModuleClass::createPredefinedClasses() {
 	if(!ModuleClass::PredefinedClasses)
 		ModuleClass::PredefinedClasses = new ModuleClassList();
-	None = new PredefinedModuleClass("","None Module.");
+	None = new PredefinedModuleClass("","None", "None Module.");
 	LeftBracket = new DeclaredModule(push)("[","SB");
 	RightBracket = new DeclaredModule(pop)("]","EB");
 	// ExactRightBracket = new DeclaredModule(pop)("=]");
@@ -368,7 +368,7 @@ void ModuleClass::createPredefinedClasses() {
 	f = new DeclaredModule(f)("f");
 	X = new PredefinedModuleClass("X","MouseIns","Module inserted just before module selected by user in visualisation.",PredefinedModuleClass::eStringManipulation); 
 	Cut = new PredefinedModuleClass("%","Cut","Cut the remainder of the current branch in the string.",PredefinedModuleClass::eStringManipulation);
-	Star = new PredefinedModuleClass("*","Used to specify Null production (produce *) or matching of any module in rules predecessor.",PredefinedModuleClass::ePatternMatching);
+	Star = new PredefinedModuleClass("*","any","Used to match any module in rules predecessor.",PredefinedModuleClass::ePatternMatching);
 	RepExp = new PredefinedModuleClass("x","repexp","Used to specify matching of a repetition of modules in rules right context.",PredefinedModuleClass::ePatternMatching);
 	RepExp->aliases.push_back("all");
 	QueryPosition = new DeclaredModule(GetPos)("?P","GetPos");

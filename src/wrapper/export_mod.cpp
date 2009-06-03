@@ -51,6 +51,41 @@ std::string var_getname(LsysVar * m){
   return m->name();
 }
 
+boost::python::object mod_getAt(ParamModule * m, int i){
+    if( i < 0 ) i+=m->len();
+    if (i < 0  || i >= m->len()) throw PythonExc_IndexError("index out of range");
+	return m->getAt(i);
+}
+
+void mod_setAt(ParamModule * m, int i, boost::python::object o){
+    if( i < 0 ) i+=m->len();
+    if (i < 0  || i >= m->len()) throw PythonExc_IndexError("index out of range");
+	return m->setAt(i,o);
+}
+
+void mod_delAt(ParamModule * m, int i){
+    if( i < 0 ) i+=m->len();
+    if (i < 0  || i >= m->len()) throw PythonExc_IndexError("index out of range");
+	return m->delAt(i);
+}
+
+boost::python::object mod_getslice(ParamModule * m, int i, int j){
+    if( i < 0 ) i+=m->len();
+	if( j < 0 ) j+=m->len();
+	if( j > m->len() ) j = m->len();
+	if (i < 0  || i >= m->len() || j < i) throw PythonExc_IndexError("index out of range");
+	return m->getslice(i,j);
+}
+
+void mod_delslice(ParamModule * m, int i, int j){
+    if( i < 0 ) i+=m->len();
+	if( j < 0 ) j+=m->len();
+	if( j > m->len() ) j = m->len();
+	if (i < 0  || i >= m->len() || j < i) throw PythonExc_IndexError("index out of range");
+	return m->delslice(i,j);
+}
+
+
 AxialTree mods_add1(ParamModule * m1, ParamModule * m2){
   AxialTree res(*m1);
   return res+=*m2;
@@ -255,11 +290,11 @@ void export_Module(){
 			  const boost::python::object &,
 			  const boost::python::object &>("ParamModule(name[,args])"))
 	.def("__tuple__",  &ParamModule::tuple)
-	.def("__getitem__",&ParamModule::getAt)
-	.def("__setitem__",&ParamModule::setAt)
-	.def("__delitem__",&ParamModule::delAt)
-	.def("__getslice__",&ParamModule::getslice)
-	.def("__delslice__",&ParamModule::delslice)
+	.def("__getitem__",&mod_getAt)
+	.def("__setitem__",&mod_setAt)
+	.def("__delitem__",&mod_delAt)
+	.def("__getslice__",&mod_getslice)
+	.def("__delslice__",&mod_delslice)
 	.def("__iadd__",   &ParamModule::operator+=, return_internal_reference<1>())
 	.def("__add__",   &ParamModule::operator+)
 	.def("__add__",   &mods_add1)
@@ -268,9 +303,6 @@ void export_Module(){
     .def(self == self)
     .def(self != self)
 	.def("match",  &match)
-	/*.def("match1", &match1)
-	.def("match2", &match2)
-	.def("match3", &match3)*/
 	.def("match", (bool(ParamModule::*)(const std::string&,size_t)const)
 					  &ParamModule::match)
 	.add_property("args",&ParamModule::getArgs,&ParamModule::setArgs)

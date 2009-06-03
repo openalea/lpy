@@ -673,14 +673,14 @@ ParamModule::_reprArg() const
 }
 
 object 
-ParamModule::getAt(int i) const
+ParamModule::getAt(size_t i) const
 { 
   assert(__args.size() > i);
   return __args[i];
 }
 
 object 
-ParamModule::getslice(int i,int j) const
+ParamModule::getslice(size_t i,size_t j) const
 { 
 	assert( i <= j && j <= __args.size() );
 #ifdef VECTORMODULE
@@ -693,13 +693,13 @@ ParamModule::getslice(int i,int j) const
 #endif
 }
 
-void ParamModule::setAt(int i,object o)
+void ParamModule::setAt(size_t i,object o)
 { 
   assert(__args.size() > i);
   __args[i] = o;
 }
 
-void ParamModule::delAt(int i)
+void ParamModule::delAt(size_t i)
 { 
   assert(__args.size() > i);
 #ifdef VECTORMODULE
@@ -709,7 +709,7 @@ void ParamModule::delAt(int i)
 #endif
 }
 
-void ParamModule::delslice(int i,int j)
+void ParamModule::delslice(size_t i,size_t j)
 { 
 	assert( i <= j && j <= __args.size() );
 #ifdef VECTORMODULE

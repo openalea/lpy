@@ -462,7 +462,7 @@ LsysRule::applyTo( AxialTree& dest,
   if(result == object())return false;
   else {
     AxialTree prod = extract<AxialTree>(result)();
-	if (prod.size() == 1 && prod[0].getClass() == ModuleClass::Star){ 
+	if (prod.size() == 1 && (prod[0].getClass() == ModuleClass::Star || prod[0].getClass() == ModuleClass::None)){ 
 		if(length!=NULL)*length = 0;
 	}
 	else {

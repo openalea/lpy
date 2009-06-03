@@ -52,20 +52,53 @@ public:
 	iterator_type current;
 	iterator_type end;
 	PyLstringIterator(iterator_type _beg, iterator_type _end):
-	    current(_beg),end(_end) {}
+	    current(_beg),end(_end), nbBracket(0), processfirst(false) {}
 
 	PyLstringIterator(const Lstring& lstring):
-	    current(lstring.begin()),end(lstring.end()) {}
+	    current(lstring.begin()),end(lstring.end()), nbBracket(0), processfirst(false) {}
 
-	const element_type& next() {
+	const element_type& next(bool onlyConsidered = false) {
 		if(current == end) throw PythonExc_StopIteration();
-		else { const element_type& val = *current; ++current; return val; }
+		if(processfirst == true){
+			if(onlyConsidered) current = next_module(current,end);
+			else ++current; 
+			if(current == end) throw PythonExc_StopIteration();
+		}
+		else processfirst = true;
+		return process_next(onlyConsidered);
 	}
 
 	size_t size() { return std::distance(current,end); }
 
-	void toEndBracket( bool startingBeforePos = false)
-	{ current = endBracket(current,end,startingBeforePos); }
+	const element_type& toEndBracket( bool startingBeforePos = false)
+	{ 
+		if(current == end) throw PythonExc_StopIteration();
+		current = endBracket(current,end,startingBeforePos); 
+		return process_next();
+	}
+
+	const element_type& currentValue() const { 
+		if(current == end) throw PythonExc_IndexError();
+		return *current; 
+	}
+
+protected:
+
+	const element_type& process_next(bool onlyConsidered = false){
+		const element_type& val = *current;
+		// Iterator should only stay on the sub tree whithin which it was created. Check whether it is true  
+		if (val.isRightBracket()) {
+			--nbBracket;
+			if( nbBracket < 0  && end != (current+1)){
+					end = current+1;
+			}
+		}
+		else if(val.isLeftBracket()) ++nbBracket;
+		return val; 
+	}
+
+	size_t nbBracket;
+	bool processfirst;
 };
 
 typedef PyLstringIterator<AxialTree> PyAxialTreeIterator;

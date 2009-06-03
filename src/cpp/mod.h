@@ -164,11 +164,11 @@ public:
   boost::python::list getArgs() const ;
   void  setArgs(const boost::python::list& list) ;
 
-  boost::python::object getAt(int) const;
-  boost::python::object getslice(int, int) const;
-  void setAt(int,boost::python::object);
-  void delAt(int);
-  void delslice(int,int);
+  boost::python::object getAt(size_t) const;
+  boost::python::object getslice(size_t, size_t) const;
+  void setAt(size_t,boost::python::object);
+  void delAt(size_t);
+  void delslice(size_t,size_t);
   size_t len();
   ParamModule& operator+=(const boost::python::object&);
   ParamModule operator+(const boost::python::object&) const;

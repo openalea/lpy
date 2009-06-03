@@ -304,10 +304,11 @@ void export_AxialTree() {
 
   class_<PyAxialTreeIterator >
 	("AxialTreeIterator", init<AxialTree>("AxialTreeIterator(AxialTree)"))
-	.def("next",&PyAxialTreeIterator::next,return_internal_reference<>())
+	.def("next",&PyAxialTreeIterator::next,return_internal_reference<>(), (bp::arg("onlyConsidered")=false))
+	.def("current",&PyAxialTreeIterator::currentValue,return_internal_reference<>())
 	.def("__length_hint__",&PyAxialTreeIterator::size)
     .def( "__iter__", &py_ati_iter )
-	.def( "toEndBracket", &PyAxialTreeIterator::toEndBracket, (bp::arg("startingBeforePos")=false) )
+	.def( "toEndBracket", &PyAxialTreeIterator::toEndBracket, return_internal_reference<>(), (bp::arg("startingBeforePos")=false) )
 	;
 
 }
