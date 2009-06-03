@@ -51,156 +51,184 @@ def runmatch(code,optionvalues = range(3)):
 
 ########################################################
 
-lcodemodwithoutarg = """
+lcodemodwithstarmod = """
 Axiom : A
 production:
-A(x) :
-    assert False and "Wrong matching. Match mod with two args with pattern of mod with one arg"
-A :
+* :
     global matched
     matched = True
+*(name,x) :
+    raise Exception('match star module pattern with wrong number (2) of arg')
 """
 
-def match_mod_with_no_arg():
-    """ Test matching of module without argument """
-    runmatch(lcodemodwithoutarg)
-
+def test_match_mod_with_starmod():
+    """ Test matching of module with pattern with a star module """
+    runmatch(lcodemodwithstarmod,range(1,3))
 
 ########################################################
 
-lcodemodwithonearg = """
-Axiom : A(3)
-production:
-A :
-    assert False and "Wrong matching. Match mod with one arg with pattern of mod without arg"
-A(x) :
-    global matched
-    matched = True
-    assert x == 3 and "Wrong argument values"
-"""
-
-def test_match_mod_with_onearg(modmatching = None):
-    """ Test matching of module with one argument """
-    runmatch(lcodemodwithonearg)
-
-########################################################
-
-lcodemodwithtwoargs = """
-
-Axiom : A(3,4)
-
-production:
-
-A :
-    raise Exception("Wrong matching. Match mod with two args with pattern of mod without arg")
-A(x) :
-    raise Exception("Wrong matching. Match mod with two args with pattern of mod with one arg")
-
-A(x,y) :
-    global matched
-    matched = True
-    assert x == 3 and y == 4 and "Wrong argument values"
-
-"""
-
-def test_match_mod_with_twoargs():
-    """ Test matching of module with two arguments """
-    runmatch(lcodemodwithtwoargs)
-
-########################################################
-
-lcodemodwithvaluearg = """
-Axiom : A(3)
-production:
-A :
-    raise Exception("Wrong matching. Match mod with one arg with pattern of mod without arg")
-A(3) :
-    global matched
-    matched = True
-    produce
-A(x) :
-    raise Exception("Wrong matching. Should have prefer pattern with value")
-"""
-
-def test_match_mod_with_valuearg():
-    """ Test matching of module with pattern with a value as argument """
-    runmatch(lcodemodwithvaluearg,2)
-
-
-########################################################
-
-lcodemodwithvalueargs = """
-Axiom : A(3,4)
-production:
-A :
-    raise Exception("Wrong matching. Match mod with one arg with pattern of mod without arg")
-A(3,4) :
-    global matched
-    matched = True
-    produce
-A(x,y) :
-    raise Exception("Wrong matching. Should have prefer pattern with value")
-"""
-
-def test_match_mod_with_valueargs():
-    """ Test matching of module with pattern with values as arguments """
-    runmatch(lcodemodwithvalueargs,2)
-
-########################################################
-
-lcodemodwithstararg = """
-Axiom : A(3)
-production:
-A :
-    raise Exception("Wrong matching. Match mod with one arg with pattern of mod without arg")
-A(*args) :
-    global matched
-    matched = True
-    assert len(args) == 1 and args[0] == 3 and "Bad value for *args. Got %s instead of [3]." %str(args)
-"""
-
-def test_match_mod_with_stararg():
-    """ Test matching of module with pattern with a star arg as argument """
-    runmatch(lcodemodwithstararg,range(1,3))
-
-########################################################
-
-lcodemodwithstararg_for_two = """
-Axiom : A(3,4)
-production:
-A :
-    assert False and "Wrong matching. Match mod with one arg with pattern of mod without arg"
-A(*args) :
-    global matched
-    matched = True
-    assert len(args) == 2 and args[0] == 3 and args[1] == 4
-"""
-
-def test_match_mod_with_stararg_for_two():
-    """ Test matching of module with pattern with a star arg as argument """
-    runmatch(lcodemodwithstararg_for_two,range(1,3))
-
-########################################################
-
-lcodemodwithstararg_for_zero = """
+lcodemodwithstarmod_withnamearg = """
 Axiom : A
 production:
-A(*args) :
+*(name) :
     global matched
     matched = True
-    assert len(args) == 0
+    assert name == 'A'
+*(name,x) :
+    raise Exception('match star module pattern with wrong number (2) of arg')
 """
 
-def test_match_mod_with_stararg_for_zero():
-    """ Test matching of module with pattern with a star arg as argument """
-    runmatch(lcodemodwithstararg_for_zero,range(1,3))
+def test_match_mod_with_starmod_withnamearg():
+    """ Test matching of module with pattern with a star module and name arg """
+    runmatch(lcodemodwithstarmod_withnamearg,range(1,3))
+
+########################################################
+
+lcodemodwithstarmod_onearg = """
+Axiom : A(2)
+production:
+*(name) :
+    raise Exception('match star module pattern with wrong number (1) of arg')
+*(name,x) :
+    global matched
+    matched = True
+    assert x == 2
+*(x,y,z) :
+    raise Exception('match star module pattern with wrong number (3) of arg')
+"""
+
+
+def test_match_mod_with_starmod_onearg():
+    """ Test matching of module with one arg with pattern with a star module """
+    runmatch(lcodemodwithstarmod_onearg,range(1,3))
+    
+########################################################
+
+lcodemodwithstarmod_onearg_staronly = """
+Axiom : A(2)
+production:
+* :
+    global matched
+    matched = True
+*(x) :
+    raise Exception('match star module pattern with wrong number (1) of arg')
+*(x,y,z) :
+    raise Exception('match star module pattern with wrong number (3) of arg')
+"""
+
+def test_match_mod_with_starmod_onearg_staronly():
+    """ Test matching of module with one arg with pattern with a star module only """
+    runmatch(lcodemodwithstarmod_onearg_staronly,range(1,3))
+
+########################################################
+
+lcodemodwithstarmod_two = """
+Axiom : A(2,2)
+production:
+*(x) :
+    raise Exception('match star module pattern with wrong number (1) of arg')
+*(x,y) :
+    raise Exception('match star module pattern with wrong number (2) of arg')
+*(x,y,z,w) :
+    raise Exception('match star module pattern with wrong number (4) of arg')
+*(name,x,y) :
+    global matched
+    matched = True
+    assert name == 'A' and x == 2 and y == 2
+"""
+
+def test_match_mod_with_starmod_two():
+    """ Test matching of module with two arg with pattern with a star module """
+    runmatch(lcodemodwithstarmod_two,range(1,3))
+
+########################################################
+
+lcodemodwithstarmod_two_staronly = """
+Axiom : A(2,2)
+production:
+*(x) :
+    raise Exception('match star module pattern with wrong number (1) of arg')
+*(x,y) :
+    raise Exception('match star module pattern with wrong number (2) of arg')
+*(x,y,z,w) :
+    raise Exception('match star module pattern with wrong number (4) of arg')
+* :
+    global matched
+    matched = True
+"""
+
+def test_match_mod_with_starmod_two_staronly():
+    """ Test matching of module with two arg with pattern with a star module only """
+    runmatch(lcodemodwithstarmod_two_staronly,range(1,3))
+
+########################################################
+
+lcodemodwithstarmod_stararg = """
+Axiom : A(2,3)
+production:
+*(*args) :
+    global matched
+    matched = True
+    assert len(args) == 3 and args[0] == 'A' and args[1] == 2 and args[2] == 3
+"""
+
+def test_match_mod_with_starmod_stararg():
+    """ Test matching of module with two arg with pattern with a star module with star args"""
+    runmatch(lcodemodwithstarmod_stararg,range(1,3))
+
+########################################################
+
+lcodemodwithstarmod_stararg_name = """
+Axiom : A(2,3)
+production:
+*(name,*args) :
+    global matched
+    matched = True
+    assert name == 'A' and len(args) == 2 and args[0] == 2 and args[1] == 3
+"""
+
+def test_match_mod_with_starmod_stararg_name():
+    """ Test matching of module with two arg with pattern with a star module with args name and star args """
+    runmatch(lcodemodwithstarmod_stararg_name,range(1,3))
+
+########################################################
+
+lcodemodwithstarmod_args_and_stararg = """
+Axiom : A(2,3)
+production:
+*(name,x,*args) :
+    global matched
+    matched = True
+    assert name == 'A' and x == 2 and len(args) == 1 and args[0] == 3
+"""
+
+def test_match_mod_with_starmod_args_and_stararg():
+    """ Test matching of module with two arg with pattern with a star module with 2 args and star args """
+    runmatch(lcodemodwithstarmod_args_and_stararg,range(1,3))
+
+########################################################
+
+lcodemodwithstarmod_enoughargs_and_stararg = """
+Axiom : A(2,3)
+production:
+*(name,x,y,w,*args) :
+    raise Exception('match star module pattern with wrong number (5) of arg')
+*(name,x,y,*args) :
+    global matched
+    matched = True
+    assert name == 'A' and x == 2 and y == 3 and len(args) == 0 
+"""
+
+def test_match_mod_with_starmod_enoughargs_and_stararg():
+    """ Test matching of module with two arg with pattern with a star module with enough args and star args """
+    runmatch(lcodemodwithstarmod_enoughargs_and_stararg,range(1,3))
 
 ########################################################
 
 lcode_lc = """
 Axiom : BA
 production:
-B < A :
+B < * :
     global matched
     matched = True
 """
@@ -215,8 +243,8 @@ def test_match_left_context():
 lcode_lcp = """
 Axiom : C(1)B(2)A(3)
 production:
-C(x)B(y) < A(z) :    
-    assert x == 1 and y == 2 and z == 3 and "Wrong argument values"
+C(x)*(n,y) < A(z) :    
+    assert x == 1 and y == 2 and n == 'B' and z == 3 and "Wrong argument values"
     global matched
     matched = True
 """
@@ -232,7 +260,7 @@ def test_match_left_context_with_param():
 lcode_rc = """
 Axiom : AB
 production:
-A > B :
+A > * :
     global matched
     matched = True
 """
@@ -248,8 +276,8 @@ def test_match_right_context():
 lcode_rcp = """
 Axiom : A(1)B(2)C(3)
 production:
-A(x) > B(y)C(z) :
-    assert x == 1 and y == 2 and z == 3 and "Wrong argument values"
+A(x) > *(n,y)C(z) :
+    assert x == 1 and y == 2 and n == 'B' and z == 3 and "Wrong argument values"
     global matched
     matched = True
 """
@@ -266,7 +294,7 @@ lcode_nlc = """
 Axiom : BA
 production:
 B --> C
-C << A :
+* << A :
     global matched
     matched = True
 """
@@ -284,7 +312,7 @@ def Start(): backward()
 Axiom : AB
 production:
 B --> C
-A >> C :
+A >> * :
     global matched
     matched = True
 """
@@ -301,7 +329,7 @@ lcode_acf = """
 Axiom : ABC
 production:
 A --> D
-A < D << B >  C :
+* < * << B >  * :
     global matched
     matched = True
 """
@@ -312,24 +340,6 @@ def test_match_forward_contexts():
     l.set(lcodebeg+lcode_acf)
     l.iterate()
 
-########################################################
-
-lcode_bnc = """
-def Start(): backward()
-Axiom : ABC
-production:
-B :
-    assert isForward() == False and 'backward matching not enabled'
-    global matched
-    matched = True
-    produce
-"""
-
-def test_match_backward_nocontext():
-    """ Test matching of module with no context in backward mode """
-    l = Lsystem()
-    l.set(lcodebeg+lcode_bnc)
-    l.iterate()
     
 ########################################################
 
@@ -337,7 +347,7 @@ lcode_brc = """
 def Start(): backward()
 Axiom : ABC
 production:
-B > C :
+B > * :
     assert isForward() == False and 'backward matching not enabled'
     global matched
     matched = True
@@ -356,7 +366,7 @@ lcode_blc = """
 def Start(): backward()
 Axiom : ABC
 production:
-A < B :
+* < B :
     assert isForward() == False and 'backward matching not enabled'
     global matched
     matched = True
@@ -375,7 +385,7 @@ lcode_b2c = """
 def Start(): backward()
 Axiom : ABC
 production:
-A < B > C :
+* < B > * :
     assert isForward() == False and 'backward matching not enabled'
     global matched
     matched = True
@@ -397,65 +407,12 @@ production:
 C :
     assert isForward() == False and 'backward matching not enabled'
     produce D
-A < B >> D > C :
+* < B >> * > * :
     global matched
     matched = True
     produce
 """
 
-def test_match_backward_allcontexts():
-    """ Test matching of module with all contexts in backward mode """
-    l = Lsystem()
-    l.set(lcodebeg+lcode_acb)
-    l.iterate()
-
-########################################################    
-
-lcodeignore = """
-Axiom : A+B
-production:
-ignore: +
-A < B:
-    global matched
-    matched = True
-    produce
-"""
-
-def test_match_ignore():
-    """ Test ignore in matching """
-    l = Lsystem()
-    l.set(lcodebeg+lcodeignore)
-    l.iterate()
-    
-########################################################
-
-lcodeconsider = """
-Axiom : A+B
-production:
-consider: AB
-A < B:
-    global matched
-    matched = True
-    produce
-"""
-
-def test_match_consider():
-    """ Test consider in matching """
-    l = Lsystem()
-    l.set(lcodebeg+lcodeconsider)
-    l.iterate()
-    
-    
-########################################################
-
-def matching_run(fname):
-    l = Lsystem(fname)
-    l.iterate()
-    
-def test_simple_match() : 
-    """ Simple matching """
-    matching_run('test_simple_matching.lpy')
-    
 ########################################################
 
 if __name__ == '__main__':
