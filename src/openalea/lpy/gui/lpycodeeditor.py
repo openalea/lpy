@@ -82,34 +82,34 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
                 self.setFormat(i, 1, self.delimiterFormat)
         if self.currentBlockState() == 1:
             if lentxt > 0 and not str(text[0].toAscii()) in " \t":
-                index = text.indexOf(self.lsysruleExp)
+                index = self.lsysruleExp.indexIn(text)
                 if index >= 0:
                     length = self.lsysruleExp.matchedLength()
                     self.setFormat(index, length, self.prodFormat)
                 else:
-                    index = text.indexOf(self.lsysruleExp2)
+                    index = self.lsysruleExp2.indexIn(text)
                     if index >= 0:
                         length = self.lsysruleExp2.matchedLength()
                         self.setFormat(index, length, self.prodFormat)
         for rule in self.rules:
             expression = rule[0]
-            index = text.indexOf(expression);
+            index = expression.indexIn(text)
             while index >= 0:
                 length = expression.matchedLength()
                 if ((index == 0 or not text.at(index-1).isLetterOrNumber()) and 
                    (index == lentxt or not text.at(index+length).isLetterOrNumber())):
                     self.setFormat(index, length, rule[1])
-                index = text.indexOf(expression, index + length)
+                index = expression.indexIn(text, index + length)
         for rule in self.exprules:
             expression = rule[0]
-            index = text.indexOf(expression);
+            index = expression.indexIn(text)
             while index >= 0:
                 length = expression.matchedLength()
                 if index == 0 or not text.at(index-1).isLetterOrNumber():
                     self.setFormat(index+rule[1], length-rule[1]-rule[3], rule[2])
-                index = text.indexOf(expression, index + length)
+                index = expression.indexIn(text, index + length)
         if self.tabviewactivated:
-            index = text.indexOf(self.tabRule);
+            index = self.tabRule.indexIn(text)
             if index >= 0:
                 length = self.tabRule.matchedLength()
                 for i in xrange(index,index+length):
@@ -118,11 +118,11 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
                     else:
                         self.setFormat(i, 1 , self.spaceFormat)
         commentExp = self.commentExp #if self.currentBlockState() == 0 else self.ruleCommentExp
-        index = text.indexOf(commentExp)
+        index = commentExp.indexIn(text)
         while index >= 0:
             length = commentExp.matchedLength()
             self.setFormat(index, length, self.commentFormat)
-            index = text.indexOf(commentExp,index+length+2)
+            index = commentExp.indexIn(text,index+length+2)
     
 
 class LpyCodeEditor(QTextEdit):
