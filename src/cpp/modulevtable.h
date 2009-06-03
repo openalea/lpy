@@ -38,6 +38,9 @@ public:
 
 class LPY_API ModulePyProperty : public ModuleProperty<boost::python::object> {
 public:
+	ModulePyProperty(const std::string& name, boost::python::object _value) : 
+		ModuleProperty< boost::python::object > ( name, _value) {}
+
 	virtual bool isPythonProperty() const { return true; }
 };
 
