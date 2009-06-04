@@ -101,7 +101,7 @@ def test_alias_declared():
     """ Test name of module originally declared as alias """
     a = AxialTree('GetUp')
     assert len(a) == 1
-    a = AxialTree('RepExp')
+    a = AxialTree('repexp')
     assert len(a) == 1 and a == AxialTree('x')
 
 

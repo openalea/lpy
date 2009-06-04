@@ -22,7 +22,7 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
         self.pykeywords = ['class','if','else','elif','while','None','not','is', 'def',
                             'for','range','xrange', 'True','False','from','import',
                             'lambda','or','and','print','pass','in','return','global',
-                            'as','int','float','str','tuple','list','assert','try','except']
+                            'as','int','float','str','tuple','list','assert','try','except','raise']
         for pattern in self.pykeywords:
             self.rules.append((QRegExp(pattern),keywordFormat))
         self.delimiterFormat = QTextCharFormat()

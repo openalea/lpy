@@ -710,7 +710,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
       { __axiom = AxialTree(extract<boost::python::list>(__context.getObject(LsysContext::AxiomVariable))); }
       catch(error_already_set const &)
       { 
-          PyErr_Clear();
+		  PyErr_Clear();
           LsysError("Axiom has an invalid value.",filename,axiom_lineno); 
       }
   }
@@ -1071,13 +1071,13 @@ LpyParsing::parse_modlist(std::string::const_iterator& beg,
 	if (_it == endpos || *_it == delim || *_it == ':' || *_it == '#') break;
 	bool isAlias = false;
 	if (!first){
-		if(*_it != ',' && *_it != '=') LsysSyntaxError("Invalid syntax in module declaration");
+		if(*_it != ',' && *_it != '=') LsysSyntaxError("Invalid syntax in module declaration: Wait for ',' or '='.");
 	    isAlias = (*_it == '=');
-		if (!allow_alias) LsysSyntaxError("Invalid syntax in module declaration");
+		if (!allow_alias && isAlias) LsysSyntaxError("Invalid syntax in module declaration: Alias not allowed here.");
 		++_it;
 		while (_it != endpos && (*_it == ' ' || *_it == '\t' || *_it == '\n')&& *_it != delim)++_it;
 		if (_it == endpos || *_it == delim)
-			LsysSyntaxError("Invalid syntax in module declaration");
+			LsysSyntaxError("Invalid syntax in module declaration: Require module name.");
 	}
 	else first = false;
 	std::string::const_iterator bm = _it;
@@ -1188,10 +1188,10 @@ std::pair<std::string,std::string> LpyParsing::parse_variable(std::string::const
 	while (it != end && *it == ' ' && *it == '\t')++it;
 	std::string::const_iterator begname = it;
 	std::string::const_iterator begfilter = begname;
-	if(it == end)LsysError("Error parsing variable name","",lineno);
+	if(it == end)LsysError("Error parsing variable name (1)","",lineno);
 	if(*it == '*'){ ++it; begfilter = it; }
 	if(it != end && (isalpha(*it) || *it == '_'))++it;
-	else LsysError("Error parsing variable name","",lineno);
+	else LsysError("Error parsing variable name (2)","",lineno);
 	while(it != end && (isalnum(*it) || *it == '_'))++it;
 	std::string varname(begname,it);
 	while (it != end && *it == ' ' && *it == '\t')++it;

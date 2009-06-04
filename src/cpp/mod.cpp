@@ -407,7 +407,7 @@ void ParamModule::__processQueryModule(const std::string& argstr, int lineno){
 				    notvar = true;
 				}
 			  }
-			  catch (boost::python::error_already_set) { PyErr_Print(); }
+			  catch (boost::python::error_already_set) {   PyErr_Clear(); /* PyErr_Print();*/ }
 			  if (!notvar) {
 			      object o = LsysContext::currentContext()->try_evaluate(*itarg);
 			      if(o != object()){ appendParam(__args,o); notvar = true; }
