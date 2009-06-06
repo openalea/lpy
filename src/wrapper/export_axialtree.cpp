@@ -300,7 +300,7 @@ void export_AxialTree() {
     .def( "__iter__", &py_at_iter )
 	;
     axialtree_from_str();
-    def("QueryTree", &AxialTree::QueryTree);
+    def("QueryTree", &AxialTree::QueryTree,(bp::arg("expression"),bp::arg("lineno")=-1));
 
   class_<PyAxialTreeIterator >
 	("AxialTreeIterator", init<AxialTree>("AxialTreeIterator(AxialTree)"))

@@ -37,6 +37,7 @@
 #error You should upgrade your version of PlantGL
 #endif
 #include <plantgl/python/export_list.h>
+#include <plantgl/python/extract_list.h>
 #include <plantgl/python/export_refcountptr.h>
 
 using namespace boost::python;
@@ -179,6 +180,16 @@ PredefinedModuleClass::eCategory py_get_category(ModuleClass * mod)
 	else return PredefinedModuleClass::eUserDefined;
 }
 
+boost::python::object py_getParameterNames(const ModuleClass * mod) {
+	return make_list(mod->getParameterNames())();
+}
+
+void py_setParameterNames(ModuleClass * mod, boost::python::object names) {
+	mod->setParameterNames(extract_vec<std::string>(names)());
+}
+
+
+
 void export_Module(){
 
 	class_<PackedArgs> ("PackedArgs", init<boost::python::list>("PackedArgs"));
@@ -195,6 +206,9 @@ void export_Module(){
 	.add_static_property("predefinedClasses",py_predefinedclasses)
 	.add_property("scale",&ModuleClass::getScale,&ModuleClass::setScale)
 	.add_property("category",&ModuleClass::getScale,&ModuleClass::setScale)
+	.add_property("parameterNames",&py_getParameterNames,&py_setParameterNames)
+	.def("getParameterPosition",&ModuleClass::getParameterPosition)
+	.def("hasParameter",&ModuleClass::hasParameter)
 	;
 
 	enum_<PredefinedModuleClass::eCategory>("ModuleCategory")
@@ -307,6 +321,10 @@ void export_Module(){
 					  &ParamModule::match)
 	.add_property("args",&ParamModule::getArgs,&ParamModule::setArgs)
 	.add_static_property("matchingMethod",&MatchingEngine::getModuleMatchingMethod)
+	.def("getParameterPosition",&ParamModule::getParameterPosition)
+	.def("hasParameter",&ParamModule::hasParameter)
+	.def("getParameter",&ParamModule::getParameter)
+	.def("setParameter",&ParamModule::setParameter)
 	;
   enum_<MatchingEngine::eModuleMatchingMethod>("eMatchingMethod")
 	  .value("eSimple",MatchingEngine::eMSimple)
@@ -316,5 +334,5 @@ void export_Module(){
 
   }
   def("QueryModule",  (ParamModule(*)(size_t, const std::string&, int))&ParamModule::QueryModule,(bp::arg("id"),bp::arg("params"),bp::arg("lineno")=-1));
-  def("QueryModule",  (ParamModule(*)(const std::string&))&ParamModule::QueryModule);
+  def("QueryModule",  (ParamModule(*)(const std::string&, int))&ParamModule::QueryModule,(bp::arg("name"),bp::arg("lineno")=-1));
 }

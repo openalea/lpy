@@ -30,51 +30,46 @@
 
 #include "lsystem.h"
 using namespace boost::python;
+#define bp boost::python
+
 #include <string>
 LPY_USING_NAMESPACE
 
-const LsysRule& prodRule(Lsystem * lsys, int pos, int group)
-{ 
-  if(group < 0)group += lsys->nbGroups();
-  if(group < 0 || group >= lsys->nbGroups()){
+
+void check_group(int& group, size_t nbGroup) {
+  if(group < 0)group += nbGroup;
+  if(group < 0 || group >= nbGroup){
 	PyErr_SetString(PyExc_IndexError, "group index out of range");
     throw_error_already_set();
   }
-  if(pos < 0)pos += lsys->nbProductionRules(group);
-  if(pos < 0 || pos >= lsys->nbProductionRules(group)){
+}
+
+void check_ruleid(int& id, size_t nbRule) {
+  if(id < 0)id += nbRule;
+  if(id < 0 || id >= nbRule){
 	PyErr_SetString(PyExc_IndexError, "rule index out of range");
     throw_error_already_set();
   }
+}
+
+const LsysRule& prodRule(Lsystem * lsys, int pos = 0, int group = 0)
+{ 
+  check_group(group,lsys->nbGroups());
+  check_ruleid(pos,lsys->nbProductionRules(group));
   return lsys->prodRule(pos,group);
 }
 
-const LsysRule& decRule(Lsystem * lsys, int pos, int group)
+const LsysRule& decRule(Lsystem * lsys, int pos = 0, int group = 0)
 { 
-  if(group < 0)group += lsys->nbGroups();
-  if(group < 0 || group >= lsys->nbGroups()){
-	PyErr_SetString(PyExc_IndexError, "group index out of range");
-    throw_error_already_set();
-  }
-  if(pos < 0)pos += lsys->nbDecompositionRules(group);
-  if(pos < 0 || pos >= lsys->nbDecompositionRules(group)){
-	PyErr_SetString(PyExc_IndexError, "rule index out of range");
-    throw_error_already_set();
-  }
+  check_group(group,lsys->nbGroups());
+  check_ruleid(pos,lsys->nbDecompositionRules(group));
   return lsys->decRule(pos,group);
 }
 
 const LsysRule& homRule(Lsystem * lsys, int pos, int group)
 { 
-  if(group < 0)group += lsys->nbGroups();
-  if(group < 0 || group >= lsys->nbGroups()){
-	PyErr_SetString(PyExc_IndexError, "group index out of range");
-    throw_error_already_set();
-  }
-  if(pos < 0)pos += lsys->nbHomomorphismRules(group);
-  if(pos < 0 || pos >= lsys->nbHomomorphismRules(group)){
-	PyErr_SetString(PyExc_IndexError, "rule index out of range");
-    throw_error_already_set();
-  }
+  check_group(group,lsys->nbGroups());
+  check_ruleid(pos,lsys->nbHomomorphismRules(group));
   return lsys->homRule(pos,group);
 }
 
@@ -126,14 +121,14 @@ void export_Lsystem(){
 	.def("interpret", (void(Lsystem::*)(AxialTree&, PGL::Turtle&))&Lsystem::interpret)
 	.def("sceneInterpretation", &Lsystem::sceneInterpretation)
 	.def("homomorphism", &Lsystem::homomorphism)
-	.def("nbProductionRules", &Lsystem::nbProductionRules)
-	.def("nbDecompositionRules", &Lsystem::nbDecompositionRules)
-	.def("nbHomomorphismRules", &Lsystem::nbHomomorphismRules)
+	.def("nbProductionRules", &Lsystem::nbProductionRules, (bp::arg("group")=0))
+	.def("nbDecompositionRules", &Lsystem::nbDecompositionRules, (bp::arg("group")=0))
+	.def("nbHomomorphismRules", &Lsystem::nbHomomorphismRules, (bp::arg("group")=0))
 	.def("nbTotalRules", &Lsystem::nbTotalRules)
 	.def("nbGroups", &Lsystem::nbGroups)
-	.def("prodRule", prodRule, return_internal_reference<>())
-	.def("decRule", decRule, return_internal_reference<>())
-	.def("homRule", homRule, return_internal_reference<>())
+	.def("prodRule", prodRule, return_internal_reference<>(), (bp::arg("ruleid")=0,bp::arg("group")=0))
+	.def("decRule", decRule, return_internal_reference<>(), (bp::arg("ruleid")=0,bp::arg("group")=0))
+	.def("homRule", homRule, return_internal_reference<>(), (bp::arg("ruleid")=0,bp::arg("group")=0))
 	.def("animate", (AxialTree(Lsystem::*)())&Lsystem::animate)
 	.def("animate", (AxialTree(Lsystem::*)(double))&Lsystem::animate)
 	.def("animate", (AxialTree(Lsystem::*)(double,size_t))&Lsystem::animate)

@@ -75,12 +75,13 @@ public:
   bool isNull() const;
   bool isStar() const;
   bool isRepExp() const;
+  bool isOr() const;
   bool isGetIterator() const;
+  bool isGetModule() const;
   bool isConsidered() const;
   bool isIgnored() const;
 
   inline int scale() const { return __mclass->getScale(); }
-
 protected:
   void setClass(size_t cid);
 
@@ -120,7 +121,7 @@ public:
   typedef boost::python::list ParameterList;
 #endif
 
-  static ParamModule QueryModule(const std::string& name);
+  static ParamModule QueryModule(const std::string& name, int lineno = -1);
   static ParamModule QueryModule(size_t classid, const std::string& args, int lineno = -1);
   ParamModule(const std::string& name);
   ParamModule(const ParamModule& name);
@@ -199,6 +200,13 @@ public:
 
 
   inline void interpret(PGL::Turtle& t) { getClass()->interpret(*this,t); }
+
+  inline size_t getParameterPosition(const std::string& name) const  { return getClass()->getParameterPosition(name); }
+  inline bool hasParameter(const std::string& name) const  { return getClass()->hasParameter(name); }
+
+  boost::python::object getParameter(const std::string& name) const;
+  void setParameter(const std::string& name, boost::python::object);
+
 protected:
   ParamModule();
   ParameterList __args;

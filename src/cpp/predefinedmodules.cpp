@@ -368,9 +368,10 @@ void ModuleClass::createPredefinedClasses() {
 	f = new DeclaredModule(f)("f");
 	X = new PredefinedModuleClass("X","MouseIns","Module inserted just before module selected by user in visualisation.",PredefinedModuleClass::eStringManipulation); 
 	Cut = new PredefinedModuleClass("%","Cut","Cut the remainder of the current branch in the string.",PredefinedModuleClass::eStringManipulation);
-	Star = new PredefinedModuleClass("*","any","Used to match any module in rules predecessor.",PredefinedModuleClass::ePatternMatching);
-	RepExp = new PredefinedModuleClass("x","repexp","Used to specify matching of a repetition of modules in rules right context.",PredefinedModuleClass::ePatternMatching);
+	Star = new PredefinedModuleClass("*","any","Used to match any module in rules predecessor. First argument will become name of the module.",PredefinedModuleClass::ePatternMatching);
+	RepExp = new PredefinedModuleClass("x","repexp","Used to specify matching of a repetition of modules.",PredefinedModuleClass::ePatternMatching);
 	RepExp->aliases.push_back("all");
+	Or = new PredefinedModuleClass("or","||","Used to specify an alternative matching of modules.",PredefinedModuleClass::ePatternMatching);
 	QueryPosition = new DeclaredModule(GetPos)("?P","GetPos");
 	QueryHeading = new DeclaredModule(GetHead)("?H","GetHead");
 	QueryUp = new DeclaredModule(GetUp)("?U","GetUp");
@@ -409,7 +410,8 @@ void ModuleClass::createPredefinedClasses() {
 	Tropism = new DeclaredModule(tropism)("@Tp","Tropism");
 	SetContour = new DeclaredModule(setcontour)("SetContour");
 	GetIterator = new PredefinedModuleClass("?I","GetIterator","Request an iterator over the current Lstring.",PredefinedModuleClass::ePatternMatching);
-	New = new PredefinedModuleClass("new","newmodule","Create a new module whose class is given by first argument.",PredefinedModuleClass::eStringManipulation);
+	GetModule = new PredefinedModuleClass("$","GetModule","Request a module of the current Lstring.",PredefinedModuleClass::ePatternMatching);
+	New = new PredefinedModuleClass("new","newmodule","Create a new module whose name is given by first argument.",PredefinedModuleClass::eStringManipulation);
 }
 
 #define CLEAR_PM(MName) ModuleClass::MName = NULL;

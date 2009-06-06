@@ -57,6 +57,7 @@ typedef std::vector<ModuleClassPtr> ModuleClassList;
 	MACRO(Cut) \
 	MACRO(Star) \
 	MACRO(RepExp) \
+	MACRO(Or) \
 	MACRO(QueryPosition) \
 	MACRO(QueryHeading) \
 	MACRO(QueryUp) \
@@ -98,6 +99,7 @@ typedef std::vector<ModuleClassPtr> ModuleClassList;
 	MACRO(Tropism) \
 	MACRO(SetContour) \
 	MACRO(GetIterator) \
+	MACRO(GetModule) \
 	MACRO(New) \
 
 #define DECLARE_PM(MName) static ModuleClassPtr MName;
@@ -145,6 +147,15 @@ public:
 	bool removeProperty(const std::string& name);
 	bool isOnlyInPattern() const { return onlyInPattern; }
 
+	static size_t NOPOS;
+
+	void setParameterNames(const std::vector<std::string>& names);
+	std::vector<std::string> getParameterNames() const;
+	size_t getParameterPosition(const std::string&) const;
+	inline bool hasParameter(const std::string& name) const 
+	{ return getParameterPosition(name) != NOPOS; }
+
+
 protected:
 	static ModuleClassList * PredefinedClasses;
 	bool onlyInPattern;
@@ -156,6 +167,11 @@ private:
 
 	ModuleVTablePtr __vtable;
 	void create_vtable();
+
+	typedef pgl_hash_map_string<size_t> InternalParameterNameList;
+	InternalParameterNameList __paramnames;
+	static const InternalParameterNameList * sorter;
+	static bool sortNames(const std::string&,const std::string&);
 
 };
 

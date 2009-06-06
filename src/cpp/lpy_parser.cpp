@@ -280,7 +280,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
 		  _it2 = _it;
           if(has_pattern(_it,endpycode,"module")){
             code+=std::string(beg,_it2);
-			LpyParsing::ModLineDeclatation modules = LpyParsing::parse_moddeclaration(_it,endpycode);
+			LpyParsing::ModLineDeclatation modules = LpyParsing::parse_moddeclaration_line(_it,endpycode);
 			code+="# "+std::string(_it2,_it);
 			int scale = ModuleClass::DEFAULT_SCALE;
 			if(!modules.second.empty())
@@ -288,13 +288,21 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
 			for(LpyParsing::ModDeclarationList::const_iterator itmod = modules.first.begin(); 
 				 itmod != modules.first.end(); ++itmod){
 				ModuleClassPtr mod;
-				if(itmod->second.empty()){
-					mod = ModuleClassTable::get().declare(itmod->first);
+				if(!itmod->alias){
+					mod = ModuleClassTable::get().declare(itmod->name);
 				    __context.declare(mod);
+					if(!itmod->parameters.empty()){
+						printf("%s\n",itmod->parameters.c_str());
+						std::vector<std::string> args = LpyParsing::parse_arguments(itmod->parameters);
+						for(std::vector<std::string>::const_iterator itarg = args.begin(); itarg != args.end(); ++itarg){
+							if(!LpyParsing::isValidVariableName(*itarg))LsysError("Invalid parameter name '"+*itarg+"'","",lineno);
+						}
+						mod->setParameterNames(args);
+					}
 				}
 				else {
-					mod = ModuleClassTable::get().alias(itmod->first,itmod->second);
-					__context.declareAlias(itmod->first,mod);
+					mod = ModuleClassTable::get().alias(itmod->name,itmod->parameters);
+					__context.declareAlias(itmod->name,mod);
 				}
 				if(scale != ModuleClass::DEFAULT_SCALE)mod->setScale(scale);
 			}
@@ -307,11 +315,11 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
 		  _it2 = _it;
           if(has_pattern(_it,endpycode,"undeclare")){
             code+=std::string(beg,_it2);
-			LpyParsing::ModDeclarationList modules = LpyParsing::parse_modlist(_it,endpycode,false);
+			LpyParsing::ModNameList modules = LpyParsing::parse_modlist(_it,endpycode,false);
 			code+="# "+std::string(_it2,_it);
-			for(LpyParsing::ModDeclarationList::const_iterator itmod = modules.begin(); 
+			for(LpyParsing::ModNameList::const_iterator itmod = modules.begin(); 
 				 itmod != modules.end(); ++itmod){
-				ModuleClassPtr mod = ModuleClassTable::get().findClass(itmod->first);
+				ModuleClassPtr mod = ModuleClassTable::get().findClass(*itmod);
 				if(mod)__context.undeclare(mod);
 				else LsysError("Cannot undeclare a not declared module",filename,lineno);
 			}
@@ -791,7 +799,7 @@ void LsysRule::set( const std::string& rule ){
 }
 
 /*---------------------------------------------------------------------------*/
-std::string::const_iterator next_element(std::string::const_iterator _it2,
+std::string::const_iterator next_token(std::string::const_iterator _it2,
 											 std::string::const_iterator end)
 {
     if(_it2 != end){
@@ -816,6 +824,7 @@ std::string::const_iterator next_element(std::string::const_iterator _it2,
 					else if(*_it2 == '"') { _it2++; while(_it2 != end && *_it2 != '"')_it2++; }
 					else if(*_it2 == '\''){ _it2++; while(_it2 != end && *_it2 != '\'')_it2++; }
 			}
+			if(_it2 != end)_it2++;
 		  }
 		  else if(*_it2 == '['){ // skip array
 			int nbOpenBracket = 1;
@@ -828,6 +837,7 @@ std::string::const_iterator next_element(std::string::const_iterator _it2,
 					else if(*_it2 == '"') { _it2++; while(_it2 != end && *_it2 != '"')_it2++; }
 					else if(*_it2 == '\''){ _it2++; while(_it2 != end && *_it2 != '\'')_it2++; }
 			}
+			if(_it2 != end)_it2++;
 		  }
 		  else if(*_it2 == '{'){ // skip dict
 			int nbOpenBracket = 1;
@@ -840,6 +850,7 @@ std::string::const_iterator next_element(std::string::const_iterator _it2,
 					else if(*_it2 == '"') { _it2++; while(_it2 != end && *_it2 != '"')_it2++; }
 					else if(*_it2 == '\''){ _it2++; while(_it2 != end && *_it2 != '\'')_it2++; }
 			}
+			if(_it2 != end)_it2++;
 		  }
 		  else _it2++;
 	}
@@ -893,7 +904,7 @@ LsysRule::parseHeader( const std::string& header){
       if(pred.empty())LsysError("Ill-formed Rule Header : No Predecessor found : "+header,"",lineno);
 	  beg = it+1;
     }
-	it = next_element(it,end);
+	it = next_token(it,end);
 	// it++;
   }
   if(pred.empty()){
@@ -934,19 +945,120 @@ std::string LpyParsing::lstring2py( std::string::const_iterator& beg,
   bool first = true;
   for(std::vector<std::pair<size_t,std::string> >::const_iterator it = parsedstring.begin();
 	  it != parsedstring.end(); ++it){
-		std::string mod_id = TOOLS(number)(it->first);
-		bool has_arg = (it->second.size() > 0);
 		if(!first) result += ",";
 		else first = false;
-		if (has_arg) result += "(";
-		result += mod_id;
-		if (has_arg) result += ","+it->second+")";
+		if (it->first == ModuleClass::GetModule->getId()){
+			result += it->second;
+		}
+		else {
+			std::string mod_id = TOOLS(number)(it->first);
+			bool has_arg = (it->second.size() > 0);
+			if (has_arg) result += "(";
+			result += mod_id;
+			if (has_arg) result += ","+it->second+")";
+		}
   } // end for
   result += "]";
   return result;
 }
 
 /*---------------------------------------------------------------------------*/
+
+
+std::pair<size_t,std::string>
+parseAModule( std::string::const_iterator& _it,
+			  std::string::const_iterator endpos,
+			  bool production,
+			  int lineno)
+{
+	std::string::const_iterator _it2 = _it;
+	bool first = true;
+	size_t mod_id;
+	size_t namesize = 0;
+	std::string mod_args;
+	ModuleClassPtr mod = ModuleClassTable::get().find(_it,endpos,namesize);
+	if (!mod){
+		LsysSyntaxError(std::string("Invalid symbol '")+*_it+"' in AxialTree.","",lineno);
+		// mod = ModuleClassTable::get().declare(*_it); ++_it; 
+	}
+	else {_it += namesize; }
+	while(_it != endpos && (*_it == ' ' || *_it == '\t'))++_it;
+	mod_id = mod->getId();
+	bool has_arg = false;
+	bool isNewExpression = false; 
+	if (mod == ModuleClass::GetModule  ){
+		if (_it != endpos && *_it != '('){
+			has_arg = true;
+			_it2 = _it;
+			while(_it != endpos && (*_it != '=' && *_it != ' ' && *_it != '\t' && *_it != '\n')) ++_it;
+			mod_args = std::string(_it2,_it);
+			if (!production){
+				while(_it != endpos && (*_it == ' ' || *_it == '\t'))++_it;
+				if(_it == endpos || *_it != '=') LsysSyntaxError("Invalid declaration of pattern.","",lineno);
+				++_it;
+				while(_it != endpos && (*_it == ' ' || *_it == '\t'))++_it;
+				_it2 = _it;
+				parseAModule(_it,endpos,production,lineno);
+				if(_it2 != _it);
+				mod_args += ","+std::string(_it2,_it);
+			}
+			isNewExpression = true;
+		}
+	}
+	if(!isNewExpression) {
+		if (mod == ModuleClass::CpfgSurface){
+			if (_it != endpos && *_it != '('){
+				has_arg = true;
+				mod_args = std::string("'")+*_it+"',";
+				_it++;
+			}
+		}
+		if(_it != endpos && *_it == '('){
+			// look for parameters
+			++_it;
+			if(_it == endpos) LsysSyntaxError("Invalid syntax in AxialTree","",lineno);
+			_it2 = _it;
+			std::string::const_iterator lastcoma = _it2;
+			int parenthesis = 0;
+			while(_it != endpos && (*_it != ')' || parenthesis > 0)){
+				switch(*_it){
+					case ')': parenthesis--; break;
+					case '(': parenthesis++; break;
+					case '#': while(_it != endpos && *_it != '\n')++_it;break;
+					case '"': while(_it != endpos && *_it != '"')++_it;break;
+					case '\'': while(_it != endpos && *_it != '\'')++_it;break;
+					case ',': lastcoma = _it;break;
+					default: break;
+				}
+				++_it;
+				if(_it == endpos)
+					LsysSyntaxError("Invalid syntax in AxialTree","",lineno);
+			}
+			if(_it != endpos)_it++;
+			bool without_unpacking = true;
+			if(lastcoma!= endpos && production){
+				// Simulation of unpacking of arguments
+				if(*lastcoma == ',')++lastcoma;
+				while(lastcoma != endpos && (*lastcoma == ' ' || *lastcoma == '\t') )++lastcoma;
+				if(*lastcoma == '*'){
+					std::string::const_iterator lit = lastcoma+1;
+					if (LpyParsing::isValidVariableName(lastcoma+1,_it-1)){
+						mod_args += std::string(_it2,lastcoma);
+						mod_args += "PackedArgs(";
+						mod_args += std::string(lastcoma+1,_it);
+						without_unpacking = false;
+					}
+				}
+			}
+			if(without_unpacking)  mod_args += std::string(_it2,_it-1);
+			has_arg = (mod_args.size() > 0);
+		}
+	}
+	std::pair<size_t,std::string> amod;
+	amod.first = mod_id;
+	amod.second = mod_args;
+	return amod;
+}
 
 std::vector<std::pair<size_t,std::string> > 
 LpyParsing::parselstring( std::string::const_iterator& beg,
@@ -959,8 +1071,6 @@ LpyParsing::parselstring( std::string::const_iterator& beg,
   std::vector<std::pair<size_t,std::string> > result;
   std::string::const_iterator _it = beg;
   while(_it != endpos && (*_it == ' ' || *_it == '\t'))_it++;
-  std::string::const_iterator _it2 = _it;
-  bool first = true;
   while(_it != endpos && *_it != delim){
 	if(*_it == '#') {// skip comments
 		++_it;
@@ -985,70 +1095,8 @@ LpyParsing::parselstring( std::string::const_iterator& beg,
 	  _it++;
 	}
 #endif
-	else {
-		size_t mod_id;
-		size_t namesize = 0;
-		std::string mod_args;
-		ModuleClassPtr mod = ModuleClassTable::get().find(_it,endpos,namesize);
-		if (!mod){
-			LsysSyntaxError(std::string("Invalid symbol '")+*_it+"' in AxialTree.","",lineno);
-			// mod = ModuleClassTable::get().declare(*_it); ++_it; 
-		}
-		else {_it += namesize; }
-		while(_it != endpos && (*_it == ' ' || *_it == '\t'))++_it;
-		mod_id = mod->getId();
-		bool has_arg = false;
-		if (mod == ModuleClass::CpfgSurface){
-			if (_it != endpos && *_it != '('){
-				has_arg = true;
-				mod_args = std::string("'")+*_it+"',";
-				_it++;
-			}
-		}
-		if(_it != endpos && *_it == '('){
-			// look for parameters
-			++_it;
-			if(_it == endpos) LsysSyntaxError("Invalid syntax in AxialTree","",lineno);
-			_it2 = _it;
-            std::string::const_iterator lastcoma = _it2;
-			int parenthesis = 0;
-			while(_it != endpos && (*_it != ')' || parenthesis > 0)){
-				switch(*_it){
-					case ')': parenthesis--; break;
-					case '(': parenthesis++; break;
-					case '#': while(_it != endpos && *_it != '\n')++_it;break;
-					case '"': while(_it != endpos && *_it != '"')++_it;break;
-					case '\'': while(_it != endpos && *_it != '\'')++_it;break;
-					case ',': lastcoma = _it;break;
-					default: break;
-				}
-				++_it;
-				if(_it == endpos)
-					LsysSyntaxError("Invalid syntax in AxialTree","",lineno);
-			}
-			if(_it != endpos)_it++;
-			bool without_unpacking = true;
-			if(lastcoma!= endpos && production){
-				// Simulation of unpacking of arguments
-				if(*lastcoma == ',')++lastcoma;
-				while(lastcoma != endpos && (*lastcoma == ' ' || *lastcoma == '\t') )++lastcoma;
-				if(*lastcoma == '*'){
-					std::string::const_iterator lit = lastcoma+1;
-					if (isValidVariableName(lastcoma+1,_it-1)){
-						mod_args += std::string(_it2,lastcoma);
-						mod_args += "PackedArgs(";
-						mod_args += std::string(lastcoma+1,_it);
-						without_unpacking = false;
-					}
-				}
-			}
-			if(without_unpacking)  mod_args += std::string(_it2,_it-1);
-			has_arg = (mod_args.size() > 0);
-		}
-		std::pair<size_t,std::string> amod;
-		amod.first = mod_id;
-		amod.second = mod_args;
-		result.push_back(amod);
+	else {		
+		result.push_back(parseAModule(_it,endpos,production,lineno));
 	}
   } // end while
   beg = _it;
@@ -1058,22 +1106,74 @@ LpyParsing::parselstring( std::string::const_iterator& beg,
 /*---------------------------------------------------------------------------*/
 
 LpyParsing::ModDeclarationList 
+LpyParsing::parse_moddeclist(std::string::const_iterator& beg,
+						  std::string::const_iterator endpos,
+						  char delim)
+{
+  size_t nb = 0;
+  ModDeclarationList result;
+  std::string::const_iterator _it = beg;
+  while(_it != endpos && *_it != delim){
+	  ++nb; 
+	  while (_it != endpos &&(*_it == ' ' || *_it == '\t'))++_it;
+	  if (_it == endpos || *_it == delim || *_it == '\n' || *_it == ':' || *_it == '#') break;
+	  if (nb != 1){
+		  if(*_it != ',') LsysSyntaxError(std::string("Invalid syntax in module declaration: Wait for ','instead of '")+*_it+"'");
+		  ++_it;
+	  }
+	  while (_it != endpos &&(*_it == ' ' || *_it == '\t'))++_it;
+	  if (_it == endpos || *_it == delim || *_it == '\n' || *_it == ':' || *_it == '#') break;
+	  std::string::const_iterator bm = _it;
+	  while(_it != endpos && *_it != ','  && *_it != ' ' && *_it != '\t' 
+		                  && *_it != '\n' && *_it != ':' && *_it != '=' 
+		                  && *_it != '('  && *_it != '#'  && *_it != delim) ++_it;
+	  std::string name(bm,_it);
+	  if(name.empty())  LsysSyntaxError("Invalid empty name in declaration of "+TOOLS::number(nb)+" module.");
+	  else { result.push_back(ModDeclaration(name)); }
+	  while (_it != endpos && (*_it == ' ' || *_it == '\t'))++_it;
+	  if(*_it != ',' && *_it != '\n' && *_it != ':' && *_it != '=' && *_it != '(' && *_it != '#')
+		  LsysSyntaxError("Invalid syntax in module declaration: Wait for ',','=',':','(','#'.");
+	  if(*_it == ':' || *_it == '#' || *_it == '\n') break;
+	  switch(*_it){
+		case '=':
+			++_it;
+			while (_it == endpos && (*_it == ' ' || *_it == '\t'))++_it;
+			bm = _it;
+			while (_it != endpos && (*_it == '_' || isalnum(*_it)))++_it;
+			result.back().alias = true;
+			result.back().parameters = std::string(bm,_it);
+			break;
+		case '(':
+			bm = _it+1;
+			_it = next_token(_it,endpos);
+			if(*(_it-1) != ')')
+				LsysSyntaxError("Invalid syntax in module declaration: Wait for ')'.");
+			result.back().parameters = std::string(bm,_it-1);
+			break;
+		case ',':
+		default:
+			break;
+	  }
+ }
+  beg = _it;
+  return result;
+}
+
+/*---------------------------------------------------------------------------*/
+
+LpyParsing::ModNameList 
 LpyParsing::parse_modlist(std::string::const_iterator& beg,
 						  std::string::const_iterator endpos,
-						  bool allow_alias,
 						  char delim)
 {
   bool first = true;
-  ModDeclarationList result;
+  ModNameList result;
   std::string::const_iterator _it = beg;
   while(_it != endpos && *_it != delim){
 	while ((*_it == ' ' || *_it == '\t' || *_it == '\n')&& *_it != delim)++_it;
 	if (_it == endpos || *_it == delim || *_it == ':' || *_it == '#') break;
-	bool isAlias = false;
 	if (!first){
-		if(*_it != ',' && *_it != '=') LsysSyntaxError("Invalid syntax in module declaration: Wait for ',' or '='.");
-	    isAlias = (*_it == '=');
-		if (!allow_alias && isAlias) LsysSyntaxError("Invalid syntax in module declaration: Alias not allowed here.");
+		if(*_it != ',') LsysSyntaxError("Invalid syntax in module declaration: Wait for ','.");
 		++_it;
 		while (_it != endpos && (*_it == ' ' || *_it == '\t' || *_it == '\n')&& *_it != delim)++_it;
 		if (_it == endpos || *_it == delim)
@@ -1082,11 +1182,7 @@ LpyParsing::parse_modlist(std::string::const_iterator& beg,
 	else first = false;
 	std::string::const_iterator bm = _it;
 	while(_it != endpos && *_it != ',' && *_it != ' ' && *_it != '\t' && *_it != '\n' && *_it != ':' && *_it != '=' && *_it != '#' && *_it != delim) ++_it;
-	if (bm != _it){
-		std::string m(bm,_it);
-		if(isAlias)result.back().second = m;
-		else result.push_back(ModDeclaration(m,""));
-	}
+	if (bm != _it) result.push_back(std::string (bm,_it));
   }
   beg = _it;
   return result;
@@ -1095,13 +1191,13 @@ LpyParsing::parse_modlist(std::string::const_iterator& beg,
 /*---------------------------------------------------------------------------*/
 
 LpyParsing::ModLineDeclatation 
-LpyParsing::parse_moddeclaration(std::string::const_iterator& beg,
+LpyParsing::parse_moddeclaration_line(std::string::const_iterator& beg,
 								 std::string::const_iterator endpos,
 								 char delim)
 {
   ModLineDeclatation result;
   std::string::const_iterator _it = beg;
-  result.first = LpyParsing::parse_modlist(_it,endpos,delim);
+  result.first = LpyParsing::parse_moddeclist(_it,endpos,delim);
   std::string scalevalue;
   if (_it != endpos && *_it == ':') {
     ++_it;
@@ -1150,7 +1246,7 @@ std::vector<std::string> LpyParsing::parse_arguments(std::string::const_iterator
 	std::string::const_iterator _it2 = _it;
 	while(_it2 != end){
 		while(_it2 != end && *_it2 != ',' && *_it2 != ')'){
-			_it2 = next_element(_it2,end);
+			_it2 = next_token(_it2,end);
 		}
 		if(_it != _it2){
 			/// triming name

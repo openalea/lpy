@@ -16,6 +16,10 @@ public:
 		value += elements;
 	}
 
+	static inline void append_arg(element_type&  value, const bp::object& element){
+		value.append(element);
+	}
+
 	static inline void prepend_args(element_type& value, element_type& elements){
 		elements += value;
 		value = elements;
@@ -52,6 +56,28 @@ void process_get_iterator(PIterator pattern,
 	}
 	else params.append(pyiter);
 
+}
+
+
+template<class argtype, class PIterator, class Iterator>
+bool process_get_module(PIterator pattern, 
+						Iterator it, 
+						argtype& params)
+{
+	argtype lp;
+	ParamModule lpattern = bp::extract<ParamModule>(pattern->getAt(1))();
+	if (lpattern.argSize() > 0){
+		if(MatchingEngine::module_match(*it,lpattern,lp)){
+			BPListManager::append_arg(params,bp::object(*it));
+			BPListManager::append_args(params,lp); 
+		}
+		else return false;
+	}
+	else { 
+		if(it->getClass() == lpattern.getClass())BPListManager::append_arg(params,bp::object(*it));
+		else return false;
+	}
+	return true;
 }
 
 
@@ -146,6 +172,9 @@ public:
 
 /*---------------------------------------------------------------------------*/
 
+
+/*---------------------------------------------------------------------------*/
+
 template<
 template < typename, typename> class NextElement = StringNext, 
 class Iterator = AxialTree::const_iterator, class PIterator = AxialTree::const_iterator,
@@ -167,8 +196,12 @@ struct StringMatcher : public ArgsContainer
 		for (PIterator it2 = pattern_begin; it2 != pattern_end; ++it2){
 			pit = it;
 			argtype lmp;
-			if( it == string_end || !MatchingEngine::module_match(*it,*it2,lmp))return false;
-			else { append_args(lp,lmp); it = Next::next(it,it2,string_end); }
+			if(it2->isGetModule()){
+				if(!process_get_module(it2,it,lp)) return false;
+			}
+			else if( it == string_end || !MatchingEngine::module_match(*it,*it2,lmp))return false;
+			else { append_args(lp,lmp); }
+			it = Next::next(it,it2,string_end); 
 		}
 		params = lp;
 		matching_end = it;
@@ -196,15 +229,16 @@ struct StringReverseMatcher : public ArgsContainer
 		argtype lp;
 		for (PRIterator it2 = pattern_rbegin; it2 != pattern_rend; ){
 			argtype lmp;
-			if(!MatchingEngine::module_match(*it,*it2,lmp)) return false; 
-			else { 
-				++it2;
-				if (it == string_begin){
-					if (it2 != pattern_rend) return false;
-				}
-				else it = Previous::next(it,it2,string_begin,string_end);
-				prepend_args(lp,lmp);
+			if(it2->isGetModule()){
+				if(!process_get_module(it2,it,lmp)) return false;
 			}
+			else if(!MatchingEngine::module_match(*it,*it2,lmp)) return false; 
+			++it2;
+			if (it == string_begin){
+				if (it2 != pattern_rend) return false;
+			}
+			else it = Previous::next(it,it2,string_begin,string_end);
+			prepend_args(lp,lmp);
 		}
 		params = lp;
 		matching_end = it;
@@ -234,7 +268,10 @@ struct TreeLeftMatcher : public ArgsContainer
 		argtype lparams;
 		while(it2 != pattern_rend && it != string_end){
 			argtype lp;
-			if (! MatchingEngine::module_match(*it,*it2,lp) ) return false;
+			if(it2->isGetModule()){
+				if(!process_get_module(it2,it,lp)) return false;
+			}
+			else if (! MatchingEngine::module_match(*it,*it2,lp) ) return false;
 			prepend_args(lparams,lp);
 			++it2; 
 			if (it2 == pattern_rend) break;
@@ -275,7 +312,6 @@ struct TreeRightMatcher : public ArgsContainer
 		Iterator it = matching_start;
 		PIterator it2 = pattern_begin;
 		argtype lparams;
-		// printf("m '%s' - '%s'\n",it2->name().c_str(),it->name().c_str());
 		it = NextElement::initial_next(it,it2,last_matched,string_end);				
 		bool nextpattern = true;
 		bool nextsrc = true;
@@ -292,6 +328,9 @@ struct TreeRightMatcher : public ArgsContainer
 			else if(it2->isGetIterator()){
 				process_get_iterator(it2,it,string_end,lparams);
 				nextsrc = false;
+			}
+			else if(it2->isGetModule()){
+				if(!process_get_module(it2,it,lparams)) return false;
 			}
 			else if(it2->isRepExp()){
 				std::vector<argtype> llp;
@@ -319,6 +358,32 @@ struct TreeRightMatcher : public ArgsContainer
 				else { 
 					append_args(lparams,fusion_args(llp)); 
 				}
+			}
+			else if(it2->isOr()){
+				int matched = -1;			
+				argtype lp;
+				std::vector<size_t> nbargs;
+				for(int ip = 0;ip < it2->argSize(); ++ip){
+					AxialTree lpattern = bp::extract<AxialTree>(it2->getAt(ip))();
+					nbargs.push_back(lpattern.getVarNb());
+					if(matched == -1) { 
+						if(MType::match(it,string_end,lpattern.begin(),lpattern.end(),last_matched,it,lp)) matched = ip;
+					}
+				}
+				if (matched == -1) return false;
+				else {
+					size_t nbNone = 0;
+				    for(int ip = 0;ip < matched; ++ip)nbNone += nbargs[ip];
+					argtype lpNone;
+					lpNone.append(bp::object());
+					argtype lpNoneBefore = argtype(lpNone * nbNone);
+					lpNoneBefore += lp;
+					lp =  lpNoneBefore;
+					nbNone = 0;
+				    for(int ip = matched+1;ip < it2->argSize(); ++ip)nbNone += nbargs[ip];
+					lp += lpNone * nbNone;
+					append_args(lparams,lp); 
+ 				}
 			}
 			else if(!it2->isBracket()){ // matching a pattern module
 				if(!it->isBracket()) {

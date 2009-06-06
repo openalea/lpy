@@ -153,9 +153,19 @@ bool Module::isRepExp() const
 	return __mclass == ModuleClass::RepExp;
 }
 
+bool Module::isOr() const
+{ 
+	return __mclass == ModuleClass::Or;
+}
+
 bool Module::isGetIterator() const
 {
 	return __mclass == ModuleClass::GetIterator;
+}
+
+bool Module::isGetModule() const
+{
+	return __mclass == ModuleClass::GetModule;
 }
 
 bool 
@@ -389,9 +399,27 @@ void ParamModule::__processQueryModule(const std::string& argstr, int lineno){
 	  std::vector<std::string> args = LpyParsing::parse_arguments(argstr);
 	  if (args.empty())LsysError("No Matching Pattern in RepExp module","",lineno);
 	  else if (args.size() > 3) LsysError("Too much parameters in RepExp module","",lineno);
-	  appendParam(__args,boost::python::object(AxialTree::QueryTree(args[0])));
+	  appendParam(__args,boost::python::object(AxialTree::QueryTree(args[0],lineno)));
 	  if (args.size() > 1) appendParam(__args,LsysContext::currentContext()->evaluate(args[1]));
 	  if (args.size() == 3) appendParam(__args,LsysContext::currentContext()->evaluate(args[2]));
+  }
+  else if (getClass() == ModuleClass::Or) {
+	  std::vector<std::string> args = LpyParsing::parse_arguments(argstr);
+	  if (args.size() < 2)LsysError("Not enough parameters in Or module","",lineno);
+	  for(size_t i = 0; i < args.size(); ++i){
+		appendParam(__args,boost::python::object(AxialTree::QueryTree(args[i],lineno)));
+	  }
+  }
+  else if (getClass() == ModuleClass::GetModule) {
+	  std::vector<std::string> args = LpyParsing::parse_arguments(argstr);
+	  if (args.size() != 2)LsysError("Invalid construction to GetModule","",lineno);
+	  std::pair<std::string,std::string> vartxt = LpyParsing::parse_variable(args[0],lineno);
+	  if(LpyParsing::isValidVariableName(vartxt.first)){
+		LsysVar var(vartxt.first);
+		if(!vartxt.second.empty())var.setCondition(vartxt.second,lineno);
+		appendParam(__args,object(var));
+	  }
+	  appendParam(__args,boost::python::object(ParamModule::QueryModule(args[1],lineno)));
   }
   else {
 	  std::vector<std::string> args = LpyParsing::parse_arguments(argstr);
@@ -423,12 +451,12 @@ void ParamModule::__processQueryModule(const std::string& argstr, int lineno){
 }
 
 ParamModule 
-ParamModule::QueryModule(const std::string& name) 
+ParamModule::QueryModule(const std::string& name, int lineno) 
 {
-  std::vector<std::pair<size_t,std::string> > parsedstring = LpyParsing::parselstring(name);
-  if(parsedstring.size() != 1)LsysError("Invalid query module "+name);
+  std::vector<std::pair<size_t,std::string> > parsedstring = LpyParsing::parselstring(name,lineno);
+  if(parsedstring.size() != 1)LsysError("Invalid query module "+name,"",lineno);
   ParamModule m(parsedstring[0].first);
-  m.__processQueryModule(parsedstring[0].second);
+  m.__processQueryModule(parsedstring[0].second,lineno);
   return m;
 }
 
@@ -542,6 +570,24 @@ ParamModule::getVarNames() const
 	extract<AxialTree> t(getAt(0));
 	if(t.check()) return t().getVarNames();
   }
+  else if (isOr()) {
+	  for(size_t i = 0; i < argSize(); i++){
+		  extract<AxialTree> v(getAt(i));
+		  if(v.check()) {
+		   std::vector<std::string> lres = v().getVarNames();
+		   res.insert(res.end(),lres.begin(),lres.end());
+		  }
+	  }
+  }
+  else if (isGetModule()) {
+	extract<LsysVar> v0(getAt(0));
+	if(v0.check()) res.push_back(v0().varname());
+	extract<ParamModule> v(getAt(1));
+	if(v.check()) {
+	   std::vector<std::string> lres = v().getVarNames();
+	   res.insert(res.end(),lres.begin(),lres.end());
+	}
+  }
   else {
 	  for(size_t i = 0; i < argSize(); i++){
 		  extract<LsysVar> v(getAt(i));
@@ -558,6 +604,18 @@ ParamModule::getVarNb() const
   if (isRepExp()) {
 	extract<AxialTree> t(getAt(0));
 	if(t.check()) return t().getVarNb();
+  }
+  else if (isOr()) {
+	  for(size_t i = 0; i < argSize(); i++){
+		  extract<AxialTree> v(getAt(i));
+		  if(v.check()) res += v().getVarNb();
+	  }
+  }
+  else if (isGetModule()) {
+	extract<LsysVar> v0(getAt(0));
+	if(v0.check()) res += 1;
+	extract<ParamModule> v(getAt(1));
+	if(v.check()) res += v().getVarNb();
   }
   else {
 	  for(size_t i = 0; i < argSize(); i++){
@@ -739,6 +797,25 @@ ParamModule::operator+(const object& o) const
 }
 
 /*---------------------------------------------------------------------------*/
+
+boost::python::object ParamModule::getParameter(const std::string& pname) const
+{
+	size_t pos = getParameterPosition(pname);
+	if (pos == ModuleClass::NOPOS) LsysError("Invalid parameter name '"+pname+"' for module '"+name()+"'.");
+	if (pos >= argSize()) LsysError("Inexisting value for parameter '"+pname+"' for module '"+name()+"'.");
+	return getAt(pos);
+}
+
+void ParamModule::setParameter(const std::string& pname, boost::python::object value)
+{
+	size_t pos = getParameterPosition(pname);
+	if (pos == ModuleClass::NOPOS) LsysError("Invalid parameter name '"+pname+"' for module '"+name()+"'.");
+	if (pos >= argSize()) LsysError("Inaccessible value for parameter '"+pname+"' for module '"+name()+"'.");
+	setAt(pos,value);
+}
+
+/*---------------------------------------------------------------------------*/
+
 bool ParamModule::match(const std::string& _name, size_t nbargs) const
 { return name() == _name && argSize() == nbargs; }
 

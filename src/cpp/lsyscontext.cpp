@@ -391,17 +391,24 @@ LsysContext::keyword() const{
 void 
 LsysContext::declare(const std::string& modules)
 {
-	LpyParsing::ModDeclarationList moduleclasses = LpyParsing::parse_modlist(modules);
+	LpyParsing::ModDeclarationList moduleclasses = LpyParsing::parse_moddeclist(modules);
 	bool iscurrent = isCurrent();
 	for(LpyParsing::ModDeclarationList::const_iterator it = moduleclasses.begin();
 		it != moduleclasses.end(); ++it)
 	{
 		ModuleClassPtr mod;
-		if(it->second.empty()){
-			mod = ModuleClassTable::get().declare(it->first);
+		if(!it->alias){
+			mod = ModuleClassTable::get().declare(it->name);
 			__modules.push_back(mod);
+			if(!it->parameters.empty()){
+				std::vector<std::string> args = LpyParsing::parse_arguments(it->parameters);
+				for(std::vector<std::string>::const_iterator itarg = args.begin(); itarg != args.end(); ++itarg){
+					if(!LpyParsing::isValidVariableName(*itarg))LsysError("Invalid parameter name '"+*itarg+"'");
+				}
+			    mod->setParameterNames(args);
+			}
 		}
-		else mod = ModuleClassTable::get().alias(it->first,it->second);
+		else mod = ModuleClassTable::get().alias(it->name,it->parameters);
 		mod->activate(iscurrent);
 	}
 }
@@ -418,12 +425,12 @@ void LPY::declare(const std::string& modules)
 void 
 LsysContext::undeclare(const std::string& modules)
 {
-	LpyParsing::ModDeclarationList moduleclasses = LpyParsing::parse_modlist(modules,false);
+	LpyParsing::ModNameList moduleclasses = LpyParsing::parse_modlist(modules);
 	bool iscurrent = isCurrent();
-	for(LpyParsing::ModDeclarationList::const_iterator it = moduleclasses.begin();
+	for(LpyParsing::ModNameList::const_iterator it = moduleclasses.begin();
 		it != moduleclasses.end(); ++it)
 	{
-		ModuleClassPtr mod = ModuleClassTable::get().getClass(it->first);
+		ModuleClassPtr mod = ModuleClassTable::get().getClass(*it);
 		undeclare(mod);
 	}
 }
@@ -469,13 +476,13 @@ void LsysContext::declareAlias(const std::string& alias, ModuleClassPtr module)
 
 void LsysContext::setModuleScale(const std::string& modules, int scale)
 {
-	LpyParsing::ModDeclarationList moduleclasses = LpyParsing::parse_modlist(modules,false);
+	LpyParsing::ModNameList moduleclasses = LpyParsing::parse_modlist(modules);
 	if (moduleclasses.size() > 0){
 		ContextMaintainer cm(this);
-		for(LpyParsing::ModDeclarationList::const_iterator it = moduleclasses.begin();
+		for(LpyParsing::ModNameList::const_iterator it = moduleclasses.begin();
 			it != moduleclasses.end(); ++it)
 		{
-			ModuleClassPtr mod = ModuleClassTable::get().getClass(it->first);
+			ModuleClassPtr mod = ModuleClassTable::get().getClass(*it);
 			if(mod)mod->setScale(scale);
 		}
 	}

@@ -83,19 +83,34 @@ public:
 
 /*---------------------------------------------------------------------------*/
 	/// Module declaration
-	typedef std::pair<std::string,std::string> ModDeclaration;
-	typedef std::vector<ModDeclaration> ModDeclarationList;
+	struct ModDeclaration {
+		std::string name;
+		bool alias;
+		std::string parameters;
+		ModDeclaration(const std::string& _name, const std::string& _parameters = "", bool _alias = false):
+		 name(_name),parameters(_parameters),alias(_alias) { }
+	};
 
-	static ModDeclarationList parse_modlist(std::string::const_iterator& beg,
+	// typedef std::pair<std::string,std::string> ModDeclaration;
+	typedef std::vector<ModDeclaration> ModDeclarationList;
+	typedef std::vector<std::string> ModNameList;
+
+	static ModDeclarationList parse_moddeclist(std::string::const_iterator& beg,
 											  std::string::const_iterator endpos,
-											  bool allow_alias = true,
 											  char delim = '\n');
 
-	static inline ModDeclarationList parse_modlist(std::string modules, bool allow_alias = true)
-		{ std::string::const_iterator it = modules.begin(); return parse_modlist(it, modules.end(),allow_alias); }
+	static inline ModDeclarationList parse_moddeclist(std::string modules)
+		{ std::string::const_iterator it = modules.begin(); return parse_moddeclist(it, modules.end()); }
+
+	static ModNameList parse_modlist(std::string::const_iterator& beg,
+									 std::string::const_iterator endpos,
+									 char delim = '\n');
+
+	static inline ModNameList parse_modlist(std::string modules)
+		{ std::string::const_iterator it = modules.begin(); return parse_modlist(it, modules.end()); }
 
 	typedef std::pair<ModDeclarationList,std::string> ModLineDeclatation;
-	static ModLineDeclatation parse_moddeclaration(std::string::const_iterator& beg,
+	static ModLineDeclatation parse_moddeclaration_line(std::string::const_iterator& beg,
 											  std::string::const_iterator endpos,
 											  char delim = '\n');
 

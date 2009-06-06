@@ -78,6 +78,7 @@ void ModuleClassTable::clearModuleClasses()
 
 size_t ModuleClass::MAXID(0);
 int ModuleClass::DEFAULT_SCALE = -1;
+size_t ModuleClass::NOPOS = std::string::npos;
 
 /*---------------------------------------------------------------------------*/
 
@@ -137,6 +138,38 @@ void ModuleClass::setScale(int scale)
 	if(!__vtable)create_vtable();
 	__vtable->scale = scale;
 }
+
+/*---------------------------------------------------------------------------*/
+
+void ModuleClass::setParameterNames(const std::vector<std::string>& names){
+	__paramnames.clear();
+	std::vector<std::string>::const_iterator itname = names.begin();
+	for(size_t id = 0; itname != names.end(); ++itname,++id){
+		__paramnames[*itname] = id;
+	}
+}
+
+const ModuleClass::InternalParameterNameList * ModuleClass::sorter = NULL;
+bool ModuleClass::sortNames(const std::string& a, const std::string& b) 
+{  return sorter->find(a)->second < sorter->find(b)->second; }
+
+std::vector<std::string> ModuleClass::getParameterNames() const
+{
+	std::vector<std::string> res;
+	for(InternalParameterNameList::const_iterator itname = __paramnames.begin(); itname != __paramnames.end(); ++itname)
+		res.push_back(itname->first);
+	sorter = &__paramnames;
+	std::sort(res.begin(),res.end(),sortNames);
+	sorter = NULL;
+	return res;
+}
+
+size_t ModuleClass::getParameterPosition(const std::string& name) const{
+	InternalParameterNameList::const_iterator res = __paramnames.find(name);
+	if(res != __paramnames.end()) return res->second;
+	else return NOPOS;
+}
+
 /*---------------------------------------------------------------------------*/
 
 ModuleClassTable::ModuleClassTable():
