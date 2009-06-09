@@ -605,20 +605,8 @@ AxialTree::endBracket(AxialTree::const_iterator pos, bool startingBeforePos) con
 	return LPY::endBracket(pos,end(),startingBeforePos);
 }
 
-AxialTree::iterator 
-AxialTree::endBracket(AxialTree::iterator pos, bool startingBeforePos)
-{ 
-	return LPY::endBracket(pos,end(),startingBeforePos);
-}
-
 AxialTree::const_iterator 
 AxialTree::beginBracket(AxialTree::const_iterator pos, bool startingAfterPos) const
-{ 
-	return LPY::beginBracket(pos,begin(),end(),startingAfterPos);
-}
-
-AxialTree::iterator 
-AxialTree::beginBracket(AxialTree::iterator pos, bool startingAfterPos)
 { 
 	return LPY::beginBracket(pos,begin(),end(),startingAfterPos);
 }

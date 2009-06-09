@@ -354,11 +354,9 @@ public:
 
     //!  Return iterator on endBracket ']' or end of string. If pos is on a '[', startingBeforePos allows to say if search should start from just before the '[' or after.
 	const_iterator endBracket(const_iterator pos, bool startingBeforePos = false) const;
-	iterator endBracket(iterator pos, bool startingBeforePos = false);
 
     //!  Return iterator on beginBracket '[' or begin of string. If pos is on a ']', startingAfterPos allows to say if search should start from just after the ']' or after.
 	const_iterator beginBracket(const_iterator pos, bool startingAfterPos = false) const;
-	iterator beginBracket(iterator pos, bool startingAfterPos = false);
 
 	bool wellBracketed() const;
 	bool isAPath() const;
