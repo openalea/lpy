@@ -243,16 +243,16 @@ public:
 /*---------------------------------------------------------------------------*/
 
 template<
-template < typename, typename> class NextElement = StringNext, 
-class Iterator = AxialTree::const_iterator, class PIterator = AxialTree::const_iterator,
+template < typename, typename> class _NextElement = StringNext, 
+class _Iterator = AxialTree::const_iterator, class _PIterator = AxialTree::const_iterator,
 class ArgsContainer = BPListManager >
 struct StringMatcher : public ArgsContainer
 {
 	typedef typename ArgsContainer::element_type argtype;
-	typedef NextElement<Iterator,PIterator> Next;
-	typedef Iterator Iterator;
-	typedef PIterator PIterator;
-	typedef StringMatcher<NextElement,Iterator,PIterator,ArgsContainer> MType;
+	typedef _Iterator Iterator;
+	typedef _PIterator PIterator;
+	typedef _NextElement<Iterator,PIterator> Next;
+	typedef StringMatcher<_NextElement,Iterator,PIterator,ArgsContainer> MType;
 
 	static bool match(Iterator matching_start, Iterator  string_end,
 					  PIterator pattern_begin, PIterator  pattern_end, 
@@ -364,15 +364,15 @@ struct TreeLeftMatcher : public ArgsContainer
 
 template<
 template < typename, typename > class _NextElement = GetNext,
-class Iterator = AxialTree::const_iterator, class PIterator = AxialTree::const_iterator,
+class _Iterator = AxialTree::const_iterator, class _PIterator = AxialTree::const_iterator,
 class ArgsContainer = BPListManager >
 struct TreeRightMatcher : public ArgsContainer
 {
 	typedef typename ArgsContainer::element_type argtype;
+	typedef _Iterator Iterator;
+	typedef _PIterator PIterator;
 	typedef _NextElement<Iterator,PIterator> NextElement;
 	typedef TreeRightMatcher<_NextElement,Iterator,PIterator,ArgsContainer> MType;
-	typedef Iterator Iterator;
-	typedef PIterator PIterator;
 
 	static bool match(Iterator matching_start, Iterator  string_end,
 					  PIterator pattern_begin, PIterator  pattern_end, 

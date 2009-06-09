@@ -43,8 +43,28 @@ license= 'Cecill V2'
 # Scons build directory
 build_prefix= "build-scons"
 
+
+libdirs = pj(build_prefix,'lib')+' '+pj('../PlantGL',build_prefix,'lib')
+print libdirs
+
 from setuptools import setup
-import py2exe
+
+import sys
+if sys.platform =='darwin':
+  import py2app
+  option_name = 'py2app'
+  extra_options = { 'argv_emulation':True, 'excludes' : [] }
+  build_prefix = 'build-scons'
+else:
+  import py2exe
+  option_name = 'py2exe'
+  extra_options = { "dll_excludes" : ['MSVCP80.dll','MSVCR80.dll'] }
+  build_prefix = ''
+
+goptions = { option_name : {"includes" : ["setuptools","sip","OpenGL","stat","PyQt4.QtXml","distutils.util","ctypes", "ctypes.util","random"]  } }
+goptions[option_name].update(extra_options)
+print goptions
+
 
 setup(
     name="Lpy",
@@ -73,32 +93,33 @@ setup(
                    
     # Add package platform libraries if any
     include_package_data = True,
-    package_data = {'' : ['*.pyd', '*.so', '*.lpy'],},
+    package_data = {'' : ['*.pyd', '*.so', '*.lpy', '*.dylib'],},
     zip_safe = False,
 
     # Specific options of openalea.deploy
-    lib_dirs = {'lib' : 'lib','../PlantGL/lib' :'lib'},
-    bin_dirs = {'bin':  'bin','../PlantGL/bin' :'bin'},
+    lib_dirs = { 'lib' : libdirs},
+    bin_dirs = { 'bin' : pj(build_prefix,'bin'), 'bin2' : pj('../PlantGL',build_prefix,'bin')},
     #inc_dirs = {'include' : pj(build_prefix, 'include') },
     share_dirs = {'share' : 'share', },
 
     # Dependencies
     # entry_points
-    entry_points = {
-        "wralea": ["lpy = openalea.lpy.wralea",],
-        'gui_scripts': ['lpy = openalea.lpy.gui.lpystudio:main',]
-        },
+    #entry_points = {
+    #    "wralea": ["lpy = openalea.lpy.wralea",],
+    #    'gui_scripts': ['lpy = openalea.lpy.gui.lpystudio:main',]
+    #    },
     
-    postinstall_scripts = ['lpygui_postinstall'],
+    #postinstall_scripts = ['lpygui_postinstall'],
     
     # Dependencies
     setup_requires = ['openalea.deploy'],
     dependency_links = ['http://openalea.gforge.inria.fr/pi'],
-    install_requires = ['PyOpenGL', 'plantgl'],
-    windows = [{'script' : 'src/openalea/lpy/gui/lpy.pyw', 
-                'icon_resources' : [(1, "src/openalea/lpy/gui/logo.ico")] }],
-    options={"py2exe" : {"includes" : ["sip","stat","PyQt4.QtXml","distutils.util",'openalea.plantgl.all',"ctypes", "ctypes.util","random"] , "dll_excludes" : ['MSVCP80.dll','MSVCR80.dll']
-    } }
+    install_requires = [],
+    app = ['src/openalea/lpy/gui/lpy.pyw'],
+    #windows = [{'script' : 'src/openalea/lpy/gui/lpy.pyw', 
+    #            'icon_resources' : [(1, "src/openalea/lpy/gui/logo.ico")] }],
+
+    options=goptions
     )
 
 
