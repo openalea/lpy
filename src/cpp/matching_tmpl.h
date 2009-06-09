@@ -172,6 +172,73 @@ public:
 
 /*---------------------------------------------------------------------------*/
 
+template<class Matcher>
+struct RegExpMatcher {
+public:
+	typedef typename Matcher::Iterator Iterator;
+	typedef typename Matcher::PIterator PIterator;
+	typedef typename Matcher::argtype argtype;
+
+	static bool match(Iterator matching_start, Iterator  string_end,
+					  PIterator pattern, Iterator& last_matched,  Iterator& matching_end, 
+					  argtype& lparams){
+		Iterator it = matching_start;
+		PIterator it2 = pattern;
+		if(it2->isRepExp()){
+			std::vector<argtype> llp;
+			AxialTree lpattern = bp::extract<AxialTree>(it2->getAt(0))();
+			size_t miniter = 0;
+			if (it2->argSize() > 1) miniter = bp::extract<size_t>(it2->getAt(1))();
+			size_t maxiter = 1000;
+			if (it2->argSize() == 3) maxiter = bp::extract<size_t>(it2->getAt(2))();
+			else if (it2->argSize() == 2) maxiter = miniter;
+			bool ok = true;
+			size_t numiter = 0;
+			while(ok && numiter < maxiter) {
+				argtype lp;
+				if((ok = Matcher::match(it,string_end,lpattern.begin(),lpattern.end(),last_matched,it,lp)))
+				{  llp.push_back(lp); last_matched = it; ++it; ++numiter; }
+			}
+			if (numiter < miniter) return false;
+			--it;
+			if(numiter == 0){
+				size_t nbvar = lpattern.getVarNb();
+				for(size_t i = 0; i < nbvar; ++i){
+					lparams.append(argtype());
+				}
+			}
+			else { Matcher::append_args(lparams,Matcher::fusion_args(llp)); }
+		}
+		else if(it2->isOr()){
+			int matched = -1;			
+			argtype lp;
+			std::vector<size_t> nbargs;
+			for(int ip = 0;ip < it2->argSize(); ++ip){
+				AxialTree lpattern = bp::extract<AxialTree>(it2->getAt(ip))();
+				nbargs.push_back(lpattern.getVarNb());
+				if(matched == -1) { 
+					if(Matcher::match(it,string_end,lpattern.begin(),lpattern.end(),last_matched,it,lp)) matched = ip;
+				}
+			}
+			if (matched == -1) return false;
+			else {
+				size_t nbNone = 0;
+				for(int ip = 0;ip < matched; ++ip)nbNone += nbargs[ip];
+				argtype lpNone;
+				lpNone.append(bp::object());
+				argtype lpNoneBefore = argtype(lpNone * nbNone);
+				lpNoneBefore += lp;
+				lp =  lpNoneBefore;
+				nbNone = 0;
+				for(int ip = matched+1;ip < it2->argSize(); ++ip)nbNone += nbargs[ip];
+				lp += lpNone * nbNone;
+				Matcher::append_args(lparams,lp); 
+			}
+		}
+		matching_end = it;
+		return true;
+	}
+};
 
 /*---------------------------------------------------------------------------*/
 
@@ -183,6 +250,9 @@ struct StringMatcher : public ArgsContainer
 {
 	typedef typename ArgsContainer::element_type argtype;
 	typedef NextElement<Iterator,PIterator> Next;
+	typedef Iterator Iterator;
+	typedef PIterator PIterator;
+	typedef StringMatcher<NextElement,Iterator,PIterator,ArgsContainer> MType;
 
 	static bool match(Iterator matching_start, Iterator  string_end,
 					  PIterator pattern_begin, PIterator  pattern_end, 
@@ -194,13 +264,15 @@ struct StringMatcher : public ArgsContainer
 		Iterator pit = it;
 		argtype lp;
 		for (PIterator it2 = pattern_begin; it2 != pattern_end; ++it2){
-			pit = it;
 			argtype lmp;
-			if(it2->isGetModule()){
-				if(!process_get_module(it2,it,lp)) return false;
+			if( it == string_end) return false;
+			if(it2->isGetModule()){ if(!process_get_module(it2,it,lp)) return false; }
+			else if( it2->isRE() ) { if(!RegExpMatcher<MType>::match(it,string_end,it2,pit,it,lp))return false; }
+			else { 
+				if( !MatchingEngine::module_match(*it,*it2,lmp))return false;
+			    else append_args(lp,lmp); 
 			}
-			else if( it == string_end || !MatchingEngine::module_match(*it,*it2,lmp))return false;
-			else { append_args(lp,lmp); }
+			pit = it;
 			it = Next::next(it,it2,string_end); 
 		}
 		params = lp;
@@ -229,14 +301,10 @@ struct StringReverseMatcher : public ArgsContainer
 		argtype lp;
 		for (PRIterator it2 = pattern_rbegin; it2 != pattern_rend; ){
 			argtype lmp;
-			if(it2->isGetModule()){
-				if(!process_get_module(it2,it,lmp)) return false;
-			}
+			if(it2->isGetModule()){ if(!process_get_module(it2,it,lmp)) return false; }
 			else if(!MatchingEngine::module_match(*it,*it2,lmp)) return false; 
 			++it2;
-			if (it == string_begin){
-				if (it2 != pattern_rend) return false;
-			}
+			if (it == string_begin){ if (it2 != pattern_rend) return false; }
 			else it = Previous::next(it,it2,string_begin,string_end);
 			prepend_args(lp,lmp);
 		}
@@ -303,6 +371,8 @@ struct TreeRightMatcher : public ArgsContainer
 	typedef typename ArgsContainer::element_type argtype;
 	typedef _NextElement<Iterator,PIterator> NextElement;
 	typedef TreeRightMatcher<_NextElement,Iterator,PIterator,ArgsContainer> MType;
+	typedef Iterator Iterator;
+	typedef PIterator PIterator;
 
 	static bool match(Iterator matching_start, Iterator  string_end,
 					  PIterator pattern_begin, PIterator  pattern_end, 
@@ -332,58 +402,8 @@ struct TreeRightMatcher : public ArgsContainer
 			else if(it2->isGetModule()){
 				if(!process_get_module(it2,it,lparams)) return false;
 			}
-			else if(it2->isRepExp()){
-				std::vector<argtype> llp;
-				AxialTree lpattern = bp::extract<AxialTree>(it2->getAt(0))();
-				size_t miniter = 0;
-				if (it2->argSize() > 1) miniter = bp::extract<size_t>(it2->getAt(1))();
-				size_t maxiter = 1000;
-				if (it2->argSize() == 3) maxiter = bp::extract<size_t>(it2->getAt(2))();
-				else if (it2->argSize() == 2) maxiter = miniter;
-				bool ok = true;
-				size_t numiter = 0;
-				while(ok && numiter < maxiter) {
-					argtype lp;
-					if((ok = MType::match(it,string_end,lpattern.begin(),lpattern.end(),last_matched,it,lp)))
-					{  llp.push_back(lp); last_matched = it; ++it; ++numiter; }
-			     }
-				if (numiter < miniter) return false;
-				--it;
-				if(numiter == 0){
-					size_t nbvar = lpattern.getVarNb();
-					for(size_t i = 0; i < nbvar; ++i){
-						lparams.append(argtype());
-					}
-				}
-				else { 
-					append_args(lparams,fusion_args(llp)); 
-				}
-			}
-			else if(it2->isOr()){
-				int matched = -1;			
-				argtype lp;
-				std::vector<size_t> nbargs;
-				for(int ip = 0;ip < it2->argSize(); ++ip){
-					AxialTree lpattern = bp::extract<AxialTree>(it2->getAt(ip))();
-					nbargs.push_back(lpattern.getVarNb());
-					if(matched == -1) { 
-						if(MType::match(it,string_end,lpattern.begin(),lpattern.end(),last_matched,it,lp)) matched = ip;
-					}
-				}
-				if (matched == -1) return false;
-				else {
-					size_t nbNone = 0;
-				    for(int ip = 0;ip < matched; ++ip)nbNone += nbargs[ip];
-					argtype lpNone;
-					lpNone.append(bp::object());
-					argtype lpNoneBefore = argtype(lpNone * nbNone);
-					lpNoneBefore += lp;
-					lp =  lpNoneBefore;
-					nbNone = 0;
-				    for(int ip = matched+1;ip < it2->argSize(); ++ip)nbNone += nbargs[ip];
-					lp += lpNone * nbNone;
-					append_args(lparams,lp); 
- 				}
+			else if(it2->isRE()) {
+				if(!RegExpMatcher<MType>::match(it,string_end,it2,last_matched,it,lparams)) return false;
 			}
 			else if(!it2->isBracket()){ // matching a pattern module
 				if(!it->isBracket()) {

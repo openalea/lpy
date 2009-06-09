@@ -76,6 +76,7 @@ public:
   bool isStar() const;
   bool isRepExp() const;
   bool isOr() const;
+  bool isRE() const;
   bool isGetIterator() const;
   bool isGetModule() const;
   bool isConsidered() const;

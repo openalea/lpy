@@ -158,6 +158,11 @@ bool Module::isOr() const
 	return __mclass == ModuleClass::Or;
 }
 
+bool Module::isRE() const
+{ 
+	return __mclass == ModuleClass::RepExp || __mclass == ModuleClass::Or;
+}
+
 bool Module::isGetIterator() const
 {
 	return __mclass == ModuleClass::GetIterator;
