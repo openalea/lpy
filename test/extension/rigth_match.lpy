@@ -1,0 +1,12 @@
+Axiom: AB[C][D]E
+
+derivation length: 1
+production:
+
+A > BE :
+  print 'match'
+
+homomorphism:
+
+
+endlsystem

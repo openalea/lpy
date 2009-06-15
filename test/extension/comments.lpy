@@ -1,0 +1,8 @@
+Axiom: A(1)#(3)
+
+derivation length: 5
+production:
+
+A(x) --> A(x+1) # test
+
+endlsystem

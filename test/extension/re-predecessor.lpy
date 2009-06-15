@@ -1,0 +1,21 @@
+def EndEach(lstring):
+  print lstring
+
+Axiom: AIJIJIJIDF
+
+derivation length: 3
+production:
+
+A all(or(I,J))  :
+   produce B
+
+
+
+homomorphism:
+
+
+endlsystem
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	context.options.setSelection('String matching',3)

@@ -1,0 +1,15 @@
+module A = F
+
+
+Axiom: A(1)
+
+derivation length: 5
+production:
+
+A(x) --> A(x+1)
+
+endlsystem
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	context.options.setSelection('Module declaration',1)

@@ -1,0 +1,12 @@
+Axiom: AB(0)[B(1)B(2)[C(8)][D(9)]B(5)][J(3)B(4)[E(10)][G(11)]]B(6)
+
+
+derivation length: 1
+production:
+A > B(y) x([*(n1,*a1)B(b)x([*(n2,ma2)])]) B(z) :
+  print 'match : y=',y,',n1=',repr(n1),',a1=',a1,',b=',b,',z=',z,',n2=',repr(n2),',ma2=',ma2
+
+homomorphism:
+
+
+endlsystem

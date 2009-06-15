@@ -1,0 +1,17 @@
+Axiom: AB(0)C(1)D(2)AE(4)AF(5)G(6)
+
+derivation length: 4
+production:
+
+A > or( B(x)C(y)D(z), E(i), F(j)G(k) ): 
+  print x,y,z,i,j,k
+  produce H
+
+homomorphism:
+
+
+endlsystem
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	context.options.setSelection('Early return when no matching',0)

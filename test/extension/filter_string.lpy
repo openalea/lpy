@@ -1,0 +1,14 @@
+values = range(10) 
+Axiom: A(3)A(-1)
+
+derivation length: 1
+production:
+
+*(n in 'AB'  , x in values):
+  print '* in A  in',x
+
+
+homomorphism:
+
+
+endlsystem

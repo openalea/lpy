@@ -1,0 +1,122 @@
+from random import random,seed,randint
+
+seed(10)
+
+STEPS = 700    # number of simulation steps
+dt = 0.05      # simuulation time increment
+
+PL = 1         # plastochron
+D = 1          #internode elongation time
+ANG = 55       # branching angle
+l_seg = 0.1    # segment length - for drawing purposes
+
+INTERNODE, FLOWER = range(2)
+
+IncrementAge, ProduceMetamers, PropagateWidth = range(1,4)
+nextPhase = { IncrementAge : ProduceMetamers, ProduceMetamers : PropagateWidth, PropagateWidth : IncrementAge }
+
+Phase = IncrementAge
+
+def func(a,b):
+    return 0.01+ b
+
+module A    # apex: age, order
+module K    # flower/fruit: age
+module I    # internode: age, area
+module S    # internode's segment: length	
+
+from time import clock
+timer = 0
+
+def Start():
+  global Phase,timer
+  Phase = ProduceMetamers
+  backward()
+  timer = clock()
+
+def End():
+  print 'time=',clock()-timer
+
+def StartEach():
+  useGroup(Phase)
+
+def EndEach():
+  global Phase
+  Phase = nextPhase[Phase]
+  #print "Group = ",Phase
+
+ignore: Right Left RollR RollL Elasticity SetWidth
+Axiom: A(0,0)
+derivation length: STEPS
+
+production:
+
+# Apex grows older; upon reaching plastochron PL, it
+#   produces one or two lateral branches and transforms
+#   itself into a flower/fruit (sympodial branching) 
+
+group 1:
+
+*(n in 'AKI',t,*args) --> new(n,t+dt,*args)
+
+
+group 2:
+
+A(t,o) :
+  if (t>=PL) :
+    t -= PL
+    nproduce Elasticity(0.0035 * pow(o, 1.2 )) I(t,0) RollR(137.5)
+    for i in xrange(randint(0,6)):
+      nproduce RollR(137.5) [ -(ANG) A(t-random()*4*PL,o+1) ] 
+    produce K(t) 
+
+
+group 3: 
+
+
+# python version with multiple pattern matching.
+I(t,w) >> x( [ *(name in 'AI' , tr, wr) ] ) --> I(t,sum([v for n,v in zip(name,wr) if n == 'I'])+1)
+
+
+endgroup
+
+homomorphism:
+maximum depth: 300
+
+A(t,o) --> F(0.05) Sphere (0.05*t)
+
+# A flower/fruit is visualized as a spere on a pedicel 
+
+K(t) --> _(0.025) F(0.01+0.2*func(FLOWER,t/D)) [ ;(11) Sphere(0.05*func(FLOWER,t/D))] 
+
+# The internode width is a function of the number of pipes.
+#   The length is a sigmoidal function of its age. 
+
+I(t,w) --> _(0.01+0.05*pow(w, 0.5)) S(func(INTERNODE,t/D)) 
+
+# The internode is decomposed into a sequence of segments
+
+S(l) :
+	""" segment interpretation """
+	if (l > l_seg) :
+		produce F(l_seg+0.01) S(l-l_seg)
+	elif l > 0 :
+		produce F(0.01+l);
+
+endlsystem
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	from openalea.plantgl.all import Material,Color3
+	context.turtle.setMaterial(1,Material('Brown',Color3(22,15,5),3.18182,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(2,Material('APPID_6',Color3(26,18,6),3.16162,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(3,Material('APPID_9',Color3(31,21,7),3.14141,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(4,Material('APPID_36',Color3(36,25,8),3.12121,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(5,Material('APPID_65',Color3(41,28,9),3.10101,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(6,Material('APPID_88',Color3(45,31,10),3.08081,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(7,Material('APPID_99',Color3(50,35,11),3.06061,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(8,Material('APPID_1732',Color3(55,38,12),3.0404,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(9,Material(Color3(60,41,13),3.0202,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(10,Material('Brown',Color3(65,45,15),3,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(11,Material('Green',Color3(30,60,10),3,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.options.setSelection('Early return when no matching',0)

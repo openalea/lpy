@@ -1,0 +1,33 @@
+from random import random
+
+def EndEach(lstring):
+  print lstring
+
+Axiom: A(10)[GB[GC]]E
+
+derivation length: 3
+ignore: G
+production:
+
+A(x) > [?I(i)]:
+  m = i.next(True)
+  assert m.name == 'B'
+  m = i.next(True)
+  assert m.name == '['
+  m = i.next(True)
+  assert m.name == 'C'
+  m = i.next(True)
+  assert m.name == ']'
+  m = i.next(True)
+  assert m.name == ']'
+  try:
+    m = i.next(True)
+    assert False and 'iterator go out of its branch'
+  except:
+    print 'Iterator correctly end up at end of branch'
+  pass
+
+homomorphism:
+
+
+endlsystem

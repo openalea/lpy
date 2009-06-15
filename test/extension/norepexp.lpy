@@ -1,0 +1,12 @@
+Axiom: AB(0)B(6)
+
+
+derivation length: 1
+production:
+A > B(y) x([B(b)]) B(z) :
+  print 'match : y=',y,',b=',b,',z=',z
+
+homomorphism:
+
+
+endlsystem

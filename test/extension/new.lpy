@@ -1,0 +1,18 @@
+Axiom: A(1)B(2)
+
+def EndEach(lstring):
+  print lstring
+  
+derivation length: 10
+production:
+
+A(*args) --> A(*args)
+
+*(n,*args) :
+   args[0] +=1
+   produce new(n,*args)
+
+homomorphism:
+
+
+endlsystem

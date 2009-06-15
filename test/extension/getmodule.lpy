@@ -1,0 +1,25 @@
+def EndEach(lstring):
+  print lstring
+
+module B(t), C
+
+Axiom: DAB(1)
+
+
+derivation length: 2
+production:
+
+D --> H
+
+$d=D < $h=H << $a=A > $b=B  :
+  print a,d,h,b,b.t
+  b.t = 2
+  produce $b K
+
+B(h) --> B(h+1)
+
+
+homomorphism:
+
+
+endlsystem

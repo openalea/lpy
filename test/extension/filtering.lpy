@@ -1,0 +1,26 @@
+values = range(10) 
+Axiom: A(3)A(-1)
+
+derivation length: 1
+production:
+
+A(x not in values):
+  print 'not in',x
+
+A(x in values):
+  print 'in',x
+
+*(n not in ['A','B'], x in values):
+  print '* not in A in',x
+  assert False
+
+*(n in ['A','B'], x in values):
+  print '* in A  in',x
+
+A(x < 2):
+  print '<2 ',x
+
+homomorphism:
+
+
+endlsystem

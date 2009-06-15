@@ -1,0 +1,33 @@
+from random import random
+
+def EndEach(lstring):
+  print lstring
+
+Axiom: A(10)
+
+derivation length: 3
+production:
+
+A(x):
+  for i in xrange(x+3,3,-1):
+    nproduce I(i)[+B(i-1)][-B(i-2)]
+  produce I(i)
+
+B(x):
+  nproduce D
+  for i in xrange(x,0,-1):
+    if random() < 0.5:
+      nproduce I(i)
+    else:
+      nproduce J(i,x)
+  produce C
+
+D > ?I(i):
+  m = i.next()
+  print m, i.next()
+  print m.name, m[0], m[0:len(m)]
+
+homomorphism:
+
+
+endlsystem
