@@ -69,7 +69,7 @@ private:
 public:
 	static bool module_match(const ParamModule& module, 
 							 const ParamModule& pattern,
-							 boost::python::list& params) ;
+							 ArgList& params) ;
 
 
 	static bool match(AxialTree::const_iterator  matching_start,
@@ -78,7 +78,7 @@ public:
 			   AxialTree::const_iterator  pattern_end,
 			   AxialTree::const_iterator& matching_end,
 			   AxialTree::const_iterator& last_matched,
-			   boost::python::list& params) ;
+			   ArgList& params) ;
 
 	static bool reverse_match(AxialTree::const_iterator matching_start,
 					 AxialTree::const_iterator  string_begin,
@@ -86,7 +86,7 @@ public:
 					 AxialTree::const_reverse_iterator  pattern_rbegin,
 					 AxialTree::const_reverse_iterator  pattern_rend,
 					 AxialTree::const_iterator& matching_end,
-					 boost::python::list& params);
+					 ArgList& params);
 
 
 	static bool right_match(AxialTree::const_iterator  matching_start,
@@ -95,7 +95,7 @@ public:
 		AxialTree::const_iterator  pattern_end,
 		AxialTree::const_iterator  last_matched,
 		AxialTree::const_iterator& matching_end,
-		boost::python::list& params);
+		ArgList& params);
 
 	static bool left_match(AxialTree::const_iterator  matching_start,
 			  	    AxialTree::const_iterator  string_begin,
@@ -103,7 +103,7 @@ public:
 					AxialTree::const_reverse_iterator  pattern_rbegin,
 					AxialTree::const_reverse_iterator  pattern_rend,
 					AxialTree::const_iterator& matching_end,
-					boost::python::list& params);
+					ArgList& params);
 };
 
 /*---------------------------------------------------------------------------*/
@@ -112,15 +112,15 @@ class LPY_API MatchingImplementation : public MatchingEngine {
 public:
 	static bool simple_module_matching(const ParamModule& module, 
 									   const ParamModule& pattern, 
-									   boost::python::list& l);
+									   ArgList& l);
 
 	static bool module_matching_with_star(const ParamModule& module, 
 									      const ParamModule& pattern, 
-									      boost::python::list& l);
+									      ArgList& l);
 
 	static bool module_matching_with_star_and_valueconstraints(const ParamModule& module, 
 									      const ParamModule& pattern, 
-									      boost::python::list& l);
+									      ArgList& l);
 
 	static bool string_exact_match(AxialTree::const_iterator  matching_start,
 		                     AxialTree::const_iterator  string_end,
@@ -128,7 +128,7 @@ public:
 							 AxialTree::const_iterator  pattern_end,
 							 AxialTree::const_iterator& matching_end,
 						     AxialTree::const_iterator& last_matched,
-							 boost::python::list& params) ;
+							 ArgList& params) ;
 
 	static bool string_exact_reverse_match(AxialTree::const_iterator matching_start,
 		                             AxialTree::const_iterator  string_begin,
@@ -136,7 +136,7 @@ public:
 					                 AxialTree::const_reverse_iterator  pattern_rbegin,
 									 AxialTree::const_reverse_iterator  pattern_rend,
 									 AxialTree::const_iterator& matching_end,
-									 boost::python::list& params);
+									 ArgList& params);
 
 	static bool tree_right_match(AxialTree::const_iterator  matching_start,
 		                         AxialTree::const_iterator  string_end,
@@ -144,7 +144,7 @@ public:
 								 AxialTree::const_iterator  pattern_end,
 							     AxialTree::const_iterator  last_matched,
 								 AxialTree::const_iterator& matching_end,
-								 boost::python::list& params);
+								 ArgList& params);
 
 	static bool tree_left_match(AxialTree::const_iterator  matching_start,
 		                        AxialTree::const_iterator  string_begin,
@@ -152,7 +152,7 @@ public:
 								AxialTree::const_reverse_iterator  pattern_rbegin,
 								AxialTree::const_reverse_iterator  pattern_rend,
 								AxialTree::const_iterator& matching_end,
-								boost::python::list& params);
+								ArgList& params);
 
 	static bool mstree_left_match(AxialTree::const_iterator  matching_start,
 		                        AxialTree::const_iterator  string_begin,
@@ -160,7 +160,7 @@ public:
 								AxialTree::const_reverse_iterator  pattern_rbegin,
 								AxialTree::const_reverse_iterator  pattern_rend,
 								AxialTree::const_iterator& matching_end,
-								boost::python::list& params);
+								ArgList& params);
 
 	static bool mltree_left_match(AxialTree::const_iterator  matching_start,
 		                        AxialTree::const_iterator  string_begin,
@@ -168,7 +168,7 @@ public:
 								AxialTree::const_reverse_iterator  pattern_rbegin,
 								AxialTree::const_reverse_iterator  pattern_rend,
 								AxialTree::const_iterator& matching_end,
-								boost::python::list& params);
+								ArgList& params);
 
 	static bool mstree_right_match(AxialTree::const_iterator  matching_start,
 		                         AxialTree::const_iterator  string_end,
@@ -176,7 +176,7 @@ public:
 								 AxialTree::const_iterator  pattern_end,
 								 AxialTree::const_iterator  last_matched,
 								 AxialTree::const_iterator& matching_end,
-								 boost::python::list& params);
+								 ArgList& params);
 
 	static bool mltree_right_match(AxialTree::const_iterator  matching_start,
 		                         AxialTree::const_iterator  string_end,
@@ -184,7 +184,7 @@ public:
 								 AxialTree::const_iterator  pattern_end,
 								 AxialTree::const_iterator  last_matched,
 								 AxialTree::const_iterator& matching_end,
-								 boost::python::list& params);
+								 ArgList& params);
 };
 
 /*---------------------------------------------------------------------------*/

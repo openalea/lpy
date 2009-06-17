@@ -176,20 +176,6 @@ std::string LsysRule::functionName() const {
 
 std::string LsysRule::callerFunctionName() const { return functionName()+"_caller"; }
 
-/*
-from pgl_mod import *
-a = LsysRule("""
-B(y) << D(w) < A(x) > C(z) :
-    if y > 2:
-            produce A(x+1)F
-    elif w > 2:
-            produce D(x+1)F@U
-    else:
-            produce B(y)+F(z)
-""")
-print(a.code())
-*/
-
 std::string 
 LsysRule::getCode() const{
     return getCoreCode() +getCallerCode();
@@ -245,23 +231,30 @@ LsysRule::getCoreCode() const{
   }
   return res.str();
 }
+
+#ifdef USE_PYTHON_LIST_COLLECTOR
+#define MAX_LRULE_DIRECT_ARITY  0
+#else
+#define MAX_LRULE_DIRECT_ARITY  15
+#endif
+
 std::string 
 LsysRule::getCallerCode() const{
-  if (__formalparameters.empty()) return "";
+  if (__formalparameters.size() <= MAX_LRULE_DIRECT_ARITY) return "";
   std::stringstream res;
   res << "def " << callerFunctionName() << "(args=[]) : return " << functionName() << "(*args)\n";
   return res.str();
 }
 void LsysRule::compile(){
 	if (!compiled()){
-	  __function = LsysContext::currentContext()->compile(__formalparameters.empty()?functionName():callerFunctionName(),getCode());
+	  __function = LsysContext::currentContext()->compile(__formalparameters.size()<= MAX_LRULE_DIRECT_ARITY?functionName():callerFunctionName(),getCode());
 	// __function = LsysContext::currentContext()->compile(functionName(),getCode());
 	}
 }
 
 void LsysRule::importPyFunction(){
   if (!compiled())
-      __function = LsysContext::currentContext()->getObject(__formalparameters.empty()?functionName():callerFunctionName());
+      __function = LsysContext::currentContext()->getObject(__formalparameters.size()<=MAX_LRULE_DIRECT_ARITY?functionName():callerFunctionName());
       // __function = LsysContext::currentContext()->getObject(functionName());
 }
 
@@ -274,26 +267,17 @@ void LsysRule::__precall_function( size_t nbargs ) const
       LsysError(res.str());
     }
 }
-void LsysRule::__precall_function( size_t nbargs, const bp::object& args ) const
+void LsysRule::__precall_function( size_t nbargs, const ArgList& args ) const
 {
   LsysContext::currentContext()->reset_nproduction();
   if (nbargs != __formalparameters.size()) {
       std::stringstream res;
       res << name() << " takes exactly " << __formalparameters.size() << " argument(s) (" << nbargs << " given).\n"
-		  << bp::extract<std::string>(bp::str(args))();
+		  << bp::extract<std::string>(bp::str(bp::object(args)))();
       LsysError(res.str());
     }
 }
 
-/*
-boost::python::object LsysRule::__call_function( const boost::python::tuple& arglist)
-{
-    std::cerr << "Call object" << std::endl;
-    PyObject * result = PyEval_CallObject(__function.ptr(), arglist.ptr());
-    std::cerr << "End call object" << std::endl;
-    if (result == NULL) LsysError("NULL result");
-    return object(handle<>(allow_null(result)));
-}*/
 
 boost::python::object LsysRule::__postcall_function( boost::python::object res ) const
 {
@@ -322,41 +306,48 @@ boost::python::object LsysRule::__postcall_function( boost::python::object res )
   }
 }
 
-/*
-tuple list2tuple(const list& l){
-    size_t lsize = len(l);
-    PyObject * pytuple =  PyTuple_New(lsize);
-    if (pytuple == NULL) LsysError("Cannot create args tuple");
-    // for (int i = 0; i < lsize; ++i)
-    //     PyTuple_SetItem(pytuple,i,l[i].operator boost::python::api::object().ptr());
-    return tuple(handle<>(pytuple));
-}*/
 
 #if BOOST_VERSION < 103400
 #warning Redefine len on a boost python object
 inline size_t len( const object& obj ) { return extract<size_t>(obj.attr("__len__")()); }
+
 #endif
 
-object 
-LsysRule::apply( const list& args ) const
-{ 
-  // if (!compiled())compile();
-  if (!compiled()) LsysError("Python code of rule not compiled");
-  size_t argsize = len(args);
-  __precall_function(argsize,args);
-  return  __postcall_function(argsize?__function(args):__function()); 
-  // return  __postcall_function(argsize?__call_function(list2tuple(args)):__function()); 
+boost::python::object LsysRule::__call_function( size_t nbargs, const ArgList& args ) const
+{
+	switch(nbargs){
+		case 0: return __function(); break;
+#if MAX_LRULE_DIRECT_ARITY > 0
+		case 1: return __function(args[0]); break;
+		case 2: return __function(args[0],args[1]); break;
+		case 3: return __function(args[0],args[1],args[2]); break;
+		case 4: return __function(args[0],args[1],args[2],args[3]); break;
+		case 5: return __function(args[0],args[1],args[2],args[3],args[4]); break;
+		case 6: return __function(args[0],args[1],args[2],args[3],args[4],args[5]); break;
+		case 7: return __function(args[0],args[1],args[2],args[3],args[4],args[5],args[6]); break;
+		case 8: return __function(args[0],args[1],args[2],args[3],args[4],args[5],args[6],args[7]); break;
+		case 9: return __function(args[0],args[1],args[2],args[3],args[4],args[5],args[6],args[7],args[8]); break;
+		case 10: return __function(args[0],args[1],args[2],args[3],args[4],args[5],args[6],args[7],args[8],args[9]); break;
+		case 11: return __function(args[0],args[1],args[2],args[3],args[4],args[5],args[6],args[7],args[8],args[9],args[10]); break;
+		case 12: return __function(args[0],args[1],args[2],args[3],args[4],args[5],args[6],args[7],args[8],args[9],args[10],args[11]); break;
+		case 13: return __function(args[0],args[1],args[2],args[3],args[4],args[5],args[6],args[7],args[8],args[9],args[10],args[11],args[12]); break;
+		case 14: return __function(args[0],args[1],args[2],args[3],args[4],args[5],args[6],args[7],args[8],args[9],args[10],args[11],args[12],args[13]); break;
+		case 15: return __function(args[0],args[1],args[2],args[3],args[4],args[5],args[6],args[7],args[8],args[9],args[10],args[11],args[12],args[13],args[14]); break;
+#endif
+		default: return __function(args); break;
+	}
 }
 
 object 
-LsysRule::apply( const tuple& args ) const
+LsysRule::apply( const ArgList& args ) const
 { 
   if (!compiled()) LsysError("Python code of rule not compiled");
   size_t argsize = len(args);
   __precall_function(argsize,args);
-  return  __postcall_function(argsize?__function(args):__function()); 
-  // return  __postcall_function(argsize?__call_function(args):__function()); 
+  return __postcall_function(__call_function(argsize,args)); 
 }
+
+
 
 object 
 LsysRule::apply( ) const
@@ -408,10 +399,10 @@ LsysRule::match(const AxialTree& src,
 			   AxialTree::const_iterator pos,
 			   const AxialTree& dest,
 			   AxialTree::const_iterator& endpos,
-               boost::python::list& args,
+               ArgList& args,
                eDirection direction) const 
 {
-  boost::python::list args_pred;
+  ArgList args_pred;
   AxialTree::const_iterator endpos1;
   AxialTree::const_iterator last_match = pos;
   if (direction == eForward){
@@ -431,20 +422,20 @@ LsysRule::match(const AxialTree& src,
 	  return false;
   }
   if(direction == eForward && !__newleftcontext.empty()){
-	boost::python::list args_ncg;
+	ArgList args_ncg;
 	if(!dest.leftmatch(__newleftcontext,dest.end(),endpos2,args_ncg))return false;
-	args += args_ncg;
+	ArgsCollector::append_args(args,args_ncg);
   }
-  args += args_pred;
+  ArgsCollector::append_args(args,args_pred);
   if(direction == eBackward && !__newrightcontext.empty()){
-	boost::python::list args_ncg;
+	ArgList args_ncg;
 	if(!dest.rightmatch(__newrightcontext,dest.begin(),last_match,endpos2,args_ncg))return false;
-	args += args_ncg;
+	ArgsCollector::append_args(args,args_ncg);
   }
   if(!__rightcontext.empty()){
-	boost::python::list args_cd;
+	ArgList args_cd;
 	if(!src.rightmatch(__rightcontext,endpos1,last_match,endpos2,args_cd))return false;
-	args += args_cd;
+	ArgsCollector::append_args(args,args_cd);
   }
   if (direction == eForward)
     endpos = endpos1;
@@ -455,7 +446,7 @@ LsysRule::match(const AxialTree& src,
 
 bool
 LsysRule::applyTo( AxialTree& dest, 
-				   const boost::python::list& args, 
+				   const ArgList& args, 
 				   size_t * length,
 				   eDirection direction) const {
   object result = apply(args);
@@ -480,7 +471,7 @@ LsysRule::process( const AxialTree& src ) const {
   AxialTree dest;
   AxialTree::const_iterator _it = src.begin();
   while(_it != src.end()){
-	boost::python::list args;
+	ArgList args;
 	if(!match(src,_it,dest,_it,args)){
 	  dest.push_back(_it);
 	  ++_it;

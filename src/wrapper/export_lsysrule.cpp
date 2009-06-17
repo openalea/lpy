@@ -31,6 +31,7 @@
 #include "lsysrule.h"
 using namespace boost::python;
 #include <string>
+# include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
 LPY_USING_NAMESPACE
 
@@ -49,7 +50,7 @@ AxialTree::const_iterator getPos(const AxialTree& tree, int pos){
 object match(LsysRule * rule,const AxialTree& tree, int pos, const AxialTree& dest) {
   AxialTree::const_iterator beg = getPos(tree,pos);
   AxialTree::const_iterator endpos;
-  boost::python::list args;
+  ArgList args;
   if(!rule->match(tree,beg,dest,endpos,args))return object(false);
   return make_tuple(tree.pos(endpos),args);
 }
@@ -58,7 +59,7 @@ object match2(LsysRule * rule,const AxialTree& tree, int pos ) {
   AxialTree::const_iterator beg = getPos(tree,pos);
   AxialTree::const_iterator endpos;
   AxialTree dest;
-  boost::python::list args;
+  ArgList args;
   if(!rule->match(tree,beg,dest,endpos,args))return object(false);
   return make_tuple(tree.pos(endpos),args);
 }
@@ -70,7 +71,7 @@ object match1(LsysRule * rule,const AxialTree& tree) {
 object reverse_match(LsysRule * rule,const AxialTree& tree, int pos, AxialTree& dest) {
   AxialTree::const_iterator beg = getPos(tree,pos);
   AxialTree::const_iterator endpos;
-  boost::python::list args;
+  ArgList args;
   if(!rule->reverse_match(tree,beg,dest,endpos,args))return object(false);
   return make_tuple(tree.pos(endpos),args);
 }
@@ -79,7 +80,7 @@ boost::python::object reverse_match2(LsysRule * rule,const AxialTree& tree, int 
   AxialTree::const_iterator beg = getPos(tree,pos);
   AxialTree::const_iterator endpos;
   AxialTree dest;
-  boost::python::list args;
+  ArgList args;
   if(!rule->reverse_match(tree,beg,dest,endpos,args))return object(false);
   return make_tuple(tree.pos(endpos),args);
 }
@@ -88,7 +89,7 @@ boost::python::object reverse_match1(LsysRule * rule,const AxialTree& tree) {
     return reverse_match2(rule,tree,-1);
 }
 
-bool applyTo(LsysRule * rule,AxialTree& tree,  boost::python::list args) {
+bool applyTo(LsysRule * rule,AxialTree& tree,  ArgList args) {
 	return rule->applyTo(tree,args);
 }
 
@@ -98,17 +99,12 @@ object call(LsysRule * rule) {
   else return res;
 }
 
-object call(LsysRule * rule,const list& args) {
+object call(LsysRule * rule,ArgList args) {
   object res = rule->apply(args);
   if(res == object())return res;
   else return res;
 }
 
-object call(LsysRule * rule,const tuple& args) {
-  object res = rule->apply(args);
-  if(res == object())return res;
-  else return res;
-}
 
 void Lr_set(LsysRule * rule, const std::string& code) {
   rule->set(code);
@@ -117,13 +113,21 @@ void Lr_set(LsysRule * rule, const std::string& code) {
 
 void export_LsysRule(){
 
+#ifndef USE_PYTHON_LIST_COLLECTOR
+  class_<ArgList>
+	  ("ArgList", init<optional<size_t,bp::object> >("ArgList(size,obj)"))
+        .def(vector_indexing_suite<ArgList,true>())
+		;
+#endif
+
+
   class_<LsysRule>
 	("LsysRule", init<optional<size_t,size_t,char> >("LsysRule(id,group,prefix)"))
 	.def("__str__", &LsysRule::str)
 	//.def("__repr__", &LsysRule::str)
 	.def("__call__", (object(*)(LsysRule *) )&call)
-	.def("__call__", (object(*)(LsysRule *,const list&) )&call)
-	.def("__call__", (object(*)(LsysRule *,const tuple&))&call)
+	.def("__call__", (object(*)(LsysRule *,ArgList) )&call)
+	// .def("__call__", (object(*)(LsysRule *,const tuple&))&call)
 	.add_property("id",&LsysRule::getId,&LsysRule::setId)
 	.add_property("id",&LsysRule::getGroupId,&LsysRule::setGroupId)
 	.add_property("lineno",make_getter(&LsysRule::lineno))

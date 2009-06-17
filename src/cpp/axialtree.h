@@ -200,6 +200,7 @@ public:
 
 	inline bool empty() const { return __conststring().empty(); }
 	inline size_t size() const { return __conststring().size(); }
+	inline void reserve(size_t s) { return __string().reserve(s); }
 	void clear();
 
 	std::string str() const;
@@ -267,13 +268,13 @@ public:
 	bool match(const AxialTree& pattern, 
 			   const_iterator  pos,
 			   const_iterator& resultingpos,
-			   boost::python::list& params) const;
+			   ArgList& params) const;
 
 	bool match(const AxialTree& pattern, 
 			   const_iterator  pos,
 			   const_iterator& resultingpos,
 			   const_iterator& last_matched,
-			   boost::python::list& params) const;
+			   ArgList& params) const;
 
 	bool reverse_match(const AxialTree& pattern, 
 			   const_iterator  pos) const;
@@ -281,7 +282,7 @@ public:
 	bool reverse_match(const AxialTree& pattern, 
 			   const_iterator  pos,
 			   const_iterator& resultingpos,
-			   boost::python::list& params) const;
+			   ArgList& params) const;
 
 	bool reverse_match(const AxialTree& pattern, 
 			   const_iterator  pos,
@@ -297,18 +298,18 @@ public:
 	bool rightmatch(const AxialTree& pattern, 
 					const_iterator pos,
 					const_iterator& resultingpos,
-					boost::python::list& params) const;
+					ArgList& params) const;
 
 	bool rightmatch(const AxialTree& pattern, 
 					const_iterator pos,
 					const_iterator last_matched,
 					const_iterator& resultingpos,
-					boost::python::list& params) const;
+					ArgList& params) const;
 
 	bool leftmatch(const AxialTree& pattern,  
 					const_iterator pos,
 					const_iterator& resultingpos,
-					boost::python::list& params) const;
+					ArgList& params) const;
 
 	bool leftmatch(const AxialTree& pattern,  
 					const_iterator pos,
@@ -398,12 +399,33 @@ private:
 #endif
 
 protected:
- const ModuleList& __conststring() const; 
- const ModuleList& __string() const; 
- ModuleList& __string() ;
+ inline const ModuleList& __conststring() const; 
+ inline const ModuleList& __string() const; 
+ inline ModuleList& __string() ;
   
 
 };
+
+#ifdef USE_SHARED_DATA 
+const AxialTree::ModuleList& AxialTree::__conststring() const 
+ { return __data->__string; }
+
+const AxialTree::ModuleList& AxialTree::__string() const 
+ { return __data->__string; }
+
+AxialTree::ModuleList& AxialTree::__string() 
+ { return __data->__string; }
+
+#else
+const AxialTree::ModuleList& AxialTree::__conststring() const 
+ { return __data.__string; }
+
+const AxialTree::ModuleList& AxialTree::__string() const 
+ { return __data.__string; }
+
+AxialTree::ModuleList& AxialTree::__string() 
+ { return __data.__string; }
+#endif
 
 
 /*---------------------------------------------------------------------------*/

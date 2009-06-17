@@ -55,7 +55,8 @@ AxialTree::AxialTreeInternal::AxialTreeInternal(const AxialTreeInternal& other) 
 #ifdef USE_SHARED_DATA
     QSharedData(other),
 #endif
-    __string(other.__string) {}
+		__string(other.__string) {
+	}
 
 
 AxialTree::AxialTreeInternal::AxialTreeInternal(const ParamModule& m):
@@ -71,7 +72,7 @@ AxialTree::AxialTreeInternal::AxialTreeInternal(AxialTree::ModuleList::const_ite
 #endif
     __string(beg,end) {}
 
-AxialTree::AxialTreeInternal::~AxialTreeInternal() {}
+AxialTree::AxialTreeInternal::~AxialTreeInternal() { }
 
 /*---------------------------------------------------------------------------*/
 
@@ -131,25 +132,6 @@ AxialTree::~AxialTree()
 AxialTree& AxialTree::operator=(const AxialTree& other)
 { __data = other.__data; return *this; }
 
-#ifdef USE_SHARED_DATA 
-const AxialTree::ModuleList& AxialTree::__conststring() const 
- { return __data->__string; }
-
-const AxialTree::ModuleList& AxialTree::__string() const 
- { return __data->__string; }
-
-AxialTree::ModuleList& AxialTree::__string() 
- { return __data->__string; }
-#else
-const AxialTree::ModuleList& AxialTree::__conststring() const 
- { return __data.__string; }
-
-const AxialTree::ModuleList& AxialTree::__string() const 
- { return __data.__string; }
-
-AxialTree::ModuleList& AxialTree::__string() 
- { return __data.__string; }
-#endif
 
 void AxialTree::clear()
 #ifdef USE_SHARED_DATA
@@ -651,14 +633,14 @@ bool AxialTree::match(const AxialTree& pattern,
 					  AxialTree::const_iterator it,
 					  AxialTree::const_iterator& resultingpos) const
 { 
-  list params;
+  ArgList params;
   return match(pattern,it,resultingpos,params);
 }
 
 bool AxialTree::match(const AxialTree& pattern, 
 					  AxialTree::const_iterator it,
 					  AxialTree::const_iterator& resultingpos,
-					  list& params) const
+					  ArgList& params) const
 { 
 	AxialTree::const_iterator last_matched; 
 	return match(pattern,it,resultingpos,last_matched,params); 
@@ -668,7 +650,7 @@ bool AxialTree::match(const AxialTree& pattern,
 					  AxialTree::const_iterator it,
 					  AxialTree::const_iterator& resultingpos,
 					  AxialTree::const_iterator& last_matched,
-					  list& params) const
+					  ArgList& params) const
 { 
 	return MatchingEngine::match(it,const_end(),pattern.const_begin(),pattern.const_end(),resultingpos,last_matched,params);
 }
@@ -681,7 +663,7 @@ bool AxialTree::reverse_match(const AxialTree& pattern,
 					  AxialTree::const_iterator it,
 					  AxialTree::const_iterator& resultingpos) const
 { 
-  list params;
+  ArgList params;
   if (isEnd(it)) return false;
   return MatchingEngine::reverse_match(it,begin(),end(),pattern.const_rbegin(),pattern.const_rend(),resultingpos,params);
 }
@@ -690,7 +672,7 @@ bool AxialTree::reverse_match(const AxialTree& pattern,
 bool AxialTree::reverse_match(const AxialTree& pattern, 
 					  AxialTree::const_iterator it,
 					  AxialTree::const_iterator& resultingpos,
-					  list& params) const
+					  ArgList& params) const
 { 
   if (isEnd(it)) return false;
   return MatchingEngine::reverse_match(it,begin(),end(),pattern.const_rbegin(),pattern.const_rend(),resultingpos,params);
@@ -703,14 +685,14 @@ bool AxialTree::rightmatch(const AxialTree& pattern,
 bool AxialTree::rightmatch(const AxialTree& pattern, 
 						   AxialTree::const_iterator it,
 						   AxialTree::const_iterator& resultingpos) const{
-  list params;
+  ArgList params;
   return rightmatch(pattern,it,resultingpos,params);
 }
 
 bool AxialTree::rightmatch(const AxialTree& pattern, 
 						   AxialTree::const_iterator it,
 						   AxialTree::const_iterator& resultingpos,
-						   list& params) const{
+						   ArgList& params) const{
   return rightmatch(pattern,it,it,resultingpos,params);
 }
 
@@ -718,7 +700,7 @@ bool AxialTree::rightmatch(const AxialTree& pattern,
 						   AxialTree::const_iterator it,
 						   AxialTree::const_iterator last_matched,
 						   AxialTree::const_iterator& resultingpos,
-						   list& params) const{
+						   ArgList& params) const{
   if(pattern.empty())return true;
   return MatchingEngine::right_match(it,const_end(),pattern.const_begin(),pattern.const_end(),last_matched, resultingpos,params);
 }
@@ -737,7 +719,7 @@ AxialTree::rightfind(const AxialTree& a,
 bool AxialTree::leftmatch(const AxialTree& pattern, 
 						  AxialTree::const_iterator it,
 						  AxialTree::const_iterator& resultingpos,
-						  list& params) const{
+						  ArgList& params) const{
   if(pattern.empty())return true;
   return MatchingEngine::left_match(it,const_begin(),const_end(),pattern.const_rbegin(),pattern.const_rend(),resultingpos,params);
 }
@@ -747,7 +729,7 @@ bool AxialTree::leftmatch(const AxialTree& pattern,
 						  AxialTree::const_iterator& resultingpos) const{
 
   if(pattern.empty())return true;
-  list params;
+  ArgList params;
   return MatchingEngine::left_match(it,const_begin(),const_end(),pattern.const_rbegin(),pattern.const_rend(),resultingpos,params);
 }
 

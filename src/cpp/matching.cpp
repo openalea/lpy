@@ -61,7 +61,7 @@ MatchingEngine::eStringMatchingMethod LPY::MatchingEngine::getStringMatchingMeth
 
 bool MatchingEngine::module_match(const ParamModule& module, 
 								  const ParamModule& pattern,
-								  boost::python::list& params) 
+								  ArgList& params) 
 {
   switch(ModuleMatchingMethod){
    case eMSimple:
@@ -80,7 +80,7 @@ bool MatchingEngine::match(AxialTree::const_iterator  matching_start,
 						   AxialTree::const_iterator  pattern_end,
 						   AxialTree::const_iterator& matching_end,
 						   AxialTree::const_iterator& last_matched,
-						   boost::python::list& params) 
+						   ArgList& params) 
 {
 	return MatchingImplementation::string_exact_match(matching_start,string_end,
 						                              pattern_begin,pattern_end,
@@ -93,7 +93,7 @@ bool MatchingEngine::reverse_match(AxialTree::const_iterator matching_start,
 								   AxialTree::const_reverse_iterator  pattern_rbegin,
 								   AxialTree::const_reverse_iterator  pattern_rend,
 								   AxialTree::const_iterator& matching_end,
-								   boost::python::list& params)
+								   ArgList& params)
 { 
 	return MatchingImplementation::string_exact_reverse_match(matching_start,string_begin,string_end,
 						                               pattern_rbegin,pattern_rend,
@@ -106,7 +106,7 @@ bool MatchingEngine::right_match(AxialTree::const_iterator  matching_start,
 								 AxialTree::const_iterator  pattern_end,
 								 AxialTree::const_iterator  last_matched,
 								 AxialTree::const_iterator& matching_end,
-								 boost::python::list& params) 
+								 ArgList& params) 
 {
 	switch(StringMatchingMethod){
 		case eString:
@@ -134,15 +134,12 @@ bool MatchingEngine::left_match(AxialTree::const_iterator  matching_start,
 								AxialTree::const_reverse_iterator  pattern_rbegin,
 								AxialTree::const_reverse_iterator  pattern_rend,
 								AxialTree::const_iterator& matching_end,
-								boost::python::list& params) 
+								ArgList& params) 
 {
 	switch(StringMatchingMethod){
 		case eString:
 				return StringReverseMatcher<GetPrevious>::
 				match(matching_start,string_begin,string_end,pattern_rbegin,pattern_rend,matching_end,params);
-		/*	return MatchingImplementation::string_exact_reverse_match(matching_start,string_begin,string_end,
-						                                 pattern_rbegin,pattern_rend,
-						                                 matching_end,params);*/
 		case eMScaleAxialTree:
 			return MatchingImplementation::mstree_left_match(matching_start,string_begin,string_end,
 						                                 pattern_rbegin,pattern_rend,
@@ -164,18 +161,18 @@ bool MatchingEngine::left_match(AxialTree::const_iterator  matching_start,
 bool 
 MatchingImplementation::simple_module_matching(const ParamModule& module, 
 													 const ParamModule& pattern, 
-													 boost::python::list& l)
+													 ArgList& l)
 {
   if( module.sameName(pattern) && module.argSize() == pattern.argSize()){
-	l = module.getArgs();
+	  ArgsCollector::append_modargs(l,module.getParameterList());
 	return true;
   }
   return false;
 }
 
 bool MatchingImplementation::module_matching_with_star(const ParamModule& module, 
-															 const ParamModule& pattern, 
-									                         boost::python::list& l)
+													   const ParamModule& pattern, 
+									                   ArgList& l)
 {
   if (pattern.isStar()){
 	size_t s = pattern.argSize();
@@ -185,13 +182,12 @@ bool MatchingImplementation::module_matching_with_star(const ParamModule& module
 	  boost::python::object of = pattern.getAt(0);
 	  LsysVar v = boost::python::extract<LsysVar>(of);
 	  if(v.isArgs()) { 
-		  boost::python::list largs;
-		  largs.append(boost::python::object(module.name()));
-		  largs += module.getArgs();
-		  l.append(largs); return true; 
+		  ArgsCollector::append_arg(l,boost::python::object(module.name()));
+		  ArgsCollector::append_modargs(l,module.getParameterList());
+		  return true; 
 	  }
 	  else {
-		if( s2 == 0){ l.append(boost::python::object(module.name()));return true; }
+		if( s2 == 0){ ArgsCollector::append_arg(l,boost::python::object(module.name()));return true; }
 	    else return false;
 	  }
 	}
@@ -202,18 +198,18 @@ bool MatchingImplementation::module_matching_with_star(const ParamModule& module
 	  LsysVar v = boost::python::extract<LsysVar>(of)();
 	  if(!v.isArgs()){
   		if (s2 != s-1) return false;
-		l.append(boost::python::object(module.name()));
-		l += module.getArgs();
+		ArgsCollector::append_arg(l,boost::python::object(module.name()));
+		ArgsCollector::append_modargs(l,module.getParameterList());
 		return true;
 	  }
-	  l.append(boost::python::object(module.name()));
+	  ArgsCollector::append_arg(l,boost::python::object(module.name()));
 	  if(s != 2){
 		for(int i = 0; i < s-2; i++)
-		  l.append(module.getAt(i));
-		if(s2 > s-2)l.append(module.getslice(s-2,s2));
-		else l.append(boost::python::list());
+		  ArgsCollector::append_arg(l,module.getAt(i));
+		if(s2 > s-2)ArgsCollector::append_arg(l,module.getslice(s-2,s2));
+		else ArgsCollector::append_arg(l,boost::python::list());
 	  }
-	  else l.append(module.getArgs());
+	  else ArgsCollector::append_arg(l,module.getArgs());
 	  return true;
 	}
   }
@@ -228,16 +224,16 @@ bool MatchingImplementation::module_matching_with_star(const ParamModule& module
 	  boost::python::object of = pattern.getAt(s-1);
 	  LsysVar v = boost::python::extract<LsysVar>(of)();
 	  if(!v.isArgs()) {
-		if(s2 == s) { l = module.getArgs(); return true; }
+		if(s2 == s) { ArgsCollector::append_modargs(l,module.getParameterList()); return true; }
 		else return false;
 	  }
 	  if(s!=1){
 		for(int i = 0; i < s-1; i++)
-		  l.append(module.getAt(i));
-		if(s2 > s-1)l.append(module.getslice(s-1,s2));
-		else l.append(boost::python::list());
+		  ArgsCollector::append_arg(l,module.getAt(i));
+		if(s2 > s-1)ArgsCollector::append_arg(l,module.getslice(s-1,s2));
+		else ArgsCollector::append_arg(l,boost::python::list());
 	  }
-	  else l.append(module.getArgs());
+	  else ArgsCollector::append_modargs(l,module.getParameterList());
 	  return true;
 	}
 	return true;
@@ -247,7 +243,7 @@ bool MatchingImplementation::module_matching_with_star(const ParamModule& module
 bool MatchingImplementation::module_matching_with_star_and_valueconstraints(
 										  const ParamModule& module, 
 									      const ParamModule& pattern, 
-									      boost::python::list& l)
+									      ArgList& l)
 { 
   if (pattern.isStar()){
 	size_t s = pattern.argSize();
@@ -264,18 +260,18 @@ bool MatchingImplementation::module_matching_with_star_and_valueconstraints(
 	  else {
 		LsysVar v = e();
 		if(v.isArgs()) { 
-			boost::python::list largs;
-			largs.append(module.name());
-			largs += module.getArgs();
-			if (!v.isCompatible(largs))return false;
-			l.append(largs); 
+			ArgList largs;
+			ArgsCollector::append_arg(largs,bp::object(module.name()));
+			ArgsCollector::append_modargs(largs,module.getParameterList()); 
+			if (!v.isCompatible(bp::object(largs)))return false;
+			ArgsCollector::append_arg(l,boost::python::object(largs)); 
 			return true; 
 		}
 		else {
 		  if(s2 == 0){ 
 			 boost::python::object largs(module.name()); 
 			 if (!v.isCompatible(largs))return false;
-			 l.append(largs); 
+			 ArgsCollector::append_arg(l,largs); 
 			 return true; 
 		  }
 		  else return false;
@@ -296,7 +292,7 @@ bool MatchingImplementation::module_matching_with_star_and_valueconstraints(
 	  else {
 		  boost::python::object no(module.name());
 		  if (!e1().isCompatible(no))return false;
-		  l.append(no);
+		  ArgsCollector::append_arg(l,no);
 	  }
 	  boost::python::object of = pattern.getAt(s-1);
 	  bool lastarg = false;
@@ -336,7 +332,8 @@ bool MatchingImplementation::module_matching_with_star_and_valueconstraints(
 			else {
 			  if(s == 2){
 				  if(!v.isCompatible(module.getArgs()))return false;
-				  l.append(module.getArgs()); return true; 
+				  ArgsCollector::append_modargs(l,module.getParameterList()); 
+                  return true; 
 			  }
 			  else if (s2 == s-2) lastargval = boost::python::list();
 			  else lastargval = module.getslice(s-2,s2);
@@ -353,10 +350,10 @@ bool MatchingImplementation::module_matching_with_star_and_valueconstraints(
 		}
 		else { 
 			if(!e().isCompatible(module.getAt(i-1+beg))) return false; 
-			l.append(module.getAt(i-1+beg));
+			ArgsCollector::append_arg(l,module.getAt(i-1+beg));
 		}
 	  }
-	  if(lastarg)l.append(lastargval);
+	  if(lastarg)ArgsCollector::append_arg(l,lastargval);
 	  return true;
 	}
   }
@@ -386,7 +383,7 @@ bool MatchingImplementation::module_matching_with_star_and_valueconstraints(
 		  if (s2 < s - 1) return false;
 		  if(s == 1){ 
 			  if(!v.isCompatible(module.getArgs()))return false; 
-			  l.append(module.getArgs());return true; 
+			  ArgsCollector::append_modargs(l,module.getParameterList()); return true; 
 		  }
 		  else if (s2 == s - 1) lastargval = boost::python::list();
 		  else lastargval = module.getslice(s-1,s2);
@@ -401,10 +398,10 @@ bool MatchingImplementation::module_matching_with_star_and_valueconstraints(
 		}
 		else {
 			if(!e().isCompatible(module.getAt(i))) return false; 
-			l.append(module.getAt(i));
+			ArgsCollector::append_arg(l,module.getAt(i));
 		}
 	  }
-	  if(lastarg)l.append(lastargval);
+	  if(lastarg)ArgsCollector::append_arg(l,lastargval);
 	}
 	return true;
   }
@@ -419,7 +416,7 @@ bool MatchingImplementation::string_exact_match(AxialTree::const_iterator  match
 						   AxialTree::const_iterator  pattern_end,
 						   AxialTree::const_iterator& matching_end,
 						   AxialTree::const_iterator& last_matched,
-						   boost::python::list& params) 
+						   ArgList& params) 
 {
 	return StringMatcher<>::
 		match(matching_start, string_end, pattern_begin, pattern_end, matching_end, last_matched, params);
@@ -431,28 +428,10 @@ bool MatchingImplementation::string_exact_reverse_match(AxialTree::const_iterato
 								   AxialTree::const_reverse_iterator  pattern_rbegin,
 								   AxialTree::const_reverse_iterator  pattern_rend,
 								   AxialTree::const_iterator& matching_end,
-								   boost::python::list& params)
+								   ArgList& params)
 { 
 	return StringReverseMatcher<>::
 		match(matching_start, string_begin, string_end, pattern_rbegin, pattern_rend, matching_end, params);
-
-/*	AxialTree::const_iterator it = matching_start;
-	boost::python::list lp;
-	for (AxialTree::const_reverse_iterator it2 = pattern_rbegin; it2 != pattern_rend; ){
-		boost::python::list lmp;
-		if(!module_match(*it,*it2,lmp)) return false; 
-		else { 
-			++it2;
-			if (it == string_begin){
-				if (it2 != pattern_rend) return false;
-			}
-			else --it;
-			lmp += lp; lp = lmp; 
-		}
-	}
-	params += lp;
-	matching_end = it;
-	return true; */
 }
 
 
@@ -462,7 +441,7 @@ bool MatchingImplementation::tree_right_match(AxialTree::const_iterator  matchin
 								 AxialTree::const_iterator  pattern_end,
 						         AxialTree::const_iterator  last_matched,
 								 AxialTree::const_iterator& matching_end,
-								 boost::python::list& params) 
+								 ArgList& params) 
 {
 	return TreeRightMatcher<>::
 		match(matching_start, string_end, pattern_begin, pattern_end, last_matched, matching_end, params);
@@ -477,7 +456,7 @@ bool MatchingImplementation::tree_left_match(AxialTree::const_iterator  matching
 								AxialTree::const_reverse_iterator  pattern_rbegin,
 								AxialTree::const_reverse_iterator  pattern_rend,
 								AxialTree::const_iterator& matching_end,
-								boost::python::list& params) 
+								ArgList& params) 
 {
 	return TreeLeftMatcher<>::
 		match(matching_start, string_begin, string_end, pattern_rbegin, pattern_rend, matching_end, params);
@@ -490,7 +469,7 @@ bool MatchingImplementation::mstree_left_match(AxialTree::const_iterator matchin
 								   AxialTree::const_reverse_iterator  pattern_rbegin,
 								   AxialTree::const_reverse_iterator  pattern_rend,
 								   AxialTree::const_iterator& matching_end,
-								   boost::python::list& params)
+								   ArgList& params)
 { 
 	return TreeLeftMatcher<GetScalePredecessor>::
 		match(matching_start, string_begin, string_end, pattern_rbegin, pattern_rend, matching_end, params);
@@ -502,7 +481,7 @@ bool MatchingImplementation::mltree_left_match(AxialTree::const_iterator matchin
 								   AxialTree::const_reverse_iterator  pattern_rbegin,
 								   AxialTree::const_reverse_iterator  pattern_rend,
 								   AxialTree::const_iterator& matching_end,
-								   boost::python::list& params)
+								   ArgList& params)
 { 
 	return TreeLeftMatcher<GetLevelPredecessor>::
 		match(matching_start, string_begin, string_end, pattern_rbegin, pattern_rend, matching_end, params);
@@ -515,7 +494,7 @@ bool MatchingImplementation::mstree_right_match(AxialTree::const_iterator  match
 								 AxialTree::const_iterator  pattern_end,
 						         AxialTree::const_iterator  last_matched,
 								 AxialTree::const_iterator& matching_end,
-								 boost::python::list& params) 
+								 ArgList& params) 
 {
 	return TreeRightMatcher<GetScaleSuccessor>::
 		match(matching_start, string_end, pattern_begin, pattern_end, last_matched, matching_end, params);
@@ -527,7 +506,7 @@ bool MatchingImplementation::mltree_right_match(AxialTree::const_iterator  match
 								 AxialTree::const_iterator  pattern_end,
 						         AxialTree::const_iterator  last_matched,
 								 AxialTree::const_iterator& matching_end,
-								 boost::python::list& params) 
+								 ArgList& params) 
 {
 	return TreeRightMatcher<GetLevelSuccessor>::
 		match(matching_start, string_end, pattern_begin, pattern_end, last_matched, matching_end, params);

@@ -32,6 +32,7 @@
 #define __PGL_LSYSRULE_H__
 
 #include "axialtree.h"
+#include "argcollector.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -40,6 +41,7 @@ LPY_BEGIN_NAMESPACE
 class LPY_API LsysRule {
 
 public:
+
 	// LsysRule();
 	LsysRule(const LsysRule&);
 	LsysRule(size_t = 0, size_t = 0, char prefix = 'p', int lineno = -1);
@@ -54,8 +56,8 @@ public:
 	void setGroupId(size_t id) { __gid = id; }
 
 	boost::python::object apply() const;
-	boost::python::object apply( const boost::python::list& args ) const ;
-	boost::python::object apply( const boost::python::tuple& args ) const;
+	boost::python::object apply( const ArgList& args ) const ;
+//	boost::python::object apply( const boost::python::tuple& args ) const;
 
 	bool compiled() const ;
 	void compile();
@@ -111,23 +113,23 @@ public:
 			   AxialTree::const_iterator pos,
 			   const AxialTree& dest,
 			   AxialTree::const_iterator& endpos,
-			   boost::python::list& args,
+			   ArgList& args,
                eDirection direction = eForward) const ;
 
     inline bool reverse_match(const AxialTree& src,
 			   AxialTree::const_iterator pos,
 			   const AxialTree& dest,
 			   AxialTree::const_iterator& endpos,
-               boost::python::list& args) const 
+               ArgList& args) const 
     { return match(src,pos,dest,endpos,args,eBackward); }
 
 	bool applyTo( AxialTree& dest, 
-				  const boost::python::list& args, 
+				  const ArgList& args, 
 				  size_t * length = NULL,
 				  eDirection direction = eForward) const;
 
 	inline bool reverseApplyTo( AxialTree& dest, 
-				  const boost::python::list& args, 
+				  const ArgList& args, 
 				  size_t * length = NULL,
 				  eDirection direction = eForward) const
 	{ return applyTo(dest,args,length,eBackward); }
@@ -167,8 +169,8 @@ protected:
 	bool __hasquery;
 private:
     void __precall_function( size_t nbargs = 0 ) const;
-    void __precall_function( size_t nbargs,  const boost::python::object& obj ) const;
-    // boost::python::object __call_function( const boost::python::tuple& ) const;
+    void __precall_function( size_t nbargs,  const ArgList& obj ) const;
+    boost::python::object __call_function( size_t nbargs,  const ArgList& obj ) const;
     boost::python::object __postcall_function( boost::python::object ) const;
 
 };

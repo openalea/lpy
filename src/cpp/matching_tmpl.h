@@ -1,44 +1,44 @@
+/* ---------------------------------------------------------------------------
+ #
+ #       L-Py: L-systems in Python
+ #
+ #       Copyright 2003-2008 UMR Cirad/Inria/Inra Dap - Virtual Plant Team
+ #
+ #       File author(s): F. Boudon (frederic.boudon@cirad.fr)
+ #
+ # ---------------------------------------------------------------------------
+ #
+ #                      GNU General Public Licence
+ #
+ #       This program is free software; you can redistribute it and/or
+ #       modify it under the terms of the GNU General Public License as
+ #       published by the Free Software Foundation; either version 2 of
+ #       the License, or (at your option) any later version.
+ #
+ #       This program is distributed in the hope that it will be useful,
+ #       but WITHOUT ANY WARRANTY; without even the implied warranty of
+ #       MERCHANTABILITY or FITNESS For A PARTICULAR PURPOSE. See the
+ #       GNU General Public License for more details.
+ #
+ #       You should have received a copy of the GNU General Public
+ #       License along with this program; see the file COPYING. If not,
+ #       write to the Free Software Foundation, Inc., 59
+ #       Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ #
+ # ---------------------------------------------------------------------------
+ */
+
 #ifndef __matching_tpl_h__
 #define __matching_tpl_h__
 
 #include "matching.h"
 #include "axialtree_iter.h"
+#include "argcollector.h"
 #include <boost/python.hpp>
 
 LPY_BEGIN_NAMESPACE
-#define bp boost::python
+
 /*---------------------------------------------------------------------------*/
-
-struct BPListManager {
-public:
-	typedef bp::list element_type;
-	static inline void append_args(element_type& value, const element_type& elements){
-		value += elements;
-	}
-
-	static inline void append_arg(element_type&  value, const bp::object& element){
-		value.append(element);
-	}
-
-	static inline void prepend_args(element_type& value, element_type& elements){
-		elements += value;
-		value = elements;
-	}
-
-	static element_type fusion_args(const std::vector<element_type>& values){
-		element_type res;
-		if(!values.empty()){
-			size_t nbvar = len(values[0]);
-			for(size_t i = 0; i < nbvar; ++i){
-				element_type resi;
-				for(std::vector<element_type>::const_iterator it = values.begin(); it != values.end(); ++it)
-					resi.append((*it)[i]);
-				res.append(resi);
-			}
-		}
-		return res;
-	}
-};
 
 template<class argtype, class PIterator, class Iterator>
 void process_get_iterator(PIterator pattern, 
@@ -50,11 +50,12 @@ void process_get_iterator(PIterator pattern,
 	if(pattern->argSize() > 1) { 
 		LsysWarning("?I have too much arguments. Shoud be only one");
 		argtype lp;
-		lp.append(bp::object(pyiter));
-		for (size_t i = 1; i < pattern->argSize(); ++i) lp.append(bp::object());
-		params += lp;
+		ArgsCollector::append_arg(lp,bp::object(pyiter));
+		for (size_t i = 1; i < pattern->argSize(); ++i) 
+			ArgsCollector::append_arg(lp,bp::object());
+		ArgsCollector::append_args(params,lp);
 	}
-	else params.append(pyiter);
+	else ArgsCollector::append_arg(params,bp::object(pyiter));
 
 }
 
@@ -68,13 +69,14 @@ bool process_get_module(PIterator pattern,
 	ParamModule lpattern = bp::extract<ParamModule>(pattern->getAt(1))();
 	if (lpattern.argSize() > 0){
 		if(MatchingEngine::module_match(*it,lpattern,lp)){
-			BPListManager::append_arg(params,bp::object(*it));
-			BPListManager::append_args(params,lp); 
+			ArgsCollector::append_arg(params,bp::object(*it));
+			ArgsCollector::append_args(params,lp); 
 		}
 		else return false;
 	}
 	else { 
-		if(it->getClass() == lpattern.getClass())BPListManager::append_arg(params,bp::object(*it));
+		if(it->getClass() == lpattern.getClass())
+			ArgsCollector::append_arg(params,bp::object(*it));
 		else return false;
 	}
 	return true;
@@ -180,13 +182,14 @@ public:
 	typedef typename Matcher::argtype argtype;
 
 	static bool match(Iterator matching_start, Iterator  string_end,
-					  PIterator pattern, Iterator& last_matched,  Iterator& matching_end, 
+					  PIterator pattern, Iterator& last_matched,  
+					  Iterator& matching_end, 
 					  argtype& lparams){
 		Iterator it = matching_start;
 		PIterator it2 = pattern;
 		if(it2->isRepExp()){
 			std::vector<argtype> llp;
-			AxialTree lpattern = bp::extract<AxialTree>(it2->getAt(0))();
+			const AxialTree& lpattern = bp::extract<const AxialTree&>(it2->getAt(0))();
 			size_t miniter = 0;
 			if (it2->argSize() > 1) miniter = bp::extract<size_t>(it2->getAt(1))();
 			size_t maxiter = 1000;
@@ -204,10 +207,10 @@ public:
 			if(numiter == 0){
 				size_t nbvar = lpattern.getVarNb();
 				for(size_t i = 0; i < nbvar; ++i){
-					lparams.append(argtype());
+					ArgsCollector::append_arg(lparams,bp::list());
 				}
 			}
-			else { Matcher::append_args(lparams,Matcher::fusion_args(llp)); }
+			else { ArgsCollector::append_args(lparams,ArgsCollector::fusion_args(llp)); }
 		}
 		else if(it2->isOr()){
 			int matched = -1;			
@@ -224,15 +227,11 @@ public:
 			else {
 				size_t nbNone = 0;
 				for(int ip = 0;ip < matched; ++ip)nbNone += nbargs[ip];
-				argtype lpNone;
-				lpNone.append(bp::object());
-				argtype lpNoneBefore = argtype(lpNone * nbNone);
-				lpNoneBefore += lp;
-				lp =  lpNoneBefore;
+				ArgsCollector::append_n_arg(lp,nbNone,bp::object());
 				nbNone = 0;
 				for(int ip = matched+1;ip < it2->argSize(); ++ip)nbNone += nbargs[ip];
-				lp += lpNone * nbNone;
-				Matcher::append_args(lparams,lp); 
+				ArgsCollector::append_n_arg(lp,nbNone,bp::object());
+				ArgsCollector::append_args(lparams,lp); 
 			}
 		}
 		matching_end = it;
@@ -244,15 +243,16 @@ public:
 
 template<
 template < typename, typename> class _NextElement = StringNext, 
-class _Iterator = AxialTree::const_iterator, class _PIterator = AxialTree::const_iterator,
-class ArgsContainer = BPListManager >
-struct StringMatcher : public ArgsContainer
+class _Iterator = AxialTree::const_iterator, 
+class _PIterator = AxialTree::const_iterator,
+class _argtype = ArgList>
+struct StringMatcher
 {
-	typedef typename ArgsContainer::element_type argtype;
+	typedef _argtype argtype;
 	typedef _Iterator Iterator;
 	typedef _PIterator PIterator;
 	typedef _NextElement<Iterator,PIterator> Next;
-	typedef StringMatcher<_NextElement,Iterator,PIterator,ArgsContainer> MType;
+	typedef StringMatcher<_NextElement,_Iterator,_PIterator,_argtype> MType;
 
 	static bool match(Iterator matching_start, Iterator  string_end,
 					  PIterator pattern_begin, PIterator  pattern_end, 
@@ -270,7 +270,7 @@ struct StringMatcher : public ArgsContainer
 			else if( it2->isRE() ) { if(!RegExpMatcher<MType>::match(it,string_end,it2,pit,it,lp))return false; }
 			else { 
 				if( !MatchingEngine::module_match(*it,*it2,lmp))return false;
-			    else append_args(lp,lmp); 
+			    else ArgsCollector::append_args(lp,lmp); 
 			}
 			pit = it;
 			it = Next::next(it,it2,string_end); 
@@ -286,12 +286,16 @@ struct StringMatcher : public ArgsContainer
 
 template<
 template < typename, typename> class PreviousElement = StringPrevious, 
-class Iterator = AxialTree::const_iterator, class PRIterator = AxialTree::const_reverse_iterator,
-class ArgsContainer = BPListManager >
-struct StringReverseMatcher : public ArgsContainer
+class _Iterator = AxialTree::const_iterator, 
+class _PRIterator = AxialTree::const_reverse_iterator,
+class _argtype = ArgList>
+struct StringReverseMatcher 
 {
-	typedef typename ArgsContainer::element_type argtype;
+	typedef _argtype argtype;
+	typedef _Iterator Iterator;
+	typedef _PRIterator PRIterator;
 	typedef PreviousElement<Iterator,PRIterator> Previous;
+	typedef StringReverseMatcher<PreviousElement,_Iterator,_PRIterator,_argtype> MType;
 
 	static bool match(Iterator matching_start, Iterator  string_begin, Iterator  string_end,
 					  PRIterator pattern_rbegin, PRIterator  pattern_rend, 
@@ -306,7 +310,7 @@ struct StringReverseMatcher : public ArgsContainer
 			++it2;
 			if (it == string_begin){ if (it2 != pattern_rend) return false; }
 			else it = Previous::next(it,it2,string_begin,string_end);
-			prepend_args(lp,lmp);
+			ArgsCollector::prepend_args(lp,lmp);
 		}
 		params = lp;
 		matching_end = it;
@@ -318,20 +322,24 @@ struct StringReverseMatcher : public ArgsContainer
 
 template<
 template < typename, typename > class FatherElement = GetFather, 
-class Iterator = AxialTree::const_iterator, class RPIterator = AxialTree::const_reverse_iterator,
-class ArgsContainer = BPListManager >
-struct TreeLeftMatcher : public ArgsContainer
+class _Iterator = AxialTree::const_iterator, 
+class _PRIterator = AxialTree::const_reverse_iterator,
+class _argtype = ArgList>
+struct TreeLeftMatcher 
 {
-	typedef typename ArgsContainer::element_type argtype;
-	typedef FatherElement<Iterator,RPIterator> Father;
+	typedef _argtype argtype;
+	typedef _Iterator Iterator;
+	typedef _PRIterator PRIterator;
+	typedef FatherElement<Iterator,PRIterator> Father;
+	typedef TreeLeftMatcher<FatherElement,_Iterator,_PRIterator,_argtype> MType;
 
 	static bool match(Iterator matching_start, Iterator  string_begin, Iterator  string_end,
-		RPIterator pattern_rbegin, RPIterator  pattern_rend, Iterator& matching_end,
+		PRIterator pattern_rbegin, PRIterator  pattern_rend, Iterator& matching_end,
 		argtype& params)
 	{
 		Iterator it = matching_start;
 		if(it == string_begin)return false;
-		RPIterator it2 = pattern_rbegin;
+		PRIterator it2 = pattern_rbegin;
 		it = Father::next(it,it2,string_begin,string_end);
 		argtype lparams;
 		while(it2 != pattern_rend && it != string_end){
@@ -340,7 +348,7 @@ struct TreeLeftMatcher : public ArgsContainer
 				if(!process_get_module(it2,it,lp)) return false;
 			}
 			else if (! MatchingEngine::module_match(*it,*it2,lp) ) return false;
-			prepend_args(lparams,lp);
+			ArgsCollector::prepend_args(lparams,lp);
 			++it2; 
 			if (it2 == pattern_rend) break;
 			if(it2->isStar() || it2->isBracket()){ 
@@ -354,7 +362,7 @@ struct TreeLeftMatcher : public ArgsContainer
 		}
 		if((it2 == pattern_rend)){
 			matching_end = it;
-			prepend_args(params,lparams);
+			ArgsCollector::prepend_args(params,lparams);
 			return true;
 		}
 		else return false;
@@ -364,15 +372,16 @@ struct TreeLeftMatcher : public ArgsContainer
 
 template<
 template < typename, typename > class _NextElement = GetNext,
-class _Iterator = AxialTree::const_iterator, class _PIterator = AxialTree::const_iterator,
-class ArgsContainer = BPListManager >
-struct TreeRightMatcher : public ArgsContainer
+class _Iterator = AxialTree::const_iterator, 
+class _PIterator = AxialTree::const_iterator,
+class _argtype = ArgList>
+struct TreeRightMatcher 
 {
-	typedef typename ArgsContainer::element_type argtype;
+	typedef _argtype argtype;
 	typedef _Iterator Iterator;
 	typedef _PIterator PIterator;
 	typedef _NextElement<Iterator,PIterator> NextElement;
-	typedef TreeRightMatcher<_NextElement,Iterator,PIterator,ArgsContainer> MType;
+	typedef TreeRightMatcher<_NextElement,Iterator,PIterator,argtype> MType;
 
 	static bool match(Iterator matching_start, Iterator  string_end,
 					  PIterator pattern_begin, PIterator  pattern_end, 
@@ -391,7 +400,7 @@ struct TreeRightMatcher : public ArgsContainer
 			if(it2->isStar()){
 				argtype lp;
 				if(MatchingEngine::module_match(*it,*it2,lp)){ 
-					append_args(lparams,lp);
+					ArgsCollector::append_args(lparams,lp);
 				}
 				else return false;
 			}
@@ -409,7 +418,7 @@ struct TreeRightMatcher : public ArgsContainer
 				if(!it->isBracket()) {
 					argtype lp; // if not a bracket, try to match
 					if(MatchingEngine::module_match(*it,*it2,lp)){
-						append_args(lparams,lp); 
+						ArgsCollector::append_args(lparams,lp); 
 					}
 					else return false;
 				}

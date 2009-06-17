@@ -612,6 +612,7 @@ Lsystem::__step(AxialTree& workingstring,
   matching = false;
   if( workingstring.empty()) return workingstring;
   AxialTree targetstring;
+  targetstring.reserve(workingstring.size());
   if ( query )__interpret(workingstring,__context.envturtle);
   if ( direction == eForward){
       AxialTree::const_iterator _it = workingstring.begin();
@@ -626,7 +627,7 @@ Lsystem::__step(AxialTree& workingstring,
               for(RulePtrSet::const_iterator _it2 = ruleset.begin();
                   _it2 != ruleset.end(); 
                   _it2++){
-					  boost::python::list args;
+					  ArgList args;
                       if((*_it2)->match(workingstring,_it,targetstring,_it3,args)){
                           match = (*_it2)->applyTo(targetstring,args);
 						  if(match) { _it = _it3; break; }
@@ -650,7 +651,7 @@ Lsystem::__step(AxialTree& workingstring,
           for(RulePtrSet::const_iterator _it2 = ruleset.begin();
               _it2 != ruleset.end(); 
               _it2++){
-				  boost::python::list args;
+				  ArgList args;
                   if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args)){
                       match = (*_it2)->reverseApplyTo(targetstring,args);
                       if(match) { _it = _it3; break; }
@@ -675,6 +676,7 @@ Lsystem::__stepWithMatching(AxialTree& workingstring,
   ContextMaintainer c(&__context);
   if( workingstring.empty()) return workingstring;
   AxialTree targetstring;
+  targetstring.reserve(workingstring.size());
   if ( query )LPY::interpret(workingstring,__context.turtle);
   AxialTree::const_iterator _it = workingstring.begin();
   AxialTree::const_iterator _it3 = _it;
@@ -689,7 +691,7 @@ Lsystem::__stepWithMatching(AxialTree& workingstring,
           for(RulePtrSet::const_iterator _it2 = ruleset.begin();
               _it2 != ruleset.end(); 
               _it2++){
-				  boost::python::list args;
+				  ArgList args;
                   if((*_it2)->match(workingstring,_it,targetstring,_it3,args)){
                       match = (*_it2)->applyTo(targetstring,args,&prodlength);
 					  if (match){
@@ -719,6 +721,7 @@ Lsystem::__recursiveSteps(AxialTree& workingstring,
   AxialTree::const_iterator _it3 = _it;
   AxialTree::const_iterator _endit = workingstring.end();
   AxialTree targetstring;
+  targetstring.reserve(workingstring.size());
   while ( _it != workingstring.end() ) {
       if ( _it->isCut() )
           _it = workingstring.endBracket(_it);
@@ -727,7 +730,7 @@ Lsystem::__recursiveSteps(AxialTree& workingstring,
           bool match = false;
           for(RulePtrSet::const_iterator _it2 = ruleset.begin();
               _it2 != ruleset.end(); _it2++){
-				boost::python::list args;
+				ArgList args;
                 if((*_it2)->match(workingstring,_it,ltargetstring,_it3,args)){
                       match = (*_it2)->applyTo(ltargetstring,args);
 					  if(match) { _it = _it3; break; }
@@ -773,7 +776,7 @@ Lsystem::__recursiveInterpretation(AxialTree& workingstring,
           bool match = false;
           for(RulePtrSet::const_iterator _it2 = ruleset.begin();
               _it2 != ruleset.end(); _it2++){
-				  boost::python::list args;
+				  ArgList args;
                   if((*_it2)->match(workingstring,_it,ltargetstring,_it3,args)){
                       match = (*_it2)->applyTo(ltargetstring,args);
 					  if (match) {

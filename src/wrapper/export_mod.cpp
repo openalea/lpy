@@ -140,7 +140,7 @@ object func(ParamModule * m1,object b){ \
   else return make_tuple(false,dict()); \
 } 
 
-MATCHING(match);
+// MATCHING(match);
 /*MATCHING(match1);
 MATCHING(match2);
 MATCHING(match3);*/
@@ -316,7 +316,7 @@ void export_Module(){
 	.def("__add__",   &mods_add3)
     .def(self == self)
     .def(self != self)
-	.def("match",  &match)
+//	.def("match",  &match)
 	.def("match", (bool(ParamModule::*)(const std::string&,size_t)const)
 					  &ParamModule::match)
 	.add_property("args",&ParamModule::getArgs,&ParamModule::setArgs)

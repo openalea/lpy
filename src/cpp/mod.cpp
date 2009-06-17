@@ -825,8 +825,8 @@ bool ParamModule::match(const std::string& _name, size_t nbargs) const
 { return name() == _name && argSize() == nbargs; }
 
 bool ParamModule::match(const ParamModule& pattern) const 
-{ list l; return MatchingEngine::module_match(*this,pattern,l); }
+{ ArgList l; return MatchingEngine::module_match(*this,pattern,l); }
 
-bool ParamModule::match(const ParamModule& pattern, list& l) const 
+bool ParamModule::match(const ParamModule& pattern, ArgList& l) const 
 { return MatchingEngine::module_match(*this,pattern,l); }
 

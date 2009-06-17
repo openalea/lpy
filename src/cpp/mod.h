@@ -36,6 +36,7 @@
 #include <boost/python.hpp>
 
 #include "moduleclass.h"
+#include "argcollector.h"
 
 LPY_BEGIN_NAMESPACE
 
@@ -196,7 +197,7 @@ public:
   virtual std::string _reprArg() const ;
 
   bool match(const ParamModule&m) const;
-  bool match(const ParamModule&m,boost::python::list&) const;
+  bool match(const ParamModule&m, ArgList&) const;
   bool match(const std::string&, size_t nbargs) const;
 
 
@@ -207,6 +208,8 @@ public:
 
   boost::python::object getParameter(const std::string& name) const;
   void setParameter(const std::string& name, boost::python::object);
+
+  const ParameterList& getParameterList() const { return __args; }
 
 protected:
   ParamModule();
