@@ -1,2 +1,7 @@
+
+For a detailled description of the changelog see `wiki changelog <http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=packages:vplants:lpy:changelog>`__
+
+
+
 29 05 2007: 
   * First version using sconsX and new version of plantgl
