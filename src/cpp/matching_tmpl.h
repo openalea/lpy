@@ -33,7 +33,7 @@
 
 #include "matching.h"
 #include "axialtree_iter.h"
-#include "argcollector.h"
+#include "argcollector_core.h"
 #include <boost/python.hpp>
 
 LPY_BEGIN_NAMESPACE

@@ -358,6 +358,7 @@ void AxialTree::insertAt(int i, const tuple& s){
   insertAt(i,ParamModule(s));
 }
 
+/*
 void AxialTree::insertAt(AxialTree::iterator pos,
 				  AxialTree::const_iterator beg,
 				  AxialTree::const_iterator end)
@@ -376,16 +377,18 @@ void AxialTree::push_back(AxialTree::const_iterator pos)
     __string().insert(end(),pos,pos+1); 
 }
 
+
 void AxialTree::push_front(AxialTree::const_iterator beg,
 				          AxialTree::const_iterator end)
 { 
     __string().insert(begin(),beg,end); 
 }
 
-void AxialTree::push_front(AxialTree::const_iterator pos)
+
+Void AxialTree::push_front(AxialTree::const_iterator pos)
 { 
     __string().insert(begin(),pos,pos+1); 
-}
+}*/
 
 void AxialTree::remove(int i){
   if( i < 0 ) i+=size();

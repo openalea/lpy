@@ -175,19 +175,23 @@ public:
 	void insertAt(int i, const boost::python::list&);
 	void insertAt(int i, const boost::python::tuple&);
 
-	void insertAt(iterator pos,
+	inline void insertAt(iterator pos,
 				  const_iterator beg,
-				  const_iterator end);
+				  const_iterator end)
+        { __string().insert(pos,beg,end); }
 
-	void push_back(const_iterator beg,
-				   const_iterator end);
+	inline void push_back(const_iterator _beg,
+				   const_iterator _end)
+        { __string().insert(end(),_beg,_end); }
 
-	void push_back(const_iterator pos);
+	inline void push_back(const_iterator pos)
+	{ __string().push_back(*pos); }
 
-	void push_front(const_iterator beg,
-				   const_iterator end);
+	inline void push_front(const_iterator beg, const_iterator end)
+        { __string().insert(begin(),beg,end); }
 
-	void push_front(const_iterator pos);
+	inline void push_front(const_iterator pos)
+	{ __string().insert(begin(),*pos); }
 
 	void remove(int i);
 	void removeRange(int i, int j);
