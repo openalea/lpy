@@ -29,6 +29,7 @@
  */
 
 #include "lsysrule.h"
+#include "lsyscontext.h"
 using namespace boost::python;
 #include <string>
 # include <boost/python/suite/indexing/vector_indexing_suite.hpp>
@@ -111,12 +112,25 @@ void Lr_set(LsysRule * rule, const std::string& code) {
   rule->compile();
 }
 
+std::string py_rpr_ag(const ArgList * obj) {
+  boost::python::list res(*obj);
+  boost::python::object repr = GlobalContext::getFunctionRepr();
+  return extract<std::string>(repr(res));
+}
+
+std::string py_str_ag(const ArgList * obj) {
+  boost::python::list res(*obj);
+  return extract<std::string>(str(res));
+}
+
 void export_LsysRule(){
 
 #ifndef USE_PYTHON_LIST_COLLECTOR
   class_<ArgList>
 	  ("ArgList", init<optional<size_t,bp::object> >("ArgList(size,obj)"))
         .def(vector_indexing_suite<ArgList,true>())
+		.def("__repr__",&py_rpr_ag)
+		.def("__str__",&py_str_ag)
 		;
 #endif
 

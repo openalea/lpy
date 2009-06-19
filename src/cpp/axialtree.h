@@ -34,12 +34,6 @@
 #include <vector>
 #include "mod.h"
 
-#define USE_SHARED_DATA
-
-#ifdef USE_SHARED_DATA
-#include <QtCore/QSharedData>
-#endif
-
 LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/

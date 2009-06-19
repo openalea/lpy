@@ -1131,6 +1131,7 @@ LpyParsing::parse_moddeclist(std::string::const_iterator& beg,
 	  if(name.empty())  LsysSyntaxError("Invalid empty name in declaration of "+TOOLS::number(nb)+" module.");
 	  else { result.push_back(ModDeclaration(name)); }
 	  while (_it != endpos && (*_it == ' ' || *_it == '\t'))++_it;
+	  if(_it == endpos) break;
 	  if(*_it != ',' && *_it != '\n' && *_it != ':' && *_it != '=' && *_it != '(' && *_it != '#')
 		  LsysSyntaxError("Invalid syntax in module declaration: Wait for ',','=',':','(','#'.");
 	  if(*_it == ':' || *_it == '#' || *_it == '\n') break;

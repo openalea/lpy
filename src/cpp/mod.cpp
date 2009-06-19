@@ -233,7 +233,9 @@ void LsysVar::setCondition(const std::string& textualcondition, int lineno)
 
 #include <iostream>
 
-#ifdef VECTORMODULE
+
+#ifdef USE_PARAM_VECTOR
+
 
 ParamModule::ParameterList toParameterList(const boost::python::object& t){
   ParamModule::ParameterList result;
@@ -286,22 +288,30 @@ void processConstruction(ParamModule& module,
 	  start += 1;
   }
   size_t l = boost::python::len(arg);
+  args.reserve(l);
   for(size_t i = start; i < l-1; ++i){ appendParam(args,arg[i]); }
   if(l > start){processLastArg(args,arg[l-1]);}
 }
 
 /*---------------------------------------------------------------------------*/
+#ifdef USE_PARAM_SHARED_DATA
+#define ARGHOLDERINIT ,__argholder(new ParamModuleInternal())
+#define COPYARGHOLDERINIT(other) ,__argholder(other.__argholder)
+#else
+#define ARGHOLDERINIT 
+#define COPYARGHOLDERINIT(other) ,__args__(other.__args__)
+#endif
 
 ParamModule::ParamModule():
-Module(),__args() {}
+Module() ARGHOLDERINIT {}
 
 ParamModule::ParamModule(size_t classid):
-    Module(classid),__args()
+    Module(classid) ARGHOLDERINIT
 {
 }
 
 ParamModule::ParamModule(const std::string& name) :
-    Module(),__args()
+    Module() ARGHOLDERINIT
 {
   std::string::const_iterator _it = name.begin();
   while(_it != name.end() && *_it != '(')_it++;
@@ -315,77 +325,81 @@ ParamModule::ParamModule(const std::string& name) :
 	  std::string::const_iterator _it2 = name.end()-1;
 	  while(_it2 != _it && *_it2 != ')')_it2--;
       object o = LsysContext::currentContext()->evaluate('['+std::string(_it,_it2)+']');
-	  if(o != object()) processConstruction(*this,__args,extract<list>(o)());
+	  if(o != object()) processConstruction(*this,__args(),extract<list>(o)());
 	}
   }
 }
 
 ParamModule::ParamModule(size_t classid, const std::string& args):
-    Module(classid),__args()
+    Module(classid) ARGHOLDERINIT
 {
 	if (!args.empty()){
       object o = LsysContext::currentContext()->evaluate('['+args+']');
 	  if(o != object()){
-		processConstruction(*this,__args,extract<list>(o)());
+		processConstruction(*this,__args(),extract<list>(o)());
 	  }
 	}
 }
 
 
 ParamModule::ParamModule(const ParamModule& mod):
-Module(mod),__args(mod.__args) {}
+Module(mod) COPYARGHOLDERINIT(mod) {}
 
 ParamModule::ParamModule(const std::string& name, const boost::python::list& arg):
-Module(name),__args() 
-{ processConstruction(*this,__args,arg); }
+Module(name) ARGHOLDERINIT 
+{ processConstruction(*this,__args(),arg); }
 
 ParamModule::ParamModule(size_t classid, const boost::python::list& arg):
-Module(classid),__args() 
-{ processConstruction(*this,__args,arg); }
+Module(classid) ARGHOLDERINIT
+{ processConstruction(*this,__args(),arg); }
 
 
 
 
 
-ParamModule::ParamModule(boost::python::tuple t)
+ParamModule::ParamModule(boost::python::tuple t):
+ Module() ARGHOLDERINIT 
 {  
   extract<size_t> id_extract(t[0]);
   if (id_extract.check()) setClass(id_extract());
   else setName(extract<std::string>(t[0]));
-  processConstruction(*this,__args,t,1);
+  processConstruction(*this,__args(),t,1);
 }
 
 
-ParamModule::ParamModule(boost::python::list t)
+ParamModule::ParamModule(boost::python::list t):
+ Module() ARGHOLDERINIT
 { 
   extract<size_t> id_extract(t[0]);
   if (id_extract.check())setClass(id_extract());
   else setName(extract<std::string>(t[0]));
-  processConstruction (*this,__args,t,1);
+  processConstruction (*this,__args(),t,1);
 }
 
 ParamModule::ParamModule(const std::string& name, 
 						 const boost::python::object& a):
-Module(name){ processLastArg(__args,a); }
+Module(name) ARGHOLDERINIT { processLastArg(__args(),a); }
 
 ParamModule::ParamModule(const std::string& name, 
 						 const boost::python::object& a,
 						 const boost::python::object& b):
-Module(name){ appendParam(__args,a); processLastArg(__args,b); }
+Module(name) ARGHOLDERINIT { appendParam(__args(),a); processLastArg(__args(),b); }
 
 ParamModule::ParamModule(const std::string& name, 
 						 const boost::python::object& a,
 						 const boost::python::object& b,
 						 const boost::python::object& c):
-Module(name){ appendParam(__args,a); appendParam(__args,b); processLastArg(__args,c); }
+Module(name) ARGHOLDERINIT
+{ appendParam(__args(),a); appendParam(__args(),b); processLastArg(__args(),c); }
 
 ParamModule::ParamModule(const std::string& name, 
 						 const boost::python::object& a,
 						 const boost::python::object& b,
 						 const boost::python::object& c,
 						 const boost::python::object& d):
-Module(name){ appendParam(__args,a); appendParam(__args,b); 
-			  appendParam(__args,c); processLastArg(__args,d); }
+Module(name) ARGHOLDERINIT
+ { appendParam(__args(),a); appendParam(__args(),b); 
+			  appendParam(__args(),c); processLastArg(__args(),d); }
 
 ParamModule::ParamModule(const std::string& name, 
 						 const boost::python::object& a,
@@ -393,9 +407,10 @@ ParamModule::ParamModule(const std::string& name,
 						 const boost::python::object& c,
 						 const boost::python::object& d,
 						 const boost::python::object& e):
-Module(name){ appendParam(__args,a); appendParam(__args,b); 
-			  appendParam(__args,c); appendParam(__args,d);
-			  processLastArg(__args,e); }
+Module(name) ARGHOLDERINIT
+{ appendParam(__args(),a); appendParam(__args(),b); 
+  appendParam(__args(),c); appendParam(__args(),d);
+  processLastArg(__args(),e); }
 
 
 
@@ -404,15 +419,15 @@ void ParamModule::__processQueryModule(const std::string& argstr, int lineno){
 	  std::vector<std::string> args = LpyParsing::parse_arguments(argstr);
 	  if (args.empty())LsysError("No Matching Pattern in RepExp module","",lineno);
 	  else if (args.size() > 3) LsysError("Too much parameters in RepExp module","",lineno);
-	  appendParam(__args,boost::python::object(AxialTree::QueryTree(args[0],lineno)));
-	  if (args.size() > 1) appendParam(__args,LsysContext::currentContext()->evaluate(args[1]));
-	  if (args.size() == 3) appendParam(__args,LsysContext::currentContext()->evaluate(args[2]));
+	  appendParam(__args(),boost::python::object(AxialTree::QueryTree(args[0],lineno)));
+	  if (args.size() > 1) appendParam(__args(),LsysContext::currentContext()->evaluate(args[1]));
+	  if (args.size() == 3) appendParam(__args(),LsysContext::currentContext()->evaluate(args[2]));
   }
   else if (getClass() == ModuleClass::Or) {
 	  std::vector<std::string> args = LpyParsing::parse_arguments(argstr);
 	  if (args.size() < 2)LsysError("Not enough parameters in Or module","",lineno);
 	  for(size_t i = 0; i < args.size(); ++i){
-		appendParam(__args,boost::python::object(AxialTree::QueryTree(args[i],lineno)));
+		appendParam(__args(),boost::python::object(AxialTree::QueryTree(args[i],lineno)));
 	  }
   }
   else if (getClass() == ModuleClass::GetModule) {
@@ -422,9 +437,9 @@ void ParamModule::__processQueryModule(const std::string& argstr, int lineno){
 	  if(LpyParsing::isValidVariableName(vartxt.first)){
 		LsysVar var(vartxt.first);
 		if(!vartxt.second.empty())var.setCondition(vartxt.second,lineno);
-		appendParam(__args,object(var));
+		appendParam(__args(),object(var));
 	  }
-	  appendParam(__args,boost::python::object(ParamModule::QueryModule(args[1],lineno)));
+	  appendParam(__args(),boost::python::object(ParamModule::QueryModule(args[1],lineno)));
   }
   else {
 	  std::vector<std::string> args = LpyParsing::parse_arguments(argstr);
@@ -436,19 +451,19 @@ void ParamModule::__processQueryModule(const std::string& argstr, int lineno){
 				if(LpyParsing::isValidVariableName(vartxt.first)){
 					LsysVar var(vartxt.first);
 				    if(!vartxt.second.empty())var.setCondition(vartxt.second,lineno);
-				    appendParam(__args,object(var));
+				    appendParam(__args(),object(var));
 				    notvar = true;
 				}
 			  }
 			  catch (boost::python::error_already_set) {   PyErr_Clear(); /* PyErr_Print();*/ }
 			  if (!notvar) {
 			      object o = LsysContext::currentContext()->try_evaluate(*itarg);
-			      if(o != object()){ appendParam(__args,o); notvar = true; }
+			      if(o != object()){ appendParam(__args(),o); notvar = true; }
 			  }
 		  }
 		  if (!notvar){
 			  if(LpyParsing::isValidVariableName(*itarg))
-				  appendParam(__args,object(LsysVar(*itarg)));
+				  appendParam(__args(),object(LsysVar(*itarg)));
 			  else LsysError(*itarg+" is invalid","",lineno);
 		  }
 	  }
@@ -476,21 +491,22 @@ ParamModule::QueryModule(size_t classid, const std::string& argstr, int lineno)
 
 ParamModule::~ParamModule() 
 { 
-#ifdef VECTORMODULE
-   __args.clear();
-#endif
 }
 
 bool ParamModule::operator==(const ParamModule& n) const
 { 
-	return (sameName(n) && __args == n.__args); 
+	return (sameName(n) && (
+#ifdef USE_PARAM_SHARED_DATA
+		__argholder == n.__argholder ||
+#endif
+		__constargs() == n.__constargs())); 
 }
 
 int
 ParamModule::argSize() const 
 { 
-#ifdef VECTORMODULE
-    return __args.size();
+#ifdef USE_PARAM_VECTOR
+    return __constargs().size();
 #else
     return extract<int>(__args.attr("__len__")());
 #endif
@@ -498,17 +514,18 @@ ParamModule::argSize() const
 
 list
 ParamModule::getArgs() const 
-{ return toPyList(__args); }
+{ return toPyList(__constargs()); }
 
 void 
 ParamModule::setArgs(const list& l)
-{ __args = toParameterList(l); }
+{ __args() = toParameterList(l); }
 
 int 
 ParamModule::_getInt(int i) const 
 { 
-	assert(__args.size() > i);
-    extract<int> ext(__args[i]); 
+	const ParameterList& p = __constargs();
+	assert(p.size() > i);
+    extract<int> ext(p[i]); 
     if (!ext.check()){
         std::stringstream str;
         str << "Invalid type for " << i << "th parameter in module '" << name() << "'. Looking for int.";
@@ -520,8 +537,9 @@ ParamModule::_getInt(int i) const
 real_t 
 ParamModule::_getReal(int i) const 
 { 
-	assert(__args.size() > i);
-    extract<real_t> ext(__args[i]); 
+	const ParameterList& p = __constargs();
+	assert(p.size() > i);
+   extract<real_t> ext(p[i]); 
     if (!ext.check()){
         std::stringstream str;
         str << "Invalid type for " << i << "th parameter in module '" << name() << "'. Looking for float.";
@@ -533,31 +551,32 @@ ParamModule::_getReal(int i) const
 std::string 
 ParamModule::_getString(int i) const 
 { 
-	assert(__args.size() > i);
-	extract<char const*>ext(__args[i]);
+	const ParameterList& p = __constargs();
+	assert(p.size() > i);
+	extract<char const*>ext(p[i]);
     if (!ext.check()){
         std::stringstream str;
         str << "Invalid type for " << i << "th parameter in module '" << name() << "'. Looking for string.";
         LsysError(str.str());
     }
 	char const* c_str = ext();
-	if (!c_str) return std::string("");
+	if (!c_str) 
+		return std::string("");
     else return std::string(c_str);
-   //  return extract<std::string>(__args[i])(); 
 }
 
 LsysVar 
 ParamModule::_getVar(int i) const 
 { 
- 	assert(__args.size() > i);
-    extract<LsysVar> ext(__args[i]); 
+	const ParameterList& p = __constargs();
+ 	assert(p.size() > i);
+    extract<LsysVar> ext(p[i]); 
     if (!ext.check()){
         std::stringstream str;
         str << "Invalid type for " << i << "th parameter in module '" << name() << "'. Looking for variable.";
         LsysError(str.str());
     }         
     return ext();
-    // return extract<LsysVar>(__args[i])(); 
 }
 
 bool ParamModule::hasOnlyVar() const
@@ -572,7 +591,7 @@ ParamModule::getVarNames() const
 { 
   std::vector<std::string> res;
   if (isRepExp()) {
-	extract<AxialTree> t(getAt(0));
+	extract<const AxialTree&> t(getAt(0));
 	if(t.check()) return t().getVarNames();
   }
   else if (isOr()) {
@@ -634,31 +653,32 @@ ParamModule::getVarNb() const
 void 
 ParamModule::_setValues(real_t x,real_t y,real_t z)
 { 
-  int nbArg = argSize();
+  ParameterList& args = __args();
+  size_t nbArg = args.size();
   if (nbArg > 3) nbArg = 3;
   switch(nbArg){
   case 3:
-	__args[2] = object(z);
+	args[2] = object(z);
   case 2:
-	__args[1] = object(y);
-	__args[0] = object(x);
+	args[1] = object(y);
+	args[0] = object(x);
 	break;
   case 1:
       {
-        extract<float> ext(__args[0]); 
+       extract<float> ext(args[0]); 
         if (ext.check()){
-            __args[0] = object(x);
+            args[0] = object(x);
         }
         else {
-            int size = extract<int>(__args[0].attr("__len__"));
-            if (size > 0)__args[0][0] = x;
-            if (size > 1)__args[0][1] = y;
-            if (size > 2)__args[0][2] = z;
+            int size = extract<int>(args[0].attr("__len__"));
+            if (size > 0)args[0][0] = x;
+            if (size > 1)args[0][1] = y;
+            if (size > 2)args[0][2] = z;
         }
 	    break;
       }
   case 0:
-      appendParam(__args,object(TOOLS(Vector3(x,y,z))));
+      appendParam(args,object(TOOLS(Vector3(x,y,z))));
 	// appendParam(__args,object(y));
 	// appendParam(__args,object(z));
   default :
@@ -683,7 +703,7 @@ ParamModule::repr() const {
 boost::python::tuple 
 ParamModule::tuple() const {
   boost::python::tuple res(name());
-  res += boost::python::tuple(__args);
+  res += boost::python::tuple(toPyList(__constargs()));
   return res;
 }
 
@@ -692,12 +712,12 @@ ParamModule::_strArg() const
 { 
   boost::python::str res(",");
   list args;
-#ifdef VECTORMODULE
-  for (ParameterList::const_iterator it = __args.begin(); it != __args.end(); ++it)
+#ifdef USE_PARAM_VECTOR
+  for (ParameterList::const_iterator it = __constargs().begin(); it != __constargs().end(); ++it)
        args.append(boost::python::str(*it));
 #else
   try { 
-      object iter_obj = object( handle<>( PyObject_GetIter( __args.ptr() ) ) );
+      object iter_obj = object( handle<>( PyObject_GetIter( __constargs().ptr() ) ) );
       while( 1 )
         {
           object obj = iter_obj.attr( "next" )();
@@ -715,14 +735,12 @@ ParamModule::_reprArg() const
   boost::python::str res(",");
   list args;
   boost::python::object repr = GlobalContext::getFunctionRepr();
-#ifdef VECTORMODULE
-  
-  for (ParameterList::const_iterator it = __args.begin(); it != __args.end(); ++it)
-       // args.append(it->attr("__repr__")());
+#ifdef USE_PARAM_VECTOR
+  for (ParameterList::const_iterator it = __constargs().begin(); it != __constargs().end(); ++it)
 	   args.append(repr(*it));
 #else
   try { 
-      object iter_obj = object( handle<>( PyObject_GetIter( __args.ptr() ) ) );
+      object iter_obj = object( handle<>( PyObject_GetIter( __constargs().ptr() ) ) );
       while( 1 )
         {
           object obj = iter_obj.attr( "next" )();
@@ -738,47 +756,47 @@ ParamModule::_reprArg() const
 object 
 ParamModule::getAt(size_t i) const
 { 
-  assert(__args.size() > i);
-  return __args[i];
+  assert(__constargs().size() > i);
+  return __constargs()[i];
 }
 
 object 
 ParamModule::getslice(size_t i,size_t j) const
 { 
-	assert( i <= j && j <= __args.size() );
-#ifdef VECTORMODULE
+	assert( i <= j && j <= __constargs().size() );
+#ifdef USE_PARAM_VECTOR
     boost::python::list res;
-    for(ParameterList::const_iterator it = __args.begin()+i; it != __args.begin()+j; ++it)
+    for(ParameterList::const_iterator it = __constargs().begin()+i; it != __constargs().begin()+j; ++it)
         res.append(*it);
     return res;
 #else
-    return __args.attr("__getslice__")(i,j);
+    return __constargs().attr("__getslice__")(i,j);
 #endif
 }
 
 void ParamModule::setAt(size_t i,object o)
 { 
-  assert(__args.size() > i);
-  __args[i] = o;
+  assert(__constargs().size() > i);
+  __args()[i] = o;
 }
 
 void ParamModule::delAt(size_t i)
 { 
-  assert(__args.size() > i);
-#ifdef VECTORMODULE
-  __args.erase(__args.begin()+i);
+  assert(__constargs().size() > i);
+#ifdef USE_PARAM_VECTOR
+  __args().erase(__args().begin()+i);
 #else
-  __args[i].del();
+  __args()[i].del();
 #endif
 }
 
 void ParamModule::delslice(size_t i,size_t j)
 { 
-	assert( i <= j && j <= __args.size() );
-#ifdef VECTORMODULE
-  __args.erase(__args.begin()+i,__args.begin()+j);
+	assert( i <= j && j <= __constargs().size() );
+#ifdef USE_PARAM_VECTOR
+  __args().erase(__args().begin()+i,__args().begin()+j);
 #else
-  __args.attr("__delslice__")(i,j);
+  __args().attr("__delslice__")(i,j);
 #endif
 }
 
@@ -790,7 +808,7 @@ size_t ParamModule::len()
 ParamModule& 
 ParamModule::operator+=(const object& o)
 { 
-  appendParam(__args,o);
+  appendParam(__args(),o);
   return *this;
 }
 

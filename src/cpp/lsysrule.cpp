@@ -32,6 +32,7 @@
 #include "lpy_parser.h"
 #include "lsyscontext.h"
 #include "tracker.h"
+#include "argcollector_core.h"
 #include <boost/version.hpp>
 #include <sstream>
 using namespace boost::python;

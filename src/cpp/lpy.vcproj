@@ -122,7 +122,7 @@
 				RuntimeLibrary="2"
 				WarningLevel="1"
 				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="0"
+				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -183,6 +183,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\argcollector_core.h"
+				>
+			</File>
+			<File
 				RelativePath=".\axialtree.cpp"
 				>
 			</File>
@@ -224,6 +228,10 @@
 			</File>
 			<File
 				RelativePath=".\lpy_parser.h"
+				>
+			</File>
+			<File
+				RelativePath=".\lstring.h"
 				>
 			</File>
 			<File

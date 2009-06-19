@@ -32,6 +32,7 @@
 #include "axialtree_manip.h"
 #include "matching_tmpl.h"
 #include <boost/python.hpp>
+#include "argcollector_core.h"
 
 LPY_BEGIN_NAMESPACE
 
@@ -182,8 +183,10 @@ bool MatchingImplementation::module_matching_with_star(const ParamModule& module
 	  boost::python::object of = pattern.getAt(0);
 	  LsysVar v = boost::python::extract<LsysVar>(of);
 	  if(v.isArgs()) { 
-		  ArgsCollector::append_arg(l,boost::python::object(module.name()));
-		  ArgsCollector::append_modargs(l,module.getParameterList());
+		  ArgList arg;
+		  ArgsCollector::append_arg(arg,boost::python::object(module.name()));
+		  ArgsCollector::append_modargs(arg,module.getParameterList());
+		  ArgsCollector::append_arg(l,boost::python::object(arg));
 		  return true; 
 	  }
 	  else {
@@ -233,7 +236,7 @@ bool MatchingImplementation::module_matching_with_star(const ParamModule& module
 		if(s2 > s-1)ArgsCollector::append_arg(l,module.getslice(s-1,s2));
 		else ArgsCollector::append_arg(l,boost::python::list());
 	  }
-	  else ArgsCollector::append_modargs(l,module.getParameterList());
+	  else ArgsCollector::append_arg(l,module.getArgs());
 	  return true;
 	}
 	return true;
@@ -331,8 +334,9 @@ bool MatchingImplementation::module_matching_with_star_and_valueconstraints(
 			if (s2 < s-2) return false;
 			else {
 			  if(s == 2){
-				  if(!v.isCompatible(module.getArgs()))return false;
-				  ArgsCollector::append_modargs(l,module.getParameterList()); 
+				  lastargval = module.getArgs();
+				  if(!v.isCompatible(lastargval))return false;
+				  ArgsCollector::append_arg(l,lastargval); 
                   return true; 
 			  }
 			  else if (s2 == s-2) lastargval = boost::python::list();
@@ -382,8 +386,9 @@ bool MatchingImplementation::module_matching_with_star_and_valueconstraints(
 		else {
 		  if (s2 < s - 1) return false;
 		  if(s == 1){ 
-			  if(!v.isCompatible(module.getArgs()))return false; 
-			  ArgsCollector::append_modargs(l,module.getParameterList()); return true; 
+			  lastargval =  module.getArgs();
+			  if(!v.isCompatible(lastargval))return false; 
+			  ArgsCollector::append_arg(l,lastargval); return true; 
 		  }
 		  else if (s2 == s - 1) lastargval = boost::python::list();
 		  else lastargval = module.getslice(s-1,s2);

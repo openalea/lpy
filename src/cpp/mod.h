@@ -38,6 +38,12 @@
 #include "moduleclass.h"
 #include "argcollector.h"
 
+#define USE_SHARED_DATA
+
+#ifdef USE_SHARED_DATA
+#include <QtCore/QSharedData>
+#endif
+
 LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
@@ -113,15 +119,22 @@ class LPY_API LsysVar {
 };
 
 /*---------------------------------------------------------------------------*/
-#define VECTORMODULE
+#define USE_PARAM_VECTOR
+#define USE_PARAM_SHARED_DATA
+
+/*---------------------------------------------------------------------------*/
+
 
 class LPY_API ParamModule : public Module {
 public:
-#ifdef VECTORMODULE
-    typedef std::vector<boost::python::object> ParameterList;
+  typedef boost::python::object Parameter;
+#ifdef USE_PARAM_VECTOR
+  typedef std::vector<Parameter> ParameterList;
 #else
   typedef boost::python::list ParameterList;
 #endif
+
+
 
   static ParamModule QueryModule(const std::string& name, int lineno = -1);
   static ParamModule QueryModule(size_t classid, const std::string& args, int lineno = -1);
@@ -209,11 +222,36 @@ public:
   boost::python::object getParameter(const std::string& name) const;
   void setParameter(const std::string& name, boost::python::object);
 
-  const ParameterList& getParameterList() const { return __args; }
+  const ParameterList& getParameterList() const { return __constargs(); }
 
 protected:
   ParamModule();
-  ParameterList __args;
+
+#ifdef USE_PARAM_SHARED_DATA
+ struct ParamModuleInternal 
+     : public QSharedData 
+ {
+	 ParamModuleInternal() : QSharedData() {}
+	 ParamModuleInternal(const ParamModuleInternal& other) : QSharedData(), __args(other.__args) { }
+	 ~ParamModuleInternal() {}
+
+     ParamModule::ParameterList __args;
+ };
+
+ typedef QSharedDataPointer<ParamModuleInternal> ParamModuleInternalPtr;
+
+  ParamModuleInternalPtr __argholder;
+
+  inline ParameterList& __args() { return __argholder->__args; }
+  inline const ParameterList& __args() const { return __argholder->__args; }
+  inline const ParameterList& __constargs() const { return __argholder->__args; }
+#else
+  ParamModule::ParameterList __args__;
+
+  inline ParameterList& __args() { return __args__; }
+  inline const ParameterList& __args() const { return __args__; }
+  inline const ParameterList& __constargs() const { return __args__; }
+#endif
 
   void __processQueryModule(const std::string& argstr, int lineno = -1);
 
