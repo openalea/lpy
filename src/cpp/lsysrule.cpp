@@ -308,11 +308,11 @@ boost::python::object LsysRule::__postcall_function( boost::python::object res )
 }
 
 
-#if BOOST_VERSION < 103400
-#warning Redefine len on a boost python object
-inline size_t len( const object& obj ) { return extract<size_t>(obj.attr("__len__")()); }
+//#if BOOST_VERSION < 103400
+//#warning Redefine len on a boost python object
+//inline size_t len( const object& obj ) { return extract<size_t>(obj.attr("__len__")()); }
 
-#endif
+//#endif
 
 boost::python::object LsysRule::__call_function( size_t nbargs, const ArgList& args ) const
 {

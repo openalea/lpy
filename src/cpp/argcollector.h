@@ -31,7 +31,7 @@
 #ifndef __arg_collector_h__
 #define __arg_collector_h__
 
-#include <boost/python.hpp>
+#include <plantgl/python/boost_python.h>
 
 #ifndef bp
 #define bp boost::python

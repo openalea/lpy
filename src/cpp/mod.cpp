@@ -287,7 +287,7 @@ void processConstruction(ParamModule& module,
 	  module.setName(extract<std::string>(arg[start]));
 	  start += 1;
   }
-  size_t l = boost::python::len(arg);
+  size_t l = len(arg);
   args.reserve(l);
   for(size_t i = start; i < l-1; ++i){ appendParam(args,arg[i]); }
   if(l > start){processLastArg(args,arg[l-1]);}

@@ -33,7 +33,7 @@
 
 #include "error.h"
 #include <vector>
-#include <boost/python.hpp>
+#include <plantgl/python/boost_python.h>
 
 #include "moduleclass.h"
 #include "argcollector.h"
