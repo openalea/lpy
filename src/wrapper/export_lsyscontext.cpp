@@ -92,10 +92,12 @@ void export_LsysContext(){
 	.def("undeclare",      (void(LsysContext::*)(const std::string&))&LsysContext::undeclare)
 	.def("isDeclared",     (bool(LsysContext::*)(const std::string&))&LsysContext::isDeclared)
 	.def("declaredModules", &py_LcDeclaredModules)
-	.def("declaredModules", &py_LcDeclaredModules)
 	.def("setModuleScale",&LsysContext::setModuleScale)
 	.def("getNamespace",   
 	(void (LsysContext::*)(dict&) const)&LsysContext::getNamespace)
+	.def("updateNamespace",   
+	(void (LsysContext::*)(dict&) )&LsysContext::updateNamespace)
+	.def("clearNamespace", (void (LsysContext::*)() )&LsysContext::clearNamespace)
 	.def("start",          &LsysContext::start)
 	.def("end",            &LsysContext::end)
 	.def("startEach",      &LsysContext::startEach)
