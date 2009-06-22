@@ -228,7 +228,7 @@ protected:
   ParamModule();
 
 #ifdef USE_PARAM_SHARED_DATA
- struct ParamModuleInternal 
+ struct LPY_API ParamModuleInternal 
      : public QSharedData 
  {
 	 ParamModuleInternal() : QSharedData() {}

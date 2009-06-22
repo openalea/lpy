@@ -374,7 +374,7 @@ public:
 
 private:
 
- struct AxialTreeInternal 
+ struct LPY_API AxialTreeInternal 
 #ifdef USE_SHARED_DATA 
      : public QSharedData 
 #endif
