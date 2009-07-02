@@ -83,6 +83,8 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
                 self.parent = parent
             def plot(self,scene):
                 self.parent.plotScene(scene)
+            def selection(self):
+                return Viewer.selection
         self.plotter = Plotter(self)
         registerPlotter(self.plotter)
         
