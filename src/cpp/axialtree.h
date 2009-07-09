@@ -28,11 +28,14 @@
  # ---------------------------------------------------------------------------
  */
 
-#ifndef __PGL_AXIALTREE_H__
-#define __PGL_AXIALTREE_H__
+#ifndef __lpy_axialtree_h__
+#define __lpy_axialtree_h__
 
 #include <vector>
-#include "mod.h"
+#include "module.h"
+#include "patternmodule.h"
+#include "abstractlstring.h"
+
 
 LPY_BEGIN_NAMESPACE
 
@@ -43,27 +46,13 @@ LPY_API enum eDirection {
       eBackward
 } ;
 
+class PatternString;
+
 /*---------------------------------------------------------------------------*/
 
-class LPY_API AxialTree {
+class LPY_API AxialTree  : public AbstractLString<ParamModule>  {
 public:
-  /// The type of element contained in the axialtree.
-  typedef ParamModule element_type;
-
-  /// The type of the module container
-  typedef std::vector<element_type> ModuleList;
-
-  /// An iterator used to iterate through an AxialTree.
-  typedef ModuleList::iterator iterator;
-
-  /// A const iterator used to iterate through an AxialTree.
-  typedef ModuleList::const_iterator const_iterator;
-
-  /// An iterator used to iterate through an AxialTree.
-  typedef ModuleList::reverse_iterator reverse_iterator;
-
-  /// A const iterator used to iterate through an AxialTree.
-  typedef ModuleList::const_reverse_iterator const_reverse_iterator;
+  typedef AbstractLString<ParamModule> BaseType;
 
   AxialTree();
   AxialTree(const AxialTree&);
@@ -74,132 +63,7 @@ public:
   AxialTree(const_iterator beg, const_iterator end);
 
   ~AxialTree();
-  AxialTree& operator=(const AxialTree&);
   
-  static AxialTree QueryTree(const std::string&, int lineno = -1);
-
-
-  /// Returns an iterator at the beginning of \e self.
-  inline iterator begin()
-   { return __string().begin(); }
-
-  /// Returns an iterator at the beginning of \e self.
-  inline const_iterator begin() const
-   { return __conststring().begin(); }
-
-  /// Returns an iterator at the beginning of \e self.
-  inline const_iterator const_begin() const
-   { return __conststring().begin(); }
-
-  /// Returns an iterator at the end of \e self.
-  inline iterator end()
-  { return __string().end(); }
-
-  /// Returns a const iterator at the end of \e self.
-  inline const_iterator end() const
-  { return __conststring().end(); }
-
-  /// Returns a const iterator at the end of \e self.
-  inline const_iterator const_end() const
-  { return __conststring().end(); }
-
-  inline bool isEnd(ModuleList::const_iterator it) const
-  { return (const_end() == it); }
-
-  inline bool isBegin(ModuleList::const_iterator it) const
-  { return (const_begin() == it); }
-
-  /// Returns an iterator at the beginning of \e self.
-  inline reverse_iterator rbegin()
-   { return __string().rbegin(); }
-
-  /// Returns an iterator at the beginning of \e self.
-  inline const_reverse_iterator rbegin() const
-   { return __conststring().rbegin(); }
-
-  /// Returns an iterator at the beginning of \e self.
-  inline const_reverse_iterator const_rbegin() const
-   { return __conststring().rbegin(); }
-
-  /// Returns an iterator at the end of \e self.
-  inline reverse_iterator rend()
-  { return __string().rend(); }
-
-  /// Returns a const iterator at the end of \e self.
-  inline const_reverse_iterator rend() const
-  { return __conststring().rend(); }
-
-  /// Returns a const iterator at the end of \e self.
-  inline const_reverse_iterator const_rend() const
-  { return __conststring().rend(); }
-
-  inline bool isReverseEnd(ModuleList::const_reverse_iterator it) const
-  { return (const_rend() == it); }
-
-  inline bool isReverseBegin(ModuleList::const_reverse_iterator it) const
-  { return (const_rbegin() == it); }
-
-
-	AxialTree& operator+=(const ParamModule&);
-	AxialTree& operator+=(const AxialTree&);
-	AxialTree& operator+=(const std::string&);
-	AxialTree& operator+=(const boost::python::list&);
-	AxialTree& operator+=(const boost::python::tuple&);
-
-	AxialTree operator+(const ParamModule&);
-	AxialTree operator+(const AxialTree&);
-	AxialTree operator+(const std::string&);
-	AxialTree operator+(const boost::python::list&);
-	AxialTree operator+(const boost::python::tuple&);
-
-	AxialTree& prepend(const ParamModule&);
-	AxialTree& prepend(const AxialTree&);
-	AxialTree& prepend(const std::string&);
-	AxialTree& prepend(const boost::python::list&);
-	AxialTree& prepend(const boost::python::tuple&);
-
-	AxialTree operator*(int) const;
-	AxialTree& operator*=(int);
-
-	const ParamModule& operator[](size_t i) const;
-	const ParamModule& getAt(int i) const;
-	AxialTree getRange(int i, int j) const;
-
-	void setAt(int i, const ParamModule&);
-	void setAt(int i, const std::string&);
-	void setAt(int i, const boost::python::tuple&);
-
-	void insertAt(int i, const ParamModule&);
-	void insertAt(int i, const AxialTree&);
-	void insertAt(int i, const std::string&);
-	void insertAt(int i, const boost::python::list&);
-	void insertAt(int i, const boost::python::tuple&);
-
-	inline void insertAt(iterator pos,
-				  const_iterator beg,
-				  const_iterator end)
-        { __string().insert(pos,beg,end); }
-
-	inline void push_back(const_iterator _beg,
-				   const_iterator _end)
-        { __string().insert(end(),_beg,_end); }
-
-	inline void push_back(const_iterator pos)
-	{ __string().push_back(*pos); }
-
-	inline void push_front(const_iterator beg, const_iterator end)
-        { __string().insert(begin(),beg,end); }
-
-	inline void push_front(const_iterator pos)
-	{ __string().insert(begin(),*pos); }
-
-	void remove(int i);
-	void removeRange(int i, int j);
-
-	inline bool empty() const { return __conststring().empty(); }
-	inline size_t size() const { return __conststring().size(); }
-	inline void reserve(size_t s) { return __string().reserve(s); }
-	void clear();
 
 	std::string str() const;
 	std::string repr() const;
@@ -230,200 +94,123 @@ public:
 					    const_iterator start,
 						const_iterator stop) const;
 
-	inline const_iterator find(const ParamModule& pattern) const
-	{ return find(pattern.name(),pattern.argSize(),const_begin(),const_end()); }
+	inline const_iterator find(const PatternModule& pattern) const
+	{ return find(pattern.name(),pattern.size(),const_begin(),const_end()); }
 
-	inline const_iterator find(const ParamModule& pattern, 
+	inline const_iterator find(const PatternModule& pattern, 
 					    const_iterator start) const
-	{ return find(pattern.name(),pattern.argSize(),start,const_end()); }
+	{ return find(pattern.name(),pattern.size(),start,const_end()); }
 
-	inline const_iterator find(const ParamModule& pattern, 
+	inline const_iterator find(const PatternModule& pattern, 
 					    const_iterator start,
 						const_iterator stop) const
-	{ return find(pattern.name(),pattern.argSize(),start,stop); }
+	{ return find(pattern.name(),pattern.size(),start,stop); }
 
-	inline const_iterator find(const AxialTree& pattern) const
+	inline const_iterator find(const PatternString& pattern) const
 	{ return find(pattern,begin(),const_end()); }
 
-	inline const_iterator find(const AxialTree& pattern, 
+	inline const_iterator find(const PatternString& pattern, 
 					    const_iterator start) const
 	{ return find(pattern,start,const_end()); }
 
-	const_iterator find(const AxialTree& pattern, 
+	const_iterator find(const PatternString& pattern, 
 					    const_iterator start,
 						const_iterator stop) const;
 
-	bool match(const ParamModule& pattern, 
-			   const_iterator pos) const;
+	inline bool match(const PatternModule& pattern, 
+			   const_iterator pos) const
+	{ return pos->match(pattern); }
 
-	bool match(const AxialTree& pattern, 
-			   const_iterator  pos) const;
+	inline bool match(const PatternString& pattern, 
+			   const_iterator  pos) const
+   { AxialTree::const_iterator res; return match(pattern,pos,res); }
 
-	bool match(const AxialTree& pattern, 
+	inline bool match(const PatternString& pattern, 
 			   const_iterator  pos,
-			   const_iterator& resultingpos) const;
+			   const_iterator& resultingpos) const
+	{ ArgList params; return match(pattern,pos,resultingpos,params); }
 
-	bool match(const AxialTree& pattern, 
+	inline bool match(const PatternString& pattern, 
 			   const_iterator  pos,
 			   const_iterator& resultingpos,
-			   ArgList& params) const;
+			   ArgList& params) const
+    { AxialTree::const_iterator last_matched;  return match(pattern,pos,resultingpos,last_matched,params);  }
 
-	bool match(const AxialTree& pattern, 
+	bool match(const PatternString& pattern, 
 			   const_iterator  pos,
 			   const_iterator& resultingpos,
 			   const_iterator& last_matched,
 			   ArgList& params) const;
 
-	bool reverse_match(const AxialTree& pattern, 
+	bool reverse_match(const PatternString& pattern, 
 			   const_iterator  pos) const;
 
-	bool reverse_match(const AxialTree& pattern, 
+	bool reverse_match(const PatternString& pattern, 
 			   const_iterator  pos,
 			   const_iterator& resultingpos,
 			   ArgList& params) const;
 
-	bool reverse_match(const AxialTree& pattern, 
+	bool reverse_match(const PatternString& pattern, 
 			   const_iterator  pos,
 			   const_iterator& resultingpos) const;
 
-	bool rightmatch(const AxialTree& pattern, 
+	bool rightmatch(const PatternString& pattern, 
 					const_iterator pos) const;
 
-	bool rightmatch(const AxialTree& pattern, 
+	bool rightmatch(const PatternString& pattern, 
 					const_iterator pos,
 					const_iterator& resultingpos) const;
 
-	bool rightmatch(const AxialTree& pattern, 
+	bool rightmatch(const PatternString& pattern, 
 					const_iterator pos,
 					const_iterator& resultingpos,
 					ArgList& params) const;
 
-	bool rightmatch(const AxialTree& pattern, 
+	bool rightmatch(const PatternString& pattern, 
 					const_iterator pos,
 					const_iterator last_matched,
 					const_iterator& resultingpos,
 					ArgList& params) const;
 
-	bool leftmatch(const AxialTree& pattern,  
+	bool leftmatch(const PatternString& pattern,  
 					const_iterator pos,
 					const_iterator& resultingpos,
 					ArgList& params) const;
 
-	bool leftmatch(const AxialTree& pattern,  
+	bool leftmatch(const PatternString& pattern,  
 					const_iterator pos,
 					const_iterator& resultingpos) const;
 
-	bool leftmatch(const AxialTree& pattern,  
+	bool leftmatch(const PatternString& pattern,  
 					const_iterator pos) const;
 
-	const_iterator rightfind(const AxialTree& pattern,
+	const_iterator rightfind(const PatternString& pattern,
 							 const_iterator start,
 						     const_iterator stop) const;
 
-	inline const_iterator rightfind(const AxialTree& pattern,
+	inline const_iterator rightfind(const PatternString& pattern,
 							 const_iterator start) const
 	{ return rightfind(pattern,start,const_end()); }
 
-	inline const_iterator rightfind(const AxialTree& pattern) const
+	inline const_iterator rightfind(const PatternString& pattern) const
 	{ return rightfind(pattern,const_begin(),const_end()); }
 
-	const_iterator leftfind(const AxialTree& pattern,
+	const_iterator leftfind(const PatternString& pattern,
 							 const_iterator start,
 						     const_iterator stop) const;
 
-	inline const_iterator leftfind(const AxialTree& pattern,
+	inline const_iterator leftfind(const PatternString& pattern,
 							 const_iterator start) const
 	{ return leftfind(pattern,start,const_end()); }
 
-	inline const_iterator leftfind(const AxialTree& pattern) const
+	inline const_iterator leftfind(const PatternString& pattern) const
 	{ return leftfind(pattern,const_begin(),const_end()); }
 
-	AxialTree replace(const ParamModule&, const ParamModule&) const;
-	AxialTree replace(const ParamModule&, const AxialTree&) const;
-	AxialTree replace(const AxialTree&, const AxialTree&) const;
-
-	std::vector<const_iterator> roots() const;
-
-	const_iterator father(const_iterator pos) const;
-	std::vector<const_iterator> sons(const_iterator pos) const;
-	std::vector<const_iterator> lateralSons(const_iterator pos) const;
-	const_iterator directSon(const_iterator pos) const;
-	const_iterator complex(const_iterator pos, int scale) const;
-	const_iterator complex(const_iterator pos) const;
-
-    //!  Return iterator on endBracket ']' or end of string. If pos is on a '[', startingBeforePos allows to say if search should start from just before the '[' or after.
-	const_iterator endBracket(const_iterator pos, bool startingBeforePos = false) const;
-
-    //!  Return iterator on beginBracket '[' or begin of string. If pos is on a ']', startingAfterPos allows to say if search should start from just after the ']' or after.
-	const_iterator beginBracket(const_iterator pos, bool startingAfterPos = false) const;
-
-	bool wellBracketed() const;
-	bool isAPath() const;
-
-	bool hasQueryModule() const;
-
-	inline size_t pos(const_iterator it) const
-	{ return std::distance(const_begin(),it);  }
-
-    bool operator==(const AxialTree&) const;
-    inline bool operator!=(const AxialTree& other) const { return !operator==(other); }
-
-	// Get the list of all variables used
-    std::vector<std::string> getVarNames() const;
-    size_t getVarNb() const;
-
-private:
-
- struct LPY_API AxialTreeInternal 
-#ifdef USE_SHARED_DATA 
-     : public QSharedData 
-#endif
- {
-     AxialTreeInternal() ;
-     AxialTreeInternal(const AxialTreeInternal& other);	
-     AxialTreeInternal(const ParamModule&);
-     AxialTreeInternal(AxialTree::ModuleList::const_iterator beg, AxialTree::ModuleList::const_iterator end);
-     ~AxialTreeInternal();
-
-     AxialTree::ModuleList __string;
- };
-
-#ifdef USE_SHARED_DATA 
- typedef QSharedDataPointer<AxialTreeInternal> AxialTreeInternalPtr;
-
- AxialTreeInternalPtr __data;
-#else
- AxialTreeInternal __data;
-#endif
-
-protected:
- inline const ModuleList& __conststring() const; 
- inline const ModuleList& __string() const; 
- inline ModuleList& __string() ;
-  
+	AxialTree replace(const PatternModule&, const ParamModule&) const;
+	AxialTree replace(const PatternModule&, const AxialTree&) const;
+	AxialTree replace(const PatternString&, const AxialTree&) const;
 
 };
-
-#ifdef USE_SHARED_DATA 
-const AxialTree::ModuleList& AxialTree::__conststring() const 
- { return __data->__string; }
-
-const AxialTree::ModuleList& AxialTree::__string() const 
- { return __data->__string; }
-
-AxialTree::ModuleList& AxialTree::__string() 
- { return __data->__string; }
-
-#else
-const AxialTree::ModuleList& AxialTree::__conststring() const 
- { return __data.__string; }
-
-const AxialTree::ModuleList& AxialTree::__string() const 
- { return __data.__string; }
-
-AxialTree::ModuleList& AxialTree::__string() 
- { return __data.__string; }
-#endif
 
 
 /*---------------------------------------------------------------------------*/

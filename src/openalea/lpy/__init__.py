@@ -14,3 +14,10 @@ ParamModule.__setattr__ = __mod_setattr__
 
 del __mod_getattr__
 del __mod_setattr__
+
+try:
+    import pyximport
+    pyximport.install()
+    setCythonAvailable(True)
+except:
+    setCythonAvailable(False)

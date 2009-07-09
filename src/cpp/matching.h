@@ -32,6 +32,7 @@
 #define __matching_h__
 
 #include "axialtree.h"
+#include "patternstring.h"
 #include <boost/python.hpp>
 
 LPY_BEGIN_NAMESPACE
@@ -41,7 +42,7 @@ LPY_BEGIN_NAMESPACE
 class LPY_API MatchingEngine {
 
 public:
-	  enum eModuleMatchingMethod {
+	enum eModuleMatchingMethod {
 			eMSimple = 0,
 			eMWithStar,
 			eMWithStarNValueConstraint,
@@ -65,17 +66,31 @@ public:
 private:
   static eModuleMatchingMethod ModuleMatchingMethod;
   static eStringMatchingMethod StringMatchingMethod;
+  typedef bool (*ModuleMatchingFuncType)(const ParamModule&, const PatternModule&, ArgList&);
+  static ModuleMatchingFuncType ModuleMatchingFunc;
+
+  typedef bool (*RightMatchingFuncType)(AxialTree::const_iterator, AxialTree::const_iterator,
+										PatternString::const_iterator, PatternString::const_iterator,
+										AxialTree::const_iterator, AxialTree::const_iterator&, ArgList&);
+
+  static RightMatchingFuncType RightMatchingFunc;
+
+  typedef bool (*LeftMatchingFuncType)(AxialTree::const_iterator, AxialTree::const_iterator,
+									   AxialTree::const_iterator, PatternString::const_reverse_iterator,
+									   PatternString::const_reverse_iterator, AxialTree::const_iterator&, ArgList&);
+
+  static LeftMatchingFuncType LeftMatchingFunc;
 
 public:
 	static bool module_match(const ParamModule& module, 
-							 const ParamModule& pattern,
+							 const PatternModule& pattern,
 							 ArgList& params) ;
 
 
 	static bool match(AxialTree::const_iterator  matching_start,
 			   AxialTree::const_iterator  string_end,
-			   AxialTree::const_iterator  pattern_begin,
-			   AxialTree::const_iterator  pattern_end,
+			   PatternString::const_iterator  pattern_begin,
+			   PatternString::const_iterator  pattern_end,
 			   AxialTree::const_iterator& matching_end,
 			   AxialTree::const_iterator& last_matched,
 			   ArgList& params) ;
@@ -83,16 +98,16 @@ public:
 	static bool reverse_match(AxialTree::const_iterator matching_start,
 					 AxialTree::const_iterator  string_begin,
 					 AxialTree::const_iterator  string_end,
-					 AxialTree::const_reverse_iterator  pattern_rbegin,
-					 AxialTree::const_reverse_iterator  pattern_rend,
+					 PatternString::const_reverse_iterator  pattern_rbegin,
+					 PatternString::const_reverse_iterator  pattern_rend,
 					 AxialTree::const_iterator& matching_end,
 					 ArgList& params);
 
 
 	static bool right_match(AxialTree::const_iterator  matching_start,
 		AxialTree::const_iterator  string_end,
-		AxialTree::const_iterator  pattern_begin,
-		AxialTree::const_iterator  pattern_end,
+		PatternString::const_iterator  pattern_begin,
+		PatternString::const_iterator  pattern_end,
 		AxialTree::const_iterator  last_matched,
 		AxialTree::const_iterator& matching_end,
 		ArgList& params);
@@ -100,8 +115,8 @@ public:
 	static bool left_match(AxialTree::const_iterator  matching_start,
 			  	    AxialTree::const_iterator  string_begin,
 			  	    AxialTree::const_iterator  string_end,
-					AxialTree::const_reverse_iterator  pattern_rbegin,
-					AxialTree::const_reverse_iterator  pattern_rend,
+					PatternString::const_reverse_iterator  pattern_rbegin,
+					PatternString::const_reverse_iterator  pattern_rend,
 					AxialTree::const_iterator& matching_end,
 					ArgList& params);
 };
@@ -111,21 +126,21 @@ public:
 class LPY_API MatchingImplementation : public MatchingEngine {
 public:
 	static bool simple_module_matching(const ParamModule& module, 
-									   const ParamModule& pattern, 
+									   const PatternModule& pattern, 
 									   ArgList& l);
 
 	static bool module_matching_with_star(const ParamModule& module, 
-									      const ParamModule& pattern, 
+									      const PatternModule& pattern, 
 									      ArgList& l);
 
 	static bool module_matching_with_star_and_valueconstraints(const ParamModule& module, 
-									      const ParamModule& pattern, 
+									      const PatternModule& pattern, 
 									      ArgList& l);
 
 	static bool string_exact_match(AxialTree::const_iterator  matching_start,
 		                     AxialTree::const_iterator  string_end,
-							 AxialTree::const_iterator  pattern_begin,
-							 AxialTree::const_iterator  pattern_end,
+							 PatternString::const_iterator  pattern_begin,
+							 PatternString::const_iterator  pattern_end,
 							 AxialTree::const_iterator& matching_end,
 						     AxialTree::const_iterator& last_matched,
 							 ArgList& params) ;
@@ -133,15 +148,23 @@ public:
 	static bool string_exact_reverse_match(AxialTree::const_iterator matching_start,
 		                             AxialTree::const_iterator  string_begin,
 									 AxialTree::const_iterator  string_end,
-					                 AxialTree::const_reverse_iterator  pattern_rbegin,
-									 AxialTree::const_reverse_iterator  pattern_rend,
+					                 PatternString::const_reverse_iterator  pattern_rbegin,
+									 PatternString::const_reverse_iterator  pattern_rend,
 									 AxialTree::const_iterator& matching_end,
 									 ArgList& params);
 
+	static bool string_right_match(AxialTree::const_iterator  matching_start,
+		                         AxialTree::const_iterator  string_end,
+								 PatternString::const_iterator  pattern_begin,
+								 PatternString::const_iterator  pattern_end,
+							     AxialTree::const_iterator  last_matched,
+								 AxialTree::const_iterator& matching_end,
+								 ArgList& params);
+
 	static bool tree_right_match(AxialTree::const_iterator  matching_start,
 		                         AxialTree::const_iterator  string_end,
-								 AxialTree::const_iterator  pattern_begin,
-								 AxialTree::const_iterator  pattern_end,
+								 PatternString::const_iterator  pattern_begin,
+								 PatternString::const_iterator  pattern_end,
 							     AxialTree::const_iterator  last_matched,
 								 AxialTree::const_iterator& matching_end,
 								 ArgList& params);
@@ -149,39 +172,39 @@ public:
 	static bool tree_left_match(AxialTree::const_iterator  matching_start,
 		                        AxialTree::const_iterator  string_begin,
 								AxialTree::const_iterator  string_end,
-								AxialTree::const_reverse_iterator  pattern_rbegin,
-								AxialTree::const_reverse_iterator  pattern_rend,
+								PatternString::const_reverse_iterator  pattern_rbegin,
+								PatternString::const_reverse_iterator  pattern_rend,
 								AxialTree::const_iterator& matching_end,
 								ArgList& params);
 
 	static bool mstree_left_match(AxialTree::const_iterator  matching_start,
 		                        AxialTree::const_iterator  string_begin,
 								AxialTree::const_iterator  string_end,
-								AxialTree::const_reverse_iterator  pattern_rbegin,
-								AxialTree::const_reverse_iterator  pattern_rend,
+								PatternString::const_reverse_iterator  pattern_rbegin,
+								PatternString::const_reverse_iterator  pattern_rend,
 								AxialTree::const_iterator& matching_end,
 								ArgList& params);
 
 	static bool mltree_left_match(AxialTree::const_iterator  matching_start,
 		                        AxialTree::const_iterator  string_begin,
 								AxialTree::const_iterator  string_end,
-								AxialTree::const_reverse_iterator  pattern_rbegin,
-								AxialTree::const_reverse_iterator  pattern_rend,
+								PatternString::const_reverse_iterator  pattern_rbegin,
+								PatternString::const_reverse_iterator  pattern_rend,
 								AxialTree::const_iterator& matching_end,
 								ArgList& params);
 
 	static bool mstree_right_match(AxialTree::const_iterator  matching_start,
 		                         AxialTree::const_iterator  string_end,
-								 AxialTree::const_iterator  pattern_begin,
-								 AxialTree::const_iterator  pattern_end,
+								 PatternString::const_iterator  pattern_begin,
+								 PatternString::const_iterator  pattern_end,
 								 AxialTree::const_iterator  last_matched,
 								 AxialTree::const_iterator& matching_end,
 								 ArgList& params);
 
 	static bool mltree_right_match(AxialTree::const_iterator  matching_start,
 		                         AxialTree::const_iterator  string_end,
-								 AxialTree::const_iterator  pattern_begin,
-								 AxialTree::const_iterator  pattern_end,
+								 PatternString::const_iterator  pattern_begin,
+								 PatternString::const_iterator  pattern_end,
 								 AxialTree::const_iterator  last_matched,
 								 AxialTree::const_iterator& matching_end,
 								 ArgList& params);

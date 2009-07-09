@@ -32,6 +32,7 @@
 #include "lsysrule.h"
 #include "matching.h"
 #include "lpy_parser.h"
+#include "compilation.h"
 #include "tracker.h"
 #include <stack>
 using namespace boost::python;
@@ -113,7 +114,7 @@ void createDefaultContext()
 		DEFAULT_LSYSCONTEXT->copyObject("__builtins__",LsysContext::globalContext());
 		DEFAULT_LSYSCONTEXT->copyObject("__doc__",LsysContext::globalContext());
         // import pylsystems
-        DEFAULT_LSYSCONTEXT->execute("from openalea.lpy import *");
+        DEFAULT_LSYSCONTEXT->compile("from openalea.lpy import *");
     }
 }
 
@@ -289,6 +290,12 @@ void LsysContext::init_options()
 	option->addValue("As Multi-level AxialTree",&MatchingEngine::setStringMatchingMethod,MatchingEngine::eMLevelAxialTree,"String is considered as a multi level axial tree and some modules can be skipped according to module level. Level are not ordered.");
 	option->addValue("As Multiscale AxialTree",&MatchingEngine::setStringMatchingMethod,MatchingEngine::eMScaleAxialTree,"String is considered as a multi scale axial tree and some modules can be skipped according to module scale.");
 	option->setDefault(MatchingEngine::eDefaultStringMatching);
+	option->setGlobal(true);
+	/** compiler option */
+	option = options.add("Compiler","Specify the compiler to use","Compilation");
+	option->addValue("Python",&Compilation::setCythonEnabled,false,"Use python compiler.");
+	option->addValue("Cython",&Compilation::setCythonEnabled,true,"Use Cython compiler.");
+	option->setDefault(false);
 	option->setGlobal(true);
 }
 
@@ -543,12 +550,19 @@ LsysContext::str() const {
   return s.str();
 }
 void 
-LsysContext::execute(const std::string& code) {
+LsysContext::compile(const std::string& code) {
   ContextMaintainer c(this);
-  if(!code.empty())
-  handle<>( PyRun_String(code.c_str(),Py_file_input,Namespace(),Namespace()) );
+  Compilation::compile(code,Namespace(),Namespace());
 }
 
+object 
+LsysContext::compile(const std::string& name, const std::string& code) {
+  if(!code.empty()){
+	  Compilation::compile(code,Namespace(),Namespace());
+	return getObject(name);
+  }
+  return object();
+}
 object 
 LsysContext::evaluate(const std::string& code) {
   ContextMaintainer c(this);
@@ -577,16 +591,7 @@ LsysContext::try_evaluate(const std::string& code) {
   return object();
 }
 
-object 
-LsysContext::compile(const std::string& name, const std::string& code) {
-  if(!code.empty()){
-	// dict local_namespace;
-	handle<>( PyRun_String(code.c_str(),Py_file_input,Namespace(),Namespace()) );
-	// handle<>( PyRun_String(code.c_str(),Py_file_input,Namespace(),local_namespace.ptr()) );
-	return getObject(name);
-  }
-  return object();
-}
+
 
 int
 LsysContext::readInt(const std::string& code)  {
@@ -672,7 +677,7 @@ size_t LsysContext::__initialiseFrom(const std::string& lcode)
 	ContextMaintainer c(this);
 	size_t pos = lcode.find(LpyParsing::InitialisationBeginTag);
 	if (pos != std::string::npos) {
-		execute(std::string(lcode.begin()+pos,lcode.end()));
+		compile(std::string(lcode.begin()+pos,lcode.end()));
 		if (__initialise()) return pos;
 	}
 	return std::string::npos;
@@ -709,7 +714,10 @@ void
 LsysContext::check_init_functions()
 {
 	if (hasObject("EndEach")) {
-		__nbargs_of_endeach = extract<size_t>(getObject("EndEach").attr("func_code").attr("co_argcount"))();
+		try {
+			__nbargs_of_endeach = extract<size_t>(getObject("EndEach").attr("func_code").attr("co_argcount"))();
+		}
+		catch (...) { PyErr_Clear(); __nbargs_of_endeach = 0; }
 	}
 	else __nbargs_of_endeach = 0;
 }
@@ -725,7 +733,7 @@ LsysContext::nproduce(const AxialTree& prod)
 void 
 LsysContext::nproduce(const boost::python::list& prod)
 {
-    __nproduction += prod;
+    __nproduction += AxialTree(prod);
 }
 
 void LPY::nproduce(const AxialTree& prod)

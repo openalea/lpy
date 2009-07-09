@@ -61,7 +61,7 @@ else:
   extra_options = { "dll_excludes" : ['MSVCP80.dll','MSVCR80.dll'] }
   build_prefix = ''
 
-goptions = { option_name : {"includes" : ["setuptools","sip","OpenGL","stat","PyQt4.QtXml","distutils.util","ctypes", "ctypes.util","random"]  } }
+goptions = { option_name : {"includes" : ["sip","OpenGL","stat","PyQt4.QtXml","distutils.util","ctypes", "ctypes.util","random"]  } }
 goptions[option_name].update(extra_options)
 print goptions
 
@@ -97,7 +97,8 @@ setup(
     zip_safe = False,
 
     # Specific options of openalea.deploy
-    lib_dirs = { 'lib' : libdirs},
+    #lib_dirs = { 'lib' : libdirs},
+    lib_dirs = { 'lib' : pj(build_prefix,'lib'), 'lib2' : pj('../PlantGL',build_prefix,'lib') },
     bin_dirs = { 'bin' : pj(build_prefix,'bin'), 'bin2' : pj('../PlantGL',build_prefix,'bin')},
     #inc_dirs = {'include' : pj(build_prefix, 'include') },
     share_dirs = {'share' : 'share', },
@@ -115,9 +116,9 @@ setup(
     setup_requires = ['openalea.deploy'],
     dependency_links = ['http://openalea.gforge.inria.fr/pi'],
     install_requires = [],
-    app = ['src/openalea/lpy/gui/lpy.pyw'],
-    #windows = [{'script' : 'src/openalea/lpy/gui/lpy.pyw', 
-    #            'icon_resources' : [(1, "src/openalea/lpy/gui/logo.ico")] }],
+    #app = ['src/openalea/lpy/gui/lpy.pyw'],
+    windows = [{'script' : 'src/openalea/lpy/gui/lpy.pyw', 
+                'icon_resources' : [(1, "src/openalea/lpy/gui/logo.ico")] }],
 
     options=goptions
     )

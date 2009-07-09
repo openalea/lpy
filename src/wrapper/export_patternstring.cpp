@@ -28,21 +28,34 @@
  # ---------------------------------------------------------------------------
  */
 
-#ifndef __export_lsystems_h__
-#define __export_lsystems_h__
+#include "patternstring.h"
+#include "export_lstring.h"
+#include <plantgl/python/export_list.h>
 
-void export_Options();
-void export_ModuleClass();
-void export_Module();
-void export_PatternModule();
-void export_AxialTree();
-void export_PatternString();
-void export_Interpretation();
-void export_LsysRule();
-void export_LsysContext();
-void export_Lsystem();
-void export_plot();
-void export_parser();
-void export_StringMatching();
+using namespace boost::python;
+LPY_USING_NAMESPACE
+#define bp boost::python
 
-#endif
+
+boost::python::object py_varnames(PatternString * tree)
+{ return make_list(tree->getVarNames()); }
+
+
+
+void export_PatternString() {
+
+  class_<PatternString>
+	("PatternString", init<>("PatternString()"))
+	.def(init<const PatternString &>("PatternString(PatternString)"))
+	.def(init<const PatternModule &>("PatternString(PatternModule)"))
+	.def(init<std::string,optional<int> >("PatternString(str[,lineno])"))
+	.def("__str__", &PatternString::str)
+	.def("__repr__",&PatternString::repr)
+    .def(lstring_func<PatternString>())
+    .def( "varnames", &py_varnames )
+    .def( "getVarNb", &PatternString::getVarNb )
+	;
+
+
+
+}

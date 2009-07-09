@@ -711,7 +711,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
   if (!addedcode.empty())
 	code+='\n'+addedcode;
   if(pycode) *pycode = code;
-  __context.execute(code);
+  __context.compile(code);
   __importPyFunctions();
   if (__context.hasObject(LsysContext::AxiomVariable)){
       try
@@ -772,30 +772,55 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
 
 void LsysRule::set( const std::string& rule ){
   std::string::const_iterator endheader = rule.begin();
+  std::string::const_iterator starcode = endheader;
   bool foundendheader = false;
   bool arrow = false;
+  std::string staticarrowtxt = "-static->";
+  std::string staticmarkertxt = "@static";
+  bool staticrule = false;
   while(endheader != rule.end() && !foundendheader){
-      if(*endheader==':') foundendheader = true;
-      else if(*endheader=='-' && (endheader==rule.begin()|| *(endheader-1)!='-' )
-          && (distance(endheader,rule.end())>=2 && *(endheader+1) == '-' && *(endheader+2) == '>')){
-        foundendheader = true;
-        arrow = true;
-      }
+	  if(*endheader==':') { 
+		  foundendheader = true; 
+		  starcode = endheader+1; 
+		  std::string::const_iterator marker = starcode;
+		  while (marker!= rule.end() && (*marker == ' ' || *marker == '\t'))++marker;
+		  if(distance(marker,rule.end())>=staticmarkertxt.size() && std::string(marker,marker+staticmarkertxt.size()) == staticmarkertxt){
+			starcode = marker+staticmarkertxt.size();
+			// printf("h='%s'\n",std::string(rule.begin(),starcode).c_str());
+			// printf("c='%s'\n",std::string(starcode,rule.end()).c_str());
+			staticrule = true;
+		  }
+	  }
+	  else if(*endheader=='-' && (endheader==rule.begin()|| *(endheader-1)!='-' )){
+		  if(distance(endheader,rule.end())>=2 && *(endheader+1) == '-' && *(endheader+2) == '>'){
+			foundendheader = true;
+			arrow = true;
+			starcode = endheader+3;
+		  }
+		  else if (distance(endheader,rule.end())>=staticarrowtxt.size() && std::string(endheader,endheader+staticarrowtxt.size()) == staticarrowtxt){
+			foundendheader = true;
+			arrow = true;
+			staticrule = true;
+			starcode = endheader+staticarrowtxt.size();
+		  }
+		  else endheader++;
+      } 
       else endheader++;
   }
   if(endheader == rule.end()){
 	LsysError("Ill-formed Rule : unfound delimiter ':' in "+rule,"",lineno);
   }
+  __isStatic = staticrule;
   std::string header(rule.begin(),endheader);
   parseHeader(header);
-  __hasquery = __predecessor.hasQueryModule() 
-			|| __newleftcontext.hasQueryModule()
-			|| __leftcontext.hasQueryModule()
-			|| __newrightcontext.hasQueryModule()
-			|| __rightcontext.hasQueryModule();
+  __hasquery = __predecessor.hasRequestModule() 
+			|| __newleftcontext.hasRequestModule()
+			|| __leftcontext.hasRequestModule()
+			|| __newrightcontext.hasRequestModule()
+			|| __rightcontext.hasRequestModule();
   parseParameters();
-  if (arrow)__definition = " produce "+std::string(endheader+3,rule.end());
-  else __definition =  std::string(endheader+1,rule.end());
+  if (arrow)__definition = " produce "+std::string(starcode,rule.end());
+  else __definition =  std::string(starcode,rule.end());
 }
 
 /*---------------------------------------------------------------------------*/
@@ -917,11 +942,11 @@ LsysRule::parseHeader( const std::string& header){
   }
   if (!ncg.empty() && !ncd.empty())LsysError("Ill-formed Rule Header : New left and right contexts found : "+header,"",lineno);
 
-  __predecessor = AxialTree::QueryTree(pred,lineno);
-  if(!cg.empty())__leftcontext = AxialTree::QueryTree(cg,lineno);
-  if(!ncg.empty())__newleftcontext = AxialTree::QueryTree(ncg,lineno);
-  if(!cd.empty())__rightcontext = AxialTree::QueryTree(cd,lineno);
-  if(!ncd.empty())__newrightcontext = AxialTree::QueryTree(ncd,lineno);
+  __predecessor = PatternString(pred,lineno);
+  if(!cg.empty())__leftcontext = PatternString(cg,lineno);
+  if(!ncg.empty())__newleftcontext = PatternString(ncg,lineno);
+  if(!cd.empty())__rightcontext = PatternString(cd,lineno);
+  if(!ncd.empty())__newrightcontext = PatternString(ncd,lineno);
 }
 
 

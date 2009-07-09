@@ -4,6 +4,7 @@ from openalea.lpy import *
 from openalea.plantgl.all import PglTurtle, Viewer
 import optioneditordelegate as oed
 import os, shutil
+from time import clock
 
 defaultcode = "Axiom: \n\nderivation length: 1\nproduction:\n\n\nhomomorphism:\n\n\nendlsystem\n"
 
@@ -142,7 +143,9 @@ class LpySimulation:
         self.lpywidget.textEditionWatch = True
         if not self.fname is None:
             os.chdir(os.path.dirname(self.fname))
+        #if not self.lsystem.isCurrent() : self.lsystem.makeCurrent()
     def saveState(self):
+        #if self.lsystem.isCurrent() :self.lsystem.done()
         self.code = str(self.lpywidget.codeeditor.toPlainText().toAscii())
         if self.textdocument is None:
             print 'custom document clone'
@@ -176,10 +179,13 @@ class LpySimulation:
             self.optionModel.setItem(indexitem, 1, si)
             indexitem += 1
         QObject.connect(self.optionModel,SIGNAL('itemChanged(QStandardItem*)'),self.textEdited)
-    def setTree(self,tree,nbiterations):
+    def setTree(self,tree,nbiterations,timing=None):
         self.tree = tree
         self.nbiterations = nbiterations
-        self.lpywidget.statusBar().showMessage('Nb Iterations : '+str(self.nbiterations),5000)
+        msg = 'Nb Iterations : '+str(self.nbiterations)
+        if not timing is None:
+            msg += " in "+str(round(timing,3))+" sec."
+        self.lpywidget.statusBar().showMessage(msg,10000)
         if not self.lpywidget.interpreter is None:
             self.lpywidget.interpreter.locals['lstring'] = self.tree
     def updateLsystemCode(self):
@@ -325,11 +331,13 @@ class LpySimulation:
             self.open(self.fname)
     def run(self,task):
         dl = self.lsystem.derivationLength
+        timing = clock()
         task.result = self.lsystem.iterate(dl)
+        task.timing = clock() - timing
         task.dl = self.lsystem.getLastIterationNb()+1
     def post_run(self,task):
         if hasattr(task,'result'):
-            self.setTree(task.result,task.dl)
+            self.setTree(task.result,task.dl,task.timing)
             self.firstView = False
             self.lsystem.plot(task.result)
     def animate(self,task):
@@ -341,14 +349,16 @@ class LpySimulation:
             self.lsystem.plot(self.lsystem.iterate())
             self.lsystem.firstView = False
             Viewer.animation(True)
+        timing = clock()
         if (not edition) and (not self.tree is None) and (0 < nbiter < dl):
               task.result = self.lsystem.animate(self.tree,dt,nbiter,dl-nbiter)
         else:
               task.result = self.lsystem.animate(dt,dl)
+        task.timing = clock() - timing
         task.dl = self.lsystem.getLastIterationNb()+1
     def post_animate(self,task):
         if hasattr(task,'result'):
-            self.setTree(task.result,task.dl)
+            self.setTree(task.result,task.dl,task.timing)
     def step(self):
         if self.isTextEdited() or self.lsystem.empty() or not self.tree:
             self.updateLsystemCode()

@@ -51,4 +51,14 @@ class LpyPreferences:
             QObject.connect(self.widget.useThreadEdit,SIGNAL('clicked(bool)'),lambda x : setattr(self.editor,'with_thread',x))
             self.widget.fitViewEdit.setChecked(self.editor.fitAnimationView)
             QObject.connect(self.widget.fitViewEdit,SIGNAL('clicked(bool)'),lambda x : setattr(self.editor,'fitAnimationView',x))
+            QObject.connect(self.widget.gccPathButton,SIGNAL('clicked(bool)'),self.chooseCCompilerPath)
+            self.widget.gccPathEdit.setText(self.editor.cCompilerPath)
+            QObject.connect(self.widget.gccPathEdit,SIGNAL('returnPressed()'),self.editor.setCCompilerPath)
         self.dialog.show()
+    def chooseCCompilerPath(self):
+        p = QFileDialog.getExistingDirectory(self.editor, "Choose Compiler Path", self.editor.cCompilerPath )
+        if len(p)> 0:
+            self.widget.gccPathEdit.setText(p)
+            self.editor.setCCompilerPath(p)
+    def reSetCCompilerPath(self):
+        self.editor.setCCompilerPath(self.widget.gccPathEdit.text())

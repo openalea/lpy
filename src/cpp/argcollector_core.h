@@ -32,7 +32,7 @@
 #define __arg_collector_core_h__
 
 #include "argcollector.h"
-#include "mod.h"
+#include "module.h"
 
 
 LPY_BEGIN_NAMESPACE

@@ -203,6 +203,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\compilation.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\compilation.h"
+				>
+			</File>
+			<File
 				RelativePath=".\error.cpp"
 				>
 			</File>
@@ -279,11 +287,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\mod.cpp"
+				RelativePath=".\module.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\mod.h"
+				RelativePath=".\module.h"
 				>
 			</File>
 			<File
@@ -300,6 +308,22 @@
 			</File>
 			<File
 				RelativePath=".\modulevtable.h"
+				>
+			</File>
+			<File
+				RelativePath=".\patternmodule.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\patternmodule.h"
+				>
+			</File>
+			<File
+				RelativePath=".\patternstring.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\patternstring.h"
 				>
 			</File>
 			<File

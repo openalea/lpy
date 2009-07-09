@@ -184,6 +184,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\export_lstring.h"
+				>
+			</File>
+			<File
 				RelativePath=".\export_lsyscontext.cpp"
 				>
 			</File>
@@ -204,11 +208,27 @@
 				>
 			</File>
 			<File
-				RelativePath=".\export_mod.cpp"
+				RelativePath=".\export_module.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\export_module.h"
+				>
+			</File>
+			<File
+				RelativePath=".\export_moduleclass.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\export_parser.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\export_patternmodule.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\export_patternstring.cpp"
 				>
 			</File>
 			<File

@@ -66,7 +66,7 @@ bool process_get_module(PIterator pattern,
 						argtype& params)
 {
 	argtype lp;
-	ParamModule lpattern = bp::extract<ParamModule>(pattern->getAt(1))();
+	PatternModule lpattern = bp::extract<PatternModule>(pattern->getAt(1).getPyValue())();
 	if (lpattern.argSize() > 0){
 		if(MatchingEngine::module_match(*it,lpattern,lp)){
 			ArgsCollector::append_arg(params,bp::object(*it));
@@ -189,11 +189,11 @@ public:
 		PIterator it2 = pattern;
 		if(it2->isRepExp()){
 			std::vector<argtype> llp;
-			const AxialTree& lpattern = bp::extract<const AxialTree&>(it2->getAt(0))();
+			const PatternString& lpattern = bp::extract<const PatternString&>(it2->getAt(0).getPyValue())();
 			size_t miniter = 0;
-			if (it2->argSize() > 1) miniter = bp::extract<size_t>(it2->getAt(1))();
+			if (it2->argSize() > 1) miniter = bp::extract<size_t>(it2->getAt(1).getPyValue())();
 			size_t maxiter = 1000;
-			if (it2->argSize() == 3) maxiter = bp::extract<size_t>(it2->getAt(2))();
+			if (it2->argSize() == 3) maxiter = bp::extract<size_t>(it2->getAt(2).getPyValue())();
 			else if (it2->argSize() == 2) maxiter = miniter;
 			bool ok = true;
 			size_t numiter = 0;
@@ -217,7 +217,7 @@ public:
 			argtype lp;
 			std::vector<size_t> nbargs;
 			for(int ip = 0;ip < it2->argSize(); ++ip){
-				AxialTree lpattern = bp::extract<AxialTree>(it2->getAt(ip))();
+				const PatternString& lpattern = bp::extract<const PatternString&>(it2->getAt(ip).getPyValue())();
 				nbargs.push_back(lpattern.getVarNb());
 				if(matched == -1) { 
 					if(Matcher::match(it,string_end,lpattern.begin(),lpattern.end(),last_matched,it,lp)) matched = ip;
@@ -244,7 +244,7 @@ public:
 template<
 template < typename, typename> class _NextElement = StringNext, 
 class _Iterator = AxialTree::const_iterator, 
-class _PIterator = AxialTree::const_iterator,
+class _PIterator = PatternString::const_iterator,
 class _argtype = ArgList>
 struct StringMatcher
 {
@@ -287,7 +287,7 @@ struct StringMatcher
 template<
 template < typename, typename> class PreviousElement = StringPrevious, 
 class _Iterator = AxialTree::const_iterator, 
-class _PRIterator = AxialTree::const_reverse_iterator,
+class _PRIterator = PatternString::const_reverse_iterator,
 class _argtype = ArgList>
 struct StringReverseMatcher 
 {
@@ -323,7 +323,7 @@ struct StringReverseMatcher
 template<
 template < typename, typename > class FatherElement = GetFather, 
 class _Iterator = AxialTree::const_iterator, 
-class _PRIterator = AxialTree::const_reverse_iterator,
+class _PRIterator = PatternString::const_reverse_iterator,
 class _argtype = ArgList>
 struct TreeLeftMatcher 
 {
@@ -373,7 +373,7 @@ struct TreeLeftMatcher
 template<
 template < typename, typename > class _NextElement = GetNext,
 class _Iterator = AxialTree::const_iterator, 
-class _PIterator = AxialTree::const_iterator,
+class _PIterator = PatternString::const_iterator,
 class _argtype = ArgList>
 struct TreeRightMatcher 
 {

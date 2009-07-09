@@ -32,6 +32,7 @@
 #define __PGL_LSYSRULE_H__
 
 #include "axialtree.h"
+#include "patternstring.h"
 #include "argcollector.h"
 
 /*---------------------------------------------------------------------------*/
@@ -49,11 +50,11 @@ public:
 
 	void set( const std::string& code );
 	
-	size_t getId() const { return __id; }
-	void setId(size_t id) { __id = id; }
+	inline size_t getId() const { return __id; }
+	inline void setId(size_t id) { __id = id; }
 
-	size_t getGroupId() const { return __gid; }
-	void setGroupId(size_t id) { __gid = id; }
+	inline size_t getGroupId() const { return __gid; }
+	inline void setGroupId(size_t id) { __gid = id; }
 
 	boost::python::object apply() const;
 	boost::python::object apply( const ArgList& args ) const ;
@@ -65,39 +66,39 @@ public:
 
 	void clear();
 	
-	const AxialTree& predecessor() const
+	inline const PatternString& predecessor() const
 	{ return __predecessor; }
 	
-	const AxialTree& leftContext() const
+	inline const PatternString& leftContext() const
 	{ return __leftcontext; }
 	
-	const AxialTree& newLeftContext() const
+	inline const PatternString& newLeftContext() const
 	{ return __newleftcontext; }
 	
-	const AxialTree& rightContext() const
+	inline const PatternString& rightContext() const
 	{ return __rightcontext; }
 	
-	const AxialTree& newRightContext() const
+	inline const PatternString& newRightContext() const
 	{ return __newrightcontext; }
 	
-	const std::string& definition() const
+	inline const std::string& definition() const
 	{ return __definition; }
 	
-	const std::vector<std::string>& formalParameters() const
+	inline const std::vector<std::string>& formalParameters() const
 	{ return __formalparameters; }
 	
-	size_t nbParameters() const 
-	{ return __formalparameters.size(); }
+	inline size_t nbParameters() const 
+	{ return __nbParams; }
 	
 	size_t nbContexts() const;
 
-	bool isContextFree() const
+	inline bool isContextFree() const
 	{ return nbContexts() == 0; }
 
-	bool hasQuery() const
+	inline bool hasQuery() const
 	{ return __hasquery; }
 
-	const boost::python::object& function() const
+	inline const boost::python::object& function() const
 	{ return __function; }
 
     inline bool forwardCompatible() const 
@@ -158,15 +159,18 @@ protected:
 	size_t __id;
 	size_t __gid;
     char __prefix;
-	AxialTree __predecessor;
-	AxialTree __leftcontext;
-	AxialTree __newleftcontext;
-	AxialTree __rightcontext;
-	AxialTree __newrightcontext;
+	PatternString __predecessor;
+	PatternString __leftcontext;
+	PatternString __newleftcontext;
+	PatternString __rightcontext;
+	PatternString __newrightcontext;
 	std::vector<std::string> __formalparameters;
+	size_t __nbParams;
 	std::string __definition;
 	boost::python::object __function;
 	bool __hasquery;
+	bool __isStatic;
+	AxialTree __staticResult;
 private:
     void __precall_function( size_t nbargs = 0 ) const;
     void __precall_function( size_t nbargs,  const ArgList& obj ) const;

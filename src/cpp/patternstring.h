@@ -28,21 +28,40 @@
  # ---------------------------------------------------------------------------
  */
 
-#ifndef __export_lsystems_h__
-#define __export_lsystems_h__
+#ifndef __pattern_lstring_h__
+#define __pattern_lstring_h__
 
-void export_Options();
-void export_ModuleClass();
-void export_Module();
-void export_PatternModule();
-void export_AxialTree();
-void export_PatternString();
-void export_Interpretation();
-void export_LsysRule();
-void export_LsysContext();
-void export_Lsystem();
-void export_plot();
-void export_parser();
-void export_StringMatching();
+#include "abstractlstring.h"
+#include "patternmodule.h"
+
+LPY_BEGIN_NAMESPACE
+
+/*---------------------------------------------------------------------------*/
+
+class LPY_API PatternString : public AbstractLString<PatternModule> {
+public:
+  typedef AbstractLString<PatternModule> BaseType;
+
+  PatternString();
+  // PatternString(const PatternString&);
+  PatternString(const PatternModule&);
+  PatternString(const_iterator beg, const_iterator end);
+  PatternString(const std::string&, int lineno = -1);
+
+  ~PatternString();
+  // PatternString& operator=(const PatternString&);
+ 
+  // Get the list of all variables used
+  std::vector<std::string> getVarNames() const;
+  size_t getVarNb() const;
+
+  std::string str() const;
+  std::string repr() const;
+
+};
+
+/*---------------------------------------------------------------------------*/
+
+LPY_END_NAMESPACE
 
 #endif

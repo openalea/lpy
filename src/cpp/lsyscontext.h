@@ -100,7 +100,7 @@ public:
   size_t initialiseFrom(const std::string& lcode);
 
   /** compilation of code into the python namespace */
-  void execute(const std::string&)  ;
+  void compile(const std::string&)  ;
   boost::python::object 
 	evaluate(const std::string&)  ;
   boost::python::object 
@@ -344,7 +344,10 @@ struct ContextMaintainer {
     ~ContextMaintainer() { if (is_set) context->done();  }
 };
 
+/*---------------------------------------------------------------------------*/
+
 LPY_END_NAMESPACE
+
 /*---------------------------------------------------------------------------*/
 
 #endif

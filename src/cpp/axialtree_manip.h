@@ -31,7 +31,7 @@
 #ifndef __axialtree_manip_h__
 #define __axialtree_manip_h__
 
-#include "axialtree.h"
+#include "lpy_config.h"
 
 LPY_BEGIN_NAMESPACE
 
@@ -93,7 +93,7 @@ template<class Iterator>
 bool wellBracketed(Iterator string_begin, Iterator string_end) 
 { 
   int bracket= 0;
-  AxialTree::const_iterator pos = string_begin;
+  Iterator pos = string_begin;
   while((pos != string_end) && bracket>= 0){
 	if(pos->isLeftBracket()) ++bracket;
 	else if(pos->isRightBracket()) --bracket;
@@ -173,7 +173,7 @@ std::vector<Iterator> roots(Iterator string_begin, Iterator string_end)
 { 
   std::vector<Iterator> res;
   if (string_begin == string_end) return res;
-  AxialTree::const_iterator i = string_begin;
+  Iterator i = string_begin;
   if(i->isRightBracket())return res;
   else if(i->isLeftBracket()){
 	while((i != string_end) && (i->isBracket() || i->isIgnored())){

@@ -72,7 +72,7 @@ public: \
 #define DeclareSimpleModule(modname,doc,category) DeclareModuleBegin(modname,doc,category) { t.modname(); } DeclareModuleEnd
 #define DeclareModuleReal1(modname,doc,category) \
 	DeclareModuleBegin(modname,doc,category) {  \
-		switch (m.argSize()) { \
+		switch (m.size()) { \
 			case 0:  t.modname(); break; \
 			default:  t.modname(m._getReal(0)); break; } \
      } \
@@ -84,7 +84,7 @@ DeclareSimpleModule(pop,"Pop last state from turtle stack and make it the its cu
 
 DeclareModuleBegin(F, "Move forward and draw. Params: length , topradius.",ePrimitive)
 {
-	size_t nbargs = m.argSize();
+	size_t nbargs = m.size();
 	switch (nbargs) {
 		case 0:  t.F(); break;
 		case 1:  t.F(m._getReal(0)); break;
@@ -95,7 +95,7 @@ DeclareModuleEnd
 
 DeclareModuleBegin(f, "Move forward and without draw. Params: length.",ePrimitive)
 {
-	size_t nbargs = m.argSize();
+	size_t nbargs = m.size();
 	switch (nbargs) {
 		case 0:  t.f(); break;
 		default:  t.f(m._getReal(0)); break;
@@ -130,7 +130,7 @@ DeclareSimpleModule(stopPolygon,"Pop a polygon from the stack and render it.",eP
 
 DeclareModuleBegin(MoveTo,"Set the turtle position. Params : x, y, z (optionals, default = 0).",ePosition)
 {
-	size_t nbargs = m.argSize();
+	size_t nbargs = m.size();
 	switch (nbargs) {
          case 0:  t.move(); break;
          case 1:  t.move(m._getReal(0)); break;
@@ -142,7 +142,7 @@ DeclareModuleEnd
 
 DeclareModuleBegin(SetHead,"Set the turtle Heading and Up vector. Params: hx, hy, hz, ux, uy, uz (optionals, default=0,0,1, 1,0,0).",eRotation)
 {
-	size_t nbargs = m.argSize();
+	size_t nbargs = m.size();
 	switch (nbargs) {
       case 0:  t.setHead(); break;
       case 1:  t.setHead(m._getReal(0)); break;
@@ -185,77 +185,77 @@ DeclareModuleReal1(circle,"Draw a circle. Params : radius (optional, should be p
 
 DeclareModuleBegin(label,"Draw a text label.",ePrimitive)
 {
-	if(!m.hasArg())LsysWarning("Argument missing for module "+m.name());
+	if(m.empty())LsysWarning("Argument missing for module "+m.name());
 	else t.label(m._getString(0));
 }
 DeclareModuleEnd
 
 DeclareModuleBegin(incWidth,"Increase the current line width or set it if a parameter is given. Params : line width (optional).",eWidth)
 {
-	if (!m.hasArg())t.incWidth();
+	if (m.empty())t.incWidth();
 	else t.setWidth(m._getReal(0));
 }
 DeclareModuleEnd
 
 DeclareModuleBegin(decWidth,"Decrease the current line width or set it if a parameter is given. Params : line width (optional).",eWidth)
 {
-	if (!m.hasArg())t.decWidth();
+	if (m.empty())t.decWidth();
 	else t.setWidth(m._getReal(0));
 }
 DeclareModuleEnd
 
 DeclareModuleBegin(setWidth,"Set current line width. Params : line width.",eWidth)
 {
-	if(!m.hasArg())LsysWarning("Argument missing for module "+m.name());
+	if(m.empty())LsysWarning("Argument missing for module "+m.name());
 	else t.setWidth(m._getReal(0));
 }
 DeclareModuleEnd
 
 DeclareModuleBegin(incColor,"Increase the current material index or set it if a parameter is given. Params : color index (optional, positive int).",eColor)
 {
-	if (!m.hasArg())t.incColor();
+	if (m.empty())t.incColor();
 	else t.setColor(m._getInt(0));
 }
 DeclareModuleEnd
 
 DeclareModuleBegin(decColor,"Decrease the current material index or set it if a parameter is given. Params : color index (optional, positive int).",eColor)
 {
-	if (!m.hasArg())t.decColor();
+	if (m.empty())t.decColor();
 	else t.setColor(m._getInt(0));
 }
 DeclareModuleEnd
 
 DeclareModuleBegin(setColor,"Set the current material index. Params : color index (positive int).",eColor)
 {
-	if(!m.hasArg())LsysWarning("Argument missing for module "+m.name());
+	if(m.empty())LsysWarning("Argument missing for module "+m.name());
 	else t.setColor(m._getInt(0));
 }
 DeclareModuleEnd
 
 DeclareModuleBegin(divScale,"Divides the current turtle scale by a scale factor, Params : scale factor (optional, default = 1.0).",eScale)
 {
-	if (!m.hasArg())t.divScale();
+	if (m.empty())t.divScale();
 	else t.divScale(m._getReal(0));
 }
 DeclareModuleEnd
 
 DeclareModuleBegin(multScale,"Multiplies the current turtle scale by a scale factor, Params : scale factor (optional, default = 1.0).",eScale)
 {
-	if (!m.hasArg())t.multScale();
+	if (m.empty())t.multScale();
 	else t.multScale(m._getReal(0));
 }
 DeclareModuleEnd
 
 DeclareModuleBegin(scale,"Set the current turtle scale, Params : scale (optional, default = 1.0).",eScale)
 {
-	if (!m.hasArg())t.scale();
+	if (m.empty())t.scale();
 	else t.scale(m._getReal(0));
 }
 DeclareModuleEnd
 
 DeclareModuleBegin(surface,"Draw the predefined surface at the turtle's current location and orientation. Params : surface name (by default, 'l' exists), scale factor (optional, default= 1.0, should be positive).",ePrimitive)
 {
-	size_t nbargs = m.argSize();
+	size_t nbargs = m.size();
 	switch (nbargs) {
 		case 0:  LsysWarning("Argument missing for module "+m.name()); break;
 		case 1:  t.surface(m._getString(0),1); break;
@@ -266,12 +266,12 @@ DeclareModuleEnd
 
 DeclareModuleBegin(pglshape,"Draw a geometry at the turtle's current location and orientation. Params : a geometric model, a scale factor (optional, should be positive).",ePrimitive)
 {
-	if(!m.hasArg())LsysWarning("Argument missing for module "+m.name());
+	if(m.empty())LsysWarning("Argument missing for module "+m.name());
 	else {
 		PGL::PglTurtle * pg = dynamic_cast<PGL::PglTurtle *>(&t);
 		if (pg) {
 #if PGL_VERSION >= 0x020701
-			if (m.argSize() == 1)
+			if (m.size() == 1)
 				pg->customGeometry(boost::python::extract<PGL::GeometryPtr>(m.getAt(0))());
 			else 
 				pg->customGeometry(boost::python::extract<PGL::GeometryPtr>(m.getAt(0))(),m._getReal(1));
@@ -291,7 +291,7 @@ DeclareModuleEnd
 
 DeclareModuleBegin(elasticity,"Set Branch Elasticity. Params : real value (optional, default= 0.0, should be between [0,1]).",eTropism)
 {
-	size_t nbargs = m.argSize();
+	size_t nbargs = m.size();
 	switch (nbargs) {
 		case 1:  {
 				real_t val = m._getReal(0);
@@ -306,7 +306,7 @@ DeclareModuleEnd
 
 DeclareModuleBegin(tropism,"Set Tropism. Params : Vector3 (optional, default= (1,0,0)).",eTropism)
 {
-	size_t nbargs = m.argSize();
+	size_t nbargs = m.size();
 	switch (nbargs) {
 		case 0: t.setTropism(); break;
 		case 1:{
@@ -331,7 +331,7 @@ DeclareModuleEnd
 
 DeclareModuleBegin(setcontour,"Set Cross Section of Generalized Cylinder. Params : Curve2D.",ePrimitive)
 {
-	size_t nbargs = m.argSize();
+	size_t nbargs = m.size();
 	switch (nbargs) {
 		case 0: LsysWarning("missing argument to SetContour"); break;
 		default:

@@ -29,6 +29,7 @@
  */
 
 #include "lsyscontext.h"
+#include "compilation.h"
 #include <boost/python/make_constructor.hpp>
 #include <plantgl/python/export_list.h>
 
@@ -107,9 +108,9 @@ void export_LsysContext(){
 	.def("setStart",       &LsysContext::setStart)
 	.def("setEnd",         &LsysContext::setEnd)
 	.def("setStartEach",   &LsysContext::setEndEach)
-	.def("execute",        &LsysContext::execute)
 	.def("evaluate",       &LsysContext::evaluate)
-	.def("compile",        &LsysContext::compile)
+	.def("compile",        (void(LsysContext::*)(const std::string&))&LsysContext::compile)
+	.def("compile",        (bp::object(LsysContext::*)(const std::string&,const std::string&))&LsysContext::compile)
 	.def("__contains__",   &LsysContext::hasObject)
 	.def("has_key",        &LsysContext::hasObject)
 	.def("__getitem__",    &LsysContext::getObject)
@@ -159,5 +160,7 @@ void export_LsysContext(){
 	def("declare", &declare);
 	def("undeclare", &undeclare);
 	def("isDeclared", &isDeclared);
+
+	def("setCythonAvailable",&Compilation::setCythonAvailable);
 
 }

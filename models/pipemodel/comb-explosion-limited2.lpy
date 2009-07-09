@@ -37,10 +37,10 @@ def Start():
 def End():
   print 'time=',clock()-timer
 
-def StartEach():
-  pass #useGroup(Phase)
+#def StartEach():
+#  pass #useGroup(Phase)
 
-def EndEach(lstring,scene):
+def EndEach():
   #print lstring
   #global Phase
   #Phase = nextPhase[Phase]
@@ -68,7 +68,7 @@ K(t) --> K(t+dt)
 A(t,o) :
   if (t>=PL) :
     t -= PL
-    nproduce Elasticity(0.0035 * pow(o, 1.2 )) I(t,0) RollR(137.5)
+    nproduce Elasticity(0.0035 *  ( o ** 1.2 )) I(t,0) RollR(137.5)
     for i in xrange(randint(0,6)):
       nproduce RollR(137.5) [ -(ANG) A(t-random()*4*PL,o+1) ] 
     produce K(t)
@@ -96,16 +96,15 @@ K(t) --> _(0.025) F(0.01+0.2*func(FLOWER,t/D)) [ ;(11) Sphere(0.05*func(FLOWER,t
 # The internode width is a function of the number of pipes.
 #   The length is a sigmoidal function of its age. 
 
-I(t,w) --> _(0.01+0.05 *pow(w, 0.5)) S(func(INTERNODE,t/D)) 
+I(t,w) --> _(0.01+0.05 * (w ** 0.5)) S(func(INTERNODE,t/D)) 
 
 # The internode is decomposed into a sequence of segments
 
 S(l) :
-	""" segment interpretation """
-	if (l > l_seg) :
-		produce F(l_seg+0.01) S(l-l_seg)
-	elif l > 0 :
-		produce F(0.01+l);
+  if (l > l_seg) :
+    produce F(l_seg+0.01) S(l-l_seg)
+  elif l > 0 :
+    produce F(0.01+l);
 
 endlsystem
 ###### INITIALISATION ######

@@ -28,21 +28,38 @@
  # ---------------------------------------------------------------------------
  */
 
-#ifndef __export_lsystems_h__
-#define __export_lsystems_h__
+#include <plantgl/python/boost_python.h>
 
-void export_Options();
-void export_ModuleClass();
-void export_Module();
-void export_PatternModule();
-void export_AxialTree();
-void export_PatternString();
-void export_Interpretation();
-void export_LsysRule();
-void export_LsysContext();
-void export_Lsystem();
-void export_plot();
-void export_parser();
-void export_StringMatching();
+template<class ParamModule>
+class module_func : public boost::python::def_visitor<module_func<ParamModule> >
+{
+    friend class boost::python::def_visitor_access;
 
-#endif
+    template <class classT>
+    void visit(classT& c) const
+	{
+		c.def("argSize", &ParamModule::size)
+		 .def("empty",  &ParamModule::empty)
+		 .def("hasArg",  &ParamModule::hasArg)
+		 .def("__len__", &ParamModule::size)
+		 .def("__tuple__",  &ParamModule::toTuple)
+		 .def("__getitem__",&ParamModule::getItemAt)
+		 .def("__setitem__",&ParamModule::setItemAt)
+		 .def("__delitem__",&ParamModule::delItemAt)
+		 .def("__getslice__",&ParamModule::getSliceItemAt)
+		 .def("__delslice__",&ParamModule::delSliceItemAt)
+		 .def("append",&ParamModule::append)
+		 .def("prepend",&ParamModule::prepend)
+
+		 .def(self == self)
+		 .def(self != self)
+		 .add_property("args",&ParamModule::getPyArgs,&ParamModule::setPyArgs)
+		 .def("getParameterNames",&ParamModule::getParameterNames)
+		 .def("getParameterPosition",&ParamModule::getParameterPosition)
+		 .def("hasParameter",&ParamModule::hasParameter)
+		 .def("getParameter",&ParamModule::getParameter)
+		 .def("setParameter",&ParamModule::setParameter)
+        ;
+    }
+};
+

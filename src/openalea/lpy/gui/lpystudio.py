@@ -34,11 +34,12 @@ sys.path = ['']+sys.path
 
 # Generate GUI if necessary
 if not py2exe_release:
-    import compile_ui as ui
-    ldir    = os.path.dirname(__file__)
-    ui.check_ui_generation(os.path.join(ldir, 'lpymainwindow.ui'))
-    ui.check_rc_generation(os.path.join(ldir, 'lpyresources.qrc'))
-    del ldir
+    #import compile_ui as ui
+    #ldir    = os.path.dirname(__file__)
+    #ui.check_ui_generation(os.path.join(ldir, 'lpymainwindow.ui'))
+    #ui.check_rc_generation(os.path.join(ldir, 'lpyresources.qrc'))
+    #del ldir
+    pass
 
 
 import lpymainwindow as lsmw
@@ -71,6 +72,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.showPyCode = False
         self.reloadAtStartup = True
         self.fileMonitoring = True
+        self.cCompilerPath = ''
         self.desc_items = {'__authors__'   : self.authorsEdit,
                           '__institutes__': self.intitutesEdit,
                           '__copyright__' : self.copyrightEdit,
@@ -416,7 +418,10 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.textEditionWatch = False
         self.codeeditor.setTabHighLightActivation(value)
         self.textEditionWatch = True
-        
+    def setCCompilerPath(self,p):
+        self.cCompilerPath = str(p)
+        if len(self.cCompilerPath) != 0 and not self.cCompilerPath in os.environ['PATH']:
+            os.environ['PATH']+=';'+self.cCompilerPath
 
 def main():
     qapp = QApplication([])

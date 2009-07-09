@@ -60,8 +60,11 @@ BOOST_PYTHON_MODULE(__lpy_kernel__)
 {
 	define_stl_exceptions();
 	export_Options();
-    export_Module();
-    export_AxialTree();
+	export_ModuleClass();
+	export_Module();
+	export_PatternModule();
+	export_AxialTree();
+	export_PatternString();
     export_Interpretation();
     export_LsysRule();
     export_LsysContext();

@@ -2,15 +2,15 @@ from openalea.lpy import *
 import warnings
 
 lcode_matchingmode = """
-mode = ParamModule.eMatchingMethod.eWithStarNValueConstraint
+mode = PatternModule.eWithStarNValueConstraint
 def Start():
-    assert ParamModule.matchingMethod == mode
+    assert PatternModule.matchingMethod == mode
 """
 
 def test_matchingmode():
     """ Test setting of the module matching method """
     l = Lsystem()
-    modes = { 0: ParamModule.eMatchingMethod.eSimple, 1: ParamModule.eMatchingMethod.eWithStar , 1: ParamModule.eMatchingMethod.eWithStarNValueConstraint }
+    modes = { 0: PatternModule.eSimple, 1: PatternModule.eWithStar , 2: PatternModule.eWithStarNValueConstraint }
     l.set(lcode_matchingmode)
     for key,val in modes.items():        
         l.context().options.setSelection('Module matching',key)

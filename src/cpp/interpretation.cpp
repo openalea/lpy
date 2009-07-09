@@ -29,7 +29,7 @@
 # ---------------------------------------------------------------------------
 */
 
-#include "mod.h"
+#include "module.h"
 #include "axialtree.h"
 #include "interpretation.h"
 #include "lsyscontext.h"
