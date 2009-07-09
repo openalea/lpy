@@ -51,8 +51,8 @@ class module_func : public boost::python::def_visitor<module_func<ParamModule> >
 		 .def("append",&ParamModule::append)
 		 .def("prepend",&ParamModule::prepend)
 
-		 .def(self == self)
-		 .def(self != self)
+		 .def(boost::python::self == boost::python::self)
+		 .def(boost::python::self != boost::python::self)
 		 .add_property("args",&ParamModule::getPyArgs,&ParamModule::setPyArgs)
 		 .def("getParameterNames",&ParamModule::getParameterNames)
 		 .def("getParameterPosition",&ParamModule::getParameterPosition)

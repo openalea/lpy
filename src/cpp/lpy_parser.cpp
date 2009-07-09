@@ -292,7 +292,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
 					mod = ModuleClassTable::get().declare(itmod->name);
 				    __context.declare(mod);
 					if(!itmod->parameters.empty()){
-						printf("%s\n",itmod->parameters.c_str());
+						// printf("%s\n",itmod->parameters.c_str());
 						std::vector<std::string> args = LpyParsing::parse_arguments(itmod->parameters);
 						for(std::vector<std::string>::const_iterator itarg = args.begin(); itarg != args.end(); ++itarg){
 							if(!LpyParsing::isValidVariableName(*itarg))LsysError("Invalid parameter name '"+*itarg+"'","",lineno);

@@ -30,7 +30,7 @@
 
 
 #include "moduleclass.h"
-#include "mod.h"
+#include "module.h"
 #include <plantgl/scenegraph/pgl_version.h>
 #include <plantgl/algo/modelling/pglturtle.h>
 

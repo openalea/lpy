@@ -100,7 +100,7 @@ extern boost::python::object getFunctionRepr();
 template<class Parameter>
 class AbstractParamModule : public Module {
 public:
-	typedef typename Parameter ParameterType;
+	typedef Parameter ParameterType;
 	typedef std::vector<ParameterType> ParameterList;
 	typedef AbstractParamModule<ParameterType> BaseType;
 	typedef typename ParameterList::iterator iterator;
@@ -147,7 +147,7 @@ public:
 	boost::python::list getSlice(size_t i, size_t j) const {
 		lpyassert( i <= j && j <= size() );
 		boost::python::list res;
-		for(ParameterList::const_iterator it = __constargs().begin()+i; 
+		for(const_iterator it = __constargs().begin()+i; 
 			it != __constargs().begin()+j; ++it) res.append(*it);
 		return res;
 	}
@@ -192,7 +192,7 @@ public:
 	{ 
 	  boost::python::str res(",");
 	  boost::python::list argstr;
-	  for (ParameterList::const_iterator it = __constargs().begin(); it != __constargs().end(); ++it)
+	  for (const_iterator it = __constargs().begin(); it != __constargs().end(); ++it)
 			argstr.append(boost::python::str(*it));
       return boost::python::extract<std::string>(res.join(argstr));
     }
@@ -202,7 +202,7 @@ public:
 	  boost::python::str res(",");
 	  boost::python::list argstr;
       boost::python::object repr = getFunctionRepr();
-	  for (ParameterList::const_iterator it = __constargs().begin(); it != __constargs().end(); ++it)
+	  for (const_iterator it = __constargs().begin(); it != __constargs().end(); ++it)
 			argstr.append(repr(*it));
       return boost::python::extract<std::string>(res.join(argstr));
     }
@@ -254,7 +254,7 @@ protected:
  struct LPY_API ParamListInternal 
      : public QSharedData 
  {
-	 typedef typename PModule ParamModule;
+	 typedef PModule ParamModule;
 	 typedef typename ParamModule::ParameterList ParameterList;
 
 	 ParamListInternal() : QSharedData() {}
@@ -275,7 +275,7 @@ protected:
 
   static inline boost::python::list toPyList(const ParameterList& pl) {
 	boost::python::list result;
-	for(ParameterList::const_iterator it = pl.begin(); it != pl.end(); ++it)
+	for(const_iterator it = pl.begin(); it != pl.end(); ++it)
       result.append(*it);
     return result;
   }
@@ -352,9 +352,9 @@ public:
   virtual void _setValues(real_t,real_t,real_t) ;
   inline void _setValues(const TOOLS(Vector3)& v) { _setValues(v.x(),v.y(),v.z()); }
 
-  inline bool match(const PatternModule&m) const;
-  inline bool match(const PatternModule&m, ArgList&) const;
-  inline bool match(const std::string&, size_t nbargs) const;
+  bool match(const PatternModule&m) const;
+  bool match(const PatternModule&m, ArgList&) const;
+  bool match(const std::string&, size_t nbargs) const;
 
   inline void interpret(PGL::Turtle& t) { getClass()->interpret(*this,t); }
 

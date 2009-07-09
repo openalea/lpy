@@ -29,6 +29,7 @@
  */
 
 #include "abstractlstring.h"
+#include <plantgl/python/boost_python.h>
 #include <plantgl/python/export_list.h>
 
 
@@ -56,13 +57,14 @@ int iter_to_int(LString * tree, typename LString::const_iterator pos)
 template<class LString>
 boost::python::object veciter_to_list(LString * tree, std::vector<typename LString::const_iterator> res)
 {
+  typedef std::vector<typename LString::const_iterator> IterVector;
+  typedef typename IterVector::const_iterator IterVectorIterator;
   if (res.empty()) return boost::python::object(-1);
   else if (res.size() == 1) 
 	return boost::python::object(tree->pos(res[0]));
   else {
 	boost::python::list l;
-	for(std::vector<typename LString::const_iterator>::const_iterator _it = res.begin();
-		_it != res.end(); _it++)
+	for(IterVectorIterator _it = res.begin(); _it != res.end(); _it++)
 		  l.append(tree->pos(*_it));
 	return l;
   }
@@ -77,8 +79,8 @@ typename LString::const_iterator int_to_iter(LString * tree, int pos)
   typename LString::const_iterator beg = tree->begin();
   if(pos > 0 && pos <= len)beg += pos;
   else if(pos != 0){
-	PyErr_SetString(PyExc_IndexError, "index out of range");
-    throw_error_already_set();
+    PyErr_SetString(PyExc_IndexError, "index out of range");
+    boost::python::throw_error_already_set();
   }
   return beg;
 }
@@ -164,7 +166,8 @@ void py_insert_lstring(LString * first, int i, const std::string& pattern) { fir
 template<class LString>
 class lstring_func : public boost::python::def_visitor<lstring_func<LString> >
 {
-	typedef typename LString::ModuleType Module;
+    typedef LString LStringType;
+    typedef typename LString::ModuleType Module;
 
     friend class boost::python::def_visitor_access;
 
@@ -178,44 +181,44 @@ class lstring_func : public boost::python::def_visitor<lstring_func<LString> >
 		 .def("__getitem__",&LString::getItemAt)
 		 .def("__setitem__",&LString::setItemAt)
 		 .def("__delitem__",&LString::removeItemAt)
-		 .def("__getslice__",&LString::getRange<LString>)
+		 .def("__getslice__",(LString (LString::*)(int,int)const)&LString::getRange)
 		 .def("__delslice__",&LString::removeRange)
 		 .def("append",(void(LString::*)(const Module&))&LString::append)
-		 .def("append",&LString::append<LString>)
+		 .def("append",(void(LString::*)(const LString&))&LString::append)
 		 .def("append",&py_append_lstring<LString>)
-		 .def("__iadd__",&py_iadd_lstring<LString>, return_internal_reference<1>())
-		 .def("__iadd__",&py_iadd_lstring_mod<LString>, return_internal_reference<1>())
+		 .def("__iadd__",&py_iadd_lstring<LString>, boost::python::return_internal_reference<1>())
+		 .def("__iadd__",&py_iadd_lstring_mod<LString>, boost::python::return_internal_reference<1>())
 		 .def("__add__",&py_add_lstring<LString>)
 		 .def("__add__",&py_add_lstring_mod<LString>)
 		 .def("prepend",(void(LString::*)(const Module&))&LString::prepend)
-		 .def("prepend",&LString::prepend<LString>)
+		 .def("prepend",(void(LString::*)(const LString&))&LString::prepend)
 		 .def("prepend",&py_prepend_lstring<LString>)
 		 .def("insertAt",(void(LString::*)(int,const Module&))&LString::insertItemAt)
-		 .def("insertAt",&LString::insertItemAt<LString>)
+		 .def("insertAt",(void(LString::*)(int,const LString&))&LString::insertItemAt)
 		 .def("insertAt",&py_insert_lstring<LString>)
 		 .def("__mul__",&py_lstring_mult<LString>)
-		 .def("__imul__",&py_lstring_imult<LString>, return_internal_reference<1>())
+		 .def("__imul__",&py_lstring_imult<LString>, boost::python::return_internal_reference<1>())
 
-		 .def(self == self)
-		 .def(self != self)
+		 .def(boost::python::self == boost::python::self)
+		 .def(boost::python::self != boost::python::self)
 
 		 .def( "wellBracketed", &LString::wellBracketed )
 		 .def( "isAPath", &LString::isAPath )
 		 .def( "hasRequestModule", &LString::hasRequestModule )
 
 		 .def( "roots",  &py_roots<LString> ) 
-		 .def( "father", &py_father<LString>, args("pos") ) 
-		 .def( "sons",   &py_sons<LString>, args("pos") ) 
-		 .def( "lateralSons", &py_lateralSons<LString>, args("pos") ) 
-		 .def( "directSon", &py_directSon<LString>, args("pos") ) 
+		 .def( "father", &py_father<LString>, boost::python::args("pos") ) 
+		 .def( "sons",   &py_sons<LString>, boost::python::args("pos") ) 
+		 .def( "lateralSons", &py_lateralSons<LString>, boost::python::args("pos") ) 
+		 .def( "directSon", &py_directSon<LString>, boost::python::args("pos") ) 
 		 .def( "endBracket", &py_endBracket<LString>, (bp::arg("startingBeforePos")=false) ) 
 		 .def( "beginBracket", &py_beginBracket<LString>, (bp::arg("startingAfterPos")=false) ) 
-		 .def( "complex", &py_complex1<LString>, args("pos") ) 
-		 .def( "complex", &py_complex<LString>, args("pos","scale") ) 
-		 .def( "successor_at_scale", &py_successor_at_scale<LString>, args("pos","scale") ) 
-		 .def( "successor_at_level", &py_successor_at_level<LString>, args("pos","level") ) 
-		 .def( "predecessor_at_scale", &py_predecessor_at_scale<LString>, args("pos","scale") ) 
-		 .def( "predecessor_at_level", &py_predecessor_at_level<LString>, args("pos","level") ) 
+		 .def( "complex", &py_complex1<LString>, boost::python::args("pos") ) 
+		 .def( "complex", &py_complex<LString>, boost::python::args("pos","scale") ) 
+		 .def( "successor_at_scale", &py_successor_at_scale<LString>, boost::python::args("pos","scale") ) 
+		 .def( "successor_at_level", &py_successor_at_level<LString>, boost::python::args("pos","level") ) 
+		 .def( "predecessor_at_scale", &py_predecessor_at_scale<LString>, boost::python::args("pos","scale") ) 
+		 .def( "predecessor_at_level", &py_predecessor_at_level<LString>, boost::python::args("pos","level") ) 
 		 ;
     }
 };

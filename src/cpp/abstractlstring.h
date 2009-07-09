@@ -51,8 +51,8 @@ template<class Module>
 class AbstractLString {
 public:
   /// The type of element contained in the axialtree.
-  typedef typename Module element_type;
-  typedef typename Module ModuleType;
+  typedef Module element_type;
+  typedef Module ModuleType;
 
   /// The type of the module container
   typedef std::vector<element_type> ModuleList;
@@ -288,12 +288,12 @@ public:
   size_t count(const Module& module) const {
     Equal eq;
 	size_t c = 0;
-	for(ModuleList::const_iterator _it = const_begin(); _it != const_end(); _it++)
+	for(const_iterator _it = const_begin(); _it != const_end(); _it++)
 		 if (eq(_it,module)) c++;
     return c;
   }
 
-  template<class Eq /*= std::equal_to<Module>*/ >
+  template<class Equal /*= std::equal_to<Module>*/ >
   void replace(const Module& i, const Module& j) const {
     Equal eq;
 	const_iterator _it = const_begin();
@@ -303,13 +303,13 @@ public:
 	}
   }
 
-  template<class Eq /*= std::equal_to<Module>*/ >
+  template<class Equal /*= std::equal_to<Module>*/ >
   void replace(const Module& i, const AbstractLStringType& j) const {
     if(j.empty()) return;
     Equal eq;
 	const_iterator _it = const_begin();
 	while(!isEnd(_it)){
-		if(eq(i,_it)) { *_it = j[0]; insertAt(_it+1,j.const_begin()+1,j.const_end()) }
+		if(eq(i,_it)) { *_it = j[0]; insertAt(_it+1,j.const_begin()+1,j.const_end()); }
 		++_it;
 	}
   }

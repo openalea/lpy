@@ -32,6 +32,7 @@
 #define __axialtree_manip_h__
 
 #include "lpy_config.h"
+#include "module.h"
 
 LPY_BEGIN_NAMESPACE
 
