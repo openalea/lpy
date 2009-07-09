@@ -1,0 +1,191 @@
+from math import exp
+from copy import deepcopy
+from openalea.plantgl.all import QuantisedFunction,BezierCurve2D
+
+steps = 70
+step_number = 0
+
+Dt = 0.1
+def getTime():
+  return step_number*Dt
+
+Plastochron = 1
+
+Veg_Decrease_Param = 1 # between 0 and 20 
+B_Difference = 20 # between -50 and 50
+B_Duration = 3    # between 0 and 5
+
+# (6,0,0) panicle
+#Veg_Decrease_Param,B_Difference,B_Duration = (6,0,0)
+# (5,20,3) raceme
+#Veg_Decrease_Param,B_Difference,B_Duration = (5,20,3)
+# (13,-20,2) sympodial cyme
+#Veg_Decrease_Param,B_Difference,B_Duration = (13,-20,2)
+
+
+assert 0 <= Veg_Decrease_Param <= 20
+Veg_Decrease = Veg_Decrease_Param/20. # between 0 and 1 
+
+Flower_Thresh = 20
+
+BAng = 40
+Phi  = 180
+Width = 0.1
+
+sigmoidfunc = QuantisedFunction(BezierCurve2D([(0,0,1),(0.5,0,1),(0.5,1,1),(1,1,1)]))
+def clampValue(t):
+  if t <= 0: return 0
+  elif t >= 1.: return 1
+  else: return t
+ 
+sigmoid = lambda t : sigmoidfunc(clampValue(t/2))
+
+class ModuleState:
+  def __init__(self):
+    self.order = 0
+    self.mi = 1  # metamer index
+    self.mi0 = 0 # parental metamer
+    self.mi1 = 0 # first order metamer index
+    self.t = 0   # age (readiness to divide)
+    self.mat = 5 # time since meristem formation
+    self.veg = 100 # vegetativeness
+
+def initVegCurve():
+  return [None for i in xrange(steps)]
+
+veg_blue = initVegCurve()
+veg_orange = initVegCurve()
+veg_red = initVegCurve()
+
+def Start():  
+  global step_number, veg_blue, veg_orange, veg_red
+  step_number = 0
+  veg_blue = initVegCurve()
+  veg_orange = initVegCurve()
+  veg_red = initVegCurve()
+
+def EndEach():
+  global step_number
+  step_number += 1
+
+def lbzero(x):
+  """ bound argument below by zero """
+  return 0 if x < 0 else x
+
+def colourFromState(state):
+  if state.order == 0: return 1 # blue
+  elif state.order == 1 and state.mi0 == 2: return 2 # orange
+  elif state.order == 1 and state.mi0 == 4: return 3 # red
+  return 0 # default is green
+
+Axiom: [CV]_(2)/(180)I(ModuleState());(0)A(ModuleState())
+
+derivation length: steps
+production:
+
+A(state):
+  if state.veg < Flower_Thresh:
+    state.t += Dt
+    state.mat = 0
+    produce M(state)
+  else:
+    state.mat += Dt    
+    state.veg = 100 *exp(-getTime() * Veg_Decrease)
+    #print getTime(),state.veg
+    if state.mat < B_Duration:
+      state.veg = lbzero(state.veg - B_Difference)
+    if state.t < Plastochron:
+      state.t += Dt
+      produce A(state)
+    else:
+      state.t -= Plastochron
+      state1 = deepcopy(state) # state for lateral apex
+      state1.mat = 0
+      # labelling apices
+      state.mi += 1
+      state1.mi = 1
+      state1.order = state.order +1
+      if state.order == 0:   state1.mi0 = state.mi
+      elif state.order == 1: state1.mi1 = state.mi
+      produce I(deepcopy(state))[+(BAng+30)L(deepcopy(state))][+(BAng)A(state1)]/(Phi)A(state)
+
+I(state):
+  state.t += Dt
+  produce I(state)
+
+L(state):
+  state.t += Dt
+  produce L(state)
+
+M(state):
+  state.t += Dt
+  produce M(state)
+
+decomposition:
+
+A(state):
+  global step_number, veg_blue, veg_orange, veg_red
+  if state.order == 0: veg_blue[step_number] = state.veg
+  elif state.order == 1 and state.mi0 == 2: veg_orange[step_number] = state.veg
+  elif state.order == 1 and state.mi0 == 4: veg_red[step_number] = state.veg
+  
+M(state):
+  global step_number, veg_blue, veg_orange, veg_red
+  if state.order == 0: veg_blue[step_number] = state.veg
+  elif state.order == 1 and state.mi0 == 2: veg_orange[step_number] = state.veg
+  elif state.order == 1 and state.mi0 == 4: veg_red[step_number] = state.veg
+  
+
+homomorphism:
+
+I(state):
+  length = 1.8 if state.order != 0 else 3 # max length
+  colour = colourFromState(state)
+  produce _(Width);(colour)F(0.2+length*sigmoid(state.t))
+
+L(state):
+  produce _(Width);(0)F(sigmoid(state.t))
+
+A(state):
+  colour = colourFromState(state)
+  produce _(Width);(colour)F(0.6)@o(0.3)
+
+M(state):
+  stalk_colour = colourFromState(state)
+  produce ;(stalk_colour)_(Width)F(0.2+1.5*sigmoid(state.t));(6)@o(0.1+0.5*sigmoid(state.t))
+
+
+C:  
+  produce ;(5)-(90)f(10)+(90)f(10)+(180)_(0.05)F(10-Flower_Thresh/10.)[+(90)F(11)]F(Flower_Thresh/10.)+(90)[F(11)]_(0.1)
+
+
+V:
+  it = 10./steps
+  for x in xrange(steps):
+    nproduce f(it)
+    if not veg_blue[x] is None:
+      nproduce [+(90);(1)f(veg_blue[x]/10.+0.2)@O(0.1)]
+    if not veg_orange[x] is None:
+      nproduce [+(90);(2)f(veg_orange[x]/10.+0.1)@O(0.1)]
+      if not veg_orange[x-1] is None and abs(veg_orange[x]-veg_orange[x-1]) >= abs(B_Difference)/2 > 0:
+        nproduce [+(90);(2)f(veg_orange[x]/10.+0.1)+(180 if veg_orange[x]> veg_orange[x-1] else 0)F(abs(veg_orange[x]-veg_orange[x-1])/10.)]
+    if not veg_red[x] is None:
+      nproduce [+(90);(3)f(veg_red[x]/10.+0.01)@O(0.1)]
+      if not veg_red[x-1] is None and abs(veg_red[x]-veg_red[x-1]) >= abs(B_Difference)/2 > 0:
+        nproduce [+(90);(3)f(veg_red[x]/10.+0.1)+(180 if veg_red[x]> veg_red[x-1] else 0)F(abs(veg_red[x]-veg_red[x-1])/10.)]
+
+endlsystem
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	from openalea.plantgl.all import Material,Color3
+	context.turtle.setMaterial(0,Material('Green',Color3(30,60,10),3,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(1,Material('Blue',Color3(0,0,83),1.92771,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(2,Material('Orange',Color3(72,47,0),3.05556,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(5,Material('Black',Color3(0,0,0),2,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(6,Material('White',Color3(100,100,100),1.01,Color3(40,40,40),Color3(0,0,0),1,0))
+__copyright__ = 'open-source GPL'
+__references__ = 'Przemyslaw Prusinkiewicz, Yvette Erasmus, Brendan Lane, LawrenceD. Harder, and Enrico Coen. Evolution and Development of InflorescenceArchitectures. Science 316(5830), pp. 1452-1456.'
+__description__ = '- Try different values for Veg_Decrease_Param, B_Difference and B_Duration = 3 to obtain different architecture\n\n-You can uncomment given sets of values to obtain panicle, raceme or sympodial cyme architecture.\n'
+__institutes__ = 'INRIA - CIRAD Virtual Plants'
+__authors__ = ' F. Boudon, C. Godin'

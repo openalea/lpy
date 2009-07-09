@@ -1,0 +1,148 @@
+import random as rd
+from openalea.plantgl.all import *
+from openalea.fractalysis.light.directLight import diffuseInterception
+
+leafduration = 3 # life time of a leaf
+leafold =      2 # age at which a leaf is considered as old
+maxorder =     4 # maximum number of branching order
+radinc =    0.01 # increment of radius through time
+
+maxduration = lambda order : int(10./(order+1))+3  # life time of an apex
+branch_angle = lambda order : 60+30*((maxorder-order)/maxorder) # branching angle
+nb_axes = lambda order : rd.randint(3,5)  # number of axe at a ramification
+up_angle = lambda t,order : 7        # up angle for lateral branches
+
+# number total of iterations of the system
+archi_steps = [maxduration(o) for o in xrange(maxorder+1)]
+nbiter = sum(archi_steps)
+
+module A # represent trunk apical meristem
+module B # represent apical meristem of lateral branches
+module L # whorl of leaf
+module I # Internode
+module T # Meristem ending
+module P,W1,W2,W3,W4
+
+#Axiom: [@M(-10,0,15);(6)@g(Box(15,0.5,15))]_(0.1)PI(0.5,0.1)A(0,0) 
+Axiom: [@M(-10,0,15);(6)@g(Box(15,0.5,15))][@M(10,20,30);(6)@g(Box(15,20,0.5))]_(0.1)PI(0.5,0.1)A(0,0) 
+#Axiom: _(0.1)PI(0.5,0.1)A(0,0) 
+
+test_step = 1
+dotest = True
+
+derivation length: nbiter
+ignore: /&[
+production:
+
+A(t,o) :
+  if t < maxduration(o):
+     # simply produces a metamer and ages the apex
+     produce I(1,0.1)L(0,t,0)A(t+1,o) 
+  else:
+      # produce a whorl of sympodial branches
+      nbaxe = nb_axes(o)
+      for i in xrange(nbaxe):
+        nproduce [/(360*i/nbaxe)&(branch_angle(o))B(0,o+1)]
+      produce T
+
+
+L(t1,n,lg) < B(t,o) :
+  #if dotest and lg < 2.5:  produce C
+  #if lg < 2.5: produce C
+  if dotest and lg < 0.2: produce C
+  if t < maxduration(o):
+    # simply produces a metamer and ages the apex
+    # reorient smoothly the branch toward the up
+    produce ^(up_angle(t,o))I(1,0.1)L(0,t,0)B(t+1,o)
+  else:
+    # produce a whorl of sympodial branches
+    nbaxe = nb_axes(o)
+    for i in xrange(nbaxe):      
+      nproduce [/(360*i/nbaxe)&(branch_angle(o))B(0,o+1)]
+    produce T
+
+
+
+L(t,n,lg) :
+  # ages the leaf. If too old, removes
+  if t < leafduration :  produce L(t+1,n,lg)
+  else:   produce *
+
+# Increment radius of internodes
+I(s,r) --> I(s,r+radinc)
+_(r) --> _(r+radinc)
+
+homomorphism:
+
+I(a,r) --> F(a,r)
+T --> @Ge_(0.05);(3)F(0.5)@O(0.2)
+B(t,o,l) --> @Ge_(0.05);(3)F(0.5)@O(0.2)
+C --> @Ge_(0.05);(5)F(0.5)@O(0.3)
+
+L(t,p,lg) :
+    phi = 0 if p % 2 == 0 else 90  # phyllotactic angle
+    col = 4 if t >= leafold else 2 # color is chosen according to age
+    produce [/(phi)^(120);(col)~l(1)][/(phi)&(120);(col)~l(1)]
+
+endlsystem
+
+#from openalea.mtg import *
+#import openalea.mtg.io
+#reload(openalea.mtg.io)
+#from openalea.mtg.io import axialtree2mtg, mtg2mss
+
+#def EndEach(lstring,scene):
+#    if getIterationNb() == nbiter-1:
+#      print 'computing star'
+      #scale = dict(zip(('P','W1','W2','W3','W4','I','T','L', 'A', 'B', ),(1,1,2,2,2,2,2,2,2,2)))
+      #mtg = axialtree2mtg(lstring, scale, scene)
+      #mss = mtg2mss('lewenberg2',mtg,scene)
+      #global sc
+      #sc = mss.genScaleScene(1)
+      #light = mss.received_light(1)
+      #print light
+      
+def Start():
+   rd.seed(0)
+   Viewer.camera.setOrthographic()
+
+def StartEach():
+  global dotest
+  dotest = (((getIterationNb()-1) % test_step) == 0)
+    
+def EndEach(lstring,scene):
+   if getIterationNb() % test_step == 0:
+      #print 'computing star'
+      Viewer.redrawPolicy = False
+      Viewer.display(scene)
+      pos,h,up = Viewer.camera.getPosition()
+      #bbx = BoundingBox(scene)
+      #Viewer.camera.lookAt(bbx.getCenter()+(0,0,bbx.getSize().z),bbx.getCenter())
+      #values = Viewer.frameGL.getProjectionPerShape()
+      #if not values is None:
+      #  nbpixpershape, pixsize = values
+      #  for key,val in nbpixpershape:
+      #    if lstring[key].name == 'L':
+      #        lstring[key][2] = val*pixsize
+      res = diffuseInterception(scene)
+      leaves = {}
+      for k,v in res.items():
+         if lstring[k].name == 'L':
+           #leaves[k] = res[k]
+           lstring[k][2] = v
+      #print leaves     
+      Viewer.redrawPolicy = False
+      Viewer.camera.lookAt(pos,pos+h)      
+      Viewer.redrawPolicy = True
+   #Viewer.frameGL.saveImage('light_lpy_example_'+str(getIterationNb())+'.png')
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	from openalea.plantgl.all import Material,Color3
+	context.turtle.setMaterial(5,Material('purple',Color3(70,0,73),2.19178,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(6,Material('Wall',Color3(47,47,47),1.2766,Color3(4,4,4),Color3(0,0,0),1,0))
+	context.animation_timestep = 0.001
+__references__ = 'Halle, 71'
+__description__ = 'Leuwenberg architectural model. '
+__institutes__ = 'CIRAD\nINRIA'
+__authors__ = 'F. Boudon\nD. Da SILVA'

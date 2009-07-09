@@ -1,0 +1,27 @@
+
+Axiom: -(90)L(1.0)
+
+derivation length: 5
+
+production:
+
+L(x):
+  produce +(60)R(x/2)-(60)L(x/2)-(60)R(x/2)+(60)
+R(x):
+  produce -(60)L(x/2)+(60)R(x/2)+(60)L(x/2)-(60)
+
+homomorphism:
+
+R(x): # To have a right triangle that has the same normal orientation as L(x)
+  produce [{-(60)F(x)+(120)F(x)}]f(x)
+
+L(x):
+  produce [{F(x)+(120)F(x)}]f(x)
+
+endlsystem
+###### INITIALISATION ######
+
+__copyright__ = """open-source GPL"""
+__description__ = """- make a Sierpinski carpet (based on a square instead of triangle)"""
+__institutes__ = """INRIA - CIRAD Virtual Plants"""
+__authors__ = """C. Godin, F. Boudon"""

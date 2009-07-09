@@ -1,0 +1,33 @@
+CYCLENB = 10  # Try 11, 12 
+ADVANCE  = 3   # Lateral meristems get older more rapidly than main axis (try 1, 3) 
+
+
+Axiom:  _(1)A(0)
+
+derivation length: 8
+production: 
+
+A(n) :
+  if n<CYCLENB  : produce  I(n)[P(n)A(n+ADVANCE)]A(n+1)
+  else : produce  B
+
+homomorphism:
+
+I(n) :
+  produce ;(1)F(CYCLENB-n)
+
+P(n) :
+  if n%2 == 0 : produce  +
+  else: produce -
+A(n):
+  produce ;(0)@c(1)
+B :
+  produce F(1);(2)@O(2)
+
+endlsystem
+###### INITIALISATION ######
+
+__copyright__ = 'open-source GPL'
+__description__ = '- try different values for CYCLENB and ADVANCE'
+__institutes__ = 'INRIA - CIRAD Virtual Plants'
+__authors__ = 'C. Godin, F. Boudon'

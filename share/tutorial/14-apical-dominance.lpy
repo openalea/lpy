@@ -1,0 +1,103 @@
+initial_auxin_level = 10.
+min_auxin_level = 5.
+medium_auxin_level = (initial_auxin_level+min_auxin_level)/2.
+
+mstate = 8
+internal_degradation_rate = 0.0
+flower_degradation_rate = 0.0
+root_auxin_level = 0.0
+transport_speed = 1/3. # should be < 1/3. for numerical constraints
+maxorder = 4
+
+import time as t
+
+timing = 0
+def Start():
+	global timing	
+	timing = t.time()
+
+def End():
+	print 'Execution time :',t.time()-timing
+
+def txt(val):
+	return str(round(val,2))[:5]
+
+Axiom: _(0.5)R(0)M(mstate,0)
+
+derivation length: 500
+ignore: +-
+production:
+
+
+M(state,order) :
+	if state > 0:
+		angle = 20+70*state/(mstate*(order+1))
+		if state % 2:
+		 	produce I(initial_auxin_level) [+(angle)m(order+1)]M(state-1,order)
+		else:
+			produce I(initial_auxin_level) [-(angle)m(order+1)]M(state-1,order)
+	else:
+		produce I(initial_auxin_level)L
+
+
+I(a) < m(order) :
+	if order >= maxorder:
+		produce *
+	if a <= min_auxin_level:
+		produce M(mstate/(2**order),order)
+
+
+
+I(a) > M(state,i) :
+	produce  I(initial_auxin_level)
+
+I(n) < I(a) > L :
+	produce  I((a+(n-a)*transport_speed)*(1-internal_degradation_rate - flower_degradation_rate))
+
+I(n) < I(p) > [I(k)]I(q) :
+	plevel = p + ((n+q+k)-3*p)*transport_speed  - p * internal_degradation_rate
+	produce I(plevel)
+
+I(n) < I(p) > I(q) :
+	produce I(p + (n+q-2*p)*transport_speed - p * internal_degradation_rate)
+
+
+R(r) < I(n) > I(p):
+	nn = (root_auxin_level+p-2*n)*transport_speed
+	produce I(n+nn)
+
+R(r) < I(n) > [I(k)]I(p):
+	nn = (root_auxin_level+p+k-3*n)*transport_speed
+	produce  I(n+nn)
+
+R(r) > I(n) --> R(r+(n-root_auxin_level)*transport_speed)
+
+homomorphism:
+
+I(a) :
+	col = 1
+	if min_auxin_level <= a  < medium_auxin_level:
+		col = 4
+	elif a < min_auxin_level:
+		col = 3
+	produce ;(col)F(10)[+(90)f(2);(3)@L(txt(a))]
+
+M(state,i) --> F(2);(2)@O(1)
+
+
+m(order) --> ;(2)F(1)@O(0.5)
+
+L --> ;(3)@O(1)
+
+R(r) :
+	produce[+(180)F(max(2*r,1)/10.)@O(max(r,1)/10.)-(90)f(2*max(r,1)/10.);(3)@L(txt(r))]
+
+endlsystem
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	from openalea.plantgl.all import Material,Color3
+	context.turtle.setMaterial(1,Material('Brown',Color3(33,22,6),2.72727,Color3(40,40,40),Color3(0,0,0),1,0))
+__copyright__ = 'open-source GPL'
+__institutes__ = 'INRIA - CIRAD Virtual Plants'
+__authors__ = 'F. Boudon, C. Godin'

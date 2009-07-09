@@ -1,0 +1,57 @@
+from math import *
+from random import *
+
+
+T = 0.5       # time for an apex to produce an internode
+Imature = 1.  # time for internode growth
+Ssize = 5.    # size of the flower
+
+branching_proba = 0.8
+
+R = 3         # jump in differentiation for axillary axis 
+dt = 0.1
+eps = 0.001
+
+Rmax = 8      # Maximum number of internodes on an axis
+endiam = 0.1
+enlen = 1.
+
+Axiom: A(0,T)
+
+derivation length: 80
+production:
+
+A(r,t):
+  rand = random()
+  if r >=  Rmax: produce S(0.01)
+  elif t < eps : 
+    if rand < branching_proba: produce I(0.01)[P(r)A(r+R,T)]A(r+1,T)
+    else:  produce I(0.01)A(r+1,T)
+  else: produce A(r,t-dt)
+
+I(t):
+  produce I(t+dt)
+S(t):
+  produce S(t+dt)
+
+homomorphism:
+
+P(r) :
+  if r%2 == 0 : produce  +
+  else: produce -
+
+I(t):
+  if t <= Imature: produce _(endiam*t/Imature)F(0.1+enlen*t/Imature)
+  else: produce _(endiam)F(enlen)
+
+S(t):
+   if t <= Imature: produce f(Ssize*endiam*t/Imature);(4)@O(Ssize*endiam*t/Imature)
+   else: produce f(Ssize*endiam);(3)@O(Ssize*endiam)
+
+endlsystem
+###### INITIALISATION ######
+
+__copyright__ = 'open-source GPL'
+__description__ = '- Change the probability of creating a branch\n\n- play with the maximum number of internodesRmax  on an axis and with R, the jump in meristem differentiation when an axillary branch is created.'
+__institutes__ = 'INRIA - CIRAD Virtual Plants'
+__authors__ = 'C. Godin, F. Boudon'

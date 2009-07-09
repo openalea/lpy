@@ -1,0 +1,10 @@
+
+derivation length: 0
+
+Axiom: -(30)F(1)-(120)F(1)-(120)F(1)
+###### INITIALISATION ######
+
+__copyright__ = 'open-source GPL'
+__description__ = '- change the line width and color\n\n- try to make a circle (approximated by a polygonal line)\n\n'
+__institutes__ = 'INRIA - CIRAD Virtual Plants'
+__authors__ = 'C. Godin, F. Boudon'

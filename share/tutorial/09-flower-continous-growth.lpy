@@ -1,0 +1,78 @@
+I0 = 30
+S0 = 150
+K0 = 70
+KANG1 = 10
+KANG2 = 20
+SRATE = 1.01
+LRATE = 1.15
+BANG0 = 0
+BANGI = 1.0
+BANGL = 10.0
+T0 = 5         # the number of leaf pairs 
+T1 = 20        # the number of buds 
+T2 = 40        # the number of open flowers
+T3 = 25        # the number of fruits
+TALL = T0+T1+T2+T3
+
+def Start():
+    print("Start")
+    pass
+
+def End():
+    print("End")
+    pass
+
+def StartEach():
+    pass
+
+def EndEach():
+    pass
+
+
+Axiom: [,(2)-(5)/(35)_(16),(4)F(I0*10)A(0)]        
+
+production:
+derivation length:TALL
+
+A(t) :
+    if t < T0:
+        produce [-(BANG0,t)!(47)/(90)~l(150,t)]/(180)[-(BANG0,t)!(47)/(90)~l(150,t)]/(95)F(I0*6)!(16-t*0.15)A(t+1)
+    else:
+        produce [&(BANG0+15)F(S0/4)&(15)F(S0/8)][!(8)&(BANG0)G(S0)X(0)@O(20)]/(137.5)F(I0)!(16-t*0.15)A(t+1)
+
+K --> [!(4)&(KANG1){-(KANG2)F(K0)+(KANG2)F(K0)+(KANG2)F(K0)-(KANG2)|-(KANG2)F(K0)+(KANG2)F(K0)+(KANG2)F(K0)}]
+
+b(s) --> b(s*SRATE)
+
+X(t) :
+    if t < T1:
+        produce X(t+1)
+    elif t==T1 :
+        produce [C(0),(3)K/(72)K/(72)K/(72)K/(72)K!(4),(4)G(120)]
+    else: produce *
+
+C(t) :
+    if t < T2: produce C(t+1)
+    elif t == T2:
+        produce D%
+    else: produce *
+
+D --> ,(1)@O(35)F(80)&(10)F(60)&(10)F(40)
+F(s) --> F(s*SRATE)
+f(s) --> f(s*SRATE)
+G(s) --> G(s*SRATE)
+~l(s,t) : 
+  if t < T0 and s<600: produce ~l(s*LRATE,t+1)
+&(a) : 
+  if a<135: produce &(a+BANGI)
+-(a,t) : 
+  if a<90 and t<T0: produce -(a+BANGL,t+1)
+_(r) : 
+  if r<20 : produce _(r+0.5)
+
+endlsystem
+###### INITIALISATION ######
+
+__copyright__ = 'open-source GPL'
+__institutes__ = 'INRIA - CIRAD Virtual Plants'
+__authors__ = 'C. Godin, F. Boudon'

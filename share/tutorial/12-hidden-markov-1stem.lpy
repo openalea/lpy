@@ -1,0 +1,91 @@
+from random import *
+
+# transition probabilities
+
+p1 = 0.95 # probability of staying in zone 1 (fruiting zone)
+p2 = 0.95 # probability of staying in zone 2 (vegetative zone)
+
+# Observation probabilities
+
+# zone 1 is characterized by few empty nodes and equal nb of leaves and fruits
+o11 = 0.1  # empty node
+o12 = 0.4  # leafy node
+o13 = 0.5  # fruit node
+
+# zone 2 is characterized by frequent empty nodes and more leaves than fruits nb
+o21 = 0.6  # empty node
+o22 = 0.3  # leafy node
+o23 = 0.1  # fruit node
+
+Axiom: _(1)H(1)
+
+derivation length: 150
+
+# A = branching state
+# B = non-branching state 
+
+def Start():
+	global m
+	m = 0
+
+production:
+
+
+
+H(x) : # initial distribution
+	if random() <= 0.5: produce A(x)
+	else: produce B(x)
+
+A(x) : # sequence of hidden states
+	if random() <= p1: produce I(1)[M(x)]A(1-x)
+	else: produce I(1)[M(x)]B(1-x)
+
+B(x) :
+	if random() <= p2: produce I(2)[N(x)]B(1-x)
+	else: produce I(2)[N(x)]A(1-x)
+
+decomposition:
+
+M(x): # defines the observation probabilities in each Markovian state
+  r = random()
+  if r <= o11: produce 
+  elif r <= o11+o12: produce L(x)
+  else: produce S(x)
+
+N(x):
+  r = random()
+  if r <= o21: produce 
+  elif r <= o21+o22: produce L(x)
+  else: produce S(x)
+
+
+homomorphism:
+
+E(x) : 
+  produce 
+
+L(x) : 
+	if x==0 :   produce ;(2)+F(20)
+	elif x==1 : produce ;(2)-F(20)
+
+S(x) : 
+	if x==0 :   produce ;(3)+F(3)@O(2)
+	elif x==1 : produce ;(3)-F(3)@O(2)
+
+I(x) : 
+  if x==1 : produce ;(4)F(2)
+  if x==2 : produce ;(1)F(2)
+
+A(x) : produce ;(1)@O(3)
+B(x) : produce ;(2)@O(3)
+
+endlsystem
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	from openalea.plantgl.all import Material,Color3
+	context.turtle.setMaterial(4,Material('Yellow',Color3(0,0,121),1.4876,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(5,Material('Default',Color3(80,80,80),2,Color3(40,40,40),Color3(0,0,0),1,0))
+__copyright__ = 'open-source GPL'
+__institutes__ = 'INRIA - CIRAD Virtual Plants'
+__authors__ = 'C. Godin, F. Boudon'

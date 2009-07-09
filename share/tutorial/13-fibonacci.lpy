@@ -1,0 +1,41 @@
+from math import sqrt
+
+nbValue = 20
+
+Axiom: -(90);(3)A(nbValue)
+
+
+derivation length: nbValue+1
+
+production:
+
+I(j)I(k) < I(i):
+	newval = k+j
+	if newval>=0 :
+		produce I(newval)
+	else:
+		produce 
+
+
+
+decomposition:
+maximum depth: nbValue+1
+
+A(i) :
+	if i>0:
+		produce I(1)A(i-1)
+	else:
+		#backward()
+		produce
+
+homomorphism:
+
+
+I(i) :
+	produce f(1)F(1)[+(135);(4)f(sqrt(2.0)*0.5);(2)@L(str(i))]F(5)
+###### INITIALISATION ######
+
+__copyright__ = """opensource GPL"""
+__description__ = """Change I(j)I(k) < I(i) to use Fast Information Transfer"""
+__institutes__ = """INRIA-CIRAD V.Plants"""
+__authors__ = """F.Boudon, C.Godin"""

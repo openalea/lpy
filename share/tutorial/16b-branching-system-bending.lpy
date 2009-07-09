@@ -1,0 +1,196 @@
+from math import sqrt, pi, degrees
+from openalea.plantgl.math import *
+from copy import deepcopy
+
+N = 10              # initial number of segments in the stem
+S_LEN   = 0.1        # in m
+S_DIAM  = 0.01       # in m
+RELAX = 0.3          # relax factor for convergence
+WoodDensity = 1000   # volumic mass of wood = 0.8 kg/L
+Gravity = Vector3(0,0,-10.0)  # in N/Kg
+YoungModElasticity = 5 *10.**8   # Ex: Mapple = 10000 MPa
+
+error = 0
+eps = 0.1
+Forward,Backward,Growth=range(3)
+mode = Forward   # can be one of FORWARD, BACKWARD, GROWTH
+
+derivlen = 200
+
+Heliotropism = Vector3(0,0,1) 
+
+class SegmentData:
+  "data associated with a segment"
+
+  def __init__(self):
+    self.len = S_LEN
+    self.diam = S_DIAM
+    self.H = Vector3(0,1,0) # Head direction of the segment
+    self.cummass = 0 # cumulated mass borne by the distal part of the segment
+    self.cumtorque=Vector3() # cumulated torque due to the segments borne by the distal part of the segment
+
+  def getMass(self):
+    return self.len*pi*(self.diam**2)/4*WoodDensity
+  mass = property(getMass)
+
+  def getMomentOfInertia(self):
+    return pi * self.diam**4 / 64 # for a disc 
+  momentOfInertia = property(getMomentOfInertia)
+
+  def getRigidity(self):
+    return YoungModElasticity * self.momentOfInertia
+  rigidity = property(getRigidity)
+  def __repr__(self):
+    return ''
+
+def setMode(m):
+  global mode
+  mode = m
+  # print "mode = ", mode
+  if m == Forward : forward()
+  elif m == Backward: backward()
+  elif m == Growth : forward()
+  else: print "UNKNOWN MODE !!! "
+
+def isFORWARD(): 
+  global mode
+  return mode == Forward
+def isBACKWARD(): 
+  global mode
+  return mode == Backward
+def isGROWTH(): 
+  global mode
+  return mode == Growth
+
+def Start():
+  setMode(Growth)
+
+def StartEach ():
+  global error 
+  # print "*** derivationstep = ", derivationstep
+  error = 0
+
+def EndEach ():
+  global error, mode, eps
+  if mode == Growth:
+    setMode(Backward)
+  elif mode == Backward : 
+    setMode(Forward)
+  elif mode == Forward and error >= eps : 
+    print ">>> mean error = ", error
+    setMode(Backward)
+  elif mode == Forward: 
+    print "EQUILIBRIUM REACHED: mean error = ", error, " < ", eps
+    setMode(Growth)
+
+Axiom: T(SegmentData())B(N)[+(30)B(N)[+(30)B(N)A]B(N/2)A]B(N)A
+derivation length: derivlen
+
+production:
+
+S(a) >> S(b):
+  if isBACKWARD():
+    a.cummass = a.mass + b.cummass
+    segvec =  b.H * b.len
+    weightvec =  Gravity * b.cummass
+    a.cumtorque = b.cumtorque + (segvec ^ weightvec)
+    produce S(a)
+
+S(a) >> [+(angle)S(c)]S(b):
+  if isBACKWARD():
+    a.cummass = a.mass + b.cummass + c.cummass
+    segvecb =  b.H * b.len
+    segvecc =  c.H * b.len
+    weightvecb =  Gravity * b.cummass
+    weightvecc =  Gravity * c.cummass
+    a.cumtorque = b.cumtorque + (segvecb ^ weightvecb)+ c.cumtorque + (segvecc ^ weightvecc)
+    produce S(a)
+
+T(a) >> S(b):
+  if isBACKWARD():
+    a.cummass = a.mass + b.cummass
+    segvec =  b.H * b.len
+    weightvec =  Gravity * b.cummass
+    a.cumtorque = b.cumtorque + (segvec ^ weightvec)
+    produce T(a)
+
+S(a) >> A:
+  if isBACKWARD():
+    a.cummass = a.mass
+    a.cumtorque = Vector3(0,0,0)
+    produce S(a)
+
+S(c) << S(a):
+  if isFORWARD():
+    global error 
+    curvature = c.cumtorque * (1/a.rigidity)
+    rot = Matrix3.axisRotation((1,0,0),curvature[0]*a.len)
+    newH = rot * c.H
+    diff = newH - a.H
+    error += norm(diff)
+    v = a.H + diff * RELAX
+    a.H = v / norm(v)
+    produce S(a)
+
+S(c)+(angle) << S(a):
+  if isFORWARD():
+    global error 
+    curvature = c.cumtorque * (1/a.rigidity)
+    rota = Matrix3.axisRotation((1,0,0),curvature[0]*a.len+angle)
+    newH = rot * c.H
+    diff = newH - a.H
+    error += norm(diff)
+    v = a.H + diff * RELAX
+    a.H = v / norm(v)
+    produce S(a)
+
+T(c) << S(a):
+  if isFORWARD():
+    global error 
+    curvature = c.cumtorque * (1/a.rigidity)
+    rot = Matrix3.axisRotation((1,0,0),curvature[0]*a.len)
+    newH = rot * c.H
+    diff = newH - a.H
+    error += norm(diff)
+    v = a.H + diff * RELAX
+    a.H = v / norm(v)
+    produce S(a)
+
+S(a) < A:
+  if isGROWTH():
+    print "GROWTH ------------------ GROWTH"
+    produce S(deepcopy(a)) A
+
+decomposition:
+maximum depth: 100
+
+B(n) :
+  if n>0:
+    produce S(SegmentData())B(n-1)
+
+homomorphism:
+
+T(c):
+  produce _(S_DIAM*1.4)F(S_LEN*12)
+
+T(c)<S(a):
+  alpha = degrees(angle(Vector3(0,1,0),a.H,(1,0,0)))
+  produce -(90)+(alpha)f(0.1*a.len)_(a.diam)F(0.9*a.len)
+
+S(c)<S(a) :
+  alpha = degrees(angle(c.H,a.H,(1,0,0)))
+  produce +(alpha)f(0.1*a.len)_(a.diam)F(0.9*a.len)
+
+S(c)+(angle)<S(a) :
+  alpha = degrees(angle(c.H,a.H,(1,0,0)))
+  produce +(alpha)f(0.1*a.len)_(a.diam)F(0.9*a.len)
+
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	from openalea.plantgl.all import Material,Color3
+	context.turtle.setMaterial(4,Material('Yellow',Color3(0,0,50),3.6,Color3(40,40,40),Color3(0,0,0),1,0))
+__copyright__ = 'open-source GPL'
+__references__ = '1. Jirasek, C., Prusinkiewicz, P., Moulia, B. Integrating biomechanics into developmental plant models expressed using L-systems. Proc. 3rd Biomechanics conf. Plant biomechanics 2000. P615-624.\n2. Prusinkiewicz, P., Karwowski, R, Lane, B. The L+C modelling language.J. Vos et al. Eds, Springer, p27-42, 2007\n3. Costes et al. MappleT: Simulation of apple tree development using mixed statistical and biomechanical model. FSPM07.'
+__institutes__ = 'INRIA - CIRAD Virtual Plants'
+__authors__ = 'C. Godin, F. Boudon'

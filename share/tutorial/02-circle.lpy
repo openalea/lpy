@@ -1,0 +1,29 @@
+r = 1.
+N = 100
+
+dalpha = 360./N
+dl = dalpha*r
+
+Axiom: C(N)
+
+derivation length: 1
+
+production:
+
+decomposition:
+maximum depth: N
+
+C(n): 
+  if n >= 0 : produce S(dl)C(n-1)
+
+homomorphism:
+
+S(dl) : produce _(2)-(dalpha)F(dl)
+
+endlsystem
+###### INITIALISATION ######
+
+__copyright__ = 'open-source GPL'
+__description__ = '- change the number of sides of the polygon\n\n- compute the length of the polygone using production rules\n'
+__institutes__ = 'INRIA - CIRAD Virtual Plants'
+__authors__ = 'C. Godin, F. Boudon'

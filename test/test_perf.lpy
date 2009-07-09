@@ -1,0 +1,26 @@
+Axiom: A
+
+from time import clock
+timer = 0
+
+def Start():
+  global timer
+  timer = clock()
+
+def End():
+  print 'time=',clock()-timer
+
+
+derivation length: 100
+production:
+
+A : @static
+  for i in xrange(1000):
+    nproduce BC(0)C(0)C(0)C(0)C(0)C(0)C(0)C(0)C(0)C(0)C(0)C(0)C(0)C(0)C(0)C(0)C(0)C(0)C(0)C(0)
+
+C(0) -static-> C(0)
+
+homomorphism:
+
+
+endlsystem

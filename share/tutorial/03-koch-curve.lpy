@@ -1,0 +1,18 @@
+Axiom: _(0.001)-(90)F(1)
+derivation length: 5
+
+production: 
+
+F(x) :
+  produce  F(x/3.0)+F(x/3.0)--F(x/3.0)+F(x/3.0)
+
+
+endlsystem
+###### INITIALISATION ######
+
+__copyright__ = """open-source GPL"""
+__description__ = """- start from an axiom representing a triangle with equal side lengths
+
+- try other fractal rules"""
+__institutes__ = """INRIA - CIRAD Virtual Plants"""
+__authors__ = """C. Godin, F. Boudon"""

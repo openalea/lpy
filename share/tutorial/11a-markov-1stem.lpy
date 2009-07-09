@@ -1,0 +1,47 @@
+from random import *
+p1 = 0.750000 # probability of staying in a branched node
+p2 = 0.750000 # probability of staying in an empty node
+m = 0
+
+
+Axiom: _(1)S(1)
+derivation length: 100
+
+# A = branching state
+# B = non-branching state 
+
+def Start():
+	global m
+	m = 0
+
+production:
+
+S(x) :
+	if random() <= 0.5: produce A(x)
+	else: produce B(x)
+
+A(x) : 
+	if random() <= p1: produce I[M(x)]A(1-x)
+	else: produce IB(1-x)
+
+B(x) :
+	if random() <= p2: produce IB(1-x)
+	else: produce I[M(x)]A(1-x)
+
+homomorphism:
+
+M(x) : 
+	if x==0 :   produce ;(2)+F(20)
+	elif x==1 : produce ;(2)-F(20)
+
+I    : produce ;(1)F(2)
+A(x) : produce ;(1)@O(3)
+B(x) : produce ;(2)@O(3)
+
+endlsystem
+###### INITIALISATION ######
+
+__copyright__ = 'open-source GPL'
+__description__ = '- give different values to the probabilities p1 and p2 to observe different types of branching\n\n'
+__institutes__ = 'INRIA - CIRAD Virtual Plants'
+__authors__ = 'C. Godin, F. Boudon'
