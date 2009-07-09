@@ -3,7 +3,7 @@ import os, glob
 
 def get_share_examples():
     d = os.path.os.path.dirname(__file__)
-    sharepath = os.path.join(d,os.path.pardir,'share')
+    sharepath = os.path.join(d,os.path.pardir,'share','examples')
 
     lpyfiles = glob.glob(os.path.join(sharepath,'*.lpy'))
     return lpyfiles
