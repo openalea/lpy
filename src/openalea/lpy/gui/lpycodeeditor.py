@@ -54,8 +54,7 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
         self.exprules.append((QRegExp('\d+(\.\d+)?(e[\+\-]?\d+)?'),0,self.numberFormat,0))        
         self.commentFormat = QTextCharFormat()
         self.commentFormat.setForeground(Qt.darkGreen)
-        self.lsysruleExp = QRegExp('.+:')
-        self.lsysruleExp2 = QRegExp('.+\-\->')
+        self.lsysruleExp = [QRegExp('.+:'),QRegExp('.+\-\->'), QRegExp('.+\-static\->')]
         self.commentExp = QRegExp('#.+$')
         self.ruleCommentExp = QRegExp('[ \t]+#.+$')
         self.setCurrentBlockState(0)
@@ -83,15 +82,12 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
                 self.setFormat(i, 1, self.delimiterFormat)
         if self.currentBlockState() == 1:
             if lentxt > 0 and not str(text[0].toAscii()) in " \t":
-                index = self.lsysruleExp.indexIn(text)
-                if index >= 0:
-                    length = self.lsysruleExp.matchedLength()
-                    self.setFormat(index, length, self.prodFormat)
-                else:
-                    index = self.lsysruleExp2.indexIn(text)
+                for ruleExp in self.lsysruleExp:
+                    index = ruleExp.indexIn(text)
                     if index >= 0:
-                        length = self.lsysruleExp2.matchedLength()
+                        length = ruleExp.matchedLength()
                         self.setFormat(index, length, self.prodFormat)
+                        break
         for rule in self.rules:
             expression = rule[0]
             index = expression.indexIn(text)

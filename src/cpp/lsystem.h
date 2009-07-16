@@ -40,10 +40,6 @@ LPY_BEGIN_NAMESPACE
 
 #define MULTI_THREADED_LSYSTEM
 
-/*---------------------------------------------------------------------------*/
-
-typedef std::vector<LsysRule> RuleSet;
-typedef std::vector<const LsysRule *> RulePtrSet;
 
 /*---------------------------------------------------------------------------*/
 
@@ -74,7 +70,7 @@ public:
 
   /** print */
   std::string str() const ;
-  std::string code() const;
+  std::string code() ;
 
   /** compile */
   bool compiled();
@@ -211,25 +207,25 @@ protected:
                       bool previouslyinterpreted = false);
 
  AxialTree __step(AxialTree& workingstring,
-				   const RulePtrSet& ruleset,
+				   const RulePtrMap& ruleset,
 				   bool query,bool& matching,
                    eDirection direction);
  void __clear();
 
  AxialTree __stepWithMatching(AxialTree& workingstring,
-				              const RulePtrSet& ruleset,
+				              const RulePtrMap& ruleset,
 				              bool query,
                               StringMatching& matching);
  AxialTree __recursiveSteps(AxialTree& workingstring,
-				            const RulePtrSet& ruleset, 
+				            const RulePtrMap& ruleset, 
                             size_t maxdepth);
 
  void __recursiveInterpretation(AxialTree& workingstring,
-				                const RulePtrSet& ruleset,
+				                const RulePtrMap& ruleset,
                                 PGL::Turtle& turtle,
                                 size_t maxdepth, bool withid = true);
 
- RulePtrSet __getRules(eRuleType type, size_t group, eDirection direction, bool * hasQuery = NULL);
+ RulePtrMap __getRules(eRuleType type, size_t group, eDirection direction, bool * hasQuery = NULL);
 
   AxialTree __axiom;
   RuleGroupList __rules;

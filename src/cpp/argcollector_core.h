@@ -50,7 +50,15 @@ public:
 		value += elements;
 	}
 
+	static inline void append_as_arg(element_type& value, const element_type& elements){
+		value.append(elements);
+	}
+
 	static inline void append_arg(element_type&  value, const bp::object& element){
+		value.append(element);
+	}
+
+	static inline void append_arg_ref(element_type&  value, const bp::object& element){
 		value.append(element);
 	}
 
@@ -91,7 +99,15 @@ public:
 		value.insert(value.end(),elements.begin(),elements.end());
 	}
 
+	static inline void append_as_arg(element_type& value, const element_type& elements){
+		value.push_back(boost::python::object(elements));
+	}
+
 	static inline void append_arg(element_type&  value, const bp::object& element){
+		value.push_back(element);
+	}
+
+	static inline void append_arg_ref(element_type&  value, const bp::object& element){
 		value.push_back(element);
 	}
 
@@ -123,9 +139,59 @@ public:
 
 };
 
-inline size_t len( const std::vector<bp::object>& obj ) { return obj.size(); }
+
+template <>
+struct ArgListCollector<ArgRefList> {
+public:
+	typedef ArgRefList element_type;
+	static inline void append_args(element_type& value, const element_type& elements){
+		value.append(elements);
+	}
+
+	static inline void append_as_arg(element_type& value, const element_type& elements){
+		value.push_back(elements.toPyList());
+	}
+	static inline void append_arg(element_type&  value, const bp::object& element){
+		value.push_back(element);
+	}
+
+	static inline void append_arg_ref(element_type&  value, const bp::object& element){
+		value.push_back_ref(element);
+	}
+
+
+	static inline void append_n_arg(element_type&  value, size_t n, const bp::object& element){
+		for(size_t i = 0; i < n; ++i)
+			value.push_back(element);
+	}
+
+	static inline void prepend_args(element_type& value, element_type& elements){
+		value.prepend(elements);
+	}
+
+	static element_type fusion_args(const std::vector<element_type>& values){
+		element_type res;
+		if(!values.empty()){
+			size_t nbvar = values[0].size();
+			for(size_t i = 0; i < nbvar; ++i){
+				bp::list resi;
+				for(std::vector<element_type>::const_iterator it = values.begin(); it != values.end(); ++it)
+					resi.append((*it)[i]);
+				res.push_back(boost::python::object(resi));
+			}
+		}
+		return res;
+	}
+	static inline void append_modargs(element_type&  value, const ParamModule::ParameterList& elements){
+		for(ParamModule::ParameterList::const_iterator it = elements.begin(); it != elements.end(); ++it)
+			value.push_back_ref(*it);
+	}
+
+};
+
 
 typedef ArgListCollector<ArgList> ArgsCollector; 
+
 
 /*---------------------------------------------------------------------------*/
 

@@ -95,15 +95,27 @@ bool applyTo(LsysRule * rule,AxialTree& tree,  ArgList args) {
 }
 
 object call(LsysRule * rule) {
-  object res = rule->apply();
-  if(res == object())return res;
-  else return res;
+  bool success;
+  AxialTree res = rule->apply(&success);
+  if(!success)return object();
+  else return object(res);
 }
 
-object call(LsysRule * rule,ArgList args) {
-  object res = rule->apply(args);
-  if(res == object())return res;
-  else return res;
+object call_with_args(LsysRule * rule, boost::python::list pyargs) {
+  bool success;
+  ArgList args;
+  object iter_obj = object( handle<>( PyObject_GetIter( pyargs.ptr() ) ) );
+  while( true )
+  {
+	 object obj;
+     try {  obj = iter_obj.attr( "next" )(); }
+     catch( error_already_set ){  PyErr_Clear(); break; }
+	 args.push_back(obj);
+  }
+  printf("%i\n",args.size());
+  AxialTree res = rule->apply(args,&success);
+  if(!success)return object();
+  else return object(res);
 }
 
 
@@ -125,7 +137,7 @@ std::string py_str_ag(const ArgList * obj) {
 
 void export_LsysRule(){
 
-#ifndef USE_PYTHON_LIST_COLLECTOR
+#ifdef USE_OBJECTVEC_COLLECTOR
   class_<ArgList>
 	  ("ArgList", init<optional<size_t,bp::object> >("ArgList(size,obj)"))
         .def(vector_indexing_suite<ArgList,true>())
@@ -139,9 +151,8 @@ void export_LsysRule(){
 	("LsysRule", init<optional<size_t,size_t,char> >("LsysRule(id,group,prefix)"))
 	.def("__str__", &LsysRule::str)
 	//.def("__repr__", &LsysRule::str)
-	.def("__call__", (object(*)(LsysRule *) )&call)
-	.def("__call__", (object(*)(LsysRule *,ArgList) )&call)
-	// .def("__call__", (object(*)(LsysRule *,const tuple&))&call)
+	.def("__call__", &call)
+	.def("__call__", &call_with_args)
 	.add_property("id",&LsysRule::getId,&LsysRule::setId)
 	.add_property("id",&LsysRule::getGroupId,&LsysRule::setGroupId)
 	.add_property("lineno",make_getter(&LsysRule::lineno))

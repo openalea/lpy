@@ -116,8 +116,12 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				InlineFunctionExpansion="2"
+				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="../cpp;$(BOOSTDIR);C:\Python25\include;&quot;..\..\..\PlantGL\src\cpp&quot;;$(QTDIR)\include"
 				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
+				FloatingPointModel="2"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="0"

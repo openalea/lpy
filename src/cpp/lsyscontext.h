@@ -33,6 +33,7 @@
 
 #include "axialtree.h"
 #include "lsysoptions.h"
+#include "paramproduction.h"
 #include <plantgl/algo/modelling/pglturtle.h>
 #include <plantgl/tool/util_hashset.h>
 #include <QtCore/QReadWriteLock>
@@ -142,20 +143,45 @@ public:
   static void cleanContexts();
 
   /** control of the direction of next iteration */
-  void backward() { __direction = eBackward; }
-  void forward() { __direction = eForward; }
-  bool isForward() { return __direction == eForward; }
-  eDirection getDirection() const { return __direction; }
+  inline void backward() { __direction = eBackward; }
+  inline void forward() { __direction = eForward; }
+  inline bool isForward() { return __direction == eForward; }
+  inline eDirection getDirection() const { return __direction; }
 
   /** selection of group of rules */
   void useGroup(size_t gid) { __group = gid; }
   size_t getGroup() const  { return __group; }
 
   /** iterative production */
-  void nproduce(const AxialTree& prod);
-  void nproduce(const boost::python::list& prod);
-  void reset_nproduction();
-  AxialTree get_nproduction() const { return __nproduction; }
+  inline void nproduce(const AxialTree& prod)
+  { __nproduction.append(prod); }
+
+  inline void nproduce(const boost::python::list& prod)
+  { __nproduction.append(AxialTree(prod)); }
+
+  inline void reset_nproduction() { __nproduction.clear(); }
+  inline AxialTree get_nproduction() const { return __nproduction; }
+
+  /** parametric production */
+  inline size_t add_pproduction(const ParametricProduction& pprod)
+  { size_t id = __paramproductions.size(); __paramproductions.push_back(pprod); return id; }
+
+  inline const ParametricProduction& get_pproduction(size_t id) const
+  { lpyassert(id <__paramproductions.size()); return __paramproductions[id]; }
+
+  inline AxialTree generate(size_t pprod_id, const bp::list& args)
+  { lpyassert(pprod_id<__paramproductions.size()); return __paramproductions[pprod_id].generate(args); }
+
+  inline AxialTree generate(const bp::tuple& args)
+  { size_t pprod_id = bp::extract<size_t>(args[0])();
+    lpyassert(pprod_id<__paramproductions.size()); 
+	return __paramproductions[pprod_id].generate(args); }
+
+  inline void pproduce(size_t pprod_id, const bp::list& args)
+  { __nproduction.append(generate(pprod_id,args)); }
+
+  inline void pproduce(const bp::tuple& args)
+  { __nproduction.append(generate(args)); }
 
   /** animation time step property */
   double get_animation_timestep();
@@ -179,7 +205,9 @@ public:
 
   /** module declaration. */
   void declare(const std::string& modules);
-  void declare(ModuleClassPtr module);
+  inline void declare(ModuleClassPtr module)
+  { __modules.push_back(module); }
+
   void undeclare(const std::string& modules);
   void undeclare(ModuleClassPtr module);
   bool isDeclared(const std::string& module);
@@ -194,6 +222,11 @@ public:
   bool return_if_no_matching;
   inline void setReturnIfNoMatching(bool enabled) { return_if_no_matching = enabled; }
 
+  /// optimization level
+  static const int DEFAULT_OPTIMIZATION_LEVEL;
+  int optimizationLevel;
+  inline void setOptimizationLevel(int level) { optimizationLevel = level; }
+  
   /** Iteration number property. Only set by Lsystem. Access by all other. */
 public:
   size_t getIterationNb();
@@ -255,6 +288,9 @@ protected:
 
   size_t __nbargs_of_endeach;
 
+  // list of parametric production
+  ParametricProductionList __paramproductions;
+
 };
 
 /*---------------------------------------------------------------------------*/
@@ -315,19 +351,51 @@ protected:
 
 /*---------------------------------------------------------------------------*/
 
-void LPY_API consider(const std::string& modules);
-void LPY_API ignore(const std::string& modules);
-void LPY_API nproduce(const AxialTree& prod);
-void LPY_API nproduce(const boost::python::list& prod);
-void LPY_API nproduce(const std::string& modules);
-void LPY_API useGroup(size_t gid);
-size_t LPY_API getGroup();
-void LPY_API setSelectionRequired(bool enabled);
-bool LPY_API isSelectionRequired();
-size_t LPY_API getIterationNb();
-void LPY_API declare(const std::string& modules);
-void LPY_API undeclare(const std::string& modules);
-void LPY_API isDeclared(const std::string& module);
+inline void LPY_API consider(const std::string& modules)
+{ LsysContext::currentContext()->consider(modules); }
+
+inline void LPY_API ignore(const std::string& modules)
+{ LsysContext::currentContext()->ignore(modules); }
+
+inline void LPY_API nproduce(const AxialTree& prod)
+{ LsysContext::currentContext()->nproduce(prod); }
+
+inline void LPY_API nproduce(const boost::python::list& prod)
+{ LsysContext::currentContext()->nproduce(prod); }
+
+inline void LPY_API nproduce(const std::string& modules)
+{ LsysContext::currentContext()->nproduce(AxialTree(modules)); }
+
+inline void LPY_API pproduce(size_t id, const boost::python::list& args)
+{ LsysContext::currentContext()->pproduce(id,args); }
+
+inline void LPY_API pproduce(const boost::python::tuple& args)
+{ LsysContext::currentContext()->pproduce(args); }
+
+inline void LPY_API useGroup(size_t gid)
+{ LsysContext::currentContext()->useGroup(gid); }
+
+inline size_t LPY_API getGroup()
+{ return LsysContext::currentContext()->getGroup(); }
+
+inline void LPY_API setSelectionRequired(bool enabled)
+{ LsysContext::currentContext()->setSelectionRequired(enabled); }
+
+inline bool LPY_API isSelectionRequired()
+{ return LsysContext::currentContext()->isSelectionRequired(); }
+
+inline size_t LPY_API getIterationNb()
+{ return LsysContext::currentContext()->getIterationNb(); }
+
+inline void LPY_API declare(const std::string& modules)
+{ LsysContext::currentContext()->declare(modules); }
+
+inline void LPY_API undeclare(const std::string& modules)
+{ LsysContext::currentContext()->undeclare(modules); }
+
+inline void LPY_API isDeclared(const std::string& module)
+{ LsysContext::currentContext()->isDeclared(module); }
+
 
 /*---------------------------------------------------------------------------*/
 

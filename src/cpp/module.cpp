@@ -81,36 +81,9 @@ boost::python::object LPY::getFunctionRepr() { return GlobalContext::getFunction
 
 /*---------------------------------------------------------------------------*/
 
-#include <iostream>
-
-
-#ifdef USE_PARAM_VECTOR
-
-
-ParamModule::ParameterList toParameterList(const boost::python::object& t){
-  ParamModule::ParameterList result;
-  object iter_obj = object( handle<>( PyObject_GetIter( t.ptr() ) ) );
-  try { 
-      while( 1 ) result.push_back(iter_obj.attr( "next" )());
-  }
-  catch( error_already_set ){ PyErr_Clear(); }
-  return result;
-}
-
-boost::python::list toPyList( const ParamModule::ParameterList& t){
-  boost::python::list result;
-  for(ParamModule::ParameterList::const_iterator it = t.begin(); it != t.end(); ++it)
-      result.append(*it);
-  return result;
-}
+// #include <iostream>
 
 #define appendParam(args,p) args.push_back(p)
-
-#else
-#define toParameterList(t) t
-#define toPyList(t) t
-#define appendParam(args,p) args.append(p)
-#endif
 
 /*---------------------------------------------------------------------------*/
 
@@ -144,13 +117,6 @@ void processConstruction(ParamModule& module,
 }
 
 /*---------------------------------------------------------------------------*/
-#ifdef USE_PARAM_SHARED_DATA
-#define ARGHOLDERINIT ,__argholder(new ParamModuleInternal())
-#define COPYARGHOLDERINIT(other) ,__argholder(other.__argholder)
-#else
-#define ARGHOLDERINIT 
-#define COPYARGHOLDERINIT(other) ,__args__(other.__args__)
-#endif
 
 ParamModule::ParamModule():
 BaseType() {}

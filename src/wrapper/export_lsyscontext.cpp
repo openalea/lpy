@@ -32,6 +32,7 @@
 #include "compilation.h"
 #include <boost/python/make_constructor.hpp>
 #include <plantgl/python/export_list.h>
+#include <boost/python/raw_function.hpp>
 
 using namespace boost::python;
 LPY_USING_NAMESPACE
@@ -57,6 +58,10 @@ boost::python::object py_LcInitFrom(LsysContext * c, const std::string& code) {
 	size_t pos = c->initialiseFrom(code);
 	if (pos == std::string::npos) return object();
 	else return object(pos);
+}
+
+boost::python::object py_pproduce(bp::tuple args, bp::dict kw) {
+	pproduce(args); return object();
 }
 
 void export_LsysContext(){
@@ -152,6 +157,7 @@ void export_LsysContext(){
 	def("nproduce",  (void (*)(const AxialTree&) )&nproduce);
     def("nproduce",  (void (*)(const boost::python::list&) )&nproduce);
     def("nproduce",  (void (*)(const std::string&) )&nproduce);
+	def("pproduce",  bp::raw_function(py_pproduce,1));
 	def("useGroup",  &useGroup);
     def("getGroup",  &getGroup);
     def("isSelectionRequired", &isSelectionRequired);
@@ -161,6 +167,7 @@ void export_LsysContext(){
 	def("undeclare", &undeclare);
 	def("isDeclared", &isDeclared);
 
-	def("setCythonAvailable",&Compilation::setCythonAvailable);
+	def("__setCythonAvailable",&Compilation::setCythonAvailable);
+	def("__setPythonExec",&Compilation::setPythonExec);
 
 }

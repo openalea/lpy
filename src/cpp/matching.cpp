@@ -216,7 +216,7 @@ bool MatchingImplementation::module_matching_with_star(const ParamModule& module
 		  ArgList arg;
 		  ArgsCollector::append_arg(arg,boost::python::object(module.name()));
 		  ArgsCollector::append_modargs(arg,module.getParameterList());
-		  ArgsCollector::append_arg(l,boost::python::object(arg));
+		  ArgsCollector::append_as_arg(l,arg);
 		  return true; 
 	  }
 	  else {
@@ -237,7 +237,7 @@ bool MatchingImplementation::module_matching_with_star(const ParamModule& module
 	  ArgsCollector::append_arg(l,boost::python::object(module.name()));
 	  if(s != 2){
 		for(int i = 0; i < s-2; i++)
-		  ArgsCollector::append_arg(l,module.getAt(i));
+		  ArgsCollector::append_arg_ref(l,module.getAt(i));
 		if(s2 > s-2)ArgsCollector::append_arg(l,module.getSlice(s-2,s2));
 		else ArgsCollector::append_arg(l,boost::python::list());
 	  }
@@ -259,7 +259,7 @@ bool MatchingImplementation::module_matching_with_star(const ParamModule& module
 	  }
 	  if(s!=1){
 		for(int i = 0; i < s-1; i++)
-		  ArgsCollector::append_arg(l,module.getAt(i));
+		  ArgsCollector::append_arg_ref(l,module.getAt(i));
 		if(s2 > s-1)ArgsCollector::append_arg(l,module.getSlice(s-1,s2));
 		else ArgsCollector::append_arg(l,boost::python::list());
 	  }
@@ -287,8 +287,8 @@ bool MatchingImplementation::module_matching_with_star_and_valueconstraints(
 				ArgsCollector::append_arg(largs,bp::object(module.name()));
 				ArgsCollector::append_modargs(largs,module.getParameterList()); 
 			}
-			if(v.hasCondition() && !v.isCompatible(bp::object(largs)))return false;
-			if(v.isNamed()) ArgsCollector::append_arg(l,boost::python::object(largs)); 
+			if(v.hasCondition() && !v.isCompatible(toPyList(largs)))return false;
+			if(v.isNamed()) ArgsCollector::append_as_arg(l,largs); 
 			return true; 
 		}
 		else {
@@ -361,7 +361,7 @@ bool MatchingImplementation::module_matching_with_star_and_valueconstraints(
 	  for(size_t i = 1; i < s-1; i++){
 	    const LsysVar& v = pattern.getAt(i);
 	    if(!v.isCompatible(module.getAt(i-1+beg))) return false; 
-		if(v.isNamed())ArgsCollector::append_arg(l,module.getAt(i-1+beg));
+		if(v.isNamed())ArgsCollector::append_arg_ref(l,module.getAt(i-1+beg));
 	  }
 	  if(lastarg)ArgsCollector::append_arg(l,lastargval);
 	  return true;
@@ -401,7 +401,7 @@ bool MatchingImplementation::module_matching_with_star_and_valueconstraints(
 	  for(size_t i = 0; i < s-1; i++){
 		const LsysVar& v = pattern.getAt(i);
 		if(!v.isCompatible(module.getAt(i))) return false; 
-		if(v.isNamed())ArgsCollector::append_arg(l,module.getAt(i));
+		if(v.isNamed())ArgsCollector::append_arg_ref(l,module.getAt(i));
 	  }
 	  if(lastarg)ArgsCollector::append_arg(l,lastargval);
 	}

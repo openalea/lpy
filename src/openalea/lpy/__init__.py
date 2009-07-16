@@ -1,5 +1,6 @@
 from __version__ import *
 from __lpy_kernel__ import *
+ 
 
 def __mod_getattr__(self,name):
     if self.hasParameter(name): return self.getParameter(name)
@@ -15,9 +16,15 @@ ParamModule.__setattr__ = __mod_setattr__
 del __mod_getattr__
 del __mod_setattr__
 
+from __lpy_kernel__ import __setCythonAvailable,__setPythonExec
+
 try:
     import pyximport
     pyximport.install()
-    setCythonAvailable(True)
+    __setCythonAvailable(True)
 except:
-    setCythonAvailable(False)
+    __setCythonAvailable(False)
+
+from sys import executable
+__setPythonExec(executable)
+del executable

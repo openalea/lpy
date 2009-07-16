@@ -68,6 +68,13 @@ public:
 				 int lineno = -1);
 
 
+	static std::string lstring2pyparam(std::string::const_iterator& beg,
+				 std::string::const_iterator endpos,
+				 char delim = '\n',
+				 int lineno = -1,
+				 size_t * pprod_id = NULL);
+
+
 	static std::vector<std::pair<size_t,std::string> > parselstring(
 				 std::string::const_iterator& beg,
 				 std::string::const_iterator endpos,
@@ -136,6 +143,12 @@ public:
 
 	inline static std::pair<std::string,std::string> parse_variable(std::string vardef, int lineno = -1)
 	{ return parse_variable(vardef.begin(),vardef.end(),lineno); }
+
+	static inline bool isAConstant(std::string str) { return isAConstant(str.begin(),str.end()); }
+
+	static bool isAConstant(std::string::const_iterator beg,
+			std::string::const_iterator end);
+
 
 };
 

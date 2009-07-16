@@ -41,38 +41,42 @@ TOOLS_USING_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
-void Compilation::setCythonEnabled(bool enabled) {
-	if (enabled) useCython = cythonAvailable;
-	else useCython = false;
-	if(useCython){
-		generatetmpfile = true;
+void Compilation::setCompiler(eCompiler compiler) {
+	if (cythonAvailable && compiler == eCython) Compiler = eDefaultCompiler;
+	else Compiler = compiler;
+	if(compiler == eCython){
 		tmp_extension = "pyx";
-		reloadenabled = false;
 	}
 	else {
-		generatetmpfile = false;
 		tmp_extension = "py";
-		reloadenabled = true;
 	}
+}
+
+void Compilation::setPythonExec(const std::string& path)
+{
+	python_exec = path;
 }
 
 
 void Compilation::compile(const std::string& code, PyObject * locals, PyObject * globals, const std::string& fname){
 	if(!code.empty()){
-		if(generatetmpfile) py_file_compile(code,fname,locals,globals);
-		else py_compile(code,locals,globals);
+		switch(Compiler){
+			case eCython: pyx_file_compile(code,fname,locals,globals); break;
+			case ePythonFile : py_file_compile(code,fname,locals,globals); break;
+			default:
+			case ePythonStr : py_string_compile(code,locals,globals); break;
+		}
 	}
 }
 
 
-bool Compilation::useCython = false;
+Compilation::eCompiler Compilation::Compiler = Compilation::eDefaultCompiler;
 bool Compilation::cythonAvailable = true;
 
-bool Compilation::generatetmpfile = false;
-bool Compilation::reloadenabled = true;
 std::string Compilation::tmp_extension = "py";
+std::string Compilation::python_exec = "python";
 
-void Compilation::py_compile(const std::string& code, PyObject * globals, PyObject * locals)
+void Compilation::py_string_compile(const std::string& code, PyObject * globals, PyObject * locals)
 {
 	bp::handle<>( PyRun_String(code.c_str(),Py_file_input,globals,locals) );
 }
@@ -85,6 +89,41 @@ std::string Compilation::generate_fname(const std::string& fname)
 	else return fname+number(tmpid);
 }
 
+void Compilation::py_file_write(const std::string& code,
+								const std::string& fname)
+{
+	std::ofstream stream(fname.c_str());
+	stream << "from openalea.lpy import *" << std::endl;
+	stream << code;
+}
+
+void Compilation::py_file_remove(const std::string& fname)
+{
+	remove(fname.c_str());
+}
+
+void Compilation::py_file_import(const std::string& fname, 
+								 PyObject * globals,
+							     PyObject * locals)
+{
+	bp::object module = bp::import(fname.c_str());
+	bp::handle<> moduledict(bp::borrowed(PyModule_GetDict(module.ptr())));
+	if(!moduledict)LsysError("Cannot import module dict");
+	PyDict_Update(locals,moduledict.get());	
+}
+
+void Compilation::pyx_file_compile(const std::string& code,
+								  const std::string& fname, 
+								  PyObject * globals,
+							      PyObject * locals)
+{
+	std::string lfname = generate_fname(fname);
+	std::string clfname = lfname+"."+tmp_extension;
+	py_file_write(code,clfname);
+	py_file_import(lfname,globals,locals);
+	py_file_remove(clfname);
+}
+
 void Compilation::py_file_compile(const std::string& code,
 								  const std::string& fname, 
 								  PyObject * globals,
@@ -92,29 +131,10 @@ void Compilation::py_file_compile(const std::string& code,
 {
 	std::string lfname = generate_fname(fname);
 	std::string clfname = lfname+"."+tmp_extension;
-	{
-		std::ofstream stream(clfname.c_str());
-		stream << "from openalea.lpy import *" << std::endl;
-		stream << code;
-	}
-	bp::object module = bp::import(lfname.c_str());
-	bp::handle<> moduledict(bp::borrowed(PyModule_GetDict(module.ptr())));
-	if(!moduledict)LsysError("Cannot import module dict");
-	PyDict_Update(locals,moduledict.get());
-/*
-#define MAX_FNAME_LENGTH 500
-	assert(fname.size() < MAX_FNAME_LENGTH);
-	char cfname[MAX_FNAME_LENGTH];
-	strcpy(cfname,lfname.c_str());
-	cfname[lfname.size()] = '\0';
-
-	bp::handle<> module (bp::allow_null(PyImport_ImportModuleEx( cfname, globals, locals, NULL)));
-	if(!module)LsysError("Cannot import module "+lfname);
-	bp::handle<> moduledict(bp::allow_null(PyModule_GetDict(module.get())));
-	if(!moduledict)LsysError("Cannot import module dict");
-	PyDict_Update(locals,moduledict.get());
-	*/
-	
+	py_file_write(code,clfname);
+	std::string cmd = python_exec+" -OO "+lfname+".py";
+	system(cmd.c_str());
+	py_file_import(lfname,globals,locals);
+	py_file_remove(clfname);
 }
-
 /*---------------------------------------------------------------------------*/

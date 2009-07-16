@@ -28,12 +28,13 @@
  # ---------------------------------------------------------------------------
  */
 
-#ifndef __PGL_LSYSRULE_H__
-#define __PGL_LSYSRULE_H__
+#ifndef __lpy_lsysrule_h__
+#define __lpy_lsysrule_h__
 
 #include "axialtree.h"
 #include "patternstring.h"
 #include "argcollector.h"
+#include "paramproduction.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -56,8 +57,8 @@ public:
 	inline size_t getGroupId() const { return __gid; }
 	inline void setGroupId(size_t id) { __gid = id; }
 
-	boost::python::object apply() const;
-	boost::python::object apply( const ArgList& args ) const ;
+	AxialTree apply(bool * isApplied = NULL) const;
+	AxialTree apply( const ArgList& args, bool * isApplied = NULL ) const ;
 //	boost::python::object apply( const boost::python::tuple& args ) const;
 
 	bool compiled() const ;
@@ -144,10 +145,13 @@ public:
 	std::string name() const ;
 	std::string uname() const ;
 	
-	std::string getCode() const;
-	std::string getCoreCode() const;
+	std::string getCode() ;
+	std::string getCoreCode() ;
 	std::string getCallerCode() const;
-	
+
+	void setStatic();
+	void keepOnlyRelevantVariables();
+
 	int redundantParameter() const;
 
 	int lineno;
@@ -175,7 +179,31 @@ private:
     void __precall_function( size_t nbargs = 0 ) const;
     void __precall_function( size_t nbargs,  const ArgList& obj ) const;
     boost::python::object __call_function( size_t nbargs,  const ArgList& obj ) const;
-    boost::python::object __postcall_function( boost::python::object ) const;
+    AxialTree __postcall_function( boost::python::object, bool * isApplied = NULL ) const;
+
+};
+
+/*---------------------------------------------------------------------------*/
+
+typedef std::vector<LsysRule> RuleSet;
+typedef std::vector<const LsysRule *> RulePtrSet;
+
+/*---------------------------------------------------------------------------*/
+
+class RulePtrMap {
+public:
+	typedef std::vector<RulePtrSet> RulePtrSetMap;
+
+	RulePtrMap();
+	RulePtrMap(const RulePtrSet& rules);
+
+	inline const RulePtrSet& operator[](size_t id) const { return __map[id]; }
+	inline bool empty() const { return __nbrules == 0; }
+	inline size_t size() const { return __nbrules; }
+
+protected:
+	RulePtrSetMap __map;
+	size_t __nbrules;
 
 };
 

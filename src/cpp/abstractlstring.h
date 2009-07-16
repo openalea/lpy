@@ -384,6 +384,13 @@ public:
         }
     }
   }
+
+  inline const Module& first() const { return __conststring().front(); }
+  inline Module& first() { return __string().front(); }
+
+  inline const Module& last() const { return __conststring().back(); }
+  inline Module& last() { return __string().back(); }
+
 protected:
 	 inline size_t getValidIndex(int i) const {
 		size_t s = size();

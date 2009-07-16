@@ -170,6 +170,20 @@ class LpySimulation:
             option = options[i]
             if option.category != category:
                 category = option.category
+                sc = QStandardItem(category)                
+                sc.setEditable(False)
+                sc.setBackground(QBrush(QColor(172,168,153)))
+                sc.setForeground(QBrush(QColor(255,255,255)))
+                qf = QFont()
+                qf.setBold(True)
+                sc.setFont(qf)
+                self.optionModel.setItem(indexitem, 0, sc)
+                sc = QStandardItem()                
+                sc.setEditable(False)
+                sc.setBackground(QBrush(QColor(172,168,153)))
+                sc.setForeground(QBrush(QColor(255,255,255)))
+                self.optionModel.setItem(indexitem, 1, sc)
+                indexitem += 1             
             si = QStandardItem(option.name)
             si.setToolTip(option.comment)
             si.setEditable(False)

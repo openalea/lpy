@@ -58,7 +58,8 @@ public:
   inline const std::string& name() const {  return __mclass->name; }
   inline void setName(const std::string& c) { __mclass = ModuleClassTable::get().getClass(c); }
   inline bool sameName(const Module& m) const { return __mclass == m.__mclass;  }
-  inline ModuleClassPtr getClass() const { assert(__mclass != NULL); return __mclass; }
+  inline ModuleClassPtr getClass() const { lpyassert(__mclass != NULL); return __mclass; }
+  inline size_t getClassId() const { return getClass()->getId(); }
 
   virtual std::string str() const;
   virtual std::string repr() const;
@@ -128,6 +129,9 @@ public:
 
     inline const ParameterType& getAt(size_t i) const 
 	{ lpyassert(size() > i); return __constargs()[i]; }
+
+    inline ParameterType& getAt(size_t i) 
+	{ lpyassert(size() > i); return __args()[i]; }
 
     inline void setAt(size_t i, const ParameterType& value) 
 	{ lpyassert(size() > i); __args()[i] = value; }
@@ -296,14 +300,10 @@ class PatternModule;
 
 /*---------------------------------------------------------------------------*/
 
-#define USE_PARAM_VECTOR
-#define USE_PARAM_SHARED_DATA
-
-/*---------------------------------------------------------------------------*/
-
-
 class LPY_API ParamModule : public AbstractParamModule<boost::python::object> {
 public:
+  friend class ParametricProduction;
+
   typedef boost::python::object Parameter;
   typedef AbstractParamModule<Parameter> BaseType;
 

@@ -74,6 +74,32 @@ size_t PatternString::getVarNb() const {
   return res;
 }
 
+void PatternString::setUnnamedVariables()
+{
+  for(iterator _it = begin(); _it !=end(); ++_it){
+	_it->setUnnamedVariables();
+  }
+}
+
+void PatternString::setUnnamedVariable(size_t idvar)
+{
+  size_t count = 0;
+  for(iterator _it = begin(); _it !=end(); ++_it){
+	size_t l = _it->getVarNb();
+	if(count + l > idvar) {
+	   _it->setUnnamedVariable(idvar - count);
+	   break;
+	}
+  }
+}
+
+std::vector<size_t> PatternString::getFirstClassId() const
+{
+	if(empty())return std::vector<size_t>();
+	else return getAt(0).getFirstClassId();
+}
+
+
 std::string PatternString::str() const{
   std::string str;
   for(ModuleList::const_iterator _it = const_begin();

@@ -185,46 +185,52 @@ std::string LsysRule::functionName() const {
 std::string LsysRule::callerFunctionName() const { return functionName()+"_caller"; }
 
 std::string 
-LsysRule::getCode() const{
+LsysRule::getCode() {
     return getCoreCode() +getCallerCode();
 }
 
 std::string 
-LsysRule::getCoreCode() const{
+LsysRule::getCoreCode() {
   std::stringstream res;
   int llineno = 0;
-  res << "def " << functionName() << "(";
-  if(!__formalparameters.empty())
-    for(std::vector<std::string>::const_iterator _it = __formalparameters.begin();
-    _it != __formalparameters.end(); ++_it){
-	     if(_it != __formalparameters.begin()) 
-            res << ',';
-	    res << *_it;
-  }
-  res << ") :"; //  #" << name() << "\n";
   std::string definition;
   std::string::const_iterator _beg = __definition.begin();
   std::string::const_iterator _it = _beg;
   while( _it != __definition.end()){
 	if (*_it == '\n') { ++llineno; _it++;}
 	else if (*_it == '#') { while(_it != __definition.end() && *_it != '\n') _it++; }
-	else if (*_it == 'p' && std::distance(_it,__definition.end())> 7){
+	else if (*_it == '-' && std::distance<std::string::const_iterator>(_it,__definition.end())> 3){
+	  if(std::string(_it,_it+3) == "-->"){
+		definition.insert(definition.end(),_beg,_it);
+		_it += 3;
+		size_t pprod_id;
+		definition += "return ";
+		definition += "pproduce";
+		definition += LpyParsing::lstring2pyparam(_it,__definition.end(),'\n',lineno==-1?lineno:lineno+llineno,&pprod_id);
+		_beg = _it;
+		if (LsysContext::current()->optimizationLevel >= 1 &&!LsysContext::current()->get_pproduction(pprod_id).hasArgs()) 
+			setStatic();
+	  }
+	  else _it++;
+	}
+	else if (*_it == 'p' && std::distance<std::string::const_iterator>(_it,__definition.end())> 7){
 	  if(std::string(_it,_it+7) == "produce"){
 		definition.insert(definition.end(),_beg,_it);
 		_it += 7;
 		definition += "return ";
-		definition += LpyParsing::lstring2py(_it,__definition.end(),'\n',lineno==-1?lineno:lineno+llineno);
+		definition += "pproduce";
+		definition += LpyParsing::lstring2pyparam(_it,__definition.end(),'\n',lineno==-1?lineno:lineno+llineno);
 		_beg = _it;
 	  }
 	  else _it++;
 	}
-	else if(*_it == 'n' && std::distance(_it,__definition.end())> 8){
+	else if(*_it == 'n' && std::distance<std::string::const_iterator>(_it,__definition.end())> 8){
 	  if(std::string(_it,_it+8) == "nproduce"){
 		definition.insert(definition.end(),_beg,_it);
 		_it += 8;
-		definition += "nproduce(";
-		definition += LpyParsing::lstring2py(_it,__definition.end(),'\n',lineno==-1?lineno:lineno+llineno);
-        definition += ')';
+		definition += "pproduce";
+		definition += LpyParsing::lstring2pyparam(_it,__definition.end(),'\n',lineno==-1?lineno:lineno+llineno);
+        // definition += ')';
 		_beg = _it;
 	  }
 	  else _it++;
@@ -237,7 +243,31 @@ LsysRule::getCoreCode() const{
 	res << definition;
 	if (*(__definition.end()-1) != '\t' && *(__definition.end()-1) != '\n') res << "\n";
   }
-  return res.str();
+  std::stringstream head;
+  head << "def " << functionName() << "(";
+  if(!__formalparameters.empty())
+    for(std::vector<std::string>::const_iterator _it = __formalparameters.begin();
+    _it != __formalparameters.end(); ++_it){
+	     if(_it != __formalparameters.begin()) 
+            head << ',';
+	    head << *_it;
+  }
+  head << ") :"; //  #" << name() << "\n";
+  return head.str() + res.str();
+}
+
+void LsysRule::setStatic()
+{
+  if(!__isStatic){
+	__isStatic = true;
+	if(!__leftcontext.empty())     __leftcontext.setUnnamedVariables();
+	if(!__newleftcontext.empty())  __newleftcontext.setUnnamedVariables();
+	if(!__predecessor.empty())     __predecessor.setUnnamedVariables();  
+	if(!__newrightcontext.empty()) __newrightcontext.setUnnamedVariables();  
+	if(!__rightcontext.empty())    __rightcontext.setUnnamedVariables();
+	__formalparameters.clear();
+	__nbParams = 0;
+  }
 }
 
 #ifdef USE_PYTHON_LIST_COLLECTOR
@@ -266,11 +296,11 @@ void LsysRule::importPyFunction(){
       // __function = LsysContext::currentContext()->getObject(functionName());
   if(__isStatic){
 	  __isStatic = false;
-	  if(__nbParams==0) __staticResult = extract<AxialTree>(apply())();
+	  if(__nbParams==0) __staticResult = apply();
 	  else {
 		  ArgList args;
 		  for (size_t i =0; i < __nbParams; ++i)args.push_back(object());
-		  __staticResult = extract<AxialTree>(apply(args))();
+		  __staticResult = apply(args);
 	  }
 	  __isStatic = true;
   }
@@ -291,36 +321,39 @@ void LsysRule::__precall_function( size_t nbargs, const ArgList& args ) const
   if (nbargs != __nbParams) {
       std::stringstream res;
       res << name() << " takes exactly " << __nbParams << " argument(s) (" << nbargs << " given).\n"
-		  << bp::extract<std::string>(bp::str(bp::object(args)))();
+		  << bp::extract<std::string>(bp::str(toPyList(args)))();
       LsysError(res.str());
     }
 }
 
 
-boost::python::object LsysRule::__postcall_function( boost::python::object res ) const
+AxialTree LsysRule::__postcall_function( boost::python::object res, bool * isApplied ) const
 {
-  boost::python::object fres;
   if (res == object()) 
   { 
       // no production. look for nproduction
       AxialTree nprod = LsysContext::currentContext()->get_nproduction(); 
-      if (nprod.empty()) return object();
+	  if (nprod.empty()) {
+		  if(isApplied != NULL) *isApplied = false;
+		  return AxialTree();
+	  }
       else { 
-          fres = object(nprod);
+		  if(isApplied != NULL) *isApplied = true;
           LsysContext::currentContext()->reset_nproduction(); // to avoid deep copy
-          return fres;
+          return nprod;
       }
   }
   else {
+	 if(isApplied != NULL) *isApplied = true;
       // production. add nproduction if needed
       AxialTree nprod = LsysContext::currentContext()->get_nproduction(); 
       AxialTree pres = AxialTree(extract<boost::python::list>(res));
       if (!nprod.empty()){
           LsysContext::currentContext()->reset_nproduction(); //  to avoid deep copy
           nprod += pres;
-          return object(nprod);
+          return nprod;
       }
-      else return object(pres);
+      else return pres;
   }
 }
 
@@ -352,29 +385,29 @@ boost::python::object LsysRule::__call_function( size_t nbargs, const ArgList& a
 		case 14: return __function(args[0],args[1],args[2],args[3],args[4],args[5],args[6],args[7],args[8],args[9],args[10],args[11],args[12],args[13]); break;
 		case 15: return __function(args[0],args[1],args[2],args[3],args[4],args[5],args[6],args[7],args[8],args[9],args[10],args[11],args[12],args[13],args[14]); break;
 #endif
-		default: return __function(args); break;
+		default: return __function(toPyList(args)); break;
 	}
 }
 
-object 
-LsysRule::apply( const ArgList& args ) const
+AxialTree 
+LsysRule::apply( const ArgList& args, bool * isApplied ) const
 { 
-  if(__isStatic) return object(__staticResult);
+  if(__isStatic) return __staticResult;
   if (!compiled()) LsysError("Python code of rule not compiled");
   size_t argsize = len(args);
   __precall_function(argsize,args);
-  return __postcall_function(__call_function(argsize,args)); 
+  return __postcall_function(__call_function(argsize,args),isApplied); 
 }
 
 
 
-object 
-LsysRule::apply( ) const
+AxialTree 
+LsysRule::apply( bool * isApplied ) const
 { 
-  if(__isStatic) return object(__staticResult);
+  if(__isStatic) return __staticResult;
   if (!compiled()) LsysError("Python code of rule not compiled");
   __precall_function();
-  return __postcall_function(__function()); 
+  return __postcall_function(__function(),isApplied); 
 }
 
 template<class T>
@@ -412,7 +445,52 @@ LsysRule::redundantParameter() const {
     };
     return -1;
 }
-        
+
+inline bool isAlNum_(char c) { return isalnum(c) || c == '_'; }
+
+void LsysRule::keepOnlyRelevantVariables()
+{
+	std::vector<PatternString*> pstrings;
+	pstrings.push_back(&__leftcontext); 
+	pstrings.push_back(&__newleftcontext); 
+	pstrings.push_back(&__predecessor); 
+	pstrings.push_back(&__newrightcontext); 
+	pstrings.push_back(&__rightcontext); 
+	for(std::vector<PatternString*>::const_iterator itS = pstrings.begin(); 
+		itS != pstrings.end(); ++itS)
+	{
+		std::vector<std::string> varnames =  (*itS)->getVarNames();
+		std::vector<size_t> toRemove;
+		for(std::vector<std::string>::const_iterator it = varnames.begin(); 
+			it != varnames.end(); ++it)
+		{	  
+			size_t pos = 0;
+			bool found = false;
+			while (pos != std::string::npos){
+				if ((pos = __definition.find(*it,pos)) != std::string::npos ){
+					size_t endpos = pos + it->size();
+					if( (pos == 0 || !isAlNum_(__definition[pos-1])) && 
+					    (endpos == __definition.size() || !isAlNum_(__definition[endpos]))){
+						found = true;
+						break;
+					}
+					else { 
+						pos+=1;
+					}
+				}
+			}
+			if(!found) {
+				toRemove.push_back(std::distance<std::vector<std::string>::const_iterator>(varnames.begin(),it));
+			}
+		}
+		for(std::vector<size_t>::const_reverse_iterator itR = toRemove.rbegin(); 
+			itR != toRemove.rend(); ++itR){
+				(*itS)->setUnnamedVariable(*itR);
+		}
+
+	}
+}
+
 /*---------------------------------------------------------------------------*/
 
 bool
@@ -491,9 +569,9 @@ LsysRule::applyTo( AxialTree& dest,
    AxialTree prod;
    if(__isStatic) prod = __staticResult;
    else {
-	object result = apply(args);
-	if(result == object())return false;
-	else prod = extract<AxialTree>(result)();
+	bool success = false;
+	prod = apply(args,&success);
+	if(!success)return false;
    }
    ModuleClassPtr cl;
    if (!prod.empty() && ((cl=prod[0].getClass()) == ModuleClass::Star || cl == ModuleClass::None)){ 
@@ -523,4 +601,26 @@ LsysRule::process( const AxialTree& src ) const {
   return dest;
 }
 
+/*---------------------------------------------------------------------------*/
+
+RulePtrMap::RulePtrMap(const RulePtrSet& rules):
+	__map(ModuleClass::getMaxId()), __nbrules(rules.size())
+{
+	
+	for(RulePtrSet::const_iterator it = rules.begin(); it != rules.end(); ++it){
+		std::vector<size_t> ids = (*it)->predecessor().getFirstClassId();
+		for(std::vector<size_t>::const_iterator itid = ids.begin(); itid != ids.end(); ++itid){
+			if(*itid == ModuleClass::Star->getId()){
+				for(RulePtrSetMap::iterator itmap = __map.begin(); itmap != __map.end(); ++itmap)
+					itmap->push_back(*it);
+			}
+			else __map[*itid].push_back(*it);
+		}
+	}
+}
+
+RulePtrMap::RulePtrMap():
+	__map(ModuleClass::getMaxId()), __nbrules(0)
+{
+}
 /*---------------------------------------------------------------------------*/

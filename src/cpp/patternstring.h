@@ -54,6 +54,9 @@ public:
   // Get the list of all variables used
   std::vector<std::string> getVarNames() const;
   size_t getVarNb() const;
+  void setUnnamedVariables();
+  void setUnnamedVariable(size_t);
+  std::vector<size_t> getFirstClassId() const;
 
   std::string str() const;
   std::string repr() const;

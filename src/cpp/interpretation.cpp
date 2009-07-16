@@ -82,7 +82,7 @@ std::string LPY::helpTurtle() {
 	for(ModuleClassList::const_iterator it = pf.begin(); it != pf.end(); ++it) 
 	{
 	  const ModuleClassPtr& m = *it;
-	  if (m == ModuleClass::None) continue;
+	  // if (m == ModuleClass::None) continue;
 	  PredefinedModuleClass::eCategory ccat = static_pointer_cast<PredefinedModuleClass>(m)->getCategory();
 	  if(ccat != pcat){
 		  stream << PredefinedModuleClass::getCategoryName(ccat) << std::endl;

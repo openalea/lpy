@@ -48,6 +48,7 @@ const std::string LsysContext::DecompositionMaxDepthVariable("__decomposition_ma
 const std::string LsysContext::HomomorphismMaxDepthVariable("__homomorphism_max_depth__");
 
 double LsysContext::DefaultAnimationTimeStep(0.05);
+const int LsysContext::DEFAULT_OPTIMIZATION_LEVEL(1);
 /*---------------------------------------------------------------------------*/
 
 bool Module::isConsidered() const
@@ -207,9 +208,11 @@ __group(0),
 __selection_required(false),
 __warn_with_sharp_module(true),
 return_if_no_matching(true),
+optimizationLevel(DEFAULT_OPTIMIZATION_LEVEL),
 __animation_step(DefaultAnimationTimeStep),
 __iteration_nb(0),
-__nbargs_of_endeach(0)
+__nbargs_of_endeach(0),
+__paramproductions()
 {
 	IncTracker(LsysContext)
 	init_options();
@@ -223,9 +226,12 @@ LsysContext::LsysContext(const LsysContext& lsys):
   __nproduction(lsys.__nproduction),
   __selection_required(lsys.__selection_required),
   __warn_with_sharp_module(lsys.__warn_with_sharp_module),
+  return_if_no_matching(lsys.return_if_no_matching),
+  optimizationLevel(lsys.optimizationLevel),
   __animation_step(lsys.__animation_step),
   __iteration_nb(0),
-  __nbargs_of_endeach(0)
+  __nbargs_of_endeach(0),
+  __paramproductions()
 {
 	IncTracker(LsysContext)
 	init_options();
@@ -241,8 +247,11 @@ LsysContext::operator=(const LsysContext& lsys)
   __nproduction = lsys.__nproduction;
   __selection_required = lsys.__selection_required;
   __warn_with_sharp_module = lsys.__warn_with_sharp_module;
+  return_if_no_matching = lsys.return_if_no_matching;
+  optimizationLevel = lsys.optimizationLevel;
   __animation_step =lsys.__animation_step;
   __nbargs_of_endeach =lsys.__nbargs_of_endeach;
+  __paramproductions = lsys.__paramproductions;
   return *this;
 }
 
@@ -255,27 +264,31 @@ LsysContext::~LsysContext()
 void LsysContext::init_options()
 {
 	LsysOption* option;
-	/** Warning with sharp module option */
-	option = options.add("Warning with sharp module","Set whether a warning is made when sharp symbol is met when parsing (compatibility with cpfg).","Parsing");
-	option->addValue("Disabled",this,&LsysContext::setWarnWithSharpModule,false,"Disable Warning.");
-	option->addValue("Enabled",this,&LsysContext::setWarnWithSharpModule,true,"Enable Warning.");
-	option->setDefault(1);	
-	/** early return when no matching option */
-	option = options.add("Early return when no matching","Set whether the L-systems end prematurely if no matching has occured in the last iteration.","Processing");
-	option->addValue("Disabled",this,&LsysContext::setReturnIfNoMatching,false,"Disable early return.");
-	option->addValue("Enabled",this,&LsysContext::setReturnIfNoMatching,true,"Enable early return.");
-	option->setDefault(1);	
-	/** selection required option */
-	option = options.add("Selection Required","Set whether selection check in GUI is required or not. Selection is then transform in X module in the Lstring.","Interaction");
-	option->addValue("Disabled",this,&LsysContext::setSelectionRequired,false,"Disable Selection Check.");
-	option->addValue("Enabled",this,&LsysContext::setSelectionRequired,true,"Enable Selection Check.");
-	option->setDefault(0);
 	/** module declaration option */
-	option = options.add("Module declaration","Specify if module declaration is mandatory.","Module");
+	option = options.add("Module declaration","Specify if module declaration is mandatory.","Compilation");
 	option->addValue("On the fly",&ModuleClassTable::setMandatoryDeclaration,false,"Module declaration is made on the fly when parsing string.");
 	option->addValue("Mandatory",&ModuleClassTable::setMandatoryDeclaration,true,"Module declaration is mandatory before use in string.");
 	option->setDefault(0);
 	option->setGlobal(true);
+	/** Warning with sharp module option */
+	option = options.add("Warning with sharp module","Set whether a warning is made when sharp symbol is met when parsing (compatibility with cpfg).","Compilation");
+	option->addValue("Disabled",this,&LsysContext::setWarnWithSharpModule,false,"Disable Warning.");
+	option->addValue("Enabled",this,&LsysContext::setWarnWithSharpModule,true,"Enable Warning.");
+	option->setDefault(1);	
+	/** compiler option */
+	option = options.add("Compiler","Specify the compiler to use","Compilation");
+	option->addValue("Python",&Compilation::setCompiler,Compilation::ePythonStr,"Use python compiler.");
+	option->addValue("Python -OO",&Compilation::setCompiler,Compilation::ePythonFile,"Use python compiler.");
+	if(Compilation::isCythonAvailable())
+		option->addValue("Cython",&Compilation::setCompiler,Compilation::eCython,"Use Cython compiler.");
+	option->setDefault(Compilation::eDefaultCompiler);
+	option->setGlobal(true);
+	/** optimization option */
+	option = options.add("Optimization","Specify the level of optimization to use","Compilation");
+	option->addValue("Level 0",this,&LsysContext::setOptimizationLevel,0,"Use Level 0.");
+	option->addValue("Level 1",this,&LsysContext::setOptimizationLevel,1,"Use Level 1.");
+	option->addValue("Level 2",this,&LsysContext::setOptimizationLevel,2,"Use Level 2.");
+	option->setDefault(DEFAULT_OPTIMIZATION_LEVEL);
 	/** module matching option */
 	option = options.add("Module matching","Specify the way modules are matched to rules pattern","Matching");
 	option->addValue("Simple",&MatchingEngine::setModuleMatchingMethod,MatchingEngine::eMSimple,"Simple module matching : Same name and same number of arguments . '*' module allowed.");
@@ -291,12 +304,16 @@ void LsysContext::init_options()
 	option->addValue("As Multiscale AxialTree",&MatchingEngine::setStringMatchingMethod,MatchingEngine::eMScaleAxialTree,"String is considered as a multi scale axial tree and some modules can be skipped according to module scale.");
 	option->setDefault(MatchingEngine::eDefaultStringMatching);
 	option->setGlobal(true);
-	/** compiler option */
-	option = options.add("Compiler","Specify the compiler to use","Compilation");
-	option->addValue("Python",&Compilation::setCythonEnabled,false,"Use python compiler.");
-	option->addValue("Cython",&Compilation::setCythonEnabled,true,"Use Cython compiler.");
-	option->setDefault(false);
-	option->setGlobal(true);
+	/** early return when no matching option */
+	option = options.add("Early return when no matching","Set whether the L-systems end prematurely if no matching has occured in the last iteration.","Processing");
+	option->addValue("Disabled",this,&LsysContext::setReturnIfNoMatching,false,"Disable early return.");
+	option->addValue("Enabled",this,&LsysContext::setReturnIfNoMatching,true,"Enable early return.");
+	option->setDefault(1);	
+	/** selection required option */
+	option = options.add("Selection Required","Set whether selection check in GUI is required or not. Selection is then transform in X module in the Lstring.","Interaction");
+	option->addValue("Disabled",this,&LsysContext::setSelectionRequired,false,"Disable Selection Check.");
+	option->addValue("Enabled",this,&LsysContext::setSelectionRequired,true,"Enable Selection Check.");
+	option->setDefault(0);
 }
 
 void 
@@ -311,6 +328,7 @@ LsysContext::clear(){
   __modules.clear();
   __modulesvtables.clear();
   __aliases.clear();
+  __paramproductions.clear();
   clearNamespace();
 }
 
@@ -375,14 +393,6 @@ LsysContext::isIgnored(const Module& module) const{
   else return _it == __keyword.end();
 }
 
-void 
-LPY::consider(const std::string& modules)
-{ LsysContext::currentContext()->consider(modules); }
-
-void 
-LPY::ignore(const std::string& modules)
-{ LsysContext::currentContext()->ignore(modules); }
-
 std::string
 LsysContext::keyword() const{
   if(__keyword.empty())return std::string("");
@@ -420,14 +430,6 @@ LsysContext::declare(const std::string& modules)
 	}
 }
 
-void 
-LsysContext::declare(ModuleClassPtr module)
-{
-	__modules.push_back(module);
-}
-
-void LPY::declare(const std::string& modules)
-{ LsysContext::currentContext()->declare(modules); }
 
 void 
 LsysContext::undeclare(const std::string& modules)
@@ -459,9 +461,6 @@ LsysContext::undeclare(ModuleClassPtr module)
 }
 
 
-void LPY::undeclare(const std::string& modules)
-{ LsysContext::currentContext()->undeclare(modules); }
-
 bool LsysContext::isDeclared(const std::string& module)
 {
 	ModuleClassPtr mod = ModuleClassTable::get().getClass(module);
@@ -474,9 +473,6 @@ bool LsysContext::isDeclared(ModuleClassPtr module)
 	ModuleClassList::iterator it = std::find(__modules.begin(),__modules.end(),module);
 	return it != __modules.end();
 }
-
-void LPY::isDeclared(const std::string& module)
-{ LsysContext::currentContext()->isDeclared(module); }
 
 void LsysContext::declareAlias(const std::string& alias, ModuleClassPtr module)
 { __aliases[alias] = module; }
@@ -724,43 +720,6 @@ LsysContext::check_init_functions()
 
 /*---------------------------------------------------------------------------*/
 
-void 
-LsysContext::nproduce(const AxialTree& prod)
-{
-    __nproduction += prod;
-}
-
-void 
-LsysContext::nproduce(const boost::python::list& prod)
-{
-    __nproduction += AxialTree(prod);
-}
-
-void LPY::nproduce(const AxialTree& prod)
-{ LsysContext::currentContext()->nproduce(prod); }
-
-void LPY::nproduce(const boost::python::list& prod)
-{ LsysContext::currentContext()->nproduce(prod); }
-
-void LPY::nproduce(const std::string& prod)
-{ LsysContext::currentContext()->nproduce(AxialTree(prod)); }
-
-void 
-LsysContext::reset_nproduction()
-{
-    __nproduction.clear();
-}
-
-/*---------------------------------------------------------------------------*/
-
-void LPY::useGroup(size_t gid)
-{ LsysContext::currentContext()->useGroup(gid); }
-
-size_t LPY::getGroup()
-{ return LsysContext::currentContext()->getGroup(); }
-
-/*---------------------------------------------------------------------------*/
-
 
 size_t LsysContext::getIterationNb()
 {
@@ -773,9 +732,6 @@ void LsysContext::setIterationNb(size_t val)
     QWriteLocker ml(&__iteration_nb_lock);
     __iteration_nb = val; 
 }
-
-size_t LPY::getIterationNb()
-{ return LsysContext::currentContext()->getIterationNb(); }
 
 /*---------------------------------------------------------------------------*/
 
@@ -814,14 +770,6 @@ LsysContext::setSelectionRequired(bool enabled)
 		options.setSelection("Selection Required",(size_t)enabled);
 	}
 }
-
-void 
-LPY::setSelectionRequired(bool enabled)
-{ LsysContext::currentContext()->setSelectionRequired(enabled); }
-
-bool 
-LPY::isSelectionRequired()
-{ return LsysContext::currentContext()->isSelectionRequired(); }
 
 /*---------------------------------------------------------------------------*/
 

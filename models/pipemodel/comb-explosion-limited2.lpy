@@ -102,7 +102,7 @@ I(t,w) --> _(0.01+0.05 * (w ** 0.5)) S(func(INTERNODE,t/D))
 
 S(l) :
   if (l > l_seg) :
-    produce F(l_seg+0.01) S(l-l_seg)
+    produce F(l_seg) S(l-l_seg)
   elif l > 0 :
     produce F(0.01+l);
 
@@ -122,4 +122,6 @@ def __initialiseContext__(context):
 	context.turtle.setMaterial(9,Material('APPID_877',Color3(60,41,13),3.0202,Color3(40,40,40),Color3(0,0,0),1,0))
 	context.turtle.setMaterial(10,Material('Brown',Color3(65,45,15),3,Color3(40,40,40),Color3(0,0,0),1,0))
 	context.turtle.setMaterial(11,Material('Green',Color3(30,60,10),3,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.options.setSelection('Compiler',1)
+	context.options.setSelection('Optimization',2)
 	context.options.setSelection('Early return when no matching',0)

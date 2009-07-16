@@ -117,9 +117,14 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				InlineFunctionExpansion="2"
+				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="$(BOOSTDIR);C:\Python25\include;&quot;..\..\..\PlantGL\src\cpp&quot;;$(QTDIR)\include"
 				PreprocessorDefinitions="LPY_MAKEDLL"
 				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
+				FloatingPointModel="2"
+				OpenMP="false"
 				WarningLevel="1"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
@@ -179,6 +184,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\abstractlstring.h"
+				>
+			</File>
+			<File
 				RelativePath=".\argcollector.h"
 				>
 			</File>
@@ -236,10 +245,6 @@
 			</File>
 			<File
 				RelativePath=".\lpy_parser.h"
-				>
-			</File>
-			<File
-				RelativePath=".\lstring.h"
 				>
 			</File>
 			<File
@@ -308,6 +313,10 @@
 			</File>
 			<File
 				RelativePath=".\modulevtable.h"
+				>
+			</File>
+			<File
+				RelativePath=".\paramproduction.h"
 				>
 			</File>
 			<File

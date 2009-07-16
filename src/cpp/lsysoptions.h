@@ -171,11 +171,15 @@ public:
 	bool isGlobal() const { return global; }
 	void setGlobal(bool value) { global = value; }
 
+	bool isEnabled() const { return enabled; }
+	void setEnabled(bool value) { enabled = value; }
+
 	std::string name;
 	std::string comment;
 	std::string category;
 	size_t default_value_id;
 	bool global;
+	bool enabled;
 	OptionValueList __optionvalues;
 
 	typedef void(*UpdateSlot)(size_t value);

@@ -288,7 +288,7 @@ Lsystem::str() const {
 }
 
 std::string 
-Lsystem::code() const {
+Lsystem::code()  {
   ACQUIRE_RESSOURCE
   std::stringstream s;
   s << "Lsystem:\n";
@@ -298,19 +298,19 @@ Lsystem::code() const {
   s << "derivation length: " << __max_derivation << '\n';
   s << "production:\n";
   size_t gid = 0;
-  for (Lsystem::RuleGroupList::const_iterator g = __rules.begin(); g != __rules.end(); ++g){
+  for (Lsystem::RuleGroupList::iterator g = __rules.begin(); g != __rules.end(); ++g){
           if (gid != 0){
             s << "group: " << gid << std::endl;
             s << "production:\n";
           }
-          for (RuleSet::const_iterator   i = g->production.begin(); i != g->production.end(); ++i){
+          for (RuleSet::iterator   i = g->production.begin(); i != g->production.end(); ++i){
                   s << i->getCode() << '\n';
           }
           if(!g->decomposition.empty()){
               s << "decomposition:\n";
               if (gid == 0)
                 s << "maximum depth:"  << __decomposition_max_depth << '\n';
-              for (RuleSet::const_iterator i = g->decomposition.begin(); i != g->decomposition.end(); ++i){
+              for (RuleSet::iterator i = g->decomposition.begin(); i != g->decomposition.end(); ++i){
                       s << i->getCode()+'\n';
               }
           }
@@ -318,7 +318,7 @@ Lsystem::code() const {
               s << "homomorphism:\n";
               if (gid == 0)
                 s << "maximum depth:"  << __homomorphism_max_depth << '\n';
-              for (RuleSet::const_iterator i = g->homomorphism.begin(); i != g->homomorphism.end(); ++i){
+              for (RuleSet::iterator i = g->homomorphism.begin(); i != g->homomorphism.end(); ++i){
                       s << i->getCode()+'\n';
               }
           }
@@ -579,10 +579,10 @@ Lsystem::getAxiom( ) const {
   RELEASE_RESSOURCE
 }
 
-RulePtrSet Lsystem::__getRules(eRuleType type, size_t groupid, eDirection direction, bool * hasQuery)
+RulePtrMap Lsystem::__getRules(eRuleType type, size_t groupid, eDirection direction, bool * hasQuery)
 {
     if(hasQuery)*hasQuery = false;
-    if (groupid >= __rules.size()) return RulePtrSet();
+    if (groupid >= __rules.size()) return RulePtrMap();
     RulePtrSet result;
     const RuleSet& rules = __group(groupid).getGroup(type);
     for(RuleSet::const_iterator itr = rules.begin(); itr != rules.end(); ++itr)
@@ -599,12 +599,12 @@ RulePtrSet Lsystem::__getRules(eRuleType type, size_t groupid, eDirection direct
                 if(hasQuery && itr->hasQuery())*hasQuery = true;
             }
     }
-    return result;
+    return RulePtrMap(result);
 }
 
 AxialTree 
 Lsystem::__step(AxialTree& workingstring,
-				const RulePtrSet& ruleset,
+				const RulePtrMap& ruleset,
 				bool query,
 				bool& matching,
                 eDirection direction){
@@ -624,9 +624,9 @@ Lsystem::__step(AxialTree& workingstring,
               _it = workingstring.endBracket(_it);
           else{
               bool match = false;
-              for(RulePtrSet::const_iterator _it2 = ruleset.begin();
-                  _it2 != ruleset.end(); 
-                  _it2++){
+			  const RulePtrSet& mruleset = ruleset[_it->getClassId()];
+              for(RulePtrSet::const_iterator _it2 = mruleset.begin();
+                  _it2 != mruleset.end(); _it2++){
 					  ArgList args;
                       if((*_it2)->match(workingstring,_it,targetstring,_it3,args)){
                           match = (*_it2)->applyTo(targetstring,args);
@@ -648,9 +648,9 @@ Lsystem::__step(AxialTree& workingstring,
       do {
           if (_it == _endit) ending = true;
           bool match = false;
-          for(RulePtrSet::const_iterator _it2 = ruleset.begin();
-              _it2 != ruleset.end(); 
-              _it2++){
+		  const RulePtrSet& mruleset = ruleset[_it->getClassId()];
+          for(RulePtrSet::const_iterator _it2 = mruleset.begin();
+              _it2 != mruleset.end();  _it2++){
 				  ArgList args;
                   if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args)){
                       match = (*_it2)->reverseApplyTo(targetstring,args);
@@ -669,7 +669,7 @@ Lsystem::__step(AxialTree& workingstring,
 
 AxialTree 
 Lsystem::__stepWithMatching(AxialTree& workingstring,
-				const RulePtrSet& ruleset,
+				const RulePtrMap& ruleset,
 				bool query,
                 StringMatching& matching)
 {
@@ -688,9 +688,9 @@ Lsystem::__stepWithMatching(AxialTree& workingstring,
           _it = workingstring.endBracket(_it);
       else{
           bool match = false;
-          for(RulePtrSet::const_iterator _it2 = ruleset.begin();
-              _it2 != ruleset.end(); 
-              _it2++){
+		  const RulePtrSet& mruleset = ruleset[_it->getClassId()];
+          for(RulePtrSet::const_iterator _it2 = mruleset.begin();
+              _it2 != mruleset.end();  _it2++){
 				  ArgList args;
                   if((*_it2)->match(workingstring,_it,targetstring,_it3,args)){
                       match = (*_it2)->applyTo(targetstring,args,&prodlength);
@@ -712,7 +712,7 @@ Lsystem::__stepWithMatching(AxialTree& workingstring,
 
 AxialTree 
 Lsystem::__recursiveSteps(AxialTree& workingstring,
-				          const RulePtrSet& ruleset, 
+				          const RulePtrMap& ruleset, 
                           size_t maxdepth)
 {
   ContextMaintainer c(&__context);
@@ -728,8 +728,9 @@ Lsystem::__recursiveSteps(AxialTree& workingstring,
       else{
           AxialTree ltargetstring;
           bool match = false;
-          for(RulePtrSet::const_iterator _it2 = ruleset.begin();
-              _it2 != ruleset.end(); _it2++){
+		  const RulePtrSet& mruleset = ruleset[_it->getClassId()];
+          for(RulePtrSet::const_iterator _it2 = mruleset.begin();
+              _it2 != mruleset.end(); _it2++){
 				ArgList args;
                 if((*_it2)->match(workingstring,_it,ltargetstring,_it3,args)){
                       match = (*_it2)->applyTo(ltargetstring,args);
@@ -750,7 +751,7 @@ Lsystem::__recursiveSteps(AxialTree& workingstring,
 
 void 
 Lsystem::__recursiveInterpretation(AxialTree& workingstring,
-				                const RulePtrSet& ruleset,
+				                const RulePtrMap& ruleset,
                                 Turtle& t,
                                 size_t maxdepth, bool withid)
 { 
@@ -774,8 +775,9 @@ Lsystem::__recursiveInterpretation(AxialTree& workingstring,
       else{
           AxialTree ltargetstring;
           bool match = false;
-          for(RulePtrSet::const_iterator _it2 = ruleset.begin();
-              _it2 != ruleset.end(); _it2++){
+		  const RulePtrSet& mruleset = ruleset[_it->getClassId()];
+          for(RulePtrSet::const_iterator _it2 = mruleset.begin();
+              _it2 != mruleset.end(); _it2++){
 				  ArgList args;
                   if((*_it2)->match(workingstring,_it,ltargetstring,_it3,args)){
                       match = (*_it2)->applyTo(ltargetstring,args);
@@ -845,9 +847,9 @@ Lsystem::__iterate( size_t starting_iter ,
 	bool no_match_no_return = !__context.return_if_no_matching;
 	if(!__rules.empty()){
       eDirection ndir;
-      RulePtrSet production;
+      RulePtrMap production;
       bool productionHasQuery;
-      RulePtrSet decomposition;
+      RulePtrMap decomposition;
       bool decompositionHasQuery;
 	  size_t i = 0;
 	  for(; (matching||no_match_no_return) && i < nb_iter; ++i){
@@ -953,7 +955,7 @@ Lsystem::__homomorphism(AxialTree& wstring){
          __rules.size() < __currentGroup)))return wstring;
   AxialTree workstring;
   bool homHasQuery = false;  
-  RulePtrSet homomorphism = __getRules(eHomomorphism,__currentGroup,eForward,&homHasQuery);
+  RulePtrMap homomorphism = __getRules(eHomomorphism,__currentGroup,eForward,&homHasQuery);
   if (!homomorphism.empty()){
       workstring = __recursiveSteps(wstring,homomorphism,__homomorphism_max_depth);
   }
@@ -964,7 +966,7 @@ void
 Lsystem::__interpret(AxialTree& wstring, PGL::Turtle& t){
     if ( wstring.empty() )return;
     bool homHasQuery = false;
-    RulePtrSet homomorphism = __getRules(eHomomorphism,__currentGroup,eForward,&homHasQuery);
+    RulePtrMap homomorphism = __getRules(eHomomorphism,__currentGroup,eForward,&homHasQuery);
     if (!homomorphism.empty()){
       __recursiveInterpretation(wstring,homomorphism,t,__homomorphism_max_depth);
     }

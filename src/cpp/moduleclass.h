@@ -155,6 +155,7 @@ public:
 	inline bool hasParameter(const std::string& name) const 
 	{ return getParameterPosition(name) != NOPOS; }
 
+	static size_t getMaxId() { return MAXID; }
 
 protected:
 	static ModuleClassList * PredefinedClasses;

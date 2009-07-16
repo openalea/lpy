@@ -786,8 +786,6 @@ void LsysRule::set( const std::string& rule ){
 		  while (marker!= rule.end() && (*marker == ' ' || *marker == '\t'))++marker;
 		  if(distance(marker,rule.end())>=staticmarkertxt.size() && std::string(marker,marker+staticmarkertxt.size()) == staticmarkertxt){
 			starcode = marker+staticmarkertxt.size();
-			// printf("h='%s'\n",std::string(rule.begin(),starcode).c_str());
-			// printf("c='%s'\n",std::string(starcode,rule.end()).c_str());
 			staticrule = true;
 		  }
 	  }
@@ -810,7 +808,8 @@ void LsysRule::set( const std::string& rule ){
   if(endheader == rule.end()){
 	LsysError("Ill-formed Rule : unfound delimiter ':' in "+rule,"",lineno);
   }
-  __isStatic = staticrule;
+  if (arrow)__definition = " --> "+std::string(starcode,rule.end());
+  else __definition =  std::string(starcode,rule.end());
   std::string header(rule.begin(),endheader);
   parseHeader(header);
   __hasquery = __predecessor.hasRequestModule() 
@@ -818,9 +817,12 @@ void LsysRule::set( const std::string& rule ){
 			|| __leftcontext.hasRequestModule()
 			|| __newrightcontext.hasRequestModule()
 			|| __rightcontext.hasRequestModule();
-  parseParameters();
-  if (arrow)__definition = " produce "+std::string(starcode,rule.end());
-  else __definition =  std::string(starcode,rule.end());
+  if(staticrule) setStatic();
+  else {
+	if (LsysContext::current()->optimizationLevel >= 2)
+		keepOnlyRelevantVariables();
+	parseParameters();
+  }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -986,6 +988,54 @@ std::string LpyParsing::lstring2py( std::string::const_iterator& beg,
   result += "]";
   return result;
 }
+
+std::string LpyParsing::lstring2pyparam( std::string::const_iterator& beg,
+								    std::string::const_iterator endpos,
+								    char delim, int lineno,
+									size_t * pprod_id){
+  std::string result;
+  std::vector<std::pair<size_t,std::string> > parsedstring = parselstring(beg, endpos, delim, lineno,true);
+  ParametricProduction pprod;
+  if(parsedstring.empty()){ 
+	  pprod.append_module_type("None");
+  }
+  else {
+	  for(std::vector<std::pair<size_t,std::string> >::const_iterator it = parsedstring.begin();
+		  it != parsedstring.end(); ++it){
+			  if (it->first == ModuleClass::GetModule->getId()){
+				  pprod.append_variable_module();
+				  result += "," + it->second;
+			  }
+			  else {
+				  pprod.append_module_type(it->first);
+				  if (!it->second.empty()) {
+					  std::vector<std::string> args = parse_arguments(it->second);
+					  for(std::vector<std::string>::const_iterator itArg = args.begin(); itArg != args.end(); ++itArg){
+						  if(isAConstant(*itArg)){
+							  pprod.append_module_value(LsysContext::current()->evaluate(*itArg));
+						  }
+						  else {
+							  std::string m = "PackedArgs(";
+							  if(itArg->size() > m.size() && std::string(itArg->begin(),itArg->begin()+m.size()) == m) {
+								pprod.append_module_star_variable();
+								result += "," + std::string(itArg->begin()+m.size(),itArg->end()-1); 
+							  }
+							  else {
+								pprod.append_module_variable();
+								result += "," + *itArg;
+							  }
+						  }
+					  }
+				  }
+			  }
+	  } // end for
+  }
+  size_t id = LsysContext::current()->add_pproduction(pprod);
+  if(pprod_id) *pprod_id = id;
+  result = "(" + TOOLS(number)(id) + result + ")";
+  return result;
+}
+
 
 /*---------------------------------------------------------------------------*/
 
@@ -1311,6 +1361,11 @@ std::pair<std::string,std::string> LpyParsing::parse_variable(std::string::const
 	std::string::const_iterator begname = it;
 	std::string::const_iterator begfilter = begname;
 	if(it == end)LsysError("Error parsing variable name (1)","",lineno);
+	if(*it == '-'){ ++it;  
+		while (it != end && *it == ' ' && *it == '\t')++it;
+		if(it == end) return std::pair<std::string,std::string>("-","");
+		else LsysError("Error parsing variable name with '-' (3)","",lineno);
+	}
 	if(*it == '*'){ ++it; begfilter = it; }
 	if(it != end && (isalpha(*it) || *it == '_'))++it;
 	else LsysError("Error parsing variable name (2)","",lineno);
@@ -1329,3 +1384,30 @@ std::pair<std::string,std::string> LpyParsing::parse_variable(std::string::const
 
 /*---------------------------------------------------------------------------*/
 
+bool LpyParsing::isAConstant(std::string::const_iterator beg,
+							 std::string::const_iterator end){    
+	std::string::const_iterator it = beg;
+	while (it != end && *it == ' ' && *it == '\t')++it;
+	bool isd = false;
+	if(*it == '+' || *it == '-' || *it == '.'  || (isd = isdigit(*it))){
+		// look for a number
+		++it;
+		if(it == end) return isd;
+		while(it != end && isdigit(*it))++it;
+		if(it == end) return true;
+		if(*it == '.') ++it;
+		if(it == end) return true;
+		while(it != end && isdigit(*it))++it;
+		if(it == end) return true;
+		if(*it == 'e') ++it;
+		if(it == end) return false;
+		if(*it == '+' || *it == '-') ++it;
+		if(it == end) return false;
+		while(it != end && isdigit(*it))++it;
+		while (it != end && *it == ' ' && *it == '\t')++it;
+		if(it == end) return true;
+		else return false;
+	}
+	else if(std::distance(it,end) > 4 && std::string(it,end) == "None") return true;
+	return false;
+}

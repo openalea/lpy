@@ -66,6 +66,8 @@ class LPY_API LsysVar {
 	inline bool isArgs() const { return !__name.empty() && __name[0] == '*'; }
 	inline bool hasCondition() const { return __conditionType != NoCondition; }
 
+	void setUnnamed();
+
   protected:
 
 	std::string __name;
@@ -90,6 +92,9 @@ public:
 
   std::vector<std::string> getVarNames() const;
   size_t getVarNb() const;
+  void setUnnamedVariables();
+  void setUnnamedVariable(size_t);
+  std::vector<size_t> getFirstClassId() const;
 
   /*bool match(const ParamModule&m) const;
   bool match(const ParamModule&m, ArgList&) const;

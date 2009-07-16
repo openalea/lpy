@@ -65,7 +65,7 @@ I(t,w) >> ?I(i) :
    assert m.name == '['
    while m.name == '[':
      m = i.next(onlyConsidered=True)
-     print m.name
+     #print m.name
      if m.name == 'I':
        wr+= m[1]
      i.toEndBracket()

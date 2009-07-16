@@ -64,7 +64,8 @@ std::string LsysVar::str() const
 
 
 std::string LsysVar::varname() const
-{ if (__name.empty()) return __name;
+{ 
+  if (__name.empty()) return __name;
   else if (__name[0] == '*') return std::string(__name.begin()+1,__name.end());
   else return __name;
 }
@@ -94,6 +95,13 @@ void LsysVar::setCondition(const std::string& textualcondition, int lineno)
 	__pyvalue = LsysContext::current()->evaluate(txt);
 	__textualcondition = textualcondition;
 	__conditionType = FunctionalCondition;
+}
+
+void LsysVar::setUnnamed()
+{
+  if (__name.empty()) __name = "-";
+  else if (__name[0] == '*') __name = "*-";
+  else __name = "-";
 }
 
 /*---------------------------------------------------------------------------*/
@@ -210,7 +218,11 @@ void PatternModule::__processPatternModule(const std::string& argstr, int lineno
 		  if (MatchingEngine::getModuleMatchingMethod() == MatchingEngine::eMWithStarNValueConstraint){
 			  try {
 				std::pair<std::string,std::string> vartxt = LpyParsing::parse_variable(*itarg,lineno);
-				if(LpyParsing::isValidVariableName(vartxt.first)){
+				if(vartxt.first == "-"){
+					append(LsysVar(vartxt.first));
+				    notvar = true;
+				}
+				else if(LpyParsing::isValidVariableName(vartxt.first)){
 					LsysVar var(vartxt.first);
 				    if(!vartxt.second.empty())var.setCondition(vartxt.second,lineno);
 				    append(var);
@@ -224,12 +236,107 @@ void PatternModule::__processPatternModule(const std::string& argstr, int lineno
 			  }
 		  }
 		  if (!notvar){
-			  if(LpyParsing::isValidVariableName(*itarg))
+			  if(*itarg == "-" || LpyParsing::isValidVariableName(*itarg))
 				  append(LsysVar(*itarg));
 			  else LsysError(*itarg+" is invalid","",lineno);
 		  }
 	  }
   }
+}
+
+void PatternModule::setUnnamedVariables()
+{
+  if (isRepExp()) {
+	extract<PatternString&> t(getAt(0).getPyValue());
+	if(t.check()) t().setUnnamedVariables();
+  }
+  else if (isOr()) {
+	  for(size_t i = 0; i < size(); i++){
+		  extract<PatternString&> v(getAt(i).getPyValue());
+		  if(v.check()) v().setUnnamedVariables();
+	  }
+  }
+  else if (isGetModule()) {
+	if(getAt(0).isNamed()) getAt(0).setUnnamed();
+	extract<PatternModule&> v(getAt(1).getPyValue());
+	if(v.check()) v().setUnnamedVariables();
+  }
+  else {
+	  for(size_t i = 0; i < size(); i++){
+		  if(getAt(i).isNamed()) getAt(i).setUnnamed();
+	  }
+  }
+}
+
+void PatternModule::setUnnamedVariable(size_t idvar)
+{
+  size_t count = 0;
+  if (isRepExp()) {
+	extract<PatternString&> t(getAt(0).getPyValue());
+	if(t.check()) t().setUnnamedVariable(idvar);
+  }
+  else if (isOr()) {
+	  for(size_t i = 0; i < size(); i++){
+		  extract<PatternString&> v(getAt(i).getPyValue());
+		  if(v.check()) {
+			  PatternString& ps = v();
+			  size_t l = ps.getVarNb();
+			  if(count + l > idvar){
+				v().setUnnamedVariable(idvar - count);
+				break;
+			  }
+			  else count += l;
+		  }
+	  }
+  }
+  else if (isGetModule()) {
+	  if(getAt(0).isNamed()) {
+		  count += 1;
+		  if(idvar == 0) getAt(0).setUnnamed();
+	  }
+	  extract<PatternModule&> v(getAt(1).getPyValue());
+	  if(v.check()) {
+		 v().setUnnamedVariable(idvar - count);
+	  }
+  }
+  else {
+	  for(size_t i = 0; i < size(); i++){
+		  if(getAt(i).isNamed()) { 
+			  count += 1;
+			  if(count == idvar+1) getAt(i).setUnnamed();
+		  }
+	  }
+  }
+}
+
+std::vector<size_t> PatternModule::getFirstClassId() const
+{
+	std::vector<size_t> res;
+    if (isRepExp()) {
+	   extract<PatternString&> t(getAt(0).getPyValue());
+	   if(t.check()) {
+		   std::vector<size_t> lres = t().getFirstClassId();
+		   res.insert(res.end(),lres.begin(),lres.end());
+	   }
+  }
+  else if (isOr()) {
+	  for(size_t i = 0; i < size(); i++){
+		  extract<PatternString&> v(getAt(i).getPyValue());
+		  if(v.check()) {
+		    std::vector<size_t> lres = v().getFirstClassId();
+		    res.insert(res.end(),lres.begin(),lres.end());
+		  }
+	  }
+  }
+  else if (isGetModule()) {
+	  extract<PatternModule&> v(getAt(1).getPyValue());
+	  if(v.check()) {
+		  res.push_back(v().getClass()->getId());
+	  }
+	  else res.push_back(ModuleClass::Star->getId());
+  }
+  else res.push_back(getClass()->getId());
+  return res;
 }
 
 /*---------------------------------------------------------------------------*/
