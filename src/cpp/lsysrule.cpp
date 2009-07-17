@@ -287,13 +287,19 @@ void LsysRule::compile(){
 	if (!compiled()){
 	  __function = LsysContext::currentContext()->compile(__nbParams<= MAX_LRULE_DIRECT_ARITY?functionName():callerFunctionName(),getCode());
 	// __function = LsysContext::currentContext()->compile(functionName(),getCode());
+	  initStaticProduction();
 	}
 }
 
 void LsysRule::importPyFunction(){
-  if (!compiled())
+	if (!compiled()){
       __function = LsysContext::currentContext()->getObject(__nbParams<=MAX_LRULE_DIRECT_ARITY?functionName():callerFunctionName());
       // __function = LsysContext::currentContext()->getObject(functionName());
+	  initStaticProduction();
+	}
+}
+
+void LsysRule::initStaticProduction(){
   if(__isStatic){
 	  __isStatic = false;
 	  if(__nbParams==0) __staticResult = apply();
@@ -604,7 +610,7 @@ LsysRule::process( const AxialTree& src ) const {
 /*---------------------------------------------------------------------------*/
 
 RulePtrMap::RulePtrMap(const RulePtrSet& rules):
-	__map(ModuleClass::getMaxId()), __nbrules(rules.size())
+	__map(ModuleClass::getMaxId()), __nbrules(rules.size()), __maxsmb(0)
 {
 	
 	for(RulePtrSet::const_iterator it = rules.begin(); it != rules.end(); ++it){
@@ -613,14 +619,16 @@ RulePtrMap::RulePtrMap(const RulePtrSet& rules):
 			if(*itid == ModuleClass::Star->getId()){
 				for(RulePtrSetMap::iterator itmap = __map.begin(); itmap != __map.end(); ++itmap)
 					itmap->push_back(*it);
+				__defaultset.push_back(*it);
 			}
 			else __map[*itid].push_back(*it);
 		}
 	}
+	__maxsmb = __map.size();
 }
 
 RulePtrMap::RulePtrMap():
-	__map(ModuleClass::getMaxId()), __nbrules(0)
+	__map(0), __nbrules(0), __maxsmb(0)
 {
 }
 /*---------------------------------------------------------------------------*/

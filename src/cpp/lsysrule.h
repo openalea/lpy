@@ -159,6 +159,7 @@ protected:
 
 	void parseHeader( const std::string& name);
 	void parseParameters();
+	void initStaticProduction();
 
 	size_t __id;
 	size_t __gid;
@@ -197,13 +198,16 @@ public:
 	RulePtrMap();
 	RulePtrMap(const RulePtrSet& rules);
 
-	inline const RulePtrSet& operator[](size_t id) const { return __map[id]; }
-	inline bool empty() const { return __nbrules == 0; }
+	inline const RulePtrSet& operator[](size_t id) const 
+	{ return (id < __maxsmb?__map[id]:__defaultset); }
+	inline bool empty() const {  return __nbrules == 0; }
 	inline size_t size() const { return __nbrules; }
 
 protected:
 	RulePtrSetMap __map;
+	RulePtrSet __defaultset;
 	size_t __nbrules;
+	size_t __maxsmb;
 
 };
 

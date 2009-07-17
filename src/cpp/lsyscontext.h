@@ -102,12 +102,10 @@ public:
 
   /** compilation of code into the python namespace */
   void compile(const std::string&)  ;
-  boost::python::object 
-	evaluate(const std::string&)  ;
-  boost::python::object 
-	try_evaluate(const std::string&)  ;
-  virtual boost::python::object
-	compile(const std::string& name, const std::string& code)  ;
+  boost::python::object  evaluate(const std::string&)  ;
+  boost::python::object  try_evaluate(const std::string&)  ;
+
+  virtual boost::python::object compile(const std::string& name, const std::string& code)  ;
 
   /** application of a function */
   void func(const std::string& funcname);
@@ -336,8 +334,8 @@ public:
   virtual void setObject(const std::string& name, 
 				 const boost::python::object&);
   virtual void delObject(const std::string& name) ;
-  virtual boost::python::object
-	compile(const std::string& name, const std::string& code)  ;
+
+  virtual boost::python::object compile(const std::string& name, const std::string& code)  ;
 
   static boost::python::object getFunctionRepr();
 protected:

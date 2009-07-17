@@ -70,8 +70,8 @@ static GlobalContext * GLOBAL_LSYSCONTEXT = NULL;
 
 static std::vector<LsysContext *> LSYSCONTEXT_STACK;
 static LsysContext * DEFAULT_LSYSCONTEXT = NULL;
-static LsysContext * CURRENT_LSYSCONTEXT = LsysContext::globalContext();
-// static LsysContext * CURRENT_LSYSCONTEXT = NULL;
+// static LsysContext * CURRENT_LSYSCONTEXT = LsysContext::globalContext();
+static LsysContext * CURRENT_LSYSCONTEXT = NULL;
 
 class ContextGarbageCollector
 {
@@ -104,19 +104,22 @@ LsysContext *
 LsysContext::global()
 { 
     if(!GLOBAL_LSYSCONTEXT) GLOBAL_LSYSCONTEXT = new GlobalContext();
+ 	// if(!GLOBAL_LSYSCONTEXT->hasObject("pproduce"))
+	//	GLOBAL_LSYSCONTEXT->LsysContext::compile("from openalea.lpy import *");
 	return GLOBAL_LSYSCONTEXT; 
 }
 
 void createDefaultContext()
 { 
     if(!DEFAULT_LSYSCONTEXT){
+		LsysContext * global =  LsysContext::globalContext();
         DEFAULT_LSYSCONTEXT = new LocalContext(false);
         // copy __builtins__ for import and all.
-		DEFAULT_LSYSCONTEXT->copyObject("__builtins__",LsysContext::globalContext());
-		DEFAULT_LSYSCONTEXT->copyObject("__doc__",LsysContext::globalContext());
+		DEFAULT_LSYSCONTEXT->copyObject("__builtins__",global);
+		DEFAULT_LSYSCONTEXT->copyObject("__doc__",global);
         // import pylsystems
         DEFAULT_LSYSCONTEXT->compile("from openalea.lpy import *");
-    }
+   }
 }
 
 
@@ -130,7 +133,7 @@ LsysContext::defaultContext()
 LsysContext *
 LsysContext::current()
 { 
-    if(!CURRENT_LSYSCONTEXT) CURRENT_LSYSCONTEXT = defaultContext();
+    if(!CURRENT_LSYSCONTEXT) CURRENT_LSYSCONTEXT = global(); // defaultContext();
 	return CURRENT_LSYSCONTEXT; 
 }
 
@@ -937,10 +940,12 @@ PyObject *
 GlobalContext::Namespace()  const 
 { return __namespace.get(); }
 
+
+
 object 
 GlobalContext::compile(const std::string& name, const std::string& code) {
   if(!code.empty()){
-	handle<>( PyRun_String(code.c_str(),Py_file_input,__namespace.get(),__local_namespace.ptr()) );
+	Compilation::compile(code,__namespace.get(),__local_namespace.ptr());
 	return __local_namespace[name];
   }
   return object();

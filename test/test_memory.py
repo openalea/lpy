@@ -26,12 +26,22 @@ def test_PAT( nb = maxlength, size = maxsize):
             a += 'F('+str(j)+')'
         del a
 
+def test_LsRuleWithGlobalContext():
+    """ Test creation of LsysRule with global context """
+    l = LsysRule()
+    try:
+        l.set('F --> F')
+    except NameError,e :
+        import warnings
+        warnings.warn("GlobalContext has not lpy symbols")
+
 def test_LsRule():
     """ Test creation of LsysRule """
+    lc = LsysContext()
+    lc.makeCurrent()
     res = 'F[+F]F[-F]F'
     l = LsysRule()
     l.set('F --> '+res)
-    #l.compile()
     assert l.compiled(), "LsysRule.compile did not work."
     assert l.forwardCompatible() == True and l.backwardCompatible() == True 
     assert l.isContextFree() == True and l.nbContexts() == 0
@@ -82,6 +92,7 @@ def test_PLs( nb = 1, length = maxlength):
 if __name__ == '__main__':
     test_AT()
     test_PAT()
+    test_LsRuleWithGlobalContext()
     test_LsRule()
     test_Ls()
     test_PLs()
