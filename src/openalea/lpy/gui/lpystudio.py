@@ -34,11 +34,11 @@ sys.path = ['']+sys.path
 
 # Generate GUI if necessary
 if not py2exe_release:
-    #import compile_ui as ui
-    #ldir    = os.path.dirname(__file__)
-    #ui.check_ui_generation(os.path.join(ldir, 'lpymainwindow.ui'))
-    #ui.check_rc_generation(os.path.join(ldir, 'lpyresources.qrc'))
-    #del ldir
+    import compile_ui as ui
+    ldir    = os.path.dirname(__file__)
+    ui.check_ui_generation(os.path.join(ldir, 'lpymainwindow.ui'))
+    ui.check_rc_generation(os.path.join(ldir, 'lpyresources.qrc'))
+    del ldir
     pass
 
 
@@ -92,11 +92,20 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         
         self.frameFind.hide() 
         self.frameReplace.hide() 
+        self.frameGoto.hide() 
         self.codeeditor.initWithEditor(self)        
         self.newfile()
         self.currentSimulation().restoreState()
         self.textEditionWatch = False
         self.documentNames.setDrawBase(False)
+        def tb_mouseMoveEvent(event):
+            tabselect = self.documentNames.tabAt(event.pos())
+            if tabselect != -1 :
+                originaltab = self.documentNames.currentIndex()
+                if tabselect != originaltab:
+                    self.documentNames.emit(SIGNAL("switchDocument"),tabselect,originaltab)
+        self.documentNames.mouseMoveEvent = tb_mouseMoveEvent
+        QObject.connect(self.documentNames,SIGNAL('switchDocument'),self.switchDocuments)
         QObject.connect(self.documentNames,SIGNAL('currentChanged(int)'),self.changeDocument)
         QObject.connect(self.actionNew,SIGNAL('triggered(bool)'),self.newfile)
         QObject.connect(self.actionOpen,SIGNAL('triggered(bool)'),lambda : self.openfile())
@@ -151,6 +160,15 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
             self.currentSimulation().restoreState()
         if self.documentNames.currentIndex() != id:
             self.documentNames.setCurrentIndex(id)
+    def switchDocuments(self,id1,id2):
+        self.simulations[id1],self.simulations[id2] = self.simulations[id2],self.simulations[id1]
+        self.simulations[id1].index = id1
+        self.simulations[id2].index = id2
+        self.simulations[id1].updateTabName()
+        self.simulations[id2].updateTabName()
+        QObject.disconnect(self.documentNames,SIGNAL('currentChanged(int)'),self.changeDocument)
+        self.documentNames.setCurrentIndex(id1)
+        QObject.connect(self.documentNames,SIGNAL('currentChanged(int)'),self.changeDocument)
     def focusInEvent ( self, event ):
         self.currentSimulation().monitorfile()
         return QMainWindow.focusInEvent ( self, event )

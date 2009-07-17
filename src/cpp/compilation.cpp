@@ -42,7 +42,7 @@ TOOLS_USING_NAMESPACE
 /*---------------------------------------------------------------------------*/
 
 void Compilation::setCompiler(eCompiler compiler) {
-	if (cythonAvailable && compiler == eCython) Compiler = eDefaultCompiler;
+	if (!cythonAvailable && compiler == eCython) Compiler = eDefaultCompiler;
 	else Compiler = compiler;
 	if(compiler == eCython){
 		tmp_extension = "pyx";

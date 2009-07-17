@@ -361,7 +361,7 @@ class LpySimulation:
         dl = self.lsystem.derivationLength
         if self.firstView and task.fitAnimationView:
             self.lsystem.plot(self.lsystem.iterate())
-            self.lsystem.firstView = False
+            self.firstView = False
             Viewer.animation(True)
         timing = clock()
         if (not edition) and (not self.tree is None) and (0 < nbiter < dl):

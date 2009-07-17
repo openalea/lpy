@@ -129,6 +129,7 @@ class LpyCodeEditor(QTextEdit):
         self.setAcceptDrops(True)
         self.setWordWrapMode(QTextOption.WrapAnywhere)
         self.findEdit = None
+        self.gotoEdit = None
         self.matchCaseButton = None
         self.wholeWordButton = None
         self.nextButton = None
@@ -148,6 +149,7 @@ class LpyCodeEditor(QTextEdit):
     def initWithEditor(self,lpyeditor):
         self.editor = lpyeditor
         self.findEdit = lpyeditor.findEdit
+        self.gotoEdit = lpyeditor.gotoEdit
         self.matchCaseButton = lpyeditor.matchCaseButton
         self.wholeWordButton = lpyeditor.wholeWordButton
         self.nextButton = lpyeditor.findNextButton
@@ -160,6 +162,8 @@ class LpyCodeEditor(QTextEdit):
         self.statusBar.addPermanentWidget(self.positionLabel)
         QObject.connect(self.findEdit, SIGNAL('textEdited(const QString&)'),self.findText)
         QObject.connect(self.findEdit, SIGNAL('returnPressed()'),self.setFocus)
+        QObject.connect(self.gotoEdit, SIGNAL('returnPressed()'),self.gotoLineFromEdit)
+        QObject.connect(self.gotoEdit, SIGNAL('returnPressed()'),self.setFocus)
         QObject.connect(self.previousButton, SIGNAL('pressed()'),self.findPreviousText)
         QObject.connect(self.nextButton, SIGNAL('pressed()'),self.findNextText)
         QObject.connect(self.replaceButton, SIGNAL('pressed()'),self.replaceText)
@@ -168,6 +172,7 @@ class LpyCodeEditor(QTextEdit):
         QObject.connect(lpyeditor.actionZoomIn, SIGNAL('triggered()'),self.zoomInEvent)
         QObject.connect(lpyeditor.actionZoomOut, SIGNAL('triggered()'),self.zoomOutEvent)
         QObject.connect(lpyeditor.actionNoZoom, SIGNAL('triggered()'),self.resetZoom)
+        QObject.connect(lpyeditor.actionGoto, SIGNAL('triggered()'),self.setLineInEdit)
         self.defaultEditionFont = self.currentFont()
         self.defaultPointSize = self.currentFont().pointSize()
     def focusInEvent ( self, event ):
@@ -454,3 +459,15 @@ class LpyCodeEditor(QTextEdit):
     def isFontToDefault(self):
         if self.editionFont is None : return True
         return str(self.editionFont.family()) == str(self.defaultEditionFont.family()) and self.editionFont.pointSize() == self.defaultEditionFont.pointSize()
+    def gotoLine(self,lineno):
+        cursor = self.textCursor()
+        cursor.setPosition(0)
+        cursor.movePosition(QTextCursor.NextBlock,QTextCursor.MoveAnchor,lineno-1)
+        self.setTextCursor(cursor)
+        self.ensureCursorVisible()
+    def gotoLineFromEdit(self):
+        self.gotoLine(int(self.gotoEdit.text()))
+    def setLineInEdit(self):
+        self.gotoEdit.setText(str(str(self.textCursor().blockNumber()+1)))
+        self.gotoEdit.selectAll()
+      
