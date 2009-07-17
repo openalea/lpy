@@ -94,14 +94,14 @@ bool applyTo(LsysRule * rule,AxialTree& tree,  ArgList args) {
 	return rule->applyTo(tree,args);
 }
 
-object call(LsysRule * rule) {
+object rule_call(LsysRule * rule) {
   bool success;
   AxialTree res = rule->apply(&success);
   if(!success)return object();
   else return object(res);
 }
 
-object call_with_args(LsysRule * rule, boost::python::list pyargs) {
+object rule_call_with_args(LsysRule * rule, boost::python::list pyargs) {
   bool success;
   ArgList args;
   object iter_obj = object( handle<>( PyObject_GetIter( pyargs.ptr() ) ) );
@@ -151,8 +151,8 @@ void export_LsysRule(){
 	("LsysRule", init<optional<size_t,size_t,char> >("LsysRule(id,group,prefix)"))
 	.def("__str__", &LsysRule::str)
 	//.def("__repr__", &LsysRule::str)
-	.def("__call__", &call)
-	.def("__call__", &call_with_args)
+	.def("__call__", &rule_call)
+	.def("__call__", &rule_call_with_args)
 	.add_property("id",&LsysRule::getId,&LsysRule::setId)
 	.add_property("id",&LsysRule::getGroupId,&LsysRule::setGroupId)
 	.add_property("lineno",make_getter(&LsysRule::lineno))
