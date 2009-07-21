@@ -184,6 +184,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\export_debugger.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\export_interpretation.cpp"
 				>
 			</File>

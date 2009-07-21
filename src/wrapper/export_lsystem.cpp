@@ -89,8 +89,16 @@ object lsys_setCode2(Lsystem * lsys, const std::string& code, bool debug) {
 AxialTree py_iter(Lsystem * lsys, size_t beg, size_t end, const AxialTree& wstring)
 { return lsys->iterate(beg,end,wstring); }
 
-void export_Lsystem(){
+void py_set_debugger(Lsystem * lsys, Lsystem::Debugger * debugger)
+{ return lsys->setDebugger(Lsystem::DebuggerPtr(debugger)); }
 
+void export_Lsystem(){
+  enum_<eDirection>("eDirection")
+	  .value("eForward",eForward)
+	  .value("eBackward",eBackward)
+	  .export_values()
+	  ;
+  
   class_<Lsystem,boost::noncopyable>
 	("Lsystem", init<optional<std::string> >("Lsystem([filename])"))
 	.add_property("axiom",&lsys_axiom,(void(Lsystem::*)(const AxialTree&))&Lsystem::setAxiom)
@@ -148,6 +156,10 @@ void export_Lsystem(){
 	.add_property("early_return",&Lsystem::isEarlyReturnEnabled,&Lsystem::enableEarlyReturn)
 	.def("getLastIterationNb",&Lsystem::getLastIterationNb)
     .def("isRunning",   &Lsystem::isRunning, "Tell whether self is performing an action")
+    .def("setDebugger",&py_set_debugger)
+    .def("getDebugger",&Lsystem::getDebugger)
+    .def("hasDebugger",&Lsystem::hasDebugger)
+    .def("clearDebugger",&Lsystem::clearDebugger)
 	;
 
 }

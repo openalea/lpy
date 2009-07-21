@@ -72,6 +72,7 @@ BOOST_PYTHON_MODULE(__lpy_kernel__)
     export_plot();
 	export_parser();
     export_StringMatching();
+    export_Debugger();
 	// def("cleanLsys",&cleanLsys);
 	Py_AtExit(&cleanLsys);
 };

@@ -44,5 +44,6 @@ void export_Lsystem();
 void export_plot();
 void export_parser();
 void export_StringMatching();
+void export_Debugger();
 
 #endif

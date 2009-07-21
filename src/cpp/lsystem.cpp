@@ -602,6 +602,88 @@ RulePtrMap Lsystem::__getRules(eRuleType type, size_t groupid, eDirection direct
     return RulePtrMap(result);
 }
 
+AxialTree Lsystem::__debugStep(AxialTree& workingstring,
+						  const RulePtrMap& ruleset,
+						  bool query,
+						  bool& matching,
+						  eDirection direction,
+						  Debugger& debugger){
+  ContextMaintainer c(&__context);
+  matching = false;
+  if( workingstring.empty()) return workingstring;
+  AxialTree targetstring;
+  targetstring.reserve(workingstring.size());
+  if ( query )__interpret(workingstring,__context.envturtle);
+  debugger.begin(workingstring,direction);
+  if ( direction == eForward){
+      AxialTree::const_iterator _it = workingstring.begin();
+      AxialTree::const_iterator _it3 = _it;
+      AxialTree::const_iterator _endit = workingstring.end();
+
+      while ( _it != _endit ) {
+          if ( _it->isCut() )
+              _it = workingstring.endBracket(_it);
+          else{
+              bool match = false;
+			  const RulePtrSet& mruleset = ruleset[_it->getClassId()];
+              for(RulePtrSet::const_iterator _it2 = mruleset.begin();
+                  _it2 != mruleset.end(); _it2++){
+					  ArgList args;
+					  size_t prodlength;
+                      if((*_it2)->match(workingstring,_it,targetstring,_it3,args)){
+                          match = (*_it2)->applyTo(targetstring,args,&prodlength);
+						  if(match) { 
+							  debugger.total_match(workingstring,_it,_it3,targetstring,prodlength,*_it2,args);
+							  _it = _it3; break; 
+						  }
+						  else debugger.partial_match(workingstring,_it,_it3,targetstring,*_it2,args);
+                      }
+              }
+              if (!match){
+                 targetstring.push_back(_it);
+				 debugger.identity(workingstring,_it,targetstring);
+				 ++_it;
+              }
+              else matching = true;
+          }
+      }
+  }
+  else {
+      AxialTree::const_iterator _it = workingstring.end()-1;
+      AxialTree::const_iterator _it3 = _it;
+      AxialTree::const_iterator _endit = workingstring.begin();
+      bool ending = false;
+      do {
+          if (_it == _endit) ending = true;
+          bool match = false;
+		  const RulePtrSet& mruleset = ruleset[_it->getClassId()];
+          for(RulePtrSet::const_iterator _it2 = mruleset.begin();
+              _it2 != mruleset.end();  _it2++){
+				  ArgList args;
+				  size_t prodlength;
+                  if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args)){
+                      match = (*_it2)->reverseApplyTo(targetstring,args,&prodlength);
+                      if(match) { 							  
+						  debugger.total_match(workingstring,_it==_endit?_it3:_it3+1,_it+1,targetstring,prodlength,*_it2,args);
+						  _it = _it3; break; 
+					  }
+ 					  else debugger.partial_match(workingstring,_it==_endit?_it3:_it3+1,_it+1,targetstring,*_it2,args);
+                 }
+          }
+          if (!match){
+              targetstring.push_front(_it);
+			  debugger.identity(workingstring,_it,targetstring);
+              if(_it != _endit) --_it;
+          }
+          else matching = true;
+      } while ( !ending );
+  }
+  debugger.end(targetstring);
+  return targetstring;
+}
+
+
+
 AxialTree 
 Lsystem::__step(AxialTree& workingstring,
 				const RulePtrMap& ruleset,
@@ -882,7 +964,9 @@ Lsystem::__iterate( size_t starting_iter ,
             decomposition = __getRules(eDecomposition,group,ndir,&decompositionHasQuery);
         }
         if (!production.empty()){
-            workstring = __step(workstring,production,previouslyinterpreted?false:productionHasQuery,matching,dir);
+            if(!hasDebugger())
+				workstring = __step(workstring,production,previouslyinterpreted?false:productionHasQuery,matching,dir);
+			else workstring = __debugStep(workstring,production,previouslyinterpreted?false:productionHasQuery,matching,dir,*__debugger);
             previouslyinterpreted = false;
         }
 		if(!decomposition.empty()){
@@ -1081,3 +1165,8 @@ bool Lsystem::isRunning() const
 #endif
 }
 
+/*---------------------------------------------------------------------------*/
+
+Lsystem::Debugger::~Debugger()  { }
+
+/*---------------------------------------------------------------------------*/

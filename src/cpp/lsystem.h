@@ -169,6 +169,36 @@ public:
 
   /** test if self is actually iterating */
    bool isRunning() const;
+
+   class LPY_API Debugger : public TOOLS::RefCountObject {
+   public:
+	   Debugger() { }
+	   virtual ~Debugger() ;
+
+	   virtual void begin(const AxialTree& src, eDirection) { }
+	   virtual void end(const AxialTree& result) { }
+	   virtual void partial_match(const AxialTree& src, 
+		                     AxialTree::const_iterator match_beg, 
+							 AxialTree::const_iterator match_end,
+							 const AxialTree& dest, const LsysRule *,
+							 const ArgList) { }
+	   virtual void total_match(const AxialTree& src, 
+		                     AxialTree::const_iterator match_beg, 
+							 AxialTree::const_iterator match_end,
+							 const AxialTree& dest, size_t prodlength,
+							 const LsysRule *,
+							 const ArgList) { }
+	   virtual void identity(const AxialTree& src, 
+		                     AxialTree::const_iterator match_pos, 
+							 const AxialTree& dest) { }
+   };
+   typedef RCPtr<Debugger> DebuggerPtr;
+
+   inline void setDebugger(DebuggerPtr debugger) { __debugger = debugger; }
+   inline DebuggerPtr getDebugger() const { return __debugger; }
+   inline bool hasDebugger() const { return is_valid_ptr(__debugger); }
+   inline void clearDebugger() { __debugger = DebuggerPtr(); }
+
 protected:
 
   struct RuleGroup {
@@ -193,7 +223,8 @@ protected:
   LsysRule& __addDecRule( const std::string& rule, size_t group,  int lineno = -1 );
   LsysRule& __addHomRule( const std::string& rule, size_t group,  int lineno = -1 );
 
-  void __importPyFunctions();
+ void __clear();
+ void __importPyFunctions();
 
  Lsystem(const Lsystem& lsys);
  Lsystem& operator=(const Lsystem& lsys);
@@ -210,7 +241,8 @@ protected:
 				   const RulePtrMap& ruleset,
 				   bool query,bool& matching,
                    eDirection direction);
- void __clear();
+ AxialTree __debugStep(AxialTree& workingstring, const RulePtrMap& ruleset,
+					bool query, bool& matching, eDirection direction, Debugger& debugger);
 
  AxialTree __stepWithMatching(AxialTree& workingstring,
 				              const RulePtrMap& ruleset,
@@ -239,6 +271,7 @@ protected:
   RuleGroup& __group(size_t group) ;
   const RuleGroup& __group(size_t group) const;
 
+  DebuggerPtr __debugger;
 
 private:
 #ifdef MULTI_THREADED_LSYSTEM
