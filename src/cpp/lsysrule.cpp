@@ -489,8 +489,9 @@ void LsysRule::keepOnlyRelevantVariables()
 				toRemove.push_back(std::distance<std::vector<std::string>::const_iterator>(varnames.begin(),it));
 			}
 		}
+		std::vector<size_t>::const_reverse_iterator rend = toRemove.rend();
 		for(std::vector<size_t>::const_reverse_iterator itR = toRemove.rbegin(); 
-			itR != toRemove.rend(); ++itR){
+			itR != rend; ++itR){
 				(*itS)->setUnnamedVariable(*itR);
 		}
 
