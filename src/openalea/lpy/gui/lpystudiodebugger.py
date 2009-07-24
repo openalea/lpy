@@ -69,7 +69,7 @@ class LpyVisualDebugger (lpy.LpyDebugger):
             if pos_beg > 0:        
                 txt += dest.str_slice(0,pos_beg)
             if length > 0:
-                txt += '<B>'+self.dest.str_slice(pos_beg,l)+'</B>'
+                txt += '<B>'+dest.str_slice(pos_beg,l)+'</B>'
             self.debugWidget.destView.setText(txt)
             sl = self.debugWidget.destView.horizontalScrollBar()
             sl.setValue(sl.maximum())
