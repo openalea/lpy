@@ -32,7 +32,7 @@ class LpyVisualDebugger (lpy.LpyDebugger):
         if not self.lpywidget.debugDock.isWindow():
           try:
             docks = self.lpywidget.tabifiedDockWidget(self.lpywidget.debugDock)
-          except:          
+          except AttributeError, e:          
             docks = []
             id = self.lpywidget.interpreterDock
             if id.isVisible and not id.isWindow():
