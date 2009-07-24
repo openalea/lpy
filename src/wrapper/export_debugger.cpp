@@ -120,6 +120,7 @@ void export_Debugger(){
 
 	class_<PyLpyDebugger,PyLpyDebuggerPtr,boost::noncopyable>
 	("LpyDebugger", init<>("LpyDebugger()"))
+	.add_property("active",make_getter(&Lsystem::Debugger::active),make_setter(&Lsystem::Debugger::active))
     .def("partial_match", &Lsystem::Debugger::partial_match,&PyLpyDebugger::partial_match)
     .def("total_match", &Lsystem::Debugger::total_match,&PyLpyDebugger::total_match)
     .def("identity", &Lsystem::Debugger::identity,&PyLpyDebugger::identity)

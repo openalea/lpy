@@ -366,11 +366,16 @@ class LpySimulation:
             Viewer.animation(True)
         timing = clock()
         if (not edition) and (not self.tree is None) and (0 < nbiter < dl):
-              task.result = self.lsystem.animate(self.tree,dt,nbiter,dl-nbiter)
+            task.result = self.lsystem.animate(self.tree,dt,nbiter,dl-nbiter)
         else:
-              task.result = self.lsystem.animate(dt,dl)
+            task.result = self.lsystem.animate(dt,dl)
         task.timing = clock() - timing
         task.dl = self.lsystem.getLastIterationNb()+1
+    def pre_animate(self,task):
+        if self.isTextEdited() or self.lsystem.empty() :
+            self.updateLsystemCode()
+        Viewer.start()
+        Viewer.animation(False if self.firstView and task.fitAnimationView else True)
     def post_animate(self,task):
         if hasattr(task,'result'):
             self.setTree(task.result,task.dl,task.timing)

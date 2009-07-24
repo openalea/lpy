@@ -172,7 +172,7 @@ public:
 
    class LPY_API Debugger : public TOOLS::RefCountObject {
    public:
-	   Debugger() { }
+	   Debugger() : active(true) { }
 	   virtual ~Debugger() ;
 
 	   virtual void begin(const AxialTree& src, eDirection) { }
@@ -188,6 +188,7 @@ public:
 							     const ArgList) { }
 	   virtual void identity(AxialTree::const_iterator match_pos, 
 							 const AxialTree& dest) { }
+	   bool active;
    };
    typedef RCPtr<Debugger> DebuggerPtr;
 

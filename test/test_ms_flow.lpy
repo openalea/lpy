@@ -31,19 +31,19 @@ G :
 
 production:
 
-I(1) < I(y) -static-> I(1)
-I(1) > L -static-> I(-1)
-L < I(-1) -static-> I(1)
-I(x) > I(-1) -static-> I(-1)
+I(1) < I(y) --> I(1)
+I(1) > L --> I(-1)
+L < I(-1) --> I(1)
+I(x) > I(-1) --> I(-1)
 I(x):
   if x != 0 : produce I(0)
 
 
 
-U(1) > E -static-> U(-1)
-E < U(-1) -static-> U(1)
-U(1) < U(y) -static-> U(1)
-U(x) > U(-1) -static-> U(-1)
+U(1) > E --> U(-1)
+E < U(-1) --> U(1)
+U(1) < U(y) --> U(1)
+U(x) > U(-1) --> U(-1)
 U(x):
   if x != 0 : produce U(0)
 
@@ -58,4 +58,5 @@ endlsystem
 def __initialiseContext__(context):
 	from openalea.plantgl.all import Material,Color3
 	context.turtle.setMaterial(1,Material('Brown',Color3(6,4,1),13.8333,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.options.setSelection('Optimization',2)
 	context.options.setSelection('String matching',3)

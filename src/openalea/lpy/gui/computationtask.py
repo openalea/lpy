@@ -11,12 +11,16 @@ class ThreadTransferException (Exception):
         self.exc_traceback = exc_traceback
 
 class ComputationTask(QThread):
-    def __init__(self, process = None, postprocess = None):
+    def __init__(self, process = None, postprocess = None, preprocess = None):
         QThread.__init__(self)
         self.process = process
         self.postprocess = postprocess
+        self.preprocess = preprocess
         self.threaded = True
         self.exception = None
+    def initialize(self):
+        if self.preprocess:
+          self.preprocess(self)
     def run(self):
         if self.process:
             if self.threaded:
@@ -33,6 +37,7 @@ class ComputationTask(QThread):
           self.postprocess(self)
     def apply(self):
         self.threaded = False
+        self.initialize()
         self.run()
         self.finalize()
     def __call__(self):
@@ -70,6 +75,7 @@ class ComputationTaskManager:
                 QObject.connect(task,SIGNAL('finished()'),self.finalizeTask)
                 QObject.connect(task,SIGNAL('terminated()'),self.abortTask)
                 self.computationThread = task
+                task.initialize()
                 task.start()
             else:
               try:

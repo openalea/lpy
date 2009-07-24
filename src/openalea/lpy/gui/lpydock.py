@@ -1,14 +1,21 @@
 from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QApplication, QIcon, QPixmap,QWidget,QDockWidget
+from PyQt4.QtGui import QApplication, QIcon, QPixmap,QWidget,QDockWidget, QSplitter
 from code import InteractiveInterpreter as Interpreter
 import shell
 import debugger_ui
+import debugger_right_ui
 
 
-class DebugWidget(QWidget,debugger_ui.Ui_Form):
+class DebugLeftWidget(QWidget,debugger_ui.Ui_Form):
     def __init__(self,parent):
         QWidget.__init__(self,parent)
         debugger_ui.Ui_Form.__init__(self)
+        self.setupUi(self)
+
+class DebugRightWidget(QWidget,debugger_right_ui.Ui_Form):
+    def __init__(self,parent):
+        QWidget.__init__(self,parent)
+        debugger_right_ui.Ui_Form.__init__(self)
         self.setupUi(self)
 
 def initDocks(lpywidget):
@@ -31,7 +38,11 @@ def initDocks(lpywidget):
     # debug dock
     lpywidget.debugDock = QDockWidget("Debugger",lpywidget)
     lpywidget.debugDock.setObjectName("LpyDebugger")
-    lpywidget.debugWidget = DebugWidget(lpywidget)
+    lpywidget.debugWidget = QSplitter(Qt.Horizontal,lpywidget)
+    lpywidget.debugWidget.left = DebugLeftWidget(lpywidget.debugWidget)
+    lpywidget.debugWidget.addWidget(lpywidget.debugWidget.left)
+    lpywidget.debugWidget.right = DebugRightWidget(lpywidget.debugWidget)
+    lpywidget.debugWidget.addWidget(lpywidget.debugWidget.right)
     lpywidget.debugWidget.setEnabled(False)
     lpywidget.debugDock.setWidget(lpywidget.debugWidget)
     lpywidget.addDockWidget(Qt.BottomDockWidgetArea,lpywidget.debugDock)

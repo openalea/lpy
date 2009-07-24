@@ -37,6 +37,7 @@ if not py2exe_release:
     ldir    = os.path.dirname(__file__)
     ui.check_ui_generation(os.path.join(ldir, 'lpymainwindow.ui'))
     ui.check_ui_generation(os.path.join(ldir, 'debugger_ui.ui'))
+    ui.check_ui_generation(os.path.join(ldir, 'debugger_right_ui.ui'))
     ui.check_rc_generation(os.path.join(ldir, 'lpyresources.qrc'))
     del ldir
     pass
@@ -405,10 +406,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
       self.acquireCR()
       simu = self.currentSimulation()
       try:
-        Viewer.start()
-        Viewer.animation(False if simu.firstView and self.fitAnimationView else True)
-        simu.updateLsystemCode()
-        task = ComputationTask(simu.animate,simu.post_animate)
+        task = ComputationTask(simu.animate,simu.post_animate,simu.pre_animate)
         task.fitAnimationView = self.fitAnimationView
         self.registerTask(task)
       except:
