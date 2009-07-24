@@ -43,14 +43,15 @@ LPY_USING_NAMESPACE
 class PyLpyDebugger : public Lsystem::Debugger, public bp::wrapper<Lsystem::Debugger>
 {
 public:
-    PyLpyDebugger() : Lsystem::Debugger(), bp::wrapper<Lsystem::Debugger>() 
+    PyLpyDebugger() : Lsystem::Debugger(), bp::wrapper<Lsystem::Debugger>(), src(NULL)
       {  }
 
-	virtual void begin(const AxialTree& src, eDirection dir) {
+	virtual void begin(const AxialTree& _src, eDirection dir) {
         PythonInterpreterAcquirer py;
         if (bp::override func = this->get_override("begin")){
 			reference_existing_object::apply<AxialTree*>::type lstringconverter;
-			bp::call<void>(func.ptr(),object( handle<>(lstringconverter(src))),bp::object(dir)); 
+			bp::call<void>(func.ptr(),object( handle<>(lstringconverter(_src))),bp::object(dir)); 
+			src = &_src;
 		}
 	}
 
@@ -59,11 +60,11 @@ public:
         if (bp::override func = this->get_override("end")){
 			reference_existing_object::apply<AxialTree*>::type lstringconverter;
 			bp::call<void>(func.ptr(),object( handle<>(lstringconverter(result)))); 
+			src = NULL;
 		}
 	}
 
-	virtual void partial_match(const AxialTree& src, 
-		                     AxialTree::const_iterator match_beg, 
+	virtual void partial_match(AxialTree::const_iterator match_beg, 
 							 AxialTree::const_iterator match_end,
 							 const AxialTree& dest, const LsysRule * rule,
 							 const ArgList args) 
@@ -72,16 +73,14 @@ public:
         if (bp::override func = this->get_override("partial_match")){
 			reference_existing_object::apply<AxialTree*>::type lstringconverter;
 			reference_existing_object::apply<LsysRule*>::type ruleconverter;
-			bp::call<void>(func.ptr(),object( handle<>(lstringconverter(src))),
-						   bp::object(src.pos(match_beg)),
-						   bp::object(src.pos(match_end)),
+			bp::call<void>(func.ptr(),bp::object(src->pos(match_beg)),
+						   bp::object(src->pos(match_end)),
 						   object( handle<>(lstringconverter(dest))),object( handle<>(ruleconverter(rule))),
 						   toPyList(args)); 
 		}
 	}
 
-	virtual void total_match(const AxialTree& src, 
-		                     AxialTree::const_iterator match_beg, 
+	virtual void total_match(AxialTree::const_iterator match_beg, 
 							 AxialTree::const_iterator match_end,
 							 const AxialTree& dest, size_t prodlength,
 							 const LsysRule * rule,
@@ -91,28 +90,27 @@ public:
         if (bp::override func = this->get_override("total_match")){
 			reference_existing_object::apply<AxialTree*>::type lstringconverter;
 			reference_existing_object::apply<LsysRule*>::type ruleconverter;
-			bp::call<void>(func.ptr(),object( handle<>(lstringconverter(src))),
-						   bp::object(src.pos(match_beg)),
-						   bp::object(src.pos(match_end)),
+			bp::call<void>(func.ptr(), bp::object(src->pos(match_beg)),
+						   bp::object(src->pos(match_end)),
 						   object( handle<>(lstringconverter(dest))),object(prodlength),
 						   object( handle<>(ruleconverter(rule))),
 						   toPyList(args)); 
 		}
 	}
-	virtual void identity(const AxialTree& src, 
-		                     AxialTree::const_iterator match_pos, 
+	virtual void identity(AxialTree::const_iterator match_pos, 
 							 const AxialTree& dest) 
 	{
         PythonInterpreterAcquirer py;
         if (bp::override func = this->get_override("identity")){
 			reference_existing_object::apply<AxialTree*>::type lstringconverter;
 			reference_existing_object::apply<LsysRule*>::type ruleconverter;
-			bp::call<void>(func.ptr(),object( handle<>(lstringconverter(src))),
-						   bp::object(src.pos(match_pos)),
+			bp::call<void>(func.ptr(),bp::object(src->pos(match_pos)),
 						   object( handle<>(lstringconverter(dest)))); 
 		}
 	}
 
+protected:
+	const AxialTree * src;
 };
 
 typedef RCPtr<PyLpyDebugger> PyLpyDebuggerPtr;

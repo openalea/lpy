@@ -18,7 +18,7 @@
 
 
 # These will change with different releases.
-!define LPY_VERSION        "1.2.0"
+!define LPY_VERSION        "1.3.0"
 !define LPY_VERSION_EXTRA  "Alpha"
 !define LPY_VERSION_MEXTRA "a"
 !define LPY_LICENSE        "GPL"
@@ -135,8 +135,7 @@ Section "Examples and tutorial" SecExamples
         CreateDirectory $LPY_INSTDIR\examples
 
     SetOutPath $LPY_INSTDIR\examples
-    File .\share\*.py
-    File .\share\*.lpy
+    File /r .\share\*
 SectionEnd
 
 Section "Start Menu shortcuts" SecShortcuts

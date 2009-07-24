@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'd:\fred\mes documents\develop\vplants\trunk\lpy\src\openalea\lpy\gui\lpymainwindow.ui'
 #
-# Created: Fri Jul 17 14:46:48 2009
+# Created: Tue Jul 21 19:17:42 2009
 #      by: PyQt4 UI code generator 4.4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,12 +12,12 @@ from PyQt4 import QtCore, QtGui
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(759,622)
+        MainWindow.resize(780,622)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/logo/logo.png"),QtGui.QIcon.Normal,QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
         self.centralwidget = QtGui.QWidget(MainWindow)
-        self.centralwidget.setGeometry(QtCore.QRect(0,55,759,548))
+        self.centralwidget.setGeometry(QtCore.QRect(0,55,780,548))
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_2 = QtGui.QGridLayout(self.centralwidget)
         self.gridLayout_2.setSpacing(2)
@@ -118,7 +118,7 @@ class Ui_MainWindow(object):
         self.descriptionDock = QtGui.QDockWidget(self.centralwidget)
         self.descriptionDock.setObjectName("descriptionDock")
         self.dockWidgetContents_4 = QtGui.QWidget(self.descriptionDock)
-        self.dockWidgetContents_4.setGeometry(QtCore.QRect(0,22,96,348))
+        self.dockWidgetContents_4.setGeometry(QtCore.QRect(0,22,106,348))
         self.dockWidgetContents_4.setObjectName("dockWidgetContents_4")
         self.verticalLayout_6 = QtGui.QVBoxLayout(self.dockWidgetContents_4)
         self.verticalLayout_6.setSpacing(0)
@@ -128,7 +128,7 @@ class Ui_MainWindow(object):
         self.toolBox.setMidLineWidth(1)
         self.toolBox.setObjectName("toolBox")
         self.page = QtGui.QWidget()
-        self.page.setGeometry(QtCore.QRect(0,0,96,292))
+        self.page.setGeometry(QtCore.QRect(0,0,106,292))
         self.page.setObjectName("page")
         self.verticalLayout_2 = QtGui.QVBoxLayout(self.page)
         self.verticalLayout_2.setSpacing(2)
@@ -190,7 +190,7 @@ class Ui_MainWindow(object):
         self.helpDock.setFloating(False)
         self.helpDock.setObjectName("helpDock")
         self.dockWidgetContents_5 = QtGui.QWidget(self.helpDock)
-        self.dockWidgetContents_5.setGeometry(QtCore.QRect(0,22,110,348))
+        self.dockWidgetContents_5.setGeometry(QtCore.QRect(0,22,121,348))
         self.dockWidgetContents_5.setObjectName("dockWidgetContents_5")
         self.verticalLayout_7 = QtGui.QVBoxLayout(self.dockWidgetContents_5)
         self.verticalLayout_7.setObjectName("verticalLayout_7")
@@ -355,7 +355,7 @@ class Ui_MainWindow(object):
         self.interpreterDock.setFloating(False)
         self.interpreterDock.setObjectName("interpreterDock")
         self.dockWidgetContents = QtGui.QWidget(self.interpreterDock)
-        self.dockWidgetContents.setGeometry(QtCore.QRect(0,22,741,136))
+        self.dockWidgetContents.setGeometry(QtCore.QRect(0,22,762,136))
         self.dockWidgetContents.setObjectName("dockWidgetContents")
         self.vboxlayout = QtGui.QVBoxLayout(self.dockWidgetContents)
         self.vboxlayout.setSpacing(6)
@@ -365,7 +365,7 @@ class Ui_MainWindow(object):
         self.gridLayout_2.addWidget(self.interpreterDock,4,0,1,5)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0,0,759,21))
+        self.menubar.setGeometry(QtCore.QRect(0,0,780,21))
         self.menubar.setObjectName("menubar")
         self.menuL_systems = QtGui.QMenu(self.menubar)
         self.menuL_systems.setObjectName("menuL_systems")
@@ -381,7 +381,7 @@ class Ui_MainWindow(object):
         self.menuView.setObjectName("menuView")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(MainWindow)
-        self.statusbar.setGeometry(QtCore.QRect(0,603,759,19))
+        self.statusbar.setGeometry(QtCore.QRect(0,603,780,19))
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
         self.FileBar = QtGui.QToolBar(MainWindow)
@@ -393,7 +393,7 @@ class Ui_MainWindow(object):
         self.FileBar.setObjectName("FileBar")
         MainWindow.addToolBar(QtCore.Qt.TopToolBarArea,self.FileBar)
         self.LsytemBar = QtGui.QToolBar(MainWindow)
-        self.LsytemBar.setGeometry(QtCore.QRect(352,21,407,34))
+        self.LsytemBar.setGeometry(QtCore.QRect(352,21,428,34))
         self.LsytemBar.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
         self.LsytemBar.setObjectName("LsytemBar")
         MainWindow.addToolBar(QtCore.Qt.TopToolBarArea,self.LsytemBar)
@@ -557,12 +557,19 @@ class Ui_MainWindow(object):
         self.actionSaveAll.setObjectName("actionSaveAll")
         self.actionGoto = QtGui.QAction(MainWindow)
         self.actionGoto.setObjectName("actionGoto")
+        self.actionDebug = QtGui.QAction(MainWindow)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/images/icons/play-green.png"),QtGui.QIcon.Normal,QtGui.QIcon.Off)
+        self.actionDebug.setIcon(icon)
+        self.actionDebug.setObjectName("actionDebug")
         self.menuL_systems.addAction(self.actionRun)
         self.menuL_systems.addAction(self.actionAnimate)
         self.menuL_systems.addSeparator()
         self.menuL_systems.addAction(self.actionStep)
         self.menuL_systems.addAction(self.actionRewind)
         self.menuL_systems.addAction(self.actionStop)
+        self.menuL_systems.addSeparator()
+        self.menuL_systems.addAction(self.actionDebug)
         self.menuRecents.addAction(self.actionClear)
         self.menuFile.addAction(self.actionNew)
         self.menuFile.addSeparator()
@@ -620,6 +627,7 @@ class Ui_MainWindow(object):
         self.LsytemBar.addAction(self.actionRun)
         self.LsytemBar.addAction(self.actionAnimate)
         self.LsytemBar.addAction(self.actionStep)
+        self.LsytemBar.addAction(self.actionDebug)
         self.LsytemBar.addAction(self.actionStop)
 
         self.retranslateUi(MainWindow)
@@ -747,6 +755,7 @@ class Ui_MainWindow(object):
         self.actionSaveAll.setText(QtGui.QApplication.translate("MainWindow", "Save All", None, QtGui.QApplication.UnicodeUTF8))
         self.actionGoto.setText(QtGui.QApplication.translate("MainWindow", "Go to line ...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionGoto.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+G", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionDebug.setText(QtGui.QApplication.translate("MainWindow", "Debug", None, QtGui.QApplication.UnicodeUTF8))
 
 from lpycodeeditor import LpyCodeEditor
 from materialeditor import MaterialEditor

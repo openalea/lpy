@@ -237,6 +237,7 @@ void export_AxialTree() {
     .def(lstring_func<AxialTree>())
 	.def("__str__", &AxialTree::str)
 	.def("__repr__",&AxialTree::repr)
+	.def("str_slice", (std::string(AxialTree::*)(int,int)const)&AxialTree::str_slice)
 
 /*	.def("__iadd__", (AxialTree& (AxialTree::*)(const list&))&AxialTree::operator+=, return_internal_reference<1>())
 	.def("__iadd__", (AxialTree& (AxialTree::*)(const tuple&))&AxialTree::operator+=, return_internal_reference<1>())

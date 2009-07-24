@@ -19,7 +19,6 @@ from PyQt4.QtGui import *
 import traceback as tb
 import documentation as doc
 import settings
-import lpydock
 import lpypreferences
 from simulation import LpySimulation
 from openalea.plantgl.all import *
@@ -37,14 +36,16 @@ if not py2exe_release:
     import compile_ui as ui
     ldir    = os.path.dirname(__file__)
     ui.check_ui_generation(os.path.join(ldir, 'lpymainwindow.ui'))
+    ui.check_ui_generation(os.path.join(ldir, 'debugger_ui.ui'))
     ui.check_rc_generation(os.path.join(ldir, 'lpyresources.qrc'))
     del ldir
     pass
 
 
+import lpydock
 import lpymainwindow as lsmw
 from computationtask import *
-
+from lpystudiodebugger import LpyVisualDebugger
         
 class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
     def __init__(self, parent=None, withinterpreter = True):
@@ -94,6 +95,8 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.frameReplace.hide() 
         self.frameGoto.hide() 
         self.codeeditor.initWithEditor(self)        
+        self.debugMode = False
+        self.debugger = LpyVisualDebugger(self)
         self.newfile()
         self.currentSimulation().restoreState()
         self.textEditionWatch = False
@@ -118,6 +121,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         QObject.connect(self.actionAnimate, SIGNAL('triggered(bool)'),self.animate)
         QObject.connect(self.actionStep, SIGNAL('triggered(bool)'),self.step)
         QObject.connect(self.actionRewind, SIGNAL('triggered(bool)'),self.rewind)
+        QObject.connect(self.actionDebug, SIGNAL('triggered(bool)'),self.debug)
         QObject.connect(self.actionStop, SIGNAL('triggered(bool)'),self.cancelTask)
         QObject.connect(self.actionComment, SIGNAL('triggered(bool)'),self.codeeditor.comment)
         QObject.connect(self.actionUncomment, SIGNAL('triggered(bool)'),self.codeeditor.uncomment)
@@ -191,6 +195,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
             else:
                 self.currentSimulation().restoreState()
     def closeEvent(self,e):
+        self.debugger.endDebug()
         Viewer.stop()    
         settings.saveState(self)
         for simu in reversed(self.simulations):
@@ -212,8 +217,12 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.actionRewind.setEnabled(enabled)
         self.actionClear.setEnabled(enabled)
         self.actionClose.setEnabled(enabled)
+        if self.debugMode == True:
+            self.actionDebug.setEnabled(True)
+        else:
+            self.actionDebug.setEnabled(enabled)
         self.actionStop.setEnabled(not enabled)  
-        pass
+        self.documentNames.setEnabled(enabled)  
     def plotScene(self,scene):
       if self.thread() != QThread.currentThread():
         #Viewer.display(scene)
@@ -223,16 +232,21 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         QApplication.postEvent(self,e)
         self.com_waitcondition.wait(self.com_mutex)
         self.com_mutex.unlock()
-        pass
       else:
         Viewer.display(scene)
         QCoreApplication.instance().processEvents()
     def cancelTask(self):
-        if not self.computationThread is None:
-            self.currentSimulation().cancel()
+        if self.debugMode:
+            self.debugger.stop()
+            if not self.debugger.running:
+                self.debugMode = False
+                self.releaseCR()
         else:
-          if self.isRunning():
-            print "Force release"
+            if not self.computationThread is None:
+                self.currentSimulation().cancel()
+            else:
+                if self.isRunning():
+                    print "Force release"
             self.releaseCR()
     def customEvent(self,event):
         Viewer.display(event.scene)
@@ -367,6 +381,19 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
       except :
         self.graberror()
       self.releaseCR()
+    def debug(self):
+      if self.debugMode == True:
+        self.debugger.next()
+      else:
+        self.debugMode = True
+        self.acquireCR()
+        simu = self.currentSimulation()
+        try:
+            simu.debug()
+        except :
+            self.graberror()
+        self.releaseCR()
+        self.debugMode = False
     def rewind(self):
         self.acquireCR()
         try:

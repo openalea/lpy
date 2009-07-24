@@ -633,15 +633,15 @@ AxialTree Lsystem::__debugStep(AxialTree& workingstring,
                       if((*_it2)->match(workingstring,_it,targetstring,_it3,args)){
                           match = (*_it2)->applyTo(targetstring,args,&prodlength);
 						  if(match) { 
-							  debugger.total_match(workingstring,_it,_it3,targetstring,prodlength,*_it2,args);
+							  debugger.total_match(_it,_it3,targetstring,prodlength,*_it2,args);
 							  _it = _it3; break; 
 						  }
-						  else debugger.partial_match(workingstring,_it,_it3,targetstring,*_it2,args);
+						  else debugger.partial_match(_it,_it3,targetstring,*_it2,args);
                       }
               }
               if (!match){
                  targetstring.push_back(_it);
-				 debugger.identity(workingstring,_it,targetstring);
+				 debugger.identity(_it,targetstring);
 				 ++_it;
               }
               else matching = true;
@@ -664,15 +664,15 @@ AxialTree Lsystem::__debugStep(AxialTree& workingstring,
                   if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args)){
                       match = (*_it2)->reverseApplyTo(targetstring,args,&prodlength);
                       if(match) { 							  
-						  debugger.total_match(workingstring,_it==_endit?_it3:_it3+1,_it+1,targetstring,prodlength,*_it2,args);
+						  debugger.total_match(_it3==_endit?_it3:_it3+1,_it+1,targetstring,prodlength,*_it2,args);
 						  _it = _it3; break; 
 					  }
- 					  else debugger.partial_match(workingstring,_it==_endit?_it3:_it3+1,_it+1,targetstring,*_it2,args);
+ 					  else debugger.partial_match(_it3==_endit?_it3:_it3+1,_it+1,targetstring,*_it2,args);
                  }
           }
           if (!match){
               targetstring.push_front(_it);
-			  debugger.identity(workingstring,_it,targetstring);
+			  debugger.identity(_it,targetstring);
               if(_it != _endit) --_it;
           }
           else matching = true;
@@ -992,7 +992,21 @@ Lsystem::__iterate( size_t starting_iter ,
 	        }
 
 	  }
-	  if(starting_iter+i == __max_derivation) __context.end();
+	  if(starting_iter+i == __max_derivation) {
+		switch (__context.getEndNbArgs()){
+			default:
+			case 0:
+				__context.end();
+				break;
+			case 1:
+				__context.end(workstring);
+				break;
+			case 2:
+				__interpret(workstring,__context.turtle);
+				__context.end(workstring,__context.turtle.getScene());
+				break;
+	        }
+	  }
 	}
   }
   return workstring;
@@ -1071,12 +1085,12 @@ Lsystem::__plot( AxialTree& workstring ){
 AxialTree
 Lsystem::animate(const AxialTree& workstring,double dt,size_t beg,size_t nb_iter){
     ACQUIRE_RESSOURCE
+    ContextMaintainer c(&__context);
     enableEarlyReturn(false);
     AxialTree tree = workstring;
     __context.set_animation_timestep(dt);
     Sequencer timer(dt);
     timer.touch();
-    ContextMaintainer c(&__context);
     __plot(tree);
     if (nb_iter > 0 && !isEarlyReturnEnabled()){
 	  for (size_t i = beg; i < beg+nb_iter; i++){

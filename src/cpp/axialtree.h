@@ -65,8 +65,13 @@ public:
   ~AxialTree();
   
 
-	std::string str() const;
 	std::string repr() const;
+
+    inline std::string str() const { return str_slice(const_begin(),const_end()); }
+	inline std::string str_slice(int beg, int end) const
+	{ const_iterator begit, endit; getValidIterators(beg,end,begit,endit); return str_slice(begit,endit); }
+
+	std::string str_slice(const_iterator beg, const_iterator end) const;
 
 	size_t count(const std::string& name) const;
 	size_t count(const std::string& name, size_t nbparam) const;

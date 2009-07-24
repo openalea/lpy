@@ -5,24 +5,25 @@ class MDebugger(LpyDebugger):
         LpyDebugger.__init__(self)
     def begin(self,src,direction):
         self.direction = direction
+        self.src = src
         print 'Axiom:',src
     def end(self,result):
         print 'Result:',result
-    def total_match(self,src,pos_beg,pos_end,dest,prod_length,rule,args):
-        assert src[pos_beg].name == 'B'
+    def total_match(self,pos_beg,pos_end,dest,prod_length,rule,args):
+        assert self.src[pos_beg].name == 'B'
         if self.direction == eForward:
-            print src[pos_beg:pos_end],'--',rule.lineno-1,'-->',dest[-prod_length:]
+            print self.src[pos_beg:pos_end],'--',rule.lineno-1,'-->',dest[-prod_length:]
         else:
-            print src[pos_beg:pos_end],'--',rule.lineno-1,'-->',dest[:prod_length]
-    def partial_match(self,src,pos_beg,pos_end,dest,rule,args):
-        assert src[pos_beg].name == 'C'
-        print src[pos_beg:pos_end],'--',rule.lineno-1,'--> failed'
-    def identity(self,src,pos,dest):
-        assert src[pos].name in 'AC'
+            print self.src[pos_beg:pos_end],'--',rule.lineno-1,'-->',dest[:prod_length]
+    def partial_match(self,pos_beg,pos_end,dest,rule,args):
+        assert self.src[pos_beg].name == 'C'
+        print self.src[pos_beg:pos_end],'--',rule.lineno-1,'--> failed'
+    def identity(self,pos,dest):
+        assert self.src[pos].name in 'AC'
         if self.direction == eForward:
-            print src[pos],'-- ID ->',dest[-1]
+            print self.src[pos],'-- ID ->',dest[-1]
         else:
-            print src[pos],'-- ID ->',dest[0]
+            print self.src[pos],'-- ID ->',dest[0]
 
 lcode = """
 Axiom: BAABAC

@@ -82,6 +82,8 @@ public:
   /** The Start, End, StartEach and EndEach execution */
   void start();
   void end();
+  void end(AxialTree&);
+  void end(AxialTree&, const PGL::ScenePtr&);
   void startEach();
   void endEach();
   void endEach(AxialTree&);
@@ -93,7 +95,8 @@ public:
   void setStartEach(boost::python::object func);
   void setEndEach(boost::python::object func);
   void check_init_functions();
-  size_t getEndEachNbArgs() const { return  __nbargs_of_endeach; }
+  inline size_t getEndEachNbArgs() const { return  __nbargs_of_endeach; }
+  inline size_t getEndNbArgs() const { return  __nbargs_of_end; }
 
 
   /// initialise context using python function in namespace.
@@ -147,8 +150,8 @@ public:
   inline eDirection getDirection() const { return __direction; }
 
   /** selection of group of rules */
-  void useGroup(size_t gid) { __group = gid; }
-  size_t getGroup() const  { return __group; }
+  inline void useGroup(size_t gid) { __group = gid; }
+  inline size_t getGroup() const  { return __group; }
 
   /** iterative production */
   inline void nproduce(const AxialTree& prod)
@@ -232,6 +235,9 @@ protected:
   void setIterationNb(size_t) ;
 
 protected:
+  void controlMethod(const std::string&, AxialTree&);
+  void controlMethod(const std::string&, AxialTree&, const PGL::ScenePtr&);
+
   /// initialise context using python function in namespace.
   bool __initialise();
   size_t __initialiseFrom(const std::string& lcode);
@@ -285,6 +291,7 @@ protected:
   QReadWriteLock __iteration_nb_lock;
 
   size_t __nbargs_of_endeach;
+  size_t __nbargs_of_end;
 
   // list of parametric production
   ParametricProductionList __paramproductions;

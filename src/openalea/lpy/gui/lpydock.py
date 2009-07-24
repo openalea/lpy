@@ -1,7 +1,15 @@
 from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QApplication, QIcon, QPixmap
+from PyQt4.QtGui import QApplication, QIcon, QPixmap,QWidget,QDockWidget
 from code import InteractiveInterpreter as Interpreter
 import shell
+import debugger_ui
+
+
+class DebugWidget(QWidget,debugger_ui.Ui_Form):
+    def __init__(self,parent):
+        QWidget.__init__(self,parent)
+        debugger_ui.Ui_Form.__init__(self)
+        self.setupUi(self)
 
 def initDocks(lpywidget):
     for dock in [lpywidget.materialDock, lpywidget.parametersDock, lpywidget.descriptionDock]:
@@ -20,6 +28,17 @@ def initDocks(lpywidget):
     lpywidget.menuHelp.addAction(action)
     lpywidget.tabifyDockWidget(lpywidget.materialDock,lpywidget.parametersDock)
     lpywidget.tabifyDockWidget(lpywidget.parametersDock,lpywidget.descriptionDock)
+    # debug dock
+    lpywidget.debugDock = QDockWidget("Debugger",lpywidget)
+    lpywidget.debugDock.setObjectName("LpyDebugger")
+    lpywidget.debugWidget = DebugWidget(lpywidget)
+    lpywidget.debugWidget.setEnabled(False)
+    lpywidget.debugDock.setWidget(lpywidget.debugWidget)
+    lpywidget.addDockWidget(Qt.BottomDockWidgetArea,lpywidget.debugDock)
+    action = lpywidget.debugDock.toggleViewAction()
+    lpywidget.menuView.addAction(action)
+    lpywidget.debugDock.hide()
+    #interpreter dock
     if lpywidget.withinterpreter :
         shellclass = shell.get_shell_class()
         lpywidget.interpreter = Interpreter()
@@ -34,5 +53,6 @@ def initDocks(lpywidget):
         lpywidget.interpreter.runcode('from openalea.plantgl.all import *')
         lpywidget.interpreter.runcode('from openalea.lpy import *')
         lpywidget.addDockWidget(Qt.BottomDockWidgetArea,lpywidget.interpreterDock)
+        lpywidget.tabifyDockWidget(lpywidget.debugDock,lpywidget.interpreterDock)
     else:
         lpywidget.interpreter = None

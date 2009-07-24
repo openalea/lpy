@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>759</width>
+    <width>780</width>
     <height>622</height>
    </rect>
   </property>
@@ -21,7 +21,7 @@
     <rect>
      <x>0</x>
      <y>55</y>
-     <width>759</width>
+     <width>780</width>
      <height>548</height>
     </rect>
    </property>
@@ -271,7 +271,7 @@
         <rect>
          <x>0</x>
          <y>22</y>
-         <width>96</width>
+         <width>106</width>
          <height>348</height>
         </rect>
        </property>
@@ -295,7 +295,7 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>96</width>
+             <width>106</width>
              <height>292</height>
             </rect>
            </property>
@@ -429,7 +429,7 @@
         <rect>
          <x>0</x>
          <y>22</y>
-         <width>110</width>
+         <width>121</width>
          <height>348</height>
         </rect>
        </property>
@@ -826,7 +826,7 @@
         <rect>
          <x>0</x>
          <y>22</y>
-         <width>741</width>
+         <width>762</width>
          <height>136</height>
         </rect>
        </property>
@@ -848,7 +848,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>759</width>
+     <width>780</width>
      <height>21</height>
     </rect>
    </property>
@@ -862,6 +862,8 @@
     <addaction name="actionStep" />
     <addaction name="actionRewind" />
     <addaction name="actionStop" />
+    <addaction name="separator" />
+    <addaction name="actionDebug" />
    </widget>
    <widget class="QMenu" name="menuFile" >
     <property name="title" >
@@ -942,7 +944,7 @@
     <rect>
      <x>0</x>
      <y>603</y>
-     <width>759</width>
+     <width>780</width>
      <height>19</height>
     </rect>
    </property>
@@ -983,7 +985,7 @@
     <rect>
      <x>352</x>
      <y>21</y>
-     <width>407</width>
+     <width>428</width>
      <height>34</height>
     </rect>
    </property>
@@ -1003,6 +1005,7 @@
    <addaction name="actionRun" />
    <addaction name="actionAnimate" />
    <addaction name="actionStep" />
+   <addaction name="actionDebug" />
    <addaction name="actionStop" />
   </widget>
   <action name="actionOpen" >
@@ -1351,6 +1354,15 @@
    </property>
    <property name="shortcut" >
     <string>Ctrl+G</string>
+   </property>
+  </action>
+  <action name="actionDebug" >
+   <property name="icon" >
+    <iconset resource="lpyresources.qrc" >
+     <normaloff>:/images/icons/play-green.png</normaloff>:/images/icons/play-green.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Debug</string>
    </property>
   </action>
  </widget>

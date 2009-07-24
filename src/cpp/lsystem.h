@@ -177,19 +177,16 @@ public:
 
 	   virtual void begin(const AxialTree& src, eDirection) { }
 	   virtual void end(const AxialTree& result) { }
-	   virtual void partial_match(const AxialTree& src, 
-		                     AxialTree::const_iterator match_beg, 
-							 AxialTree::const_iterator match_end,
-							 const AxialTree& dest, const LsysRule *,
-							 const ArgList) { }
-	   virtual void total_match(const AxialTree& src, 
-		                     AxialTree::const_iterator match_beg, 
-							 AxialTree::const_iterator match_end,
-							 const AxialTree& dest, size_t prodlength,
-							 const LsysRule *,
-							 const ArgList) { }
-	   virtual void identity(const AxialTree& src, 
-		                     AxialTree::const_iterator match_pos, 
+	   virtual void partial_match(AxialTree::const_iterator match_beg, 
+								  AxialTree::const_iterator match_end,
+								  const AxialTree& dest, const LsysRule *,
+								  const ArgList) { }
+	   virtual void total_match( AxialTree::const_iterator match_beg, 
+							     AxialTree::const_iterator match_end,
+							     const AxialTree& dest, size_t prodlength,
+							     const LsysRule *,
+							     const ArgList) { }
+	   virtual void identity(AxialTree::const_iterator match_pos, 
 							 const AxialTree& dest) { }
    };
    typedef RCPtr<Debugger> DebuggerPtr;

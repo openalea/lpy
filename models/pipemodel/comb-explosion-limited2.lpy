@@ -29,6 +29,7 @@ from time import clock
 timer = 0
 
 def Start():
+  print 'start'
   global Phase,timer
   Phase = ProduceMetamers
   backward()
@@ -45,6 +46,7 @@ def EndEach():
   #global Phase
   #Phase = nextPhase[Phase]
   #print "Group = ",Phase
+  #print isForward() 
   pass
 
 ignore: Right Left RollR RollL Elasticity SetWidth
@@ -68,10 +70,10 @@ K(t) --> K(t+dt)
 A(t,o) :
   if (t>=PL) :
     t -= PL
-    nproduce Elasticity(0.0035 *  ( o ** 1.2 )) I(t,0) RollR(137.5)
+    nproduce Elasticity(0.0035 *  ( o ** 1.2 )) I(t,0) 
     for i in xrange(randint(0,6)):
       nproduce RollR(137.5) [ -(ANG) A(t-random()*4*PL,o+1) ] 
-    produce K(t)
+    produce RollR(137.5) K(t)
   else: produce A(t+dt,o)
 
 

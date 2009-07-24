@@ -33,6 +33,7 @@
 using namespace boost::python;
 #include <string>
 # include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+#include <plantgl/python/export_list.h>
 
 LPY_USING_NAMESPACE
 
@@ -135,6 +136,9 @@ std::string py_str_ag(const ArgList * obj) {
   return extract<std::string>(str(res));
 }
 
+
+object Lr_param(LsysRule * rule) {  return make_list(rule->formalParameters()); }
+
 void export_LsysRule(){
 
 #ifdef USE_OBJECTVEC_COLLECTOR
@@ -168,6 +172,7 @@ void export_LsysRule(){
 	.def("compile",(void(LsysRule::*)(dict&))&LsysRule::compile)
 	.def("clear", &LsysRule::clear)
 	.def("nbParameters", &LsysRule::nbParameters)
+	.def("parameterNames", &Lr_param)
 	.def("nbContexts", &LsysRule::nbContexts)
 	.def("isContextFree", &LsysRule::isContextFree)
 	.def("hasQuery", &LsysRule::hasQuery)

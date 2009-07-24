@@ -5,6 +5,7 @@ from openalea.plantgl.all import PglTurtle, Viewer
 import optioneditordelegate as oed
 import os, shutil
 from time import clock
+from lpystudiodebugger import AbortDebugger
 
 defaultcode = "Axiom: \n\nderivation length: 1\nproduction:\n\n\nhomomorphism:\n\n\nendlsystem\n"
 
@@ -159,7 +160,7 @@ class LpySimulation:
             else:
                 self.desc_items[key] = editor.toPlainText()
     def initializeParametersTable(self):
-        self.optionModel = QStandardItemModel(0, 2)
+        self.optionModel = QStandardItemModel(0, 1)
         self.optionModel.setHorizontalHeaderLabels(["Parameter", "Value" ])
         options = self.lsystem.context().options
         self.optionDelegate = oed.OptionEditorDelegate()
@@ -382,6 +383,23 @@ class LpySimulation:
               self.setTree(self.lsystem.iterate(self.nbiterations,1,self.tree),self.nbiterations+1)
             else:
               self.setTree(self.lsystem.axiom,0)
+        self.lsystem.plot(self.tree)
+        self.firstView = False
+    def debug(self):
+        self.lsystem.setDebugger(self.lpywidget.debugger)
+        try:
+            if self.isTextEdited() or self.lsystem.empty() or not self.tree:
+                self.updateLsystemCode()
+                self.setTree(self.lsystem.iterate(0,1,self.lsystem.axiom),1)
+            else:
+                if self.nbiterations < self.lsystem.derivationLength:
+                    self.setTree(self.lsystem.iterate(self.nbiterations,1,self.tree),self.nbiterations+1)
+                else:
+                    self.setTree(self.lsystem.iterate(0,1,self.lsystem.axiom),1)
+        except AbortDebugger,e :
+            self.lsystem.clearDebugger()
+            return
+        self.lsystem.clearDebugger()
         self.lsystem.plot(self.tree)
         self.firstView = False
     def rewind(self):

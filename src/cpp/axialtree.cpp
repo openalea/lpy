@@ -115,10 +115,9 @@ AxialTree::~AxialTree()
 	DecTracker(AxialTree) 
 }
 
-std::string AxialTree::str() const{
+std::string AxialTree::str_slice(const_iterator beg, const_iterator end) const{
   std::string str;
-  for(ModuleList::const_iterator _it = const_begin();
-	  _it != const_end(); _it++)
+  for(ModuleList::const_iterator _it = beg; _it != end; _it++)
 		 str += _it->str();
   return str;
 }

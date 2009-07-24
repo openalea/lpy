@@ -105,7 +105,7 @@ void export_LsysContext(){
 	(void (LsysContext::*)(dict&) )&LsysContext::updateNamespace)
 	.def("clearNamespace", (void (LsysContext::*)() )&LsysContext::clearNamespace)
 	.def("start",          &LsysContext::start)
-	.def("end",            &LsysContext::end)
+	.def("end",            (void(LsysContext::*)())&LsysContext::end)
 	.def("startEach",      &LsysContext::startEach)
 	.def("endEach",        (void(LsysContext::*)())&LsysContext::endEach)
 	.def("initialise",     &LsysContext::initialise)

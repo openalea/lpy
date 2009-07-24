@@ -215,6 +215,7 @@ optimizationLevel(DEFAULT_OPTIMIZATION_LEVEL),
 __animation_step(DefaultAnimationTimeStep),
 __iteration_nb(0),
 __nbargs_of_endeach(0),
+__nbargs_of_end(0),
 __paramproductions()
 {
 	IncTracker(LsysContext)
@@ -234,6 +235,7 @@ LsysContext::LsysContext(const LsysContext& lsys):
   __animation_step(lsys.__animation_step),
   __iteration_nb(0),
   __nbargs_of_endeach(0),
+  __nbargs_of_end(0),
   __paramproductions()
 {
 	IncTracker(LsysContext)
@@ -254,6 +256,7 @@ LsysContext::operator=(const LsysContext& lsys)
   optimizationLevel = lsys.optimizationLevel;
   __animation_step =lsys.__animation_step;
   __nbargs_of_endeach =lsys.__nbargs_of_endeach;
+  __nbargs_of_end =lsys.__nbargs_of_end;
   __paramproductions = lsys.__paramproductions;
   return *this;
 }
@@ -328,6 +331,7 @@ LsysContext::clear(){
   __selection_required = false;
   __iteration_nb = 0;
   __nbargs_of_endeach = 0;
+  __nbargs_of_end = 0;
   __modules.clear();
   __modulesvtables.clear();
   __aliases.clear();
@@ -617,6 +621,15 @@ LsysContext::end(){
   func("End");
 }
 
+void
+LsysContext::end(AxialTree& lstring)
+{ controlMethod("End",lstring); }
+
+void
+LsysContext::end(AxialTree& lstring, const PGL::ScenePtr& scene)
+{ controlMethod("End",lstring,scene); }
+
+
 void 
 LsysContext::startEach(){
   func("StartEach");
@@ -626,27 +639,35 @@ void
 LsysContext::endEach(){
   func("EndEach");
 }
+void
+LsysContext::endEach(AxialTree& lstring)
+{ controlMethod("EndEach",lstring); }
 
 void
-LsysContext::endEach(AxialTree& lstring){
+LsysContext::endEach(AxialTree& lstring, const PGL::ScenePtr& scene)
+{ controlMethod("EndEach",lstring,scene); }
+
+
+void
+LsysContext::controlMethod(const std::string& name, AxialTree& lstring){
   ContextMaintainer c(this);
-  if (hasObject("EndEach")){
+  if (hasObject(name)){
 	reference_existing_object::apply<AxialTree*>::type converter;
 	PyObject* obj = converter( &lstring );
 	object real_obj = object( handle<>( obj ) );
-	getObject("EndEach")(real_obj);
+	getObject(name)(real_obj);
   }
 }
 
 void
-LsysContext::endEach(AxialTree& lstring, const PGL::ScenePtr& scene)
+LsysContext::controlMethod(const std::string& name, AxialTree& lstring, const PGL::ScenePtr& scene)
 {
   ContextMaintainer c(this);
-  if (hasObject("EndEach")){
+  if (hasObject(name)){
 	reference_existing_object::apply<AxialTree*>::type converter;
 	PyObject* obj = converter( &lstring );
 	object real_obj = object( handle<>( obj ) );
-	getObject("EndEach")(real_obj, scene);
+	getObject(name)(real_obj, scene);
   }
 }
 
@@ -689,7 +710,8 @@ LsysContext::setStart(object func){
 
 void 
 LsysContext::setEnd(object func){
-  setObject("Stop",func);
+  setObject("End",func);
+  check_init_functions();
 }
 
 void 
@@ -719,6 +741,13 @@ LsysContext::check_init_functions()
 		catch (...) { PyErr_Clear(); __nbargs_of_endeach = 0; }
 	}
 	else __nbargs_of_endeach = 0;
+	if (hasObject("End")) {
+		try {
+			__nbargs_of_end = extract<size_t>(getObject("End").attr("func_code").attr("co_argcount"))();
+		}
+		catch (...) { PyErr_Clear(); __nbargs_of_end = 0; }
+	}
+	else __nbargs_of_end = 0;
 }
 
 /*---------------------------------------------------------------------------*/

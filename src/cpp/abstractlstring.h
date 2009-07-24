@@ -408,6 +408,16 @@ protected:
 		resi =(size_t)i;
 		resj =(size_t)j;
 	 }
+
+	 inline void getValidIterators(int i, int j, const_iterator& resi, const_iterator& resj) const {
+		size_t s = size();
+		if( i < 0 ) i += s;
+		if( j < 0 ) j += s;
+	    if( j > s ) j = s;
+		if (i < 0  || i >= s || j < i) throw PythonExc_IndexError("index out of range");
+		resi =const_begin()+i;
+		resj =const_begin()+j;
+	 }
 };
 
 /*---------------------------------------------------------------------------*/
