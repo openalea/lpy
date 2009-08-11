@@ -225,6 +225,15 @@ struct axialtree_from_str {
 PyAxialTreeIterator py_at_iter(AxialTree * tree) { return PyAxialTreeIterator(*tree); }
 PyAxialTreeIterator py_ati_iter(PyAxialTreeIterator * it) { return *it; }
 
+AxialTree py_add_ax_tuple(AxialTree * first, const boost::python::tuple& pattern) 
+{  AxialTree res(*first); res.append(ParamModule(pattern));  return res; }
+
+AxialTree& py_iadd_ax_tuple(AxialTree * first, const boost::python::tuple& pattern) 
+{   first->append(ParamModule(pattern));  return *first; }
+
+void py_insert_ax_tuple(AxialTree * first, int i, const boost::python::tuple& pattern) 
+{   first->setItemAt(i,ParamModule(pattern));  }
+
 void export_AxialTree() {
 
   class_<AxialTree>
@@ -238,13 +247,13 @@ void export_AxialTree() {
 	.def("__str__", &AxialTree::str)
 	.def("__repr__",&AxialTree::repr)
 	.def("str_slice", (std::string(AxialTree::*)(int,int)const)&AxialTree::str_slice)
+	.def("__iadd__", &py_iadd_ax_tuple, return_internal_reference<1>())
+	.def("__add__", &py_add_ax_tuple)
+	.def("insertAt",&py_insert_ax_tuple)
 
 /*	.def("__iadd__", (AxialTree& (AxialTree::*)(const list&))&AxialTree::operator+=, return_internal_reference<1>())
-	.def("__iadd__", (AxialTree& (AxialTree::*)(const tuple&))&AxialTree::operator+=, return_internal_reference<1>())
 	.def("__add__", (AxialTree (AxialTree::*)(const list&))&AxialTree::operator+)
-	.def("__add__", (AxialTree (AxialTree::*)(const tuple&))&AxialTree::operator+)
 	.def("insertAt",(void (AxialTree::*)(int,const list&))&AxialTree::insertAt)
-	.def("insertAt",(void (AxialTree::*)(int,const tuple&))&AxialTree::insertAt)
  */
     .def( "count", (size_t(AxialTree::*)(const std::string& name)const)&AxialTree::count ) 
     .def( "count", (size_t(AxialTree::*)(const std::string& name, size_t nbparam)const)&AxialTree::count ) 

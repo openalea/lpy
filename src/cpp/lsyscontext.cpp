@@ -103,7 +103,7 @@ void LsysContext::cleanContexts(){
 LsysContext *
 LsysContext::global()
 { 
-    if(!GLOBAL_LSYSCONTEXT) GLOBAL_LSYSCONTEXT = new GlobalContext();
+    if(!GLOBAL_LSYSCONTEXT)  GLOBAL_LSYSCONTEXT = new GlobalContext();
  	// if(!GLOBAL_LSYSCONTEXT->hasObject("pproduce"))
 	//	GLOBAL_LSYSCONTEXT->LsysContext::compile("from openalea.lpy import *");
 	return GLOBAL_LSYSCONTEXT; 
@@ -166,6 +166,7 @@ LsysContext::done()
 bool 
 LsysContext::isCurrent() const 
 { 
+  if (!CURRENT_LSYSCONTEXT) { CURRENT_LSYSCONTEXT = GLOBAL_LSYSCONTEXT; }
   return CURRENT_LSYSCONTEXT == this; 
 }
 
