@@ -96,7 +96,7 @@ private:
 
 /*---------------------------------------------------------------------------*/
 
-extern boost::python::object getFunctionRepr();
+LPY_API extern boost::python::object getFunctionRepr();
 
 template<class Parameter>
 class AbstractParamModule : public Module {
