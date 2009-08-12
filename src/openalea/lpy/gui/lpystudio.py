@@ -122,6 +122,8 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         QObject.connect(self.actionAnimate, SIGNAL('triggered(bool)'),self.animate)
         QObject.connect(self.actionStep, SIGNAL('triggered(bool)'),self.step)
         QObject.connect(self.actionRewind, SIGNAL('triggered(bool)'),self.rewind)
+        QObject.connect(self.actionIterateTo, SIGNAL('triggered(bool)'),self.iterateTo)
+        QObject.connect(self.actionNextIterate, SIGNAL('triggered(bool)'),self.nextIterate)
         QObject.connect(self.actionDebug, SIGNAL('triggered(bool)'),self.debug)
         QObject.connect(self.actionStop, SIGNAL('triggered(bool)'),self.cancelTask)
         QObject.connect(self.actionComment, SIGNAL('triggered(bool)'),self.codeeditor.comment)
@@ -382,6 +384,25 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
       except :
         self.graberror()
       self.releaseCR()
+    def iterateTo(self):
+      simu = self.currentSimulation()
+      initval = simu.iterateStep
+      if initval is None:  initval = 1
+      val,ok = QInputDialog.getInteger(self,"Number of Iterations","Choose number of iterations",initval,1)
+      if ok:        
+        simu.iterateStep = val
+      self.nextIterate()
+    def nextIterate(self):
+      simu = self.currentSimulation()
+      if simu.iterateStep is None:
+        self.iterateTo()
+      else:
+        self.acquireCR()
+        try:
+          simu.iterate()
+        except :
+          self.graberror()
+        self.releaseCR()
     def debug(self):
       if self.debugMode == True:
         self.debugger.next()

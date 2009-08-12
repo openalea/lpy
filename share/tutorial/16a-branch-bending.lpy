@@ -38,8 +38,6 @@ class SegmentData:
   def getRigidity(self):
     return YoungModElasticity * self.momentOfInertia
   rigidity = property(getRigidity)
-  def __repr__(self):
-    return ''
 
 def setMode(m):
   global mode

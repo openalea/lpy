@@ -7,6 +7,10 @@ class AbortDebugger(Exception):
     def __init__(self,txt=''):
         Exception.__init__(self,txt)
 
+def toHtml(txt):
+    return txt.replace('<','&lt;').replace('<','&gt;')
+    
+        
 class LpyVisualDebugger (lpy.LpyDebugger):
     def __init__(self,lpywidget):
         lpy.LpyDebugger.__init__(self)
@@ -66,16 +70,19 @@ class LpyVisualDebugger (lpy.LpyDebugger):
         nbChar = 0
         if pos_beg > 0:        
             txt += self.src.str_slice(0,pos_beg)
+            nbChar = len(txt)
+            txt = toHtml(txt)
         beforeMarker = '<BIG><B>'
         afterMarker  = '</B></BIG>'
-        txt += beforeMarker+self.src.str_slice(pos_beg,pos_end)+afterMarker
-        nbChar = len(txt)-len(beforeMarker)-len(afterMarker)
+        pattern = self.src.str_slice(pos_beg,pos_end)
+        nbChar += len(pattern)
+        txt += beforeMarker+toHtml(pattern)+afterMarker
         if pos_end < self.lensrc:
             txt2 = self.src.str_slice(pos_end,self.lensrc)            
             nbChar2 = len(txt2)
             if nbChar2 > 50:
                 nbChar2 = 50
-            txt += txt2
+            txt += toHtml(txt2)
         else: nbChar2 = 0
         view = self.srcView
         view.setText(txt)
@@ -89,9 +96,9 @@ class LpyVisualDebugger (lpy.LpyDebugger):
             l = len(dest)
             pos_beg = l-length
             if pos_beg > 0:        
-                txt += dest.str_slice(0,pos_beg)
+                txt += toHtml(dest.str_slice(0,pos_beg))
             if length > 0:
-                txt += '<BIG><B>'+dest.str_slice(pos_beg,l)+'</B></BIG>'
+                txt += '<BIG><B>'+toHtml(dest.str_slice(pos_beg,l))+'</B></BIG>'
             self.destView.setText(txt)
             sl = self.destView.horizontalScrollBar()
             sl.setValue(sl.maximum())
@@ -99,9 +106,9 @@ class LpyVisualDebugger (lpy.LpyDebugger):
             l = len(dest)
             pos_beg = length
             if pos_beg > 0:        
-                txt += '<BIG><B>'+dest.str_slice(0,pos_beg)+'</B></BIG>'
+                txt += '<BIG><B>'+toHtml(dest.str_slice(0,pos_beg))+'</B></BIG>'
             if l-pos_beg > 0:
-                txt += dest.str_slice(pos_beg,l)
+                txt += toHtml(dest.str_slice(pos_beg,l))
             self.destView.setText(txt)
             sl = self.destView.horizontalScrollBar()
             sl.setValue(sl.minimum())
@@ -185,7 +192,10 @@ class LpyVisualDebugger (lpy.LpyDebugger):
             si = QStandardItem(repr(val))
             si.setEditable(False)
             model.setItem(indexitem, 1, si)
-            si = QStandardItem(str(val.__class__.__name__))
+            try:
+              si = QStandardItem(str(val.__class__.__name__))
+            except:
+              si = QStandardItem(str(type(val).__name__))
             si.setEditable(False)
             model.setItem(indexitem, 2, si)
             indexitem += 1

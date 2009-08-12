@@ -364,7 +364,7 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>96</width>
+             <width>106</width>
              <height>336</height>
             </rect>
            </property>
@@ -863,6 +863,9 @@
     <addaction name="actionRewind" />
     <addaction name="actionStop" />
     <addaction name="separator" />
+    <addaction name="actionIterateTo" />
+    <addaction name="actionNextIterate" />
+    <addaction name="separator" />
     <addaction name="actionDebug" />
    </widget>
    <widget class="QMenu" name="menuFile" >
@@ -1061,6 +1064,9 @@
    <property name="text" >
     <string>Run</string>
    </property>
+   <property name="shortcut" >
+    <string>Ctrl+R</string>
+   </property>
   </action>
   <action name="actionAnimate" >
    <property name="icon" >
@@ -1078,6 +1084,9 @@
    </property>
    <property name="text" >
     <string>Step</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+E</string>
    </property>
   </action>
   <action name="actionRewind" >
@@ -1363,6 +1372,27 @@
    </property>
    <property name="text" >
     <string>Debug</string>
+   </property>
+  </action>
+  <action name="actionIterateTo" >
+   <property name="icon" >
+    <iconset resource="lpyresources.qrc" >
+     <normaloff>:/images/icons/run.png</normaloff>:/images/icons/run.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Iterate n times</string>
+   </property>
+  </action>
+  <action name="actionNextIterate" >
+   <property name="icon" >
+    <iconset resource="lpyresources.qrc" >
+     <normaloff>:/images/icons/run.png</normaloff>:/images/icons/run.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Next n iterations</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+D</string>
    </property>
   </action>
  </widget>

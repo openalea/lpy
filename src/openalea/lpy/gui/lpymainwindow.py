@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'd:\fred\mes documents\develop\vplants\trunk\lpy\src\openalea\lpy\gui\lpymainwindow.ui'
 #
-# Created: Tue Jul 21 19:17:42 2009
+# Created: Wed Aug 12 11:41:25 2009
 #      by: PyQt4 UI code generator 4.4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -158,7 +158,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.referenceEdit)
         self.toolBox.addItem(self.page,"")
         self.page_2 = QtGui.QWidget()
-        self.page_2.setGeometry(QtCore.QRect(0,0,96,336))
+        self.page_2.setGeometry(QtCore.QRect(0,0,106,336))
         self.page_2.setObjectName("page_2")
         self.verticalLayout = QtGui.QVBoxLayout(self.page_2)
         self.verticalLayout.setSpacing(2)
@@ -562,12 +562,25 @@ class Ui_MainWindow(object):
         icon.addPixmap(QtGui.QPixmap(":/images/icons/play-green.png"),QtGui.QIcon.Normal,QtGui.QIcon.Off)
         self.actionDebug.setIcon(icon)
         self.actionDebug.setObjectName("actionDebug")
+        self.actionIterateTo = QtGui.QAction(MainWindow)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/images/icons/run.png"),QtGui.QIcon.Normal,QtGui.QIcon.Off)
+        self.actionIterateTo.setIcon(icon)
+        self.actionIterateTo.setObjectName("actionIterateTo")
+        self.actionNextIterate = QtGui.QAction(MainWindow)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/images/icons/run.png"),QtGui.QIcon.Normal,QtGui.QIcon.Off)
+        self.actionNextIterate.setIcon(icon)
+        self.actionNextIterate.setObjectName("actionNextIterate")
         self.menuL_systems.addAction(self.actionRun)
         self.menuL_systems.addAction(self.actionAnimate)
         self.menuL_systems.addSeparator()
         self.menuL_systems.addAction(self.actionStep)
         self.menuL_systems.addAction(self.actionRewind)
         self.menuL_systems.addAction(self.actionStop)
+        self.menuL_systems.addSeparator()
+        self.menuL_systems.addAction(self.actionIterateTo)
+        self.menuL_systems.addAction(self.actionNextIterate)
         self.menuL_systems.addSeparator()
         self.menuL_systems.addAction(self.actionDebug)
         self.menuRecents.addAction(self.actionClear)
@@ -712,8 +725,10 @@ class Ui_MainWindow(object):
         self.actionExit.setText(QtGui.QApplication.translate("MainWindow", "Exit", None, QtGui.QApplication.UnicodeUTF8))
         self.actionExit.setShortcut(QtGui.QApplication.translate("MainWindow", "Esc", None, QtGui.QApplication.UnicodeUTF8))
         self.actionRun.setText(QtGui.QApplication.translate("MainWindow", "Run", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionRun.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+R", None, QtGui.QApplication.UnicodeUTF8))
         self.actionAnimate.setText(QtGui.QApplication.translate("MainWindow", "Animate", None, QtGui.QApplication.UnicodeUTF8))
         self.actionStep.setText(QtGui.QApplication.translate("MainWindow", "Step", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionStep.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+E", None, QtGui.QApplication.UnicodeUTF8))
         self.actionRewind.setText(QtGui.QApplication.translate("MainWindow", "Rewind", None, QtGui.QApplication.UnicodeUTF8))
         self.actionNew.setText(QtGui.QApplication.translate("MainWindow", "New", None, QtGui.QApplication.UnicodeUTF8))
         self.actionNew.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+N", None, QtGui.QApplication.UnicodeUTF8))
@@ -756,6 +771,9 @@ class Ui_MainWindow(object):
         self.actionGoto.setText(QtGui.QApplication.translate("MainWindow", "Go to line ...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionGoto.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+G", None, QtGui.QApplication.UnicodeUTF8))
         self.actionDebug.setText(QtGui.QApplication.translate("MainWindow", "Debug", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionIterateTo.setText(QtGui.QApplication.translate("MainWindow", "Iterate n times", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionNextIterate.setText(QtGui.QApplication.translate("MainWindow", "Next n iterations", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionNextIterate.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+D", None, QtGui.QApplication.UnicodeUTF8))
 
 from lpycodeeditor import LpyCodeEditor
 from materialeditor import MaterialEditor

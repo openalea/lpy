@@ -27,6 +27,7 @@ class LpySimulation:
         self.optionModel = None
         self.optionDelegate = None
         self.firstView = True
+        self.iterateStep = None
         self.desc_items = {'__authors__'    : '' ,
                           '__institutes__'  : '' ,
                           '__copyright__'   : '' ,
@@ -388,6 +389,15 @@ class LpySimulation:
               self.setTree(self.lsystem.iterate(self.nbiterations,1,self.tree),self.nbiterations+1)
             else:
               self.setTree(self.lsystem.axiom,0)
+        self.lsystem.plot(self.tree)
+        self.firstView = False
+    def iterate(self,n = None):
+        if n is None:
+            n = self.iterateStep
+        if self.isTextEdited() or self.lsystem.empty() or not self.tree or self.nbiterations >= self.lsystem.derivationLength:
+            self.updateLsystemCode()
+            self.setTree(self.lsystem.axiom,0)
+        self.setTree(self.lsystem.iterate(self.nbiterations,n,self.tree),self.nbiterations+n)
         self.lsystem.plot(self.tree)
         self.firstView = False
     def debug(self):
