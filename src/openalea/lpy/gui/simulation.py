@@ -114,17 +114,7 @@ class LpySimulation:
     def restoreState(self):        
         self.lpywidget.textEditionWatch = False
         te, tf = self.textedition, self._edited
-        firstinit = self.textdocument is None
-        if firstinit:            
-            self.textdocument = self.lpywidget.codeeditor.document().clone()
-        self.lpywidget.codeeditor.setLpyDocument(self.textdocument)
-        if firstinit:
-            self.lpywidget.codeeditor.clear()
-            self.lpywidget.codeeditor.setText(self.code)
-        if not self.cursor is None:
-            self.lpywidget.codeeditor.setTextCursor(self.cursor)
-            self.lpywidget.codeeditor.horizontalScrollBar().setValue(self.hvalue)
-            self.lpywidget.codeeditor.verticalScrollBar().setValue(self.vvalue)
+        self.lpywidget.codeeditor.restoreSimuState(self)
         if self.optionModel is None:
             self.initializeParametersTable()
         self.lpywidget.parametersTable.setModel(self.optionModel)
@@ -148,13 +138,7 @@ class LpySimulation:
         #if not self.lsystem.isCurrent() : self.lsystem.makeCurrent()
     def saveState(self):
         #if self.lsystem.isCurrent() :self.lsystem.done()
-        self.code = str(self.lpywidget.codeeditor.toPlainText().toAscii())
-        if self.textdocument is None:
-            print 'custom document clone'
-            self.textdocument = self.lpywidget.codeeditor.document().clone()
-        self.cursor = self.lpywidget.codeeditor.textCursor()
-        self.hvalue = self.lpywidget.codeeditor.horizontalScrollBar().value()
-        self.vvalue = self.lpywidget.codeeditor.verticalScrollBar().value()
+        self.lpywidget.codeeditor.saveSimuState(self)
         for key,editor in self.lpywidget.desc_items.iteritems():
             if type(editor) == QLineEdit:
                 self.desc_items[key] = editor.text()

@@ -1,6 +1,6 @@
 import openalea.lpy as lpy
 from PyQt4.QtCore import QObject, QMutex, QCoreApplication,  SIGNAL
-from PyQt4.QtGui import QTableWidgetItem, QStandardItem, QStandardItemModel, QTextCursor
+from PyQt4.QtGui import QTableWidgetItem, QStandardItem, QStandardItemModel, QTextCursor, QPixmap
 from time import clock
 
 class AbortDebugger(Exception):
@@ -117,16 +117,20 @@ class LpyVisualDebugger (lpy.LpyDebugger):
         self.print_dest(dest,prod_length)
         self.ruleView.setText(str(rule.lineno)+': '+rule.name())
         self.lpywidget.codeeditor.gotoLine(rule.lineno)
+        self.lpywidget.codeeditor.sidebar.addMarker(rule.lineno,QPixmap(':/images/icons/BreakPointGreen.png'))
         self.setProgress(pos_end if self.direction == lpy.eForward else pos_beg)
         self.updateArgs(dict(zip(rule.parameterNames(),args)))
         self.wait()
+        self.lpywidget.codeeditor.sidebar.removeCurrentMarker(rule.lineno)
     def partial_match(self,pos_beg,pos_end,dest,rule,args):
         self.print_src(pos_beg,pos_end)        
         self.print_dest(dest)
         self.ruleView.setText(str(rule.lineno)+': '+rule.name()+' --> nothing produce!')
         self.lpywidget.codeeditor.gotoLine(rule.lineno)
+        self.lpywidget.codeeditor.sidebar.addMarker(rule.lineno,QPixmap(':/images/icons/BreakPointGreen.png'))
         self.updateArgs(dict(zip(rule.parameterNames(),args)))
         self.wait()
+        self.lpywidget.codeeditor.sidebar.removeCurrentMarker(rule.lineno)
     def identity(self,pos,dest):
         self.print_src(pos,pos+1)        
         self.print_dest(dest,1)

@@ -99,7 +99,6 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.debugMode = False
         self.debugger = LpyVisualDebugger(self)
         self.newfile()
-        self.currentSimulation().restoreState()
         self.textEditionWatch = False
         self.documentNames.setDrawBase(False)
         def tb_mouseMoveEvent(event):

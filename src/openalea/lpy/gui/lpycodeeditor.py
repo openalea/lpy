@@ -1,5 +1,5 @@
-from PyQt4.QtCore import QRegExp,QObject,Qt,SIGNAL
-from PyQt4.QtGui import QTextEdit,QSyntaxHighlighter,QTextDocument,QTextCharFormat,QFont,QTextCursor,QTextOption,QLabel, QColor
+from PyQt4.QtCore import QRegExp,QObject,Qt,QPoint,SIGNAL
+from PyQt4.QtGui import *
 
 
 class LpySyntaxHighlighter(QSyntaxHighlighter):
@@ -121,7 +121,68 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
             self.setFormat(index, length, self.commentFormat)
             index = commentExp.indexIn(text,index+length+2)
     
+class Margin(QWidget):
+    def __init__(self,parent,editor):
+        QWidget.__init__(self,parent)
+        self.editor = editor
+        self.showLines = True
+        self.markers = {}
+        self.markerStack = {}
+    def paintEvent( self, paintEvent ):
+        if self.showLines:
+            maxheight = self.editor.viewport().height()
+            maxline = self.editor.document().blockCount()
+            painter = QPainter(self)
+            painter.setPen(QPen(QColor(100,100,100)))
+            h = 0
+            line = -1
+            while h < maxheight and line < maxline:
+                cursor = self.editor.cursorForPosition(QPoint(1,h))
+                nline = cursor.blockNumber()+1
+                rect = self.editor.cursorRect(cursor)
+                if nline > line:
+                    line = nline
+                    painter.drawText(0,rect.top()+2,40,rect.height()+2, Qt.AlignHCenter|Qt.AlignTop,str(line))
+                    m = self.markers.get(line,None)
+                    if m:
+                        painter.drawPixmap(32,rect.top()+2,m)
+                h = rect.top()+rect.height()+1
+            painter.end()
+    def mousePressEvent( self, event ):
+        line = self.editor.cursorForPosition(event.pos()).blockNumber() 
+        self.emit(SIGNAL("lineSelected(int)"),line+1)
+    def setMarker(self,line,pixmap):
+        self.markers[line] = pixmap
+        if self.markerStack.has_key(line):
+            del self.markerStack[line]
+        self.update()
+    def hasMarker(self,line):
+        return self.markers.has_key(line)
+    def getCurrentMarker(self,line):
+        return self.markers[line]
+    def removeCurrentMarker(self,line):
+        del self.markers[line]
+        if self.markerStack.has_key(line):
+            self.markers[line] = self.markerStack[line].pop()
+            if len(self.markerStack[line]) == 0:
+                del self.markerStack[line]
+        self.update()
+    def removeAllMarkers(self,line):
+        if self.marker.has_key(line):
+            del self.markers[line]
+        if self.markerStack.has_key(line):
+            del self.markerStack[line]        
+        self.update()
+    def addMarker(self,line,pixmap):
+        val = self.markers.get(line,None)
+        if not val is None:
+            if not self.markerStack.has_key(line):
+                self.markerStack[line] = []
+            self.markerStack[line].append(val)
+        self.markers[line] = pixmap
+        self.update()
 
+ 
 class LpyCodeEditor(QTextEdit):
     def __init__(self,parent):
         QTextEdit.__init__(self,parent)
@@ -175,6 +236,27 @@ class LpyCodeEditor(QTextEdit):
         QObject.connect(lpyeditor.actionGoto, SIGNAL('triggered()'),self.setLineInEdit)
         self.defaultEditionFont = self.currentFont()
         self.defaultPointSize = self.currentFont().pointSize()
+        self.setViewportMargins(50,0,0,0)
+        self.sidebar = Margin(self,self)
+        self.sidebar.setGeometry(0,0,50,100)
+        self.sidebar.show() 
+        QObject.connect(self.sidebar, SIGNAL('lineSelected(int)'),self.checkLine)
+    def checkLine(self,line):
+        self.editor.statusBar().showMessage("Line "+str(line)+" clicked",2000)
+        if self.sidebar.hasMarker(line):
+            if self.hasError and self.errorLine == line:
+                self.clearErrorHightlight()
+            else:
+                self.sidebar.removeCurrentMarker(line)
+        else:
+            self.sidebar.setMarker(line,QPixmap(':/images/icons/BreakPoint.png'))
+    def resizeEvent(self,event):
+        self.sidebar.setGeometry(0,0,48,self.height())
+        QTextEdit.resizeEvent(self,event)
+    def scrollContentsBy(self,dx,dy):
+        self.sidebar.update()
+        self.sidebar.setFont(QFont(self.currentFont()))
+        QTextEdit.scrollContentsBy(self,dx,dy)
     def focusInEvent ( self, event ):
         self.editor.currentSimulation().monitorfile()
         return QTextEdit.focusInEvent ( self, event )
@@ -426,6 +508,8 @@ class LpyCodeEditor(QTextEdit):
         self.editor.textEditionWatch = False
         if self.hasError:
             self.clearErrorHightlight()
+        self.sidebar.addMarker(lineno,QPixmap(':/images/icons/warningsErrors16.png'))
+        self.errorLine = lineno
         cursor = self.textCursor()
         cursor.setPosition(0)
         cursor.movePosition(QTextCursor.NextBlock,QTextCursor.MoveAnchor,lineno-1)
@@ -433,17 +517,15 @@ class LpyCodeEditor(QTextEdit):
         errorformat = QTextCharFormat() 
         errorformat.setBackground(Qt.yellow)
         cursor.setCharFormat(errorformat)
-        prevcursor = self.textCursor()
-        self.setTextCursor(cursor)
-        self.ensureCursorVisible()
-        self.setTextCursor(prevcursor)
+        self.gotoLine(lineno)
         self.hasError = True
         self.editor.textEditionWatch = True
     def clearErrorHightlight(self):
         cursor = self.textCursor()
         self.undo()
         self.setTextCursor(cursor)
-        self.hasError = False
+        self.hasError = False  
+        self.sidebar.removeCurrentMarker(self.errorLine)
     def setEditionFontFamily(self,font):
         font.setPointSize( self.currentFont().pointSize() )
         self.setEditionFont(font)
@@ -470,4 +552,23 @@ class LpyCodeEditor(QTextEdit):
     def setLineInEdit(self):
         self.gotoEdit.setText(str(str(self.textCursor().blockNumber()+1)))
         self.gotoEdit.selectAll()
-      
+    def restoreSimuState(self,simu):
+        firstinit = simu.textdocument is None
+        if firstinit:            
+            simu.textdocument = self.document().clone()
+        self.setLpyDocument(simu.textdocument)
+        if firstinit:
+            self.clear()
+            self.setText(simu.code)
+        if not simu.cursor is None:
+            self.setTextCursor(simu.cursor)
+            self.horizontalScrollBar().setValue(simu.hvalue)
+            self.verticalScrollBar().setValue(simu.vvalue)
+    def saveSimuState(self,simu):
+        simu.code = str(self.toPlainText().toAscii())
+        if simu.textdocument is None:
+            print 'custom document clone'
+            simu.textdocument = self.document().clone()
+        simu.cursor = self.textCursor()
+        simu.hvalue = self.horizontalScrollBar().value()
+        simu.vvalue = self.verticalScrollBar().value()
