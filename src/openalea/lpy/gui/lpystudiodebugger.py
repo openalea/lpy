@@ -2,6 +2,7 @@ import openalea.lpy as lpy
 from PyQt4.QtCore import QObject, QMutex, QCoreApplication,  SIGNAL
 from PyQt4.QtGui import QTableWidgetItem, QStandardItem, QStandardItemModel, QTextCursor, QPixmap
 from time import clock
+from lpycodeeditor import CodePointMarker, BreakPointMarker
 
 class AbortDebugger(Exception):
     def __init__(self,txt=''):
@@ -22,13 +23,14 @@ class LpyVisualDebugger (lpy.LpyDebugger):
         self.animation = False
         self.running = False
         self.animationTiming = 0.5
+        self.breakPointMonitor = True
         self.srcView = self.debugWidget.right.srcView
         self.destView = self.debugWidget.right.destView
         self.ruleView = self.debugWidget.right.ruleView
         QObject.connect(self.debugWidget.right.nextDebugButton,SIGNAL('clicked()'),self.next)
         QObject.connect(self.debugWidget.right.animateDebugButton,SIGNAL('clicked()'),self.animate)
         QObject.connect(self.debugWidget.right.animationDebugSlider,SIGNAL('valueChanged(int)'),self.setAnimationTiming)
-        QObject.connect(self.debugWidget.right.endDebugButton,SIGNAL('clicked()'),self.toEndDebug)
+        QObject.connect(self.debugWidget.right.endDebugButton,SIGNAL('clicked()'),self.continueDebug)
     def setAnimationTiming(self, value):
         self.animationTiming = value /1000.
     def startDebugger(self):
@@ -51,6 +53,13 @@ class LpyVisualDebugger (lpy.LpyDebugger):
         self.animation = False
         self.debugWidget.setEnabled(False)
         self.lpywidget.debugDock.hide()
+        self.breakPointMonitor = True
+    def retrieveBreakPoints(self):
+        self.clearBreakPoints()
+        for bp in self.lpywidget.codeeditor.sidebar.getAllMarkers(BreakPointMarker):
+            self.insertCodeBreakPointAt(bp)
+    def breakPointChanged(self):
+        self.breakPointMonitor = True
     def begin(self,src,direction):
         self.startDebugger()
         self.direction = direction
@@ -60,11 +69,13 @@ class LpyVisualDebugger (lpy.LpyDebugger):
         self.lensrc = len(src)
         self.debugWidget.right.progressBar.setRange(0,self.lensrc)
         self.srcView.setText(str(self.src))
+        QObject.connect(self.lpywidget.codeeditor.sidebar,SIGNAL('lineClicked(int)'),self.breakPointChanged)
     def end(self,result):
         self.srcView.setText(str(self.src))
         self.destView.setText(str(result))
-        self.active = True
+        self.alwaysStop = True
         self.stopDebugger()
+        QObject.disconnect(self.lpywidget.codeeditor.sidebar,SIGNAL('lineClicked(int)'),self.breakPointChanged)
     def print_src(self,pos_beg,pos_end):
         txt = ''
         nbChar = 0
@@ -117,20 +128,22 @@ class LpyVisualDebugger (lpy.LpyDebugger):
         self.print_dest(dest,prod_length)
         self.ruleView.setText(str(rule.lineno)+': '+rule.name())
         self.lpywidget.codeeditor.gotoLine(rule.lineno)
-        self.lpywidget.codeeditor.sidebar.addMarker(rule.lineno,QPixmap(':/images/icons/BreakPointGreen.png'))
+        self.lpywidget.codeeditor.sidebar.addMarkerAt(rule.lineno,CodePointMarker)
         self.setProgress(pos_end if self.direction == lpy.eForward else pos_beg)
         self.updateArgs(dict(zip(rule.parameterNames(),args)))
         self.wait()
-        self.lpywidget.codeeditor.sidebar.removeCurrentMarker(rule.lineno)
+        if self.lpywidget.codeeditor.sidebar.hasMarkerTypeAt(rule.lineno,CodePointMarker):
+            self.lpywidget.codeeditor.sidebar.removeMarkerTypeAt(rule.lineno,CodePointMarker)
     def partial_match(self,pos_beg,pos_end,dest,rule,args):
         self.print_src(pos_beg,pos_end)        
         self.print_dest(dest)
         self.ruleView.setText(str(rule.lineno)+': '+rule.name()+' --> nothing produce!')
         self.lpywidget.codeeditor.gotoLine(rule.lineno)
-        self.lpywidget.codeeditor.sidebar.addMarker(rule.lineno,QPixmap(':/images/icons/BreakPointGreen.png'))
+        self.lpywidget.codeeditor.sidebar.addMarkerAt(rule.lineno,CodePointMarker)
         self.updateArgs(dict(zip(rule.parameterNames(),args)))
         self.wait()
-        self.lpywidget.codeeditor.sidebar.removeCurrentMarker(rule.lineno)
+        if self.lpywidget.codeeditor.sidebar.hasMarkerTypeAt(rule.lineno,CodePointMarker):
+            self.lpywidget.codeeditor.sidebar.removeMarkerTypeAt(rule.lineno,CodePointMarker)
     def identity(self,pos,dest):
         self.print_src(pos,pos+1)        
         self.print_dest(dest,1)
@@ -151,13 +164,15 @@ class LpyVisualDebugger (lpy.LpyDebugger):
         if self.abort == True:
             self.abort = False
             raise AbortDebugger()
+        if self.breakPointMonitor:
+            self.retrieveBreakPoints()
     def next(self):
         self.waitcond.unlock()
     def animate(self):
         self.animation = True
         self.waitcond.unlock()        
-    def toEndDebug(self):
-        self.active = False
+    def continueDebug(self):
+        self.alwaysStop = False
         self.waitcond.unlock()        
     def stop(self):
         if self.animation:

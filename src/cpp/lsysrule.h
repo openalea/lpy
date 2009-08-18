@@ -155,6 +155,8 @@ public:
 	int redundantParameter() const;
 
 	int lineno;
+	uint32_t getCodeLength() const { return __codelength; }
+
 protected:
 
 	void parseHeader( const std::string& name);
@@ -176,6 +178,7 @@ protected:
 	bool __hasquery;
 	bool __isStatic;
 	AxialTree __staticResult;
+	uint32_t __codelength;
 private:
     void __precall_function( size_t nbargs = 0 ) const;
     void __precall_function( size_t nbargs,  const ArgList& obj ) const;

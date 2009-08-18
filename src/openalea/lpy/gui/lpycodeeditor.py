@@ -128,6 +128,7 @@ class Margin(QWidget):
         self.showLines = True
         self.markers = {}
         self.markerStack = {}
+        self.markerType = {}
     def paintEvent( self, paintEvent ):
         if self.showLines:
             maxheight = self.editor.viewport().height()
@@ -144,45 +145,70 @@ class Margin(QWidget):
                     line = nline
                     painter.drawText(0,rect.top()+2,40,rect.height()+2, Qt.AlignHCenter|Qt.AlignTop,str(line))
                     m = self.markers.get(line,None)
-                    if m:
-                        painter.drawPixmap(32,rect.top()+2,m)
+                    if not m is None:
+                        painter.drawPixmap(32,rect.top()+2,self.markerType[m])
                 h = rect.top()+rect.height()+1
             painter.end()
     def mousePressEvent( self, event ):
         line = self.editor.cursorForPosition(event.pos()).blockNumber() 
-        self.emit(SIGNAL("lineSelected(int)"),line+1)
-    def setMarker(self,line,pixmap):
-        self.markers[line] = pixmap
+        self.emit(SIGNAL("lineClicked(int)"),line+1)
+    def setMarkerAt(self,line,id):
+        self.markers[line] = id
         if self.markerStack.has_key(line):
             del self.markerStack[line]
         self.update()
-    def hasMarker(self,line):
+    def hasMarkerAt(self,line):
         return self.markers.has_key(line)
-    def getCurrentMarker(self,line):
+    def hasMarkerTypeAt(self,line,id):
+        if self.markers.has_key(line) :
+            if self.markers[line] == id: return True
+            if self.markerStack.has_key(line):
+                if id in self.markerStack[line]:
+                    return True
+        return False
+    def getCurrentMarkerAt(self,line):
         return self.markers[line]
-    def removeCurrentMarker(self,line):
+    def removeCurrentMarkerAt(self,line):
         del self.markers[line]
         if self.markerStack.has_key(line):
             self.markers[line] = self.markerStack[line].pop()
             if len(self.markerStack[line]) == 0:
                 del self.markerStack[line]
         self.update()
-    def removeAllMarkers(self,line):
+    def removeMarkerTypeAt(self,line,id):
+        if self.markers[line] == id:
+            self.removeCurrentMarkerAt(line)
+        else:
+            self.markerStack[line].remove(id)
+            if len(self.markerStack[line]) == 0:
+                del self.markerStack[line]
+        self.update()
+    def removeAllMarkersAt(self,line):
         if self.marker.has_key(line):
             del self.markers[line]
         if self.markerStack.has_key(line):
             del self.markerStack[line]        
         self.update()
-    def addMarker(self,line,pixmap):
+    def removeAllMarkers(self):
+        self.markers = {}
+        self.markerStack = {}        
+        self.update()
+    def addMarkerAt(self,line,id):
         val = self.markers.get(line,None)
         if not val is None:
             if not self.markerStack.has_key(line):
                 self.markerStack[line] = []
             self.markerStack[line].append(val)
-        self.markers[line] = pixmap
-        self.update()
+        self.markers[line] = id
+        self.update()    
+    def defineMarker(self,id,pixmap):
+        self.markerType[id] = pixmap
+    def getAllMarkers(self,id):
+        return set([l for l,lid in self.markers.iteritems() if id == lid]).union(set([l for l,lids in self.markerStack.iteritems() if id in lids]))
 
- 
+
+ErrorMarker,BreakPointMarker,CodePointMarker = range(3)
+
 class LpyCodeEditor(QTextEdit):
     def __init__(self,parent):
         QTextEdit.__init__(self,parent)
@@ -239,17 +265,20 @@ class LpyCodeEditor(QTextEdit):
         self.setViewportMargins(50,0,0,0)
         self.sidebar = Margin(self,self)
         self.sidebar.setGeometry(0,0,50,100)
+        self.sidebar.defineMarker(ErrorMarker,QPixmap(':/images/icons/warningsErrors16.png'))
+        self.sidebar.defineMarker(BreakPointMarker,QPixmap(':/images/icons/BreakPoint.png'))
+        self.sidebar.defineMarker(CodePointMarker,QPixmap(':/images/icons/BreakPointGreen.png'))
         self.sidebar.show() 
-        QObject.connect(self.sidebar, SIGNAL('lineSelected(int)'),self.checkLine)
+        QObject.connect(self.sidebar, SIGNAL('lineClicked(int)'),self.checkLine)
     def checkLine(self,line):
         self.editor.statusBar().showMessage("Line "+str(line)+" clicked",2000)
-        if self.sidebar.hasMarker(line):
+        if self.sidebar.hasMarkerAt(line):
             if self.hasError and self.errorLine == line:
                 self.clearErrorHightlight()
             else:
-                self.sidebar.removeCurrentMarker(line)
+                self.sidebar.removeCurrentMarkerAt(line)
         else:
-            self.sidebar.setMarker(line,QPixmap(':/images/icons/BreakPoint.png'))
+            self.sidebar.setMarkerAt(line,BreakPointMarker)
     def resizeEvent(self,event):
         self.sidebar.setGeometry(0,0,48,self.height())
         QTextEdit.resizeEvent(self,event)
@@ -508,7 +537,7 @@ class LpyCodeEditor(QTextEdit):
         self.editor.textEditionWatch = False
         if self.hasError:
             self.clearErrorHightlight()
-        self.sidebar.addMarker(lineno,QPixmap(':/images/icons/warningsErrors16.png'))
+        self.sidebar.addMarkerAt(lineno,ErrorMarker)
         self.errorLine = lineno
         cursor = self.textCursor()
         cursor.setPosition(0)
@@ -525,7 +554,7 @@ class LpyCodeEditor(QTextEdit):
         self.undo()
         self.setTextCursor(cursor)
         self.hasError = False  
-        self.sidebar.removeCurrentMarker(self.errorLine)
+        self.sidebar.removeCurrentMarkerAt(self.errorLine)
     def setEditionFontFamily(self,font):
         font.setPointSize( self.currentFont().pointSize() )
         self.setEditionFont(font)

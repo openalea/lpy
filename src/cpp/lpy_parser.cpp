@@ -778,6 +778,11 @@ void LsysRule::set( const std::string& rule ){
   std::string staticarrowtxt = "-static->";
   std::string staticmarkertxt = "@static";
   bool staticrule = false;
+  // count number of lines
+  __codelength = 0;
+  for(std::string::const_iterator it = rule.begin(); it != rule.end(); ++it)
+	  if (*it == '\n') ++__codelength;
+  // identify header
   while(endheader != rule.end() && !foundendheader){
 	  if(*endheader==':') { 
 		  foundendheader = true; 
@@ -808,8 +813,10 @@ void LsysRule::set( const std::string& rule ){
   if(endheader == rule.end()){
 	LsysError("Ill-formed Rule : unfound delimiter ':' in "+rule,"",lineno);
   }
+  // identify successor code
   if (arrow)__definition = " --> "+std::string(starcode,rule.end());
   else __definition =  std::string(starcode,rule.end());
+  // parse header
   std::string header(rule.begin(),endheader);
   parseHeader(header);
   __hasquery = __predecessor.hasRequestModule() 
@@ -817,6 +824,7 @@ void LsysRule::set( const std::string& rule ){
 			|| __leftcontext.hasRequestModule()
 			|| __newrightcontext.hasRequestModule()
 			|| __rightcontext.hasRequestModule();
+  // check variables
   if(staticrule) setStatic();
   else {
 	if (LsysContext::current()->optimizationLevel >= 2)

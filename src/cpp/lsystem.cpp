@@ -633,15 +633,15 @@ AxialTree Lsystem::__debugStep(AxialTree& workingstring,
                       if((*_it2)->match(workingstring,_it,targetstring,_it3,args)){
                           match = (*_it2)->applyTo(targetstring,args,&prodlength);
 						  if(match) { 
-							  if(debugger.active)debugger.total_match(_it,_it3,targetstring,prodlength,*_it2,args);
+							  if(debugger.shouldStop(_it,_it3,*_it2))debugger.total_match(_it,_it3,targetstring,prodlength,*_it2,args);
 							  _it = _it3; break; 
 						  }
-						  else if(debugger.active)debugger.partial_match(_it,_it3,targetstring,*_it2,args);
+						  else if(debugger.shouldStop(_it,_it3,*_it2))debugger.partial_match(_it,_it3,targetstring,*_it2,args);
                       }
               }
               if (!match){
                  targetstring.push_back(_it);
-				 if(debugger.active) debugger.identity(_it,targetstring);
+				 if(debugger.shouldStop(_it)) debugger.identity(_it,targetstring);
 				 ++_it;
               }
               else matching = true;
@@ -664,15 +664,15 @@ AxialTree Lsystem::__debugStep(AxialTree& workingstring,
                   if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args)){
                       match = (*_it2)->reverseApplyTo(targetstring,args,&prodlength);
                       if(match) { 							  
-						  if(debugger.active)debugger.total_match(_it3==_endit?_it3:_it3+1,_it+1,targetstring,prodlength,*_it2,args);
+						  if(debugger.shouldStop(_it3==_endit?_it3:_it3+1,_it+1,*_it2))debugger.total_match(_it3==_endit?_it3:_it3+1,_it+1,targetstring,prodlength,*_it2,args);
 						  _it = _it3; break; 
 					  }
- 					  else if(debugger.active)debugger.partial_match(_it3==_endit?_it3:_it3+1,_it+1,targetstring,*_it2,args);
+ 					  else if(debugger.shouldStop(_it3==_endit?_it3:_it3+1,_it+1,*_it2))debugger.partial_match(_it3==_endit?_it3:_it3+1,_it+1,targetstring,*_it2,args);
                  }
           }
           if (!match){
               targetstring.push_front(_it);
-			  if(debugger.active)debugger.identity(_it,targetstring);
+			  if(debugger.shouldStop(_it))debugger.identity(_it,targetstring);
               if(_it != _endit) --_it;
           }
           else matching = true;

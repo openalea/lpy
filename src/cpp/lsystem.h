@@ -172,7 +172,7 @@ public:
 
    class LPY_API Debugger : public TOOLS::RefCountObject {
    public:
-	   Debugger() : active(true) { }
+	   Debugger() : alwaysStop(true) { }
 	   virtual ~Debugger() ;
 
 	   virtual void begin(const AxialTree& src, eDirection) { }
@@ -188,7 +188,83 @@ public:
 							     const ArgList) { }
 	   virtual void identity(AxialTree::const_iterator match_pos, 
 							 const AxialTree& dest) { }
-	   bool active;
+
+	   virtual bool shouldStop(AxialTree::const_iterator match_beg,
+							   AxialTree::const_iterator match_end,
+							   const LsysRule * rule) const
+	   { if (alwaysStop) return true;
+		 else return codeHasBreakPointAt(rule) || 
+			         lstringHasBreakPointAt(match_beg,match_end); }
+
+	   virtual bool shouldStop(AxialTree::const_iterator match) const
+	   { if (alwaysStop) return true;
+		 else return lstringHasBreakPointAt(match); }
+	   
+	   inline bool codeHasBreakPointAt(const LsysRule * rule) const {
+		   for(LineBreakSet::const_iterator it = linebreaks.begin(); it != linebreaks.end(); ++it){
+			   int l = *it - rule->lineno;
+			   if(l >= 0 && l < rule->getCodeLength()) return true;
+		   }
+		   return false;
+	   }
+
+	   inline bool lstringHasBreakPointAt(AxialTree::const_iterator match_beg,
+										  AxialTree::const_iterator match_end) const
+	   {
+		   for(LstringBreakSet::const_iterator it = lstringbreaks.begin(); it != lstringbreaks.end(); ++it){
+			   for(AxialTree::const_iterator it2 = match_beg; it2 !=  match_end; ++it2)
+				   if(*it == it2) return true;
+		   }
+		   return false;
+	   }
+
+	   inline bool lstringHasBreakPointAt(AxialTree::const_iterator match) const
+	   {
+		   for(LstringBreakSet::const_iterator it = lstringbreaks.begin(); it != lstringbreaks.end(); ++it){
+				   if(*it == match) return true;
+		   }
+		   return false;
+	   }
+
+	   inline void insertCodeBreakPointAt(uint32_t breakpoint) 
+	   { linebreaks.push_back(breakpoint); }
+
+	   inline void removeCodeBreakPointAt(uint32_t breakpoint) 
+	   { 
+		   LineBreakSet::iterator it =  std::find(linebreaks.begin(),linebreaks.end(),breakpoint);
+		   if (it == linebreaks.end())LsysError("Cannot remove code break point.");
+		   else linebreaks.erase(it); 
+	   }
+	   inline bool hasCodeBreakPointAt(uint32_t breakpoint) const 
+	   { 
+		   LineBreakSet::const_iterator it = std::find(linebreaks.begin(),linebreaks.end(),breakpoint);
+		   return it != linebreaks.end(); 
+	   }
+
+	   inline void insertLstringBreakPointAt(AxialTree::const_iterator breakpoint) { lstringbreaks.push_back(breakpoint); }
+	   inline void removeLstringBreakPointAt(AxialTree::const_iterator breakpoint) {
+		   LstringBreakSet::iterator it = std::find(lstringbreaks.begin(),lstringbreaks.end(),breakpoint);
+		   if (it == lstringbreaks.end())LsysError("Cannot remove lstring break point.");
+		   else lstringbreaks.erase(it); 
+
+	   }
+	   inline bool hasLstringBreakPointAt(AxialTree::const_iterator breakpoint) const
+	   { 
+		   LstringBreakSet::const_iterator it = std::find(lstringbreaks.begin(),lstringbreaks.end(),breakpoint);
+		   return it != lstringbreaks.end(); 
+	   }
+
+	   inline void clearBreakPoints() 
+	   { clearCodeBreakPoints();clearLstringBreakPoints(); }
+	   inline void clearCodeBreakPoints() { linebreaks.clear(); }
+	   inline void clearLstringBreakPoints() { lstringbreaks.clear(); }
+		
+
+	   bool alwaysStop;
+	   typedef std::vector<uint32_t> LineBreakSet;
+	   LineBreakSet linebreaks;
+	   typedef std::vector<AxialTree::const_iterator> LstringBreakSet;
+	   LstringBreakSet lstringbreaks;
    };
    typedef RCPtr<Debugger> DebuggerPtr;
 

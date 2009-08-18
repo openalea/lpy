@@ -109,6 +109,18 @@ public:
 		}
 	}
 
+	void py_insertLstringBreakPointAt(uint32_t pos, const AxialTree& src){
+		insertLstringBreakPointAt(src.begin()+pos);
+	}
+
+	void py_removeLstringBreakPointAt(uint32_t pos, const AxialTree& src){
+		removeLstringBreakPointAt(src.begin()+pos);
+	}
+
+	void py_hasLstringBreakPointAt(uint32_t pos, const AxialTree& src){
+		hasLstringBreakPointAt(src.begin()+pos);
+	}
+
 protected:
 	const AxialTree * src;
 };
@@ -120,12 +132,22 @@ void export_Debugger(){
 
 	class_<PyLpyDebugger,PyLpyDebuggerPtr,boost::noncopyable>
 	("LpyDebugger", init<>("LpyDebugger()"))
-	.add_property("active",make_getter(&Lsystem::Debugger::active),make_setter(&Lsystem::Debugger::active))
+	.add_property("alwaysStop",make_getter(&Lsystem::Debugger::alwaysStop),make_setter(&Lsystem::Debugger::alwaysStop))
     .def("partial_match", &Lsystem::Debugger::partial_match,&PyLpyDebugger::partial_match)
     .def("total_match", &Lsystem::Debugger::total_match,&PyLpyDebugger::total_match)
     .def("identity", &Lsystem::Debugger::identity,&PyLpyDebugger::identity)
     .def("begin", &Lsystem::Debugger::begin,&PyLpyDebugger::begin)
     .def("end", &Lsystem::Debugger::end,&PyLpyDebugger::end)
+    .def("insertCodeBreakPointAt", &Lsystem::Debugger::insertCodeBreakPointAt)
+    .def("removeCodeBreakPointAt", &Lsystem::Debugger::removeCodeBreakPointAt)
+    .def("hasCodeBreakPointAt", &Lsystem::Debugger::hasCodeBreakPointAt)
+    .def("insertLstringBreakPointAt", &PyLpyDebugger::py_insertLstringBreakPointAt)
+    .def("removeLstringBreakPointAt", &PyLpyDebugger::py_removeLstringBreakPointAt)
+    .def("hasLstringBreakPointAt", &PyLpyDebugger::py_hasLstringBreakPointAt)
+    .def("clearBreakPoints", &Lsystem::Debugger::clearBreakPoints)
+    .def("clearCodeBreakPoints", &Lsystem::Debugger::clearCodeBreakPoints)
+    .def("clearLstringBreakPoints", &Lsystem::Debugger::clearLstringBreakPoints)
+
 	;
 
 }

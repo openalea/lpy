@@ -66,7 +66,8 @@ __definition(other.__definition),
 __hasquery(other.__hasquery),
 __isStatic(other.__isStatic),
 __function(other.__function),
-lineno(other.lineno){
+lineno(other.lineno),
+__codelength(other.__codelength){
   IncTracker(LsysRule)
 }
 
@@ -77,7 +78,8 @@ __prefix(prefix),
 __nbParams(0),
 __hasquery(false),
 __isStatic(false),
-lineno(_lineno){
+lineno(_lineno),
+__codelength(0){
   IncTracker(LsysRule)
 }
 
@@ -111,6 +113,7 @@ void LsysRule::clear(){
   __hasquery = false;
   __isStatic = false;
   lineno = -1;
+  __codelength = 0;
 }
 
 std::string LsysRule::str() const {
