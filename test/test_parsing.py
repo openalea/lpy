@@ -88,7 +88,29 @@ def test_format_reading(verbose = False):
         raised = True
     if not raised:
         raise Exception('Unsupported lpy format do not raise exception!')
-    
+
+lmlcode = """
+Axiom: A(0)
+derivation length: 2
+production:
+A(x) :
+    nproduce ( 
+            B(1,x)
+            C(2)
+            )
+    x /0
+"""
+def test_multi_line_production(verbose = False):
+    """ multi line production """
+    l = Lsystem()
+    l.set(lmlcode)
+    try:
+        l.iterate()
+    except Exception,e:
+        import sys         
+        lineno = tb.extract_tb(sys.exc_info()[2])[-1][1]
+        assert lineno == 10
+        
 if __name__ == '__main__':    
     test_func = [ (n,v) for n,v in globals().items() if 'test' in n]
     test_func.sort(lambda x,y : cmp(x[1].func_code.co_firstlineno,y[1].func_code.co_firstlineno))

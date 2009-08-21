@@ -2,6 +2,25 @@ from PyQt4.QtCore import QRegExp,QObject,Qt,QPoint,SIGNAL
 from PyQt4.QtGui import *
 
 
+class LineData:
+    def __init__(self,i = None,p = None):
+        self.imbricatedParanthesis = i
+        self.previousProductionState = p
+
+class IdGenerator:
+    def __init__(self):
+        self.id = 0
+        self.stack = []
+    def __call__(self):
+        if len(self.stack) > 1 :
+            return self.stack.pop(0)
+        else :
+            i = self.id
+            self.id += 1
+            return i
+    def release(self,i):
+        self.stack.append(i)
+        
 class LpySyntaxHighlighter(QSyntaxHighlighter):
     def __init__(self,editor):
         QSyntaxHighlighter.__init__(self,editor)
@@ -57,9 +76,20 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
         self.lsysruleExp = [QRegExp('.+:'),QRegExp('.+\-\->'), QRegExp('.+\-static\->')]
         self.commentExp = QRegExp('#.+$')
         self.ruleCommentExp = QRegExp('[ \t]+#.+$')
+        self.prodbegExp =  QRegExp('[n]produce[ \t]*.')
         self.setCurrentBlockState(0)
         self.activated = True
         self.tabviewactivated = True
+        self.lineid = IdGenerator()
+        self.linedata = {}
+    def setDocument(self,doc):
+        QSyntaxHighlighter.setDocument(self,doc)
+    def genlineid(self):
+        return (self.lineid() << 2) +2
+    def releaselinedata(self,lid):
+        del self.linedata[lid]
+        i =  ((lid-2) >> 2) 
+        self.lineid.release(i)    
     def setActivation(self,value):
         self.activated = value
         self.rehighlight()
@@ -69,14 +99,42 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
     def highlightBlock(self,text):
       if self.activated:
         lentxt = len(text)
+        prevst = self.currentBlockState() 
         if text.indexOf('production:') >= 0:
             self.setCurrentBlockState(1)
         elif text.indexOf('endlsystem') >= 0:
             self.setCurrentBlockState(0)
         elif self.previousBlockState() == -1:
             self.setCurrentBlockState(0)
+        elif self.previousBlockState() & 2:
+            st = self.linedata.get(self.previousBlockState(),None)
+            if not st is None:
+               imbricatedParanthesis = st.imbricatedParanthesis
+            for i,c in enumerate(text):
+                if c == '(': imbricatedParanthesis += 1
+                if c == ')': 
+                    imbricatedParanthesis -= 1
+                    if imbricatedParanthesis <= 0:
+                        break
+            if imbricatedParanthesis <= 0:
+                self.setFormat(0,i,self.prodFormat)
+                lid = self.currentBlockState()
+                self.setCurrentBlockState(st.previousProductionState)
+            else:
+                self.setFormat(0,text.size(),self.prodFormat)
+                lid = self.currentBlockState()
+                if lid < 0 or (lid & 2) == 0 :
+                    lid = self.genlineid()
+                else :
+                    if self.linedata[lid].imbricatedParanthesis != imbricatedParanthesis :
+                       self.releaselinedata(lid)
+                       lid = self.genlineid()
+                self.linedata[lid] = LineData(imbricatedParanthesis,st.previousProductionState)
+                self.setCurrentBlockState(lid)
         else:
             self.setCurrentBlockState(self.previousBlockState())
+        if prevst > 0 and (prevst & 2) and self.currentBlockState() < 2:
+            self.releaselinedata(prevst)
         for i,c in enumerate(text):
             if str(c.toAscii()) in self.delimiterkeywords:
                 self.setFormat(i, 1, self.delimiterFormat)
@@ -104,6 +162,22 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
                 length = expression.matchedLength()
                 if index == 0 or not text.at(index-1).isLetterOrNumber():
                     self.setFormat(index+rule[1], length-rule[1]-rule[3], rule[2])
+                    mt = expression.cap(0)
+                    ei = self.prodbegExp.indexIn(mt)
+                    if ei >= 0 and str(self.prodbegExp.cap(0))[-1] == '(':
+                        previousProductionState = self.previousBlockState()
+                        imbricatedParanthesis = 1
+                        for c in mt[ei+len(self.prodbegExp.cap(0))+1:]:
+                          if c == '(': imbricatedParanthesis += 1
+                          if c == ')': 
+                            imbricatedParanthesis -= 1
+                            if imbricatedParanthesis <= 0:
+                               self.setCurrentBlockState(previousProductionState)
+                               break
+                        if imbricatedParanthesis > 0:
+                            lid = self.genlineid()
+                            self.setCurrentBlockState(lid)
+                            self.linedata[lid] = LineData(imbricatedParanthesis,previousProductionState)                        
                 index = expression.indexIn(text, index + length)
         if self.tabviewactivated:
             index = self.tabRule.indexIn(text)
