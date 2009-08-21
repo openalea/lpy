@@ -220,9 +220,13 @@ LsysRule::getCoreCode() {
 	  if(std::string(_it,_it+7) == "produce"){
 		definition.insert(definition.end(),_beg,_it);
 		_it += 7;
+		while(_it != __definition.end() && (*_it == ' ' || *_it == '\t') )++_it;
+		char endproduction = '\n';
+		if(*_it == '(') { endproduction = ')'; ++_it; }
 		definition += "return ";
 		definition += "pproduce";
-		definition += LpyParsing::lstring2pyparam(_it,__definition.end(),'\n',lineno==-1?lineno:lineno+llineno);
+		definition += LpyParsing::lstring2pyparam(_it,__definition.end(),endproduction,lineno==-1?lineno:lineno+llineno);
+		if (endproduction == ')') ++_it;
 		_beg = _it;
 	  }
 	  else _it++;
@@ -231,9 +235,12 @@ LsysRule::getCoreCode() {
 	  if(std::string(_it,_it+8) == "nproduce"){
 		definition.insert(definition.end(),_beg,_it);
 		_it += 8;
+		while(_it != __definition.end() && (*_it == ' ' || *_it == '\t') )++_it;
+		char endproduction = '\n';
+		if(*_it == '(') { endproduction = ')'; ++_it; }
 		definition += "pproduce";
-		definition += LpyParsing::lstring2pyparam(_it,__definition.end(),'\n',lineno==-1?lineno:lineno+llineno);
-        // definition += ')';
+		definition += LpyParsing::lstring2pyparam(_it,__definition.end(),endproduction,lineno==-1?lineno:lineno+llineno);
+		if (endproduction == ')') ++_it;
 		_beg = _it;
 	  }
 	  else _it++;

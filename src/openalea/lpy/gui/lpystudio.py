@@ -261,14 +261,19 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         t,v,trb = exc_info
         st = tb.extract_tb(trb)[-1]
         self.lastexception = v
-        if st[0] == '<string>' :
+        fnames = ['<string>',self.currentSimulation().getBaseName()]
+        if st[0] in fnames :
             self.codeeditor.hightlightError(st[1])            
-        elif t == SyntaxError:
+        elif t == SyntaxError:            
             lst = v.message.split(':')
-            if len(lst) == 3 and lst[0] == '<string>':
+            if len(lst) >= 3 and lst[0] in fnames:
                 self.codeeditor.hightlightError(int(lst[1]))
-            elif v.filename == '<string>':
+            elif v.filename in fnames:
                 self.codeeditor.hightlightError(v.lineno)
+    def endErrorEvent(self,answer):
+        if self.debugger.running:
+            self.debugger.stopDebugger()
+            self.debugMode = False
     def setToolBarApp(self,value):
         for bar in [self.FileBar,self.LsytemBar]:
             bar.setToolButtonStyle({'Icons' : Qt.ToolButtonIconOnly, 'Texts' : Qt.ToolButtonTextOnly , 'Icons and texts' : Qt.ToolButtonTextBesideIcon, 'Texts below icons' : Qt.ToolButtonTextUnderIcon }[str(value)])
@@ -412,7 +417,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         try:
             simu.debug()
         except :
-            self.graberror()
+            self.graberror(displayDialog = False)
         self.releaseCR()
         self.debugMode = False
     def rewind(self):

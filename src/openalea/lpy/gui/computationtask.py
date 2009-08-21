@@ -107,14 +107,28 @@ class ComputationTaskManager:
         pass
     def releaseEvent(self):
         pass
-    def graberror(self, exc_info = None):
+    def graberror(self, exc_info = None, displayDialog = True):
         """ grab error """
         if exc_info is None:
             exc_info = sys.exc_info()
         tb.print_exception(*exc_info)
         self.errorEvent(exc_info)
-        msg = exc_info[1].message
+        errmsg = self.getErrorMessage(exc_info)
+        if displayDialog:
+            self.endErrorEvent(self.errorMessage(errmsg))
+        else:
+            self.endErrorEvent(None)
+    def getErrorMessage(self,exc_info):
+        if type(exc_info[1]) == str:
+            msg = exc_info[1]
+        else:
+            msg = exc_info[1].message
         if exc_info[0] == SyntaxError and len(msg) == 0:
             msg = exc_info[1].msg
-        QMessageBox.warning(self,"Exception",'An error occured:"'+str(exc_info[0].__name__)+':'+str(msg)+'"',QMessageBox.Ok)
-                
+        return 'An error occured:"'+str(exc_info[0].__name__)+':'+str(msg)+'"'
+    def errorMessage(self,msg):
+        return QMessageBox.warning(self,"Exception",msg,QMessageBox.Ok)
+    def errorEvent(self,exc_info):
+        pass
+    def endErrorEvent(self,answer):
+        pass

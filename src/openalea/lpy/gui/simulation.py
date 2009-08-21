@@ -78,6 +78,9 @@ class LpySimulation:
     def getShortName(self):
         if self._fname is None : return 'New'
         else : return os.path.splitext(os.path.basename(self.fname))[0]
+    def getBaseName(self):
+        if self._fname is None : return 'New'
+        else : return os.path.basename(self.fname)
     def getTabName(self):
         t = ''
         #if self.textedition:
@@ -396,8 +399,11 @@ class LpySimulation:
                 else:
                     self.setTree(self.lsystem.iterate(0,1,self.lsystem.axiom),1)
         except AbortDebugger,e :
-            self.lsystem.clearDebugger()
+            self.lsystem.clearDebugger()            
             return
+        except :
+            self.lsystem.clearDebugger()
+            raise
         self.lsystem.clearDebugger()
         self.lsystem.plot(self.tree)
         self.firstView = False

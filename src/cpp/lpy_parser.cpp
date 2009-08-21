@@ -105,8 +105,8 @@ void ToEndline(std::string::const_iterator& _it, std::string::const_iterator _en
 
 inline 
 void ToEndlineA(std::string::const_iterator& _it,std::string::const_iterator _end, int& lineno){
-    while( _it!=_end && (*_it)!='\n' && (*_it)!='A' && (*_it)!='n' ) ++_it;
-    if(_it!=_end && ((*_it)=='\n' || (*_it)=='A' || (*_it)=='n')) 
+    while( _it!=_end && (*_it)!='\n' && (*_it)!='A' && (*_it)!='n' && (*_it)!='p' ) ++_it;
+    if(_it!=_end && ((*_it)=='\n' || (*_it)=='A' || (*_it)=='n' || (*_it)=='p')) 
     { 
         if((*_it)=='\n') { ++lineno; ++_it; }
     }
@@ -266,11 +266,15 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
 		case 'n':
 		  _it2 = _it;
           if(has_pattern(_it,endpycode,"nproduce")){
-			code += std::string(beg,_it)+'(';
+			code += std::string(beg,_it2);
+			code += "pproduce";
+		    while(_it != endpycode && (*_it == ' ' || *_it == '\t') )++_it;
+		    char endproduction = '\n';
+			if(*_it == '(') { endproduction = ')'; ++_it; }
 			if(_it!=endpycode){
-			  code += LpyParsing::lstring2py(_it,endpycode,'\n',lineno);
+			  code += LpyParsing::lstring2pyparam(_it,endpycode,endproduction,lineno);
+			  if (endproduction == ')') ++_it;
 			}
-			code += ')';
 			beg = _it;
 			toendlineA(_it,endpycode);
 		  }
@@ -336,6 +340,10 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
             code+="# "+std::string(_it2,_it);
 			beg = _it;
 			mode = 0;
+		  }
+		  else if(has_pattern(_it,endpycode,"produce")){
+			  printf("produce found\n");
+			  LsysParserSyntaxError("Cannot use 'produce' outside production body. Use 'nproduce' instead.");
 		  }
 		  else toendlineA(_it,endpycode);
 		  break;
@@ -662,7 +670,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
 		case ' ':
 		case '\t':
 		  if(rule.empty())
-              LsysParserSyntaxError("Ill-formed construct.");
+              LsysParserSyntaxError("IndentationError: unexpected indent.");
 		  beg = _it;
 		  toendline(_it,endpycode);
 		  rule += std::string(beg,_it);
@@ -1002,6 +1010,7 @@ std::string LpyParsing::lstring2pyparam( std::string::const_iterator& beg,
 								    char delim, int lineno,
 									size_t * pprod_id){
   std::string result;
+  std::string::const_iterator initbeg = beg;
   std::vector<std::pair<size_t,std::string> > parsedstring = parselstring(beg, endpos, delim, lineno,true);
   ParametricProduction pprod;
   if(parsedstring.empty()){ 
@@ -1040,7 +1049,11 @@ std::string LpyParsing::lstring2pyparam( std::string::const_iterator& beg,
   }
   size_t id = LsysContext::current()->add_pproduction(pprod);
   if(pprod_id) *pprod_id = id;
-  result = "(" + TOOLS(number)(id) + result + ")";
+  size_t nbInitialLine = std::count(initbeg,beg,'\n');
+  size_t nbResultLine = std::count(result.begin(),result.end(),'\n');
+  std::string complementcode;
+  for(;nbResultLine < nbInitialLine; ++nbResultLine) complementcode += '\n';
+  result = "(" + TOOLS(number)(id) + result + complementcode+ ")";
   return result;
 }
 

@@ -624,22 +624,30 @@ AxialTree Lsystem::__debugStep(AxialTree& workingstring,
           if ( _it->isCut() )
               _it = workingstring.endBracket(_it);
           else{
-              bool match = false;
+              int match = 0;
 			  const RulePtrSet& mruleset = ruleset[_it->getClassId()];
               for(RulePtrSet::const_iterator _it2 = mruleset.begin();
                   _it2 != mruleset.end(); _it2++){
 					  ArgList args;
 					  size_t prodlength;
                       if((*_it2)->match(workingstring,_it,targetstring,_it3,args)){
-                          match = (*_it2)->applyTo(targetstring,args,&prodlength);
-						  if(match) { 
+						  try {
+							match = (*_it2)->applyTo(targetstring,args,&prodlength);
+						  }catch(error_already_set){
+							  if(!debugger.error_match(_it,_it3,targetstring,*_it2,args)){
+								boost::python::throw_error_already_set();
+							  }
+							  else { PyErr_Clear(); }
+							  match = -1;
+						  }
+						  if(match == 1) { 
 							  if(debugger.shouldStop(_it,_it3,*_it2))debugger.total_match(_it,_it3,targetstring,prodlength,*_it2,args);
 							  _it = _it3; break; 
 						  }
-						  else if(debugger.shouldStop(_it,_it3,*_it2))debugger.partial_match(_it,_it3,targetstring,*_it2,args);
+						  else if(match == 0 && debugger.shouldStop(_it,_it3,*_it2))debugger.partial_match(_it,_it3,targetstring,*_it2,args);
                       }
               }
-              if (!match){
+              if (match != 1){
                  targetstring.push_back(_it);
 				 if(debugger.shouldStop(_it)) debugger.identity(_it,targetstring);
 				 ++_it;
@@ -662,7 +670,13 @@ AxialTree Lsystem::__debugStep(AxialTree& workingstring,
 				  ArgList args;
 				  size_t prodlength;
                   if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args)){
-                      match = (*_it2)->reverseApplyTo(targetstring,args,&prodlength);
+					  try {
+						match = (*_it2)->reverseApplyTo(targetstring,args,&prodlength);
+					  }catch(error_already_set){
+						if(!debugger.error_match(_it3==_endit?_it3:_it3+1,_it+1,targetstring,*_it2,args))
+								boost::python::throw_error_already_set();
+						else { PyErr_Clear(); match = false; }
+					  }
                       if(match) { 							  
 						  if(debugger.shouldStop(_it3==_endit?_it3:_it3+1,_it+1,*_it2))debugger.total_match(_it3==_endit?_it3:_it3+1,_it+1,targetstring,prodlength,*_it2,args);
 						  _it = _it3; break; 

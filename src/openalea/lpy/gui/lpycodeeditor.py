@@ -152,6 +152,11 @@ class Margin(QWidget):
     def mousePressEvent( self, event ):
         line = self.editor.cursorForPosition(event.pos()).blockNumber() 
         self.emit(SIGNAL("lineClicked(int)"),line+1)
+    def clear( self ):
+        self.removeAllMarkers()
+        self.markerType = {}
+    def hasMarker(self):
+        return len(self.markers) != 0
     def setMarkerAt(self,line,id):
         self.markers[line] = id
         if self.markerStack.has_key(line):
@@ -205,8 +210,43 @@ class Margin(QWidget):
         self.markerType[id] = pixmap
     def getAllMarkers(self,id):
         return set([l for l,lid in self.markers.iteritems() if id == lid]).union(set([l for l,lids in self.markerStack.iteritems() if id in lids]))
-
-
+    def decalMarkers(self,line,decal = 1):
+        markers = {}
+        markerStack = {}
+        if decal < 0:
+          for l,v in self.markers.iteritems():
+            if l <= line+decal:
+                markers[l] = v
+            elif l > line:
+                markers[l+decal] = v
+          for l,v in self.markerStack.iteritems():
+            if l <= line+decal:
+                markerStack[l] = v
+            elif l > line:
+                markerStack[l+decal] = v        
+        if decal > 0:
+          for l,v in self.markers.iteritems():
+            if l < line:
+                markers[l] = v
+            else:
+                markers[l+decal] = v
+          for l,v in self.markerStack.iteritems():
+            if l < line:
+                markerStack[l] = v
+            else:
+                markerStack[l+decal] = v
+        if decal != 0:
+            self.markers = markers
+            self.markerStack = markerStack
+            self.update()
+    def saveState(self,obj):
+        obj.markersState = (self.markers,self.markerStack)
+    def restoreState(self,obj):
+        if hasattr(obj,'markersState'):
+            self.markers,self.markerStack = obj.markersState
+        else:
+            self.removeAllMarkers()
+        
 ErrorMarker,BreakPointMarker,CodePointMarker = range(3)
 
 class LpyCodeEditor(QTextEdit):
@@ -325,11 +365,24 @@ class LpyCodeEditor(QTextEdit):
     def keyPressEvent(self,event):
         if self.hasError:
             self.clearErrorHightlight()
+        lcursor = self.textCursor()
+        bbn = lcursor.blockNumber()
+        if lcursor.selectionStart() == lcursor.selectionEnd() and (event.key() == Qt.Key_Delete or event.key() == Qt.Key_Backspace):
+            if event.key() == Qt.Key_Backspace:
+                lcursor.movePosition(QTextCursor.PreviousCharacter,QTextCursor.KeepAnchor)
+            else:
+                lcursor.movePosition(QTextCursor.NextCharacter,QTextCursor.KeepAnchor)
+        seltxt = lcursor.selection().toPlainText()
+        sbn = seltxt.count('\n')
+        rev = self.document().revision()
         QTextEdit.keyPressEvent(self,event)
         if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter:
             self.returnEvent()
+            sbn -=1
         elif event.key() == Qt.Key_Tab :
             self.tabEvent()
+        if rev != self.document().revision():
+            self.sidebar.decalMarkers(bbn+sbn,-sbn)        
     def returnEvent(self):
         cursor = self.textCursor()
         beg = cursor.selectionStart()
@@ -593,6 +646,7 @@ class LpyCodeEditor(QTextEdit):
             self.setTextCursor(simu.cursor)
             self.horizontalScrollBar().setValue(simu.hvalue)
             self.verticalScrollBar().setValue(simu.vvalue)
+        self.sidebar.restoreState(simu)
     def saveSimuState(self,simu):
         simu.code = str(self.toPlainText().toAscii())
         if simu.textdocument is None:
@@ -601,3 +655,4 @@ class LpyCodeEditor(QTextEdit):
         simu.cursor = self.textCursor()
         simu.hvalue = self.horizontalScrollBar().value()
         simu.vvalue = self.verticalScrollBar().value()
+        self.sidebar.saveState(simu)

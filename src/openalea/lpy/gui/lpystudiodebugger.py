@@ -1,8 +1,12 @@
 import openalea.lpy as lpy
 from PyQt4.QtCore import QObject, QMutex, QCoreApplication,  SIGNAL
-from PyQt4.QtGui import QTableWidgetItem, QStandardItem, QStandardItemModel, QTextCursor, QPixmap
+from PyQt4.QtGui import QTableWidgetItem, QStandardItem, QStandardItemModel, QTextCursor, QPixmap, QMessageBox
 from time import clock
 from lpycodeeditor import CodePointMarker, BreakPointMarker
+
+import sys
+import traceback as tb
+
 
 class AbortDebugger(Exception):
     def __init__(self,txt=''):
@@ -73,6 +77,7 @@ class LpyVisualDebugger (lpy.LpyDebugger):
     def end(self,result):
         self.srcView.setText(str(self.src))
         self.destView.setText(str(result))
+        self.ruleView.setText('')
         self.alwaysStop = True
         self.stopDebugger()
         QObject.disconnect(self.lpywidget.codeeditor.sidebar,SIGNAL('lineClicked(int)'),self.breakPointChanged)
@@ -144,6 +149,24 @@ class LpyVisualDebugger (lpy.LpyDebugger):
         self.wait()
         if self.lpywidget.codeeditor.sidebar.hasMarkerTypeAt(rule.lineno,CodePointMarker):
             self.lpywidget.codeeditor.sidebar.removeMarkerTypeAt(rule.lineno,CodePointMarker)
+    def error_match(self,pos_beg,pos_end,dest,rule,args,exc_info):
+        self.print_src(pos_beg,pos_end)        
+        self.print_dest(dest)
+        self.ruleView.setText(str(rule.lineno)+': '+rule.name()+' --> raise exception!')
+        self.lpywidget.codeeditor.gotoLine(rule.lineno)
+        self.lpywidget.codeeditor.sidebar.addMarkerAt(rule.lineno,CodePointMarker)
+        self.updateArgs(dict(zip(rule.parameterNames(),args)))
+        
+        tb.print_exception(*exc_info)
+        self.lpywidget.errorEvent(exc_info)
+        errmsg = self.lpywidget.getErrorMessage(exc_info)
+        res = QMessageBox.warning(self.lpywidget,"Exception",errmsg,QMessageBox.Abort,QMessageBox.Ignore)
+        if self.lpywidget.codeeditor.sidebar.hasMarkerTypeAt(rule.lineno,CodePointMarker):
+            self.lpywidget.codeeditor.sidebar.removeMarkerTypeAt(rule.lineno,CodePointMarker)
+        if res == QMessageBox.Ignore:
+            return True
+        else : 
+            return False
     def identity(self,pos,dest):
         self.print_src(pos,pos+1)        
         self.print_dest(dest,1)
@@ -183,7 +206,7 @@ class LpyVisualDebugger (lpy.LpyDebugger):
         if not self.waitcond.tryLock():
             self.abort = True
         self.waitcond.unlock()
-        self.stopDebugger()    
+        self.stopDebugger()
     def setProgress(self,val):
         if self.direction == lpy.eForward:
             self.debugWidget.right.progressBar.setValue(val)
