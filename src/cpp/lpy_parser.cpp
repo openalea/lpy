@@ -105,10 +105,10 @@ void ToEndline(std::string::const_iterator& _it, std::string::const_iterator _en
 
 inline 
 void ToEndlineA(std::string::const_iterator& _it,std::string::const_iterator _end, int& lineno){
-    while( _it!=_end && (*_it)!='\n' && (*_it)!='A' && (*_it)!='n' && (*_it)!='p' ) ++_it;
-    if(_it!=_end && ((*_it)=='\n' || (*_it)=='A' || (*_it)=='n' || (*_it)=='p')) 
+	while( _it!=_end && (*_it)!='\n' && (*_it)!='A' && (*_it)!='n' && (*_it)!='p' && (*_it)!='#' ) ++_it;
+    if(_it!=_end && (*_it)=='\n') 
     { 
-        if((*_it)=='\n') { ++lineno; ++_it; }
+        ++lineno; ++_it;
     }
 }
 
@@ -232,6 +232,9 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
 	case -1:
 	  {
 		switch(*_it){
+	    case '#':
+			while(_it != endpycode && *_it != '\n')++_it;
+			break;
 		case 'A':
 		  _it2 = _it;
 		  if(has_pattern(_it,endpycode,"Axiom") && 
@@ -342,10 +345,9 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
 			mode = 0;
 		  }
 		  else if(has_pattern(_it,endpycode,"produce")){
-			  printf("produce found\n");
-			  LsysParserSyntaxError("Cannot use 'produce' outside production body. Use 'nproduce' instead.");
+			  LsysError("Cannot use 'produce' outside production body. Use 'nproduce' instead.",filename,lineno);
 		  }
-		  else toendlineA(_it,endpycode);
+		  else { if(_it!=endpycode)++_it; toendlineA(_it,endpycode); }
 		  break;
 		case 'd':
 		  _it2 = _it;
