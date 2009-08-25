@@ -1,4 +1,4 @@
-from PyQt4.QtCore import QRegExp,QObject,Qt,QPoint,SIGNAL
+from PyQt4.QtCore import QRegExp,QObject,Qt,QPoint,QTimer,SIGNAL
 from PyQt4.QtGui import *
 
 
@@ -220,6 +220,10 @@ class Margin(QWidget):
                     painter.drawText(0,rect.top()+2,40,rect.height()+2, Qt.AlignHCenter|Qt.AlignTop,str(line))
                     m = self.markers.get(line,None)
                     if not m is None:
+                        lm = self.markerStack.get(line,None)
+                        if not lm is None:
+                            for slm in lm:
+                                painter.drawPixmap(32,rect.top()+2,self.markerType[slm])
                         painter.drawPixmap(32,rect.top()+2,self.markerType[m])
                 h = rect.top()+rect.height()+1
             painter.end()
@@ -279,6 +283,15 @@ class Margin(QWidget):
                 self.markerStack[line] = []
             self.markerStack[line].append(val)
         self.markers[line] = id
+        self.update()    
+    def appendMarkerAt(self,line,id):
+        val = self.markers.get(line,None)
+        if not val is None:
+            if not self.markerStack.has_key(line):
+                self.markerStack[line] = []
+            self.markerStack[line].append(id)
+        else:
+            self.markers[line] = id
         self.update()    
     def defineMarker(self,id,pixmap):
         self.markerType[id] = pixmap
@@ -381,7 +394,7 @@ class LpyCodeEditor(QTextEdit):
         self.sidebar.setGeometry(0,0,50,100)
         self.sidebar.defineMarker(ErrorMarker,QPixmap(':/images/icons/warningsErrors16.png'))
         self.sidebar.defineMarker(BreakPointMarker,QPixmap(':/images/icons/BreakPoint.png'))
-        self.sidebar.defineMarker(CodePointMarker,QPixmap(':/images/icons/BreakPointGreen.png'))
+        self.sidebar.defineMarker(CodePointMarker,QPixmap(':/images/icons/greenarrow16.png'))
         self.sidebar.show() 
         QObject.connect(self.sidebar, SIGNAL('lineClicked(int)'),self.checkLine)
     def checkLine(self,line):
@@ -389,8 +402,10 @@ class LpyCodeEditor(QTextEdit):
         if self.sidebar.hasMarkerAt(line):
             if self.hasError and self.errorLine == line:
                 self.clearErrorHightlight()
+            elif self.sidebar.hasMarkerTypeAt(line,BreakPointMarker):
+                self.sidebar.removeMarkerTypeAt(line,BreakPointMarker)
             else:
-                self.sidebar.removeCurrentMarkerAt(line)
+                self.sidebar.appendMarkerAt(line,BreakPointMarker)
         else:
             self.sidebar.setMarkerAt(line,BreakPointMarker)
     def resizeEvent(self,event):
@@ -516,15 +531,23 @@ class LpyCodeEditor(QTextEdit):
         if found:
             self.setFocus()
         else:
-            self.statusBar.showMessage('Text not found !',2000)
+            #self.statusBar.showMessage('Text not found !',2000)
+            self.findEndOFFile()
             self.cursorAtStart()
+    def findEndOFFile(self):
+            q = QLabel('Text not found !')
+            q.setPixmap(QPixmap(':/images/icons/wrap.png'))
+            self.statusBar.addWidget(q)
+            self.statusBar.showMessage('     End of page found, restart from top !',2000)
+            QTimer.singleShot(2000,lambda : self.statusBar.removeWidget(q))            
     def findPreviousText(self):
         txt = self.findEdit.text()
         found = self.find(txt,QTextDocument.FindBackward|self.getFindOptions())
         if found:
             self.setFocus()
         else:
-            self.statusBar.showMessage('Text not found !',2000)
+            
+            self.findEndOFFile()
             self.cursorAtStart()
     def findText(self,txt):
         cursor = self.textCursor()

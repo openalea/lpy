@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="/images" >
+    <file>icons/wrap.png</file>
+    <file>icons/greenarrow16.png</file>
     <file>icons/BreakPointGreen.png</file>
     <file>icons/warningsErrors16.png</file>
     <file>icons/BreakPoint.png</file>
