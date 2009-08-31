@@ -111,8 +111,9 @@ public:
 			if(itArg->argid != modulearg){
 				if(itArg->isStarArg) {
 					ParamModule& m = res[itArg->moduleid];
-					if(itArg->isNewName)m.setName(bp::extract<std::string>(args[i][0])());
-					bp::object iter_obj( bp::handle<>( PyObject_GetIter( bp::object(args[i]).ptr() ) ) );
+					bp::object argi  = bp::object(args[i]);
+					if(itArg->isNewName)m.setName(bp::extract<std::string>(argi[0])());
+					bp::object iter_obj( bp::handle<>( PyObject_GetIter( argi.ptr() ) ) );
 					if(itArg->isNewName)iter_obj.attr( "next" )();
 					try { while( true ) m.append(iter_obj.attr( "next" )()); }
 					catch( bp::error_already_set ){ PyErr_Clear(); }
