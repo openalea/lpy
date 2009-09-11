@@ -124,7 +124,7 @@
 				FloatingPointModel="2"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="0"
+				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -140,7 +140,7 @@
 				AdditionalDependencies="boost_python-vc80-mt-1_35.lib pgltool.lib pglsg.lib pglalgo.lib pglgui.lib"
 				OutputFile="../openalea/lpy/__lpy_kernel__.pyd"
 				AdditionalLibraryDirectories="C:\Python25\libs;$(BOOSTDIR)\lib;&quot;..\..\..\PlantGL\lib&quot;"
-				GenerateDebugInformation="true"
+				GenerateDebugInformation="false"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="1"

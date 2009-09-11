@@ -1,0 +1,26 @@
+delta = 0.01
+steps = 2 + int(1 / delta)
+
+Axiom: A(0.0)
+
+derivation length: steps
+production:
+
+A(x):
+  if x <= 1.0:
+    l = max(0.01,laterallength(x))
+    produce F(10*nodelength(x))[+F(l*10)][-F(l*10)]A(x+delta)
+
+homomorphism:
+
+A(x) --> ;@O
+
+endlsystem
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	from openalea.plantgl.all import QuantisedFunction,NurbsCurve2D,Point3Array,Vector3,RealArray
+	functions = [('laterallength', NurbsCurve2D(Point3Array([Vector3(0,0.0311437,1),Vector3(0.140807,0.297805,1),Vector3(0.505396,0.0881961,1),Vector3(0.569751,0.299406,1),Vector3(0.700356,0.703414,1),Vector3(0.779996,0.0656024,1),Vector3(1,0.434594,1)]))), ('nodelength', NurbsCurve2D(Point3Array([Vector3(0,0.0450485,1),Vector3(0.301501,0.0261741,1),Vector3(0.413369,0.226164,1),Vector3(0.413369,0.0161491,1),Vector3(0.71392,0.0607547,1),Vector3(1,0.0495273,1)])))]
+	context["__functions__"] = functions
+	for n,c in functions:
+		context[n] = QuantisedFunction(c)

@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>780</width>
+    <width>901</width>
     <height>622</height>
    </rect>
   </property>
@@ -21,14 +21,11 @@
     <rect>
      <x>0</x>
      <y>55</y>
-     <width>780</width>
+     <width>901</width>
      <height>548</height>
     </rect>
    </property>
-   <layout class="QGridLayout" name="gridLayout_2" >
-    <property name="spacing" >
-     <number>2</number>
-    </property>
+   <layout class="QGridLayout" name="gridLayout_3" >
     <item rowspan="4" row="0" column="0" >
      <widget class="QDockWidget" name="materialDock" >
       <property name="sizePolicy" >
@@ -60,7 +57,38 @@
       </widget>
      </widget>
     </item>
-    <item rowspan="4" row="0" column="1" >
+    <item rowspan="4" row="0" column="2" >
+     <widget class="QDockWidget" name="functionDock" >
+      <property name="windowTitle" >
+       <string>Functions</string>
+      </property>
+      <widget class="QWidget" name="dockWidgetContents_6" >
+       <property name="geometry" >
+        <rect>
+         <x>0</x>
+         <y>22</y>
+         <width>80</width>
+         <height>348</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_4" >
+        <property name="spacing" >
+         <number>2</number>
+        </property>
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="FunctionPanel" native="1" name="functionpanel" />
+        </item>
+        <item>
+         <widget class="QLineEdit" name="funcNameEdit" />
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+    <item rowspan="4" row="0" column="3" >
      <widget class="QDockWidget" name="parametersDock" >
       <property name="windowTitle" >
        <string>Parameters</string>
@@ -261,7 +289,7 @@
       </widget>
      </widget>
     </item>
-    <item rowspan="4" row="0" column="2" >
+    <item rowspan="4" row="0" column="4" >
      <widget class="QDockWidget" name="descriptionDock" >
       <property name="windowTitle" >
        <string>Description</string>
@@ -271,7 +299,7 @@
         <rect>
          <x>0</x>
          <y>22</y>
-         <width>106</width>
+         <width>80</width>
          <height>348</height>
         </rect>
        </property>
@@ -283,7 +311,7 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="QToolBox" name="toolBox" >
+         <widget class="QToolBox" name="lpytoolbox" >
           <property name="midLineWidth" >
            <number>1</number>
           </property>
@@ -295,7 +323,7 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>106</width>
+             <width>80</width>
              <height>292</height>
             </rect>
            </property>
@@ -364,7 +392,7 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>106</width>
+             <width>80</width>
              <height>336</height>
             </rect>
            </property>
@@ -416,7 +444,7 @@
       </widget>
      </widget>
     </item>
-    <item rowspan="4" row="0" column="3" >
+    <item rowspan="4" row="0" column="5" >
      <widget class="QDockWidget" name="helpDock" >
       <property name="floating" >
        <bool>false</bool>
@@ -429,7 +457,7 @@
         <rect>
          <x>0</x>
          <y>22</y>
-         <width>121</width>
+         <width>80</width>
          <height>348</height>
         </rect>
        </property>
@@ -448,7 +476,7 @@
       </widget>
      </widget>
     </item>
-    <item row="0" column="4" >
+    <item row="0" column="6" >
      <widget class="QFrame" name="frame" >
       <property name="frameShape" >
        <enum>QFrame::StyledPanel</enum>
@@ -500,7 +528,7 @@
       </layout>
      </widget>
     </item>
-    <item row="1" column="4" >
+    <item row="1" column="6" >
      <widget class="QFrame" name="frameGoto" >
       <property name="frameShape" >
        <enum>QFrame::StyledPanel</enum>
@@ -589,7 +617,7 @@
       </layout>
      </widget>
     </item>
-    <item row="2" column="4" >
+    <item row="2" column="6" >
      <widget class="QFrame" name="frameFind" >
       <property name="frameShape" >
        <enum>QFrame::StyledPanel</enum>
@@ -752,7 +780,7 @@
       </layout>
      </widget>
     </item>
-    <item row="3" column="4" >
+    <item row="3" column="6" >
      <widget class="QFrame" name="frameReplace" >
       <property name="frameShape" >
        <enum>QFrame::StyledPanel</enum>
@@ -807,7 +835,7 @@
       </layout>
      </widget>
     </item>
-    <item row="4" column="0" colspan="5" >
+    <item row="4" column="0" colspan="7" >
      <widget class="QDockWidget" name="interpreterDock" >
       <property name="sizePolicy" >
        <sizepolicy vsizetype="Minimum" hsizetype="Preferred" >
@@ -826,8 +854,8 @@
         <rect>
          <x>0</x>
          <y>22</y>
-         <width>762</width>
-         <height>136</height>
+         <width>883</width>
+         <height>132</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" >
@@ -841,6 +869,37 @@
       </widget>
      </widget>
     </item>
+    <item row="0" column="1" >
+     <widget class="QDockWidget" name="curveDock" >
+      <property name="windowTitle" >
+       <string>Curves</string>
+      </property>
+      <widget class="QWidget" name="dockWidgetContents_7" >
+       <property name="geometry" >
+        <rect>
+         <x>0</x>
+         <y>22</y>
+         <width>80</width>
+         <height>228</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_8" >
+        <property name="spacing" >
+         <number>0</number>
+        </property>
+        <property name="margin" >
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="CurvePanel" native="1" name="curvepanel" />
+        </item>
+        <item>
+         <widget class="QLineEdit" name="curveNameEdit" />
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar" >
@@ -848,7 +907,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>780</width>
+     <width>901</width>
      <height>21</height>
     </rect>
    </property>
@@ -865,6 +924,8 @@
     <addaction name="separator" />
     <addaction name="actionIterateTo" />
     <addaction name="actionNextIterate" />
+    <addaction name="separator" />
+    <addaction name="actionAutoRun" />
     <addaction name="separator" />
     <addaction name="actionDebug" />
    </widget>
@@ -947,7 +1008,7 @@
     <rect>
      <x>0</x>
      <y>603</y>
-     <width>780</width>
+     <width>901</width>
      <height>19</height>
     </rect>
    </property>
@@ -988,7 +1049,7 @@
     <rect>
      <x>352</x>
      <y>21</y>
-     <width>428</width>
+     <width>549</width>
      <height>34</height>
     </rect>
    </property>
@@ -1395,6 +1456,14 @@
     <string>Ctrl+D</string>
    </property>
   </action>
+  <action name="actionAutoRun" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>Auto-Run</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -1412,6 +1481,18 @@
    <class>QTabBar</class>
    <extends>QWidget</extends>
    <header>PyQt4.QtGui.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>FunctionPanel</class>
+   <extends>QWidget</extends>
+   <header>curvepanel.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CurvePanel</class>
+   <extends>QWidget</extends>
+   <header>curvepanel.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

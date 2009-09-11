@@ -27,12 +27,15 @@ class LpySimulation:
         self.optionModel = None
         self.optionDelegate = None
         self.firstView = True
+        self.autorun = False
         self.iterateStep = None
         self.desc_items = {'__authors__'    : '' ,
                           '__institutes__'  : '' ,
                           '__copyright__'   : '' ,
                           '__description__' : '' ,
                           '__references__'  : '' }
+        self.functions = []
+        self.curves = []
         if not fname is None:
             self.open(fname)
     def getFname(self) : return self._fname
@@ -72,7 +75,7 @@ class LpySimulation:
         for i in self.desc_items.itervalues():
             if len(i) > 0:
                 return False
-        ini = self.initialisationCode()
+        ini = self.getInitialisationCode()
         if len(ini) > 0: return False
         return True            
     def getShortName(self):
@@ -128,6 +131,8 @@ class LpySimulation:
         self.lpywidget.setTimeStep(self.lsystem.context().animation_timestep)
         self.lpywidget.materialed.turtle = self.lsystem.context().turtle
         self.lpywidget.materialed.updateGL()
+        self.lpywidget.functionpanel.setFunctions(self.functions)
+        self.lpywidget.curvepanel.setCurves(self.curves)
         if not self.lpywidget.interpreter is None:
             self.lpywidget.interpreter.locals['lstring'] = self.tree
             self.lpywidget.interpreter.locals['lsystem'] = self.lsystem
@@ -137,7 +142,8 @@ class LpySimulation:
             self.lpywidget.documentNames.setCurrentIndex(self.index)
         self.lpywidget.textEditionWatch = True
         if not self.fname is None:
-            os.chdir(os.path.dirname(self.fname))
+            os.chdir(os.path.dirname(self.fname))         
+        self.lpywidget.actionAutoRun.setChecked(self.autorun)
         #if not self.lsystem.isCurrent() : self.lsystem.makeCurrent()
     def saveState(self):
         #if self.lsystem.isCurrent() :self.lsystem.done()
@@ -147,6 +153,8 @@ class LpySimulation:
                 self.desc_items[key] = editor.text()
             else:
                 self.desc_items[key] = editor.toPlainText()
+        self.functions = self.lpywidget.functionpanel.getFunctions()
+        self.curves = self.lpywidget.curvepanel.getCurves()
     def initializeParametersTable(self):
         self.optionModel = QStandardItemModel(0, 1)
         self.optionModel.setHorizontalHeaderLabels(["Parameter", "Value" ])
@@ -202,7 +210,9 @@ class LpySimulation:
         if self.fname:
             self.lsystem.filename = self.fname
         self.code = str(self.lpywidget.codeeditor.toPlainText().toAscii())
-        res = self.lsystem.set(self.code,self.lpywidget.showPyCode)
+        lpycode = self.code
+        lpycode += '\n'+self.getInitialisationCode(False)
+        res = self.lsystem.set(lpycode,self.lpywidget.showPyCode)
         if not res is None: print res
     def close(self):
         if self._edited:
@@ -244,37 +254,51 @@ class LpySimulation:
     def saveToFile(self,fname):
         f = file(fname,'w')
         f.write(self.code)
-        matinitcode = self.initialisationCode()
-        creditsinitcode = self.creditsCode()
-        if len(matinitcode) > 0 or len(creditsinitcode) > 0:
+        initcode = self.getInitialisationCode()
+        if len(initcode) > 0 :
             if self.code[-1] != '\n':
                 f.write('\n')
-            f.write(LpyParsing.InitialisationBeginTag+'\n\n')
-            f.write(matinitcode)
-            f.write(creditsinitcode)
-        f.close()        
-    def initialisationCode(self):
+            f.write(initcode)
+        f.close()
+    def getInitialisationCode(self,withall=True):
+        code = self.initialisationFunction(withall)
+        code += self.creditsCode()
+        if len(code) > 0:
+            code = LpyParsing.InitialisationBeginTag+'\n\n'+code
+        return code
+    def initialisationFunction(self,withall=True):
         header = "def "+LsysContext.InitialisationFunctionName+"(context):\n"
-        defaultlist = PglTurtle().getColorList()
-        currentlist = self.lsystem.context().turtle.getColorList()
-        nbdefault = len(defaultlist)
-        nbcurrent = len(currentlist)
         init_txt = ''
-        firstcol = True
-        for i in xrange(nbcurrent):
-            if ( (i >= nbdefault) or 
-                 (not currentlist[i].isSimilar(defaultlist[i])) or 
-                 (currentlist[i].name != defaultlist[i].name)):
-                if firstcol :
-                    init_txt += "\tfrom openalea.plantgl.all import Material,Color3\n"
-                    firstcol = False
-                init_txt += '\tcontext.turtle.setMaterial('+repr(i)+','+str(currentlist[i])+')\n'
-        if not self.lsystem.context().is_animation_timestep_to_default():
-                init_txt += '\tcontext.animation_timestep = '+str(self.getTimeStep())+'\n'
-        options = self.lsystem.context().options
-        for i in xrange(len(options)):
-            if not options[i].isToDefault():
-                init_txt += '\tcontext.options.setSelection('+repr(options[i].name)+','+str(options[i].selection)+')\n'
+        if withall:
+            defaultlist = PglTurtle().getColorList()
+            currentlist = self.lsystem.context().turtle.getColorList()
+            nbdefault = len(defaultlist)
+            nbcurrent = len(currentlist)
+            firstcol = True
+            for i in xrange(nbcurrent):
+                if ( (i >= nbdefault) or 
+                    (not currentlist[i].isSimilar(defaultlist[i])) or 
+                    (currentlist[i].name != defaultlist[i].name)):
+                    if firstcol :
+                        init_txt += "\tfrom openalea.plantgl.scenegraph import Material,Color3\n"
+                        firstcol = False
+                    init_txt += '\tcontext.turtle.setMaterial('+repr(i)+','+str(currentlist[i])+')\n'
+            if not self.lsystem.context().is_animation_timestep_to_default():
+                init_txt += '\tcontext.animation_timestep = '+str(self.getTimeStep())+'\n'           
+            options = self.lsystem.context().options
+            for i in xrange(len(options)):
+                if not options[i].isToDefault():
+                    init_txt += '\tcontext.options.setSelection('+repr(options[i].name)+','+str(options[i].selection)+')\n'
+        if len(self.functions) > 0 or len(self.curves) > 0 :
+            init_txt += "\tfrom openalea.plantgl.all import QuantisedFunction,NurbsCurve2D,Point3Array,Vector3,RealArray\n"
+        if len(self.functions):
+            init_txt += '\tfunctions = '+str([(i.name,i) for i in self.functions])+'\n'
+            init_txt += '\tcontext["__functions__"] = functions\n'
+            init_txt += '\tfor n,c in functions:\n\t\tcontext[n] = QuantisedFunction(c)\n'
+        if len(self.curves):
+            init_txt += '\tcurves = '+str([(i.name,i) for i in self.curves])+'\n'
+            init_txt += '\tcontext["__curves__"] = curves\n'
+            init_txt += '\tfor n,c in curves:\n\t\tcontext[n] = c\n'
         if len(init_txt) > 0:
             return header+init_txt
         else:
@@ -317,6 +341,14 @@ class LpySimulation:
                         init = True
                 else:
                     self.desc_items[key] = ''
+            if context.has_key('__functions__'):
+                functions = context['__functions__']
+                for n,c in functions: c.name = n
+                self.functions = [ c for n,c in functions ]
+            if context.has_key('__curves__'):
+                curves = context['__curves__']
+                for n,c in curves: c.name = n
+                self.curves = [ c for n,c in curves ]
             if init is None:
                 import warnings
                 warnings.warn('initialisation failed')

@@ -1,0 +1,27 @@
+from random import randint,seed
+
+seed(0)
+p = profile.deepcopy()
+p.ctrlPointList = [(i[0]*10,i[1]*10,1) for i in p.ctrlPointList]
+
+steps = 10
+
+Axiom: SetColor(2) SetContour(p) StartGC() A(steps) 
+
+derivation length: steps 
+production:
+
+A(x) --> ^(randint(0,20))F(0.1)A(x-1)
+
+homomorphism:
+
+
+endlsystem
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	from openalea.plantgl.all import QuantisedFunction,NurbsCurve2D,Point3Array,Vector3,RealArray
+	curves = [('profile', NurbsCurve2D(Point3Array([Vector3(-0.603071,0.0152151,1),Vector3(-0.257949,0.201006,1),Vector3(-0.0062758,-0.118662,1),Vector3(0.296917,-0.0439978,1),Vector3(0.573362,0.0528922,1)])))]
+	context["__curves__"] = curves
+	for n,c in curves:
+		context[n] = c

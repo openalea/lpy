@@ -132,37 +132,30 @@ class LpyVisualDebugger (lpy.LpyDebugger):
         self.print_src(pos_beg,pos_end)
         self.print_dest(dest,prod_length)
         self.ruleView.setText(str(rule.lineno)+': '+rule.name())
-        self.lpywidget.codeeditor.gotoLine(rule.lineno)
-        self.lpywidget.codeeditor.sidebar.addMarkerAt(rule.lineno,CodePointMarker)
+        self.addMarker(rule.lineno)
         self.setProgress(pos_end if self.direction == lpy.eForward else pos_beg)
         self.updateArgs(dict(zip(rule.parameterNames(),args)))
         self.wait()
-        if self.lpywidget.codeeditor.sidebar.hasMarkerTypeAt(rule.lineno,CodePointMarker):
-            self.lpywidget.codeeditor.sidebar.removeMarkerTypeAt(rule.lineno,CodePointMarker)
+        self.delMarker()
     def partial_match(self,pos_beg,pos_end,dest,rule,args):
         self.print_src(pos_beg,pos_end)        
         self.print_dest(dest)
         self.ruleView.setText(str(rule.lineno)+': '+rule.name()+' --> nothing produce!')
-        self.lpywidget.codeeditor.gotoLine(rule.lineno)
-        self.lpywidget.codeeditor.sidebar.addMarkerAt(rule.lineno,CodePointMarker)
+        self.addMarker(rule.lineno)
         self.updateArgs(dict(zip(rule.parameterNames(),args)))
         self.wait()
-        if self.lpywidget.codeeditor.sidebar.hasMarkerTypeAt(rule.lineno,CodePointMarker):
-            self.lpywidget.codeeditor.sidebar.removeMarkerTypeAt(rule.lineno,CodePointMarker)
+        self.delMarker()
     def error_match(self,pos_beg,pos_end,dest,rule,args,exc_info):
         self.print_src(pos_beg,pos_end)        
         self.print_dest(dest)
         self.ruleView.setText(str(rule.lineno)+': '+rule.name()+' --> raise exception!')
-        self.lpywidget.codeeditor.gotoLine(rule.lineno)
-        self.lpywidget.codeeditor.sidebar.addMarkerAt(rule.lineno,CodePointMarker)
-        self.updateArgs(dict(zip(rule.parameterNames(),args)))
-        
+        self.addMarker(rule.lineno)
+        self.updateArgs(dict(zip(rule.parameterNames(),args)))        
         tb.print_exception(*exc_info)
         self.lpywidget.errorEvent(exc_info)
         errmsg = self.lpywidget.getErrorMessage(exc_info)
         res = QMessageBox.warning(self.lpywidget,"Exception",errmsg,QMessageBox.Abort,QMessageBox.Ignore)
-        if self.lpywidget.codeeditor.sidebar.hasMarkerTypeAt(rule.lineno,CodePointMarker):
-            self.lpywidget.codeeditor.sidebar.removeMarkerTypeAt(rule.lineno,CodePointMarker)
+        self.delMarker()
         if res == QMessageBox.Ignore:
             return True
         else : 
@@ -174,6 +167,14 @@ class LpyVisualDebugger (lpy.LpyDebugger):
         self.setProgress(pos+1 if self.direction == lpy.eForward else pos)
         self.updateArgs()
         self.wait()
+    def addMarker(self,lineno):
+        self.lpywidget.codeeditor.gotoLine(lineno)
+        self.lpywidget.codeeditor.sidebar.addMarkerAt(lineno,CodePointMarker)
+        self.markerLine = lineno
+    def delMarker(self):
+        if self.lpywidget.codeeditor.sidebar.hasMarkerTypeAt(self.markerLine,CodePointMarker):
+            self.lpywidget.codeeditor.sidebar.removeMarkerTypeAt(self.markerLine,CodePointMarker)
+        self.markerLine = None
     def wait(self):
         self.waitcond.lock()
         if self.animation :
@@ -186,6 +187,8 @@ class LpyVisualDebugger (lpy.LpyDebugger):
         self.waitcond.unlock()
         if self.abort == True:
             self.abort = False
+            if not self.markerLine is None:
+                self.delMarker()
             raise AbortDebugger()
         if self.breakPointMonitor:
             self.retrieveBreakPoints()

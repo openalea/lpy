@@ -1,0 +1,95 @@
+<ui version="4.0" >
+ <class>CurveDialog</class>
+ <widget class="QDialog" name="CurveDialog" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>389</width>
+    <height>282</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Curve Editor</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout" >
+   <property name="spacing" >
+    <number>2</number>
+   </property>
+   <property name="margin" >
+    <number>2</number>
+   </property>
+   <item>
+    <widget class="CurveEditor" native="1" name="curveView" >
+     <property name="sizePolicy" >
+      <sizepolicy vsizetype="Maximum" hsizetype="Preferred" >
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout" >
+     <property name="spacing" >
+      <number>0</number>
+     </property>
+     <property name="sizeConstraint" >
+      <enum>QLayout::SetFixedSize</enum>
+     </property>
+     <item>
+      <widget class="QCheckBox" name="autoUpdateCheckBox" >
+       <property name="text" >
+        <string>Auto update</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2" >
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0" >
+        <size>
+         <width>48</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="okButton" >
+       <property name="text" >
+        <string>Ok</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="applyButton" >
+       <property name="text" >
+        <string>Apply</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cancelButton" >
+       <property name="text" >
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CurveEditor</class>
+   <extends>QWidget</extends>
+   <header>curveedit.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

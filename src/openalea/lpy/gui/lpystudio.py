@@ -98,6 +98,8 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.codeeditor.initWithEditor(self)        
         self.debugMode = False
         self.debugger = LpyVisualDebugger(self)
+        self.functionpanel.setCurveNameEditor(self.funcNameEdit)
+        self.curvepanel.setCurveNameEditor(self.curveNameEdit)
         self.newfile()
         self.textEditionWatch = False
         self.documentNames.setDrawBase(False)
@@ -108,6 +110,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
                 if tabselect != originaltab:
                     self.documentNames.emit(SIGNAL("switchDocument"),tabselect,originaltab)
         self.documentNames.mouseMoveEvent = tb_mouseMoveEvent
+        QObject.connect(self,SIGNAL('endTask(PyQt_PyObject)'),self.endTaskCheck)
         QObject.connect(self.documentNames,SIGNAL('switchDocument'),self.switchDocuments)
         QObject.connect(self.documentNames,SIGNAL('currentChanged(int)'),self.changeDocument)
         QObject.connect(self.actionNew,SIGNAL('triggered(bool)'),self.newfile)
@@ -123,6 +126,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         QObject.connect(self.actionRewind, SIGNAL('triggered(bool)'),self.rewind)
         QObject.connect(self.actionIterateTo, SIGNAL('triggered(bool)'),self.iterateTo)
         QObject.connect(self.actionNextIterate, SIGNAL('triggered(bool)'),self.nextIterate)
+        QObject.connect(self.actionAutoRun, SIGNAL('triggered(bool)'),self.projectAutoRun)
         QObject.connect(self.actionDebug, SIGNAL('triggered(bool)'),self.debug)
         QObject.connect(self.actionStop, SIGNAL('triggered(bool)'),self.cancelTask)
         QObject.connect(self.actionComment, SIGNAL('triggered(bool)'),self.codeeditor.comment)
@@ -141,6 +145,10 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         QObject.connect(self.intitutesEdit, SIGNAL('textChanged()'),self.projectEdited)
         QObject.connect(self.copyrightEdit, SIGNAL('textChanged()'),self.projectEdited)
         QObject.connect(self.materialed, SIGNAL('valueChanged()'),self.projectEdited)
+        QObject.connect(self.functionpanel, SIGNAL('valueChanged()'),self.projectEdited)
+        QObject.connect(self.curvepanel, SIGNAL('valueChanged()'),self.projectEdited)
+        QObject.connect(self.functionpanel, SIGNAL('valueChanged()'),self.projectParameterEdited)
+        QObject.connect(self.curvepanel, SIGNAL('valueChanged()'),self.projectParameterEdited)
         self.aboutLpy = lambda x : doc.aboutLpy(self)
         QObject.connect(self.actionAbout, SIGNAL('triggered(bool)'),self.aboutLpy)
         QObject.connect(self.actionAboutQt, SIGNAL('triggered(bool)'),QApplication.aboutQt)
@@ -225,6 +233,8 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
             self.actionDebug.setEnabled(enabled)
         self.actionStop.setEnabled(not enabled)  
         self.documentNames.setEnabled(enabled)  
+    def projectAutoRun(self,value):
+        self.currentSimulation().autorun = value
     def plotScene(self,scene):
       if self.thread() != QThread.currentThread():
         #Viewer.display(scene)
@@ -289,6 +299,17 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
     def projectEdited(self):
         if self.textEditionWatch :
             self.currentSimulation().setEdited(True)        
+    def projectParameterEdited(self):
+        if self.currentSimulation().autorun :
+            if not self.isRunning():
+                self.run()
+            else:
+                self.shouldrerun = True
+    def endTaskCheck(self,task):
+        if hasattr(task,'checkRerun'):
+            if hasattr(self,'shouldrerun'):
+                self.run()
+                del self.shouldrerun
     def printTitle(self):
         t = 'L-Py - '
         t += self.currentSimulation().getTabName()
@@ -376,6 +397,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         simu.updateLsystemCode()
         simu.isTextEdited()
         task = ComputationTask(simu.run,simu.post_run)
+        task.checkRerun = True
         self.registerTask(task)
       except:
         self.graberror()

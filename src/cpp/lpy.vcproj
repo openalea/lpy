@@ -143,7 +143,7 @@
 				AdditionalDependencies="boost_python-vc80-mt-1_35.lib pgltool.lib pglmath.lib pglsg.lib pglalgo.lib pglgui.lib QtCore4.lib"
 				OutputFile="../../bin/lpy.dll"
 				AdditionalLibraryDirectories="C:\Python25\libs;$(BOOSTDIR)\lib;&quot;..\..\..\PlantGL\lib&quot;;$(QTDIR)\lib"
-				GenerateDebugInformation="true"
+				GenerateDebugInformation="false"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				ImportLibrary="$(TargetDir)/../lib/$(TargetName).lib"

@@ -54,6 +54,7 @@ class ComputationTaskManager:
         if not self.with_thread :
             self.computationMutex.unlock()
     def finalizeTask(self):
+        ct = self.computationThread
         if not self.computationThread is None:
             try:
                 self.computationThread.finalize()
@@ -65,9 +66,12 @@ class ComputationTaskManager:
             self.computationThread = None
         else:
             self.releaseCR()
+        self.emit(SIGNAL('endTask(PyQt_PyObject)'),ct)
     def abortTask(self):
+        ct = self.computationThread
         self.computationThread = None
         self.releaseCR()
+        self.emit(SIGNAL('endTask(PyQt_PyObject)'),ct)
         self.clear()
     def registerTask(self,task):
         if self.computationThread is None:
@@ -85,6 +89,7 @@ class ComputationTaskManager:
                 self.graberror()
               self.computationThread = None
               self.releaseCR()
+              self.emit(SIGNAL('endTask(PyQt_PyObject)'),task)
     def acquireCR(self):
         """ acquire computation ressources """
         if not self.computationMutex.tryLock():

@@ -19,10 +19,10 @@ class DebugRightWidget(QWidget,debugger_right_ui.Ui_Form):
         self.setupUi(self)
 
 def initDocks(lpywidget):
-    for dock in [lpywidget.materialDock, lpywidget.parametersDock, lpywidget.descriptionDock]:
+    for dock in [lpywidget.materialDock, lpywidget.parametersDock, lpywidget.descriptionDock, lpywidget.functionDock, lpywidget.curveDock]:
         lpywidget.addDockWidget(Qt.LeftDockWidgetArea,dock)
         action = dock.toggleViewAction()
-        lpywidget.menuView.addAction(action)        
+        lpywidget.menuView.addAction(action)
     lpywidget.addDockWidget(Qt.LeftDockWidgetArea,lpywidget.helpDock)
     action = lpywidget.helpDock.toggleViewAction()
     action.setShortcut(QApplication.translate("MainWindow", "F1", None, QApplication.UnicodeUTF8))
