@@ -14,10 +14,11 @@ if not py2exe_release:
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-from curvedialogui import *
-from openalea.plantgl.gui.curveeditor import FuncConstraint,CurveConstraint
+try:
+  from curvedialogui import *
+  from openalea.plantgl.gui.curveeditor import FuncConstraint,CurveConstraint
     
-class CurveDialog(QDialog,Ui_CurveDialog):
+  class CurveDialog(QDialog,Ui_CurveDialog):
     def __init__(self,*args):
         QDialog.__init__(self,*args)
         self.setupUi(self)
@@ -43,10 +44,17 @@ class CurveDialog(QDialog,Ui_CurveDialog):
         self.curveView.setCurve(curve)
     def getCurve(self):
         return self.curveView.getCurve()
-    def getCurve(self):
-        return self.curveView.getCurve()
+    def newDefaultCurve(self):
+        return self.curveView.newDefaultCurve()
     def setAutomaticUpdate(self,value):
         if self.autoupdate != value:
             self.autoupdate = value
+            self.applyButton.setEnabled(not self.autoupdate)
             if value: QObject.connect(self.curveView,SIGNAL('valueChanged()'),self.__valueChanged)
             else:     QObject.disconnect(self.curveView,SIGNAL('valueChanged()'),self.__valueChanged)
+
+except ImportError, e:
+    import sys, traceback
+    exc_info = sys.exc_info()
+    traceback.print_exception(*exc_info)
+    CurveDialog = None

@@ -50,13 +50,17 @@ class CurveListDisplay(QGLWidget):
         self.selection = None
         self.editedcurves = None
         self.cursorselection = None
-        self.editor = CurveDialog(self)
-        QObject.connect(self.editor,SIGNAL('valueChanged()'),self.retrieveCurve)
-        QObject.connect(self.editor,SIGNAL('hidden()'),self.endEditionEvent)
+        if not CurveDialog is None:
+            self.editor = CurveDialog(self)            
+            QObject.connect(self.editor,SIGNAL('valueChanged()'),self.retrieveCurve)
+            QObject.connect(self.editor,SIGNAL('hidden()'),self.endEditionEvent)
+        else:
+            self.editor = None
         self.createContextMenu()
         self.sphere = Sphere(radius=3,slices=64,stacks=64)
     def setFunctionMode(self):
-        self.editor.setFunctionMode()
+        if self.editor:
+            self.editor.setFunctionMode()
     def createContextMenu(self):
         self.contextmenu = QMenu(self)
         self.editAction = QAction('Edit',self)
@@ -91,7 +95,10 @@ class CurveListDisplay(QGLWidget):
     def getSelectedCurve(self):
         return self.curves[self.selection]
     def createNewDefaultCurve(self):
-        n = NurbsCurve2D([(0,0,1),(1/3.,0,1),(2/3.,0,1),(1,0,1)])
+        if self.editor:
+            n = self.editor.newDefaultCurve()
+        else:
+            n = NurbsCurve2D([(0,0,1),(1/3.,0,1),(2/3.,0,1),(1,0,1)])
         defname = 'Default'
         mid = retrievemaxidname([i.name for i in self.curves],defname)
         if not mid is None:
@@ -139,8 +146,11 @@ class CurveListDisplay(QGLWidget):
     def editSelection(self):
         if self.hasSelection() :
             self.editedcurve = self.selection
-            self.editor.setCurve(self.getSelectedCurve().deepcopy())
-            self.editor.show()
+            if self.editor:
+                self.editor.setCurve(self.getSelectedCurve().deepcopy())
+                self.editor.show()
+            else:
+                QMessageBox.warning(self,"Cannot edit","Cannot edit curve ! Python module (PyQGLViewer) is missing!")
     def init(self):
         glClearColor(0.0,0.0,0.0,1.0)
         glEnable(GL_LIGHTING)
@@ -289,7 +299,7 @@ class CurveListDisplay(QGLWidget):
         QGLWidget.enterEvent(self,event)
     def leaveEvent(self,event):
         self.setMouseTracking(False)
-        self.updateGL()
+        self.setCursorSelection(None)
         QGLWidget.leaveEvent(self,event)
     def setCurves(self,curves):
         self.curves = curves
