@@ -345,7 +345,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
 			mode = 0;
 		  }
 		  else if(has_pattern(_it,endpycode,"produce")){
-			  LsysError("Cannot use 'produce' outside production body. Use 'nproduce' instead.",filename,lineno);
+			  LsysWarning("Cannot use 'produce' outside production body. Use 'nproduce' instead.",filename,lineno);
 		  }
 		  else { if(_it!=endpycode)++_it; toendlineA(_it,endpycode); }
 		  break;

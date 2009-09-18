@@ -699,7 +699,8 @@ size_t LsysContext::__initialiseFrom(const std::string& lcode)
 	size_t pos = lcode.find(LpyParsing::InitialisationBeginTag);
 	if (pos != std::string::npos) {
 		compile(std::string(lcode.begin()+pos,lcode.end()));
-		if (__initialise()) return pos;
+		__initialise();
+		return pos;
 	}
 	return std::string::npos;
 }

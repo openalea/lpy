@@ -307,7 +307,7 @@ class LpySimulation:
         txt = ''
         for key,value in self.desc_items.iteritems():             
             if len(value) > 0:
-                txt += key+' = '+repr(str(value.toAscii()))+'\n'
+                txt += key+' = '+repr(str(value))+'\n'
         return txt
     def open(self,fname):
         self.setFname(fname)

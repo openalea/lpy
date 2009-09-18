@@ -19,10 +19,14 @@ class DebugRightWidget(QWidget,debugger_right_ui.Ui_Form):
         self.setupUi(self)
 
 def initDocks(lpywidget):
-    for dock in [lpywidget.materialDock, lpywidget.parametersDock, lpywidget.descriptionDock, lpywidget.functionDock, lpywidget.curveDock]:
+    prevdock = None
+    for dock in [lpywidget.materialDock, lpywidget.functionDock, lpywidget.curveDock, lpywidget.descriptionDock, lpywidget.parametersDock]:
         lpywidget.addDockWidget(Qt.LeftDockWidgetArea,dock)
         action = dock.toggleViewAction()
         lpywidget.menuView.addAction(action)
+        if not prevdock is None:
+            lpywidget.tabifyDockWidget(prevdock,dock)
+        prevdock = dock
     lpywidget.addDockWidget(Qt.LeftDockWidgetArea,lpywidget.helpDock)
     action = lpywidget.helpDock.toggleViewAction()
     action.setShortcut(QApplication.translate("MainWindow", "F1", None, QApplication.UnicodeUTF8))
@@ -35,6 +39,8 @@ def initDocks(lpywidget):
     lpywidget.menuHelp.addAction(action)
     lpywidget.tabifyDockWidget(lpywidget.materialDock,lpywidget.parametersDock)
     lpywidget.tabifyDockWidget(lpywidget.parametersDock,lpywidget.descriptionDock)
+    lpywidget.tabifyDockWidget(lpywidget.descriptionDock,lpywidget.functionDock)
+    lpywidget.tabifyDockWidget(lpywidget.functionDock,lpywidget.curveDock)
     # debug dock
     lpywidget.debugDock = QDockWidget("Debugger",lpywidget)
     lpywidget.debugDock.setObjectName("LpyDebugger")
