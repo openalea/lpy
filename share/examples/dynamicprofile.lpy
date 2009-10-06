@@ -1,0 +1,73 @@
+from random import randint,seed
+from openalea.plantgl.all import *
+from math import degrees
+
+seed(0)
+p = profile.deepcopy()
+
+
+#the set of curve representing axis at different time
+curves = [(n,v) for n,v in globals().items() if 'axis' in n and type(v) == NurbsCurve2D ]
+for n,v in curves: v.name = n
+curves = [v for n,v in curves]
+curves.sort(lambda x,y : cmp(x.name,y.name))
+
+
+#time between each curve
+curvedelay = 20
+#total time
+timerange = (len(curves)-1)*curvedelay
+
+#nb of step to do on the axis
+steps = 50
+dt = 1/float(steps)
+
+
+Axiom:  SetContour(p) _(leafwidth(0))  /(-90) &(90)  /(0) F(0.1) SetColor(2)  L(0) 
+
+derivation length: timerange
+production:
+
+#/(x) --> /(x+1)
+
+# Leaf growth for one time step each step
+L(t) --> L(t+1)
+
+homomorphism:
+maximum depth:  steps 
+
+L(t) :
+    #identify the axis to use
+    idcurve,weigth = divmod(t,curvedelay)
+    if weigth == 0:
+         # just one axis to use
+         curve = curves[idcurve]
+    else:
+         # interpolation between 2 axis
+         c1,c2 = curves[idcurve],curves[idcurve+1]
+         pts = [(p*(curvedelay-weigth)+c2.ctrlPointList[i]*weigth)/curvedelay for i,p in enumerate(c1.ctrlPointList)]
+         curve = NurbsCurve2D(pts)
+    param = curve.getArcLengthToUMapping()
+    initangle = degrees(angle(Vector2.OX,curve.getTangentAt(0)))
+    produce ^(initangle) StartGC() A(dt,curve,param) 
+
+A(x,curve,param) :
+    #print x
+    if abs(x - 1)  < (dt/2): x = 0.9999999999999 
+    a = angle(curve.getTangentAt(param(x-dt)),curve.getTangentAt(param(x)))
+    produce ^(degrees(a))_(leafwidth(x))F(dt)A(x+dt,curve,param)
+
+endlsystem
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	context.animation_timestep = 0.01
+	from openalea.plantgl.all import QuantisedFunction,NurbsCurve2D,Point3Array,Vector3,RealArray
+	functions = [('leafwidth', NurbsCurve2D(Point3Array([Vector3(0,0.0195927,1),Vector3(0.219872,0.279019,1),Vector3(0.711105,0.460335,1),Vector3(1,0.00849109,1)])))]
+	context["__functions__"] = functions
+	for n,c in functions:
+		context[n] = QuantisedFunction(c)
+	curves = [('profile', NurbsCurve2D(Point3Array([Vector3(-0.617641,0.141492,1),Vector3(-0.175383,-0.129256,1),Vector3(0.00813704,0.352579,1),Vector3(0.122072,-0.121707,1),Vector3(0.587932,0.164599,1)]))), ('axis1', NurbsCurve2D(Point3Array([Vector3(-0.5,0,1),Vector3(-0.343628,0.0908472,1),Vector3(-0.294991,-0.0340806,1),Vector3(-0.425858,-0.0642156,1),Vector3(-0.44864,0.0269131,1),Vector3(-0.37165,0.0115342,1)]))), ('axis2', NurbsCurve2D(Point3Array([Vector3(-0.5,0,1),Vector3(-0.343628,0.0908472,1),Vector3(-0.196405,0.093203,1),Vector3(-0.144755,-0.0349069,1),Vector3(-0.244089,-0.114191,1),Vector3(-0.369488,-0.0299906,1)]))), ('axis3', NurbsCurve2D(Point3Array([Vector3(-0.5,0,1),Vector3(-0.343628,0.0908472,1),Vector3(-0.199423,0.0660391,1),Vector3(-0.139163,0.000244081,1),Vector3(-0.201903,-0.0919733,1),Vector3(-0.261797,-0.0726804,1)]))), ('axis4', NurbsCurve2D(Point3Array([Vector3(-0.5,0,1),Vector3(-0.343628,0.0908472,1),Vector3(-0.17612,0.0940398,1),Vector3(-0.0992922,0.071272,1),Vector3(-0.0294287,-0.00263411,1),Vector3(-0.0359671,0.00176892,1)]))), ('axis5', NurbsCurve2D(Point3Array([Vector3(-0.5,0,1),Vector3(-0.343628,0.0908472,1),Vector3(-0.17612,0.0940398,1),Vector3(-0.105034,0.0750999,1),Vector3(-0.0236869,0.0720096,1),Vector3(0.0498644,0.0519054,1)]))), ('axis6', NurbsCurve2D(Point3Array([Vector3(-0.5,0,1),Vector3(-0.28362,-0.0159994,1),Vector3(-0.17612,0.0518123,1),Vector3(-0.168036,0.0814387,1),Vector3(-0.100353,0.130297,1),Vector3(-0.154953,0.240856,1)]))), ('axis7', NurbsCurve2D(Point3Array([Vector3(-0.5,0,1),Vector3(-0.270107,-0.0329435,1),Vector3(-0.153669,0.0629664,1),Vector3(-0.166177,0.1558,1),Vector3(-0.208177,0.174913,1),Vector3(-0.303173,0.147119,1)]))), ('axis8', NurbsCurve2D(Point3Array([Vector3(-0.5,0,1),Vector3(-0.273115,-0.0434201,1),Vector3(-0.173188,0.111014,1),Vector3(-0.23975,0.187331,1),Vector3(-0.358312,0.13139,1),Vector3(-0.295666,0.0885611,1)]))), ('axis9', NurbsCurve2D(Point3Array([Vector3(-0.5,0,1),Vector3(-0.280281,-0.0381676,1),Vector3(-0.269238,0.132025,1),Vector3(-0.43052,0.135627,1),Vector3(-0.40177,0.00840907,1),Vector3(-0.321179,0.076555,1)])))]
+	context["__curves__"] = curves
+	for n,c in curves:
+		context[n] = c

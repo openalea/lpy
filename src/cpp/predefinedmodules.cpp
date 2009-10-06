@@ -123,6 +123,10 @@ DeclareModuleBegin(GetRight,"Request right vector information. Params : x,y,z or
 { m._setValues(-t.getLeft()); }
 DeclareModuleEnd
 
+DeclareModuleBegin(GetFrame,"Request turtle frame information. Params : p,h,u,l (optional, filled by Turtle).",eRequest)
+{ m._setFrameValues(t.getPosition(),t.getHeading(),t.getUp(),t.getLeft()); }
+DeclareModuleEnd
+
 DeclareSimpleModule(startGC, "Start a new generalized cylinder.",ePrimitive)
 DeclareSimpleModule(stopGC,  "Pop generalized cylinder from the stack and render it.",ePrimitive)
 DeclareSimpleModule(startPolygon,"Start a new polygon.",ePrimitive)
@@ -288,6 +292,25 @@ DeclareModuleBegin(pglshape,"Draw a geometry at the turtle's current location an
 }
 DeclareModuleEnd
 
+DeclareModuleBegin(Frame,"Draw the current turtle frame as 3 arrows (red=heading,blue=up,green=left). Params : size (should be positive), cap_heigth_ratio (in [0,1]), cap_radius_ratio (should be positive).",ePrimitive)
+{
+#if PGL_VERSION >= 0x020A00
+	size_t nbargs = m.size();
+	switch (nbargs) {
+		case 0:  t.frame(); break;
+		case 1:  t.frame(m._getReal(0)); break;
+		case 2:  t.frame(m._getReal(0), m._getReal(1)); break;
+		default: t.frame(m._getReal(0), m._getReal(1), m._getReal(2)); break;
+	}
+#else
+#ifdef _MSC_VER
+#pragma message("Frame module will be disabled. Upgrade PlantGL.")
+#else
+#warning Frame module will be disabled. Upgrade PlantGL.
+#endif
+#endif
+}
+DeclareModuleEnd
 
 DeclareModuleBegin(elasticity,"Set Branch Elasticity. Params : real value (optional, default= 0.0, should be between [0,1]).",eTropism)
 {
@@ -377,6 +400,7 @@ void ModuleClass::createPredefinedClasses() {
 	QueryUp = new DeclaredModule(GetUp)("?U","GetUp");
 	QueryLeft = new DeclaredModule(GetLeft)("?L","GetLeft");
 	QueryRigth = new DeclaredModule(GetRight)("?R","GetRight");
+	QueryFrame = new DeclaredModule(GetFrame)("?F","GetFrame");
 	StartGC = new DeclaredModule(startGC)("@Gc","StartGC");
 	EndGC = new DeclaredModule(stopGC)("@Ge","EndGC");
 	StartPolygon = new DeclaredModule(startPolygon)("{","BP");
@@ -406,6 +430,7 @@ void ModuleClass::createPredefinedClasses() {
 	Surface = new DeclaredModule(surface)("surface");
 	CpfgSurface = new DeclaredModule(surface)("~");
 	PglShape = new DeclaredModule(pglshape)("@g","PglShape");
+	Frame = new DeclaredModule(Frame)("Frame");
 	Elasticity = new DeclaredModule(elasticity)("@Ts","Elasticity");
 	Tropism = new DeclaredModule(tropism)("@Tp","Tropism");
 	SetContour = new DeclaredModule(setcontour)("SetContour");

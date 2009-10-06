@@ -75,7 +75,8 @@ public:
 			   __mclass == ModuleClass::QueryHeading ||
 			   __mclass == ModuleClass::QueryUp || 
 			   __mclass == ModuleClass::QueryLeft || 
-		       __mclass == ModuleClass::QueryRigth; }
+		       __mclass == ModuleClass::QueryRigth || 
+		       __mclass == ModuleClass::QueryFrame; }
   inline bool isCut() const { return __mclass == ModuleClass::Cut; }
   inline bool isNull() const { return __mclass == ModuleClass::None || __mclass == ModuleClass::Star; }
   inline bool isStar() const { return __mclass == ModuleClass::Star; }
@@ -351,6 +352,7 @@ public:
 
   virtual void _setValues(real_t,real_t,real_t) ;
   inline void _setValues(const TOOLS(Vector3)& v) { _setValues(v.x(),v.y(),v.z()); }
+  virtual void _setFrameValues(const TOOLS(Vector3)& p, const TOOLS(Vector3)& h, const TOOLS(Vector3)& u, const TOOLS(Vector3)& l) ;
 
   bool match(const PatternModule&m) const;
   bool match(const PatternModule&m, ArgList&) const;

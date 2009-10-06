@@ -1,17 +1,23 @@
 from random import randint,seed
+from openalea.plantgl.all import *
 
 seed(0)
 p = profile.deepcopy()
-p.ctrlPointList = [(i[0]*10,i[1]*10,1) for i in p.ctrlPointList]
+
 
 steps = 10
+dt = 1/float(steps+1)
 
-Axiom: SetColor(2) SetContour(p) StartGC() A(steps) 
+Axiom: SetColor(2) SetContour(p) _(leafwidth(0)) StartGC() A(dt) 
 
-derivation length: steps 
+derivation length: steps
 production:
 
-A(x) --> ^(randint(0,20))F(0.1)A(x-1)
+A(x) :
+    x = min(0.9999,x)
+    a = angle(axis.getTangentAt(x),axis.getTangentAt(x+dt))
+    print x
+    produce &(a)_(leafwidth(x))F(0.1)A(x+dt)
 
 homomorphism:
 
@@ -21,7 +27,11 @@ endlsystem
 
 def __initialiseContext__(context):
 	from openalea.plantgl.all import QuantisedFunction,NurbsCurve2D,Point3Array,Vector3,RealArray
-	curves = [('profile', NurbsCurve2D(Point3Array([Vector3(-0.603071,0.0152151,1),Vector3(-0.257949,0.201006,1),Vector3(-0.0062758,-0.118662,1),Vector3(0.296917,-0.0439978,1),Vector3(0.573362,0.0528922,1)])))]
+	functions = [('leafwidth', NurbsCurve2D(Point3Array([Vector3(0,0.0195927,1),Vector3(0.219872,0.279019,1),Vector3(0.711105,0.460335,1),Vector3(1,0.00849109,1)])))]
+	context["__functions__"] = functions
+	for n,c in functions:
+		context[n] = QuantisedFunction(c)
+	curves = [('profile', NurbsCurve2D(Point3Array([Vector3(-0.617641,0.141492,1),Vector3(-0.175383,-0.129256,1),Vector3(0.00813704,0.352579,1),Vector3(0.122072,-0.121707,1),Vector3(0.587932,0.164599,1)]))), ('axis', NurbsCurve2D(Point3Array([Vector3(-0.5,0,1),Vector3(-0.142762,0.302789,1),Vector3(0.166667,0,1),Vector3(0.5,0,1)])))]
 	context["__curves__"] = curves
 	for n,c in curves:
 		context[n] = c

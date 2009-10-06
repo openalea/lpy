@@ -316,6 +316,21 @@ ParamModule::_setValues(real_t x,real_t y,real_t z)
   }
 }
 
+void ParamModule::_setFrameValues(const TOOLS(Vector3)& p, const TOOLS(Vector3)& h, 
+								  const TOOLS(Vector3)& u, const TOOLS(Vector3)& l)
+{
+  ParameterList& args = __args();
+  size_t nbArg = args.size();
+  if(nbArg >= 1 )args[0] = object(p);
+  else args.push_back(object(p));
+  if(nbArg >= 2 )args[1] = object(h);
+  else args.push_back(object(h));
+  if(nbArg >= 3 )args[2] = object(u);
+  else args.push_back(object(u));
+  if(nbArg >= 4 )args[3] = object(l);
+  else args.push_back(object(l));
+}
+
 /*---------------------------------------------------------------------------*/
 
 bool ParamModule::match(const std::string& _name, size_t nbargs) const

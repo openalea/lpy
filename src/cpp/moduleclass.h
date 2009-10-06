@@ -63,6 +63,7 @@ typedef std::vector<ModuleClassPtr> ModuleClassList;
 	MACRO(QueryUp) \
 	MACRO(QueryLeft) \
 	MACRO(QueryRigth) \
+	MACRO(QueryFrame) \
 	MACRO(F) \
 	MACRO(f) \
 	MACRO(X) \
@@ -83,6 +84,7 @@ typedef std::vector<ModuleClassPtr> ModuleClassList;
 	MACRO(Sphere) \
 	MACRO(Circle) \
 	MACRO(Label) \
+	MACRO(Frame) \
 	MACRO(IncWidth) \
 	MACRO(DecWidth) \
 	MACRO(SetWidth) \
