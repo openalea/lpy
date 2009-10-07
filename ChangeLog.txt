@@ -1,4 +1,5 @@
-
+Lpy 1.4.0
+---------
 For a detailled description of the changelog see `wiki changelog <http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=packages:vplants:lpy:changelog>`__
 
 

@@ -17,6 +17,7 @@ execfile(f,d,d)
 name = 'lpy'
 namespace = 'openalea'
 pkg_name= namespace + '.' + name
+wralea_name= namespace + '.' + name + '_wralea'
 
 version= d['LPY_NUM_VERSION_STR']
 print pkg_name,': version =',version
@@ -60,7 +61,7 @@ setup(
     create_namespaces = True,
     
     # pure python  packages
-    packages = [ pkg_name, pkg_name+'.gui', pkg_name+'.wralea' ],
+    packages = [ pkg_name, pkg_name+'.gui', wralea_name ],
     py_modules = ['lpygui_postinstall'],
 
     # python packages directory
@@ -68,7 +69,7 @@ setup(
                    
     # Add package platform libraries if any
     include_package_data = True,
-    package_data = {'' : ['*.pyd', '*.so', '*.dylib', '*.lpy'],},
+    package_data = {'' : ['*.pyd', '*.so', '*.dylib', '*.lpy','*.ui','*.qrc'],},
     zip_safe = False,
 
     # Specific options of openalea.deploy
@@ -80,7 +81,7 @@ setup(
     # Dependencies
     # entry_points
     entry_points = {
-        "wralea": ["lpy = openalea.lpy.wralea",],
+        "wralea": ["lpy = openalea.lpy_wralea",],
         'gui_scripts': ['lpy = openalea.lpy.gui.lpystudio:main',]
         },
     
@@ -89,7 +90,7 @@ setup(
     # Dependencies
     setup_requires = ['openalea.deploy'],
     dependency_links = ['http://openalea.gforge.inria.fr/pi'],
-    install_requires = ['PyOpenGL', binary_deps('vplants.plantgl')],
+    install_requires = ['PyOpenGL', 'pyqglviewer', binary_deps('vplants.plantgl')],
 
     )
 
