@@ -117,6 +117,7 @@ class ComputationTaskManager:
         if exc_info is None:
             exc_info = sys.exc_info()
         tb.print_exception(*exc_info)
+        self.lastexception = exc_info[1]
         self.errorEvent(exc_info)
         errmsg = self.getErrorMessage(exc_info)
         if displayDialog:
@@ -124,10 +125,8 @@ class ComputationTaskManager:
         else:
             self.endErrorEvent(None)
     def getErrorMessage(self,exc_info):
-        if type(exc_info[1]) == str:
-            msg = exc_info[1]
-        else:
-            msg = exc_info[1].message
+        print type(exc_info[1]), exc_info[1]
+        msg = str(exc_info[1])
         if exc_info[0] == SyntaxError and len(msg) == 0:
             msg = exc_info[1].msg
         return 'An error occured:"'+str(exc_info[0].__name__)+':'+str(msg)+'"'
