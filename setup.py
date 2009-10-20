@@ -92,6 +92,7 @@ setup(
     dependency_links = ['http://openalea.gforge.inria.fr/pi'],
     install_requires = ['PyOpenGL', 'pyqglviewer', binary_deps('vplants.plantgl')],
 
+    pylint_packages = ['src/openalea/lpy/gui']
     )
 
 
