@@ -1,5 +1,5 @@
 from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QApplication, QIcon, QPixmap,QWidget,QDockWidget, QSplitter
+from PyQt4.QtGui import QApplication, QIcon, QPixmap,QWidget,QDockWidget, QSplitter,QStandardItemModel
 from code import InteractiveInterpreter as Interpreter
 import shell
 import debugger_ui
@@ -18,9 +18,10 @@ class DebugRightWidget(QWidget,debugger_right_ui.Ui_Form):
         debugger_right_ui.Ui_Form.__init__(self)
         self.setupUi(self)
 
+        
 def initDocks(lpywidget):
     prevdock = None
-    for dock in [lpywidget.materialDock, lpywidget.functionDock, lpywidget.curveDock, lpywidget.descriptionDock, lpywidget.parametersDock]:
+    for dock in [lpywidget.materialDock, lpywidget.functionDock, lpywidget.curveDock, lpywidget.scalarDock, lpywidget.descriptionDock, lpywidget.parametersDock]:
         lpywidget.addDockWidget(Qt.LeftDockWidgetArea,dock)
         action = dock.toggleViewAction()
         lpywidget.menuView.addAction(action)

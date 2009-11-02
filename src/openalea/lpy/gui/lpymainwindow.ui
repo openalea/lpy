@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>901</width>
+    <width>987</width>
     <height>622</height>
    </rect>
   </property>
@@ -21,12 +21,12 @@
     <rect>
      <x>0</x>
      <y>55</y>
-     <width>901</width>
+     <width>987</width>
      <height>548</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout_3" >
-    <item rowspan="4" row="0" column="0" >
+    <item rowspan="4" row="0" column="1" >
      <widget class="QDockWidget" name="materialDock" >
       <property name="sizePolicy" >
        <sizepolicy vsizetype="Preferred" hsizetype="Minimum" >
@@ -57,7 +57,7 @@
       </widget>
      </widget>
     </item>
-    <item rowspan="4" row="0" column="2" >
+    <item rowspan="4" row="0" column="3" >
      <widget class="QDockWidget" name="functionDock" >
       <property name="windowTitle" >
        <string>Functions</string>
@@ -88,7 +88,7 @@
       </widget>
      </widget>
     </item>
-    <item rowspan="4" row="0" column="3" >
+    <item rowspan="4" row="0" column="4" >
      <widget class="QDockWidget" name="parametersDock" >
       <property name="windowTitle" >
        <string>Parameters</string>
@@ -289,7 +289,7 @@
       </widget>
      </widget>
     </item>
-    <item rowspan="4" row="0" column="4" >
+    <item rowspan="4" row="0" column="5" >
      <widget class="QDockWidget" name="descriptionDock" >
       <property name="windowTitle" >
        <string>Description</string>
@@ -444,7 +444,7 @@
       </widget>
      </widget>
     </item>
-    <item rowspan="4" row="0" column="5" >
+    <item rowspan="4" row="0" column="6" >
      <widget class="QDockWidget" name="helpDock" >
       <property name="floating" >
        <bool>false</bool>
@@ -476,7 +476,7 @@
       </widget>
      </widget>
     </item>
-    <item row="0" column="6" >
+    <item row="0" column="7" >
      <widget class="QFrame" name="frame" >
       <property name="frameShape" >
        <enum>QFrame::StyledPanel</enum>
@@ -528,7 +528,7 @@
       </layout>
      </widget>
     </item>
-    <item row="1" column="6" >
+    <item row="1" column="7" >
      <widget class="QFrame" name="frameGoto" >
       <property name="frameShape" >
        <enum>QFrame::StyledPanel</enum>
@@ -617,7 +617,7 @@
       </layout>
      </widget>
     </item>
-    <item row="2" column="6" >
+    <item row="2" column="7" >
      <widget class="QFrame" name="frameFind" >
       <property name="frameShape" >
        <enum>QFrame::StyledPanel</enum>
@@ -780,7 +780,7 @@
       </layout>
      </widget>
     </item>
-    <item row="3" column="6" >
+    <item row="3" column="7" >
      <widget class="QFrame" name="frameReplace" >
       <property name="frameShape" >
        <enum>QFrame::StyledPanel</enum>
@@ -835,7 +835,7 @@
       </layout>
      </widget>
     </item>
-    <item row="4" column="0" colspan="7" >
+    <item row="4" column="1" colspan="7" >
      <widget class="QDockWidget" name="interpreterDock" >
       <property name="sizePolicy" >
        <sizepolicy vsizetype="Minimum" hsizetype="Preferred" >
@@ -869,7 +869,7 @@
       </widget>
      </widget>
     </item>
-    <item row="0" column="1" >
+    <item row="0" column="2" >
      <widget class="QDockWidget" name="curveDock" >
       <property name="windowTitle" >
        <string>Curves</string>
@@ -900,6 +900,111 @@
       </widget>
      </widget>
     </item>
+    <item row="0" column="0" >
+     <widget class="QDockWidget" name="scalarDock" >
+      <property name="windowTitle" >
+       <string>Scalars</string>
+      </property>
+      <widget class="QWidget" name="dockWidgetContents_8" >
+       <property name="geometry" >
+        <rect>
+         <x>0</x>
+         <y>22</y>
+         <width>80</width>
+         <height>228</height>
+        </rect>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_2" >
+        <property name="leftMargin" >
+         <number>1</number>
+        </property>
+        <property name="topMargin" >
+         <number>1</number>
+        </property>
+        <property name="rightMargin" >
+         <number>1</number>
+        </property>
+        <property name="bottomMargin" >
+         <number>2</number>
+        </property>
+        <item row="0" column="0" >
+         <widget class="ScalarEditor" name="scalarEditor" >
+          <property name="palette" >
+           <palette>
+            <active>
+             <colorrole role="Base" >
+              <brush brushstyle="SolidPattern" >
+               <color alpha="255" >
+                <red>222</red>
+                <green>255</green>
+                <blue>222</blue>
+               </color>
+              </brush>
+             </colorrole>
+             <colorrole role="AlternateBase" >
+              <brush brushstyle="SolidPattern" >
+               <color alpha="255" >
+                <red>191</red>
+                <green>255</green>
+                <blue>191</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </active>
+            <inactive>
+             <colorrole role="Base" >
+              <brush brushstyle="SolidPattern" >
+               <color alpha="255" >
+                <red>222</red>
+                <green>255</green>
+                <blue>222</blue>
+               </color>
+              </brush>
+             </colorrole>
+             <colorrole role="AlternateBase" >
+              <brush brushstyle="SolidPattern" >
+               <color alpha="255" >
+                <red>191</red>
+                <green>255</green>
+                <blue>191</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </inactive>
+            <disabled>
+             <colorrole role="Base" >
+              <brush brushstyle="SolidPattern" >
+               <color alpha="255" >
+                <red>236</red>
+                <green>233</green>
+                <blue>216</blue>
+               </color>
+              </brush>
+             </colorrole>
+             <colorrole role="AlternateBase" >
+              <brush brushstyle="SolidPattern" >
+               <color alpha="255" >
+                <red>191</red>
+                <green>255</green>
+                <blue>191</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </disabled>
+           </palette>
+          </property>
+          <property name="alternatingRowColors" >
+           <bool>true</bool>
+          </property>
+          <property name="allColumnsShowFocus" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar" >
@@ -907,7 +1012,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>901</width>
+     <width>987</width>
      <height>21</height>
     </rect>
    </property>
@@ -1008,7 +1113,7 @@
     <rect>
      <x>0</x>
      <y>603</y>
-     <width>901</width>
+     <width>987</width>
      <height>19</height>
     </rect>
    </property>
@@ -1049,7 +1154,7 @@
     <rect>
      <x>352</x>
      <y>21</y>
-     <width>549</width>
+     <width>635</width>
      <height>34</height>
     </rect>
    </property>
@@ -1494,6 +1599,11 @@
    <extends>QWidget</extends>
    <header>curvepanel.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ScalarEditor</class>
+   <extends>QTreeView</extends>
+   <header location="global" >scalareditor.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

@@ -149,6 +149,8 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         QObject.connect(self.curvepanel, SIGNAL('valueChanged()'),self.projectEdited)
         QObject.connect(self.functionpanel, SIGNAL('valueChanged()'),self.projectParameterEdited)
         QObject.connect(self.curvepanel, SIGNAL('valueChanged()'),self.projectParameterEdited)
+        QObject.connect(self.scalarEditor, SIGNAL('valueChanged()'),self.projectEdited)
+        QObject.connect(self.scalarEditor, SIGNAL('valueChanged()'),self.projectParameterEdited)
         self.aboutLpy = lambda x : doc.aboutLpy(self)
         QObject.connect(self.actionAbout, SIGNAL('triggered(bool)'),self.aboutLpy)
         QObject.connect(self.actionAboutQt, SIGNAL('triggered(bool)'),QApplication.aboutQt)

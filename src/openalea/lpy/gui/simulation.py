@@ -6,8 +6,9 @@ import optioneditordelegate as oed
 import os, shutil
 from time import clock
 from lpystudiodebugger import AbortDebugger
+from scalar import *
 
-defaultcode = "Axiom: \n\nderivation length: 1\nproduction:\n\n\nhomomorphism:\n\n\nendlsystem\n"
+defaultcode = "Axiom: \n\nderivation length: 1\nproduction:\n\n\ninterpretation:\n\n\nendlsystem\n"
 
 class LpySimulation:
     def __init__(self,lpywidget,index = 0, fname = None):
@@ -36,6 +37,8 @@ class LpySimulation:
                           '__references__'  : '' }
         self.functions = []
         self.curves = []
+        self.scalars = []
+        self.scalarEditState = None
         if not fname is None:
             self.open(fname)
     def getFname(self) : return self._fname
@@ -133,6 +136,10 @@ class LpySimulation:
         self.lpywidget.materialed.updateGL()
         self.lpywidget.functionpanel.setFunctions(self.functions)
         self.lpywidget.curvepanel.setCurves(self.curves)
+        if self.scalarEditState is None:
+            self.lpywidget.scalarEditor.setScalars(self.scalars)
+        else:
+            self.lpywidget.scalarEditor.restoreState(self.scalars,self.scalarEditState)
         if not self.lpywidget.interpreter is None:
             self.lpywidget.interpreter.locals['lstring'] = self.tree
             self.lpywidget.interpreter.locals['lsystem'] = self.lsystem
@@ -155,6 +162,7 @@ class LpySimulation:
                 self.desc_items[key] = editor.toPlainText()
         self.functions = self.lpywidget.functionpanel.getFunctions()
         self.curves = self.lpywidget.curvepanel.getCurves()
+        self.scalars,self.scalarEditState = self.lpywidget.scalarEditor.getState()
     def initializeParametersTable(self):
         self.optionModel = QStandardItemModel(0, 1)
         self.optionModel.setHorizontalHeaderLabels(["Parameter", "Value" ])
@@ -299,6 +307,10 @@ class LpySimulation:
             init_txt += '\tcurves = '+str([(i.name,i) for i in self.curves])+'\n'
             init_txt += '\tcontext["__curves__"] = curves\n'
             init_txt += '\tfor n,c in curves:\n\t\tcontext[n] = c\n'
+        if len(self.scalars):
+            init_txt += '\tscalars = '+str([(i.name,i.value,i.minvalue,i.maxvalue) for i in self.scalars])+'\n'
+            init_txt += '\tcontext["__scalars__"] = scalars\n'
+            init_txt += '\tfor n,v,mnv,mxv in scalars:\n\t\tcontext[n] = v\n'
         if len(init_txt) > 0:
             return header+init_txt
         else:
@@ -349,6 +361,9 @@ class LpySimulation:
                 curves = context['__curves__']
                 for n,c in curves: c.name = n
                 self.curves = [ c for n,c in curves ]
+            if context.has_key('__scalars__'):
+                scalars = context['__scalars__']                
+                self.scalars = [ Scalar(*v) for v in scalars ]
             if init is None:
                 import warnings
                 warnings.warn('initialisation failed')

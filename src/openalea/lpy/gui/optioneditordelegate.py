@@ -3,7 +3,7 @@ from PyQt4.QtGui import *
 
 class OptionEditorDelegate(QItemDelegate):
     """ 
-    Tool class used in LsysWindow editor 
+    Tool class used in LsysWindow option editor 
     It allows to choose a value from a combobox in a QTable
     """
 
@@ -23,3 +23,6 @@ class OptionEditorDelegate(QItemDelegate):
         value = editor.currentIndex()
         model.itemFromIndex(index).option.setSelection(value)
         model.itemFromIndex(index).setText(editor.currentText())
+
+
+        

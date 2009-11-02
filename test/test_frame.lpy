@@ -1,0 +1,22 @@
+
+sc = None
+
+def End(lstring,scene):
+    global sc
+    sc = scene
+
+Axiom: F +(0) a ?F
+
+derivation length: 90
+production:
+
++(x) --> +(x+1)
+
+a > ?F(*arg):
+    if getIterationNb() % 10 == 0:
+            print arg
+
+homomorphism:
+a --> Frame(2,0.8,1.5)
+
+endlsystem

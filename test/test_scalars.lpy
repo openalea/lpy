@@ -1,0 +1,20 @@
+print default
+
+Axiom: A
+
+derivation length: default
+production:
+
+A --> A
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	scalars = [('default', 33, 0, 100), ('default', 1, 0, 100), ('default', 1, 0, 100), ('default', 2, 0, 2)]
+	context["__scalars__"] = scalars
+	for n,v,mnv,mxv in scalars:
+		context[n] = v
