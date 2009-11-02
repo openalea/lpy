@@ -100,13 +100,20 @@ class ScalarEditor (QTreeView):
         items.sort(lambda x,y: -cmp(x,y))
         return items
     def deleteScalars(self):
-        for i in selection():
+        for i in self.selection():
             self.scalarModel.removeRow(i)
+            del self.scalars[i]
+        self.emit(SIGNAL('valueChanged()'))
     def editMetaScalar(self):
         item = self.selection()[0]
-        sc = self.visualEditMetaScalar(self.scalars[item])
-        if sc:
-            self.scalars[item].importValue(sc)
+        v = self.scalars[item]
+        sc = self.visualEditMetaScalar(v)
+        if sc and v != sc:
+            v.importValue(sc)
+            v.si_name.setText(v.name)
+            v.si_value.setText(str(v.value))
+            self.emit(SIGNAL('itemValueChanged(PyQt_PyObject)'),v)
+            self.emit(SIGNAL('valueChanged()'))
     def visualEditMetaScalar(self,scalar):
         self.metaEdit.setScalar(scalar)
         res = self.metaEdit.exec_()
@@ -118,6 +125,8 @@ class ScalarEditor (QTreeView):
         si_name.nameEditor = True
         si_value = QStandardItem(str(scalar.value))
         si_value.scalar = scalar
+        scalar.si_name = si_name
+        scalar.si_value = si_value
         return [si_name,si_value]
     def newScalar(self):
         s = self.visualEditMetaScalar(Scalar('default'))
