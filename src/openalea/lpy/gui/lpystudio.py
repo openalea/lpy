@@ -313,8 +313,8 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
     def endTaskCheck(self,task):
         if hasattr(task,'checkRerun'):
             if hasattr(self,'shouldrerun'):
-                self.run()
                 del self.shouldrerun
+                self.run()
     def printTitle(self):
         t = 'L-Py - '
         t += self.currentSimulation().getTabName()
