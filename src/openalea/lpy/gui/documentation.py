@@ -26,7 +26,7 @@ Here comes the python commands that control the simulation.
 <H3>The following commands can be redefined to initialize simulation state:</H3>
 <table>
 <tr><td><b>def Start()   </b></td><td> is called at the beginning of the simulation.</td></tr>
-<tr><td><b>def End()     </b></td><td> is called at the end of the simulation.</td></tr>
+<tr><td><b>def End([lstring,scene])     </b></td><td> is called at the end of the simulation. One or two arguments can be optionally defined to receive the current lstring and its geometric interpretation.</td></tr>
 <tr><td><b>def StartEach() </b></td><td> is called before each derivation step.</td></tr>
 <tr><td><b>def EndEach([lstring,scene]) </b></td><td> is called at the end of the simulation. One or two arguments can be optionally defined to receive the current lstring and its geometric interpretation. </td></tr>
 </table>
@@ -39,6 +39,8 @@ Here comes the python commands that control the simulation.
 <tr><td><b>getIterationNb() </b></td><td> Return the id of the current iteration.</td></tr>
 <tr><td><b>useGroup(int)    </b></td><td> Next iteration will use rules of given group and default 0 group.</td></tr>
 <tr><td><b>getGroup()       </b></td><td> Gives which group will be used.</td></tr>
+<tr><td><b>frameDisplay(bool)</b></td><td> Set whether a frame will be displayed at the end of the iteration. default is True</td></tr>
+<tr><td><b>frameDisplayed() </b></td><td> Tell whether a frame will be displayed at the end of the iteration.</td></tr>
 </table>
 
 <H3>Lpy specific declaration: </H3>
@@ -51,6 +53,7 @@ Here comes the python commands that control the simulation.
 <tr><td><b>produce <i>Lstring</i> </b></td><td> produce an <i>Lstring</i> and return.</td></tr>
 <tr><td><b>nproduce <i>Lstring</i> </b></td><td> produce an <i>Lstring</i> whithout returning.</td></tr>
 <tr><td><b>derivation length: <i>value</i> </b></td><td> number of derivation to do (default=1).</td></tr>
+<tr><td><b>initial_view=<i>value</i> </b></td><td> number of derivation for bounding box evaluation (default=derivation length).</td></tr>
 <tr><td><b>production:     </b></td><td> start of the production rules declaration.</td></tr>
 <tr><td><b>homomorphism:   </b></td><td> start of the interpretation rules declaration.</td></tr>
 <tr><td><b>interpretation: </b></td><td> start of the interpretation rules declaration.</td></tr>

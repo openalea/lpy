@@ -1,0 +1,19 @@
+
+
+Axiom: A
+
+derivation length: 2
+production:
+
+A:
+    print 'count'
+    a = 0
+    for i in xrange(50000000):
+        a+=1
+    print a
+    produce A
+
+interpretation:
+
+
+endlsystem

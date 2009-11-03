@@ -124,6 +124,10 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
         self.setFocus()
 
 
+    def customEvent(self,event):
+        GraphicalStreamRedirection.customEvent(self,event)
+        QsciScintilla.customEvent(self,event)
+        
     def clear(self):
         """ Clear shell """
         QsciScintilla.clear(self)

@@ -60,6 +60,14 @@ boost::python::object py_LcInitFrom(LsysContext * c, const std::string& code) {
 	else return object(pos);
 }
 
+boost::python::object py_lsys_getitem(LsysContext * lc, std::string name) {
+	if (lc->hasObject(name)) return lc->getObject(name);
+	else {
+		PyErr_SetString(PyExc_KeyError, name.c_str());
+		boost::python::throw_error_already_set();
+	}
+}
+
 boost::python::object py_pproduce(bp::tuple args, bp::dict kw) {
 	pproduce(args); return object();
 }
@@ -118,7 +126,8 @@ void export_LsysContext(){
 	.def("compile",        (bp::object(LsysContext::*)(const std::string&,const std::string&))&LsysContext::compile)
 	.def("__contains__",   &LsysContext::hasObject)
 	.def("has_key",        &LsysContext::hasObject)
-	.def("__getitem__",    &LsysContext::getObject)
+	.def("__getitem__",    &py_lsys_getitem)
+	.def("get",            &LsysContext::getObject)
 	.def("__setitem__",    &LsysContext::setObject)
 	.def("__delitem__",    &LsysContext::delObject)
 	.def("makeCurrent",    &LsysContext::makeCurrent)
@@ -143,6 +152,8 @@ void export_LsysContext(){
     .def("nproduce",  (void (LsysContext::*)(const boost::python::list&) )&LsysContext::nproduce)
 	.def("useGroup",  &LsysContext::useGroup)
     .def("getGroup",  &LsysContext::getGroup)
+	.def("frameDisplay",  &LsysContext::frameDisplay,(bp::arg("enabled")=true))
+    .def("isFrameDisplayed",  &LsysContext::isFrameDisplayed)
     .def("isSelectionRequired", &LsysContext::isSelectionRequired)
     .def("setSelectionRequired", &LsysContext::setSelectionRequired)
     .def("getIterationNb", &LsysContext::getIterationNb)
@@ -160,6 +171,8 @@ void export_LsysContext(){
 	def("pproduce",  bp::raw_function(py_pproduce,1));
 	def("useGroup",  &useGroup);
     def("getGroup",  &getGroup);
+	def("frameDisplay",  &frameDisplay,(bp::arg("enabled")=true));
+    def("isFrameDisplayed",  &isFrameDisplayed);
     def("isSelectionRequired", &isSelectionRequired);
     def("setSelectionRequired", &setSelectionRequired);
     def("getIterationNb", &getIterationNb);

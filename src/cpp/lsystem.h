@@ -167,8 +167,10 @@ public:
   bool isEarlyReturnEnabled() ;
   size_t getLastIterationNb() { return __context.getIterationNb(); }
 
-  /** test if self is actually iterating */
+   /** test if self is actually iterating */
    bool isRunning() const;
+   /** force release of running state in case of violent ending **/
+   void forceRelease();
 
    class LPY_API Debugger : public TOOLS::RefCountObject {
    public:

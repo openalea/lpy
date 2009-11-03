@@ -507,8 +507,8 @@ LsysContext::hasObject(const std::string& name) const{
 }
 
 object
-LsysContext::getObject(const std::string& name) const{
-  return object();
+LsysContext::getObject(const std::string& name, const boost::python::object& defaultvalue) const{
+  return defaultvalue;
 }
 
 void 
@@ -853,8 +853,8 @@ LocalContext::hasObject(const std::string& name) const{
 }
 
 object 
-LocalContext::getObject(const std::string& name) const{
-  return __namespace[name];
+LocalContext::getObject(const std::string& name, const boost::python::object& defaultvalue) const{
+  return __namespace.get(name,defaultvalue);
 }
 
 void 
@@ -927,15 +927,15 @@ GlobalContext::hasObject(const std::string& name) const{
 }
 
 object 
-GlobalContext::getObject(const std::string& name) const{
+GlobalContext::getObject(const std::string& name, const boost::python::object& defaultvalue) const{
   handle<> res(allow_null(PyDict_GetItemString(__namespace.get(),name.c_str())));
   if(res) {
 	return object(handle<>(borrowed(res.get())));
   }
   else {
-	PyErr_SetString(PyExc_KeyError, name.c_str());
-    throw_error_already_set();
-	return object();
+	// PyErr_SetString(PyExc_KeyError, name.c_str());
+    // throw_error_already_set();
+	return defaultvalue;
   }
 }
 

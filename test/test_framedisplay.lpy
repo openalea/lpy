@@ -1,0 +1,31 @@
+r = 1.
+N = 100
+
+dalpha = 360./N
+dl = dalpha*r
+
+def StartEach():
+   frameDisplay(getIterationNb()%10 == 0)
+   pass
+        
+def End():
+   frameDisplay(True)
+
+Axiom: C(N)
+
+derivation length: N
+
+production:
+
+C(n): 
+  if n >= 0 : produce S(dl)C(n-1)
+
+homomorphism:
+
+S(dl) : produce _(2)-(dalpha)F(dl)
+
+endlsystem
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	context.animation_timestep = 0.062

@@ -396,7 +396,8 @@ class LpySimulation:
         dt = self.getTimeStep()
         dl = self.lsystem.derivationLength
         if self.firstView and task.fitAnimationView:
-            self.lsystem.plot(self.lsystem.iterate())
+            nbiter = self.lsystem.context().get('initial_view',dl)
+            self.lsystem.plot(self.lsystem.iterate(nbiter))
             self.firstView = False
             Viewer.animation(True)
         timing = clock()
@@ -414,26 +415,33 @@ class LpySimulation:
     def post_animate(self,task):
         if hasattr(task,'result'):
             self.setTree(task.result,task.dl,task.timing)
-    def step(self):
-        if self.isTextEdited() or self.lsystem.empty() or not self.tree:
-            self.updateLsystemCode()
-            self.setTree(self.lsystem.axiom,0)
-        else:
-            if self.nbiterations < self.lsystem.derivationLength:
-              self.setTree(self.lsystem.iterate(self.nbiterations,1,self.tree),self.nbiterations+1)
-            else:
-              self.setTree(self.lsystem.axiom,0)
-        self.lsystem.plot(self.tree)
-        self.firstView = False
-    def iterate(self,n = None):
-        if n is None:
-            n = self.iterateStep
+    def pre_step(self,task):
         if self.isTextEdited() or self.lsystem.empty() or not self.tree or self.nbiterations >= self.lsystem.derivationLength:
             self.updateLsystemCode()
-            self.setTree(self.lsystem.axiom,0)
-        self.setTree(self.lsystem.iterate(self.nbiterations,n,self.tree),self.nbiterations+n)
-        self.lsystem.plot(self.tree)
-        self.firstView = False
+            self.nbiterations = 0
+            self.tree = self.lsystem.axiom
+            task.done = True
+        else: task.done = False
+    def step(self,task):
+        if not task.done and self.nbiterations < self.lsystem.derivationLength:
+            timing = clock()
+            task.result = self.lsystem.iterate(self.nbiterations,1,self.tree)
+            task.timing = clock() - timing
+            task.dl = self.lsystem.getLastIterationNb()+1
+        else:
+            task.dl = 0
+            task.timing = 0
+            task.result = self.lsystem.axiom
+    def post_step(self,task):
+        if hasattr(task,'result'):
+            self.setTree(task.result,task.dl,task.timing)
+            self.lsystem.plot(self.tree)
+            self.firstView = False
+    def iterate(self,task,n = None):    
+        timing = clock()
+        task.result = self.lsystem.iterate(self.nbiterations,self.iterateStep,self.tree)        
+        task.timing = clock() - timing
+        task.dl = self.lsystem.getLastIterationNb()+1
     def debug(self):
         self.lsystem.setDebugger(self.lpywidget.debugger)
         try:
@@ -464,6 +472,9 @@ class LpySimulation:
         self.setTree(None,0)
     def cancel(self):
         self.lsystem.early_return = True
+    def cleanup(self):
+        self.lsystem.forceRelease()
+        self.lsystem.clear()
     def monitorfile(self):
         if not hasattr(self,'monitoring'):
           self.monitoring = True

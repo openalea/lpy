@@ -33,7 +33,11 @@
       </widget>
      </item>
      <item row="1" column="1" >
-      <widget class="QSpinBox" name="valueEdit" />
+      <widget class="QSpinBox" name="valueEdit" >
+       <property name="maximum" >
+        <number>2147483647</number>
+       </property>
+      </widget>
      </item>
      <item row="2" column="0" >
       <widget class="QLabel" name="label_3" >
@@ -43,7 +47,14 @@
       </widget>
      </item>
      <item row="2" column="1" >
-      <widget class="QSpinBox" name="minValueEdit" />
+      <widget class="QSpinBox" name="minValueEdit" >
+       <property name="minimum" >
+        <number>-2147483647</number>
+       </property>
+       <property name="maximum" >
+        <number>2147483647</number>
+       </property>
+      </widget>
      </item>
      <item row="3" column="0" >
       <widget class="QLabel" name="label_4" >
@@ -53,7 +64,14 @@
       </widget>
      </item>
      <item row="3" column="1" >
-      <widget class="QSpinBox" name="maxValueEdit" />
+      <widget class="QSpinBox" name="maxValueEdit" >
+       <property name="maximum" >
+        <number>2147483647</number>
+       </property>
+       <property name="value" >
+        <number>0</number>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

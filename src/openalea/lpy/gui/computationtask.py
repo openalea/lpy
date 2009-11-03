@@ -11,11 +11,12 @@ class ThreadTransferException (Exception):
         self.exc_traceback = exc_traceback
 
 class ComputationTask(QThread):
-    def __init__(self, process = None, postprocess = None, preprocess = None):
+    def __init__(self, process = None, postprocess = None, preprocess = None, cleanupprocess = None):
         QThread.__init__(self)
         self.process = process
         self.postprocess = postprocess
         self.preprocess = preprocess
+        self.cleanupprocess = cleanupprocess
         self.threaded = True
         self.exception = None
     def initialize(self):
@@ -40,6 +41,11 @@ class ComputationTask(QThread):
         self.initialize()
         self.run()
         self.finalize()
+    def kill(self):
+        self.quit()
+        if self.cleanupprocess:
+            self.cleanupprocess()
+        self.emit(SIGNAL("killed()"))
     def __call__(self):
         self.start()
 
@@ -73,6 +79,13 @@ class ComputationTaskManager:
         self.releaseCR()
         self.emit(SIGNAL('endTask(PyQt_PyObject)'),ct)
         self.clear()
+    def killTask(self):
+        ct = self.computationThread
+        ct.kill()
+        self.computationThread = None
+        self.releaseCR()
+        self.emit(SIGNAL('killedTask(PyQt_PyObject)'),ct)
+        self.clear()
     def registerTask(self,task):
         if self.computationThread is None:
             if self.with_thread:
@@ -96,6 +109,7 @@ class ComputationTaskManager:
             self.taskRunningEvent()
         else:
             self.acquireEvent()
+        self.isRunning()
     def taskRunningEvent(self):
         raise Exception('A task is already running')
     def isRunning(self):

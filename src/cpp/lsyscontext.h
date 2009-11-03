@@ -124,7 +124,7 @@ public:
 
   /** access to python object of the namespace */
   virtual bool hasObject(const std::string& name) const;
-  virtual boost::python::object getObject(const std::string& name) const;
+  virtual boost::python::object getObject(const std::string& name, const boost::python::object& defaultvalue = boost::python::object()) const;
   virtual void setObject(const std::string& name, 
 				 const boost::python::object&);
   virtual void delObject(const std::string& name) ;
@@ -152,6 +152,10 @@ public:
   /** selection of group of rules */
   inline void useGroup(size_t gid) { __group = gid; }
   inline size_t getGroup() const  { return __group; }
+
+  /** control of frame display */
+  inline void frameDisplay(bool enabled) { __frameDisplay = enabled; }
+  inline bool isFrameDisplayed() const  { return __frameDisplay; }
 
   /** iterative production */
   inline void nproduce(const AxialTree& prod)
@@ -273,6 +277,8 @@ protected:
   /// next iteration control
   eDirection __direction;
   size_t __group;
+  bool __frameDisplay;
+
   /// iterative production
   AxialTree __nproduction;
 
@@ -313,7 +319,7 @@ public:
   virtual void getNamespace(boost::python::dict&) const;
 
   virtual bool hasObject(const std::string& name) const;
-  virtual boost::python::object getObject(const std::string& name) const;
+  virtual boost::python::object getObject(const std::string& name, const boost::python::object& defaultvalue = boost::python::object()) const;
   virtual void setObject(const std::string& name, 
 				 const boost::python::object&);
   virtual void delObject(const std::string& name) ;
@@ -337,7 +343,7 @@ public:
   virtual void getNamespace(boost::python::dict&) const;
 
   virtual bool hasObject(const std::string& name) const;
-  virtual boost::python::object getObject(const std::string& name) const;
+  virtual boost::python::object getObject(const std::string& name, const boost::python::object& defaultvalue = boost::python::object()) const;
   virtual void setObject(const std::string& name, 
 				 const boost::python::object&);
   virtual void delObject(const std::string& name) ;
@@ -382,6 +388,12 @@ inline void LPY_API useGroup(size_t gid)
 
 inline size_t LPY_API getGroup()
 { return LsysContext::currentContext()->getGroup(); }
+
+inline void LPY_API frameDisplay(bool enabled)
+{ LsysContext::currentContext()->frameDisplay(enabled); }
+
+inline bool LPY_API isFrameDisplayed()
+{ return LsysContext::currentContext()->isFrameDisplayed(); }
 
 inline void LPY_API setSelectionRequired(bool enabled)
 { LsysContext::currentContext()->setSelectionRequired(enabled); }

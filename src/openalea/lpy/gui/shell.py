@@ -425,8 +425,10 @@ class PyCutExt(QTextEdit,GraphicalStreamRedirection):
 
         else:
             event.ignore()
+
     def customEvent(self,event):
-        self.write(event.txt)
+        GraphicalStreamRedirection.customEvent(self,event)
+        QTextEdit.customEvent(self,event)
  
             
 

@@ -59,6 +59,7 @@ class ThreadedRedirection:
         """ Emulate write function """
 
         if self.guistream.thread() != QThread.currentThread():
+            sys_stdout.write(str)
             e = QEvent(QEvent.Type(RedirectionEventId))
             e.txt = str
             QApplication.postEvent(self.guistream,e)
@@ -73,12 +74,9 @@ class GraphicalStreamRedirection:
     def __init__(self):
         """  capture all interactive input/output """
         global sys_stdout, sys_stderr, sys_stdin
-        if sys_stdout is None:
-            sys_stdout = sys.stdout
-        if sys_stderr is None:
-            sys_stderr = sys.stderr
-        if sys_stdin is None:
-            sys_stdin = sys.stdin
+        if sys_stdout is None:  sys_stdout = sys.stdout
+        if sys_stderr is None:  sys_stderr = sys.stderr
+        if sys_stdin is None:   sys_stdin = sys.stdin
         sys.stdout   = ThreadedRedirection(self)
         if py2exe_release:
             sys.stderr   = ThreadedRedirection(self)
@@ -96,8 +94,6 @@ class GraphicalStreamRedirection:
         """ custom event processing. Redirection to write """
         if event.type() == RedirectionEventId:
             self.write(event.txt)
-        else:
-            self.__class__.__bases__[0].customEvent(self)
             
     def multipleStdOutRedirection(self,enabled = True):
         """ make multiple (sys.stdout/pyconsole) or single (pyconsole) redirection of stdout """

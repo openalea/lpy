@@ -231,6 +231,8 @@ Lsystem::__clear(){
   __early_return = false;
 }
 
+
+
 std::string 
 Lsystem::str() const {
   ACQUIRE_RESSOURCE
@@ -932,9 +934,16 @@ Lsystem::__iterate( size_t starting_iter ,
                     size_t nb_iter , 
                     const AxialTree& wstring, 
                     bool previouslyinterpreted){
-  if(starting_iter == 0) __context.start();
+  __context.frameDisplay(true);
+  if(starting_iter == 0) {
+	__context.setIterationNb(0);
+	__context.start();
+  }
   if ( __rules.empty() || wstring.empty() ){
-	  if(starting_iter+nb_iter == __max_derivation) __context.end();
+	  if(starting_iter+nb_iter == __max_derivation) {
+		__context.setIterationNb(__max_derivation);
+		__context.end();
+	  }
 	  return wstring;
   }
   AxialTree workstring = wstring;
@@ -966,6 +975,7 @@ Lsystem::__iterate( size_t starting_iter ,
 
             }
         }
+		__context.frameDisplay(true);
 		__context.setIterationNb(starting_iter+i);
 		__context.startEach();
         eDirection dir = getDirection();
@@ -1109,9 +1119,11 @@ Lsystem::animate(const AxialTree& workstring,double dt,size_t beg,size_t nb_iter
     if (nb_iter > 0 && !isEarlyReturnEnabled()){
 	  for (size_t i = beg; i < beg+nb_iter; i++){
 	    tree = __iterate(i,1,tree,true);
-		timer.touch();
+		if(__context.isFrameDisplayed()) {
+			timer.touch();
+			__plot(tree);
+		}
         timer.setTimeStep(__context.get_animation_timestep());
-		__plot(tree);
         if(isEarlyReturnEnabled()) break;
 	  }
 	}
@@ -1193,6 +1205,12 @@ bool Lsystem::isRunning() const
 #endif
 }
 
+void 
+Lsystem::forceRelease(){
+#ifdef MULTI_THREADED_LSYSTEM
+	if(isRunning()) release();
+#endif
+}
 /*---------------------------------------------------------------------------*/
 
 Lsystem::Debugger::~Debugger()  { }

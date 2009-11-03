@@ -156,6 +156,7 @@ void export_Lsystem(){
 	.add_property("early_return",&Lsystem::isEarlyReturnEnabled,&Lsystem::enableEarlyReturn)
 	.def("getLastIterationNb",&Lsystem::getLastIterationNb)
     .def("isRunning",   &Lsystem::isRunning, "Tell whether self is performing an action")
+    .def("forceRelease",&Lsystem::forceRelease, "Force release of running state in case of violent ending. Not recommended. Use with care.")
     .def("setDebugger",&py_set_debugger)
     .def("getDebugger",&Lsystem::getDebugger)
     .def("hasDebugger",&Lsystem::hasDebugger)

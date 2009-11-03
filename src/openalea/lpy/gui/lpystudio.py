@@ -21,6 +21,7 @@ import documentation as doc
 import settings
 import lpypreferences
 from simulation import LpySimulation
+from killsimulationdialog import KillSimulationDialog
 from openalea.plantgl.all import *
 
 from openalea.lpy import *
@@ -82,6 +83,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
                           '__references__' : self.referenceEdit }
         self.com_mutex = QMutex()
         self.com_waitcondition = QWaitCondition()
+        self.killsimudialog = KillSimulationDialog(self)
         class Plotter:
             def __init__(self,parent):
                 self.parent = parent
@@ -258,10 +260,11 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         else:
             if not self.computationThread is None:
                 self.currentSimulation().cancel()
+                self.killsimudialog.run(self.isRunning,self.killTask)
             else:
                 if self.isRunning():
                     print "Force release"
-            self.releaseCR()
+                self.releaseCR()
     def customEvent(self,event):
         Viewer.display(event.scene)
         self.com_mutex.lock()
@@ -398,7 +401,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         simu = self.currentSimulation()
         simu.updateLsystemCode()
         simu.isTextEdited()
-        task = ComputationTask(simu.run,simu.post_run)
+        task = ComputationTask(simu.run,simu.post_run,cleanupprocess=simu.cleanup)
         task.checkRerun = True
         self.registerTask(task)
       except:
@@ -408,10 +411,11 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
       self.acquireCR()
       simu = self.currentSimulation()
       try:
-        simu.step()
-      except :
+        task = ComputationTask(simu.step,simu.post_step,simu.pre_step,cleanupprocess=simu.cleanup)
+        self.registerTask(task)
+      except:
         self.graberror()
-      self.releaseCR()
+        self.releaseCR()      
     def iterateTo(self):
       simu = self.currentSimulation()
       initval = simu.iterateStep
@@ -426,11 +430,13 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.iterateTo()
       else:
         self.acquireCR()
+        simu = self.currentSimulation()
         try:
-          simu.iterate()
-        except :
+          task = ComputationTask(simu.iterate,simu.post_step,simu.pre_step,cleanupprocess=simu.cleanup)
+          self.registerTask(task)
+        except:
           self.graberror()
-        self.releaseCR()
+          self.releaseCR()      
     def debug(self):
       if self.debugMode == True:
         self.debugger.next()
@@ -455,7 +461,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
       self.acquireCR()
       simu = self.currentSimulation()
       try:
-        task = ComputationTask(simu.animate,simu.post_animate,simu.pre_animate)
+        task = ComputationTask(simu.animate,simu.post_animate,simu.pre_animate,cleanupprocess=simu.cleanup)
         task.fitAnimationView = self.fitAnimationView
         self.registerTask(task)
       except:
@@ -464,7 +470,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
     def clear(self):
         self.acquireCR()
         try:
-            self.currentSimulation.clear()
+            self.currentSimulation().clear()
         except:
             self.graberror()        
         self.releaseCR()

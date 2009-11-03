@@ -1,11 +1,13 @@
-print default
+print length
 
-Axiom: A
+initial_view = 5
 
-derivation length: default
+Axiom: _(radius)A
+
+derivation length: length
 production:
 
-A --> A
+A --> FA
 
 interpretation:
 
@@ -14,7 +16,7 @@ endlsystem
 ###### INITIALISATION ######
 
 def __initialiseContext__(context):
-	scalars = [('default', 33, 0, 100), ('default', 1, 0, 100), ('default', 1, 0, 100), ('default', 2, 0, 2)]
+	scalars = [('radius', 6, 0, 99), ('length', 99, 0, 99)]
 	context["__scalars__"] = scalars
 	for n,v,mnv,mxv in scalars:
 		context[n] = v

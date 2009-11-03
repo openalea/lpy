@@ -20,14 +20,20 @@ class ScalarDialog(QDialog,sme.Ui_ScalarDialog):
     def __init__(self,*args):
         QDialog.__init__(self,*args)
         self.setupUi(self)
+        QObject.connect(self.minValueEdit,SIGNAL('valueChanged(int)'),self.updateRange)
+        QObject.connect(self.maxValueEdit,SIGNAL('valueChanged(int)'),self.updateRange)
     def setScalar(self,value):
         self.nameEdit.setText(value.name)
         self.valueEdit.setValue(value.value)
         self.minValueEdit.setValue(value.minvalue)
         self.maxValueEdit.setValue(value.maxvalue)
+        self.valueEdit.setRange(self.minValueEdit.value(),self.maxValueEdit.value())
     def getScalar(self):
         return Scalar(str(self.nameEdit.text()),self.valueEdit.value(),self.minValueEdit.value(),self.maxValueEdit.value())
-    
+    def updateRange(self,v):
+        if self.minValueEdit.value() >= self.maxValueEdit.value():
+            self.maxValueEdit.setValue(self.minValueEdit.value()+1)
+        self.valueEdit.setRange(self.minValueEdit.value(),self.maxValueEdit.value())
 
 
 class ItemSlider(QSlider):
@@ -129,7 +135,7 @@ class ScalarEditor (QTreeView):
         scalar.si_value = si_value
         return [si_name,si_value]
     def newScalar(self):
-        s = self.visualEditMetaScalar(Scalar('default'))
+        s = self.visualEditMetaScalar(Scalar('default_scalar'))
         if s:
             self.scalars.append(s)        
             self.scalarModel.appendRow(self.getItems(s))
