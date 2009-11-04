@@ -1,0 +1,41 @@
+from openalea.plantgl.all import *
+
+def create_symbol(fn):
+    f = open(fn,'r')
+    # read header of the file
+    f.readline()
+    v = f.readline().split()
+    cpoint = Vector3(float(v[3]),float(v[5]),float(v[7]))
+    f.readline()
+    v = f.readline().split()
+    heading = Vector3(float(v[2]),float(v[4]),float(v[6]))
+    v = f.readline().split()
+    up = Vector3(float(v[2]),float(v[4]),float(v[6]))
+    v = f.readline().split()
+    size = float(v[1])
+    name = f.readline().split()[0]
+    for i in xrange(4): f.readline()
+    ctrlpoints = []
+    for i in xrange(4):
+        v = f.readline().split()
+        row = []
+        for j in range(4):
+            row.append(Vector4(float(v[j*3]),float(v[j*3+1]),float(v[j*3+2]),1))
+        ctrlpoints.append(row)
+    smb = Scaled(size,BezierPatch(ctrlpoints))
+    smb.name = name
+    return smb
+
+leaf = create_symbol('leaf_surface.s')
+
+Axiom:  A
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+A --> PglShape(leaf)
+
+endlsystem
