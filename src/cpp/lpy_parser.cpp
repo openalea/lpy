@@ -677,25 +677,27 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
 		  toendline(_it,endpycode);
 		  rule += std::string(beg,_it);
 		  break;
-		case '\n':
-		  if(!rule.empty()){
-            PROCESS_RULE(rule,code,addedcode,mode,group)
-		  }
-          code += '\n';
-		  _it++;          
-          ++lineno;
-          // std::cerr << lineno << ':' << std::distance<std::string::const_iterator>(rules.begin(),_it)  << std::endl;
-          break;
 #ifndef _WIN32
 		case WindowSpecificEndline: // Window end line style
+#endif
+		case '\n':		  
 		  if(!rule.empty()){
-            PROCESS_RULE(rule,code,addedcode,mode,group)
+			  beg = _it;
+			  size_t newlineno = lineno;
+			  while(_it != endpycode && *_it == '\n') {++newlineno; ++_it; }
+			  if (_it != endpycode && (*_it == ' ' || *_it == '\t')){
+				  LsysParserWarning("IndentationWarning: missing indent.");
+				  rule +=  std::string(beg,_it); 
+			  }
+			  else { 
+				PROCESS_RULE(rule,code,addedcode,mode,group)
+				code += std::string(beg,_it);
+			  }
+			  lineno = newlineno;
 		  }
-		  _it++;          
-          ++lineno;
+		  else { ++lineno; ++_it; }
           // std::cerr << lineno << ':' << std::distance<std::string::const_iterator>(rules.begin(),_it)  << std::endl;
           break;
-#endif
 		default:
 		  if(!rule.empty()){
             PROCESS_RULE(rule,code,addedcode,mode,group)
