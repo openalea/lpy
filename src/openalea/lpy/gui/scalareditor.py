@@ -6,6 +6,8 @@ try:
 except:
     py2exe_release = False
 
+import sys
+    
 # Generate GUI if necessary
 if not py2exe_release:
     import os
@@ -60,9 +62,9 @@ class ItemSlider(QWidget):
         self.setValue(scalar.value)
         QObject.connect(self.slider,SIGNAL('valueChanged(int)'),self.updateItem)
         QObject.connect(self.spinBox,SIGNAL('valueChanged(int)'),self.updateItem)
-        QObject.connect(self.slider,SIGNAL('sliderPressed()'),self.slider.grabMouse)
-        QObject.connect(self.slider,SIGNAL('sliderReleased()'),self.slider.releaseMouse)
         QObject.connect(self.chgButton,SIGNAL('pressed()'),self.changeEditor)
+        if sys.platform == 'darwin':
+            self.changeEditor()
     def updateItem(self,value):
         self.item.scalar.value = value
         self.slider.setValue(value)
