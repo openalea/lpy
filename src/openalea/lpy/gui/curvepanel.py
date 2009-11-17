@@ -124,10 +124,10 @@ class CurveListDisplay(QGLWidget):
     def updateFrameView(self):
         if self.orientation == Qt.Vertical:
             b1,b2 = self.getBorderSize()
-            self.setMinimumSize(self.minthumbwidth,self.thumbwidth*len(self.curves)+b2)
+            self.setMinimumSize(self.minthumbwidth,(self.thumbwidth*len(self.curves))+b2)
         else:
             b1,b2 = self.getBorderSize()
-            self.setMinimumSize(self.thumbwidth*len(self.curves)+b2,self.minthumbwidth)
+            self.setMinimumSize(int((self.thumbwidth*len(self.curves))+b2),self.minthumbwidth)
     def copySelection(self):
         if self.hasSelection() :
             f = self.getSelectedCurve()
@@ -152,12 +152,12 @@ class CurveListDisplay(QGLWidget):
             else:
                 QMessageBox.warning(self,"Cannot edit","Cannot edit curve ! Python module (PyQGLViewer) is missing!")
     def init(self):
-        glClearColor(0.0,0.0,0.0,1.0)
         glEnable(GL_LIGHTING)
         glEnable(GL_LIGHT0)
         glEnable(GL_DEPTH_TEST)
         glEnable(GL_BLEND)
     def resizeGL(self,w,h):
+        w,h = self.parent().width(),self.parent().height()
         if w > h+50 :
             self.thumbwidth = max(20,min(self.maxthumbwidth,h*0.95))
             self.curvethumbwidth = self.thumbwidth*0.9
@@ -173,11 +173,12 @@ class CurveListDisplay(QGLWidget):
             else:
                 self.updateFrameView()
     def paintGL(self):
+        glClearColor(0.0,0.0,0.0,1.0)
         w = self.width()
         if w == 0:  w = 1
         h = self.height()
         if h == 0: h = 1
-        glViewport(0,0,w,h);
+        glViewport(0,0,w,h)
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         glOrtho(0,w,h,0,-1000,1000);
@@ -189,9 +190,9 @@ class CurveListDisplay(QGLWidget):
         for curve in self.curves:
             glPushMatrix()
             if self.orientation == Qt.Vertical:
-                glTranslatef(b1,i*self.thumbwidth+b2,0)
+                glTranslatef(b1,(i*self.thumbwidth)+b2,0)
             else:
-                glTranslatef(i*self.thumbwidth+b2,b1,0)                
+                glTranslatef((i*self.thumbwidth)+b2,b1,0)                
             if self.selection == i:
                 glLineWidth(3)
                 glColor4f(1.0,1.0,1.0,0.0)
@@ -272,7 +273,10 @@ class CurveListDisplay(QGLWidget):
         else:
             QGLWidget.mousePressEvent(self,event)
     def mouseMoveEvent(self,event):
-        self.setCursorSelection(self.itemUnderPos(event.pos()))
+        item = self.itemUnderPos(event.pos())
+        self.setCursorSelection(item)
+        if not item is None:
+            self.showMessage("Mouse on item "+str(item)+ " : '"+self.curves[item].name+"'",2000)
     def mouseDoubleClickEvent(self,event):
         if event.button() == Qt.LeftButton:
             self.setSelection(self.itemUnderPos(event.pos()))
@@ -305,6 +309,11 @@ class CurveListDisplay(QGLWidget):
         self.curves = curves
         self.updateFrameView()
         self.setSelection(None)
+    def showMessage(self,msg,timeout):
+        if hasattr(self,'statusBar'):
+            self.statusBar.showMessage(msg,timeout)
+        else:
+            print(msg)
 
 class CurvePanel(QScrollArea): 
     def __init__(self,parent):
@@ -314,7 +323,11 @@ class CurvePanel(QScrollArea):
         self.setWidgetResizable(True)
         QObject.connect(self.view,SIGNAL('selectionChanged(int)'),self.displayName)
         QObject.connect(self.view,SIGNAL('valueChanged(int)'),self.__updateStatus)
-    def __updateStatus(self,i):
+        self.setAcceptDrops(True)
+    def setStatusBar(self,st):
+        self.statusBar = st
+        self.view.statusBar = st
+    def __updateStatus(self,i=None):
         self.emit(SIGNAL('valueChanged()'))
     def setCurveNameEditor(self,curveNameEdit):
         self.curveNameEdit = curveNameEdit
@@ -331,6 +344,23 @@ class CurvePanel(QScrollArea):
         self.view.setCurves(curves)
     def getCurves(self):
         return self.view.curves
+    def dragEnterEvent(self,event):
+        event.acceptProposedAction()
+    def dropEvent(self,event):
+        if event.mimeData().hasUrls() :
+            self.fileDropEvent(str(event.mimeData().urls()[0].toLocalFile()))
+    def fileDropEvent(self,fname):
+        from lpfg_data_import import import_contours
+        curves = import_contours(fname)
+        if len(curves) > 0:
+            self.setCurves(self.getCurves()+curves)
+            self.__updateStatus()
+            self.showMessage('import '+str(len(curves))+" curve(s) from '"+fname+"'.",5000)
+    def showMessage(self,msg,timeout):
+        if hasattr(self,'statusBar'):
+            self.statusBar.showMessage(msg,timeout)
+        else:
+            print(msg)
 
 class FunctionPanel(CurvePanel): 
     def __init__(self,parent):
@@ -340,3 +370,5 @@ class FunctionPanel(CurvePanel):
         self.setCurves(curves)
     def getFunctions(self):
         return self.getCurves()
+    def fileDropEvent(self,fname):
+        pass

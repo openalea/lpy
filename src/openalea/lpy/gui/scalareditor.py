@@ -27,6 +27,8 @@ class ScalarDialog(QDialog,sme.Ui_ScalarDialog):
         self.valueEdit.setValue(value.value)
         self.minValueEdit.setValue(value.minvalue)
         self.maxValueEdit.setValue(value.maxvalue)
+        self.minValueEdit.setEnabled(not value.isBool())
+        self.maxValueEdit.setEnabled(not value.isBool())
         self.valueEdit.setRange(self.minValueEdit.value(),self.maxValueEdit.value())
     def getScalar(self):
         return Scalar(str(self.nameEdit.text()),self.valueEdit.value(),self.minValueEdit.value(),self.maxValueEdit.value())
@@ -36,19 +38,56 @@ class ScalarDialog(QDialog,sme.Ui_ScalarDialog):
         self.valueEdit.setRange(self.minValueEdit.value(),self.maxValueEdit.value())
 
 
-class ItemSlider(QSlider):
+class ItemSlider(QWidget):
     def __init__(self,orientation,parent,item):
-        QSlider.__init__(self,orientation,parent)
+        QWidget.__init__(self,parent)
+        horizontalLayout = QHBoxLayout(self)
+        horizontalLayout.setContentsMargins(0, 0, 0, 0)
+        horizontalLayout
+        self.label = QLabel(self)
+        horizontalLayout.addWidget(self.label)
+        self.slider = QSlider(orientation,self)
+        horizontalLayout.addWidget(self.slider)
+        self.spinBox = QSpinBox(self)
+        horizontalLayout.addWidget(self.spinBox)
+        self.spinBox.hide()
+        self.chgButton = QPushButton('O',self)
+        self.chgButton.setMaximumWidth(10)
+        horizontalLayout.addWidget(self.chgButton)
         self.item = item
         scalar = item.scalar
         self.setRange(scalar.minvalue,scalar.maxvalue)
         self.setValue(scalar.value)
-        QObject.connect(self,SIGNAL('valueChanged(int)'),self.updateItem)
+        QObject.connect(self.slider,SIGNAL('valueChanged(int)'),self.updateItem)
+        QObject.connect(self.spinBox,SIGNAL('valueChanged(int)'),self.updateItem)
+        QObject.connect(self.slider,SIGNAL('sliderPressed()'),self.slider.grabMouse)
+        QObject.connect(self.slider,SIGNAL('sliderReleased()'),self.slider.releaseMouse)
+        QObject.connect(self.chgButton,SIGNAL('pressed()'),self.changeEditor)
     def updateItem(self,value):
         self.item.scalar.value = value
-        self.item.setText(str(value))        
+        self.slider.setValue(value)
+        self.spinBox.setValue(value)
+        self.item.setText(str(value))
+        self.label.setText(' '*(2+len(str(self.item.scalar.maxvalue))))
         self.emit(SIGNAL('valueChanged(PyQt_PyObject)'),self.item.scalar)
-        
+    def setRange(self,minv,maxv):
+        self.slider.setRange(minv,maxv)
+        self.spinBox.setRange(minv,maxv)
+        self.label.setText(' '*(2+len(str(maxv))))
+    def setValue(self,value):
+        self.slider.setValue(value)
+        self.spinBox.setValue(value)
+    def changeEditor(self):
+        if self.spinBox.isHidden():
+            self.slider.hide()
+            self.label.hide()
+            self.spinBox.show()
+        else:
+            self.slider.show()
+            self.label.show()
+            self.spinBox.hide()
+            
+
 class ScalarEditorDelegate(QItemDelegate):
     """ 
     Tool class used in LsysWindow scalar editor 
@@ -61,15 +100,17 @@ class ScalarEditorDelegate(QItemDelegate):
     def createEditor(self, parent, option, index):
         """ Create the editor """
         item = index.model().itemFromIndex(index)
-        editor = ItemSlider(Qt.Horizontal,parent,item)
-        QObject.connect(editor,SIGNAL('valueChanged(PyQt_PyObject)'),self.maineditor.internalValueChanged)
-        return editor
+        if not item.scalar.isBool():
+            editor = ItemSlider(Qt.Horizontal,parent,item)
+            QObject.connect(editor,SIGNAL('valueChanged(PyQt_PyObject)'),self.maineditor.internalValueChanged)
+            return editor
     
     def setEditorData(self, editor, index):
         """ Accessor """
         scalar = index.model().itemFromIndex(index).scalar
-        editor.setRange(scalar.minvalue,scalar.maxvalue)
-        editor.setValue(scalar.value)
+        if not scalar.isBool():
+            editor.setRange(scalar.minvalue,scalar.maxvalue)
+            editor.setValue(scalar.value)
 
     def setModelData(self, editor, model, index):
         """ Accessor """
@@ -99,6 +140,7 @@ class ScalarEditor (QTreeView):
     def createContextMenu(self):
         self.menu = QMenu("Scalar Edit",self)
         self.menu.addAction("New",self.newScalar)
+        self.menu.addAction("New Boolean",self.newBoolScalar)
         self.deleteAction = self.menu.addAction("Delete",self.deleteScalars)
         self.editAction = self.menu.addAction("Edit",self.editMetaScalar)
     def selection(self):
@@ -129,7 +171,13 @@ class ScalarEditor (QTreeView):
         si_name.setEditable(True)
         si_name.scalar = scalar
         si_name.nameEditor = True
-        si_value = QStandardItem(str(scalar.value))
+        if scalar.isBool():
+            si_value = QStandardItem()
+            si_value.setCheckable(True)
+            si_value.setCheckState(Qt.Checked if scalar.value else Qt.Unchecked)
+            si_value.stdEditor = True
+        else:
+            si_value = QStandardItem(str(scalar.value))
         si_value.scalar = scalar
         scalar.si_name = si_name
         scalar.si_value = si_value
@@ -140,6 +188,11 @@ class ScalarEditor (QTreeView):
             self.scalars.append(s)        
             self.scalarModel.appendRow(self.getItems(s))
             self.internalValueChanged(s)
+    def newBoolScalar(self):
+        s = Scalar('default_bool',True)
+        self.scalars.append(s)        
+        self.scalarModel.appendRow(self.getItems(s))
+        self.internalValueChanged(s)
     def setScalars(self,values):
         self.scalars = values
         self.replotScalars()
@@ -160,6 +213,9 @@ class ScalarEditor (QTreeView):
     def internalItemChanged(self,item):
         if hasattr(item,'nameEditor'):
             item.scalar.name = str(item.text())
+            self.emit(SIGNAL('valueChanged()'))
+        elif hasattr(item,'stdEditor'):
+            item.scalar.value = item.checkState() == Qt.Checked
             self.emit(SIGNAL('valueChanged()'))
         
         

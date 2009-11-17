@@ -18,13 +18,21 @@ class DebugRightWidget(QWidget,debugger_right_ui.Ui_Form):
         debugger_right_ui.Ui_Form.__init__(self)
         self.setupUi(self)
 
+def showMessage(self,msg,timeout):
+    if hasattr(self,'statusBar'):
+        self.statusBar.showMessage(msg,timeout)
+    else:
+        print(msg)
         
 def initDocks(lpywidget):
     prevdock = None
+    st = lpywidget.statusBar()
     for dock in [lpywidget.materialDock, lpywidget.functionDock, lpywidget.curveDock, lpywidget.scalarDock, lpywidget.descriptionDock, lpywidget.parametersDock]:
         lpywidget.addDockWidget(Qt.LeftDockWidgetArea,dock)
         action = dock.toggleViewAction()
         lpywidget.menuView.addAction(action)
+        dock.statusBar = st
+        dock.showMessage = showMessage
         if not prevdock is None:
             lpywidget.tabifyDockWidget(prevdock,dock)
         prevdock = dock

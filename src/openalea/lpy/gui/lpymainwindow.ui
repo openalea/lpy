@@ -1,7 +1,8 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow" >
-  <property name="geometry" >
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,131 +10,99 @@
     <height>622</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>L-Py</string>
   </property>
-  <property name="windowIcon" >
-   <iconset resource="lpyresources.qrc" >
+  <property name="windowIcon">
+   <iconset resource="lpyresources.qrc">
     <normaloff>:/logo/logo.png</normaloff>:/logo/logo.png</iconset>
   </property>
-  <widget class="QWidget" name="centralwidget" >
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>55</y>
-     <width>987</width>
-     <height>548</height>
-    </rect>
-   </property>
-   <layout class="QGridLayout" name="gridLayout_3" >
-    <item rowspan="4" row="0" column="1" >
-     <widget class="QDockWidget" name="materialDock" >
-      <property name="sizePolicy" >
-       <sizepolicy vsizetype="Preferred" hsizetype="Minimum" >
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout_3">
+    <item row="0" column="1" rowspan="4">
+     <widget class="QDockWidget" name="materialDock">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
-      <property name="windowTitle" >
+      <property name="windowTitle">
        <string>Color Map</string>
       </property>
-      <widget class="QWidget" name="dockWidgetContents_2" >
-       <property name="geometry" >
-        <rect>
-         <x>0</x>
-         <y>22</y>
-         <width>80</width>
-         <height>348</height>
-        </rect>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_3" >
-        <property name="margin" >
+      <widget class="QWidget" name="dockWidgetContents_2">
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <property name="margin">
          <number>0</number>
         </property>
         <item>
-         <widget class="MaterialEditor" native="1" name="materialed" />
+         <widget class="MaterialEditor" name="materialed" native="true"/>
         </item>
        </layout>
       </widget>
      </widget>
     </item>
-    <item rowspan="4" row="0" column="3" >
-     <widget class="QDockWidget" name="functionDock" >
-      <property name="windowTitle" >
+    <item row="0" column="3" rowspan="4">
+     <widget class="QDockWidget" name="functionDock">
+      <property name="windowTitle">
        <string>Functions</string>
       </property>
-      <widget class="QWidget" name="dockWidgetContents_6" >
-       <property name="geometry" >
-        <rect>
-         <x>0</x>
-         <y>22</y>
-         <width>80</width>
-         <height>348</height>
-        </rect>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_4" >
-        <property name="spacing" >
+      <widget class="QWidget" name="dockWidgetContents_6">
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <property name="spacing">
          <number>2</number>
         </property>
-        <property name="margin" >
+        <property name="margin">
          <number>0</number>
         </property>
         <item>
-         <widget class="FunctionPanel" native="1" name="functionpanel" />
+         <widget class="FunctionPanel" name="functionpanel" native="true"/>
         </item>
         <item>
-         <widget class="QLineEdit" name="funcNameEdit" />
+         <widget class="QLineEdit" name="funcNameEdit"/>
         </item>
        </layout>
       </widget>
      </widget>
     </item>
-    <item rowspan="4" row="0" column="4" >
-     <widget class="QDockWidget" name="parametersDock" >
-      <property name="windowTitle" >
+    <item row="0" column="4" rowspan="4">
+     <widget class="QDockWidget" name="parametersDock">
+      <property name="windowTitle">
        <string>Parameters</string>
       </property>
-      <widget class="QWidget" name="dockWidgetContents_3" >
-       <property name="geometry" >
-        <rect>
-         <x>0</x>
-         <y>22</y>
-         <width>176</width>
-         <height>348</height>
-        </rect>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_5" >
-        <property name="spacing" >
+      <widget class="QWidget" name="dockWidgetContents_3">
+       <layout class="QVBoxLayout" name="verticalLayout_5">
+        <property name="spacing">
          <number>2</number>
         </property>
-        <property name="margin" >
+        <property name="margin">
          <number>2</number>
         </property>
         <item>
-         <widget class="QGroupBox" name="groupBox" >
-          <property name="title" >
+         <widget class="QGroupBox" name="groupBox">
+          <property name="title">
            <string>Animation</string>
           </property>
-          <layout class="QHBoxLayout" >
-           <property name="spacing" >
+          <layout class="QHBoxLayout">
+           <property name="spacing">
             <number>6</number>
            </property>
-           <property name="margin" >
+           <property name="margin">
             <number>9</number>
            </property>
            <item>
-            <widget class="QLabel" name="label" >
-             <property name="text" >
+            <widget class="QLabel" name="label">
+             <property name="text">
               <string>Time Step</string>
              </property>
             </widget>
            </item>
            <item>
             <spacer>
-             <property name="orientation" >
+             <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
-             <property name="sizeHint" stdset="0" >
+             <property name="sizeHint" stdset="0">
               <size>
                <width>1</width>
                <height>20</height>
@@ -142,33 +111,33 @@
             </spacer>
            </item>
            <item>
-            <widget class="QSlider" name="animtimestep" >
-             <property name="sizePolicy" >
-              <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+            <widget class="QSlider" name="animtimestep">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                <horstretch>2</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
-             <property name="minimum" >
+             <property name="minimum">
               <number>1</number>
              </property>
-             <property name="maximum" >
+             <property name="maximum">
               <number>2000</number>
              </property>
-             <property name="value" >
+             <property name="value">
               <number>50</number>
              </property>
-             <property name="orientation" >
+             <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
             </widget>
            </item>
            <item>
             <spacer>
-             <property name="orientation" >
+             <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
-             <property name="sizeHint" stdset="0" >
+             <property name="sizeHint" stdset="0">
               <size>
                <width>10</width>
                <height>20</height>
@@ -177,18 +146,18 @@
             </spacer>
            </item>
            <item>
-            <widget class="QDoubleSpinBox" name="animtimeSpinBox" >
-             <property name="decimals" >
+            <widget class="QDoubleSpinBox" name="animtimeSpinBox">
+             <property name="decimals">
               <number>3</number>
              </property>
-             <property name="singleStep" >
+             <property name="singleStep">
               <double>0.100000000000000</double>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_2" >
-             <property name="text" >
+            <widget class="QLabel" name="label_2">
+             <property name="text">
               <string>s.</string>
              </property>
             </widget>
@@ -197,22 +166,22 @@
          </widget>
         </item>
         <item>
-         <widget class="QTreeView" name="parametersTable" >
-          <property name="palette" >
+         <widget class="QTreeView" name="parametersTable">
+          <property name="palette">
            <palette>
             <active>
-             <colorrole role="Base" >
-              <brush brushstyle="SolidPattern" >
-               <color alpha="255" >
+             <colorrole role="Base">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
                 <red>255</red>
                 <green>255</green>
                 <blue>215</blue>
                </color>
               </brush>
              </colorrole>
-             <colorrole role="AlternateBase" >
-              <brush brushstyle="SolidPattern" >
-               <color alpha="255" >
+             <colorrole role="AlternateBase">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
                 <red>254</red>
                 <green>255</green>
                 <blue>155</blue>
@@ -221,18 +190,18 @@
              </colorrole>
             </active>
             <inactive>
-             <colorrole role="Base" >
-              <brush brushstyle="SolidPattern" >
-               <color alpha="255" >
+             <colorrole role="Base">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
                 <red>255</red>
                 <green>255</green>
                 <blue>215</blue>
                </color>
               </brush>
              </colorrole>
-             <colorrole role="AlternateBase" >
-              <brush brushstyle="SolidPattern" >
-               <color alpha="255" >
+             <colorrole role="AlternateBase">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
                 <red>254</red>
                 <green>255</green>
                 <blue>155</blue>
@@ -241,18 +210,18 @@
              </colorrole>
             </inactive>
             <disabled>
-             <colorrole role="Base" >
-              <brush brushstyle="SolidPattern" >
-               <color alpha="255" >
+             <colorrole role="Base">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
                 <red>236</red>
                 <green>233</green>
                 <blue>216</blue>
                </color>
               </brush>
              </colorrole>
-             <colorrole role="AlternateBase" >
-              <brush brushstyle="SolidPattern" >
-               <color alpha="255" >
+             <colorrole role="AlternateBase">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
                 <red>254</red>
                 <green>255</green>
                 <blue>155</blue>
@@ -262,25 +231,25 @@
             </disabled>
            </palette>
           </property>
-          <property name="midLineWidth" >
+          <property name="midLineWidth">
            <number>1</number>
           </property>
-          <property name="tabKeyNavigation" >
+          <property name="tabKeyNavigation">
            <bool>true</bool>
           </property>
-          <property name="dragEnabled" >
+          <property name="dragEnabled">
            <bool>true</bool>
           </property>
-          <property name="alternatingRowColors" >
+          <property name="alternatingRowColors">
            <bool>true</bool>
           </property>
-          <property name="rootIsDecorated" >
+          <property name="rootIsDecorated">
            <bool>false</bool>
           </property>
-          <property name="animated" >
+          <property name="animated">
            <bool>true</bool>
           </property>
-          <property name="allColumnsShowFocus" >
+          <property name="allColumnsShowFocus">
            <bool>true</bool>
           </property>
          </widget>
@@ -289,37 +258,29 @@
       </widget>
      </widget>
     </item>
-    <item rowspan="4" row="0" column="5" >
-     <widget class="QDockWidget" name="descriptionDock" >
-      <property name="windowTitle" >
+    <item row="0" column="5" rowspan="4">
+     <widget class="QDockWidget" name="descriptionDock">
+      <property name="windowTitle">
        <string>Description</string>
       </property>
-      <widget class="QWidget" name="dockWidgetContents_4" >
-       <property name="geometry" >
-        <rect>
-         <x>0</x>
-         <y>22</y>
-         <width>80</width>
-         <height>348</height>
-        </rect>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_6" >
-        <property name="spacing" >
+      <widget class="QWidget" name="dockWidgetContents_4">
+       <layout class="QVBoxLayout" name="verticalLayout_6">
+        <property name="spacing">
          <number>0</number>
         </property>
-        <property name="margin" >
+        <property name="margin">
          <number>0</number>
         </property>
         <item>
-         <widget class="QToolBox" name="lpytoolbox" >
-          <property name="midLineWidth" >
+         <widget class="QToolBox" name="lpytoolbox">
+          <property name="midLineWidth">
            <number>1</number>
           </property>
-          <property name="currentIndex" >
+          <property name="currentIndex">
            <number>0</number>
           </property>
-          <widget class="QWidget" name="page" >
-           <property name="geometry" >
+          <widget class="QWidget" name="page">
+           <property name="geometry">
             <rect>
              <x>0</x>
              <y>0</y>
@@ -327,68 +288,68 @@
              <height>292</height>
             </rect>
            </property>
-           <attribute name="label" >
+           <attribute name="label">
             <string>Information</string>
            </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_2" >
-            <property name="spacing" >
+           <layout class="QVBoxLayout" name="verticalLayout_2">
+            <property name="spacing">
              <number>2</number>
             </property>
-            <property name="leftMargin" >
+            <property name="leftMargin">
              <number>2</number>
             </property>
-            <property name="topMargin" >
+            <property name="topMargin">
              <number>2</number>
             </property>
-            <property name="rightMargin" >
+            <property name="rightMargin">
              <number>2</number>
             </property>
-            <property name="bottomMargin" >
+            <property name="bottomMargin">
              <number>0</number>
             </property>
             <item>
-             <widget class="QTextEdit" name="descriptionEdit" >
-              <property name="sizePolicy" >
-               <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+             <widget class="QTextEdit" name="descriptionEdit">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
                 <verstretch>2</verstretch>
                </sizepolicy>
               </property>
-              <property name="acceptRichText" >
+              <property name="acceptRichText">
                <bool>false</bool>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_7" >
-              <property name="text" >
+             <widget class="QLabel" name="label_7">
+              <property name="text">
                <string>References</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QTextEdit" name="referenceEdit" >
-              <property name="sizePolicy" >
-               <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+             <widget class="QTextEdit" name="referenceEdit">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="maximumSize" >
+              <property name="maximumSize">
                <size>
                 <width>16777215</width>
                 <height>80</height>
                </size>
               </property>
-              <property name="acceptRichText" >
+              <property name="acceptRichText">
                <bool>false</bool>
               </property>
              </widget>
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="page_2" >
-           <property name="geometry" >
+          <widget class="QWidget" name="page_2">
+           <property name="geometry">
             <rect>
              <x>0</x>
              <y>0</y>
@@ -396,45 +357,45 @@
              <height>336</height>
             </rect>
            </property>
-           <attribute name="label" >
+           <attribute name="label">
             <string>Authors</string>
            </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout" >
-            <property name="spacing" >
+           <layout class="QVBoxLayout" name="verticalLayout">
+            <property name="spacing">
              <number>2</number>
             </property>
-            <property name="margin" >
+            <property name="margin">
              <number>2</number>
             </property>
             <item>
-             <widget class="QLabel" name="label_3" >
-              <property name="text" >
+             <widget class="QLabel" name="label_3">
+              <property name="text">
                <string>Authors</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QTextEdit" name="authorsEdit" />
+             <widget class="QTextEdit" name="authorsEdit"/>
             </item>
             <item>
-             <widget class="QLabel" name="label_4" >
-              <property name="text" >
+             <widget class="QLabel" name="label_4">
+              <property name="text">
                <string>Institutes</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QTextEdit" name="intitutesEdit" />
+             <widget class="QTextEdit" name="intitutesEdit"/>
             </item>
             <item>
-             <widget class="QLabel" name="label_5" >
-              <property name="text" >
+             <widget class="QLabel" name="label_5">
+              <property name="text">
                <string>Copyright</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QTextEdit" name="copyrightEdit" />
+             <widget class="QTextEdit" name="copyrightEdit"/>
             </item>
            </layout>
           </widget>
@@ -444,30 +405,22 @@
       </widget>
      </widget>
     </item>
-    <item rowspan="4" row="0" column="6" >
-     <widget class="QDockWidget" name="helpDock" >
-      <property name="floating" >
+    <item row="0" column="6" rowspan="4">
+     <widget class="QDockWidget" name="helpDock">
+      <property name="floating">
        <bool>false</bool>
       </property>
-      <property name="windowTitle" >
+      <property name="windowTitle">
        <string>Documentation</string>
       </property>
-      <widget class="QWidget" name="dockWidgetContents_5" >
-       <property name="geometry" >
-        <rect>
-         <x>0</x>
-         <y>22</y>
-         <width>80</width>
-         <height>348</height>
-        </rect>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_7" >
+      <widget class="QWidget" name="dockWidgetContents_5">
+       <layout class="QVBoxLayout" name="verticalLayout_7">
         <item>
-         <widget class="QTextBrowser" name="helpDisplay" >
-          <property name="autoFormatting" >
+         <widget class="QTextBrowser" name="helpDisplay">
+          <property name="autoFormatting">
            <set>QTextEdit::AutoAll</set>
           </property>
-          <property name="acceptRichText" >
+          <property name="acceptRichText">
            <bool>true</bool>
           </property>
          </widget>
@@ -476,30 +429,30 @@
       </widget>
      </widget>
     </item>
-    <item row="0" column="7" >
-     <widget class="QFrame" name="frame" >
-      <property name="frameShape" >
+    <item row="0" column="7">
+     <widget class="QFrame" name="frame">
+      <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
       </property>
-      <property name="frameShadow" >
+      <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <layout class="QGridLayout" name="gridLayout" >
-       <property name="margin" >
+      <layout class="QGridLayout" name="gridLayout">
+       <property name="margin">
         <number>0</number>
        </property>
-       <property name="spacing" >
+       <property name="spacing">
         <number>0</number>
        </property>
-       <item row="0" column="0" >
-        <widget class="QTabBar" native="1" name="documentNames" />
+       <item row="0" column="0">
+        <widget class="QTabBar" name="documentNames" native="true"/>
        </item>
-       <item row="0" column="1" >
-        <spacer name="horizontalSpacer" >
-         <property name="orientation" >
+       <item row="0" column="1">
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="sizeHint" stdset="0" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>0</width>
            <height>20</height>
@@ -507,20 +460,20 @@
          </property>
         </spacer>
        </item>
-       <item row="1" column="0" colspan="2" >
-        <widget class="LpyCodeEditor" name="codeeditor" >
-         <property name="enabled" >
+       <item row="1" column="0" colspan="2">
+        <widget class="LpyCodeEditor" name="codeeditor">
+         <property name="enabled">
           <bool>true</bool>
          </property>
-         <property name="font" >
+         <property name="font">
           <font>
            <family>Courier New</family>
           </font>
          </property>
-         <property name="frameShape" >
+         <property name="frameShape">
           <enum>QFrame::WinPanel</enum>
          </property>
-         <property name="tabStopWidth" >
+         <property name="tabStopWidth">
           <number>20</number>
          </property>
         </widget>
@@ -528,29 +481,29 @@
       </layout>
      </widget>
     </item>
-    <item row="1" column="7" >
-     <widget class="QFrame" name="frameGoto" >
-      <property name="frameShape" >
+    <item row="1" column="7">
+     <widget class="QFrame" name="frameGoto">
+      <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
       </property>
-      <property name="frameShadow" >
+      <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <layout class="QGridLayout" name="_2" >
-       <property name="horizontalSpacing" >
+      <layout class="QGridLayout" name="_2">
+       <property name="horizontalSpacing">
         <number>3</number>
        </property>
-       <property name="margin" >
+       <property name="margin">
         <number>0</number>
        </property>
-       <item row="0" column="0" >
-        <widget class="QToolButton" name="closeGoto" >
-         <property name="palette" >
+       <item row="0" column="0">
+        <widget class="QToolButton" name="closeGoto">
+         <property name="palette">
           <palette>
            <active>
-            <colorrole role="ButtonText" >
-             <brush brushstyle="SolidPattern" >
-              <color alpha="255" >
+            <colorrole role="ButtonText">
+             <brush brushstyle="SolidPattern">
+              <color alpha="255">
                <red>170</red>
                <green>0</green>
                <blue>0</blue>
@@ -559,9 +512,9 @@
             </colorrole>
            </active>
            <inactive>
-            <colorrole role="ButtonText" >
-             <brush brushstyle="SolidPattern" >
-              <color alpha="255" >
+            <colorrole role="ButtonText">
+             <brush brushstyle="SolidPattern">
+              <color alpha="255">
                <red>0</red>
                <green>0</green>
                <blue>0</blue>
@@ -570,9 +523,9 @@
             </colorrole>
            </inactive>
            <disabled>
-            <colorrole role="ButtonText" >
-             <brush brushstyle="SolidPattern" >
-              <color alpha="255" >
+            <colorrole role="ButtonText">
+             <brush brushstyle="SolidPattern">
+              <color alpha="255">
                <red>118</red>
                <green>116</green>
                <blue>108</blue>
@@ -582,28 +535,28 @@
            </disabled>
           </palette>
          </property>
-         <property name="icon" >
-          <iconset resource="lpyresources.qrc" >
+         <property name="icon">
+          <iconset resource="lpyresources.qrc">
            <normaloff>:/images/icons/closetab.png</normaloff>:/images/icons/closetab.png</iconset>
          </property>
-         <property name="autoRaise" >
+         <property name="autoRaise">
           <bool>true</bool>
          </property>
         </widget>
        </item>
-       <item row="0" column="1" >
-        <widget class="QLabel" name="label_10" >
-         <property name="text" >
+       <item row="0" column="1">
+        <widget class="QLabel" name="label_10">
+         <property name="text">
           <string>Go to</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="3" >
+       <item row="0" column="3">
         <spacer>
-         <property name="orientation" >
+         <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="sizeHint" stdset="0" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>61</width>
            <height>23</height>
@@ -611,35 +564,35 @@
          </property>
         </spacer>
        </item>
-       <item row="0" column="4" >
-        <widget class="QLineEdit" name="gotoEdit" />
+       <item row="0" column="4">
+        <widget class="QLineEdit" name="gotoEdit"/>
        </item>
       </layout>
      </widget>
     </item>
-    <item row="2" column="7" >
-     <widget class="QFrame" name="frameFind" >
-      <property name="frameShape" >
+    <item row="2" column="7">
+     <widget class="QFrame" name="frameFind">
+      <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
       </property>
-      <property name="frameShadow" >
+      <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <layout class="QGridLayout" >
-       <property name="horizontalSpacing" >
+      <layout class="QGridLayout">
+       <property name="horizontalSpacing">
         <number>3</number>
        </property>
-       <property name="margin" >
+       <property name="margin">
         <number>0</number>
        </property>
-       <item row="0" column="0" >
-        <widget class="QToolButton" name="closeFind" >
-         <property name="palette" >
+       <item row="0" column="0">
+        <widget class="QToolButton" name="closeFind">
+         <property name="palette">
           <palette>
            <active>
-            <colorrole role="ButtonText" >
-             <brush brushstyle="SolidPattern" >
-              <color alpha="255" >
+            <colorrole role="ButtonText">
+             <brush brushstyle="SolidPattern">
+              <color alpha="255">
                <red>170</red>
                <green>0</green>
                <blue>0</blue>
@@ -648,9 +601,9 @@
             </colorrole>
            </active>
            <inactive>
-            <colorrole role="ButtonText" >
-             <brush brushstyle="SolidPattern" >
-              <color alpha="255" >
+            <colorrole role="ButtonText">
+             <brush brushstyle="SolidPattern">
+              <color alpha="255">
                <red>0</red>
                <green>0</green>
                <blue>0</blue>
@@ -659,9 +612,9 @@
             </colorrole>
            </inactive>
            <disabled>
-            <colorrole role="ButtonText" >
-             <brush brushstyle="SolidPattern" >
-              <color alpha="255" >
+            <colorrole role="ButtonText">
+             <brush brushstyle="SolidPattern">
+              <color alpha="255">
                <red>118</red>
                <green>116</green>
                <blue>108</blue>
@@ -671,59 +624,59 @@
            </disabled>
           </palette>
          </property>
-         <property name="icon" >
-          <iconset resource="lpyresources.qrc" >
+         <property name="icon">
+          <iconset resource="lpyresources.qrc">
            <normaloff>:/images/icons/closetab.png</normaloff>:/images/icons/closetab.png</iconset>
          </property>
-         <property name="autoRaise" >
+         <property name="autoRaise">
           <bool>true</bool>
          </property>
         </widget>
        </item>
-       <item row="0" column="1" >
-        <widget class="QLabel" name="label_8" >
-         <property name="text" >
+       <item row="0" column="1">
+        <widget class="QLabel" name="label_8">
+         <property name="text">
           <string>Find</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="2" >
-        <widget class="QLineEdit" name="findEdit" />
+       <item row="0" column="2">
+        <widget class="QLineEdit" name="findEdit"/>
        </item>
-       <item row="0" column="3" >
-        <widget class="QPushButton" name="findNextButton" >
-         <property name="text" >
+       <item row="0" column="3">
+        <widget class="QPushButton" name="findNextButton">
+         <property name="text">
           <string>Next</string>
          </property>
-         <property name="icon" >
-          <iconset resource="lpyresources.qrc" >
+         <property name="icon">
+          <iconset resource="lpyresources.qrc">
            <normaloff>:/images/icons/down.png</normaloff>:/images/icons/down.png</iconset>
          </property>
         </widget>
        </item>
-       <item row="0" column="4" >
-        <widget class="QPushButton" name="findPreviousButton" >
-         <property name="sizePolicy" >
-          <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
+       <item row="0" column="4">
+        <widget class="QPushButton" name="findPreviousButton">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <property name="text" >
+         <property name="text">
           <string>Previous</string>
          </property>
-         <property name="icon" >
-          <iconset resource="lpyresources.qrc" >
+         <property name="icon">
+          <iconset resource="lpyresources.qrc">
            <normaloff>:/images/icons/up.png</normaloff>:/images/icons/up.png</iconset>
          </property>
         </widget>
        </item>
-       <item row="0" column="5" >
+       <item row="0" column="5">
         <spacer>
-         <property name="orientation" >
+         <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="sizeHint" stdset="0" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>61</width>
            <height>23</height>
@@ -731,12 +684,12 @@
          </property>
         </spacer>
        </item>
-       <item row="1" column="0" colspan="3" >
+       <item row="1" column="0" colspan="3">
         <spacer>
-         <property name="orientation" >
+         <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="sizeHint" stdset="0" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>161</width>
            <height>20</height>
@@ -744,32 +697,32 @@
          </property>
         </spacer>
        </item>
-       <item row="1" column="3" >
-        <widget class="QRadioButton" name="matchCaseButton" >
-         <property name="text" >
+       <item row="1" column="3">
+        <widget class="QRadioButton" name="matchCaseButton">
+         <property name="text">
           <string>Match Case</string>
          </property>
-         <property name="autoExclusive" >
+         <property name="autoExclusive">
           <bool>false</bool>
          </property>
         </widget>
        </item>
-       <item row="1" column="4" >
-        <widget class="QRadioButton" name="wholeWordButton" >
-         <property name="text" >
+       <item row="1" column="4">
+        <widget class="QRadioButton" name="wholeWordButton">
+         <property name="text">
           <string>Whole word</string>
          </property>
-         <property name="autoExclusive" >
+         <property name="autoExclusive">
           <bool>false</bool>
          </property>
         </widget>
        </item>
-       <item row="1" column="5" >
+       <item row="1" column="5">
         <spacer>
-         <property name="orientation" >
+         <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="sizeHint" stdset="0" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>40</width>
            <height>20</height>
@@ -780,51 +733,51 @@
       </layout>
      </widget>
     </item>
-    <item row="3" column="7" >
-     <widget class="QFrame" name="frameReplace" >
-      <property name="frameShape" >
+    <item row="3" column="7">
+     <widget class="QFrame" name="frameReplace">
+      <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
       </property>
-      <property name="frameShadow" >
+      <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <layout class="QHBoxLayout" >
-       <property name="spacing" >
+      <layout class="QHBoxLayout">
+       <property name="spacing">
         <number>3</number>
        </property>
-       <property name="margin" >
+       <property name="margin">
         <number>0</number>
        </property>
        <item>
-        <widget class="QLabel" name="label_9" >
-         <property name="text" >
+        <widget class="QLabel" name="label_9">
+         <property name="text">
           <string>Replace</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="replaceEdit" />
+        <widget class="QLineEdit" name="replaceEdit"/>
        </item>
        <item>
-        <widget class="QPushButton" name="replaceButton" >
-         <property name="text" >
+        <widget class="QPushButton" name="replaceButton">
+         <property name="text">
           <string>Replace</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="replaceAllButton" >
-         <property name="text" >
+        <widget class="QPushButton" name="replaceAllButton">
+         <property name="text">
           <string>Rep. All</string>
          </property>
         </widget>
        </item>
        <item>
         <spacer>
-         <property name="orientation" >
+         <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="sizeHint" stdset="0" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>40</width>
            <height>20</height>
@@ -835,115 +788,91 @@
       </layout>
      </widget>
     </item>
-    <item row="4" column="1" colspan="7" >
-     <widget class="QDockWidget" name="interpreterDock" >
-      <property name="sizePolicy" >
-       <sizepolicy vsizetype="Minimum" hsizetype="Preferred" >
+    <item row="4" column="1" colspan="7">
+     <widget class="QDockWidget" name="interpreterDock">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
-      <property name="floating" >
+      <property name="floating">
        <bool>false</bool>
       </property>
-      <property name="windowTitle" >
+      <property name="windowTitle">
        <string>Python Shell</string>
       </property>
-      <widget class="QWidget" name="dockWidgetContents" >
-       <property name="geometry" >
-        <rect>
-         <x>0</x>
-         <y>22</y>
-         <width>883</width>
-         <height>132</height>
-        </rect>
-       </property>
-       <layout class="QVBoxLayout" >
-        <property name="spacing" >
+      <widget class="QWidget" name="dockWidgetContents">
+       <layout class="QVBoxLayout">
+        <property name="spacing">
          <number>6</number>
         </property>
-        <property name="margin" >
+        <property name="margin">
          <number>9</number>
         </property>
        </layout>
       </widget>
      </widget>
     </item>
-    <item row="0" column="2" >
-     <widget class="QDockWidget" name="curveDock" >
-      <property name="windowTitle" >
+    <item row="0" column="2">
+     <widget class="QDockWidget" name="curveDock">
+      <property name="windowTitle">
        <string>Curves</string>
       </property>
-      <widget class="QWidget" name="dockWidgetContents_7" >
-       <property name="geometry" >
-        <rect>
-         <x>0</x>
-         <y>22</y>
-         <width>80</width>
-         <height>228</height>
-        </rect>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_8" >
-        <property name="spacing" >
+      <widget class="QWidget" name="dockWidgetContents_7">
+       <layout class="QVBoxLayout" name="verticalLayout_8">
+        <property name="spacing">
          <number>0</number>
         </property>
-        <property name="margin" >
+        <property name="margin">
          <number>0</number>
         </property>
         <item>
-         <widget class="CurvePanel" native="1" name="curvepanel" />
+         <widget class="CurvePanel" name="curvepanel" native="true"/>
         </item>
         <item>
-         <widget class="QLineEdit" name="curveNameEdit" />
+         <widget class="QLineEdit" name="curveNameEdit"/>
         </item>
        </layout>
       </widget>
      </widget>
     </item>
-    <item row="0" column="0" >
-     <widget class="QDockWidget" name="scalarDock" >
-      <property name="windowTitle" >
+    <item row="0" column="0">
+     <widget class="QDockWidget" name="scalarDock">
+      <property name="windowTitle">
        <string>Scalars</string>
       </property>
-      <widget class="QWidget" name="dockWidgetContents_8" >
-       <property name="geometry" >
-        <rect>
-         <x>0</x>
-         <y>22</y>
-         <width>80</width>
-         <height>228</height>
-        </rect>
-       </property>
-       <layout class="QGridLayout" name="gridLayout_2" >
-        <property name="leftMargin" >
+      <widget class="QWidget" name="dockWidgetContents_8">
+       <layout class="QGridLayout" name="gridLayout_2">
+        <property name="leftMargin">
          <number>1</number>
         </property>
-        <property name="topMargin" >
+        <property name="topMargin">
          <number>1</number>
         </property>
-        <property name="rightMargin" >
+        <property name="rightMargin">
          <number>1</number>
         </property>
-        <property name="bottomMargin" >
+        <property name="bottomMargin">
          <number>2</number>
         </property>
-        <item row="0" column="0" >
-         <widget class="ScalarEditor" name="scalarEditor" >
-          <property name="palette" >
+        <item row="0" column="0">
+         <widget class="ScalarEditor" name="scalarEditor">
+          <property name="palette">
            <palette>
             <active>
-             <colorrole role="Base" >
-              <brush brushstyle="SolidPattern" >
-               <color alpha="255" >
+             <colorrole role="Base">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
                 <red>222</red>
                 <green>255</green>
                 <blue>222</blue>
                </color>
               </brush>
              </colorrole>
-             <colorrole role="AlternateBase" >
-              <brush brushstyle="SolidPattern" >
-               <color alpha="255" >
+             <colorrole role="AlternateBase">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
                 <red>191</red>
                 <green>255</green>
                 <blue>191</blue>
@@ -952,18 +881,18 @@
              </colorrole>
             </active>
             <inactive>
-             <colorrole role="Base" >
-              <brush brushstyle="SolidPattern" >
-               <color alpha="255" >
+             <colorrole role="Base">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
                 <red>222</red>
                 <green>255</green>
                 <blue>222</blue>
                </color>
               </brush>
              </colorrole>
-             <colorrole role="AlternateBase" >
-              <brush brushstyle="SolidPattern" >
-               <color alpha="255" >
+             <colorrole role="AlternateBase">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
                 <red>191</red>
                 <green>255</green>
                 <blue>191</blue>
@@ -972,18 +901,18 @@
              </colorrole>
             </inactive>
             <disabled>
-             <colorrole role="Base" >
-              <brush brushstyle="SolidPattern" >
-               <color alpha="255" >
+             <colorrole role="Base">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
                 <red>236</red>
                 <green>233</green>
                 <blue>216</blue>
                </color>
               </brush>
              </colorrole>
-             <colorrole role="AlternateBase" >
-              <brush brushstyle="SolidPattern" >
-               <color alpha="255" >
+             <colorrole role="AlternateBase">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
                 <red>191</red>
                 <green>255</green>
                 <blue>191</blue>
@@ -993,10 +922,16 @@
             </disabled>
            </palette>
           </property>
-          <property name="alternatingRowColors" >
+          <property name="dragDropMode">
+           <enum>QAbstractItemView::InternalMove</enum>
+          </property>
+          <property name="alternatingRowColors">
            <bool>true</bool>
           </property>
-          <property name="allColumnsShowFocus" >
+          <property name="itemsExpandable">
+           <bool>false</bool>
+          </property>
+          <property name="allColumnsShowFocus">
            <bool>true</bool>
           </property>
          </widget>
@@ -1007,8 +942,8 @@
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar" >
-   <property name="geometry" >
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
@@ -1016,556 +951,531 @@
      <height>21</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuL_systems" >
-    <property name="title" >
+   <widget class="QMenu" name="menuL_systems">
+    <property name="title">
      <string>L-systems</string>
     </property>
-    <addaction name="actionRun" />
-    <addaction name="actionAnimate" />
-    <addaction name="separator" />
-    <addaction name="actionStep" />
-    <addaction name="actionRewind" />
-    <addaction name="actionStop" />
-    <addaction name="separator" />
-    <addaction name="actionIterateTo" />
-    <addaction name="actionNextIterate" />
-    <addaction name="separator" />
-    <addaction name="actionAutoRun" />
-    <addaction name="separator" />
-    <addaction name="actionDebug" />
+    <addaction name="actionRun"/>
+    <addaction name="actionAnimate"/>
+    <addaction name="separator"/>
+    <addaction name="actionStep"/>
+    <addaction name="actionRewind"/>
+    <addaction name="actionStop"/>
+    <addaction name="separator"/>
+    <addaction name="actionIterateTo"/>
+    <addaction name="actionNextIterate"/>
+    <addaction name="separator"/>
+    <addaction name="actionAutoRun"/>
+    <addaction name="separator"/>
+    <addaction name="actionDebug"/>
    </widget>
-   <widget class="QMenu" name="menuFile" >
-    <property name="title" >
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
      <string>File</string>
     </property>
-    <widget class="QMenu" name="menuRecents" >
-     <property name="title" >
+    <widget class="QMenu" name="menuRecents">
+     <property name="title">
       <string>Recents</string>
      </property>
-     <addaction name="actionClear" />
+     <addaction name="actionClear"/>
     </widget>
-    <addaction name="actionNew" />
-    <addaction name="separator" />
-    <addaction name="actionOpen" />
-    <addaction name="actionSave" />
-    <addaction name="actionSaveAs" />
-    <addaction name="actionSaveAll" />
-    <addaction name="actionClose" />
-    <addaction name="separator" />
-    <addaction name="menuRecents" />
-    <addaction name="separator" />
-    <addaction name="actionExit" />
+    <addaction name="actionNew"/>
+    <addaction name="separator"/>
+    <addaction name="actionOpen"/>
+    <addaction name="actionSave"/>
+    <addaction name="actionSaveAs"/>
+    <addaction name="actionSaveAll"/>
+    <addaction name="actionClose"/>
+    <addaction name="separator"/>
+    <addaction name="menuRecents"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
    </widget>
-   <widget class="QMenu" name="menuEdit" >
-    <property name="title" >
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
      <string>Edit</string>
     </property>
-    <addaction name="actionUndo" />
-    <addaction name="actionRedo" />
-    <addaction name="separator" />
-    <addaction name="actionCopy" />
-    <addaction name="actionCut" />
-    <addaction name="actionPaste" />
-    <addaction name="actionSelect_All" />
-    <addaction name="separator" />
-    <addaction name="actionComment" />
-    <addaction name="actionUncomment" />
-    <addaction name="separator" />
-    <addaction name="actionInsertTab" />
-    <addaction name="actionRemoveTab" />
-    <addaction name="separator" />
-    <addaction name="actionFind" />
-    <addaction name="actionReplace" />
-    <addaction name="separator" />
-    <addaction name="actionGoto" />
-    <addaction name="separator" />
-    <addaction name="actionPreferences" />
+    <addaction name="actionUndo"/>
+    <addaction name="actionRedo"/>
+    <addaction name="separator"/>
+    <addaction name="actionCopy"/>
+    <addaction name="actionCut"/>
+    <addaction name="actionPaste"/>
+    <addaction name="actionSelect_All"/>
+    <addaction name="separator"/>
+    <addaction name="actionComment"/>
+    <addaction name="actionUncomment"/>
+    <addaction name="separator"/>
+    <addaction name="actionInsertTab"/>
+    <addaction name="actionRemoveTab"/>
+    <addaction name="separator"/>
+    <addaction name="actionFind"/>
+    <addaction name="actionReplace"/>
+    <addaction name="separator"/>
+    <addaction name="actionGoto"/>
+    <addaction name="separator"/>
+    <addaction name="actionPreferences"/>
    </widget>
-   <widget class="QMenu" name="menuHelp" >
-    <property name="title" >
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
      <string>Help</string>
     </property>
-    <addaction name="actionAbout" />
-    <addaction name="actionAboutQt" />
-    <addaction name="actionAboutVPlants" />
-    <addaction name="separator" />
+    <addaction name="actionAbout"/>
+    <addaction name="actionAboutQt"/>
+    <addaction name="actionAboutVPlants"/>
+    <addaction name="separator"/>
    </widget>
-   <widget class="QMenu" name="menuView" >
-    <property name="title" >
+   <widget class="QMenu" name="menuView">
+    <property name="title">
      <string>View</string>
     </property>
-    <addaction name="actionZoomIn" />
-    <addaction name="actionZoomOut" />
-    <addaction name="actionNoZoom" />
-    <addaction name="separator" />
-    <addaction name="actionSyntax" />
-    <addaction name="actionTabHightlight" />
-    <addaction name="separator" />
+    <addaction name="actionZoomIn"/>
+    <addaction name="actionZoomOut"/>
+    <addaction name="actionNoZoom"/>
+    <addaction name="separator"/>
+    <addaction name="actionSyntax"/>
+    <addaction name="actionTabHightlight"/>
+    <addaction name="separator"/>
    </widget>
-   <addaction name="menuFile" />
-   <addaction name="menuL_systems" />
-   <addaction name="menuEdit" />
-   <addaction name="menuView" />
-   <addaction name="menuHelp" />
+   <addaction name="menuFile"/>
+   <addaction name="menuL_systems"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuView"/>
+   <addaction name="menuHelp"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar" >
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>603</y>
-     <width>987</width>
-     <height>19</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QToolBar" name="FileBar" >
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>21</y>
-     <width>352</width>
-     <height>34</height>
-    </rect>
-   </property>
-   <property name="windowTitle" >
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="FileBar">
+   <property name="windowTitle">
     <string>File Bar</string>
    </property>
-   <property name="windowIcon" >
+   <property name="windowIcon">
     <iconset>
      <normaloff>logo.png</normaloff>logo.png</iconset>
    </property>
-   <property name="toolButtonStyle" >
+   <property name="toolButtonStyle">
     <enum>Qt::ToolButtonTextBesideIcon</enum>
    </property>
-   <attribute name="toolBarArea" >
+   <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
    </attribute>
-   <attribute name="toolBarBreak" >
+   <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionNew" />
-   <addaction name="actionOpen" />
-   <addaction name="actionSave" />
-   <addaction name="actionSaveAll" />
-   <addaction name="actionClose" />
+   <addaction name="actionNew"/>
+   <addaction name="actionOpen"/>
+   <addaction name="actionSave"/>
+   <addaction name="actionSaveAll"/>
+   <addaction name="actionClose"/>
   </widget>
-  <widget class="QToolBar" name="LsytemBar" >
-   <property name="geometry" >
-    <rect>
-     <x>352</x>
-     <y>21</y>
-     <width>635</width>
-     <height>34</height>
-    </rect>
-   </property>
-   <property name="windowTitle" >
+  <widget class="QToolBar" name="LsytemBar">
+   <property name="windowTitle">
     <string>Lsystem Bar</string>
    </property>
-   <property name="toolButtonStyle" >
+   <property name="toolButtonStyle">
     <enum>Qt::ToolButtonTextBesideIcon</enum>
    </property>
-   <attribute name="toolBarArea" >
+   <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
    </attribute>
-   <attribute name="toolBarBreak" >
+   <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionRewind" />
-   <addaction name="actionRun" />
-   <addaction name="actionAnimate" />
-   <addaction name="actionStep" />
-   <addaction name="actionDebug" />
-   <addaction name="actionStop" />
+   <addaction name="actionRewind"/>
+   <addaction name="actionRun"/>
+   <addaction name="actionAnimate"/>
+   <addaction name="actionStep"/>
+   <addaction name="actionDebug"/>
+   <addaction name="actionStop"/>
   </widget>
-  <action name="actionOpen" >
-   <property name="icon" >
-    <iconset resource="lpyresources.qrc" >
+  <action name="actionOpen">
+   <property name="icon">
+    <iconset resource="lpyresources.qrc">
      <normaloff>:/images/icons/fileopen.png</normaloff>:/images/icons/fileopen.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Open</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+O</string>
    </property>
   </action>
-  <action name="actionSave" >
-   <property name="icon" >
-    <iconset resource="lpyresources.qrc" >
+  <action name="actionSave">
+   <property name="icon">
+    <iconset resource="lpyresources.qrc">
      <normaloff>:/images/icons/filesave.png</normaloff>:/images/icons/filesave.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Save</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+S</string>
    </property>
   </action>
-  <action name="actionSaveAs" >
-   <property name="icon" >
-    <iconset resource="lpyresources.qrc" >
+  <action name="actionSaveAs">
+   <property name="icon">
+    <iconset resource="lpyresources.qrc">
      <normaloff>:/images/icons/filesave.png</normaloff>:/images/icons/filesave.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Save As</string>
    </property>
   </action>
-  <action name="actionExit" >
-   <property name="icon" >
-    <iconset resource="lpyresources.qrc" >
+  <action name="actionExit">
+   <property name="icon">
+    <iconset resource="lpyresources.qrc">
      <normaloff>:/images/icons/exit.png</normaloff>:/images/icons/exit.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Exit</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Esc</string>
    </property>
   </action>
-  <action name="actionRun" >
-   <property name="icon" >
-    <iconset resource="lpyresources.qrc" >
+  <action name="actionRun">
+   <property name="icon">
+    <iconset resource="lpyresources.qrc">
      <normaloff>:/images/icons/run.png</normaloff>:/images/icons/run.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Run</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+R</string>
    </property>
   </action>
-  <action name="actionAnimate" >
-   <property name="icon" >
-    <iconset resource="lpyresources.qrc" >
+  <action name="actionAnimate">
+   <property name="icon">
+    <iconset resource="lpyresources.qrc">
      <normaloff>:/images/icons/play.png</normaloff>:/images/icons/play.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Animate</string>
    </property>
   </action>
-  <action name="actionStep" >
-   <property name="icon" >
-    <iconset resource="lpyresources.qrc" >
+  <action name="actionStep">
+   <property name="icon">
+    <iconset resource="lpyresources.qrc">
      <normaloff>:/images/icons/step.png</normaloff>:/images/icons/step.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Step</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+E</string>
    </property>
   </action>
-  <action name="actionRewind" >
-   <property name="icon" >
-    <iconset resource="lpyresources.qrc" >
+  <action name="actionRewind">
+   <property name="icon">
+    <iconset resource="lpyresources.qrc">
      <normaloff>:/images/icons/rewind.png</normaloff>:/images/icons/rewind.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Rewind</string>
    </property>
   </action>
-  <action name="actionNew" >
-   <property name="icon" >
-    <iconset resource="lpyresources.qrc" >
+  <action name="actionNew">
+   <property name="icon">
+    <iconset resource="lpyresources.qrc">
      <normaloff>:/images/icons/filenew.png</normaloff>:/images/icons/filenew.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>New</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+N</string>
    </property>
   </action>
-  <action name="actionUndo" >
-   <property name="icon" >
-    <iconset resource="lpyresources.qrc" >
+  <action name="actionUndo">
+   <property name="icon">
+    <iconset resource="lpyresources.qrc">
      <normaloff>:/images/icons/editundo.png</normaloff>:/images/icons/editundo.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Undo</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+Z</string>
    </property>
   </action>
-  <action name="actionRedo" >
-   <property name="icon" >
-    <iconset resource="lpyresources.qrc" >
+  <action name="actionRedo">
+   <property name="icon">
+    <iconset resource="lpyresources.qrc">
      <normaloff>:/images/icons/editredo.png</normaloff>:/images/icons/editredo.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Redo</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+Y</string>
    </property>
   </action>
-  <action name="actionCopy" >
-   <property name="icon" >
-    <iconset resource="lpyresources.qrc" >
+  <action name="actionCopy">
+   <property name="icon">
+    <iconset resource="lpyresources.qrc">
      <normaloff>:/images/icons/editcopy.png</normaloff>:/images/icons/editcopy.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Copy</string>
    </property>
   </action>
-  <action name="actionCut" >
-   <property name="icon" >
-    <iconset resource="lpyresources.qrc" >
+  <action name="actionCut">
+   <property name="icon">
+    <iconset resource="lpyresources.qrc">
      <normaloff>:/images/icons/editcut.png</normaloff>:/images/icons/editcut.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Cut</string>
    </property>
   </action>
-  <action name="actionPaste" >
-   <property name="icon" >
-    <iconset resource="lpyresources.qrc" >
+  <action name="actionPaste">
+   <property name="icon">
+    <iconset resource="lpyresources.qrc">
      <normaloff>:/images/icons/editpaste.png</normaloff>:/images/icons/editpaste.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Paste</string>
    </property>
   </action>
-  <action name="actionSelect_All" >
-   <property name="text" >
+  <action name="actionSelect_All">
+   <property name="text">
     <string>Select All</string>
    </property>
   </action>
-  <action name="actionFind" >
-   <property name="icon" >
-    <iconset resource="lpyresources.qrc" >
+  <action name="actionFind">
+   <property name="icon">
+    <iconset resource="lpyresources.qrc">
      <normaloff>:/images/icons/editfind.png</normaloff>:/images/icons/editfind.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Find</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+F</string>
    </property>
   </action>
-  <action name="actionPythonShell" >
-   <property name="text" >
+  <action name="actionPythonShell">
+   <property name="text">
     <string>Python Shell</string>
    </property>
   </action>
-  <action name="actionClear" >
-   <property name="text" >
+  <action name="actionClear">
+   <property name="text">
     <string>Clear</string>
    </property>
   </action>
-  <action name="actionUseThread" >
-   <property name="checkable" >
+  <action name="actionUseThread">
+   <property name="checkable">
     <bool>true</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Use Thread</string>
    </property>
   </action>
-  <action name="actionFitAnimationView" >
-   <property name="checkable" >
+  <action name="actionFitAnimationView">
+   <property name="checkable">
     <bool>true</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Fit Animate View</string>
    </property>
   </action>
-  <action name="actionClose" >
-   <property name="icon" >
-    <iconset resource="lpyresources.qrc" >
+  <action name="actionClose">
+   <property name="icon">
+    <iconset resource="lpyresources.qrc">
      <normaloff>:/images/icons/fileclose.png</normaloff>:/images/icons/fileclose.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Close</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+W</string>
    </property>
   </action>
-  <action name="actionAbout" >
-   <property name="text" >
+  <action name="actionAbout">
+   <property name="text">
     <string>About</string>
    </property>
   </action>
-  <action name="actionAboutQt" >
-   <property name="text" >
+  <action name="actionAboutQt">
+   <property name="text">
     <string>About Qt</string>
    </property>
   </action>
-  <action name="actionAboutVPlants" >
-   <property name="text" >
+  <action name="actionAboutVPlants">
+   <property name="text">
     <string>About V. Plants</string>
    </property>
   </action>
-  <action name="actionClearShell" >
-   <property name="text" >
+  <action name="actionClearShell">
+   <property name="text">
     <string>Clear Shell</string>
    </property>
   </action>
-  <action name="actionSyntax" >
-   <property name="checkable" >
+  <action name="actionSyntax">
+   <property name="checkable">
     <bool>true</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Syntax Hightlight</string>
    </property>
   </action>
-  <action name="actionComment" >
-   <property name="icon" >
-    <iconset resource="lpyresources.qrc" >
+  <action name="actionComment">
+   <property name="icon">
+    <iconset resource="lpyresources.qrc">
      <normaloff>:/images/icons/next-green.png</normaloff>:/images/icons/next-green.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Comment Block</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+Q</string>
    </property>
   </action>
-  <action name="actionUncomment" >
-   <property name="icon" >
-    <iconset resource="lpyresources.qrc" >
+  <action name="actionUncomment">
+   <property name="icon">
+    <iconset resource="lpyresources.qrc">
      <normaloff>:/images/icons/prev-green.png</normaloff>:/images/icons/prev-green.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Uncomment Block</string>
    </property>
   </action>
-  <action name="actionInsertTab" >
-   <property name="icon" >
-    <iconset resource="lpyresources.qrc" >
+  <action name="actionInsertTab">
+   <property name="icon">
+    <iconset resource="lpyresources.qrc">
      <normaloff>:/images/icons/next.png</normaloff>:/images/icons/next.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Insert Tab</string>
    </property>
   </action>
-  <action name="actionRemoveTab" >
-   <property name="icon" >
-    <iconset resource="lpyresources.qrc" >
+  <action name="actionRemoveTab">
+   <property name="icon">
+    <iconset resource="lpyresources.qrc">
      <normaloff>:/images/icons/prev.png</normaloff>:/images/icons/prev.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Remove Tab</string>
    </property>
   </action>
-  <action name="actionReplace" >
-   <property name="text" >
+  <action name="actionReplace">
+   <property name="text">
     <string>Replace</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+H</string>
    </property>
   </action>
-  <action name="actionParseDebug" >
-   <property name="checkable" >
+  <action name="actionParseDebug">
+   <property name="checkable">
     <bool>true</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Parse Debug</string>
    </property>
   </action>
-  <action name="actionStop" >
-   <property name="icon" >
-    <iconset resource="lpyresources.qrc" >
+  <action name="actionStop">
+   <property name="icon">
+    <iconset resource="lpyresources.qrc">
      <normaloff>:/images/icons/pause.png</normaloff>:/images/icons/pause.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Stop</string>
    </property>
   </action>
-  <action name="actionZoomIn" >
-   <property name="icon" >
-    <iconset resource="lpyresources.qrc" >
+  <action name="actionZoomIn">
+   <property name="icon">
+    <iconset resource="lpyresources.qrc">
      <normaloff>:/images/icons/zoomin.png</normaloff>:/images/icons/zoomin.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Zoom In</string>
    </property>
   </action>
-  <action name="actionZoomOut" >
-   <property name="icon" >
-    <iconset resource="lpyresources.qrc" >
+  <action name="actionZoomOut">
+   <property name="icon">
+    <iconset resource="lpyresources.qrc">
      <normaloff>:/images/icons/zoomout.png</normaloff>:/images/icons/zoomout.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Zoom Out</string>
    </property>
   </action>
-  <action name="actionNoZoom" >
-   <property name="icon" >
-    <iconset resource="lpyresources.qrc" >
+  <action name="actionNoZoom">
+   <property name="icon">
+    <iconset resource="lpyresources.qrc">
      <normaloff>:/images/icons/resetzoom.png</normaloff>:/images/icons/resetzoom.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Zoom 1:1</string>
    </property>
   </action>
-  <action name="actionPreferences" >
-   <property name="text" >
+  <action name="actionPreferences">
+   <property name="text">
     <string>Preferences...</string>
    </property>
   </action>
-  <action name="actionTabHightlight" >
-   <property name="checkable" >
+  <action name="actionTabHightlight">
+   <property name="checkable">
     <bool>true</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Tab Hightlight</string>
    </property>
   </action>
-  <action name="actionSaveAll" >
-   <property name="icon" >
-    <iconset resource="lpyresources.qrc" >
+  <action name="actionSaveAll">
+   <property name="icon">
+    <iconset resource="lpyresources.qrc">
      <normaloff>:/images/icons/filesaveall.png</normaloff>:/images/icons/filesaveall.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Save All</string>
    </property>
   </action>
-  <action name="actionGoto" >
-   <property name="text" >
+  <action name="actionGoto">
+   <property name="text">
     <string>Go to line ...</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+G</string>
    </property>
   </action>
-  <action name="actionDebug" >
-   <property name="icon" >
-    <iconset resource="lpyresources.qrc" >
+  <action name="actionDebug">
+   <property name="icon">
+    <iconset resource="lpyresources.qrc">
      <normaloff>:/images/icons/play-green.png</normaloff>:/images/icons/play-green.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Debug</string>
    </property>
   </action>
-  <action name="actionIterateTo" >
-   <property name="icon" >
-    <iconset resource="lpyresources.qrc" >
+  <action name="actionIterateTo">
+   <property name="icon">
+    <iconset resource="lpyresources.qrc">
      <normaloff>:/images/icons/run.png</normaloff>:/images/icons/run.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Iterate n times</string>
    </property>
   </action>
-  <action name="actionNextIterate" >
-   <property name="icon" >
-    <iconset resource="lpyresources.qrc" >
+  <action name="actionNextIterate">
+   <property name="icon">
+    <iconset resource="lpyresources.qrc">
      <normaloff>:/images/icons/run.png</normaloff>:/images/icons/run.png</iconset>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Next n iterations</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+D</string>
    </property>
   </action>
-  <action name="actionAutoRun" >
-   <property name="checkable" >
+  <action name="actionAutoRun">
+   <property name="checkable">
     <bool>true</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Auto-Run</string>
    </property>
   </action>
@@ -1603,7 +1513,7 @@
   <customwidget>
    <class>ScalarEditor</class>
    <extends>QTreeView</extends>
-   <header location="global" >scalareditor.h</header>
+   <header location="global">scalareditor.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
@@ -1621,7 +1531,7 @@
   <tabstop>animtimestep</tabstop>
  </tabstops>
  <resources>
-  <include location="lpyresources.qrc" />
+  <include location="lpyresources.qrc"/>
  </resources>
  <connections>
   <connection>
@@ -1630,11 +1540,11 @@
    <receiver>MainWindow</receiver>
    <slot>close()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>239</x>
      <y>268</y>
     </hint>
@@ -1646,11 +1556,11 @@
    <receiver>frameFind</receiver>
    <slot>show()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>229</x>
      <y>445</y>
     </hint>
@@ -1662,11 +1572,11 @@
    <receiver>codeeditor</receiver>
    <slot>paste()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>179</x>
      <y>257</y>
     </hint>
@@ -1678,11 +1588,11 @@
    <receiver>codeeditor</receiver>
    <slot>selectAll()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>179</x>
      <y>242</y>
     </hint>
@@ -1694,11 +1604,11 @@
    <receiver>frameReplace</receiver>
    <slot>hide()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>30</x>
      <y>431</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>229</x>
      <y>489</y>
     </hint>
@@ -1710,11 +1620,11 @@
    <receiver>frameReplace</receiver>
    <slot>hide()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>229</x>
      <y>489</y>
     </hint>
@@ -1726,11 +1636,11 @@
    <receiver>frameReplace</receiver>
    <slot>show()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>229</x>
      <y>489</y>
     </hint>
@@ -1742,11 +1652,11 @@
    <receiver>findEdit</receiver>
    <slot>setFocus()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>132</x>
      <y>431</y>
     </hint>
@@ -1758,11 +1668,11 @@
    <receiver>findEdit</receiver>
    <slot>selectAll()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>134</x>
      <y>488</y>
     </hint>
@@ -1774,11 +1684,11 @@
    <receiver>findEdit</receiver>
    <slot>setFocus()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>107</x>
      <y>488</y>
     </hint>
@@ -1790,11 +1700,11 @@
    <receiver>actionRedo</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>179</x>
      <y>257</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
@@ -1806,11 +1716,11 @@
    <receiver>frameFind</receiver>
    <slot>hide()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>30</x>
      <y>440</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>179</x>
      <y>441</y>
     </hint>
@@ -1822,11 +1732,11 @@
    <receiver>codeeditor</receiver>
    <slot>cut()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>179</x>
      <y>257</y>
     </hint>
@@ -1838,11 +1748,11 @@
    <receiver>codeeditor</receiver>
    <slot>undo()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>179</x>
      <y>257</y>
     </hint>
@@ -1854,11 +1764,11 @@
    <receiver>codeeditor</receiver>
    <slot>copy()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>179</x>
      <y>257</y>
     </hint>
@@ -1870,11 +1780,11 @@
    <receiver>frameFind</receiver>
    <slot>show()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>179</x>
      <y>433</y>
     </hint>
@@ -1886,11 +1796,11 @@
    <receiver>codeeditor</receiver>
    <slot>redo()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>179</x>
      <y>257</y>
     </hint>
@@ -1902,11 +1812,11 @@
    <receiver>actionUndo</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>179</x>
      <y>257</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
@@ -1918,11 +1828,11 @@
    <receiver>frameGoto</receiver>
    <slot>hide()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>491</x>
      <y>339</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>614</x>
      <y>340</y>
     </hint>
@@ -1934,11 +1844,11 @@
    <receiver>frameGoto</receiver>
    <slot>show()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>614</x>
      <y>340</y>
     </hint>
@@ -1950,11 +1860,11 @@
    <receiver>frameGoto</receiver>
    <slot>hide()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>682</x>
      <y>339</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>614</x>
      <y>340</y>
     </hint>
@@ -1966,11 +1876,11 @@
    <receiver>gotoEdit</receiver>
    <slot>setFocus()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>682</x>
      <y>339</y>
     </hint>
@@ -1982,11 +1892,11 @@
    <receiver>frameFind</receiver>
    <slot>hide()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>614</x>
      <y>380</y>
     </hint>
@@ -1998,11 +1908,11 @@
    <receiver>frameReplace</receiver>
    <slot>hide()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>614</x>
      <y>421</y>
     </hint>
@@ -2014,11 +1924,11 @@
    <receiver>frameGoto</receiver>
    <slot>hide()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>614</x>
      <y>340</y>
     </hint>
@@ -2030,11 +1940,11 @@
    <receiver>frameGoto</receiver>
    <slot>hide()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>614</x>
      <y>340</y>
     </hint>

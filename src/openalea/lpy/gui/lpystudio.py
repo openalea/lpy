@@ -102,6 +102,11 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.debugger = LpyVisualDebugger(self)
         self.functionpanel.setCurveNameEditor(self.funcNameEdit)
         self.curvepanel.setCurveNameEditor(self.curveNameEdit)
+        st = self.statusBar()
+        self.materialed.statusBar = st
+        self.functionpanel.setStatusBar(st)
+        self.curvepanel.setStatusBar(st)
+        
         self.newfile()
         self.textEditionWatch = False
         self.documentNames.setDrawBase(False)
@@ -158,7 +163,6 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         QObject.connect(self.actionAboutQt, SIGNAL('triggered(bool)'),QApplication.aboutQt)
         self.aboutVPlants = lambda x : doc.aboutVPlants(self)
         QObject.connect(self.actionAboutVPlants, SIGNAL('triggered(bool)'),self.aboutVPlants)
-        self.materialed.statusBar = self.statusBar()
         self.helpDisplay.setText(doc.getSpecification())
         QObject.connect(self.actionUseThread,SIGNAL('triggered()'),self.toggleUseThread)
         QObject.connect(self.actionFitAnimationView,SIGNAL('triggered()'),self.toggleFitAnimationView)

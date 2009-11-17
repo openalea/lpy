@@ -1,4 +1,5 @@
 print length
+print mybool
 
 initial_view = 5
 
@@ -16,7 +17,7 @@ endlsystem
 ###### INITIALISATION ######
 
 def __initialiseContext__(context):
-	scalars = [('radius', 6, 0, 99), ('length', 99, 0, 99)]
+	scalars = [('radius', 59, 0, 99), ('length', 29, 0, 99), ('mybool', False, False, True)]
 	context["__scalars__"] = scalars
 	for n,v,mnv,mxv in scalars:
 		context[n] = v
