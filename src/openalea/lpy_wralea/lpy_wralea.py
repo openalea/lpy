@@ -1,5 +1,5 @@
 from openalea.core import *
-from lpy_nodes import WithLpyGui
+#from lpy_nodes import WithLpyGui
 
 __name__ = "vplants.l-py"
 __version__ = '0.0.1'
@@ -11,16 +11,14 @@ __url__ = 'http://openalea.gforge.inria.fr'
 
 __all__ = []
 
-if WithLpyGui :
-    widgetclass = "LPyWidget"
-else:
-    widgetclass = None
+widgetclass = "LSysWidget"
     
 lsystem_node = Factory( name="LSystem", 
                    description="Build a LSystem object", 
                    category="scene.lsystem", 
                    nodemodule="lpy_nodes",
                    nodeclass="lsystem",
+                   nodemodule="lpy_nodes",
                    widgetclass = widgetclass,
 
                   inputs=(dict(name='Code', interface=ITextStr, value=''),

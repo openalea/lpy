@@ -43,6 +43,10 @@ build_prefix= "build-scons"
 from setuptools import setup
 from openalea.deploy.binary_deps import binary_deps
 
+install_requires = [binary_deps('vplants.plantgl')],
+if 'linux' not in sys.platform:
+    install_requires.append('PyOpenGL')
+    install_requires.append('pyqglviewer')
 
 setup(
     name="VPlants.Lpy",
@@ -90,7 +94,7 @@ setup(
     # Dependencies
     setup_requires = ['openalea.deploy'],
     dependency_links = ['http://openalea.gforge.inria.fr/pi'],
-    install_requires = ['PyOpenGL', 'pyqglviewer', binary_deps('vplants.plantgl')],
+    install_requires = install_requires,
 
     pylint_packages = ['src/openalea/lpy/gui']
     )

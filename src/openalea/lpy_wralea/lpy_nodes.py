@@ -108,4 +108,5 @@ try:
 except:
     print "Import lpy.gui has failed"
     WithLpyGui = False
+    LSysWidget = None
 
