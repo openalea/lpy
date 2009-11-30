@@ -382,7 +382,11 @@ Lsystem::read(const std::string& filename){
   std::ifstream file(filename.c_str());
   if(file){
     setFilename(filename);
-	std::string content;
+
+/* This part raise seg fault while trying to read certain lpy files.
+ * It is replaced by the usage of file.rdbuf here below. TC. nov 2009
+ *
+ * std::string content;
 #define bufsize 100000
 	char text[bufsize+1];
 	text[bufsize] = '\0';
@@ -391,6 +395,14 @@ Lsystem::read(const std::string& filename){
 	  content += std::string(text);
 	}
 	set(content);
+*/
+
+  std::stringstream buffer; 
+  buffer << file.rdbuf();
+  file.close();
+  //std::cout << "buffer : " << buffer.str() << '\n';
+  //std::cout << "Taille du buffer : " << buffer.str().size() << '\n';
+  set(buffer.str());
   }
   else {
 	LsysError('\''+filename+"': No such file or directory.");
