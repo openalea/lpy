@@ -134,9 +134,7 @@ __max_derivation(1),
 __decomposition_max_depth(1),
 __homomorphism_max_depth(1),
 __currentGroup(0),
-__context(),
-__early_return(false),
-__early_return_mutex()
+__context()
 #ifdef MULTI_THREADED_LSYSTEM
 ,__ressource(new LsysRessource())
 #endif
@@ -151,9 +149,7 @@ Lsystem::Lsystem(const std::string& filename):
 __max_derivation(1),
 __decomposition_max_depth(1),
 __homomorphism_max_depth(1),
-__context(),
-__early_return(false),
-__early_return_mutex()
+__context()
 #ifdef MULTI_THREADED_LSYSTEM
 ,__ressource(new LsysRessource())
 #endif
@@ -168,9 +164,7 @@ __rules(lsys.__rules),
 __max_derivation(lsys.__max_derivation),
 __decomposition_max_depth(lsys.__decomposition_max_depth),
 __homomorphism_max_depth(lsys.__homomorphism_max_depth),
-__context(lsys.__context),
-__early_return(false),
-__early_return_mutex()
+__context(lsys.__context)
 #ifdef MULTI_THREADED_LSYSTEM
 ,__ressource(new LsysRessource())
 #endif
@@ -228,7 +222,6 @@ Lsystem::__clear(){
   __decomposition_max_depth = 1;
   __homomorphism_max_depth = 1;
   __context.clear();
-  __early_return = false;
 }
 
 
@@ -390,11 +383,12 @@ Lsystem::read(const std::string& filename){
   if(file){
     setFilename(filename);
 	std::string content;
-	char text[1001];
-	text[1000] = '\0';
+#define bufsize 100000
+	char text[bufsize+1];
+	text[bufsize] = '\0';
 	while(!file.eof()){
-	  file.getline(text,1000);
-	  content += std::string(text)+"\n";
+		file.read(text,bufsize);
+	  content += std::string(text);
 	}
 	set(content);
   }
@@ -1113,6 +1107,7 @@ Lsystem::animate(const AxialTree& workstring,double dt,size_t beg,size_t nb_iter
     enableEarlyReturn(false);
     AxialTree tree = workstring;
     __context.set_animation_timestep(dt);
+	__context.setAnimationEnabled(true);
     Sequencer timer(dt);
     timer.touch();
     __plot(tree);
@@ -1127,6 +1122,7 @@ Lsystem::animate(const AxialTree& workstring,double dt,size_t beg,size_t nb_iter
         if(isEarlyReturnEnabled()) break;
 	  }
 	}
+	__context.setAnimationEnabled(false);
     enableEarlyReturn(false);
     return tree;
     RELEASE_RESSOURCE
@@ -1168,14 +1164,12 @@ Lsystem::record(const std::string& prefix,
 
 void Lsystem::enableEarlyReturn(bool val) 
 { 
-    QWriteLocker ml(&__early_return_mutex);
-    __early_return = val; 
+	__context.enableEarlyReturn(val);
 }
 
 bool Lsystem::isEarlyReturnEnabled() 
 { 
-    QReadLocker ml(&__early_return_mutex);
-    return __early_return; 
+	return __context.isEarlyReturnEnabled();
 }
 
 

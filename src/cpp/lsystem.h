@@ -375,9 +375,6 @@ private:
   LsysRessource * __ressource;
 #endif
 
-  // For multithreaded appli, allow to set an early_return
-  bool __early_return;
-  QReadWriteLock __early_return_mutex;
 };
 
 /*---------------------------------------------------------------------------*/

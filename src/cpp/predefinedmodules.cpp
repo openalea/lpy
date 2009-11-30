@@ -363,6 +363,19 @@ DeclareModuleBegin(setcontour,"Set Cross Section of Generalized Cylinder. Params
 	}
 }
 DeclareModuleEnd
+
+DeclareModuleBegin(sectionResolution,"Set Resolution of Section of Cylinder. Params : int.",ePrimitive)
+{
+	size_t nbargs = m.size();
+	switch (nbargs) {
+		case 0: LsysWarning("missing argument to SectionResolution"); break;
+		default:
+			t.setSectionResolution(m._getInt(0)); 
+			break;
+	}
+}
+DeclareModuleEnd
+
 /*---------------------------------------------------------------------------*/
 
 std::vector<ModuleClassPtr> * ModuleClass::PredefinedClasses = NULL;
@@ -434,6 +447,7 @@ void ModuleClass::createPredefinedClasses() {
 	Elasticity = new DeclaredModule(elasticity)("@Ts","Elasticity");
 	Tropism = new DeclaredModule(tropism)("@Tp","Tropism");
 	SetContour = new DeclaredModule(setcontour)("SetContour");
+	SectionResolution = new DeclaredModule(sectionResolution)("SectionResolution");
 	GetIterator = new PredefinedModuleClass("?I","GetIterator","Request an iterator over the current Lstring.",PredefinedModuleClass::ePatternMatching);
 	GetModule = new PredefinedModuleClass("$","GetModule","Request a module of the current Lstring.",PredefinedModuleClass::ePatternMatching);
 	New = new PredefinedModuleClass("new","newmodule","Create a new module whose name is given by first argument.",PredefinedModuleClass::eStringManipulation);

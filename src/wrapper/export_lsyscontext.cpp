@@ -157,6 +157,7 @@ void export_LsysContext(){
     .def("isSelectionRequired", &LsysContext::isSelectionRequired)
     .def("setSelectionRequired", &LsysContext::setSelectionRequired)
     .def("getIterationNb", &LsysContext::getIterationNb)
+    .def("isAnimationEnabled",  &LsysContext::isAnimationEnabled)
 	;
 
 	def("consider",      &consider);
@@ -176,9 +177,11 @@ void export_LsysContext(){
     def("isSelectionRequired", &isSelectionRequired);
     def("setSelectionRequired", &setSelectionRequired);
     def("getIterationNb", &getIterationNb);
+    def("isAnimationEnabled",  &isAnimationEnabled);
 	def("declare", &declare);
 	def("undeclare", &undeclare);
 	def("isDeclared", &isDeclared);
+	def("Stop", &Stop);
 
 	def("__setCythonAvailable",&Compilation::setCythonAvailable);
 	def("__setPythonExec",&Compilation::setPythonExec);

@@ -100,6 +100,7 @@ typedef std::vector<ModuleClassPtr> ModuleClassList;
 	MACRO(Elasticity) \
 	MACRO(Tropism) \
 	MACRO(SetContour) \
+	MACRO(SectionResolution) \
 	MACRO(GetIterator) \
 	MACRO(GetModule) \
 	MACRO(New) \

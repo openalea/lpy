@@ -33,14 +33,16 @@ Here comes the python commands that control the simulation.
 
 <H3>Python commands that control the rule application:</H3>
 <table>
+<tr><td><b>Stop()     </b></td><td> Stop simlation at the end of this iteration.</td></tr>
 <tr><td><b>forward()     </b></td><td> Next iteration will be done in forward direction.</td></tr>
 <tr><td><b>backward()    </b></td><td> Next iteration will be done in backward direction.</td></tr>
 <tr><td><b>isForward()   </b></td><td> Test whether direction is forward.</td></tr>
 <tr><td><b>getIterationNb() </b></td><td> Return the id of the current iteration.</td></tr>
-<tr><td><b>useGroup(int)    </b></td><td> Next iteration will use rules of given group and default 0 group.</td></tr>
+<tr><td><b>useGroup(int)    </b></td><td> Next iteration will use rules of given group and default group 0.</td></tr>
 <tr><td><b>getGroup()       </b></td><td> Gives which group will be used.</td></tr>
 <tr><td><b>frameDisplay(bool)</b></td><td> Set whether a frame will be displayed at the end of the iteration. default is True</td></tr>
 <tr><td><b>frameDisplayed() </b></td><td> Tell whether a frame will be displayed at the end of the iteration.</td></tr>
+<tr><td><b>isAnimationEnabled() </b></td><td> Return the current simulation is in an animation.</td></tr>
 </table>
 
 <H3>Lpy specific declaration: </H3>

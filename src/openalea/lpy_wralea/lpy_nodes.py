@@ -48,7 +48,7 @@ def run(lsystem, axiom = '', nbstep = -1, parameters = {}):
     elif type(axiom) == str:
         axiom = AxialTree(axiom)
     if len(parameters) > 0:
-        l.context().updateNamespace(parameters)
+        lsystem.context().updateNamespace(parameters)
     return (lsystem.iterate(c_iter,nbstep,axiom),)
 
 def plot(axiom = '', lsystem = None):

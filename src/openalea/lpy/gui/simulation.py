@@ -288,7 +288,7 @@ class LpySimulation:
                     (not currentlist[i].isSimilar(defaultlist[i])) or 
                     (currentlist[i].name != defaultlist[i].name)):
                     if firstcol :
-                        init_txt += "\tfrom openalea.plantgl.scenegraph import Material,Color3\n"
+                        init_txt += "\tfrom openalea.plantgl.scenegraph import Material,ImageTexture,Color3\n"
                         firstcol = False
                     init_txt += '\tcontext.turtle.setMaterial('+repr(i)+','+str(currentlist[i])+')\n'
             if not self.lsystem.context().is_animation_timestep_to_default():

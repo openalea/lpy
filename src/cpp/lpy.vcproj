@@ -60,7 +60,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="boost_python-vc90-mt-1_39.lib pgltool-d.lib pglmath-d.lib pglsg-d.lib pglalgo-d.lib pglgui-d.lib"
+				AdditionalDependencies="boost_python-vc90-mt-1_41.lib pgltool-d.lib pglmath-d.lib pglsg-d.lib pglalgo-d.lib pglgui-d.lib"
 				OutputFile="../../bin/lpy-d.dll"
 				AdditionalLibraryDirectories="C:\Python26\libs;$(BOOSTDIR)\lib;&quot;..\..\..\PlantGL\lib&quot;;$(QTDIR)\lib"
 				IgnoreDefaultLibraryNames=""
@@ -119,7 +119,9 @@
 				Name="VCCLCompilerTool"
 				Optimization="3"
 				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
+				EnableFiberSafeOptimizations="true"
 				AdditionalIncludeDirectories="$(BOOSTDIR);C:\Python26\include;&quot;..\..\..\PlantGL\src\cpp&quot;;$(QTDIR)\include"
 				PreprocessorDefinitions="LPY_MAKEDLL"
 				RuntimeLibrary="2"
@@ -141,12 +143,13 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="boost_python-vc90-mt-1_39.lib pgltool.lib pglmath.lib pglsg.lib pglalgo.lib pglgui.lib QtCore4.lib"
+				AdditionalDependencies="boost_python-vc90-mt-1_41.lib pgltool.lib pglmath.lib pglsg.lib pglalgo.lib pglgui.lib QtCore4.lib"
 				OutputFile="../../bin/lpy.dll"
 				AdditionalLibraryDirectories="C:\Python26\libs;$(BOOSTDIR)\lib;&quot;..\..\..\PlantGL\lib&quot;;$(QTDIR)\lib"
 				GenerateDebugInformation="false"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				OptimizeForWindows98="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				ImportLibrary="$(TargetDir)/../lib/$(TargetName).lib"

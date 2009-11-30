@@ -214,9 +214,12 @@ __warn_with_sharp_module(true),
 return_if_no_matching(true),
 optimizationLevel(DEFAULT_OPTIMIZATION_LEVEL),
 __animation_step(DefaultAnimationTimeStep),
+__animation_enabled(false),
 __iteration_nb(0),
 __nbargs_of_endeach(0),
 __nbargs_of_end(0),
+__early_return(false),
+__early_return_mutex(),
 __paramproductions()
 {
 	IncTracker(LsysContext)
@@ -234,9 +237,12 @@ LsysContext::LsysContext(const LsysContext& lsys):
   return_if_no_matching(lsys.return_if_no_matching),
   optimizationLevel(lsys.optimizationLevel),
   __animation_step(lsys.__animation_step),
+  __animation_enabled(lsys.__animation_enabled),
   __iteration_nb(0),
   __nbargs_of_endeach(0),
   __nbargs_of_end(0),
+  __early_return(false),
+  __early_return_mutex(),
   __paramproductions()
 {
 	IncTracker(LsysContext)
@@ -256,8 +262,10 @@ LsysContext::operator=(const LsysContext& lsys)
   return_if_no_matching = lsys.return_if_no_matching;
   optimizationLevel = lsys.optimizationLevel;
   __animation_step =lsys.__animation_step;
+  __animation_enabled =lsys.__animation_enabled;
   __nbargs_of_endeach =lsys.__nbargs_of_endeach;
   __nbargs_of_end =lsys.__nbargs_of_end;
+  __early_return = false;
   __paramproductions = lsys.__paramproductions;
   return *this;
 }
@@ -331,12 +339,14 @@ LsysContext::clear(){
   __group = 0;
   __selection_required = false;
   __iteration_nb = 0;
+  __animation_enabled = false;
   __nbargs_of_endeach = 0;
   __nbargs_of_end = 0;
   __modules.clear();
   __modulesvtables.clear();
   __aliases.clear();
   __paramproductions.clear();
+  __early_return = false;
   clearNamespace();
 }
 
@@ -814,6 +824,20 @@ LsysContext::setWarnWithSharpModule(bool enabled)
 		__warn_with_sharp_module = enabled; 
 		options.setSelection("Warning with sharp module",(size_t)__warn_with_sharp_module);
 	}
+}
+
+/*---------------------------------------------------------------------------*/
+
+void LsysContext::enableEarlyReturn(bool val) 
+{ 
+    QWriteLocker ml(&__early_return_mutex);
+    __early_return = val; 
+}
+
+bool LsysContext::isEarlyReturnEnabled() 
+{ 
+    QReadLocker ml(&__early_return_mutex);
+    return __early_return; 
 }
 
 /*---------------------------------------------------------------------------*/

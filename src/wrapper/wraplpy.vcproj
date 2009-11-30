@@ -60,7 +60,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="boost_python-vc90-mt-1_39.lib pgltool-d.lib pglalgo-d.lib pglgui-d.lib"
+				AdditionalDependencies="boost_python-vc90-mt-1_41.lib pgltool-d.lib pglalgo-d.lib pglgui-d.lib"
 				OutputFile="../openalea/lpy_d/__lpy_kernel__.pyd"
 				AdditionalLibraryDirectories="C:\Python26\libs;&quot;..\..\..\PlantGL\lib&quot;;$(BOOSTDIR)\lib"
 				IgnoreDefaultLibraryNames=""
@@ -118,7 +118,9 @@
 				Name="VCCLCompilerTool"
 				Optimization="3"
 				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
+				EnableFiberSafeOptimizations="true"
 				AdditionalIncludeDirectories="../cpp;$(BOOSTDIR);C:\Python26\include;&quot;..\..\..\PlantGL\src\cpp&quot;;$(QTDIR)\include"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -138,12 +140,13 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="boost_python-vc90-mt-1_39.lib pgltool.lib pglsg.lib pglalgo.lib pglgui.lib"
+				AdditionalDependencies="boost_python-vc90-mt-1_41.lib pgltool.lib pglsg.lib pglalgo.lib pglgui.lib"
 				OutputFile="../openalea/lpy/__lpy_kernel__.pyd"
 				AdditionalLibraryDirectories="C:\Python26\libs;$(BOOSTDIR)\lib;&quot;..\..\..\PlantGL\lib&quot;"
 				GenerateDebugInformation="false"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				OptimizeForWindows98="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="1"

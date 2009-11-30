@@ -695,7 +695,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
 			  }
 			  lineno = newlineno;
 		  }
-		  else { ++lineno; ++_it; }
+		  else { code += *_it; ++lineno; ++_it; }
           // std::cerr << lineno << ':' << std::distance<std::string::const_iterator>(rules.begin(),_it)  << std::endl;
           break;
 		default:
@@ -1185,7 +1185,7 @@ LpyParsing::parselstring( std::string::const_iterator& beg,
 		LsysSyntaxError("Found module named  '('","",lineno);
 	else if(*_it == ')')
 		LsysSyntaxError("Found module named  ')'","",lineno);
-	else if(*_it == ' ' || *_it == '\t'){
+	else if(*_it == ' ' || *_it == '\t' || *_it == '\n'){
       // skip space and tabulation in the string
 	  _it++;
     }

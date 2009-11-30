@@ -193,6 +193,9 @@ public:
   void set_animation_timestep(double value);
   bool is_animation_timestep_to_default();
 
+  inline bool isAnimationEnabled() const { return __animation_enabled; }
+  inline void setAnimationEnabled(bool enabled) { __animation_enabled = enabled; }
+
   /** Specify if the selection check is required */
   bool isSelectionRequired() const;
   void setSelectionRequired(bool enabled);
@@ -231,6 +234,12 @@ public:
   static const int DEFAULT_OPTIMIZATION_LEVEL;
   int optimizationLevel;
   inline void setOptimizationLevel(int level) { optimizationLevel = level; }
+
+  /** early return */
+  void enableEarlyReturn(bool val) ;
+  bool isEarlyReturnEnabled() ;
+  inline void stop() { enableEarlyReturn(false); }
+
   
   /** Iteration number property. Only set by Lsystem. Access by all other. */
 public:
@@ -291,6 +300,8 @@ protected:
   /// animation step property and its mutex
   double __animation_step;
   QReadWriteLock __animation_step_mutex;
+  /// animation property
+  bool __animation_enabled;
 
   /// iteration nb property and its mutex
   size_t __iteration_nb;
@@ -302,6 +313,9 @@ protected:
   // list of parametric production
   ParametricProductionList __paramproductions;
 
+  // For multithreaded appli, allow to set an early_return
+  bool __early_return;
+  QReadWriteLock __early_return_mutex;
 };
 
 /*---------------------------------------------------------------------------*/
@@ -413,6 +427,11 @@ inline void LPY_API undeclare(const std::string& modules)
 inline void LPY_API isDeclared(const std::string& module)
 { LsysContext::currentContext()->isDeclared(module); }
 
+inline bool LPY_API isAnimationEnabled()
+{ return LsysContext::currentContext()->isAnimationEnabled(); }
+
+inline void LPY_API Stop()
+{ return LsysContext::currentContext()->stop(); }
 
 /*---------------------------------------------------------------------------*/
 
