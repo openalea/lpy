@@ -238,7 +238,7 @@ public:
   /** early return */
   void enableEarlyReturn(bool val) ;
   bool isEarlyReturnEnabled() ;
-  inline void stop() { enableEarlyReturn(false); }
+  inline void stop() { enableEarlyReturn(true); }
 
   
   /** Iteration number property. Only set by Lsystem. Access by all other. */

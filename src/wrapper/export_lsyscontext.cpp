@@ -148,6 +148,7 @@ void export_LsysContext(){
 	.def("backward",      &LsysContext::backward)
 	.def("forward",      &LsysContext::forward)
 	.def("isForward",      &LsysContext::isForward)
+	.def("stop",      &LsysContext::stop)
 	.def("nproduce",  (void (LsysContext::*)(const AxialTree&) )&LsysContext::nproduce)
     .def("nproduce",  (void (LsysContext::*)(const boost::python::list&) )&LsysContext::nproduce)
 	.def("useGroup",  &LsysContext::useGroup)

@@ -951,51 +951,51 @@ Lsystem::__iterate( size_t starting_iter ,
       RulePtrMap decomposition;
       bool decompositionHasQuery;
 	  size_t i = 0;
+      if(isEarlyReturnEnabled()) return workstring;
 	  for(; (matching||no_match_no_return) && i < nb_iter; ++i){
-        if(isEarlyReturnEnabled()) break;
-        if (__context.isSelectionRequired()){
-            std::vector<uint_t> sel = getSelection();
-            if (!sel.empty()) {
-                uint_t added = 0;
-                size_t wstrsize = workstring.size();
-                std::sort(sel.begin(),sel.end());
-                for(std::vector<uint_t>::const_iterator it = sel.begin(); it != sel.end(); ++it)
-                {
-                    if(*it < wstrsize){
-                        workstring.insertAt(*it+added,ParamModule("X"));
-                        added+=1;
-                    }
-                }
+		  if (__context.isSelectionRequired()){
+			  std::vector<uint_t> sel = getSelection();
+			  if (!sel.empty()) {
+				  uint_t added = 0;
+				  size_t wstrsize = workstring.size();
+				  std::sort(sel.begin(),sel.end());
+				  for(std::vector<uint_t>::const_iterator it = sel.begin(); it != sel.end(); ++it)
+				  {
+					  if(*it < wstrsize){
+						  workstring.insertAt(*it+added,ParamModule("X"));
+						  added+=1;
+					  }
+				  }
 
-            }
-        }
-		__context.frameDisplay(true);
-		__context.setIterationNb(starting_iter+i);
-		__context.startEach();
-        eDirection dir = getDirection();
-        size_t group = __context.getGroup();
-        if (group > __rules.size()) LsysError("Group not valid.");
-        if (i == 0 || dir != ndir || group != __currentGroup){
-            ndir = dir;
-            __currentGroup = group;
-            production = __getRules(eProduction,group,ndir,&productionHasQuery);
-            decomposition = __getRules(eDecomposition,group,ndir,&decompositionHasQuery);
-        }
-        if (!production.empty()){
-            if(!hasDebugger())
-				workstring = __step(workstring,production,previouslyinterpreted?false:productionHasQuery,matching,dir);
-			else workstring = __debugStep(workstring,production,previouslyinterpreted?false:productionHasQuery,matching,dir,*__debugger);
-            previouslyinterpreted = false;
-        }
-		if(!decomposition.empty()){
-		  bool decmatching = true;
-		  for(size_t i = 0; decmatching && i < __decomposition_max_depth; i++){
-			workstring = __step(workstring,decomposition,previouslyinterpreted?false:decompositionHasQuery,decmatching,dir);
-            previouslyinterpreted = false;
-            if (decmatching) matching = true;
+			  }
 		  }
-		}
-		switch (__context.getEndEachNbArgs()){
+		  __context.frameDisplay(true);
+		  __context.setIterationNb(starting_iter+i);
+		  __context.startEach();
+		  eDirection dir = getDirection();
+		  size_t group = __context.getGroup();
+		  if (group > __rules.size()) LsysError("Group not valid.");
+		  if (i == 0 || dir != ndir || group != __currentGroup){
+			  ndir = dir;
+			  __currentGroup = group;
+			  production = __getRules(eProduction,group,ndir,&productionHasQuery);
+			  decomposition = __getRules(eDecomposition,group,ndir,&decompositionHasQuery);
+		  }
+		  if (!production.empty()){
+			  if(!hasDebugger())
+				  workstring = __step(workstring,production,previouslyinterpreted?false:productionHasQuery,matching,dir);
+			  else workstring = __debugStep(workstring,production,previouslyinterpreted?false:productionHasQuery,matching,dir,*__debugger);
+			  previouslyinterpreted = false;
+		  }
+		  if(!decomposition.empty()){
+			  bool decmatching = true;
+			  for(size_t i = 0; decmatching && i < __decomposition_max_depth; i++){
+				  workstring = __step(workstring,decomposition,previouslyinterpreted?false:decompositionHasQuery,decmatching,dir);
+				  previouslyinterpreted = false;
+				  if (decmatching) matching = true;
+			  }
+		  }
+		  switch (__context.getEndEachNbArgs()){
 			default:
 			case 0:
 				__context.endEach();
@@ -1007,11 +1007,11 @@ Lsystem::__iterate( size_t starting_iter ,
 				__interpret(workstring,__context.turtle);
 				__context.endEach(workstring,__context.turtle.getScene());
 				break;
-	        }
-
+		  }
+		  if(isEarlyReturnEnabled())  break;
 	  }
 	  if(starting_iter+i == __max_derivation) {
-		switch (__context.getEndNbArgs()){
+		  switch (__context.getEndNbArgs()){
 			default:
 			case 0:
 				__context.end();
@@ -1023,7 +1023,7 @@ Lsystem::__iterate( size_t starting_iter ,
 				__interpret(workstring,__context.turtle);
 				__context.end(workstring,__context.turtle.getScene());
 				break;
-	        }
+		  }
 	  }
 	}
   }
