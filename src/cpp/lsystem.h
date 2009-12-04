@@ -282,6 +282,8 @@ public:
    inline bool hasDebugger() const { return is_valid_ptr(__debugger); }
    inline void clearDebugger() { __debugger = DebuggerPtr(); }
 
+   pgl_hash_map_string<std::string> get_rule_fonction_table() const;
+
 protected:
 
   struct RuleGroup {

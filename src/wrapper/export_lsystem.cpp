@@ -29,6 +29,7 @@
  */
 
 #include "lsystem.h"
+#include <plantgl/python/export_list.h>
 using namespace boost::python;
 #define bp boost::python
 
@@ -91,6 +92,11 @@ AxialTree py_iter(Lsystem * lsys, size_t beg, size_t end, const AxialTree& wstri
 
 void py_set_debugger(Lsystem * lsys, Lsystem::Debugger * debugger)
 { return lsys->setDebugger(Lsystem::DebuggerPtr(debugger)); }
+
+object py_get_rule_fonction_table(const Lsystem * lsys)
+{
+	return make_dict(lsys->get_rule_fonction_table())();
+}
 
 void export_Lsystem(){
   enum_<eDirection>("eDirection")
@@ -161,6 +167,7 @@ void export_Lsystem(){
     .def("getDebugger",&Lsystem::getDebugger)
     .def("hasDebugger",&Lsystem::hasDebugger)
     .def("clearDebugger",&Lsystem::clearDebugger)
+	.def("get_rule_fonction_table",&py_get_rule_fonction_table)
 	;
 
 }

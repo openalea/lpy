@@ -135,6 +135,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         QObject.connect(self.actionNextIterate, SIGNAL('triggered(bool)'),self.nextIterate)
         QObject.connect(self.actionAutoRun, SIGNAL('triggered(bool)'),self.projectAutoRun)
         QObject.connect(self.actionDebug, SIGNAL('triggered(bool)'),self.debug)
+        QObject.connect(self.actionProfile, SIGNAL('triggered(bool)'),self.profile)
         QObject.connect(self.actionStop, SIGNAL('triggered(bool)'),self.cancelTask)
         QObject.connect(self.actionComment, SIGNAL('triggered(bool)'),self.codeeditor.comment)
         QObject.connect(self.actionUncomment, SIGNAL('triggered(bool)'),self.codeeditor.uncomment)
@@ -235,6 +236,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.actionRewind.setEnabled(enabled)
         self.actionClear.setEnabled(enabled)
         self.actionClose.setEnabled(enabled)
+        self.actionProfile.setEnabled(enabled)
         if self.debugMode == True:
             self.actionDebug.setEnabled(True)
         else:
@@ -454,6 +456,18 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
             self.graberror(displayDialog = False)
         self.releaseCR()
         self.debugMode = False
+    def profile(self):
+      print 'profiling'
+      self.profilerDock.show()
+      self.acquireCR()
+      simu = self.currentSimulation()      
+      try:
+        task = ComputationTask(simu.profile,simu.post_profile,simu.pre_profile,cleanupprocess=simu.cleanup)
+        task.profileView = self.profileView
+        self.registerTask(task)        
+      except:
+        self.graberror()
+        self.releaseCR()
     def rewind(self):
         self.acquireCR()
         try:

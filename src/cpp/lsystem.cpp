@@ -587,6 +587,21 @@ Lsystem::getAxiom( ) const {
   RELEASE_RESSOURCE
 }
 
+pgl_hash_map_string<std::string> Lsystem::get_rule_fonction_table() const
+{
+  pgl_hash_map_string<std::string> result;
+  for(RuleGroupList::const_iterator it = __rules.begin(); it != __rules.end(); ++it)
+	{
+		for(RuleSet::const_iterator itr = it->production.begin(); itr != it->production.end(); ++itr)
+		{ result[itr->functionName()] = itr->name(); }
+		for(RuleSet::const_iterator itr = it->decomposition.begin(); itr != it->decomposition.end(); ++itr)
+		{ result[itr->functionName()] = itr->name(); }
+		for(RuleSet::const_iterator itr = it->homomorphism.begin(); itr != it->homomorphism.end(); ++itr)
+		{ result[itr->functionName()] = itr->name(); }
+	}
+  return result;
+}
+
 RulePtrMap Lsystem::__getRules(eRuleType type, size_t groupid, eDirection direction, bool * hasQuery)
 {
     if(hasQuery)*hasQuery = false;

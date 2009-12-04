@@ -60,10 +60,15 @@ def initDocks(lpywidget):
     lpywidget.debugWidget.addWidget(lpywidget.debugWidget.right)
     lpywidget.debugWidget.setEnabled(False)
     lpywidget.debugDock.setWidget(lpywidget.debugWidget)
-    lpywidget.addDockWidget(Qt.BottomDockWidgetArea,lpywidget.debugDock)
+    lpywidget.addDockWidget(Qt.BottomDockWidgetArea,lpywidget.debugDock)    
     action = lpywidget.debugDock.toggleViewAction()
     lpywidget.menuView.addAction(action)
     lpywidget.debugDock.hide()
+    #profiler dock
+    lpywidget.addDockWidget(Qt.BottomDockWidgetArea,lpywidget.profilerDock)    
+    action = lpywidget.profilerDock.toggleViewAction()
+    lpywidget.menuView.addAction(action)
+    lpywidget.profilerDock.hide()
     #interpreter dock
     if lpywidget.withinterpreter :
         shellclass = shell.get_shell_class()
