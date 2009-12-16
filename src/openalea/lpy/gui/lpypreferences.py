@@ -1,6 +1,7 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import os
+from lpyprofiling import AnimatedProfiling, ProfilingWithFinalPlot, ProfilingWithNoPlot
 
 try:
     import openalea.lpy.gui.py2exe_release
@@ -54,6 +55,10 @@ class LpyPreferences:
             QObject.connect(self.widget.gccPathButton,SIGNAL('clicked(bool)'),self.chooseCCompilerPath)
             self.widget.gccPathEdit.setText(self.editor.cCompilerPath)
             QObject.connect(self.widget.gccPathEdit,SIGNAL('returnPressed()'),self.editor.setCCompilerPath)
+            self.setPofilingButton(self.editor.profilingMode)
+            QObject.connect(self.widget.profilingAnimatedButton,SIGNAL('clicked(bool)'),self.setProfilingAnimMode)
+            QObject.connect(self.widget.profilingFinalPlotButton,SIGNAL('clicked(bool)'),self.setProfilingFinalPlotMode)
+            QObject.connect(self.widget.profilingNoPlotButton,SIGNAL('clicked(bool)'),self.setProfilingNoPlotMode)
         self.dialog.show()
     def chooseCCompilerPath(self):
         p = QFileDialog.getExistingDirectory(self.editor, "Choose Compiler Path", self.editor.cCompilerPath )
@@ -62,3 +67,21 @@ class LpyPreferences:
             self.editor.setCCompilerPath(p)
     def reSetCCompilerPath(self):
         self.editor.setCCompilerPath(self.widget.gccPathEdit.text())
+    def setProfilingAnimMode(self,enabled):
+        if enabled :
+            self.editor.profilingMode = AnimatedProfiling
+    def setProfilingFinalPlotMode(self,enabled):
+        if enabled :
+            self.editor.profilingMode = ProfilingWithFinalPlot
+    def setProfilingNoPlotMode(self,enabled):
+        if enabled :
+            self.editor.profilingMode = ProfilingWithNoPlot
+    def setPofilingButton(self,value):
+        if value == AnimatedProfiling:
+            self.widget.profilingAnimatedButton.setChecked(True)
+        elif value == ProfilingWithFinalPlot:
+            self.widget.profilingFinalPlotButton.setChecked(True)
+        else:
+            self.widget.profilingNoPlotButton.setChecked(True)
+        
+        

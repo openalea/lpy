@@ -1,7 +1,8 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>PreferenceDialog</class>
- <widget class="QDialog" name="PreferenceDialog" >
-  <property name="geometry" >
+ <widget class="QDialog" name="PreferenceDialog">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,47 +10,39 @@
     <height>274</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Preferences</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_4" >
+  <layout class="QVBoxLayout" name="verticalLayout_4">
    <item>
-    <widget class="QTabWidget" name="prefTab" >
-     <property name="currentIndex" >
+    <widget class="QTabWidget" name="prefTab">
+     <property name="currentIndex">
       <number>0</number>
      </property>
-     <widget class="QWidget" name="tabAppearance" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>276</width>
-        <height>198</height>
-       </rect>
-      </property>
-      <attribute name="title" >
+     <widget class="QWidget" name="tabAppearance">
+      <attribute name="title">
        <string>Appearance</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_2" >
+      <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <widget class="QGroupBox" name="groupBox" >
-         <property name="title" >
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
           <string>ToolBar</string>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout" >
+         <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
-           <widget class="QLabel" name="label" >
-            <property name="text" >
+           <widget class="QLabel" name="label">
+            <property name="text">
              <string>Show</string>
             </property>
            </widget>
           </item>
           <item>
-           <spacer name="horizontalSpacer" >
-            <property name="orientation" >
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" stdset="0" >
+            <property name="sizeHint" stdset="0">
              <size>
               <width>95</width>
               <height>20</height>
@@ -58,24 +51,24 @@
            </spacer>
           </item>
           <item>
-           <widget class="QComboBox" name="toolbarAppEdit" >
+           <widget class="QComboBox" name="toolbarAppEdit">
             <item>
-             <property name="text" >
+             <property name="text">
               <string>Icons</string>
              </property>
             </item>
             <item>
-             <property name="text" >
+             <property name="text">
               <string>Texts</string>
              </property>
             </item>
             <item>
-             <property name="text" >
+             <property name="text">
               <string>Icons and texts</string>
              </property>
             </item>
             <item>
-             <property name="text" >
+             <property name="text">
               <string>Texts below icons</string>
              </property>
             </item>
@@ -85,24 +78,24 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="groupBox_2" >
-         <property name="title" >
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="title">
           <string>Text Editor</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout" >
-          <item row="0" column="0" >
-           <widget class="QLabel" name="label_2" >
-            <property name="text" >
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_2">
+            <property name="text">
              <string>Font Family</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="1" >
-           <spacer name="horizontalSpacer_2" >
-            <property name="orientation" >
+          <item row="0" column="1">
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" stdset="0" >
+            <property name="sizeHint" stdset="0">
              <size>
               <width>52</width>
               <height>20</height>
@@ -110,28 +103,28 @@
             </property>
            </spacer>
           </item>
-          <item row="0" column="2" >
-           <widget class="QFontComboBox" name="fontFamilyEdit" >
-            <property name="currentFont" >
+          <item row="0" column="2">
+           <widget class="QFontComboBox" name="fontFamilyEdit">
+            <property name="currentFont">
              <font>
               <family>MS Sans Serif</family>
              </font>
             </property>
            </widget>
           </item>
-          <item row="1" column="0" >
-           <widget class="QLabel" name="label_3" >
-            <property name="text" >
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
              <string>Font Size</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="1" >
-           <spacer name="horizontalSpacer_3" >
-            <property name="orientation" >
+          <item row="1" column="1">
+           <spacer name="horizontalSpacer_3">
+            <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" stdset="0" >
+            <property name="sizeHint" stdset="0">
              <size>
               <width>52</width>
               <height>20</height>
@@ -139,15 +132,15 @@
             </property>
            </spacer>
           </item>
-          <item row="1" column="2" >
-           <widget class="QSpinBox" name="fontSizeEdit" >
-            <property name="minimum" >
+          <item row="1" column="2">
+           <widget class="QSpinBox" name="fontSizeEdit">
+            <property name="minimum">
              <number>6</number>
             </property>
-            <property name="maximum" >
+            <property name="maximum">
              <number>20</number>
             </property>
-            <property name="value" >
+            <property name="value">
              <number>8</number>
             </property>
            </widget>
@@ -156,11 +149,11 @@
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer" >
-         <property name="orientation" >
+        <spacer name="verticalSpacer">
+         <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" stdset="0" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
            <height>22</height>
@@ -170,45 +163,37 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tabEditing" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>276</width>
-        <height>198</height>
-       </rect>
-      </property>
-      <attribute name="title" >
+     <widget class="QWidget" name="tabEditing">
+      <attribute name="title">
        <string>Editing</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_5" >
+      <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
-        <widget class="QGroupBox" name="groupBox_4" >
-         <property name="title" >
+        <widget class="QGroupBox" name="groupBox_4">
+         <property name="title">
           <string>Tabulation</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout_2" >
-          <item row="0" column="0" colspan="2" >
-           <widget class="QCheckBox" name="spaceForTabEdit" >
-            <property name="text" >
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="0" column="0" colspan="2">
+           <widget class="QCheckBox" name="spaceForTabEdit">
+            <property name="text">
              <string>Replace by spaces</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="0" >
-           <widget class="QLabel" name="label_4" >
-            <property name="text" >
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_4">
+            <property name="text">
              <string>Tab size</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="1" >
-           <spacer name="horizontalSpacer_4" >
-            <property name="orientation" >
+          <item row="1" column="1">
+           <spacer name="horizontalSpacer_4">
+            <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" stdset="0" >
+            <property name="sizeHint" stdset="0">
              <size>
               <width>143</width>
               <height>20</height>
@@ -216,12 +201,12 @@
             </property>
            </spacer>
           </item>
-          <item row="1" column="2" >
-           <widget class="QSpinBox" name="tabSizeEdit" >
-            <property name="minimum" >
+          <item row="1" column="2">
+           <widget class="QSpinBox" name="tabSizeEdit">
+            <property name="minimum">
              <number>1</number>
             </property>
-            <property name="value" >
+            <property name="value">
              <number>2</number>
             </property>
            </widget>
@@ -230,11 +215,11 @@
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer_4" >
-         <property name="orientation" >
+        <spacer name="verticalSpacer_4">
+         <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" stdset="0" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
            <height>90</height>
@@ -244,32 +229,24 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tabFile" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>276</width>
-        <height>198</height>
-       </rect>
-      </property>
-      <attribute name="title" >
+     <widget class="QWidget" name="tabFile">
+      <attribute name="title">
        <string>File</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_3" >
-       <item row="0" column="0" >
-        <widget class="QLabel" name="label_5" >
-         <property name="text" >
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_5">
+         <property name="text">
           <string>History max size</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="1" >
-        <spacer name="horizontalSpacer_5" >
-         <property name="orientation" >
+       <item row="0" column="1">
+        <spacer name="horizontalSpacer_5">
+         <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="sizeHint" stdset="0" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>123</width>
            <height>20</height>
@@ -277,65 +254,65 @@
          </property>
         </spacer>
        </item>
-       <item row="0" column="2" >
-        <widget class="QSpinBox" name="historySizeEdit" >
-         <property name="minimum" >
+       <item row="0" column="2">
+        <widget class="QSpinBox" name="historySizeEdit">
+         <property name="minimum">
           <number>1</number>
          </property>
-         <property name="value" >
+         <property name="value">
           <number>50</number>
          </property>
         </widget>
        </item>
-       <item row="1" column="0" colspan="2" >
-        <widget class="QCheckBox" name="startupReloadEdit" >
-         <property name="text" >
+       <item row="1" column="0" colspan="2">
+        <widget class="QCheckBox" name="startupReloadEdit">
+         <property name="text">
           <string>Reload file at startup</string>
          </property>
-         <property name="checked" >
+         <property name="checked">
           <bool>true</bool>
          </property>
         </widget>
        </item>
-       <item row="2" column="0" colspan="2" >
-        <widget class="QCheckBox" name="fileMonitoringEdit" >
-         <property name="text" >
+       <item row="2" column="0" colspan="2">
+        <widget class="QCheckBox" name="fileMonitoringEdit">
+         <property name="text">
           <string>Check file change on disk.</string>
          </property>
-         <property name="checked" >
+         <property name="checked">
           <bool>true</bool>
          </property>
         </widget>
        </item>
-       <item row="3" column="0" colspan="3" >
-        <widget class="QGroupBox" name="groupBox_7" >
-         <property name="title" >
+       <item row="3" column="0" colspan="3">
+        <widget class="QGroupBox" name="groupBox_7">
+         <property name="title">
           <string>Backup</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout" >
+         <layout class="QVBoxLayout" name="verticalLayout">
           <item>
-           <widget class="QLabel" name="label_6" >
-            <property name="text" >
+           <widget class="QLabel" name="label_6">
+            <property name="text">
              <string>Create backup file</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="fileBackupEdit" >
-            <property name="text" >
+           <widget class="QRadioButton" name="fileBackupEdit">
+            <property name="text">
              <string>Of previous file before saving</string>
             </property>
-            <property name="autoExclusive" >
+            <property name="autoExclusive">
              <bool>false</bool>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="codeBackupEdit" >
-            <property name="text" >
+           <widget class="QRadioButton" name="codeBackupEdit">
+            <property name="text">
              <string>Of code before execution</string>
             </property>
-            <property name="autoExclusive" >
+            <property name="autoExclusive">
              <bool>false</bool>
             </property>
            </widget>
@@ -343,12 +320,12 @@
          </layout>
         </widget>
        </item>
-       <item row="4" column="1" >
-        <spacer name="verticalSpacer_3" >
-         <property name="orientation" >
+       <item row="4" column="1">
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" stdset="0" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
            <height>3</height>
@@ -358,28 +335,20 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>276</width>
-        <height>198</height>
-       </rect>
-      </property>
-      <attribute name="title" >
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
        <string>Compilation</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_6" >
+      <layout class="QVBoxLayout" name="verticalLayout_6">
        <item>
-        <widget class="QGroupBox" name="groupBox_6" >
-         <property name="title" >
+        <widget class="QGroupBox" name="groupBox_6">
+         <property name="title">
           <string>Parsing</string>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_4" >
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
           <item>
-           <widget class="QCheckBox" name="pycodeDebugEdit" >
-            <property name="text" >
+           <widget class="QCheckBox" name="pycodeDebugEdit">
+            <property name="text">
              <string>Show python code for debug.</string>
             </property>
            </widget>
@@ -388,25 +357,25 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="groupBox_8" >
-         <property name="title" >
+        <widget class="QGroupBox" name="groupBox_8">
+         <property name="title">
           <string>Cython</string>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_5" >
-          <property name="spacing" >
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <property name="spacing">
            <number>0</number>
           </property>
           <item>
-           <widget class="QLabel" name="label_7" >
-            <property name="text" >
+           <widget class="QLabel" name="label_7">
+            <property name="text">
              <string>GCC Path</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="gccPathEdit" >
-            <property name="sizePolicy" >
-             <sizepolicy vsizetype="Fixed" hsizetype="Maximum" >
+           <widget class="QLineEdit" name="gccPathEdit">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
               <horstretch>2</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -414,20 +383,20 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="gccPathButton" >
-            <property name="sizePolicy" >
-             <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+           <widget class="QPushButton" name="gccPathButton">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
-            <property name="maximumSize" >
+            <property name="maximumSize">
              <size>
               <width>30</width>
               <height>16777215</height>
              </size>
             </property>
-            <property name="text" >
+            <property name="text">
              <string>...</string>
             </property>
            </widget>
@@ -436,11 +405,11 @@
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer_5" >
-         <property name="orientation" >
+        <spacer name="verticalSpacer_5">
+         <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" stdset="0" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>18</width>
            <height>54</height>
@@ -450,28 +419,20 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tabExecution" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>276</width>
-        <height>198</height>
-       </rect>
-      </property>
-      <attribute name="title" >
+     <widget class="QWidget" name="tabExecution">
+      <attribute name="title">
        <string>Execution</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_3" >
+      <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
-        <widget class="QGroupBox" name="groupBox_3" >
-         <property name="title" >
+        <widget class="QGroupBox" name="groupBox_3">
+         <property name="title">
           <string>Threading</string>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_2" >
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
-           <widget class="QCheckBox" name="useThreadEdit" >
-            <property name="text" >
+           <widget class="QCheckBox" name="useThreadEdit">
+            <property name="text">
              <string>Use thread (Experimental).</string>
             </property>
            </widget>
@@ -480,17 +441,17 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="groupBox_5" >
-         <property name="title" >
+        <widget class="QGroupBox" name="groupBox_5">
+         <property name="title">
           <string>Visualization</string>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_3" >
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
           <item>
-           <widget class="QCheckBox" name="fitViewEdit" >
-            <property name="text" >
+           <widget class="QCheckBox" name="fitViewEdit">
+            <property name="text">
              <string>Fit last view before animation.</string>
             </property>
-            <property name="checked" >
+            <property name="checked">
              <bool>true</bool>
             </property>
            </widget>
@@ -499,11 +460,11 @@
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer_2" >
-         <property name="orientation" >
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
-         <property name="sizeHint" stdset="0" >
+         <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
            <height>3</height>
@@ -513,14 +474,70 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="profilingTab">
+      <attribute name="title">
+       <string>Profiling</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_8">
+       <item>
+        <widget class="QGroupBox" name="groupBox_9">
+         <property name="title">
+          <string>Visualisation</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_7">
+          <item>
+           <widget class="QRadioButton" name="profilingAnimatedButton">
+            <property name="text">
+             <string>Animated Mode</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="profilingFinalPlotButton">
+            <property name="text">
+             <string>Final plot</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="profilingNoPlotButton">
+            <property name="text">
+             <string>No plot</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_6">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>71</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+      <zorder>verticalSpacer_6</zorder>
+      <zorder>groupBox_9</zorder>
+      <zorder>profilingFinalPlotButton</zorder>
+     </widget>
     </widget>
    </item>
    <item>
-    <widget class="QDialogButtonBox" name="buttonBox" >
-     <property name="orientation" >
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <property name="standardButtons" >
+     <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
@@ -535,11 +552,11 @@
    <receiver>PreferenceDialog</receiver>
    <slot>accept()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>248</x>
      <y>254</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>157</x>
      <y>274</y>
     </hint>
@@ -551,11 +568,11 @@
    <receiver>PreferenceDialog</receiver>
    <slot>reject()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>316</x>
      <y>260</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
     </hint>

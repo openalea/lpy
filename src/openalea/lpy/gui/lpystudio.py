@@ -48,6 +48,7 @@ import lpydock
 import lpymainwindow as lsmw
 from computationtask import *
 from lpystudiodebugger import LpyVisualDebugger
+from lpyprofiling import AnimatedProfiling, ProfilingWithFinalPlot, ProfilingWithNoPlot
         
 class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
     def __init__(self, parent=None, withinterpreter = True):
@@ -76,6 +77,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.reloadAtStartup = True
         self.fileMonitoring = True
         self.cCompilerPath = ''
+        self.profilingMode = ProfilingWithFinalPlot
         self.desc_items = {'__authors__'   : self.authorsEdit,
                           '__institutes__': self.intitutesEdit,
                           '__copyright__' : self.copyrightEdit,
@@ -183,6 +185,18 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
             self.currentSimulation().restoreState()
         if self.documentNames.currentIndex() != id:
             self.documentNames.setCurrentIndex(id)
+    def showDocumentAt(self,fname,line):
+        if self.currentSimulation().fname == fname:
+            self.codeeditor.gotoLine(line)
+        else :
+            id = None
+            for i,s in enumerate(self.simulations):
+                if s.fname == fname:
+                    id = s.index
+                    break
+            if not id is None:
+                self.changeDocument(id)
+                self.codeeditor.gotoLine(line)
     def switchDocuments(self,id1,id2):
         self.simulations[id1],self.simulations[id2] = self.simulations[id2],self.simulations[id1]
         self.simulations[id1].index = id1
@@ -245,6 +259,8 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.documentNames.setEnabled(enabled)  
     def projectAutoRun(self,value):
         self.currentSimulation().autorun = value
+    def viewer_plot(self,scene):
+        Viewer.display(scene)
     def plotScene(self,scene):
       if self.thread() != QThread.currentThread():
         #Viewer.display(scene)
@@ -255,7 +271,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.com_waitcondition.wait(self.com_mutex)
         self.com_mutex.unlock()
       else:
-        Viewer.display(scene)
+        self.viewer_plot(scene)
         QCoreApplication.instance().processEvents()
     def cancelTask(self):
         if self.debugMode:
@@ -457,12 +473,12 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.releaseCR()
         self.debugMode = False
     def profile(self):
-      print 'profiling'
       self.profilerDock.show()
       self.acquireCR()
       simu = self.currentSimulation()      
       try:
         task = ComputationTask(simu.profile,simu.post_profile,simu.pre_profile,cleanupprocess=simu.cleanup)
+        task.mode = self.profilingMode
         task.profileView = self.profileView
         self.registerTask(task)        
       except:
