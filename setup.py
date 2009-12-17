@@ -43,7 +43,7 @@ build_prefix= "build-scons"
 from setuptools import setup
 from openalea.deploy.binary_deps import binary_deps
 
-install_requires = [binary_deps('vplants.plantgl')],
+install_requires = [binary_deps('vplants.plantgl')]
 if 'linux' not in sys.platform:
     install_requires.append('PyOpenGL')
     install_requires.append('pyqglviewer')
