@@ -1,6 +1,12 @@
 # -*- coding: iso-8859-15 -*-
-
 # Header
+
+from openalea.deploy.metainfo import read_metainfo
+metadata = read_metainfo('metainfo.ini', verbose=True)
+for key,value in zip(metadata.keys(), metadata.values()):
+    exec("%s = '%s'" % (key, value))
+
+
 
 import os, sys
 pj = os.path.join
@@ -14,28 +20,12 @@ execfile(f,d,d)
 # Setup script
 
 # Package name
-name = 'lpy'
-namespace = 'openalea'
-pkg_name= namespace + '.' + name
-wralea_name= namespace + '.' + name + '_wralea'
+pkg_name= namespace + '.' + package
+wralea_name= namespace + '.' + package + '_wralea'
 
 version= d['LPY_NUM_VERSION_STR']
 print pkg_name,': version =',version
 
-description= 'Lindenmayer Systems in Python package for OpenAlea.' 
-long_description= '''
-A Python version of Lindenmayer Systems.
-Based on Dr. Prusinkiewicz et al. cpfg-lpfg specifications.
-Implemented by the Virtual Plants team.'''
-
-# Author
-author= 'Frederic Boudon'
-author_email= 'frederic.boudon@cirad.fr'
-
-url= 'http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=packages:vplants:lpy:main'
-
-# LGPL compatible INRIA license
-license= 'Cecill V2' 
 
 # Scons build directory
 build_prefix= "build-scons"
@@ -49,12 +39,12 @@ if 'linux' not in sys.platform:
     install_requires.append('pyqglviewer')
 
 setup(
-    name="VPlants.Lpy",
+    name=name,
     version=version,
     description=description,
     long_description=long_description,
-    author=author,
-    author_email=author_email,
+    author=authors,
+    author_email=authors_email,
     url=url,
     license=license,
     
