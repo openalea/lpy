@@ -32,7 +32,7 @@ Documentation
     User Guide<user/index.rst>   
     Reference Guide<user/autosum.rst>
 
-- A `PDF <../latex/lpy.pdf>`_ version of |lpy| documentation is 
+- A `PDF <../main/lpy.pdf>`_ version of |lpy| documentation is 
   available.
 
 .. seealso::
