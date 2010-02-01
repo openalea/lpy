@@ -8,7 +8,7 @@ pj= os.path.join
 
 name='pylsystems'
 
-options = Options(['../options.py', 'options.py'], ARGUMENTS )
+options = Variables(['../options.py', 'options.py'], ARGUMENTS )
 tools = ['boost_python', 'vplants.plantgl','qt4']
 
 env = ALEASolution(options, tools)

@@ -18,7 +18,6 @@ lsystem_node = Factory( name="LSystem",
                    category="scene.lsystem", 
                    nodemodule="lpy_nodes",
                    nodeclass="lsystem",
-                   nodemodule="lpy_nodes",
                    widgetclass = widgetclass,
 
                   inputs=(dict(name='Code', interface=ITextStr, value=''),
