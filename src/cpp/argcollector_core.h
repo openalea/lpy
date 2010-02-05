@@ -120,7 +120,7 @@ public:
 		value.insert(value.begin(),element);
 	}
 
-	static inline void prepend_args(element_type& value, element_type& elements){
+	static inline void prepend_args(element_type& value, const element_type& elements){
 		value.insert(value.begin(),elements.begin(),elements.end());
 	}
 

@@ -65,6 +65,7 @@ __nbParams(other.__nbParams),
 __definition(other.__definition),
 __hasquery(other.__hasquery),
 __isStatic(other.__isStatic),
+__staticResult(other.__staticResult),
 __function(other.__function),
 lineno(other.lineno),
 __codelength(other.__codelength){
@@ -110,6 +111,7 @@ void LsysRule::clear(){
   __function = object();
   __hasquery = false;
   __isStatic = false;
+  __staticResult.clear();
   lineno = -1;
   __codelength = 0;
 }
