@@ -85,9 +85,7 @@ __codelength(0){
 
 LsysRule::~LsysRule() { DecTracker(LsysRule) }
 
-bool LsysRule::compiled() const {
-  return __function != object();
-}
+
 
 size_t LsysRule::nbContexts() const {
   size_t c = (__leftcontext.empty()?0:1);
@@ -294,19 +292,26 @@ LsysRule::getCallerCode() const{
   return res.str();
 }
 void LsysRule::compile(){
-	if (!compiled()){
-	  __function = LsysContext::currentContext()->compile(__nbParams<= MAX_LRULE_DIRECT_ARITY?functionName():callerFunctionName(),getCode());
+	if (!isCompiled()){ recompile(); }
+	else LsysWarning("Python code already imported.");
+}
+
+void LsysRule::recompile(){
+	std::string fname = (__nbParams<=MAX_LRULE_DIRECT_ARITY?functionName():callerFunctionName());
+	  __function = LsysContext::currentContext()->compile(fname,getCode());
+      // LsysContext::currentContext()->getObject(fname);
+	  if (!isCompiled()) LsysError("Compilation failed.");
 	// __function = LsysContext::currentContext()->compile(functionName(),getCode());
 	  initStaticProduction();
-	}
 }
 
 void LsysRule::importPyFunction(){
-	if (!compiled()){
+	if (!isCompiled()){
       __function = LsysContext::currentContext()->getObject(__nbParams<=MAX_LRULE_DIRECT_ARITY?functionName():callerFunctionName());
       // __function = LsysContext::currentContext()->getObject(functionName());
 	  initStaticProduction();
 	}
+	else LsysWarning("Python code already imported.");
 }
 
 void LsysRule::initStaticProduction(){
@@ -408,8 +413,11 @@ boost::python::object LsysRule::__call_function( size_t nbargs, const ArgList& a
 AxialTree 
 LsysRule::apply( const ArgList& args, bool * isApplied ) const
 { 
-  if(__isStatic) return __staticResult;
-  if (!compiled()) LsysError("Python code of rule not compiled");
+  if(__isStatic) { 
+    if(isApplied) *isApplied = true;
+	return __staticResult;
+  }
+  if (!isCompiled()) LsysError("Python code of rule not compiled");
   size_t argsize = len(args);
   __precall_function(argsize,args);
   return __postcall_function(__call_function(argsize,args),isApplied); 
@@ -420,8 +428,11 @@ LsysRule::apply( const ArgList& args, bool * isApplied ) const
 AxialTree 
 LsysRule::apply( bool * isApplied ) const
 { 
-  if(__isStatic) return __staticResult;
-  if (!compiled()) LsysError("Python code of rule not compiled");
+  if(__isStatic) { 
+    if(isApplied) *isApplied = true;
+	return __staticResult;
+  }
+  if (!isCompiled()) LsysError("Python code of rule not compiled");
   __precall_function();
   return __postcall_function(__function(),isApplied); 
 }
@@ -524,15 +535,13 @@ LsysRule::match(const AxialTree& src,
   AxialTree::const_iterator last_match = pos;
   if (direction == eForward){
    if(!MatchingEngine::match(pos,src.const_end(),__predecessor.const_begin(),__predecessor.const_end(),endpos1,last_match,args_pred))
-   // if(!src.match(__predecessor,pos,endpos1,last_match,args_pred))
- 	 return false;
+	 return false;
   }
   else{
     AxialTree::const_iterator tmp;
     if(!MatchingEngine::reverse_match(pos,src.const_begin(),src.const_end(),
 		                              __predecessor.const_rbegin(),__predecessor.const_rend(),
 									  tmp,args_pred))
-    //if(!src.reverse_match(__predecessor,pos,tmp,args_pred))
  	   return false;
     endpos1 = (pos == src.end()?pos:pos+1);
     pos = tmp;
@@ -542,12 +551,10 @@ LsysRule::match(const AxialTree& src,
       if(!MatchingEngine::left_match(direction == eForward?pos:pos+1,src.const_begin(),src.const_end(),
 		                              __leftcontext.const_rbegin(),__leftcontext.const_rend(),
 									  endpos2,args))
-	  // if(!src.leftmatch(__leftcontext,direction == eForward?pos:pos+1,endpos2,args))
 	  return false;
   }
   if(direction == eForward && !__newleftcontext.empty()){
 	ArgList args_ncg;
-	// if(!dest.leftmatch(__newleftcontext,dest.end(),endpos2,args_ncg))return false;
     if(!MatchingEngine::left_match(dest.const_end(),dest.const_begin(),dest.const_end(),
 		                          __newleftcontext.const_rbegin(),__newleftcontext.const_rend(),
 								  endpos2,args_ncg))return false;
@@ -556,7 +563,6 @@ LsysRule::match(const AxialTree& src,
   ArgsCollector::append_args(args,args_pred);
   if(direction == eBackward && !__newrightcontext.empty()){
 	ArgList args_ncd;
-	// if(!dest.rightmatch(__newrightcontext,dest.begin(),last_match,endpos2,args_ncd))return false;
     if(!MatchingEngine::right_match(dest.const_begin(),dest.const_end(),
 		                          __newrightcontext.const_begin(),__newrightcontext.const_end(),
 								  last_match,endpos2,args_ncd))return false;
@@ -564,16 +570,13 @@ LsysRule::match(const AxialTree& src,
   }
   if(!__rightcontext.empty()){
 	ArgList args_cd;
-	// if(!src.rightmatch(__rightcontext,endpos1,last_match,endpos2,args_cd))return false;
     if(!MatchingEngine::right_match(endpos1,src.const_end(),
 		                          __rightcontext.const_begin(),__rightcontext.const_end(),
 								  last_match,endpos2,args_cd))return false;
 	ArgsCollector::append_args(args,args_cd);
   }
-  if (direction == eForward)
-    endpos = endpos1;
-  else
-    endpos = pos;
+  if (direction == eForward) endpos = endpos1;
+  else                       endpos = pos;
   return true;
 }
 

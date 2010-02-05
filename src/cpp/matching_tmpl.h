@@ -227,11 +227,68 @@ public:
 			else {
 				size_t nbNone = 0;
 				for(int ip = 0;ip < matched; ++ip)nbNone += nbargs[ip];
-				ArgsCollector::append_n_arg(lp,nbNone,bp::object());
+				ArgsCollector::prepend_n_arg(lp,nbNone,bp::object());
 				nbNone = 0;
 				for(int ip = matched+1;ip < it2->argSize(); ++ip)nbNone += nbargs[ip];
 				ArgsCollector::append_n_arg(lp,nbNone,bp::object());
 				ArgsCollector::append_args(lparams,lp); 
+			}
+		}
+		matching_end = it;
+		return true;
+	}
+
+	static bool reverse_match(Iterator matching_start, Iterator  string_begin, Iterator  string_end,
+					  PIterator pattern, Iterator& matching_end, argtype& lparams)
+	{
+		Iterator it = matching_start;
+		PIterator it2 = pattern;
+		if(it2->isRepExp()){
+			std::vector<argtype> llp;
+			const PatternString& lpattern = bp::extract<const PatternString&>(it2->getAt(0).getPyValue())();
+			size_t miniter = 0;
+			if (it2->argSize() > 1) miniter = bp::extract<size_t>(it2->getAt(1).getPyValue())();
+			size_t maxiter = 1000;
+			if (it2->argSize() == 3) maxiter = bp::extract<size_t>(it2->getAt(2).getPyValue())();
+			else if (it2->argSize() == 2) maxiter = miniter;
+			bool ok = true;
+			size_t numiter = 0;
+			while(ok && numiter < maxiter) {
+				argtype lp;
+				if((ok = Matcher::match(it,string_begin,string_end,lpattern.rbegin(),lpattern.rend(),it,lp)))
+				{  llp.insert(llp.begin(),lp); ++numiter; }
+				// printf("%s %i %s\n",it->name().c_str(),numiter,(ok?"Ok":"Stop"));
+			}
+			if (numiter < miniter) return false;
+			// --it;
+			if(numiter == 0){
+				size_t nbvar = lpattern.getVarNb();
+				for(size_t i = 0; i < nbvar; ++i){
+					ArgsCollector::prepend_arg(lparams,bp::list());
+				}
+			}
+			else { ArgsCollector::prepend_args(lparams,ArgsCollector::fusion_args(llp)); }
+		}
+		else if(it2->isOr()){
+			int matched = -1;			
+			argtype lp;
+			std::vector<size_t> nbargs;
+			for(int ip = 0;ip < it2->argSize(); ++ip){
+				const PatternString& lpattern = bp::extract<const PatternString&>(it2->getAt(ip).getPyValue())();
+				nbargs.push_back(lpattern.getVarNb());
+				if(matched == -1) { 
+					if(Matcher::match(it,string_begin,string_end,lpattern.rbegin(),lpattern.rend(),it,lp)) matched = ip;
+				}
+			}
+			if (matched == -1) return false;
+			else {
+				size_t nbNone = 0;
+				for(int ip = 0;ip < matched; ++ip)nbNone += nbargs[ip];
+				ArgsCollector::prepend_n_arg(lp,nbNone,bp::object());
+				nbNone = 0;
+				for(int ip = matched+1;ip < it2->argSize(); ++ip)nbNone += nbargs[ip];
+				ArgsCollector::append_n_arg(lp,nbNone,bp::object());
+				ArgsCollector::prepend_args(lparams,lp); 
 			}
 		}
 		matching_end = it;
@@ -252,7 +309,7 @@ struct StringMatcher
 	typedef _Iterator Iterator;
 	typedef _PIterator PIterator;
 	typedef _NextElement<Iterator,PIterator> Next;
-	typedef StringMatcher<_NextElement,_Iterator,_PIterator,_argtype> MType;
+	typedef StringMatcher<_NextElement,Iterator,PIterator,argtype> MType;
 
 	static bool match(Iterator matching_start, Iterator  string_end,
 					  PIterator pattern_begin, PIterator  pattern_end, 
@@ -293,24 +350,39 @@ struct StringReverseMatcher
 {
 	typedef _argtype argtype;
 	typedef _Iterator Iterator;
-	typedef _PRIterator PRIterator;
-	typedef PreviousElement<Iterator,PRIterator> Previous;
-	typedef StringReverseMatcher<PreviousElement,_Iterator,_PRIterator,_argtype> MType;
+	typedef _PRIterator PIterator;
+	typedef PreviousElement<Iterator,PIterator> Previous;
+	typedef StringReverseMatcher<PreviousElement,Iterator,PIterator,argtype> MType;
 
 	static bool match(Iterator matching_start, Iterator  string_begin, Iterator  string_end,
-					  PRIterator pattern_rbegin, PRIterator  pattern_rend, 
+					  PIterator pattern_rbegin, PIterator  pattern_rend, 
 					  Iterator& matching_end, argtype& params)
 	{
+		/* matching_start is supposed to be on the first element to test.
+		   matching_end will be on the first not matched element */
 		Iterator it = matching_start;
+		if(it == string_end) return false;
+		PIterator it2 = pattern_rbegin;
 		argtype lp;
-		for (PRIterator it2 = pattern_rbegin; it2 != pattern_rend; ){
-			argtype lmp;
-			if(it2->isGetModule()){ if(!process_get_module(it2,it,lmp)) return false; }
-			else if(!MatchingEngine::module_match(*it,*it2,lmp)) return false; 
-			++it2;
-			if (it == string_begin){ if (it2 != pattern_rend) return false; }
-			else it = Previous::next(it,it2,string_begin,string_end);
-			ArgsCollector::prepend_args(lp,lmp);
+		for (PIterator it2 = pattern_rbegin; it2 != pattern_rend; ){
+			if( it2->isRE() ) { 
+				if(!RegExpMatcher<MType>::reverse_match(it,string_begin,string_end,it2,it,lp))return false; 
+				++it2;
+			}
+			else {
+				argtype lmp; 
+				if(it2->isGetModule()){ if(!process_get_module(it2,it,lmp)) return false;  }
+				else if(!MatchingEngine::module_match(*it,*it2,lmp)) return false; 
+				ArgsCollector::prepend_args(lp,lmp);
+				++it2;
+				if (it2 != pattern_rend){
+					it = Previous::next(it,it2,string_begin,string_end);
+					if (it == string_end) return false;
+				}
+				else
+					// dont know what to use as reference to continue
+					it = Previous::next(it,it2-1,string_begin,string_end); 
+			}
 		}
 		params = lp;
 		matching_end = it;
@@ -319,7 +391,7 @@ struct StringReverseMatcher
 };
 
 /*---------------------------------------------------------------------------*/
-
+/*
 template<
 template < typename, typename > class FatherElement = GetFather, 
 class _Iterator = AxialTree::const_iterator, 
@@ -329,26 +401,31 @@ struct TreeLeftMatcher
 {
 	typedef _argtype argtype;
 	typedef _Iterator Iterator;
-	typedef _PRIterator PRIterator;
-	typedef FatherElement<Iterator,PRIterator> Father;
-	typedef TreeLeftMatcher<FatherElement,_Iterator,_PRIterator,_argtype> MType;
+	typedef _PRIterator PIterator;
+	typedef FatherElement<Iterator,PIterator> Father;
+	typedef TreeLeftMatcher<FatherElement,Iterator,PIterator,argtype> MType;
 
 	static bool match(Iterator matching_start, Iterator  string_begin, Iterator  string_end,
-		PRIterator pattern_rbegin, PRIterator  pattern_rend, Iterator& matching_end,
+		PIterator pattern_rbegin, PIterator  pattern_rend, Iterator& matching_end,
 		argtype& params)
 	{
 		Iterator it = matching_start;
 		if(it == string_begin)return false;
-		PRIterator it2 = pattern_rbegin;
+		PIterator it2 = pattern_rbegin;
 		it = Father::next(it,it2,string_begin,string_end);
 		argtype lparams;
 		while(it2 != pattern_rend && it != string_end){
-			argtype lp;
-			if(it2->isGetModule()){
-				if(!process_get_module(it2,it,lp)) return false;
+			if( it2->isRE() ) { 
+				if(!RegExpMatcher<MType>::reverse_match(it,string_begin,string_end,it2,it,lparams))return false; 
 			}
-			else if (! MatchingEngine::module_match(*it,*it2,lp) ) return false;
-			ArgsCollector::prepend_args(lparams,lp);
+			else {
+				argtype lp;
+				if(it2->isGetModule()){
+					if(!process_get_module(it2,it,lp)) return false;
+				}
+				else if (! MatchingEngine::module_match(*it,*it2,lp) ) return false;
+				ArgsCollector::prepend_args(lparams,lp);
+			}
 			++it2; 
 			if (it2 == pattern_rend) break;
 			if(it2->isStar() || it2->isBracket()){ 
@@ -367,7 +444,7 @@ struct TreeLeftMatcher
 		}
 		else return false;
 	}
-};
+};*/
 /*---------------------------------------------------------------------------*/
 
 template<

@@ -34,10 +34,11 @@
 #include "lpy_parser.h"
 #include "compilation.h"
 #include "tracker.h"
+#include <plantgl/version.h>
 #include <stack>
 using namespace boost::python;
 LPY_USING_NAMESPACE
-
+PGL_USING(PglTurtle)
 
 /*---------------------------------------------------------------------------*/
 
@@ -324,6 +325,13 @@ void LsysContext::init_options()
 	option->addValue("Disabled",this,&LsysContext::setReturnIfNoMatching,false,"Disable early return.");
 	option->addValue("Enabled",this,&LsysContext::setReturnIfNoMatching,true,"Enable early return.");
 	option->setDefault(1);	
+#if (PGL_VERSION >= 0x020A01)
+	/** warn if turtle has invalid value option */
+	option = options.add("Warning with Turtle inconsistency","Set whether a warning/error is raised when an invalid value is found during turtle processing.","Processing");
+	option->addValue<PglTurtle,bool>("Disabled",&turtle,&PglTurtle::setWarnOnError,false,"Disable warnings/errors.");
+	option->addValue<PglTurtle,bool>("Enabled",&turtle,&PglTurtle::setWarnOnError,true,"Enable warnings/errors.");
+	option->setDefault(turtle.warnOnError());	
+#endif
 	/** selection required option */
 	option = options.add("Selection Required","Set whether selection check in GUI is required or not. Selection is then transform in X module in the Lstring.","Interaction");
 	option->addValue("Disabled",this,&LsysContext::setSelectionRequired,false,"Disable Selection Check.");

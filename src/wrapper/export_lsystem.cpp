@@ -118,7 +118,7 @@ void export_Lsystem(){
 	.def("makeCurrent",    &Lsystem::makeCurrent)
 	.def("isCurrent",      &Lsystem::isCurrent)
 	.def("done",           &Lsystem::done)
-	.def("compiled",&Lsystem::compiled)
+	.def("isCompiled",&Lsystem::isCompiled)
 	.def("compile",&Lsystem::compile)
 	.def("clear", &Lsystem::clear)
 	.def("empty", &Lsystem::empty)

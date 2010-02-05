@@ -72,6 +72,13 @@ boost::python::object py_pproduce(bp::tuple args, bp::dict kw) {
 	pproduce(args); return object();
 }
 
+boost::python::object py_LcGetPProductions(LsysContext * c) {
+	std::vector<AxialTree> res;
+	for (ParametricProductionList::const_iterator it = c->get_pproductions().begin(); it != c->get_pproductions().end() ; ++it)
+		res.push_back(it->getCanvas());
+	return make_list<std::vector<AxialTree> >(res)();
+}
+
 void export_LsysContext(){
 
     class_<LsysContext,boost::noncopyable>
@@ -159,6 +166,9 @@ void export_LsysContext(){
     .def("setSelectionRequired", &LsysContext::setSelectionRequired)
     .def("getIterationNb", &LsysContext::getIterationNb)
     .def("isAnimationEnabled",  &LsysContext::isAnimationEnabled)
+	.add_property("__production_buffer__",&LsysContext::get_nproduction,&LsysContext::set_nproduction)
+	.def("__reset_production_buffer",&LsysContext::reset_nproduction)
+	.add_property("__successor_patterns__",py_LcGetPProductions)
 	;
 
 	def("consider",      &consider);

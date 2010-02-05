@@ -222,6 +222,11 @@ Lsystem::__clear(){
   __decomposition_max_depth = 1;
   __homomorphism_max_depth = 1;
   __context.clear();
+  reference_existing_object::apply<Lsystem*>::type converter;
+  PyObject* obj = converter( this );
+  object real_obj = object( handle<>( obj ) );
+  __context.setObject("__lsystem__",real_obj);
+
 }
 
 
@@ -325,17 +330,17 @@ Lsystem::code()  {
 }
 
 bool 
-Lsystem::compiled(){
+Lsystem::isCompiled(){
   ACQUIRE_RESSOURCE
   RuleSet::const_iterator i;
   for (RuleGroupList::const_iterator g = __rules.begin(); g != __rules.end(); ++g)
   {
       for ( i = g->production.begin();    i != g->production.end(); ++i)
-          if(!i->compiled())return false;
+          if(!i->isCompiled())return false;
       for ( i = g->decomposition.begin(); i != g->decomposition.end(); ++i)
-          if(!i->compiled())return false;
+          if(!i->isCompiled())return false;
       for ( i = g->homomorphism.begin();  i != g->homomorphism.end(); ++i)
-          if(!i->compiled())return false;
+          if(!i->isCompiled())return false;
   }
   return true;
   RELEASE_RESSOURCE
@@ -528,47 +533,35 @@ void Lsystem::addRule( const std::string& rule, int type, size_t group ){
 
 bool 
 Lsystem::empty( ) const {
-  ACQUIRE_RESSOURCE
   return __rules.empty();
-  RELEASE_RESSOURCE
 }
 
 size_t 
 Lsystem::nbProductionRules( size_t group ) const {
-  ACQUIRE_RESSOURCE
   if (__rules.size() < group) return 0;
   return __group(group).production.size();
-  RELEASE_RESSOURCE
 }
 
 size_t 
 Lsystem::nbDecompositionRules( size_t group ) const {
-  ACQUIRE_RESSOURCE
   if (__rules.size() < group) return 0;
   return __group(group).decomposition.size();
-  RELEASE_RESSOURCE
 }
 
 size_t Lsystem::nbHomomorphismRules( size_t group ) const {
-  ACQUIRE_RESSOURCE
   if (__rules.size() < group) return 0;
   return __group(group).homomorphism.size();
-  RELEASE_RESSOURCE
 }
 
 size_t Lsystem::nbTotalRules(  ) const {
-  ACQUIRE_RESSOURCE
   size_t nbrules = 0;
   for(RuleGroupList::const_iterator it = __rules.begin(); it != __rules.end(); ++it)
         nbrules += it->production.size()+it->decomposition.size()+it->homomorphism.size();
   return nbrules;
-  RELEASE_RESSOURCE
 }
 
 size_t Lsystem::nbGroups( ) const {
-  ACQUIRE_RESSOURCE
   return __rules.size();
-  RELEASE_RESSOURCE
 }
 
 
@@ -582,9 +575,7 @@ Lsystem::setAxiom( const AxialTree& axiom ){
 
 const AxialTree& 
 Lsystem::getAxiom( ) const {
-  ACQUIRE_RESSOURCE
   return __axiom;
-  RELEASE_RESSOURCE
 }
 
 pgl_hash_map_string<std::string> Lsystem::get_rule_fonction_table() const
@@ -682,10 +673,10 @@ AxialTree Lsystem::__debugStep(AxialTree& workingstring,
   else {
       AxialTree::const_iterator _it = workingstring.end()-1;
       AxialTree::const_iterator _it3 = _it;
-      AxialTree::const_iterator _endit = workingstring.begin();
-      bool ending = false;
-      do {
-          if (_it == _endit) ending = true;
+      AxialTree::const_iterator _lastit = workingstring.begin();
+      AxialTree::const_iterator _beg = workingstring.begin();
+      AxialTree::const_iterator _end = workingstring.end();
+      while ( _it !=  _end) {
           bool match = false;
 		  const RulePtrSet& mruleset = ruleset[_it->getClassId()];
           for(RulePtrSet::const_iterator _it2 = mruleset.begin();
@@ -696,24 +687,25 @@ AxialTree Lsystem::__debugStep(AxialTree& workingstring,
 					  try {
 						match = (*_it2)->reverseApplyTo(targetstring,args,&prodlength);
 					  }catch(error_already_set){
-						if(!debugger.error_match(_it3==_endit?_it3:_it3+1,_it+1,targetstring,*_it2,args))
+						if(!debugger.error_match(_it3==_end?_beg:_it3+1,_it+1,targetstring,*_it2,args))
 								boost::python::throw_error_already_set();
 						else { PyErr_Clear(); match = false; }
 					  }
                       if(match) { 							  
-						  if(debugger.shouldStop(_it3==_endit?_it3:_it3+1,_it+1,*_it2))debugger.total_match(_it3==_endit?_it3:_it3+1,_it+1,targetstring,prodlength,*_it2,args);
+						  if(debugger.shouldStop(_it3==_end?_beg:_it3+1,_it+1,*_it2))debugger.total_match(_it3==_end?_beg:_it3+1,_it+1,targetstring,prodlength,*_it2,args);
 						  _it = _it3; break; 
 					  }
- 					  else if(debugger.shouldStop(_it3==_endit?_it3:_it3+1,_it+1,*_it2))debugger.partial_match(_it3==_endit?_it3:_it3+1,_it+1,targetstring,*_it2,args);
+ 					  else if(debugger.shouldStop(_it3==_end?_beg:_it3+1,_it+1,*_it2))debugger.partial_match(_it3==_end?_beg:_it3+1,_it+1,targetstring,*_it2,args);
                  }
           }
           if (!match){
               targetstring.push_front(_it);
 			  if(debugger.shouldStop(_it))debugger.identity(_it,targetstring);
-              if(_it != _endit) --_it;
+              if(_it != _lastit) --_it;
+			  else _it = _end;
           }
           else matching = true;
-      } while ( !ending );
+      } ;
   }
   debugger.end(targetstring);
   return targetstring;
@@ -762,10 +754,10 @@ Lsystem::__step(AxialTree& workingstring,
   else {
       AxialTree::const_iterator _it = workingstring.end()-1;
       AxialTree::const_iterator _it3 = _it;
-      AxialTree::const_iterator _endit = workingstring.begin();
-      bool ending = false;
-      do {
-          if (_it == _endit) ending = true;
+      AxialTree::const_iterator _lastit = workingstring.begin();
+      AxialTree::const_iterator _beg = workingstring.begin();
+      AxialTree::const_iterator _end = workingstring.end();
+      while ( _it !=  _end) {
           bool match = false;
 		  const RulePtrSet& mruleset = ruleset[_it->getClassId()];
           for(RulePtrSet::const_iterator _it2 = mruleset.begin();
@@ -778,10 +770,11 @@ Lsystem::__step(AxialTree& workingstring,
           }
           if (!match){
               targetstring.push_front(_it);
-              if(_it != _endit) --_it;
+              if(_it != _lastit) --_it;
+			  else _it = _end;
           }
           else matching = true;
-      } while ( !ending );
+      }
   }
   return targetstring;
 }
@@ -942,7 +935,7 @@ Lsystem::iterate( size_t starting_iter ,
                   bool previouslyinterpreted ){
   ACQUIRE_RESSOURCE
   enableEarlyReturn(false);
-  if ( __rules.empty() || wstring.empty() )return wstring;
+  if ( (__rules.empty() || wstring.empty()) && __context.return_if_no_matching )return wstring;
   ContextMaintainer c(&__context);
   AxialTree res = __iterate(starting_iter,nb_iter,wstring,previouslyinterpreted);
   enableEarlyReturn(false);
@@ -960,7 +953,7 @@ Lsystem::__iterate( size_t starting_iter ,
 	__context.setIterationNb(0);
 	__context.start();
   }
-  if ( __rules.empty() || wstring.empty() ){
+  if ( (__rules.empty() || wstring.empty()) && __context.return_if_no_matching ){
 	  if(starting_iter+nb_iter == __max_derivation) {
 		__context.setIterationNb(__max_derivation);
 		__context.end();
@@ -971,7 +964,7 @@ Lsystem::__iterate( size_t starting_iter ,
   if (!workstring.empty() && nb_iter > 0){
 	bool matching = true;
 	bool no_match_no_return = !__context.return_if_no_matching;
-	if(!__rules.empty()){
+	if(!__rules.empty()||no_match_no_return){
       eDirection ndir;
       RulePtrMap production;
       bool productionHasQuery;

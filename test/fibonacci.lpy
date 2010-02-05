@@ -16,7 +16,8 @@ I(k) >> I(i)I(j):
 	if newval>=0 :
 		produce I(newval)
 	else:
-		produce 
+		produce
+
 decomposition:
 maximum depth: 100
 A(i) :

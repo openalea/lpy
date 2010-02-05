@@ -526,9 +526,6 @@
         </spacer>
        </item>
       </layout>
-      <zorder>verticalSpacer_6</zorder>
-      <zorder>groupBox_9</zorder>
-      <zorder>profilingFinalPlotButton</zorder>
      </widget>
     </widget>
    </item>

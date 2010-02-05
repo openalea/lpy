@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'd:\fred\mes documents\develop\vplants\trunk\lpy\src\openalea\lpy\gui\lpyprefwidget.ui'
 #
-# Created: Wed Dec 16 16:53:32 2009
+# Created: Thu Jan 07 11:01:38 2010
 #      by: PyQt4 UI code generator 4.5.4
 #
 # WARNING! All changes made in this file will be lost!

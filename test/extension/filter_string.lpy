@@ -5,7 +5,7 @@ derivation length: 1
 production:
 
 *(n in 'AB'  , x in values):
-  print '* in A  in',x
+  print '* = ',n,', x =',x
 
 
 homomorphism:

@@ -27,4 +27,4 @@ endlsystem
 ###### INITIALISATION ######
 
 def __initialiseContext__(context):
-	context.options.setSelection('String matching',2)
+	context.options.setSelection('String matching',3)

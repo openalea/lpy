@@ -214,7 +214,7 @@ public:
   inline Module& getAt(size_t i)
   {  return __string()[i]; }
 
-  inline Module getItemAt(int i) const
+  inline const Module& getItemAt(int i) const
   { return __conststring()[getValidIndex(i)]; }
 
   template<class StringType>

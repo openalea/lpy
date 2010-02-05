@@ -113,7 +113,6 @@ object rule_call_with_args(LsysRule * rule, boost::python::list pyargs) {
      catch( error_already_set ){  PyErr_Clear(); break; }
 	 args.push_back(obj);
   }
-  printf("%i\n",args.size());
   AxialTree res = rule->apply(args,&success);
   if(!success)return object();
   else return object(res);
@@ -161,6 +160,8 @@ void export_LsysRule(){
 	.add_property("groupId",&LsysRule::getGroupId,&LsysRule::setGroupId)
 	.add_property("lineno",make_getter(&LsysRule::lineno))
 	.add_property("codelength",&LsysRule::getCodeLength)
+	.add_property("static",&LsysRule::isStatic)
+	.add_property("__static_production__",&LsysRule::getStaticProduction)
 	.def("predecessor",&LsysRule::predecessor, boost::python::return_internal_reference<1>())
 	.def("leftContext", &LsysRule::leftContext, boost::python::return_internal_reference<1>())
 	.def("newLeftContext", &LsysRule::newLeftContext, boost::python::return_internal_reference<1>())
@@ -168,8 +169,9 @@ void export_LsysRule(){
 	.def("newRightContext", &LsysRule::newRightContext, boost::python::return_internal_reference<1>())
 	.def("function",   &LsysRule::function, boost::python::return_internal_reference<1>())
 	.def("definition", &LsysRule::definition, boost::python::return_internal_reference<1>())
-	.def("compiled",&LsysRule::compiled)
+	.def("isCompiled",&LsysRule::isCompiled)
 	.def("compile",(void(LsysRule::*)())&LsysRule::compile)
+	.def("recompile",(void(LsysRule::*)())&LsysRule::recompile)
 	.def("compile",(void(LsysRule::*)(dict&))&LsysRule::compile)
 	.def("clear", &LsysRule::clear)
 	.def("nbParameters", &LsysRule::nbParameters)

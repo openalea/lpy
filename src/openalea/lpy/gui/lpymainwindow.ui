@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>987</width>
+    <width>1024</width>
     <height>622</height>
    </rect>
   </property>
@@ -284,8 +284,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>80</width>
-             <height>292</height>
+             <width>89</width>
+             <height>184</height>
             </rect>
            </property>
            <attribute name="label">
@@ -353,8 +353,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>80</width>
-             <height>303</height>
+             <width>73</width>
+             <height>233</height>
             </rect>
            </property>
            <attribute name="label">
@@ -944,7 +944,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>987</width>
+     <width>1024</width>
      <height>21</height>
     </rect>
    </property>
@@ -1078,12 +1078,13 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionRewind"/>
    <addaction name="actionRun"/>
    <addaction name="actionAnimate"/>
+   <addaction name="actionStop"/>
+   <addaction name="actionRewind"/>
    <addaction name="actionStep"/>
    <addaction name="actionDebug"/>
-   <addaction name="actionStop"/>
+   <addaction name="actionProfile"/>
   </widget>
   <widget class="QDockWidget" name="profilerDock">
    <property name="windowTitle">
@@ -1176,6 +1177,23 @@
      </item>
     </layout>
    </widget>
+  </widget>
+  <widget class="QToolBar" name="editToolBar">
+   <property name="windowTitle">
+    <string>Edit Bar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionUndo"/>
+   <addaction name="actionRedo"/>
+   <addaction name="actionCopy"/>
+   <addaction name="actionCut"/>
+   <addaction name="actionPaste"/>
+   <addaction name="actionFind"/>
   </widget>
   <action name="actionOpen">
    <property name="icon">

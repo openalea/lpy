@@ -42,7 +42,7 @@ def test_LsRule():
     res = 'F[+F]F[-F]F'
     l = LsysRule()
     l.set('F --> '+res)
-    assert l.compiled(), "LsysRule.compile did not work."
+    assert l.isCompiled(), "LsysRule.compile did not work."
     assert l.forwardCompatible() == True and l.backwardCompatible() == True 
     assert l.isContextFree() == True and l.nbContexts() == 0
     assert l.nbParameters() == 0

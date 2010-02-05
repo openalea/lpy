@@ -161,6 +161,14 @@ public:
 								 AxialTree::const_iterator& matching_end,
 								 ArgList& params);
 
+	static bool string_left_match(AxialTree::const_iterator matching_start,
+		                             AxialTree::const_iterator  string_begin,
+									 AxialTree::const_iterator  string_end,
+					                 PatternString::const_reverse_iterator  pattern_rbegin,
+									 PatternString::const_reverse_iterator  pattern_rend,
+									 AxialTree::const_iterator& matching_end,
+									 ArgList& params);
+
 	static bool tree_right_match(AxialTree::const_iterator  matching_start,
 		                         AxialTree::const_iterator  string_end,
 								 PatternString::const_iterator  pattern_begin,

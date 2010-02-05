@@ -130,6 +130,7 @@ public:
 	inline size_t nbArgs() const { return __arguments.size(); }
 	inline bool hasArgs() const { return !__arguments.empty(); }
 
+	inline AxialTree getCanvas() const { return __canvas; }
 protected:
 	AxialTree __canvas;
 	ArgPosList __arguments;

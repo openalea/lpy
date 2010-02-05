@@ -59,7 +59,8 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         ComputationTaskManager.__init__(self)
         lsmw.Ui_MainWindow.__init__(self)
         self.withinterpreter = withinterpreter
-        self.setupUi(self)        
+        self.setupUi(self)     
+        self.editToolBar.hide()
         lpydock.initDocks(self)
         self.preferences = lpypreferences.LpyPreferences(self)
         icon = QIcon()
@@ -312,7 +313,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
             self.debugger.stopDebugger()
             self.debugMode = False
     def setToolBarApp(self,value):
-        for bar in [self.FileBar,self.LsytemBar]:
+        for bar in [self.FileBar,self.LsytemBar,self.editToolBar]:
             bar.setToolButtonStyle({'Icons' : Qt.ToolButtonIconOnly, 'Texts' : Qt.ToolButtonTextOnly , 'Icons and texts' : Qt.ToolButtonTextBesideIcon, 'Texts below icons' : Qt.ToolButtonTextUnderIcon }[str(value)])
     def getToolBarApp(self):
         return { Qt.ToolButtonIconOnly : (0,'Icons') , Qt.ToolButtonTextOnly : (1,'Texts') , Qt.ToolButtonTextBesideIcon : (2,'Icons and texts'), Qt.ToolButtonTextUnderIcon : (3,'Texts below icons')  }[self.FileBar.toolButtonStyle()]

@@ -116,8 +116,16 @@ public:
 		value.insert(value.end(),n,element);
 	}
 
+	static inline void prepend_arg(element_type& value, const bp::object& element){
+		value.insert(value.begin(),element);
+	}
+
 	static inline void prepend_args(element_type& value, element_type& elements){
 		value.insert(value.begin(),elements.begin(),elements.end());
+	}
+
+	static inline void prepend_n_arg(element_type&  value, size_t n, const bp::object& element){
+		value.insert(value.begin(),n,element);
 	}
 
 	static element_type fusion_args(const std::vector<element_type>& values){

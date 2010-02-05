@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'd:\fred\mes documents\develop\vplants\trunk\lpy\src\openalea\lpy\gui\lpymainwindow.ui'
 #
-# Created: Thu Dec 03 23:11:35 2009
+# Created: Wed Jan 27 16:08:13 2010
 #      by: PyQt4 UI code generator 4.5.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(987, 622)
+        MainWindow.resize(1024, 622)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/logo/logo.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
@@ -139,7 +139,7 @@ class Ui_MainWindow(object):
         self.lpytoolbox.setMidLineWidth(1)
         self.lpytoolbox.setObjectName("lpytoolbox")
         self.page = QtGui.QWidget()
-        self.page.setGeometry(QtCore.QRect(0, 0, 80, 292))
+        self.page.setGeometry(QtCore.QRect(0, 0, 89, 184))
         self.page.setObjectName("page")
         self.verticalLayout_2 = QtGui.QVBoxLayout(self.page)
         self.verticalLayout_2.setSpacing(2)
@@ -169,7 +169,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.referenceEdit)
         self.lpytoolbox.addItem(self.page, "")
         self.page_2 = QtGui.QWidget()
-        self.page_2.setGeometry(QtCore.QRect(0, 0, 80, 303))
+        self.page_2.setGeometry(QtCore.QRect(0, 0, 73, 233))
         self.page_2.setObjectName("page_2")
         self.verticalLayout = QtGui.QVBoxLayout(self.page_2)
         self.verticalLayout.setSpacing(2)
@@ -423,7 +423,7 @@ class Ui_MainWindow(object):
         self.gridLayout_3.addWidget(self.scalarDock, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 987, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1024, 21))
         self.menubar.setObjectName("menubar")
         self.menuL_systems = QtGui.QMenu(self.menubar)
         self.menuL_systems.setObjectName("menuL_systems")
@@ -487,6 +487,9 @@ class Ui_MainWindow(object):
         self.verticalLayout_9.addWidget(self.profileView)
         self.profilerDock.setWidget(self.dockWidgetContents_9)
         MainWindow.addDockWidget(QtCore.Qt.DockWidgetArea(8), self.profilerDock)
+        self.editToolBar = QtGui.QToolBar(MainWindow)
+        self.editToolBar.setObjectName("editToolBar")
+        MainWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.editToolBar)
         self.actionOpen = QtGui.QAction(MainWindow)
         icon5 = QtGui.QIcon()
         icon5.addPixmap(QtGui.QPixmap(":/images/icons/fileopen.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -731,12 +734,19 @@ class Ui_MainWindow(object):
         self.FileBar.addAction(self.actionSave)
         self.FileBar.addAction(self.actionSaveAll)
         self.FileBar.addAction(self.actionClose)
-        self.LsytemBar.addAction(self.actionRewind)
         self.LsytemBar.addAction(self.actionRun)
         self.LsytemBar.addAction(self.actionAnimate)
+        self.LsytemBar.addAction(self.actionStop)
+        self.LsytemBar.addAction(self.actionRewind)
         self.LsytemBar.addAction(self.actionStep)
         self.LsytemBar.addAction(self.actionDebug)
-        self.LsytemBar.addAction(self.actionStop)
+        self.LsytemBar.addAction(self.actionProfile)
+        self.editToolBar.addAction(self.actionUndo)
+        self.editToolBar.addAction(self.actionRedo)
+        self.editToolBar.addAction(self.actionCopy)
+        self.editToolBar.addAction(self.actionCut)
+        self.editToolBar.addAction(self.actionPaste)
+        self.editToolBar.addAction(self.actionFind)
 
         self.retranslateUi(MainWindow)
         self.lpytoolbox.setCurrentIndex(0)
@@ -816,6 +826,7 @@ class Ui_MainWindow(object):
         self.FileBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "File Bar", None, QtGui.QApplication.UnicodeUTF8))
         self.LsytemBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Lsystem Bar", None, QtGui.QApplication.UnicodeUTF8))
         self.profilerDock.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Profile", None, QtGui.QApplication.UnicodeUTF8))
+        self.editToolBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Edit Bar", None, QtGui.QApplication.UnicodeUTF8))
         self.actionOpen.setText(QtGui.QApplication.translate("MainWindow", "Open", None, QtGui.QApplication.UnicodeUTF8))
         self.actionOpen.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+O", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSave.setText(QtGui.QApplication.translate("MainWindow", "Save", None, QtGui.QApplication.UnicodeUTF8))

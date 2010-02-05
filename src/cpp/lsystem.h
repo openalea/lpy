@@ -73,7 +73,7 @@ public:
   std::string code() ;
 
   /** compile */
-  bool compiled();
+  bool isCompiled();
   void compile();
 
   /** Filename */

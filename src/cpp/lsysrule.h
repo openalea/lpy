@@ -61,8 +61,9 @@ public:
 	AxialTree apply( const ArgList& args, bool * isApplied = NULL ) const ;
 //	boost::python::object apply( const boost::python::tuple& args ) const;
 
-	bool compiled() const ;
+	inline bool isCompiled() const {  return __function != boost::python::object(); }
 	void compile();
+	void recompile();
 	void importPyFunction();
 
 	void clear();
@@ -156,6 +157,9 @@ public:
 
 	int lineno;
 	uint32_t getCodeLength() const { return __codelength; }
+
+	inline bool isStatic() const { return __isStatic; }
+	inline AxialTree getStaticProduction() const { return __staticResult; }
 
 protected:
 

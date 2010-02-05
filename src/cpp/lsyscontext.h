@@ -166,6 +166,7 @@ public:
 
   inline void reset_nproduction() { __nproduction.clear(); }
   inline AxialTree get_nproduction() const { return __nproduction; }
+  inline void set_nproduction(const AxialTree& prod) { __nproduction = prod; }
 
   /** parametric production */
   inline size_t add_pproduction(const ParametricProduction& pprod)
@@ -174,8 +175,12 @@ public:
   inline const ParametricProduction& get_pproduction(size_t id) const
   { lpyassert(id <__paramproductions.size()); return __paramproductions[id]; }
 
+  inline const ParametricProductionList& get_pproductions() const 
+  { return __paramproductions; }
+
   inline AxialTree generate(size_t pprod_id, const bp::list& args)
   { lpyassert(pprod_id<__paramproductions.size()); return __paramproductions[pprod_id].generate(args); }
+
 
   inline AxialTree generate(const bp::tuple& args)
   { size_t pprod_id = bp::extract<size_t>(args[0])();

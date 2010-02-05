@@ -18,7 +18,7 @@
 
 
 # These will change with different releases.
-!define LPY_VERSION        "1.5.0"
+!define LPY_VERSION        "1.6.1"
 !define LPY_VERSION_EXTRA  "Alpha"
 !define LPY_VERSION_MEXTRA "a"
 !define LPY_LICENSE        "GPL"

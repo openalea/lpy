@@ -28,6 +28,7 @@ class LpyVisualDebugger (lpy.LpyDebugger):
         self.running = False
         self.animationTiming = 0.5
         self.breakPointMonitor = True
+        self.markerLine = None
         self.srcView = self.debugWidget.right.srcView
         self.destView = self.debugWidget.right.destView
         self.ruleView = self.debugWidget.right.ruleView

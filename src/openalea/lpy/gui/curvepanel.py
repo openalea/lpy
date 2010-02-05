@@ -200,17 +200,45 @@ class CurveListDisplay(QGLWidget):
                 glLineWidth(1)
                 glColor4f(0.9,0.9,0.9,0.0)
             glBegin(GL_LINE_STRIP)
+            #glColor4f(0.9,0.0,0.0,0.0)
             glVertex2f(0,0)
+            #glColor4f(0.9,0.9,0.9,0.0)
+
             glVertex2f(self.thumbwidth-1,0)
             glVertex2f(self.thumbwidth-1,self.thumbwidth-1)
+           
             glVertex2f(0,self.thumbwidth-1)
             glVertex2f(0,0)
             glEnd()
-            glTranslatef(self.thumbwidth/2,self.thumbwidth/2,0)
+
+            if self.cursorselection == i:
+                glColor4f(1.0,0.0,0.0,1.0)
+            else:
+                glColor4f(1.0,1.0,1.0,1.0)            
+            tname = curve.name
+            fm = QFontMetrics(self.font())
+            tw = fm.width(tname)
+            th = fm.height()
+            mtw = self.thumbwidth - 3
+            mth = 20
+            if mtw < tw:
+                tratio = mtw / float(tw)
+                lt = len(tname)
+                nbchar = int(lt * tratio) -3
+                tname = tname[0:nbchar/2]+'...'+tname[lt-nbchar/2:]
+                tw = fm.width(tname)
+            px =  (mtw-tw) / 2
+            py = self.thumbwidth-1-fm.descent()
+            if mth > th:
+                py -= (mth-th)/2
+            self.renderText(px,py,0,tname)
+            
+            glTranslatef(self.thumbwidth/2,(self.thumbwidth/2)-10,0)
             b = BoundingBox(curve)
             lsize = b.getSize()
             msize = lsize[lsize.getMaxAbsCoord()]
             scaling = self.curvethumbwidth/(2*msize)
+            scaling = min(self.curvethumbwidth/(2*(lsize.x+1e-4)),(self.curvethumbwidth-20)/(2*(lsize.y+1e-4)))
             x0c = -b.getCenter()[0]*scaling
             y0c = -b.getCenter()[1]*scaling
             if 2*abs(y0c) <= self.curvethumbwidth:
@@ -224,8 +252,8 @@ class CurveListDisplay(QGLWidget):
                 glColor4f(0.5,0.5,0.5,0)
                 glLineWidth(1)
                 glBegin(GL_LINE_STRIP)
-                glVertex2f(x0c,-self.curvethumbwidth/2.)
-                glVertex2f(x0c,self.curvethumbwidth/2.)
+                glVertex2f(x0c,-self.curvethumbwidth*0.4)
+                glVertex2f(x0c,self.curvethumbwidth*0.4)
                 glEnd()                
             glScalef(scaling,-scaling,1)
             glTranslatef(*-b.getCenter())
@@ -340,6 +368,7 @@ class CurvePanel(QScrollArea):
     def updateName(self):
         if not (self.view.selection is None or self.view.selection == -1):
             self.view.getSelectedCurve().name = str(self.curveNameEdit.text())
+            self.view.updateGL()
     def setCurves(self,curves):
         self.view.setCurves(curves)
     def getCurves(self):

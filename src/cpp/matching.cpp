@@ -73,7 +73,7 @@ void MatchingEngine::setStringMatchingMethod(MatchingEngine::eStringMatchingMeth
 	switch(StringMatchingMethod){
 		case eString:
 			RightMatchingFunc = &MatchingImplementation::string_right_match /*StringMatcher<GetNext>::match*/;
-			LeftMatchingFunc = &StringReverseMatcher<GetPrevious>::match; break;
+			LeftMatchingFunc = &MatchingImplementation::string_left_match ; break; /*StringReverseMatcher<GetPrevious>::match*/
 		case eMScaleAxialTree:
 			RightMatchingFunc = &MatchingImplementation::mstree_right_match; 
 			LeftMatchingFunc = &MatchingImplementation::mstree_left_match; break;
@@ -449,6 +449,18 @@ bool MatchingImplementation::string_right_match(AxialTree::const_iterator  match
 		match(matching_start, string_end, pattern_begin, pattern_end, matching_end, last_matched, params);
 }
 
+bool MatchingImplementation::string_left_match(AxialTree::const_iterator matching_start,
+								   AxialTree::const_iterator  string_begin,
+								   AxialTree::const_iterator  string_end,
+								   PatternString::const_reverse_iterator  pattern_rbegin,
+								   PatternString::const_reverse_iterator  pattern_rend,
+								   AxialTree::const_iterator& matching_end,
+								   ArgList& params)
+{ 
+	matching_start = StringPrevious<AxialTree::const_iterator,PatternString::const_reverse_iterator>::next(matching_start,pattern_rbegin,string_begin, string_end);
+	return StringReverseMatcher<>::
+		match(matching_start, string_begin, string_end, pattern_rbegin, pattern_rend, matching_end, params);
+}
 
 bool MatchingImplementation::tree_right_match(AxialTree::const_iterator  matching_start,
 								 AxialTree::const_iterator  string_end,
@@ -473,7 +485,8 @@ bool MatchingImplementation::tree_left_match(AxialTree::const_iterator  matching
 								AxialTree::const_iterator& matching_end,
 								ArgList& params) 
 {
-	return TreeLeftMatcher<>::
+	matching_start = GetFather<AxialTree::const_iterator,PatternString::const_reverse_iterator>::next(matching_start,pattern_rbegin,string_begin, string_end);
+	return StringReverseMatcher<GetFather>:: // TreeLeftMatcher<>::
 		match(matching_start, string_begin, string_end, pattern_rbegin, pattern_rend, matching_end, params);
 }
 
@@ -486,7 +499,8 @@ bool MatchingImplementation::mstree_left_match(AxialTree::const_iterator matchin
 								   AxialTree::const_iterator& matching_end,
 								   ArgList& params)
 { 
-	return TreeLeftMatcher<GetScalePredecessor>::
+	matching_start = GetScalePredecessor<AxialTree::const_iterator,PatternString::const_reverse_iterator>::next(matching_start,pattern_rbegin,string_begin, string_end);
+	return StringReverseMatcher<GetScalePredecessor>:: // TreeLeftMatcher<GetScalePredecessor>::
 		match(matching_start, string_begin, string_end, pattern_rbegin, pattern_rend, matching_end, params);
 }
 
@@ -498,7 +512,8 @@ bool MatchingImplementation::mltree_left_match(AxialTree::const_iterator matchin
 								   AxialTree::const_iterator& matching_end,
 								   ArgList& params)
 { 
-	return TreeLeftMatcher<GetLevelPredecessor>::
+	matching_start = GetLevelPredecessor<AxialTree::const_iterator,PatternString::const_reverse_iterator>::next(matching_start,pattern_rbegin,string_begin, string_end);
+	return StringReverseMatcher<GetLevelPredecessor>:: // TreeLeftMatcher<GetLevelPredecessor>::
 		match(matching_start, string_begin, string_end, pattern_rbegin, pattern_rend, matching_end, params);
 }
 

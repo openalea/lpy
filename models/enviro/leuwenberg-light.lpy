@@ -16,15 +16,18 @@ up_angle = lambda t,order : 7        # up angle for lateral branches
 archi_steps = [maxduration(o) for o in xrange(maxorder+1)]
 nbiter = sum(archi_steps)
 
+initial_view = 1
+
 module A # represent trunk apical meristem
 module B # represent apical meristem of lateral branches
 module L # whorl of leaf
 module I # Internode
 module T # Meristem ending
 module P,W1,W2,W3,W4
+module Home
 
 #Axiom: [@M(-10,0,15);(6)@g(Box(15,0.5,15))]_(0.1)PI(0.5,0.1)A(0,0) 
-Axiom: [@M(-10,0,15);(6)@g(Box(15,0.5,15))][@M(10,20,30);(6)@g(Box(15,20,0.5))]_(0.1)PI(0.5,0.1)A(0,0) 
+Axiom:   _(0.1)@M(5,-10,0)PI(0.5,0.1)L(0,0,0)A(0,0) Home
 #Axiom: _(0.1)PI(0.5,0.1)A(0,0) 
 
 test_step = 1
@@ -35,6 +38,7 @@ ignore: /&[
 production:
 
 A(t,o) :
+  print t1
   if t < maxduration(o):
      # simply produces a metamer and ages the apex
      produce I(1,0.1)L(0,t,0)A(t+1,o) 
@@ -47,9 +51,7 @@ A(t,o) :
 
 
 L(t1,n,lg) < B(t,o) :
-  #if dotest and lg < 2.5:  produce C
-  #if lg < 2.5: produce C
-  if dotest and lg < 0.2: produce C
+  if dotest and lg < 0.03: produce C
   if t < maxduration(o):
     # simply produces a metamer and ages the apex
     # reorient smoothly the branch toward the up
@@ -65,6 +67,7 @@ L(t1,n,lg) < B(t,o) :
 
 L(t,n,lg) :
   # ages the leaf. If too old, removes
+  if lg < 0.1 : produce *
   if t < leafduration :  produce L(t+1,n,lg)
   else:   produce *
 
@@ -74,6 +77,8 @@ _(r) --> _(r+radinc)
 
 homomorphism:
 
+Home --> [;(6)[@M(-10,0,15)@g(Box(15,0.5,15))][@M(5,0,30)@g(Box(15,15,0.5))][@M(20,0,15)@g(Box(15,0.5,15))][@M(5,15,15)@g(Box(0.5,15,15))][@M(5,-15,5)@g(Box(0.5,15,5))][@M(5,-15,26)@g(Box(0.5,15,4))]]
+
 I(a,r) --> F(a,r)
 T --> @Ge_(0.05);(3)F(0.5)@O(0.2)
 B(t,o,l) --> @Ge_(0.05);(3)F(0.5)@O(0.2)
@@ -82,7 +87,8 @@ C --> @Ge_(0.05);(5)F(0.5)@O(0.3)
 L(t,p,lg) :
     phi = 0 if p % 2 == 0 else 90  # phyllotactic angle
     col = 4 if t >= leafold else 2 # color is chosen according to age
-    produce [/(phi)^(120);(col)~l(1)][/(phi)&(120);(col)~l(1)]
+    lsize = 5
+    produce [/(phi)^(120);(col)~l(1,lsize)][/(phi)&(120);(col)~l(1,lsize)]
 
 endlsystem
 
@@ -138,9 +144,9 @@ def EndEach(lstring,scene):
 ###### INITIALISATION ######
 
 def __initialiseContext__(context):
-	from openalea.plantgl.all import Material,Color3
+	from openalea.plantgl.scenegraph import Material,ImageTexture,Color3
 	context.turtle.setMaterial(5,Material('purple',Color3(70,0,73),2.19178,Color3(40,40,40),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(6,Material('Wall',Color3(47,47,47),1.2766,Color3(4,4,4),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(6,Material('Wall',Color3(47,47,47),1.2766,Color3(4,4,4),Color3(0,0,0),1,0.79))
 	context.animation_timestep = 0.001
 __references__ = 'Halle, 71'
 __description__ = 'Leuwenberg architectural model. '

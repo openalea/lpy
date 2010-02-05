@@ -83,7 +83,7 @@ setup(
     create_namespaces = True,
     
     # pure python  packages
-    packages = [ pkg_name, pkg_name+'.gui', pkg_name+'.wralea',
+    packages = [ pkg_name, pkg_name+'.gui', 
                  'openalea.plantgl'
                 ]+map(lambda x : '.'.join(['openalea.plantgl',x]),['math','scenegraph','algo','gui','codec']),
     py_modules = ['lpygui_postinstall'],
