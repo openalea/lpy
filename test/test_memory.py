@@ -46,7 +46,7 @@ def test_LsRule():
     assert l.forwardCompatible() == True and l.backwardCompatible() == True 
     assert l.isContextFree() == True and l.nbContexts() == 0
     assert l.nbParameters() == 0
-    assert len(l()) == len(res)
+    #assert len(l()) == len(res)
     assert len(l.process('FF')) == 2*len(res)
     assert l.match('F',0)[0] == 1
     assert l.reverse_match('FFF')[0] == 1

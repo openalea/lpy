@@ -20,7 +20,7 @@ This module implements a QT4 python interpreter widget.
 """
 
 __license__= "CeCILL V2"
-__revision__=" $Id: shell.py 1129 2008-01-30 15:08:26Z dufourko $"
+__revision__=" $Id$"
 
 
 import os, sys

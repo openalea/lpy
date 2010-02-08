@@ -1,15 +1,14 @@
-# -*- coding: iso-8859-15 -*-
+# -*- coding: utf-8 -*-
+__revision__ = "$Id$"
+
 # Header
+import os, sys
+pj = os.path.join
 
 from openalea.deploy.metainfo import read_metainfo
 metadata = read_metainfo('metainfo.ini', verbose=True)
 for key,value in metadata.iteritems():
     exec("%s = '%s'" % (key, value))
-
-
-
-import os, sys
-pj = os.path.join
 
 f = pj(os.path.dirname(__file__),'src', 'openalea', 'lpy','__version__.py')
 d = {}

@@ -96,5 +96,5 @@ endlsystem
 ###### INITIALISATION ######
 
 def __initialiseContext__(context):
-	from openalea.plantgl.all import Material,Color3
+	from openalea.plantgl.scenegraph import Material,ImageTexture,Color3
 	context.turtle.setMaterial(1,Material('Brown',Color3(33,22,6),2.72727,Color3(40,40,40),Color3(0,0,0),1,0))
