@@ -325,7 +325,7 @@ void LsysContext::init_options()
 	option->addValue("Disabled",this,&LsysContext::setReturnIfNoMatching,false,"Disable early return.");
 	option->addValue("Enabled",this,&LsysContext::setReturnIfNoMatching,true,"Enable early return.");
 	option->setDefault(1);	
-#if (PGL_VERSION >= 0x020A01)
+#if (PGL_VERSION >= 0x020B00)
 	/** warn if turtle has invalid value option */
 	option = options.add("Warning with Turtle inconsistency","Set whether a warning/error is raised when an invalid value is found during turtle processing.","Processing");
 	option->addValue<PglTurtle,bool>("Disabled",&turtle,&PglTurtle::setWarnOnError,false,"Disable warnings/errors.");

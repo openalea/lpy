@@ -72,6 +72,13 @@ typedef std::vector<ModuleClassPtr> ModuleClassList;
 	MACRO(StartPolygon) \
 	MACRO(EndPolygon) \
 	MACRO(SetPosition) \
+	MACRO(SetPositionRel) \
+	MACRO(LineTo) \
+	MACRO(LineOrientedTo) \
+	MACRO(PinPoint) \
+	MACRO(LineRel) \
+	MACRO(LineOrientedRel) \
+	MACRO(PinPointRel) \
 	MACRO(SetHeading) \
 	MACRO(Left) \
 	MACRO(Right) \
@@ -101,6 +108,9 @@ typedef std::vector<ModuleClassPtr> ModuleClassList;
 	MACRO(Tropism) \
 	MACRO(SetContour) \
 	MACRO(SectionResolution) \
+	MACRO(SetGuide) \
+	MACRO(EndGuide) \
+	MACRO(PositionOnGuide) \
 	MACRO(GetIterator) \
 	MACRO(GetModule) \
 	MACRO(New) \

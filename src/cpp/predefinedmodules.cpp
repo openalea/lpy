@@ -144,6 +144,106 @@ DeclareModuleBegin(MoveTo,"Set the turtle position. Params : x, y, z (optionals,
 }
 DeclareModuleEnd
 
+
+
+DeclareModuleBegin(moveRel,"Move relatively from current the turtle position. Params : x, y, z (optionals, default = 0).",ePosition)
+{
+#if PGL_VERSION >= 0x020B00
+	size_t nbargs = m.size();
+	switch (nbargs) {
+         case 0:  break;
+         case 1:  t.shift(m._getReal(0)); break;
+         case 2:  t.shift(m._getReal(0),m._getReal(1)); break;
+         default: t.shift(m._getReal(0),m._getReal(1),m._getReal(2)); break;
+	}
+#endif
+}
+DeclareModuleEnd
+
+DeclareModuleBegin(lineTo,"Trace line to (x,y,z) without changing the orientation. Params : x, y, z (optionals, default = 0).",ePrimitive)
+{
+#if PGL_VERSION >= 0x020B00
+	size_t nbargs = m.size();
+	switch (nbargs) {
+         case 0:  break;
+         case 1:  t.lineTo(m._getReal(0),0,0); break;
+         case 2:  t.lineTo(m._getReal(0),m._getReal(1)); break;
+         default: t.lineTo(m._getReal(0),m._getReal(1),m._getReal(2)); break;
+	}
+#endif
+}
+DeclareModuleEnd
+
+DeclareModuleBegin(orientedLineTo,"Trace line toward (x,y,z) and change the orientation. Params : x, y, z (optionals, default = 0).",ePrimitive)
+{
+#if PGL_VERSION >= 0x020B00
+	size_t nbargs = m.size();
+	switch (nbargs) {
+         case 0:  break;
+         case 1:  t.oLineTo(m._getReal(0)); break;
+         case 2:  t.oLineTo(m._getReal(0),m._getReal(1)); break;
+         default: t.oLineTo(m._getReal(0),m._getReal(1),m._getReal(2)); break;
+	}
+#endif
+}
+DeclareModuleEnd
+
+DeclareModuleBegin(pinPoint,"Orient turtle toward (x,y,z) . Params : x, y, z (optionals, default = 0).",eRotation)
+{
+#if PGL_VERSION >= 0x020B00
+	size_t nbargs = m.size();
+	switch (nbargs) {
+         case 0:  break;
+         case 1:  t.pinpoint(m._getReal(0)); break;
+         case 2:  t.pinpoint(m._getReal(0),m._getReal(1)); break;
+         default: t.pinpoint(m._getReal(0),m._getReal(1),m._getReal(2)); break;
+	}
+#endif
+}
+DeclareModuleEnd
+
+DeclareModuleBegin(lineRel,"Trace line to pos+(x,y,z) without changing the orientation. Params : x, y, z (optionals, default = 0).",ePrimitive)
+{
+#if PGL_VERSION >= 0x020B00
+	size_t nbargs = m.size();
+	switch (nbargs) {
+         case 0:  break;
+         case 1:  t.lineRel(m._getReal(0),0,0); break;
+         case 2:  t.lineRel(m._getReal(0),m._getReal(1)); break;
+         default: t.lineRel(m._getReal(0),m._getReal(1),m._getReal(2)); break;
+	}
+#endif
+}
+DeclareModuleEnd
+
+DeclareModuleBegin(oLineRel,"Trace line toward pos+(x,y,z) and change the orientation. Params : x, y, z (optionals, default = 0).",ePrimitive)
+{
+#if PGL_VERSION >= 0x020B00
+	size_t nbargs = m.size();
+	switch (nbargs) {
+         case 0:  break;
+         case 1:  t.oLineRel(m._getReal(0)); break;
+         case 2:  t.oLineRel(m._getReal(0),m._getReal(1)); break;
+         default: t.oLineRel(m._getReal(0),m._getReal(1),m._getReal(2)); break;
+	}
+#endif
+}
+DeclareModuleEnd
+
+DeclareModuleBegin(pinPointRel,"Orient turtle toward pos+(x,y,z) . Params : x, y, z (optionals, default = 0).",eRotation)
+{
+#if PGL_VERSION >= 0x020B00
+	size_t nbargs = m.size();
+	switch (nbargs) {
+         case 0:  break;
+         case 1:  t.pinpointRel(m._getReal(0)); break;
+         case 2:  t.pinpointRel(m._getReal(0),m._getReal(1)); break;
+         default: t.pinpointRel(m._getReal(0),m._getReal(1),m._getReal(2)); break;
+	}
+#endif
+}
+DeclareModuleEnd
+
 DeclareModuleBegin(SetHead,"Set the turtle Heading and Up vector. Params: hx, hy, hz, ux, uy, uz (optionals, default=0,0,1, 1,0,0).",eRotation)
 {
 	size_t nbargs = m.size();
@@ -364,6 +464,7 @@ DeclareModuleBegin(setcontour,"Set Cross Section of Generalized Cylinder. Params
 }
 DeclareModuleEnd
 
+
 DeclareModuleBegin(sectionResolution,"Set Resolution of Section of Cylinder. Params : int.",ePrimitive)
 {
 	size_t nbargs = m.size();
@@ -376,6 +477,49 @@ DeclareModuleBegin(sectionResolution,"Set Resolution of Section of Cylinder. Par
 }
 DeclareModuleEnd
 
+DeclareModuleBegin(setguide,"Set Guide for turtle tracing. Params : Curve[2D|3D], length.",ePrimitive)
+{
+#if PGL_VERSION >= 0x020B00
+	size_t nbargs = m.size();
+	switch (nbargs) {
+		case 0: 
+		case 1: 
+			LsysWarning("missing argument to SetGuide"); break;
+		default:
+			bp::extract<Curve2DPtr> ec2d(m.getAt(0));
+			if (ec2d.check()) {
+				if(nbargs == 2) t.setGuide(ec2d(),m._getReal(1)); 
+				else t.setGuide(ec2d(),m._getReal(1),bp::extract<bool>(m.getAt(2))); 
+			}
+			else t.setGuide(bp::extract<LineicModelPtr>(m.getAt(0))(),m._getReal(1)); 
+			break;
+	}
+#endif
+}
+DeclareModuleEnd
+
+DeclareModuleBegin(endguide,"End Guide for turtle tracing.",ePrimitive)
+{
+#if PGL_VERSION >= 0x020B00
+	t.clearGuide();
+#endif
+}
+DeclareModuleEnd
+
+DeclareModuleBegin(positiononguide,"Set position on Guide for turtle tracing.",ePrimitive)
+{
+#if PGL_VERSION >= 0x020B00
+	size_t nbargs = m.size();
+	switch (nbargs) {
+		case 0: 
+			LsysWarning("missing argument to PositionOnGuide"); break;
+		default:
+			t.setPositionOnGuide(m._getReal(0));
+		break;
+	}
+#endif
+}
+DeclareModuleEnd
 /*---------------------------------------------------------------------------*/
 
 std::vector<ModuleClassPtr> * ModuleClass::PredefinedClasses = NULL;
@@ -419,6 +563,13 @@ void ModuleClass::createPredefinedClasses() {
 	StartPolygon = new DeclaredModule(startPolygon)("{","BP");
 	EndPolygon = new DeclaredModule(stopPolygon)("}","EP");
 	SetPosition = new DeclaredModule(MoveTo)("@M","MoveTo");
+	SetPositionRel = new DeclaredModule(moveRel)("MoveRel");
+	LineTo= new DeclaredModule(lineTo)("LineTo");
+	LineOrientedTo= new DeclaredModule(orientedLineTo)("OLineTo");
+	PinPoint= new DeclaredModule(pinPoint)("Pinpoint");
+	LineRel= new DeclaredModule(lineRel)("LineRel");
+	LineOrientedRel = new DeclaredModule( oLineRel )("OLineRel");
+	PinPointRel= new DeclaredModule(pinPointRel)("PinpointRel");
 	SetHeading = new DeclaredModule(SetHead)("@R","SetHead");
 	Left = new DeclaredModule(left)("+","Left");
 	Right = new DeclaredModule(right)("-","Right");
@@ -448,6 +599,9 @@ void ModuleClass::createPredefinedClasses() {
 	Tropism = new DeclaredModule(tropism)("@Tp","Tropism");
 	SetContour = new DeclaredModule(setcontour)("SetContour");
 	SectionResolution = new DeclaredModule(sectionResolution)("SectionResolution");
+	SetGuide = new DeclaredModule(setguide)("SetGuide");
+	EndGuide = new DeclaredModule(endguide)("EndGuide");
+	PositionOnGuide = new DeclaredModule(positiononguide)("PositionOnGuide");
 	GetIterator = new PredefinedModuleClass("?I","GetIterator","Request an iterator over the current Lstring.",PredefinedModuleClass::ePatternMatching);
 	GetModule = new PredefinedModuleClass("$","GetModule","Request a module of the current Lstring.",PredefinedModuleClass::ePatternMatching);
 	New = new PredefinedModuleClass("new","newmodule","Create a new module whose name is given by first argument.",PredefinedModuleClass::eStringManipulation);
