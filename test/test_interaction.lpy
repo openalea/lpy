@@ -1,0 +1,17 @@
+def EndEach():
+    if getIterationNb() == 3:
+        requestSelection('Please select a branch to cut')
+
+Axiom: A
+
+derivation length:5 
+production:
+
+A --> F[-A]FA
+X --> %
+
+interpretation:
+
+A --> ,(2)@O
+
+endlsystem

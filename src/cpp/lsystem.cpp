@@ -973,8 +973,13 @@ Lsystem::__iterate( size_t starting_iter ,
 	  size_t i = 0;
       if(isEarlyReturnEnabled()) return workstring;
 	  for(; (matching||no_match_no_return) && i < nb_iter; ++i){
-		  if (__context.isSelectionRequired()){
-			  std::vector<uint_t> sel = getSelection();
+		  if (__context.isSelectionAlwaysRequired() || __context.isSelectionRequested()){
+			  std::vector<uint_t> sel;
+			  if (__context.isSelectionRequested()){
+				  sel.push_back(waitSelection(__context.getSelectionMessage()));
+				  __context.selectionAquired();
+			  }
+			  else sel = getSelection();
 			  if (!sel.empty()) {
 				  uint_t added = 0;
 				  size_t wstrsize = workstring.size();
@@ -1029,6 +1034,9 @@ Lsystem::__iterate( size_t starting_iter ,
 				break;
 		  }
 		  if(isEarlyReturnEnabled())  break;
+		  if( (i+1) <  nb_iter && __context.isSelectionRequested()) {
+			  __plot(workstring);
+		  }
 	  }
 	  if(starting_iter+i == __max_derivation) {
 		  switch (__context.getEndNbArgs()){

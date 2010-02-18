@@ -6,17 +6,17 @@ Reference guide
 
 Class Inheritance diagram
 =========================
-.. .. inheritance-diagram:: openalea.lpy.gui.simulation
+.. .. inheritance-diagram:: openalea.lpy.__lpy_kernel__
 
-.. currentmodule:: openalea.lpy.gui.simulation
+.. currentmodule:: openalea.lpy.__lpy_kernel__
 
 :mod:`openalea.lpy.gui.simulation` module
 =========================================
 
-Download the source file :download:`../../src/openalea/lpy/gui/simulation.py`.
+.. Download the source file :download:`../../src/openalea/lpy`.
 
 
-.. automodule:: openalea.lpy.gui.simulation
+.. automodule:: openalea.lpy.__lpy_kernel__
     :members:
     :undoc-members:
     :inherited-members:

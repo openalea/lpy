@@ -79,12 +79,20 @@ static void pyCustomSave(const std::string& fname, const std::string& format )
 	MyPlotter->attr("save")(fname,format);
 }
 
+static uint_t pyCustomWaitSelection(const std::string& txt)
+{    
+	boost::python::object sel = MyPlotter->attr("waitSelection")(txt); 
+	if(sel) return extract<uint_t>(sel);
+	else return UINT32_MAX;
+}
+
 void pyRegisterPlotter(boost::python::object plotter)
 {
 	if (MyPlotter)delete MyPlotter;
     MyPlotter = new object(plotter);
     registerPglPlotFunction(pyCustomPglPlot);
     registerGetSelectionFunction(pyCustomSelect);
+    registerWaitSelectionFunction(pyCustomWaitSelection);
     registerSaveImageFunction(pyCustomSave);
 }
 
@@ -93,6 +101,7 @@ void pyCleanPlotter(){
 	MyPlotter = NULL;
 	cleanPglPlotFunction();
 	cleanGetSelectionFunction();
+	cleanWaitSelectionFunction();
 	cleanSaveImageFunction();
 }
 

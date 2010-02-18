@@ -94,9 +94,28 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
                 self.parent.plotScene(scene)
             def selection(self):
                 return Viewer.selection
+            def waitSelection(self,txt):
+                return Viewer.waitSelection(txt)
         self.plotter = Plotter(self)
         registerPlotter(self.plotter)
-        
+        class ViewerFuncAborter:
+            def __init__(self):
+                self.__shouldAbort = False
+                self.__registered = False
+            def shouldAbort(self):
+                self.__shouldAbort = True
+            def reset(self):
+                self.__shouldAbort = False
+                if not self.__registered:
+                    self.__registered = True
+                    Viewer.setDialogAbortFunc(self)
+            def __call__(self):
+                if self.__shouldAbort:
+                    self.__shouldAbort = False
+                    return True
+                else:
+                    return False
+        self.viewAbortFunc =  ViewerFuncAborter()        
         self.frameFind.hide() 
         self.frameReplace.hide() 
         self.frameGoto.hide() 
@@ -113,6 +132,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.newfile()
         self.textEditionWatch = False
         self.documentNames.setDrawBase(False)
+        
         def tb_mouseMoveEvent(event):
             tabselect = self.documentNames.tabAt(event.pos())
             if tabselect != -1 :
@@ -140,6 +160,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         QObject.connect(self.actionDebug, SIGNAL('triggered(bool)'),self.debug)
         QObject.connect(self.actionProfile, SIGNAL('triggered(bool)'),self.profile)
         QObject.connect(self.actionStop, SIGNAL('triggered(bool)'),self.cancelTask)
+        QObject.connect(self.actionStop, SIGNAL('triggered(bool)'),self.abortViewer)
         QObject.connect(self.actionComment, SIGNAL('triggered(bool)'),self.codeeditor.comment)
         QObject.connect(self.actionUncomment, SIGNAL('triggered(bool)'),self.codeeditor.uncomment)
         QObject.connect(self.actionInsertTab, SIGNAL('triggered(bool)'),self.codeeditor.tab)
@@ -175,6 +196,8 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         settings.restoreState(self)
         self.createRecentMenu()
         self.textEditionWatch = True
+    def abortViewer(self):
+        self.viewAbortFunc.shouldAbort()
     def currentSimulation(self):
         return self.simulations[self.currentSimulationId]
     def changeDocument(self,id):
@@ -419,6 +442,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
     def run(self):
       self.acquireCR()
       try:
+        self.viewAbortFunc.reset()
         Viewer.start()
         Viewer.animation(False)
         simu = self.currentSimulation()
@@ -433,6 +457,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
     def step(self):
       self.acquireCR()
       simu = self.currentSimulation()
+      self.viewAbortFunc.reset()
       try:
         task = ComputationTask(simu.step,simu.post_step,simu.pre_step,cleanupprocess=simu.cleanup)
         self.registerTask(task)
@@ -453,6 +478,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.iterateTo()
       else:
         self.acquireCR()
+        self.viewAbortFunc.reset()
         simu = self.currentSimulation()
         try:
           task = ComputationTask(simu.iterate,simu.post_step,simu.pre_step,cleanupprocess=simu.cleanup)
@@ -466,6 +492,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
       else:
         self.debugMode = True
         self.acquireCR()
+        self.viewAbortFunc.reset()
         simu = self.currentSimulation()
         try:
             simu.debug()
@@ -477,6 +504,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
       self.profilerDock.show()
       self.acquireCR()
       simu = self.currentSimulation()      
+      self.viewAbortFunc.reset()
       try:
         task = ComputationTask(simu.profile,simu.post_profile,simu.pre_profile,cleanupprocess=simu.cleanup)
         task.mode = self.profilingMode
@@ -495,6 +523,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
     def animate(self):
       self.acquireCR()
       simu = self.currentSimulation()
+      self.viewAbortFunc.reset()
       try:
         task = ComputationTask(simu.animate,simu.post_animate,simu.pre_animate,cleanupprocess=simu.cleanup)
         task.fitAnimationView = self.fitAnimationView

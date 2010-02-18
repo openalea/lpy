@@ -202,8 +202,19 @@ public:
   inline void setAnimationEnabled(bool enabled) { __animation_enabled = enabled; }
 
   /** Specify if the selection check is required */
-  bool isSelectionRequired() const;
-  void setSelectionRequired(bool enabled);
+  bool isSelectionAlwaysRequired() const;
+  void setSelectionAlwaysRequired(bool enabled);
+
+  void requestSelection(const std::string& message) {
+	__selection_requested = true;
+	__selection_message = message;
+  }
+  inline bool isSelectionRequested() const { return __selection_requested; }
+  inline const std::string& getSelectionMessage() const { return __selection_message; }
+
+  void selectionAquired() {
+	__selection_requested = false;
+  }
 
   /// Specify whether a warning should be made if found sharp module
   inline bool warnWithSharpModule() const { return __warn_with_sharp_module; }
@@ -297,7 +308,9 @@ protected:
   AxialTree __nproduction;
 
   /// selection required property
-  bool __selection_required;
+  bool __selection_always_required;
+  std::string __selection_message;
+  bool __selection_requested;
 
   /// Warn if found sharp module
   bool __warn_with_sharp_module;
@@ -414,11 +427,14 @@ inline void LPY_API frameDisplay(bool enabled)
 inline bool LPY_API isFrameDisplayed()
 { return LsysContext::currentContext()->isFrameDisplayed(); }
 
-inline void LPY_API setSelectionRequired(bool enabled)
-{ LsysContext::currentContext()->setSelectionRequired(enabled); }
+inline void LPY_API setSelectionAlwaysRequired(bool enabled)
+{ LsysContext::currentContext()->setSelectionAlwaysRequired(enabled); }
 
-inline bool LPY_API isSelectionRequired()
-{ return LsysContext::currentContext()->isSelectionRequired(); }
+inline void LPY_API requestSelection(const std::string& message)
+{ LsysContext::currentContext()->requestSelection(message); }
+
+inline bool LPY_API isSelectionAlwaysRequired()
+{ return LsysContext::currentContext()->isSelectionAlwaysRequired(); }
 
 inline size_t LPY_API getIterationNb()
 { return LsysContext::currentContext()->getIterationNb(); }

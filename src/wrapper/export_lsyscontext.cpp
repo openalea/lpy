@@ -35,6 +35,7 @@
 #include <boost/python/raw_function.hpp>
 
 using namespace boost::python;
+#define bp boost::python
 LPY_USING_NAMESPACE
 PGL_USING_NAMESPACE
 
@@ -162,8 +163,9 @@ void export_LsysContext(){
     .def("getGroup",  &LsysContext::getGroup)
 	.def("frameDisplay",  &LsysContext::frameDisplay,(bp::arg("enabled")=true))
     .def("isFrameDisplayed",  &LsysContext::isFrameDisplayed)
-    .def("isSelectionRequired", &LsysContext::isSelectionRequired)
-    .def("setSelectionRequired", &LsysContext::setSelectionRequired)
+    .def("isSelectionAlwaysRequired", &LsysContext::isSelectionAlwaysRequired)
+    .def("setSelectionAlwaysRequired", &LsysContext::setSelectionAlwaysRequired)
+    .def("requestSelection", &LsysContext::requestSelection,(bp::arg("message")))
     .def("getIterationNb", &LsysContext::getIterationNb)
     .def("isAnimationEnabled",  &LsysContext::isAnimationEnabled)
 	.add_property("__production_buffer__",&LsysContext::get_nproduction,&LsysContext::set_nproduction)
@@ -185,8 +187,9 @@ void export_LsysContext(){
     def("getGroup",  &getGroup);
 	def("frameDisplay",  &frameDisplay,(bp::arg("enabled")=true));
     def("isFrameDisplayed",  &isFrameDisplayed);
-    def("isSelectionRequired", &isSelectionRequired);
-    def("setSelectionRequired", &setSelectionRequired);
+    def("isSelectionAlwaysRequired", &isSelectionAlwaysRequired);
+    def("setSelectionAlwaysRequired", &setSelectionAlwaysRequired);
+	def("requestSelection", &requestSelection,(bp::arg("message")));
     def("getIterationNb", &getIterationNb);
     def("isAnimationEnabled",  &isAnimationEnabled);
 	def("declare", &declare);

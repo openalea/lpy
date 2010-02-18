@@ -210,7 +210,8 @@ LsysContext::LsysContext():
 __ignore_method(true),
 __direction(eForward),
 __group(0),
-__selection_required(false),
+__selection_always_required(false),
+__selection_requested(false),
 __warn_with_sharp_module(true),
 return_if_no_matching(true),
 optimizationLevel(DEFAULT_OPTIMIZATION_LEVEL),
@@ -233,7 +234,8 @@ LsysContext::LsysContext(const LsysContext& lsys):
   __direction(lsys.__direction),
   __group(lsys.__group),
   __nproduction(lsys.__nproduction),
-  __selection_required(lsys.__selection_required),
+  __selection_always_required(lsys.__selection_always_required),
+  __selection_requested(false),
   __warn_with_sharp_module(lsys.__warn_with_sharp_module),
   return_if_no_matching(lsys.return_if_no_matching),
   optimizationLevel(lsys.optimizationLevel),
@@ -258,7 +260,8 @@ LsysContext::operator=(const LsysContext& lsys)
   __direction = lsys.__direction;
   __group = lsys.__group;
   __nproduction = lsys.__nproduction;
-  __selection_required = lsys.__selection_required;
+  __selection_always_required = lsys.__selection_always_required;
+  __selection_requested = false;
   __warn_with_sharp_module = lsys.__warn_with_sharp_module;
   return_if_no_matching = lsys.return_if_no_matching;
   optimizationLevel = lsys.optimizationLevel;
@@ -333,9 +336,9 @@ void LsysContext::init_options()
 	option->setDefault(turtle.warnOnError());	
 #endif
 	/** selection required option */
-	option = options.add("Selection Required","Set whether selection check in GUI is required or not. Selection is then transform in X module in the Lstring.","Interaction");
-	option->addValue("Disabled",this,&LsysContext::setSelectionRequired,false,"Disable Selection Check.");
-	option->addValue("Enabled",this,&LsysContext::setSelectionRequired,true,"Enable Selection Check.");
+	option = options.add("Selection Always Required","Set whether selection check in GUI is required or not. Selection is then transform in X module in the Lstring.","Interaction");
+	option->addValue("Disabled",this,&LsysContext::setSelectionAlwaysRequired,false,"Disable Selection Check.");
+	option->addValue("Enabled",this,&LsysContext::setSelectionAlwaysRequired,true,"Enable Selection Check.");
 	option->setDefault(0);
 }
 
@@ -345,7 +348,8 @@ LsysContext::clear(){
   __ignore_method = true;
   __direction = eForward;
   __group = 0;
-  __selection_required = false;
+  __selection_always_required = false;
+  __selection_requested = false;
   __iteration_nb = 0;
   __animation_enabled = false;
   __nbargs_of_endeach = 0;
@@ -811,15 +815,15 @@ LsysContext::is_animation_timestep_to_default()
 /*---------------------------------------------------------------------------*/
 
 bool 
-LsysContext::isSelectionRequired() const
-{ return __selection_required; }
+LsysContext::isSelectionAlwaysRequired() const
+{ return __selection_always_required; }
 
 void 
-LsysContext::setSelectionRequired(bool enabled)
+LsysContext::setSelectionAlwaysRequired(bool enabled)
 { 
-	if (__selection_required != enabled){
-		__selection_required = enabled; 
-		options.setSelection("Selection Required",(size_t)enabled);
+	if (__selection_always_required != enabled){
+		__selection_always_required = enabled; 
+		options.setSelection("Selection Always Required",(size_t)enabled);
 	}
 }
 

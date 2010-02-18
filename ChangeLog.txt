@@ -1,8 +1,374 @@
-Lpy 1.4.0
----------
-For a detailled description of the changelog see `wiki changelog <http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=packages:vplants:lpy:changelog>`__
+*July 24th 2009:* version 1.4.0 (rev 6689):
+-------------------------------------------
+  
+    * Introduce ``Lsystem::Debugger``
+    * Introduce first ui of a Lsystem Debugger.
+    * fix bug with animation when resuming (avoid reloading text)
 
 
+*July 17th 2009:* version 1.3.0 (rev 6635):
+-------------------------------------------
 
-29 05 2007: 
-  * First version using sconsX and new version of plantgl
+    * Introduce static rules
+    * introduce structures PatternModule and PatternString
+    * add parametric production (to avoid use of python list)
+    * add optimization level option
+    * add not named variable to avoid useless arg value retrieval
+    * add heuristic to find static rule and not named variable
+    * add ``RuleMap`` to avoid useless test
+    * Introduce compilation with ``Cython``
+    * Introduce compilation with ``python -OO``
+    * add possibility to store arg into a vector instead of creating a python list when retrieving arg.
+    * enable switching order of simulation in tab
+    * fix bug with first view computation in animation
+    * fix bug with query module value assignment
+    * allow lazy copy of parameters
+    * add examples/tutorial/models
+    * Regular Expression in strict predecessor
+    * introduce ``or`` module to alternative matching
+    * add possibility to retrieve directly module
+    * add possibility to name parameters of module and access them as member of the module
+    * make particular test for matching with module any (or \*)
+    * improve iterator
+    * check index when accessing module parameter. Throw exception if required.
+    * allow produce None to produce empty string
+    * fix bug with selection
+    * fix bug updateNamespace function of LsysContext.
+    * fix bug with PyQt/Qt4.5
+
+
+*May 30th 2009:* version 1.2.0 (rev 6470):
+-------------------------------------------
+
+    * Introduce option ``early return when no matching`` 
+    * raise error/warning when detecting ``#`` smb 
+    * fix bug with alias
+    * Introduce ``filtering`` on parameter value 
+    * Introduce ``Repeated Expression``
+    * ``getVarNb`` function added
+    * Introduce Category of Module
+    * Introduce ``Tropism``
+    * Introduce ``SetContour`` of GeneralizedCylinder
+    * Introduce production of ``new(name)`` and produce of ``A(*arg)``
+    * Introduce ``GetIterator`` on some part of the structure
+    
+*March 17th 2009:* version 1.1.0 (rev 6096):
+--------------------------------------------
+
+    * Compatibility with PlantGL : RefCountPtr/pgl_hash_map/...
+    * Compatibility with OpenAlea : update nodes
+    * Introduce ``MatchingEngine`` 
+    * add ``StringMatchingMethod``
+    * Introduce multiscale matching with ``MScaleAxialTree`` and ``MLevelAxialTree``
+    * use template method for matching
+    * Introduce ``ModuleVTable`` to add property to module class
+    * Introduce ``scale`` property
+    * simplify some wrapping code
+    * fix bug with context activation
+    
+*October 8th 2008:* version 1.0.0 (rev 5581):
+---------------------------------------------
+
+    * small bug fix mainly on MacOSX
+    * improve packaging
+    
+*September 11th 2008:* version 1.0.0 release candidate 3 (rev 5529):
+--------------------------------------------------------------------
+  
+    * split tool bar into 2.
+    * add ``Save All`` feature.
+    * fix small bug with ``Lsystem`` initialisation.
+    * fix bug with text encoding and ``SyntaxHighlighter``.
+    * fix bug with path on compile_ui rc generation.
+    * fix bug with ``SyntaxError``. Treat them as special case.
+    * add arguments to ``EndEach``.
+    * correct bugs with ``str`` and ``repr`` on ``AxialTree``.
+    * make ``saveImage`` re definable.
+    * simplify ``plot`` redefinition api. A ``plotter`` object can be pass.
+    
+*September 4th 2008:* version 1.0.0 release candidate 2 (rev 5469):
+-------------------------------------------------------------------
+  
+    * fix bug with signal ``valueChanged()`` of material editor.
+    * fix bug with import of local python file.
+    * compatibility with ``py2exe``.
+    
+*August 13th 2008:* version 1.0.0 release candidate 1 (rev 5408):
+-----------------------------------------------------------------
+  
+    * fix small text encoding bugs.
+    * release candidate version.
+
+*August 12th 2008:* version 0.20.2 (rev 5401):
+----------------------------------------------
+  
+    * introduce ``LpyParsing`` namespace.
+    * introduce set of function and member of ``LpyParsing`` to check format version compatibility and support.
+    * format version test in parsing.
+    * simple test of gui.
+    * gui stream redirection improvement.
+    * change variable ``tree`` to ``lstring`` into python shell of gui.
+    * update documentation.
+    * add ``documentation.getWikiSpecification``.
+
+*August 11th 2008:* version 0.20.1 (rev 5397):
+----------------------------------------------
+
+    * now load initialisation code before lpy code in ``Lsystem.set``. Add a test for this.
+    * fix bugs with add/remove tab and comment in code editor. add icons to the buttons.
+    * add possibility to enable/disable view of tab in code editor.
+    * add option to see text below button of tool bar.
+    * add automatic test of examples of ``share/``.
+
+*August 8th 2008:* version 0.20.0 (rev 5394):
+---------------------------------------------
+
+    * text editor improvement:
+      * add text zooming capability.
+      * font and size selection.
+      * tab space replacement and tab size control.
+    * file monitoring.
+    * tool bar style selection.
+    * preference dialog.
+
+*August 7th 2008:* version 0.19.2 (rev 5390):
+---------------------------------------------
+
+    * automatic reload of last opened document.
+    * add new rule to syntax highlighting:
+      * function names are in magenta.
+      * strings are in grey.
+      * tabs and spaces of the begining of a line are marked in different greys to prevent mixing.
+      * operators and delimiters are in dark blue.
+      * number are in red.
+    * make smaller border in the gui.
+    * fix bug with closing application and saving documents.
+    * set simulation in modified state when changing options.
+
+*August 6th 2008:* version 0.19.1 (rev 5388):
+---------------------------------------------
+
+    * add module undeclaration and query module declaration features.
+    * fix bug with parsing and comments.
+    * improve lines correspondence in lpy translation.
+    * syntax error highlight in editor.
+    * fix bug with project code mess up when several project are opened in Gui.
+
+*August 5th 2008:* version 0.19.0 (rev 5385):
+---------------------------------------------
+
+    * change GUI interface to have dock widgets and multiple documents editing.
+    * remove modules ``G`` and ``g``.
+    * remove ``None`` module from doc.
+
+*July 28th 2008:* version 0.18.1 (rev 5351):
+--------------------------------------------
+
+    * replace ``PYLSYS`` prefix by ``LPY``.
+    * remove ``StringInterpreter`` class.
+    * add documentation to predefined modules.
+    
+*July 24th 2008:* version 0.18.0 (rev 5338):
+--------------------------------------------
+
+    * Rename project as ``lpy``. Change file and dir names accordingly.
+    * fix bug with ``produce *``
+    * separate matching from application in ``LsysRule`` (now has ``match`` and ``applyTo`` functions).
+    * fix bug with ``LsysOption.isToDefault``.
+    * clean examples of ``share/``.
+
+*July 21th 2008:* version 0.17.2 (rev 5278):
+--------------------------------------------
+
+    * Fix bug with ``GlobalContext``. Add a ``__local_namespace`` to contain ``LsysRule`` code.
+    * Add memory tracker (``TRACKER_ENABLED`` to activate) with memory report on stderr at the end.
+    * ``LsysRule`` :
+      * change  interface to avoid exception raise inside constructor.
+      * function ``set`` from python automatically call compile by default.
+    * create predefined modules into a separate cpp file.
+    * Update code files header.
+
+*July 18th 2008:* version 0.17.1 (rev 5269): 
+--------------------------------------------
+
+    * remove intermediate structure for turtle interpretation. Each predefined modules has a custom ``ModuleClass`` class. 
+
+*July 10th 2008:* version 0.17.0 (rev 5224): 
+--------------------------------------------
+
+    * add turtle interpretation as a function of each module class. for now, use intermediate structure.
+    * fix bug with module matching mode.
+    * add lineno to rules for error display.
+    * improve parsing.
+    * add simple tests on geometry of interpretation.
+
+*July 7th 2008:* version 0.16.0 (rev 5200): 
+-------------------------------------------
+
+    * fix bugs:
+    
+      * in argument parsing of query module.
+      * with ``*args`` variable name in ``LsysRule`` generated code.
+      * with use of ``*`` module: first arg is always matched module name.
+      * with left matching of rule in backward mode.
+      
+    * remove ``LsysContext`` from stack when deleted.
+    * Lsystem object:
+    
+       * possibility to enabled or disabled (``makeCurrent`` or ``done``) its context.
+       * print declared modules when print.
+       
+    * report query module and axialtree parsing code in lpy_parser.
+    * ``ModuleClass`` are augmented with an active state. Allow to use always the same ``ModuleClass`` in different namespaces.
+    * matching tests are a lot augmented.
+
+*July 2nd 2008:* version 0.15.1 (rev 5178): 
+-------------------------------------------
+
+    * use declared module in rule predecessors.
+
+*July 2nd 2008:* version 0.15.0 (rev 5171): 
+-------------------------------------------
+
+    * add module declaration:
+    
+      * introduce ``ModuleClass`` and ``ModuleClassTable``.
+      * look for longest name when parsing Lstring.
+      * ``LsysContext`` has their own moduleclass namespace.
+      
+    * add ``sceneInterpretation`` in ``Lsystem`` to get homomorphism resulting ``Scene``.
+    * process line starting by ``#`` as comment line in production blocks of lpy code.
+
+*June 17th 2008:* version 0.14.1 (rev 5119): 
+--------------------------------------------
+
+    * Fix bug with space in Lsystem string.
+    * Fix bug with window specific end line in Lsystem code.
+    * Fix bug with ``nproduce`` in Lsystem rules.
+    * Add tests normalized with ``nosetests`` convention.
+    * Fix bugs with LsysOption template and gcc
+    * Redefined ``len`` cpp function in ``lsysrule.cpp`` now compatible with all ``boost.python`` version.
+
+*June 12th 2008:* version 0.14.0 (rev 5086): 
+--------------------------------------------
+  
+    * Define ``LsysOptions`` class and mechanism to simply add an option, its possible value and corresponding slots.
+    * Add an ``LsysOptions`` to ``LsysContext``.
+    * Graphic edition of the options of ``LsysContext``.
+    * Avoid copying of ``LsysRule`` when iterating in ``Lsystem``.
+    * Add function ``getIterationNb``.
+    * Add control on module matching : Simple, with ``*`` module or with also ``*args`` parameters.
+
+*June 4th 2008:* version 0.13.1 (rev 4996): 
+-------------------------------------------
+
+    * fix bug with ``animate`` number of iterations.
+    * fix bugs with multi-threading and visual shell. Introduce for this sources for new ``Shell`` classes copied from visualea and modified them thus that text writing is protected from concurrent access.
+
+*May 30th 2008:* version 0.13.0 (rev 4983): 
+-------------------------------------------
+
+    * ``Lsystem`` interface update:
+    
+       * function ``run`` disappear.
+       * function ``iterate`` has an extra argument starting iteration number.
+       * function ``interpret`` is available and take as arg a Turtle.
+       * function ``plot`` do an ``interpret`` and a ``plot`` of the resulting pgl scene.
+       * Fix bug with ``homomorphism``.
+       * Interpretation before iteration :
+       
+          * can be avoid with an extra arg to iterate.
+          * done with ``interpret``.
+          
+    * ``LsysRule.apply`` is now ``const``. python code should be compile before. Else an exception is raised.
+    * ``LsysContext`` updated:
+    
+       * ``readAxiom`` disappear.
+       
+    * parsing :
+    
+       * Related functions regrouped into a new file named lpy_``parser``.
+       * ``l2py`` function renamed ``lstring2py``.
+       
+    * ``StringInterpreter`` has now possibility to change of ``Turtle``.
+    * GUI:
+    
+       * First call of ``Step`` produces now the axiom.
+
+*May 23th 2008:* version 0.12.2 (rev 4924): 
+-------------------------------------------
+
+    * change error for homomorphism rule with context as warning
+    * add possibility to give a function to retrieve selection (similarly to plot)
+
+*May 22th 2008:* version 0.12.1 (rev 4920): 
+-------------------------------------------
+
+    * add recursive application of rules for homomorphism and turtle interpretation.
+    * add selection and insertion by a ``X`` module
+    * correct bug in parsing with line starting by 'e'
+
+*May 21th 2008:* version 0.12.0 (rev 4919): 
+-------------------------------------------
+
+    * ``StringMatching`` structure to keep id matching after rule application
+
+*May 15th 2008:* version 0.11.0 (rev 4902): 
+-------------------------------------------
+
+    * add groups of rules in lsystems.
+    * small bug fix in post_install script
+
+*May 15th 2008:* version 0.10.1 (rev 4895): 
+-------------------------------------------
+
+    * prevent multiple access of lsystem even from same thread. Resolve warning from  //April 29th 2008//.
+
+*May 15th 2008:* version 0.10.0 (rev 4893): 
+-------------------------------------------
+
+    * ``animation_timestep`` is a property of ``context`` that can be changed during animation and is taken into account.
+    * ``animation_timestep`` is now saved into lpy file.
+    * add the module ``@g`` in string interpreter to plot custom plantgl geometric symbol.
+    * add the module ``_`` in string interpreter to change width. Will replace module ``#`` in the future.
+    * add a parameter to ``endBracket`` and ``beginBracket`` of AxialTree to define if current pos is [ and ] respectively if search should start before or after.
+    * fix matching bug for ``A[B[C]D]D`` with ``A > [B]D``.
+
+*May 14th 2008:* version 0.9.0 (rev 4892): 
+-------------------------------------------
+
+    * process lpy file into one py file to have exact correspondence of lines for exceptions.
+    * axiom, maximum depths and derivation length are now converted as python variables which are imported after.
+    * introduce ``nproduce`` statement.
+    * error are improved to allow syntax error, warning and syntax warning- when parsing lpy file, explicit exceptions for lpy special command error.
+    * code editor highlight line in case of error at execution.
+    * ``filename``, ``decompositionMaxDepth`` and ``homomorphismMaxDepth`` are now properties of a Lsystem.
+
+*May 13th 2008:* version 0.8.0 (rev 4889): 
+-------------------------------------------
+
+    * Merge ``kernel`` and ``gui``. Gui is now a submodule of kernel.
+
+*May 13th 2008:* develop version 0.5.2 of Gui (rev 4885):
+-------------------------------------------------------------
+
+    * add ``case sensitivity`` and ``whole word`` options into ``find`` feature
+    * add ``replace`` and ``replaceAll`` feature
+    * add ``automatic tabulation`` when enter is pressed (take into account if previous line ends by a semicolon)
+    * tabulation is done with ``LsysCodeEditor.indentation`` which can be set to ``'\t'`` or ``' '*n``
+
+*April 29th 2008:* develop version: 
+-------------------------------------------
+
+    * A mutex now protect access to Lsystem object from multiple thread. Add ``isRunning`` function to test whether it currently perform any action. **Warning:** It does not prevent multiple access from same thread (to allow embedded call of protected action e.g. ``run`` calling ``iterate``, ...).
+
+*April 29th 2008:* develop version: 
+-------------------------------------------
+
+     * Create default lsystem execution context containing ``__builtins__`` and ``openalea.pylsystems.*`` . Accessible from ``LsysContext.defaultContext()``. Have ``_main_`` context accessible using ``LsysContext.globalContext()``.
+
+*April 29th 2008:* release version: 
+-------------------------------------------
+
+      * Now version is controlled by the hexadecimal number __version__ in pylsystem.__version__. Some variables such as ``LPY_VERSION_[STR|MAJOR|MINOR]`` are created. Similar things for ``LPYGUI_VERSION_*``. This number is directly imported into setup.py to create egg. The rev is added in the ``*_VERSION_STR``. **Warning:** the ``__version__`` file has to be committed to obtain the last revision version value.
+

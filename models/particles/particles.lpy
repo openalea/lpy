@@ -38,8 +38,8 @@ P(pos,speed,t):
   speed += g
   pos += speed * step
   if pos.z < 0:
-     if norm(pos) > maxrad:
-         produce
+     #if norm(pos) > maxrad:
+     #    produce
      pos.z *= -1
      speed.z *= -1
      speed *= 0.8
@@ -56,7 +56,7 @@ endlsystem
 ###### INITIALISATION ######
 
 def __initialiseContext__(context):
-	from openalea.plantgl.all import Material,Color3
+	from openalea.plantgl.scenegraph import Material,ImageTexture,Color3
 	context.turtle.setMaterial(0,Material('default',Color3(26,0,0),6.15385,Color3(40,40,40),Color3(0,0,0),1,0))
 	context.turtle.setMaterial(1,Material('Brown',Color3(2,0,22),10.7727,Color3(40,40,40),Color3(0,0,0),1,0))
 	context.turtle.setMaterial(2,Material('APPID_206',Color3(2,0,22),10.6878,Color3(40,40,40),Color3(0,0,0),1,0))

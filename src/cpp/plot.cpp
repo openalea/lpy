@@ -80,6 +80,38 @@ std::vector<uint_t> LPY::getSelection()
 
 /*---------------------------------------------------------------------------*/
 
+static WaitSelectFunction DEFAULTWAITSELECT = 
+#if PGL_VERSION >= 0x020B01
+	&ViewerApplication::waitSelection;
+#else
+	NULL;
+#endif
+
+static WaitSelectFunction __WAITSELECT = DEFAULTWAITSELECT;
+
+void LPY::registerWaitSelectionFunction(WaitSelectFunction func)
+{
+    __WAITSELECT = func;
+}
+
+void LPY::cleanWaitSelectionFunction()
+{
+	__WAITSELECT = DEFAULTWAITSELECT;
+}
+
+uint_t LPY::waitSelection(const std::string& txt)
+{
+#if PGL_VERSION >= 0x020B01
+	if (__WAITSELECT != NULL)
+#endif
+		return __WAITSELECT(txt);
+#if PGL_VERSION >= 0x020B01
+	else return UINT32_MAX;
+#endif
+}
+
+/*---------------------------------------------------------------------------*/
+
 static void pglSaveImage(const std::string& fname, const std::string& format)
 { ViewerApplication::saveImage(fname,format); }
 

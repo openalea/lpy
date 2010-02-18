@@ -1,4 +1,5 @@
 from random import random,seed,randint
+from openalea.plantgl.all import Viewer
 
 seed(10)
 
@@ -47,6 +48,8 @@ def EndEach():
   #Phase = nextPhase[Phase]
   #print "Group = ",Phase
   #print isForward() 
+  if isAnimationEnabled():
+      Viewer.frameGL.saveImage('pipemodel'+str(getIterationNb()).zfill(3)+'.png')
   pass
 
 ignore: Right Left RollR RollL Elasticity SetWidth
@@ -112,7 +115,7 @@ endlsystem
 ###### INITIALISATION ######
 
 def __initialiseContext__(context):
-	from openalea.plantgl.scenegraph import Material,Color3
+	from openalea.plantgl.scenegraph import Material,ImageTexture,Color3
 	context.turtle.setMaterial(1,Material('Brown',Color3(22,15,5),3.18182,Color3(40,40,40),Color3(0,0,0),1,0))
 	context.turtle.setMaterial(2,Material('APPID_6',Color3(26,18,6),3.16162,Color3(40,40,40),Color3(0,0,0),1,0))
 	context.turtle.setMaterial(3,Material('APPID_9',Color3(31,21,7),3.14141,Color3(40,40,40),Color3(0,0,0),1,0))
@@ -126,4 +129,3 @@ def __initialiseContext__(context):
 	context.turtle.setMaterial(11,Material('Green',Color3(30,60,10),3,Color3(40,40,40),Color3(0,0,0),1,0))
 	context.options.setSelection('Optimization',2)
 	context.options.setSelection('Early return when no matching',0)
-

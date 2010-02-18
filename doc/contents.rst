@@ -45,11 +45,6 @@ Authors
 
 .. include:: ../AUTHORS.txt
 
-ChangeLog
-=========
-
-.. include:: ../ChangeLog.txt
-
 License
 =======
 
@@ -59,3 +54,9 @@ License
     license is a LGPL compatible license.
 
 .. |lpy| replace:: VPlants.Lpy
+
+ChangeLog
+=========
+
+.. include:: ../ChangeLog.txt
+
