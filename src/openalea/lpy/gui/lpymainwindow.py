@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'd:\fred\mes documents\develop\vplants\trunk\lpy\src\openalea\lpy\gui\lpymainwindow.ui'
+# Form implementation generated from reading ui file '/home/pradal/devlp/vplants/lpy/src/openalea/lpy/gui/lpymainwindow.ui'
 #
-# Created: Wed Jan 27 16:08:13 2010
-#      by: PyQt4 UI code generator 4.5.4
+# Created: Wed Feb 17 15:21:04 2010
+#      by: PyQt4 UI code generator 4.6
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -80,7 +80,7 @@ class Ui_MainWindow(object):
         self.animtimestep.setSizePolicy(sizePolicy)
         self.animtimestep.setMinimum(1)
         self.animtimestep.setMaximum(2000)
-        self.animtimestep.setProperty("value", QtCore.QVariant(50))
+        self.animtimestep.setProperty("value", 50)
         self.animtimestep.setOrientation(QtCore.Qt.Horizontal)
         self.animtimestep.setObjectName("animtimestep")
         self.hboxlayout.addWidget(self.animtimestep)
