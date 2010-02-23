@@ -57,7 +57,7 @@ class LPY_API ModuleVTable : public TOOLS(RefCountObject) {
 public:
 	typedef pgl_hash_map_string<ModulePropertyPtr> PropertyMap;
 	friend class ModuleClass;
-	ModuleVTable(ModuleClassPtr owner = ModuleClassPtr());
+	ModuleVTable(ModuleClassPtr owner = ModuleClassPtr(), ModuleClassPtr base = ModuleClassPtr());
 	~ModuleVTable();
 
 	ModulePropertyPtr getProperty(const std::string& name) const;
@@ -66,16 +66,23 @@ public:
 
 	int scale;
 
-	ModuleClassPtr getModuleClass() const { return __owner; }
-	void setModuleClass(ModuleClassPtr mclass) { __owner = mclass; }
+	inline ModuleClassPtr getModuleClass() const { return __owner; }
+	inline void setModuleClass(ModuleClassPtr mclass) { __owner = mclass; }
+
+	inline ModuleClassPtr getBase() const { return __base; }
+	inline bool hasBaseClass() const { return __base == NULL; }
+	void setBase(ModuleClassPtr mclass) ;
 
 	void activate();
 	void desactivate(); 
 
 protected:
+	void updateInheritedParameters() ;
 
 	PropertyMap __propertymap;
 	ModuleClass * __owner;
+	ModuleClass * __base;
+
 };
 
 typedef RCPtr<ModuleVTable> ModuleVTablePtr;

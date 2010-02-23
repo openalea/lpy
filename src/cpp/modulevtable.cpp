@@ -17,11 +17,12 @@ BaseModuleProperty::~BaseModuleProperty() { DecTracker(ModuleProperty) }
 
 /*---------------------------------------------------------------------------*/
 
-ModuleVTable::ModuleVTable(ModuleClassPtr owner) : 
-	__owner(owner.get()), scale(ModuleClass::DEFAULT_SCALE)  
+ModuleVTable::ModuleVTable(ModuleClassPtr owner, ModuleClassPtr base) : 
+	__owner(owner.get()), __base(base.get()), scale(ModuleClass::DEFAULT_SCALE)  
 { 
 	LsysContext::current()->__modulesvtables.push_back(ModuleVTablePtr(this));
 	IncTracker(ModuleVTable)
+	if(__base) updateInheritedParameters();
 }
 
 ModuleVTable::~ModuleVTable() { DecTracker(ModuleVTable) }
@@ -54,6 +55,29 @@ void ModuleVTable::activate()
 void ModuleVTable::desactivate()
 {
 	if(__owner)__owner->__vtable = ModuleVTablePtr();
+}
+
+void ModuleVTable::setBase(ModuleClassPtr mclass) 
+{ 
+	__base = mclass; 
+	updateInheritedParameters();
+}
+
+void ModuleVTable::updateInheritedParameters()
+{
+	if(__base){
+		if(scale == ModuleClass::DEFAULT_SCALE){
+			ModuleClass * base = __base;
+			while (base != NULL && scale == ModuleClass::DEFAULT_SCALE){
+				ModuleVTable * basevtable = base->__vtable;
+				if( basevtable ) {
+					scale = basevtable->scale;
+					base = basevtable->__base;
+				}
+				else base = NULL;
+			}
+		}
+	}
 }
 
 /*---------------------------------------------------------------------------*/

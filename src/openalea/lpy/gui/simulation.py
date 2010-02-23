@@ -392,6 +392,8 @@ class LpySimulation:
             self.setTree(task.result,task.dl,task.timing)
             self.firstView = False
             self.lsystem.plot(task.result)
+            if self.lpywidget.displayMetaInfo  and  self.lsystem.context().has_key('__description__'):
+                Viewer.showMessage(self.lsystem.context()['__description__'],5000)
     def animate(self,task):
         edition = self.isTextEdited()
         nbiter = self.nbiterations

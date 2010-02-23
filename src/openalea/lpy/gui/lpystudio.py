@@ -75,6 +75,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.fitAnimationView = True
         self.with_thread = False
         self.showPyCode = False
+        self.displayMetaInfo = True
         self.reloadAtStartup = True
         self.fileMonitoring = True
         self.cCompilerPath = ''
