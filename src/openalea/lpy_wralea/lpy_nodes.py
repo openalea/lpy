@@ -21,7 +21,7 @@ def lsystem(code, axiom = '', derivationlength = -1, parameters = {}):
     if len(axiom):
         if type(axiom) != AxialTree:
             axiom = AxialTree(axiom)
-        l. axiom = axiom
+        l.axiom = axiom
     if derivationlength >= 0:
         l.derivationLength = derivationlength
     l.set(str(code))
