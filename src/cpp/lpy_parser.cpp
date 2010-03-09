@@ -32,6 +32,7 @@
 #include "matching.h"
 #include "lpy_parser.h"
 #include <plantgl/tool/util_string.h>
+#include <plantgl/python/extract_list.h>
 #include <QtCore/QFileInfo>
 
 using namespace boost::python;
@@ -287,11 +288,54 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
 		  _it2 = _it;
           if(has_pattern(_it,endpycode,"module")){
             code+=std::string(beg,_it2);
-			LpyParsing::ModLineDeclatation modules = LpyParsing::parse_moddeclaration_line(_it,endpycode);
+			LpyParsing::ModLineDeclaration modules = LpyParsing::parse_moddeclaration_line(_it,endpycode);
 			code+="# "+std::string(_it2,_it);
 			int scale = ModuleClass::DEFAULT_SCALE;
-			if(!modules.second.empty())
-			scale = extract<int>(__context.evaluate(modules.second))();
+			ModuleClassList inheritance;
+			pgl_hash_map_string<boost::python::object> properties;
+			// for (pgl_hash_map_string<std::string>::iterator itmeta = modules.second.begin(); itmeta != modules.second.end(); ++itmeta)
+			//	printf("'%s' = '%s'\n",itmeta->first.c_str(),itmeta->second.c_str());
+			if(!modules.second.empty()){
+				pgl_hash_map_string<std::string>::iterator it = modules.second.find("scale");
+				if (it != modules.second.end()) {
+					scale = extract<int>(__context.evaluate(it->second))();
+					modules.second.erase(it);
+				}
+				it = modules.second.find("base");
+				if (it != modules.second.end()) {
+					std::string inherit = LpyParsing::removeSpaces(it->second);
+					if(!inherit.empty()) {
+						if (inherit[0] == '[' || inherit[0] == '('){
+							inherit.insert(inherit.begin()+1,'\'');
+							size_t len = inherit.size();
+							if (inherit[len-1] != ']' && inherit[len-1] != ')')
+								LsysError("Invalid base modules '"+it->second+"'","",lineno);
+							inherit.insert(inherit.end()-1,'\'');
+							std::string::iterator itinh = inherit.begin();
+							while (itinh != inherit.end()){
+								itinh = std::find<std::string::iterator>(itinh,inherit.end(),',');
+								if (itinh != inherit.end()){
+									inherit.insert(itinh+1,'\'');
+									inherit.insert(itinh,'\'');
+									itinh += 2;
+								}
+							}
+						}
+						else {
+							inherit.insert(inherit.begin(),'\'');
+							inherit.insert(inherit.end(),'\'');
+						}
+						printf("looking for base classes\n");
+						std::vector<std::string> inheritedclassnames = extract_vec<std::string>(__context.evaluate(inherit))();
+						for(std::vector<std::string>::const_iterator iticl = inheritedclassnames.begin(); iticl != inheritedclassnames.end(); ++iticl){
+							ModuleClassPtr bsclass = ModuleClassTable::get().find(*iticl);
+							if (!bsclass) LsysError("Undefined base class '"+*iticl+"'.","",lineno);
+							inheritance.push_back(bsclass);
+						}
+					}
+					modules.second.erase(it);
+				}
+			}
 			for(LpyParsing::ModDeclarationList::const_iterator itmod = modules.first.begin(); 
 				 itmod != modules.first.end(); ++itmod){
 				ModuleClassPtr mod;
@@ -312,6 +356,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
 					__context.declareAlias(itmod->name,mod);
 				}
 				if(scale != ModuleClass::DEFAULT_SCALE)mod->setScale(scale);
+				if(!inheritance.empty())mod->setBases(inheritance);
 			}
 			beg = _it;
 			toendlineA(_it,endpycode);
@@ -326,7 +371,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
 			code+="# "+std::string(_it2,_it);
 			for(LpyParsing::ModNameList::const_iterator itmod = modules.begin(); 
 				 itmod != modules.end(); ++itmod){
-				ModuleClassPtr mod = ModuleClassTable::get().findClass(*itmod);
+				ModuleClassPtr mod = ModuleClassTable::get().find(*itmod);
 				if(mod)__context.undeclare(mod);
 				else LsysError("Cannot undeclare a not declared module",filename,lineno);
 			}
@@ -1024,6 +1069,7 @@ std::string LpyParsing::lstring2pyparam( std::string::const_iterator& beg,
 	  for(std::vector<std::pair<size_t,std::string> >::const_iterator it = parsedstring.begin();
 		  it != parsedstring.end(); ++it){
 			  if (it->first == ModuleClass::GetModule->getId()){
+				  // in the case of production $ is only followed by a var name.
 				  pprod.append_variable_module();
 				  result += "," + it->second;
 			  }
@@ -1076,7 +1122,7 @@ parseAModule( std::string::const_iterator& _it,
 	size_t mod_id;
 	size_t namesize = 0;
 	std::string mod_args;
-	ModuleClassPtr mod = ModuleClassTable::get().find(_it,endpos,namesize);
+	ModuleClassPtr mod = ModuleClassTable::get().parse(_it,endpos,namesize);
 	if (!mod){
 		LsysSyntaxError(std::string("Invalid symbol '")+*_it+"' in AxialTree.","",lineno);
 		// mod = ModuleClassTable::get().declare(*_it); ++_it; 
@@ -1089,18 +1135,21 @@ parseAModule( std::string::const_iterator& _it,
 	if (mod == ModuleClass::GetModule  ){
 		if (_it != endpos && *_it != '('){
 			has_arg = true;
-			_it2 = _it;
-			while(_it != endpos && (*_it != '=' && *_it != ' ' && *_it != '\t' && *_it != '\n')) ++_it;
-			mod_args = std::string(_it2,_it);
 			if (!production){
-				while(_it != endpos && (*_it == ' ' || *_it == '\t'))++_it;
-				if(_it == endpos || *_it != '=') LsysSyntaxError("Invalid declaration of pattern.","",lineno);
-				++_it;
-				while(_it != endpos && (*_it == ' ' || *_it == '\t'))++_it;
-				_it2 = _it;
-				parseAModule(_it,endpos,production,lineno);
-				if(_it2 != _it);
-				mod_args += ","+std::string(_it2,_it);
+				// parse the rest as if it was a module
+				std::pair<size_t,std::string> res = parseAModule(_it,endpos,production,lineno);
+				ModuleClassPtr lmod = ModuleClassTable::get().find(res.first);
+				if (lmod == ModuleClass::GetModule)
+					LsysSyntaxError(std::string("Invalid construction for get module '$")+lmod->name+"'.","",lineno);
+				// args in this case are made of the variable name and the module class name
+				mod_args = std::string(res.second.begin(),res.second.end())+","+lmod->name;
+			}
+			else {
+				  // for production, get variable name after. Should be separated from the rest with a space
+				 _it2 = _it;
+				 // a variable name is made of _ or alpbetic or numeric char 
+				 while(_it != endpos && (*_it == '_' || isalnum(*_it))) ++_it;
+				 mod_args = std::string(_it2,_it);
 			}
 			isNewExpression = true;
 		}
@@ -1291,33 +1340,42 @@ LpyParsing::parse_modlist(std::string::const_iterator& beg,
 
 /*---------------------------------------------------------------------------*/
 
-LpyParsing::ModLineDeclatation 
+LpyParsing::ModLineDeclaration 
 LpyParsing::parse_moddeclaration_line(std::string::const_iterator& beg,
 								 std::string::const_iterator endpos,
 								 char delim)
 {
-  ModLineDeclatation result;
+  ModLineDeclaration result;
   std::string::const_iterator _it = beg;
   result.first = LpyParsing::parse_moddeclist(_it,endpos,delim);
+  MetaModDeclaration metainfo;
   std::string scalevalue;
   if (_it != endpos && *_it == ':') {
-    ++_it;
-	while ((*_it == ' ' || *_it == '\t' || *_it == '\n')&& *_it != delim)++_it;
-	if (!has_pattern(_it,endpos,"scale")){
-		LsysSyntaxError("Invalid module attribute in module declaration ('scale' missing)");
-	}
-	while ((*_it == ' ' || *_it == '\t' || *_it == '\n')&& *_it != delim)++_it;
-	if (_it == endpos || *_it == delim || *_it != '=')
-		LsysSyntaxError("Invalid module attribute in module declaration ('=' missing).");
-	else _it++;
-	while ((*_it == ' ' || *_it == '\t' || *_it == '\n')&& *_it != delim)++_it;
-	std::string::const_iterator bm = _it;
-	while(_it != endpos && *_it != ',' && *_it != ' ' && *_it != '\t' && *_it != '\n' && *_it != '#' && *_it != delim) ++_it;
-	if (bm != _it){
-		scalevalue = std::string(bm,_it);
-		result.second = scalevalue;
-	}
+	  while (_it != endpos && *_it != delim && *_it != '\n' && *_it != '#') {
+		  ++_it;
+		  std::string key;
+		  while ((*_it == ' ' || *_it == '\t' || *_it == '\n')&& *_it != delim)++_it;
+		  std::string::const_iterator _keybeg = _it;
+		  while ((isalnum(*_it) || *_it == '_')&& *_it != delim)++_it;
+		  key = std::string(_keybeg,_it);
+		  while ((*_it == ' ' || *_it == '\t' || *_it == '\n')&& *_it != delim)++_it;
+		  if (_it == endpos || *_it == delim || *_it != '=')
+			  LsysSyntaxError("Invalid module attribute in module declaration ('=' missing).");
+		  else _it++;
+		  while ((*_it == ' ' || *_it == '\t' || *_it == '\n')&& *_it != delim)++_it;
+		  std::string::const_iterator _valbeg = _it;
+		  while(_it != endpos && *_it != ',' && *_it != '\n' && *_it != '#' && *_it != delim) {
+			  if (*_it == '[' || *_it == '(' || *_it == '{' || *_it == '\'' || *_it == '"') _it = next_token(_it,endpos);
+			  else ++_it;
+		  }
+		  if (_valbeg != _it){
+			  std::string value = std::string(_valbeg,_it);
+			  metainfo[key] = value;
+		  }
+		  else metainfo[key] = "";
+	  }
   }
+  result.second = metainfo;
   beg = _it;
   return result;
 }
@@ -1335,6 +1393,26 @@ std::string LpyParsing::trim(const std::string& str)
 	char c = *(_ite-1);
 	while(_ite != _itb && (c == ' ' || c == '\t' || c == '\n')){ _ite--; c = *(_ite-1); }
 	return std::string(_itb,_ite);
+}
+
+/*---------------------------------------------------------------------------*/
+
+std::string LpyParsing::removeSpaces(const std::string& str)
+{
+	/// triming name
+	std::string res = str;
+	std::string::const_iterator _itb = res.begin();
+	std::string::const_iterator _itb2 = res.begin();
+	std::string::const_iterator _ite = res.end();
+	while(_itb!=_ite) {
+		if (*_itb == ' ' || *_itb == '\t' || *_itb == '\n'){
+			_itb2 = _itb;
+			while (*_itb == ' ' || *_itb == '\t' || *_itb == '\n')_itb++;
+			res.erase(_itb2,_itb);
+		}
+		else _itb++;
+	}
+	return res;
 }
 
 /*---------------------------------------------------------------------------*/

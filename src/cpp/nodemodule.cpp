@@ -28,23 +28,25 @@
  # ---------------------------------------------------------------------------
  */
 
-#ifndef __export_lsystems_h__
-#define __export_lsystems_h__
 
-void export_Options();
-void export_ModuleClass();
-void export_Module();
-void export_PatternModule();
-void export_NodeModule();
-void export_AxialTree();
-void export_PatternString();
-void export_Interpretation();
-void export_LsysRule();
-void export_LsysContext();
-void export_Lsystem();
-void export_plot();
-void export_parser();
-void export_StringMatching();
-void export_Debugger();
+#include "nodemodule.h"
 
-#endif
+LPY_USING_NAMESPACE
+
+/*---------------------------------------------------------------------------*/
+
+NodeModule::NodeModule(AxialTree::const_iterator pos, 
+			 AxialTree::const_iterator beg, 
+			 AxialTree::const_iterator end):
+	ParamModule(*pos), __pos(pos), __beg(beg),__end(end) 
+{
+}
+
+NodeModule::NodeModule(AxialTree::const_iterator beg, AxialTree::const_iterator end):
+	ParamModule(), __pos(end), __beg(beg),__end(end) 
+{
+}
+
+NodeModule::~NodeModule() { }
+
+/*---------------------------------------------------------------------------*/

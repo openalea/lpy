@@ -34,6 +34,8 @@
 #include "lpy_config.h"
 #include <string>
 #include <vector>
+#include <plantgl/tool/util_types.h>
+#include <plantgl/tool/util_hashmap.h>
 
 LPY_BEGIN_NAMESPACE
 
@@ -116,8 +118,9 @@ public:
 	static inline ModNameList parse_modlist(std::string modules)
 		{ std::string::const_iterator it = modules.begin(); return parse_modlist(it, modules.end()); }
 
-	typedef std::pair<ModDeclarationList,std::string> ModLineDeclatation;
-	static ModLineDeclatation parse_moddeclaration_line(std::string::const_iterator& beg,
+	typedef pgl_hash_map_string<std::string> MetaModDeclaration;
+	typedef std::pair<ModDeclarationList,MetaModDeclaration> ModLineDeclaration;
+	static ModLineDeclaration parse_moddeclaration_line(std::string::const_iterator& beg,
 											  std::string::const_iterator endpos,
 											  char delim = '\n');
 
@@ -130,6 +133,7 @@ public:
 		{ return parse_arguments(args.begin(),args.end()); }
 
 	static std::string trim(const std::string& str);
+	static std::string removeSpaces(const std::string& str);
 
 	static bool isValidVariableName(const std::string& args)
 		{ return isValidVariableName(args.begin(),args.end()); }

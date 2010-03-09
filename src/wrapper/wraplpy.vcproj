@@ -231,6 +231,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\export_nodemodule.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\export_parser.cpp"
 				>
 			</File>

@@ -985,6 +985,8 @@
     <addaction name="actionSaveAll"/>
     <addaction name="actionClose"/>
     <addaction name="separator"/>
+    <addaction name="actionPrint"/>
+    <addaction name="separator"/>
     <addaction name="menuRecents"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
@@ -1594,6 +1596,15 @@
    </property>
    <property name="text">
     <string>Profile</string>
+   </property>
+  </action>
+  <action name="actionPrint">
+   <property name="icon">
+    <iconset resource="lpyresources.qrc">
+     <normaloff>:/images/icons/print.png</normaloff>:/images/icons/print.png</iconset>
+   </property>
+   <property name="text">
+    <string>Print</string>
    </property>
   </action>
  </widget>

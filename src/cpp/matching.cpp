@@ -103,6 +103,7 @@ bool MatchingEngine::module_match(const ParamModule& module,
 
 
 bool MatchingEngine::match(AxialTree::const_iterator  matching_start,
+						   AxialTree::const_iterator  string_begin,
 						   AxialTree::const_iterator  string_end,
 						   PatternString::const_iterator  pattern_begin,
 						   PatternString::const_iterator  pattern_end,
@@ -110,7 +111,7 @@ bool MatchingEngine::match(AxialTree::const_iterator  matching_start,
 						   AxialTree::const_iterator& last_matched,
 						   ArgList& params) 
 {
-	return MatchingImplementation::string_exact_match(matching_start,string_end,
+	return MatchingImplementation::string_exact_match(matching_start,string_begin,string_end,
 						                              pattern_begin,pattern_end,
 						                              matching_end,last_matched, params);
 }
@@ -129,6 +130,7 @@ bool MatchingEngine::reverse_match(AxialTree::const_iterator matching_start,
 }
 
 bool MatchingEngine::right_match(AxialTree::const_iterator  matching_start,
+  							     AxialTree::const_iterator  string_begin,
 								 AxialTree::const_iterator  string_end,
 								 PatternString::const_iterator  pattern_begin,
 								 PatternString::const_iterator  pattern_end,
@@ -136,7 +138,7 @@ bool MatchingEngine::right_match(AxialTree::const_iterator  matching_start,
 								 AxialTree::const_iterator& matching_end,
 								 ArgList& params) 
 {
-	return (*RightMatchingFunc)(matching_start,string_end,
+	return (*RightMatchingFunc)(matching_start,string_begin,string_end,
 						        pattern_begin,pattern_end,
 						        last_matched, matching_end,params);
 /*	switch(StringMatchingMethod){
@@ -190,12 +192,68 @@ bool MatchingEngine::left_match(AxialTree::const_iterator  matching_start,
 
 /*---------------------------------------------------------------------------*/
 
+
+inline bool same_name(const ParamModule& module, const PatternModule& pattern){
+	return module.sameName(pattern);
+}
+
+inline bool isinstance(const ParamModule& module, const PatternModule& pattern){
+	return module.isinstance(pattern.getClass());
+}
+
+typedef bool (*COMPAREMODULE)(const ParamModule&, const PatternModule&);
+static COMPAREMODULE compatibleName = &same_name;
+
+
+inline bool same_class(const ModuleClassPtr& module, const ModuleClassPtr& pattern){
+	return module == pattern;
+}
+
+inline bool issubclass(const ModuleClassPtr& module, const ModuleClassPtr& pattern){
+	// printf("issubclass(%s,%s) == %s\n",module->name.c_str(),pattern->name.c_str(),(module->issubclass(pattern)?"True":"False"));
+	return module->issubclass(pattern);
+}
+
+typedef bool (*COMPAREMODULECLASS)(const ModuleClassPtr&, const ModuleClassPtr&);
+static COMPAREMODULECLASS compatibleClass = &same_class;
+
+static bool INHERITEDCLASSCOMPARISON = false;
+
+void MatchingEngine::setInheritanceModuleMatchingActivated(bool b)
+{ 
+	if(INHERITEDCLASSCOMPARISON != b){
+		if (b) { 
+			compatibleName = &isinstance; 
+			compatibleClass = &issubclass;
+		}
+		else { 
+			compatibleName = &same_name;  
+			compatibleClass = &same_class;  
+		}
+		INHERITEDCLASSCOMPARISON = b;
+	}
+}
+
+bool MatchingEngine::compatible_classes(const ModuleClassPtr& module, 
+							 const ModuleClassPtr& pattern)
+{
+	if (pattern == ModuleClass::Star) return true;
+	return compatibleClass(module,pattern);
+}
+
+
+
+bool MatchingEngine::isInheritanceModuleMatchingActivated()
+{ return INHERITEDCLASSCOMPARISON; }
+
+/*---------------------------------------------------------------------------*/
+
 bool 
 MatchingImplementation::simple_module_matching(const ParamModule& module, 
 													 const PatternModule& pattern, 
 													 ArgList& l)
 {
-  if( module.sameName(pattern) && module.argSize() == pattern.argSize()){
+  if( compatibleName(module,pattern) && module.argSize() == pattern.argSize()){
 	  ArgsCollector::append_modargs(l,module.getParameterList());
 	return true;
   }
@@ -246,7 +304,7 @@ bool MatchingImplementation::module_matching_with_star(const ParamModule& module
 	}
   }
   else {
-	if (!module.sameName(pattern)) return false;
+	if (!compatibleName(module,pattern)) return false;
 	size_t s = pattern.argSize();
     size_t s2 = module.argSize();
 	if (s2 < s-1) return false;
@@ -368,7 +426,7 @@ bool MatchingImplementation::module_matching_with_star_and_valueconstraints(
 	}
   }
   else {
-	if (!module.sameName(pattern)) return false;
+	if (!compatibleName(module,pattern)) return false;
 	int s = pattern.argSize();
     int s2 = module.argSize();
 	if( s == 0) return s2 == 0;
@@ -413,6 +471,7 @@ bool MatchingImplementation::module_matching_with_star_and_valueconstraints(
 
 
 bool MatchingImplementation::string_exact_match(AxialTree::const_iterator  matching_start,
+						   AxialTree::const_iterator  string_begin,
 						   AxialTree::const_iterator  string_end,
 						   PatternString::const_iterator  pattern_begin,
 						   PatternString::const_iterator  pattern_end,
@@ -421,7 +480,7 @@ bool MatchingImplementation::string_exact_match(AxialTree::const_iterator  match
 						   ArgList& params) 
 {
 	return StringMatcher<>::
-		match(matching_start, string_end, pattern_begin, pattern_end, matching_end, last_matched, params);
+		match(matching_start, string_begin, string_end, pattern_begin, pattern_end, matching_end, last_matched, params);
 }
 
 bool MatchingImplementation::string_exact_reverse_match(AxialTree::const_iterator matching_start,
@@ -437,6 +496,7 @@ bool MatchingImplementation::string_exact_reverse_match(AxialTree::const_iterato
 }
 
 bool MatchingImplementation::string_right_match(AxialTree::const_iterator  matching_start,
+						         AxialTree::const_iterator  string_begin,
 		                         AxialTree::const_iterator  string_end,
 								 PatternString::const_iterator  pattern_begin,
 								 PatternString::const_iterator  pattern_end,
@@ -446,7 +506,7 @@ bool MatchingImplementation::string_right_match(AxialTree::const_iterator  match
 
 {
 	return StringMatcher<GetNext>::
-		match(matching_start, string_end, pattern_begin, pattern_end, matching_end, last_matched, params);
+		match(matching_start, string_begin, string_end, pattern_begin, pattern_end, matching_end, last_matched, params);
 }
 
 bool MatchingImplementation::string_left_match(AxialTree::const_iterator matching_start,
@@ -463,6 +523,7 @@ bool MatchingImplementation::string_left_match(AxialTree::const_iterator matchin
 }
 
 bool MatchingImplementation::tree_right_match(AxialTree::const_iterator  matching_start,
+								 AxialTree::const_iterator  string_beg,
 								 AxialTree::const_iterator  string_end,
 								 PatternString::const_iterator  pattern_begin,
 								 PatternString::const_iterator  pattern_end,
@@ -471,7 +532,7 @@ bool MatchingImplementation::tree_right_match(AxialTree::const_iterator  matchin
 								 ArgList& params) 
 {
 	return TreeRightMatcher<>::
-		match(matching_start, string_end, pattern_begin, pattern_end, last_matched, matching_end, params);
+		match(matching_start, string_beg, string_end, pattern_begin, pattern_end, last_matched, matching_end, params);
 }
 
 
@@ -519,6 +580,7 @@ bool MatchingImplementation::mltree_left_match(AxialTree::const_iterator matchin
 
 
 bool MatchingImplementation::mstree_right_match(AxialTree::const_iterator  matching_start,
+								 AxialTree::const_iterator  string_beg,
 								 AxialTree::const_iterator  string_end,
 								 PatternString::const_iterator  pattern_begin,
 								 PatternString::const_iterator  pattern_end,
@@ -527,10 +589,11 @@ bool MatchingImplementation::mstree_right_match(AxialTree::const_iterator  match
 								 ArgList& params) 
 {
 	return TreeRightMatcher<GetScaleSuccessor>::
-		match(matching_start, string_end, pattern_begin, pattern_end, last_matched, matching_end, params);
+		match(matching_start, string_beg, string_end, pattern_begin, pattern_end, last_matched, matching_end, params);
 }
 
 bool MatchingImplementation::mltree_right_match(AxialTree::const_iterator  matching_start,
+								 AxialTree::const_iterator  string_beg,
 								 AxialTree::const_iterator  string_end,
 								 PatternString::const_iterator  pattern_begin,
 								 PatternString::const_iterator  pattern_end,
@@ -539,7 +602,7 @@ bool MatchingImplementation::mltree_right_match(AxialTree::const_iterator  match
 								 ArgList& params) 
 {
 	return TreeRightMatcher<GetLevelSuccessor>::
-		match(matching_start, string_end, pattern_begin, pattern_end, last_matched, matching_end, params);
+		match(matching_start, string_beg, string_end, pattern_begin, pattern_end, last_matched, matching_end, params);
 }
 
 LPY_END_NAMESPACE

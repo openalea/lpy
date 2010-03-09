@@ -154,7 +154,6 @@ LsysContext::makeCurrent()
 void 
 LsysContext::done() 
 { 
-  
   if(isCurrent() && !LSYSCONTEXT_STACK.empty()){
 	CURRENT_LSYSCONTEXT = LSYSCONTEXT_STACK.back();
 	LSYSCONTEXT_STACK.pop_back();
@@ -314,6 +313,12 @@ void LsysContext::init_options()
 	option->addValue("Extension : *args",&MatchingEngine::setModuleMatchingMethod,MatchingEngine::eMWithStar,"Add matching rule that * module can match any module and allow *args to match a number of module arguments");
 	option->addValue("Extensions : *args and arg value constraints",&MatchingEngine::setModuleMatchingMethod,MatchingEngine::eMWithStarNValueConstraint,"With * module and *args. A module argument can also be set to a given value adding thus a new matching constraint.");
 	option->setDefault(MatchingEngine::eDefaultModuleMatching);
+	option->setGlobal(true);
+	/** module matching option */
+	option = options.add("Module inheritance","Specify if modules inheritance is taken into account in rules pattern matching","Matching");
+	option->addValue("Disabled",&MatchingEngine::setInheritanceModuleMatchingActivated,false,"Modules with different names are considered as different even if they inherit from each other.");
+	option->addValue("Enabled",&MatchingEngine::setInheritanceModuleMatchingActivated,true,"A module inheriting from a second one can be used for application of the first one if number of parameters are also compatible.");
+	option->setDefault(0);
 	option->setGlobal(true);
 	/** string matching option */
 	option = options.add("String matching","Specify the way strings are matched to rules pattern","Matching");
@@ -862,7 +867,6 @@ LocalContext::LocalContext(bool with_initialisation):
 
 LocalContext::~LocalContext()
 {
-	// std::cerr << "del of local context" << std::endl;
 	if(isCurrent()) done();
 	if (!LSYSCONTEXT_STACK.empty()){
 		std::vector<LsysContext *>::iterator it = LSYSCONTEXT_STACK.begin();
@@ -873,8 +877,7 @@ LocalContext::~LocalContext()
 					it = LSYSCONTEXT_STACK.begin();
 				}
 				else {
-					std::vector<LsysContext *>::iterator it2 = it;
-					it2++;
+					std::vector<LsysContext *>::iterator it2 = it+1;
 					LSYSCONTEXT_STACK.erase(it);
 					it = it2;
 				}
@@ -943,7 +946,10 @@ GlobalContext::GlobalContext():
 GlobalContext::~GlobalContext()
 {
 	// std::cerr << "global context deleted" << std::endl;
-	assert(LSYSCONTEXT_STACK.empty() && isCurrent());
+
+	if(!(LSYSCONTEXT_STACK.empty() && isCurrent()))
+		while(!isCurrent()) currentContext()->done();
+	assert(LSYSCONTEXT_STACK.empty() && isCurrent() && "LsysContext not all done!");
 	// assert(LSYSCONTEXT_STACK.empty());
 }
 

@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/images" >
+    <file>icons/print.png</file>
     <file>icons/play-yellow.png</file>
     <file>icons/wrap.png</file>
     <file>icons/greenarrow16.png</file>

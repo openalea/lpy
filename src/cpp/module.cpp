@@ -55,7 +55,7 @@ Module::Module(const Module& m) :
 { IncTracker(Module) }
 
 Module::Module(size_t classid):
-	__mclass(ModuleClassTable::get().findClass(classid))
+	__mclass(ModuleClassTable::get().find(classid))
 { IncTracker(Module) }
 
 Module::~Module()

@@ -3,7 +3,8 @@ import sys,os
 
 class TLPyWindow (LPyWindow):
     def __init__(self,*args):
-        LPyWindow.__init__(self,*args)        
+        LPyWindow.__init__(self,*args)
+        self.exitWithoutPrompt = True
         QTimer.singleShot(5000,QCoreApplication.quit)
 
 if sys.platform == 'win32':

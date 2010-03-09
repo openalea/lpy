@@ -58,8 +58,11 @@ public:
   inline const std::string& name() const {  return __mclass->name; }
   inline void setName(const std::string& c) { __mclass = ModuleClassTable::get().getClass(c); }
   inline bool sameName(const Module& m) const { return __mclass == m.__mclass;  }
+
   inline ModuleClassPtr getClass() const { lpyassert(__mclass != NULL); return __mclass; }
   inline size_t getClassId() const { return getClass()->getId(); }
+  inline bool isinstance(const ModuleClassPtr& mclass) const 
+  { return __mclass->issubclass(mclass) ;  }
 
   virtual std::string str() const;
   virtual std::string repr() const;
@@ -90,7 +93,7 @@ public:
 
   inline int scale() const { return __mclass->getScale(); }
 protected:
-  inline void setClass(size_t cid) { __mclass = ModuleClassTable::get().findClass(cid); }
+  inline void setClass(size_t cid) { __mclass = ModuleClassTable::get().find(cid); }
 private:
   ModuleClassPtr __mclass;
 };
@@ -359,6 +362,17 @@ public:
   bool match(const std::string&, size_t nbargs) const;
 
   inline void interpret(PGL::Turtle& t) { getClass()->interpret(*this,t); }
+
+  inline bool operator==(const ParamModule& other) const 
+  { return (sameName(other) && (__argholder == other.__argholder || __constargs() == other.__constargs())); }
+  inline bool operator==(const std::string& other) const 
+  { return other == name();}
+
+  inline bool operator!=(const ParamModule& other) const { return !operator==(other); }
+  inline bool operator!=(const std::string& other) const 
+  { return other != name();}
+
+
 
 protected:
   ParamModule();

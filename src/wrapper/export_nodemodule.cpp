@@ -28,52 +28,43 @@
  # ---------------------------------------------------------------------------
  */
 
-#include <iostream>
-#include <boost/python.hpp>
-#include "export_lsystem.h"
-#include "moduleclass.h"
-#include "lsyscontext.h"
-#include "tracker.h"
-#include <plantgl/gui/base/application.h>
-#include <plantgl/python/exception_core.h>
+#include "nodemodule.h"
+#include <plantgl/python/export_list.h>
 
 using namespace boost::python;
+#define bp boost::python
 LPY_USING_NAMESPACE
 
 
-void cleanLsys() 
-{
-#ifdef TRACKER_ENABLED
-	std::cerr << "****** pre-cleaning *******" << std::endl;
-	Tracker::printReport();
-#endif
-	LsysContext::cleanContexts();
-	ModuleClassTable::clearModuleClasses ();
-	ViewerApplication::exit ();
-#ifdef TRACKER_ENABLED
-	std::cerr << "****** post-cleaning ******" << std::endl;
-	Tracker::printReport();
-#endif
+bp::object translate_node(const NodeModule& res) {
+	if (!res.isValid()) return bp::object();
+	else return boost::python::object(res);
 }
 
-BOOST_PYTHON_MODULE(__lpy_kernel__)
-{
-	define_stl_exceptions();
-	export_Options();
-	export_ModuleClass();
-	export_Module();
-	export_PatternModule();
-   export_NodeModule();
-	export_AxialTree();
-	export_PatternString();
-    export_Interpretation();
-    export_LsysRule();
-    export_LsysContext();
-    export_Lsystem();
-    export_plot();
-	export_parser();
-    export_StringMatching();
-    export_Debugger();
-	// def("cleanLsys",&cleanLsys);
-	Py_AtExit(&cleanLsys);
-};
+bp::object translate_nodes(const std::vector<NodeModule>& res) {
+	if (res.empty()) return bp::object();
+	else return make_list(res);
+}
+
+bp::object py_father(const NodeModule* obj) { return translate_node(obj->father()); }
+bp::object py_directSon(const NodeModule* obj) { return translate_node(obj->directSon()); }
+bp::object py_sons(const NodeModule* obj) { return translate_nodes(obj->sons()); }
+bp::object py_lateralSons(const NodeModule* obj) { return translate_nodes(obj->lateralSons()); }
+bp::object py_complex(const NodeModule* obj) { return translate_node(obj->complex()); }
+bp::object py_complex1(const NodeModule* obj, int s) { return translate_node(obj->complex(s)); }
+
+void export_NodeModule(){
+
+	class_<NodeModule,  bases<ParamModule> >("NodeModule",no_init)
+	.def("father", &py_father)
+	.def("sons", &py_sons)
+	.def("lateralSons", &py_lateralSons)
+	.def("directSon", &py_directSon)
+	.def("complex", &py_complex)
+	.def("complex", &py_complex1)
+	.def("isValid", &NodeModule::isValid)
+	.def("isRoot", &NodeModule::isRoot)
+	.def("position", &NodeModule::position)
+	;
+
+}

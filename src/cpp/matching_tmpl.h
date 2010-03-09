@@ -33,6 +33,7 @@
 
 #include "matching.h"
 #include "axialtree_iter.h"
+#include "nodemodule.h"
 #include "argcollector_core.h"
 #include <boost/python.hpp>
 
@@ -63,22 +64,26 @@ void process_get_iterator(PIterator pattern,
 template<class argtype, class PIterator, class Iterator>
 bool process_get_module(PIterator pattern, 
 						Iterator it, 
+						Iterator string_beg, 
+						Iterator string_end, 
 						argtype& params)
 {
 	argtype lp;
-	PatternModule lpattern = bp::extract<PatternModule>(pattern->getAt(1).getPyValue())();
-	if (lpattern.argSize() > 0){
+	// get arg 1. It is supposed to be a module class that we look for
+	ModuleClassPtr lpattern = bp::extract<ModuleClassPtr>(pattern->getAt(1).getPyValue())();
+	/* if (lpattern.argSize() > 0){
 		if(MatchingEngine::module_match(*it,lpattern,lp)){
 			ArgsCollector::append_arg(params,bp::object(*it));
 			ArgsCollector::append_args(params,lp); 
 		}
 		else return false;
 	}
-	else { 
-		if(it->getClass() == lpattern.getClass())
-			ArgsCollector::append_arg(params,bp::object(*it));
+	else { */
+	if(MatchingEngine::compatible_classes(it->getClass(),lpattern))
+			// append a copy of the module
+			ArgsCollector::append_arg(params,bp::object(NodeModule(it,string_beg,string_end)));
 		else return false;
-	}
+	/* }*/
 	return true;
 }
 
@@ -181,7 +186,7 @@ public:
 	typedef typename Matcher::PIterator PIterator;
 	typedef typename Matcher::argtype argtype;
 
-	static bool match(Iterator matching_start, Iterator  string_end,
+	static bool match(Iterator matching_start, Iterator  string_beg, Iterator  string_end,
 					  PIterator pattern, Iterator& last_matched,  
 					  Iterator& matching_end, 
 					  argtype& lparams){
@@ -199,7 +204,7 @@ public:
 			size_t numiter = 0;
 			while(ok && numiter < maxiter) {
 				argtype lp;
-				if((ok = Matcher::match(it,string_end,lpattern.begin(),lpattern.end(),last_matched,it,lp)))
+				if((ok = Matcher::match(it,string_beg,string_end,lpattern.begin(),lpattern.end(),last_matched,it,lp)))
 				{  llp.push_back(lp); last_matched = it; ++it; ++numiter; }
 			}
 			if (numiter < miniter) return false;
@@ -220,7 +225,7 @@ public:
 				const PatternString& lpattern = bp::extract<const PatternString&>(it2->getAt(ip).getPyValue())();
 				nbargs.push_back(lpattern.getVarNb());
 				if(matched == -1) { 
-					if(Matcher::match(it,string_end,lpattern.begin(),lpattern.end(),last_matched,it,lp)) matched = ip;
+					if(Matcher::match(it,string_beg,string_end,lpattern.begin(),lpattern.end(),last_matched,it,lp)) matched = ip;
 				}
 			}
 			if (matched == -1) return false;
@@ -311,7 +316,7 @@ struct StringMatcher
 	typedef _NextElement<Iterator,PIterator> Next;
 	typedef StringMatcher<_NextElement,Iterator,PIterator,argtype> MType;
 
-	static bool match(Iterator matching_start, Iterator  string_end,
+	static bool match(Iterator matching_start, Iterator  string_beg, Iterator  string_end,
 					  PIterator pattern_begin, PIterator  pattern_end, 
 					  Iterator& matching_end, Iterator& last_matched,
 					  argtype& params)
@@ -323,8 +328,8 @@ struct StringMatcher
 		for (PIterator it2 = pattern_begin; it2 != pattern_end; ++it2){
 			argtype lmp;
 			if( it == string_end) return false;
-			if(it2->isGetModule()){ if(!process_get_module(it2,it,lp)) return false; }
-			else if( it2->isRE() ) { if(!RegExpMatcher<MType>::match(it,string_end,it2,pit,it,lp))return false; }
+			if(it2->isGetModule()){ if(!process_get_module(it2,it,string_beg,string_end,lp)) return false; }
+			else if( it2->isRE() ) { if(!RegExpMatcher<MType>::match(it,string_beg,string_end,it2,pit,it,lp))return false; }
 			else { 
 				if( !MatchingEngine::module_match(*it,*it2,lmp))return false;
 			    else ArgsCollector::append_args(lp,lmp); 
@@ -371,7 +376,7 @@ struct StringReverseMatcher
 			}
 			else {
 				argtype lmp; 
-				if(it2->isGetModule()){ if(!process_get_module(it2,it,lmp)) return false;  }
+				if(it2->isGetModule()){ if(!process_get_module(it2,it,string_begin,string_end,lmp)) return false;  }
 				else if(!MatchingEngine::module_match(*it,*it2,lmp)) return false; 
 				ArgsCollector::prepend_args(lp,lmp);
 				++it2;
@@ -460,7 +465,7 @@ struct TreeRightMatcher
 	typedef _NextElement<Iterator,PIterator> NextElement;
 	typedef TreeRightMatcher<_NextElement,Iterator,PIterator,argtype> MType;
 
-	static bool match(Iterator matching_start, Iterator  string_end,
+	static bool match(Iterator matching_start, Iterator  string_beg, Iterator  string_end,
 					  PIterator pattern_begin, PIterator  pattern_end, 
 					  Iterator last_matched, Iterator& matching_end, 
 					  argtype& params)
@@ -486,10 +491,10 @@ struct TreeRightMatcher
 				nextsrc = false;
 			}
 			else if(it2->isGetModule()){
-				if(!process_get_module(it2,it,lparams)) return false;
+				if(!process_get_module(it2,it,string_beg,string_end,lparams)) return false;
 			}
 			else if(it2->isRE()) {
-				if(!RegExpMatcher<MType>::match(it,string_end,it2,last_matched,it,lparams)) return false;
+				if(!RegExpMatcher<MType>::match(it,string_beg,string_end,it2,last_matched,it,lparams)) return false;
 			}
 			else if(!it2->isBracket()){ // matching a pattern module
 				if(!it->isBracket()) {

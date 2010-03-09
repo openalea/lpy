@@ -319,6 +319,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\nodemodule.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\nodemodule.h"
+				>
+			</File>
+			<File
 				RelativePath=".\paramproduction.h"
 				>
 			</File>

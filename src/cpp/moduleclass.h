@@ -157,6 +157,23 @@ public:
 	{ if (__vtable) return __vtable->getProperty(name); else return ModulePropertyPtr(); }
 
 	void setProperty(ModulePropertyPtr prop);
+
+	void setBases(const ModuleClassList& bases);
+	ModuleClassList getBases() const;
+
+	inline bool hasBaseClasses() const 
+	{ if (__vtable) return __vtable->hasBaseClasses(); else return false; }
+
+	inline bool issubclass(const ModuleClassPtr& other) const
+	{
+		if (other.get() == this) return true;
+		if(__vtable) return __vtable->issubclass(other);
+		else return false;
+	}
+
+	inline std::vector<size_t> getAllBaseIds() const 
+	{ if (__vtable) return __vtable->getAllBaseIds(); else { return std::vector<size_t>(); } } 
+
 	bool removeProperty(const std::string& name);
 	bool isOnlyInPattern() const { return onlyInPattern; }
 
@@ -185,6 +202,7 @@ private:
 	typedef pgl_hash_map_string<size_t> InternalParameterNameList;
 	InternalParameterNameList __paramnames;
 	static const InternalParameterNameList * sorter;
+
 	static bool sortNames(const std::string&,const std::string&);
 
 };
@@ -247,9 +265,9 @@ public:
 	/// get a class. If it does not exist, create it
 	ModuleClassPtr getClass(const std::string&) ;
 	/// find an existing class
-	ModuleClassPtr findClass(size_t id) const ;
+	ModuleClassPtr find(size_t id) const ;
 	/// find an existing class
-	ModuleClassPtr findClass(const std::string&) const ;
+	ModuleClassPtr find(const std::string&) const ;
 
 	bool remove(const std::string& name);
 	bool remove(const ModuleClass * moduleclass);
@@ -263,7 +281,7 @@ public:
 	static void setMandatoryDeclaration(bool value) { get().mandatory_declaration = value; }
 	bool mandatory_declaration;
 
-	ModuleClassPtr find(std::string::const_iterator beg, std::string::const_iterator end,
+	ModuleClassPtr parse(std::string::const_iterator beg, std::string::const_iterator end,
 					    size_t& nsize);
 
 protected:

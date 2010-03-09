@@ -19,14 +19,31 @@ def test_well_bracketed():
     a = AxialTree('F[F[F][G]][[F][[[G]G]FF]')
     assert a.wellBracketed() == False
 
+def test_sons():
+    l = LsysContext()
+    l.makeCurrent()
+    a = AxialTree('F[F[F][G]][F]B[[[G]G]FF]')
+    assert a.sons(0) == [2,11,13]
+    assert a.sons(2) == [4,7]
+    assert a.sons(4) == None
+
+def test_sons2():
+    l = LsysContext()
+    l.makeCurrent()
+    a = AxialTree('F[F]F')
+    assert a.sons(0) == [2,4]
+    assert a.sons(2) == None
+    assert a.sons(4) == None
+
 def test_directson():
     l = LsysContext()
     l.makeCurrent()
     a = AxialTree('F[F[F][G]][F]B[[[G]G]FF]')
     assert a.directSon(0) == 13
-    assert a.directSon(2) == -1
-    assert a.directSon(13) == -1
-    
+    assert a.directSon(2) == None
+    assert a.directSon(13) == None
+
+   
 def test_father():
     l = LsysContext()
     l.makeCurrent()

@@ -64,7 +64,7 @@ std::string StringInterpreter::help(const std::string& command){
 /*---------------------------------------------------------------------------*/
 
 std::string LPY::helpTurtle(const std::string& command){
-  ModuleClassPtr m = ModuleClassTable::get().findClass(command);
+  ModuleClassPtr m = ModuleClassTable::get().find(command);
   if (m) return m->getDocumentation();
   else return "";
 }

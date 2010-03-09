@@ -536,7 +536,7 @@ LsysRule::match(const AxialTree& src,
   AxialTree::const_iterator endpos1;
   AxialTree::const_iterator last_match = pos;
   if (direction == eForward){
-   if(!MatchingEngine::match(pos,src.const_end(),__predecessor.const_begin(),__predecessor.const_end(),endpos1,last_match,args_pred))
+   if(!MatchingEngine::match(pos,src.const_begin(),src.const_end(),__predecessor.const_begin(),__predecessor.const_end(),endpos1,last_match,args_pred))
 	 return false;
   }
   else{
@@ -565,14 +565,14 @@ LsysRule::match(const AxialTree& src,
   ArgsCollector::append_args(args,args_pred);
   if(direction == eBackward && !__newrightcontext.empty()){
 	ArgList args_ncd;
-    if(!MatchingEngine::right_match(dest.const_begin(),dest.const_end(),
+    if(!MatchingEngine::right_match(dest.const_begin(),dest.const_begin(),dest.const_end(),
 		                          __newrightcontext.const_begin(),__newrightcontext.const_end(),
 								  last_match,endpos2,args_ncd))return false;
 	ArgsCollector::append_args(args,args_ncd);
   }
   if(!__rightcontext.empty()){
 	ArgList args_cd;
-    if(!MatchingEngine::right_match(endpos1,src.const_end(),
+    if(!MatchingEngine::right_match(endpos1,src.const_begin(),src.const_end(),
 		                          __rightcontext.const_begin(),__rightcontext.const_end(),
 								  last_match,endpos2,args_cd))return false;
 	ArgsCollector::append_args(args,args_cd);
@@ -628,18 +628,39 @@ LsysRule::process( const AxialTree& src ) const {
 RulePtrMap::RulePtrMap(const RulePtrSet& rules):
 	__map(ModuleClass::getMaxId()), __nbrules(rules.size()), __maxsmb(0)
 {
-	
+	/* all classes. Required for inheritance tests */
+	ModuleClassList allclasses = ModuleClassTable::get().getClasses();
+	// preprocess classes to test only classes that derived from others
+    ModuleClassList derivedclasses;
+	for(ModuleClassList::const_iterator itCl = allclasses.begin(); itCl != allclasses.end(); ++itCl)
+		if ((*itCl)->hasBaseClasses()) derivedclasses.push_back(*itCl);
+
+
+    // Process all rules and get ids that match first pattern module
 	for(RulePtrSet::const_iterator it = rules.begin(); it != rules.end(); ++it){
 		std::vector<size_t> ids = (*it)->predecessor().getFirstClassId();
 		for(std::vector<size_t>::const_iterator itid = ids.begin(); itid != ids.end(); ++itid){
+			// star module match everythings.
 			if(*itid == ModuleClass::Star->getId()){
 				for(RulePtrSetMap::iterator itmap = __map.begin(); itmap != __map.end(); ++itmap)
 					itmap->push_back(*it);
 				__defaultset.push_back(*it);
 			}
-			else __map[*itid].push_back(*it);
+			else { 
+				__map[*itid].push_back(*it);
+				/* In the case of inheritance, we should find derived classes 
+				   that can match a base pattern */
+				if (MatchingEngine::isInheritanceModuleMatchingActivated() && !derivedclasses.empty()){
+					ModuleClassPtr mclass = ModuleClassTable::get().find(*itid);
+					for(ModuleClassList::const_iterator itCl = derivedclasses.begin(); itCl != derivedclasses.end(); ++itCl)
+						if(*itCl != mclass && (*itCl)->issubclass(mclass)){
+							__map[(*itCl)->getId()].push_back(*it);
+						}
+				}
+			}
 		}
 	}
+	// we check for now how much symbol are included
 	__maxsmb = __map.size();
 }
 
@@ -647,4 +668,6 @@ RulePtrMap::RulePtrMap():
 	__map(0), __nbrules(0), __maxsmb(0)
 {
 }
+
+
 /*---------------------------------------------------------------------------*/

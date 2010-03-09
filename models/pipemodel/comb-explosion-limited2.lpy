@@ -86,6 +86,7 @@ A(t,o) :
 # python version with multiple pattern matching.
 I(t,w) >> x( [ *(name in 'AI' , tr, wr) ] ) --> I(t+dt,sum([v for n,v in zip(name,wr) if n == 'I'])+1)
 
+I(t,w) >> x( [ or(I(tr,wr),A(tr2,o)) ] ) --> I(t+dt,sum(filter(None,wr))+1)
 
 endgroup
 

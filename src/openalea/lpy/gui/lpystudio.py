@@ -78,6 +78,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.displayMetaInfo = True
         self.reloadAtStartup = True
         self.fileMonitoring = True
+        self.exitWithoutPrompt = False
         self.cCompilerPath = ''
         self.profilingMode = ProfilingWithFinalPlot
         self.desc_items = {'__authors__'   : self.authorsEdit,
@@ -184,6 +185,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         QObject.connect(self.curvepanel, SIGNAL('valueChanged()'),self.projectParameterEdited)
         QObject.connect(self.scalarEditor, SIGNAL('valueChanged()'),self.projectEdited)
         QObject.connect(self.scalarEditor, SIGNAL('valueChanged()'),self.projectParameterEdited)
+        QObject.connect(self.actionPrint, SIGNAL('triggered(bool)'),self.printCode)
         self.aboutLpy = lambda x : doc.aboutLpy(self)
         QObject.connect(self.actionAbout, SIGNAL('triggered(bool)'),self.aboutLpy)
         QObject.connect(self.actionAboutQt, SIGNAL('triggered(bool)'),QApplication.aboutQt)
@@ -256,11 +258,23 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.debugger.endDebug()
         Viewer.stop()    
         settings.saveState(self)
-        for simu in reversed(self.simulations):
-            if not simu.close():
-                e.ignore()
-                return
-        e.accept()
+        prompt = False
+        if not self.exitWithoutPrompt:
+            for simu in self.simulations:
+               prompt = (prompt or simu.isEdited())
+               if prompt: break
+        if not prompt:
+            answer = QMessageBox.warning(self,"Quitting","Are you sure ?", QMessageBox.Ok,QMessageBox.Cancel)
+            if answer == QMessageBox.Cancel: e.ignore()
+            else:  e.accept()
+        else:    
+            for simu in reversed(self.simulations):
+                if not simu.close(): 
+                    e.ignore()
+                    return
+            e.accept()
+        if e.isAccepted():
+            self.interpreter.locals.clear()
     def taskRunningEvent(self):
         self.statusBar().showMessage('A task is already running !',5000)
         raise Exception('A task is already running')
@@ -366,6 +380,12 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         t = 'L-Py - '
         t += self.currentSimulation().getTabName()
         self.setWindowTitle(t)
+    def printCode(self):
+        printer = QPrinter()
+        dialog =  QPrintDialog(printer, self);
+        dialog.setWindowTitle("Print Document");
+        if dialog.exec_() != QDialog.Accepted: return
+        self.codeeditor.print_(printer)
     def createNewLsystem(self, fname = None):
         i = len(self.simulations)
         self.simulations.append(LpySimulation(self,i,fname))

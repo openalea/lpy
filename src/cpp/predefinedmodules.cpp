@@ -452,13 +452,16 @@ DeclareModuleBegin(tropism,"Set Tropism. Params : Vector3 (optional, default= (1
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(setcontour,"Set Cross Section of Generalized Cylinder. Params : Curve2D.",ePrimitive)
+DeclareModuleBegin(setcontour,"Set Cross Section of Generalized Cylinder. Params : Curve2D [, ccw].",ePrimitive)
 {
 	size_t nbargs = m.size();
 	switch (nbargs) {
 		case 0: LsysWarning("missing argument to SetContour"); break;
-		default:
+		case 1:
 			t.setCrossSection(bp::extract<Curve2DPtr>(m.getAt(0))()); 
+			break;
+		case 2:
+			t.setCrossSection(bp::extract<Curve2DPtr>(m.getAt(0))(),bp::extract<bool>(m.getAt(1))()); 
 			break;
 	}
 }
@@ -477,19 +480,21 @@ DeclareModuleBegin(sectionResolution,"Set Resolution of Section of Cylinder. Par
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(setguide,"Set Guide for turtle tracing. Params : Curve[2D|3D], length.",ePrimitive)
+DeclareModuleBegin(setguide,"Set Guide for turtle tracing. Params : Curve[2D|3D], length [,yorientation, ccw].",ePrimitive)
 {
 #if PGL_VERSION >= 0x020B00
 	size_t nbargs = m.size();
 	switch (nbargs) {
 		case 0: 
-		case 1: 
+			t.clearGuide(); break;
+		case 1: 			
 			LsysWarning("missing argument to SetGuide"); break;
 		default:
 			bp::extract<Curve2DPtr> ec2d(m.getAt(0));
 			if (ec2d.check()) {
 				if(nbargs == 2) t.setGuide(ec2d(),m._getReal(1)); 
-				else t.setGuide(ec2d(),m._getReal(1),bp::extract<bool>(m.getAt(2))); 
+				else if(nbargs == 3) t.setGuide(ec2d(),m._getReal(1),bp::extract<bool>(m.getAt(2))); 
+				else t.setGuide(ec2d(),m._getReal(1),bp::extract<bool>(m.getAt(2)),bp::extract<bool>(m.getAt(3))); 
 			}
 			else t.setGuide(bp::extract<LineicModelPtr>(m.getAt(0))(),m._getReal(1)); 
 			break;

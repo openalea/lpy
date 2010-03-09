@@ -133,6 +133,20 @@ bool ModuleClass::removeProperty(const std::string& name)
 	else return false;
 }
 
+void ModuleClass::setBases(const ModuleClassList& bases)
+{
+	if(!__vtable)create_vtable();
+	__vtable->setBases(bases);
+}
+
+ModuleClassList ModuleClass::getBases() const
+{
+	if(!__vtable) return ModuleClassList();
+	else return __vtable->getBases();
+}
+
+
+
 void ModuleClass::setScale(int scale)
 {
 	if(!__vtable)create_vtable();
@@ -332,7 +346,7 @@ ModuleClassTable::getClass(const std::string& name)
 }
 
 ModuleClassPtr
-ModuleClassTable::findClass(const std::string& name) const
+ModuleClassTable::find(const std::string& name) const
 {
 	ModuleClassMap::const_iterator itname;
 	if((itname = modulenamemap.find(name)) == modulenamemap.end() || (!itname->second->isActive()))
@@ -341,7 +355,7 @@ ModuleClassTable::findClass(const std::string& name) const
 }
 
 ModuleClassPtr
-ModuleClassTable::findClass(size_t id) const
+ModuleClassTable::find(size_t id) const
 {
 	ModuleClassIdMap::const_iterator it;
 	if((it = modulenamelist.find(id)) == modulenamelist.end() || !it->second->isActive())
@@ -419,7 +433,7 @@ bool ModuleClassTable::remove(const ModuleClass * moduleclass)
 /*---------------------------------------------------------------------------*/
 
 ModuleClassPtr 
-ModuleClassTable::find(std::string::const_iterator beg, 
+ModuleClassTable::parse(std::string::const_iterator beg, 
 					   std::string::const_iterator end,
 					   size_t& nsize)
 {

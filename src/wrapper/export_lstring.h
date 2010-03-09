@@ -48,10 +48,10 @@ LString& py_lstring_imult(LString* lstring, int i) {
 
 
 template<class LString>
-int iter_to_int(LString * tree, typename LString::const_iterator pos)
+boost::python::object iter_to_int(LString * tree, typename LString::const_iterator pos)
 { 
-  if (pos == tree->end()) return -1;
-  else return tree->pos(pos);
+  if (pos == tree->end()) return boost::python::object();
+  else return boost::python::object(tree->pos(pos));
 }
 
 template<class LString>
@@ -59,7 +59,7 @@ boost::python::object veciter_to_list(LString * tree, std::vector<typename LStri
 {
   typedef std::vector<typename LString::const_iterator> IterVector;
   typedef typename IterVector::const_iterator IterVectorIterator;
-  if (res.empty()) return boost::python::object(-1);
+  if (res.empty()) return boost::python::object();
   else if (res.size() == 1) 
 	return boost::python::object(tree->pos(res[0]));
   else {
@@ -91,7 +91,7 @@ boost::python::object py_roots(LString * tree)
 { return veciter_to_list(tree,tree->roots()); }
 
 template<class LString>
-int py_father(LString * tree, int pos)
+boost::python::object py_father(LString * tree, int pos)
 { return iter_to_int(tree,tree->father(int_to_iter(tree,pos))); }
 
 template<class LString>
@@ -103,39 +103,39 @@ boost::python::object py_lateralSons(LString * tree, int pos)
 { return veciter_to_list(tree,tree->lateralSons(int_to_iter(tree,pos))); }
 
 template<class LString>
-int py_directSon(LString * tree, int pos)
+boost::python::object py_directSon(LString * tree, int pos)
 { return iter_to_int(tree,tree->directSon(int_to_iter(tree,pos))); }
 
 template<class LString>
-int py_endBracket(LString * tree, int pos, bool startingBeforePos) 
+boost::python::object py_endBracket(LString * tree, int pos, bool startingBeforePos) 
 { return iter_to_int(tree,tree->endBracket(int_to_iter(tree,pos),startingBeforePos)); }
 
 template<class LString>
-int py_beginBracket(LString * tree, int pos, bool startingAfterPos) 
+boost::python::object py_beginBracket(LString * tree, int pos, bool startingAfterPos) 
 { return iter_to_int(tree,tree->beginBracket(int_to_iter(tree,pos),startingAfterPos)); }
 
 template<class LString>
-int py_complex1(LString * tree, int pos, int scale)
+boost::python::object py_complex1(LString * tree, int pos, int scale)
 { return iter_to_int(tree,tree->complex(int_to_iter(tree,pos),scale)); }
 
 template<class LString>
-int py_complex(LString * tree, int pos)
+boost::python::object py_complex(LString * tree, int pos)
 { return iter_to_int(tree,tree->complex(int_to_iter(tree,pos))); }
 
 template<class LString>
-int py_successor_at_scale(LString * tree, int pos, int scale)
+boost::python::object py_successor_at_scale(LString * tree, int pos, int scale)
 { return iter_to_int(tree,successor_at_scale(int_to_iter(tree,pos),scale,tree->const_end())); }
 
 template<class LString>
-int py_successor_at_level(LString * tree, int pos, int scale)
+boost::python::object py_successor_at_level(LString * tree, int pos, int scale)
 { return iter_to_int(tree,successor_at_level(int_to_iter(tree,pos),scale,tree->const_end())); }
 
 template<class LString>
-int py_predecessor_at_scale(LString * tree, int pos, int scale)
+boost::python::object py_predecessor_at_scale(LString * tree, int pos, int scale)
 { return iter_to_int(tree,predecessor_at_scale(int_to_iter(tree,pos),scale,tree->const_begin(),tree->const_end())); }
 
 template<class LString>
-int py_predecessor_at_level(LString * tree, int pos, int scale)
+boost::python::object py_predecessor_at_level(LString * tree, int pos, int scale)
 { return iter_to_int(tree,predecessor_at_level(int_to_iter(tree,pos),scale,tree->const_begin(),tree->const_end())); }
 
 template<class LString>

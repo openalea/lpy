@@ -86,6 +86,18 @@ void py_setParameterNames(ModuleClass * mod, boost::python::object names) {
 }
 
 
+ModuleClassPtr py_getMClass(const std::string& name) {
+	return ModuleClassTable::get().find(name);
+}
+
+boost::python::object py_getBases(const ModuleClass * mod) {
+	return make_list(mod->getBases())();
+}
+
+void py_setBases(ModuleClass * mod, boost::python::object bases) {
+	mod->setBases(extract_vec<ModuleClassPtr>(bases)());
+}
+
 
 
 void export_ModuleClass(){
@@ -103,9 +115,13 @@ void export_ModuleClass(){
 	.add_static_property("predefinedClasses",py_predefinedclasses)
 	.add_property("scale",&ModuleClass::getScale,&ModuleClass::setScale)
 	.add_property("category",&ModuleClass::getScale,&ModuleClass::setScale)
+	.add_property("bases",&py_getBases,&py_setBases)
 	.add_property("parameterNames",&py_getParameterNames,&py_setParameterNames)
 	.def("getParameterPosition",&ModuleClass::getParameterPosition)
 	.def("hasParameter",&ModuleClass::hasParameter)
+	.def("get",&py_getMClass,args("name"),"Get a module class from the name of the module")
+	.staticmethod("get")
+	.def("issubclass",&ModuleClass::issubclass)
 	;
 
 	enum_<PredefinedModuleClass::eCategory>("ModuleCategory")
@@ -135,8 +151,8 @@ void export_ModuleClass(){
 	.def("empty",&ModuleClassTable::empty)
 	.def("getClasses",&py_modclasses)
 	.def("getNames",&py_modnames)
-	.def("find",(ModuleClassPtr(ModuleClassTable::*)(const std::string&) const)&ModuleClassTable::findClass)
-	.def("find",(ModuleClassPtr(ModuleClassTable::*)(size_t) const )&ModuleClassTable::findClass)
+	.def("find",(ModuleClassPtr(ModuleClassTable::*)(const std::string&) const)&ModuleClassTable::find)
+	.def("find",(ModuleClassPtr(ModuleClassTable::*)(size_t) const )&ModuleClassTable::find)
 	.def("remove",(bool(ModuleClassTable::*)(const ModuleClass *))&ModuleClassTable::remove)
 	.def("remove",(bool(ModuleClassTable::*)(const std::string&))&ModuleClassTable::remove)
 	.def("declare",(ModuleClassPtr(ModuleClassTable::*)(const std::string&))&ModuleClassTable::declare)

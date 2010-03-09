@@ -107,19 +107,24 @@ template<class Iterator>
 std::vector<Iterator>  sons(Iterator pos, Iterator string_end)
 { 
   std::vector<Iterator> result; 
+  // current pos is the end of a branch
   if( (pos == string_end) || pos->isRightBracket()) return result;
   ++pos;
-  while((pos != string_end) && (pos->isBracket() || pos->isIgnored())){
-	while((pos != string_end) && !pos->isBracket() && pos->isIgnored())++pos;
-	while((pos != string_end) && pos->isLeftBracket()){
-	  std::vector<Iterator> res = sons(pos,string_end);
+  // if module after pos is the end of the branch
+  if( (pos == string_end) || pos->isRightBracket()) return result;
+  // looking for first modules of all branches
+  while((pos != string_end) && (pos->isLeftBracket() || pos->isIgnored())){ 
+	while((pos != string_end) && !pos->isBracket() && pos->isIgnored())++pos; // skip ignored
+	while((pos != string_end) && pos->isLeftBracket()){ // find lateral branches
+	  std::vector<Iterator> res = sons(pos,string_end); // get sons
 	  if(!res.empty())
 		result.insert(result.end(),res.begin(),res.end());
-	  pos = endBracket(pos,string_end);
+	  pos = endBracket(pos,string_end); // go to the end of this sub branches
 	  if( pos == string_end ) return result;
 	  ++pos;
 	}
   }
+  // add direct sons if any
   if( (pos != string_end) && !pos->isRightBracket()){
 	result.push_back(pos);
   }
@@ -146,6 +151,7 @@ Iterator directSonFromPreviousPos(Iterator pos, Iterator string_end)
 	  ++pos;
 	}
   }
+  // return direct sons if any
   if( (pos == string_end) || pos->isRightBracket()) return string_end;
   else return pos;
 }

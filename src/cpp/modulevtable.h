@@ -3,6 +3,7 @@
 
 #include "error.h"
 #include <plantgl/tool/util_hashmap.h>
+#include <plantgl/tool/util_hashset.h>
 #include <plantgl/tool/rcobject.h>
 #include <boost/python.hpp>
 #include <vector>
@@ -50,6 +51,7 @@ typedef RCPtr<ModulePyProperty> ModulePyPropertyPtr;
 
 class ModuleClass;
 typedef RCPtr<ModuleClass> ModuleClassPtr;
+typedef std::vector<ModuleClassPtr> ModuleClassList;
 
 
 /// Module Virtual Table
@@ -69,9 +71,26 @@ public:
 	inline ModuleClassPtr getModuleClass() const { return __owner; }
 	inline void setModuleClass(ModuleClassPtr mclass) { __owner = mclass; }
 
-	inline ModuleClassPtr getBase() const { return __base; }
-	inline bool hasBaseClass() const { return __base == NULL; }
+	inline ModuleClassList getBases() const { 
+		ModuleClassList bases;
+		for(std::vector<ModuleClass *>::const_iterator it = __bases.begin(); it != __bases.end(); ++it)
+			bases.push_back(*it);
+		return bases; 
+	}
+
+	inline bool hasBaseClasses() const { return !__bases.empty(); }
+
 	void setBase(ModuleClassPtr mclass) ;
+	void setBases(const ModuleClassList& mclasses) ;
+
+	inline std::vector<size_t> getAllBaseIds() const {
+		std::vector<size_t> basesid;
+		for(pgl_hash_set<size_t>::const_iterator it = __basescache.begin(); it != __basescache.end(); ++it)
+			basesid.push_back(*it);
+		return basesid; 
+	}
+
+	bool issubclass(const ModuleClassPtr& mclass) const;
 
 	void activate();
 	void desactivate(); 
@@ -81,7 +100,8 @@ protected:
 
 	PropertyMap __propertymap;
 	ModuleClass * __owner;
-	ModuleClass * __base;
+	std::vector<ModuleClass *> __bases;
+	pgl_hash_set<size_t> __basescache;
 
 };
 

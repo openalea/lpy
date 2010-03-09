@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file '/home/pradal/devlp/vplants/lpy/src/openalea/lpy/gui/lpymainwindow.ui'
 #
-# Created: Wed Feb 17 15:21:04 2010
-#      by: PyQt4 UI code generator 4.6
+# Created: Tue Mar 09 00:32:10 2010
+#      by: PyQt4 UI code generator 4.5.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -667,6 +667,11 @@ class Ui_MainWindow(object):
         icon30.addPixmap(QtGui.QPixmap(":/images/icons/play-yellow.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionProfile.setIcon(icon30)
         self.actionProfile.setObjectName("actionProfile")
+        self.actionPrint = QtGui.QAction(MainWindow)
+        icon31 = QtGui.QIcon()
+        icon31.addPixmap(QtGui.QPixmap(":/images/icons/print.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionPrint.setIcon(icon31)
+        self.actionPrint.setObjectName("actionPrint")
         self.menuL_systems.addAction(self.actionRun)
         self.menuL_systems.addAction(self.actionAnimate)
         self.menuL_systems.addSeparator()
@@ -689,6 +694,8 @@ class Ui_MainWindow(object):
         self.menuFile.addAction(self.actionSaveAs)
         self.menuFile.addAction(self.actionSaveAll)
         self.menuFile.addAction(self.actionClose)
+        self.menuFile.addSeparator()
+        self.menuFile.addAction(self.actionPrint)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.menuRecents.menuAction())
         self.menuFile.addSeparator()
@@ -886,6 +893,7 @@ class Ui_MainWindow(object):
         self.actionNextIterate.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+D", None, QtGui.QApplication.UnicodeUTF8))
         self.actionAutoRun.setText(QtGui.QApplication.translate("MainWindow", "Auto-Run", None, QtGui.QApplication.UnicodeUTF8))
         self.actionProfile.setText(QtGui.QApplication.translate("MainWindow", "Profile", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionPrint.setText(QtGui.QApplication.translate("MainWindow", "Print", None, QtGui.QApplication.UnicodeUTF8))
 
 from lpycodeeditor import LpyCodeEditor
 from materialeditor import MaterialEditor

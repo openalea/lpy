@@ -141,12 +141,13 @@ std::vector<std::string> PatternModule::getVarNames() const
 	  }
   }
   else if (isGetModule()) {
+    // var should be in one
 	res.push_back(getAt(0).varname());
-	extract<const PatternModule&> v(getAt(0).getPyValue());
+	/*extract<const PatternModule&> v(getAt(0).getPyValue());
 	if(v.check()) {
 	   std::vector<std::string> lres = v().getVarNames();
 	   res.insert(res.end(),lres.begin(),lres.end());
-	}
+	}*/
   }
   else {
 	  for(size_t i = 0; i < size(); i++){
@@ -170,9 +171,10 @@ size_t PatternModule::getVarNb() const
 	  }
   }
   else if (isGetModule()) {
+    // suppose to have one var in first position
 	if(getAt(0).isNamed()) res += 1;
-	extract<const PatternModule&> v(getAt(1).getPyValue());
-	if(v.check()) res += v().getVarNb();
+	/* extract<const PatternModule&> v(getAt(1).getPyValue());
+	if(v.check()) res += v().getVarNb();*/
   }
   else {
 	  for(size_t i = 0; i < size(); i++){
@@ -201,15 +203,22 @@ void PatternModule::__processPatternModule(const std::string& argstr, int lineno
 	  }
   }
   else if (getClass() == ModuleClass::GetModule) {
+	  // get all arguments. suppose to have 2 : one var and one class
 	  std::vector<std::string> args = LpyParsing::parse_arguments(argstr);
-	  if (args.size() != 2)LsysError("Invalid construction to GetModule","",lineno);
+	  if (args.size() != 2)LsysError("Invalid construction of $.","",lineno);
+	  // we look for a var name in 0 and a module class in 1 
 	  std::pair<std::string,std::string> vartxt = LpyParsing::parse_variable(args[0],lineno);
+	  // add var
 	  if(LpyParsing::isValidVariableName(vartxt.first)){
 		LsysVar var(vartxt.first);
 		if(!vartxt.second.empty())var.setCondition(vartxt.second,lineno);
 		append(var);
 	  }
-	  append(LsysVar(boost::python::object(PatternModule(args[1],lineno))));
+	  else LsysError("Invalid construction of $. No variable set.","",lineno);
+	  // add class module
+	  PatternModule p(args[1],lineno);
+	  if (p.size() != 0)LsysError("Invalid construction of $.","",lineno);
+	  append(LsysVar(boost::python::object(p.getClass())));
   }
   else {
 	  std::vector<std::string> args = LpyParsing::parse_arguments(argstr);
@@ -257,9 +266,10 @@ void PatternModule::setUnnamedVariables()
 	  }
   }
   else if (isGetModule()) {
+    // unamed first var
 	if(getAt(0).isNamed()) getAt(0).setUnnamed();
-	extract<PatternModule&> v(getAt(1).getPyValue());
-	if(v.check()) v().setUnnamedVariables();
+	// extract<PatternModule&> v(getAt(1).getPyValue());
+	// if(v.check()) v().setUnnamedVariables();
   }
   else {
 	  for(size_t i = 0; i < size(); i++){
@@ -290,14 +300,15 @@ void PatternModule::setUnnamedVariable(size_t idvar)
 	  }
   }
   else if (isGetModule()) {
+	  // unamed the var if necessary
 	  if(getAt(0).isNamed()) {
 		  count += 1;
 		  if(idvar == 0) getAt(0).setUnnamed();
 	  }
-	  extract<PatternModule&> v(getAt(1).getPyValue());
-	  if(v.check()) {
-		 v().setUnnamedVariable(idvar - count);
-	  }
+	  // extract<PatternModule&> v(getAt(1).getPyValue());
+	  // if(v.check()) {
+	  //	 v().setUnnamedVariable(idvar - count);
+	  //}
   }
   else {
 	  for(size_t i = 0; i < size(); i++){
@@ -335,7 +346,9 @@ std::vector<size_t> PatternModule::getFirstClassId() const
 	  }
 	  else res.push_back(ModuleClass::Star->getId());
   }
-  else res.push_back(getClass()->getId());
+  else {
+	  res.push_back(getClass()->getId());
+  }
   return res;
 }
 

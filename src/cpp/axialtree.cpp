@@ -248,7 +248,7 @@ bool AxialTree::match(const PatternString& pattern,
 					  AxialTree::const_iterator& last_matched,
 					  ArgList& params) const
 { 
-	return MatchingEngine::match(it,const_end(),pattern.const_begin(),pattern.const_end(),resultingpos,last_matched,params);
+	return MatchingEngine::match(it,const_begin(),const_end(),pattern.const_begin(),pattern.const_end(),resultingpos,last_matched,params);
 }
 
 bool AxialTree::reverse_match(const PatternString& pattern, 
@@ -298,7 +298,7 @@ bool AxialTree::rightmatch(const PatternString& pattern,
 						   AxialTree::const_iterator& resultingpos,
 						   ArgList& params) const{
   if(pattern.empty())return true;
-  return MatchingEngine::right_match(it,const_end(),pattern.const_begin(),pattern.const_end(),last_matched, resultingpos,params);
+  return MatchingEngine::right_match(it,const_begin(),const_end(),pattern.const_begin(),pattern.const_end(),last_matched, resultingpos,params);
 }
 
 AxialTree::const_iterator

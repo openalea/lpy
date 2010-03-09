@@ -77,7 +77,10 @@ def Tree2Scene(axialtree, lsystem = None):
 
 
 WithLpyGui = False
-try:
+LSysWidget = None
+
+if WithLpyGui:
+  try:
     from openalea.lpy.gui.lpystudio import LPyWindow
     from openalea.visualea.node_widget import NodeWidget
 
@@ -105,7 +108,7 @@ try:
             self.notify(self,None)
 
 
-except:
+  except:
     print "Import lpy.gui has failed"
     WithLpyGui = False
     LSysWidget = None

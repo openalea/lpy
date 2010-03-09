@@ -116,6 +116,7 @@ void export_Module(){
 	.def("isCut", &Module::isCut)
 	.add_property("mclass", &Module::getClass)
 	.def("scale", &Module::scale)
+	.def("isinstance", &Module::isinstance)
 	;
 
   {
@@ -150,6 +151,8 @@ void export_Module(){
 //	.def("match",  &match)
 	.def("match", (bool(ParamModule::*)(const std::string&,size_t)const)
 					  &ParamModule::match)
+	.def("__eq__", (bool(ParamModule::*)(const std::string&)const) &ParamModule::operator==)
+	.def("__eq__", (bool(ParamModule::*)(const ParamModule&)const) &ParamModule::operator==)
 	;
 
   }
