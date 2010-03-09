@@ -1401,9 +1401,9 @@ std::string LpyParsing::removeSpaces(const std::string& str)
 {
 	/// triming name
 	std::string res = str;
-	std::string::const_iterator _itb = res.begin();
-	std::string::const_iterator _itb2 = res.begin();
-	std::string::const_iterator _ite = res.end();
+	std::string::iterator _itb = res.begin();
+	std::string::iterator _itb2 = res.begin();
+	std::string::iterator _ite = res.end();
 	while(_itb!=_ite) {
 		if (*_itb == ' ' || *_itb == '\t' || *_itb == '\n'){
 			_itb2 = _itb;
