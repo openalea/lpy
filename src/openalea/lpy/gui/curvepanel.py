@@ -174,10 +174,11 @@ class CurveListDisplay(QGLWidget):
                 self.updateFrameView()
     def paintGL(self):
         glClearColor(0.0,0.0,0.0,1.0)
+        if not self.isVisible(): return
         w = self.width()
-        if w == 0:  w = 1
+        if w == 0:  return
         h = self.height()
-        if h == 0: h = 1
+        if h == 0: return
         glViewport(0,0,w,h)
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
@@ -231,7 +232,9 @@ class CurveListDisplay(QGLWidget):
             py = self.thumbwidth-1-fm.descent()
             if mth > th:
                 py -= (mth-th)/2
+            glDisable(GL_DEPTH_TEST)
             self.renderText(px,py,0,tname)
+            glEnable(GL_DEPTH_TEST)
             
             glTranslatef(self.thumbwidth/2,(self.thumbwidth/2)-10,0)
             b = BoundingBox(curve)

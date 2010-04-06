@@ -187,7 +187,7 @@ class MaterialEditor (QGLWidget):
         if id >= 0:
             color = self.turtle.getMaterial(id)
             try:
-                res = editMaterialInDialog(color,self)
+                res = editMaterialInDialog(color)
                 if res is None or res == QDialog.Accepted:
                     self.emit(SIGNAL('valueChanged()'))
             except Exception, e:
