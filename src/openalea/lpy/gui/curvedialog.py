@@ -16,7 +16,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 try:
   from curvedialogui import *
-  from openalea.plantgl.gui.curveeditor import FuncConstraint,CurveConstraint
+  from openalea.plantgl.gui.curve2deditor import FuncConstraint,Curve2DConstraint
     
   class CurveDialog(QDialog,Ui_CurveDialog):
     def __init__(self,*args):
@@ -38,7 +38,7 @@ try:
         self.curveView.pointsConstraints = FuncConstraint()
         self.setWindowTitle('Function Editor')
     def setCurveMode(self):
-        self.curveView.pointsConstraints = CurveConstraint()
+        self.curveView.pointsConstraints = Curve2DConstraint()
         self.setWindowTitle('Curve Editor')
     def setCurve(self,curve):
         self.curveView.setCurve(curve)
