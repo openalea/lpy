@@ -1,0 +1,42 @@
+Axiom: F ,(2)  @g(patch)
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	import openalea.plantgl.all as pgl
+	patch = pgl.NurbsPatch(
+	    pgl.Point4Matrix([[(-0.0872235, 0.108294, 0.108405, 1), (-0.0228826, 0.0636999, 0.088239, 1), (0.105476, -0.0146332, 0.00723839, 1), (0.181186, 0.0174184, 0.1885, 1)], [(-0.218597, -0.00734951, 0.301025, 1), (-0.0945879, -0.159298, 0.171369, 1), (0.10566, -0.190004, 0.00435033, 1), (0.25016, -0.00422146, 0.395379, 1)], [(-0.378016, 0.00307767, 0.675357, 1), (-0.1791, -0.395736, 0.705767, 1), (0.0188319, -0.209439, 1.1842, 1), (0.0547503, -0.205343, 1.01584, 1)], [(-0.938001, 0.470563, 1.05217, 1), (-0.118563, 0.292663, 1.37176, 1), (0.249932, -0.00609451, 1.185, 1), (0.74109, -0.178504, 0.973445, 1)]]) , 
+)
+	patch.name = "patch"
+	
+	NurbsPatch = pgl.NurbsPatch(
+	    pgl.Point4Matrix([[(-0.5, 0, 0, 1), (-0.166667, 0, 0, 1), (0.166667, 0, 0, 1), (0.5, 0, 0, 1)], [(-0.5, 0, 0.333333, 1), (-0.166667, 0, 0.333333, 1), (0.166667, 0, 0.333333, 1), (0.5, 0, 0.333333, 1)], [(-0.5, 0, 0.666667, 1), (-0.166667, 0, 0.666667, 1), (0.166667, 0, 0.666667, 1), (0.5, 0, 0.666667, 1)], [(-0.5, 0, 1, 1), (-0.166667, 0, 1, 1), (0.166667, 0, 1, 1), (0.5, 0, 1, 1)]]) , 
+)
+	NurbsPatch.name = "NurbsPatch"
+	
+	import openalea.plantgl.all as pgl
+	Curve2D = pgl.NurbsCurve2D(
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(0.0883131, 0.270916, 1),(0.166667, 0, 1),(0.5, 0, 1)]) , 
+)
+	Curve2D.name = "Curve2D"
+	
+	import openalea.plantgl.all as pgl
+	Function = pgl.NurbsCurve2D(
+	    ctrlPointList = pgl.Point3Array([(0, 0, 1),(0.317397, 0.298805, 1),(0.706508, 0.282869, 1),(1, 0, 1)]) , 
+)
+	Function.name = "Function"
+	
+	parameterset = [('parameters1',[('NurbsPatch',patch),('NurbsPatch',NurbsPatch),('Curve2D',Curve2D),('Function',Function)]),]
+	context["__parameterset__"] = parameterset
+	context["patch"] = patch
+	context["NurbsPatch"] = NurbsPatch
+	context["Curve2D"] = Curve2D
+	context["Function"] = pgl.QuantisedFunction(Function)

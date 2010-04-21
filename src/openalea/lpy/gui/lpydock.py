@@ -27,7 +27,7 @@ def showMessage(self,msg,timeout):
 def initDocks(lpywidget):
     prevdock = None
     st = lpywidget.statusBar()
-    for dock in [lpywidget.materialDock, lpywidget.functionDock, lpywidget.curveDock, lpywidget.scalarDock, lpywidget.descriptionDock, lpywidget.parametersDock]:
+    for dock in [lpywidget.materialDock, lpywidget.functionDock, lpywidget.curveDock, lpywidget.scalarDock, lpywidget.descriptionDock, lpywidget.parametersDock, lpywidget.objectDock]:
         lpywidget.addDockWidget(Qt.LeftDockWidgetArea,dock)
         action = dock.toggleViewAction()
         lpywidget.menuView.addAction(action)

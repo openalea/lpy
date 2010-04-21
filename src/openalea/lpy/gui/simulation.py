@@ -3,7 +3,7 @@ from PyQt4.QtGui import *
 from openalea.lpy import *
 from openalea.plantgl.all import PglTurtle, Viewer
 import optioneditordelegate as oed
-import os, shutil
+import os, shutil, sys, traceback
 from time import clock
 from lpystudiodebugger import AbortDebugger
 from scalar import *
@@ -39,6 +39,7 @@ class LpySimulation:
                           '__references__'  : '' }
         self.functions = []
         self.curves = []
+        self.visualparameters = [('parameters1',[])]
         self.scalars = []
         self.scalarEditState = None
         if not fname is None:
@@ -81,6 +82,7 @@ class LpySimulation:
             if len(i) > 0:
                 return False
         ini = self.getInitialisationCode()
+        print ini
         if len(ini) > 0: return False
         return True            
     def getShortName(self):
@@ -138,6 +140,10 @@ class LpySimulation:
         self.lpywidget.materialed.updateGL()
         self.lpywidget.functionpanel.setFunctions(self.functions)
         self.lpywidget.curvepanel.setCurves(self.curves)
+        for panel,data in zip(self.lpywidget.getObjectPanels(),self.visualparameters):
+            panelname,objects = data
+            panel.name = panelname
+            panel.setObjects(objects)
         if self.scalarEditState is None:
             self.lpywidget.scalarEditor.setScalars(self.scalars)
         else:
@@ -164,6 +170,7 @@ class LpySimulation:
                 self.desc_items[key] = editor.toPlainText()
         self.functions = self.lpywidget.functionpanel.getFunctions()
         self.curves = self.lpywidget.curvepanel.getCurves()
+        self.visualparameters = [(panel.name,panel.getObjects()) for panel in self.lpywidget.getObjectPanels()]
         self.scalars,self.scalarEditState = self.lpywidget.scalarEditor.getState()
     def initializeParametersTable(self):
         self.optionModel = QStandardItemModel(0, 1)
@@ -226,6 +233,8 @@ class LpySimulation:
         if not res is None: print res
     def close(self):
         if self._edited:
+            if not self.isCurrent():
+                self.makeCurrent()
             answer = QMessageBox.warning(self.lpywidget,self.getShortName(),"Do you want to save this document ?",
                                      QMessageBox.Save,QMessageBox.Discard,QMessageBox.Cancel)
             if answer == QMessageBox.Save: self.save()
@@ -233,7 +242,6 @@ class LpySimulation:
             elif answer == QMessageBox.Discard:
                 bckupname = self.getBackupName()
                 if bckupname and os.path.exists(bckupname): os.remove(bckupname)
-        self.lpywidget.documentNames.removeTab(self.index)
         return True
     def save(self):
         if self.fname:
@@ -313,6 +321,27 @@ class LpySimulation:
             init_txt += '\tscalars = '+str([(i.name,i.value,i.minvalue,i.maxvalue) for i in self.scalars])+'\n'
             init_txt += '\tcontext["__scalars__"] = scalars\n'
             init_txt += '\tfor n,v,mnv,mxv in scalars:\n\t\tcontext[n] = v\n'
+        def emptyparameterset(params):
+            for panel,data in params:
+                if len(data) > 0: return False
+            return True
+        print self.visualparameters
+        if not emptyparameterset(self.visualparameters) :
+            intialized_managers = {}
+            for panelname,objects in self.visualparameters:
+                for manager,obj in objects:
+                    if not intialized_managers.has_key(manager):
+                        intialized_managers[manager] = True
+                        init_txt += manager.initWriting('\t') 
+                    init_txt += manager.writeObject(obj,'\t')
+            init_txt += '\tparameterset = ['
+            for panelname,objects in self.visualparameters:
+                init_txt += '('+repr(panelname)+',['+','.join(['('+repr(manager.typename)+','+manager.getName(obj)+')' for manager,obj in objects])+']),'
+            init_txt += ']\n'
+            init_txt += '\tcontext["__parameterset__"] = parameterset\n'
+            for panelname,objects in self.visualparameters:
+                for manager,obj in objects:
+                    init_txt += '\tcontext["'+manager.getName(obj)+'"] = '+manager.writeObjectToLsysContext(obj) + '\n'
         if len(init_txt) > 0:
             return header+init_txt
         else:
@@ -345,7 +374,12 @@ class LpySimulation:
         self.setEdited(recovery)
         if len(txts) == 2:
             context = self.lsystem.context()
-            init = context.initialiseFrom(LpyParsing.InitialisationBeginTag+txts[1])
+            try:
+                init = context.initialiseFrom(LpyParsing.InitialisationBeginTag+txts[1])
+            except:
+                exc_info = sys.exc_info()
+                traceback.print_exception(*exc_info)
+                init = None
             if context.has_key(context.InitialisationFunctionName):
                 del context[context.InitialisationFunctionName]
             for key in self.desc_items.iterkeys():
@@ -366,6 +400,12 @@ class LpySimulation:
             if context.has_key('__scalars__'):
                 scalars = context['__scalars__']                
                 self.scalars = [ Scalar(*v) for v in scalars ]
+            if context.has_key('__parameterset__'):
+                from objectmanagers import get_managers
+                managers = get_managers()
+                parameterset = context['__parameterset__']
+                parameterset = [ (panelname, [(managers[typename],obj) for typename,obj in objects]) for panelname,objects in parameterset]
+                self.visualparameters = parameterset
             if init is None:
                 import warnings
                 warnings.warn('initialisation failed')

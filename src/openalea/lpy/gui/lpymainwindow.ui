@@ -19,7 +19,107 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_3">
-    <item row="0" column="1" rowspan="4">
+    <item row="0" column="0">
+     <widget class="QDockWidget" name="scalarDock">
+      <property name="windowTitle">
+       <string>Scalars</string>
+      </property>
+      <widget class="QWidget" name="dockWidgetContents_8">
+       <layout class="QGridLayout" name="gridLayout_2">
+        <property name="leftMargin">
+         <number>1</number>
+        </property>
+        <property name="topMargin">
+         <number>1</number>
+        </property>
+        <property name="rightMargin">
+         <number>1</number>
+        </property>
+        <property name="bottomMargin">
+         <number>2</number>
+        </property>
+        <item row="0" column="0">
+         <widget class="ScalarEditor" name="scalarEditor">
+          <property name="palette">
+           <palette>
+            <active>
+             <colorrole role="Base">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
+                <red>222</red>
+                <green>255</green>
+                <blue>222</blue>
+               </color>
+              </brush>
+             </colorrole>
+             <colorrole role="AlternateBase">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
+                <red>191</red>
+                <green>255</green>
+                <blue>191</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </active>
+            <inactive>
+             <colorrole role="Base">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
+                <red>222</red>
+                <green>255</green>
+                <blue>222</blue>
+               </color>
+              </brush>
+             </colorrole>
+             <colorrole role="AlternateBase">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
+                <red>191</red>
+                <green>255</green>
+                <blue>191</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </inactive>
+            <disabled>
+             <colorrole role="Base">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
+                <red>236</red>
+                <green>233</green>
+                <blue>216</blue>
+               </color>
+              </brush>
+             </colorrole>
+             <colorrole role="AlternateBase">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
+                <red>191</red>
+                <green>255</green>
+                <blue>191</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </disabled>
+           </palette>
+          </property>
+          <property name="alternatingRowColors">
+           <bool>true</bool>
+          </property>
+          <property name="itemsExpandable">
+           <bool>false</bool>
+          </property>
+          <property name="allColumnsShowFocus">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+    <item row="0" column="1">
      <widget class="QDockWidget" name="materialDock">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
@@ -37,6 +137,29 @@
         </property>
         <item>
          <widget class="MaterialEditor" name="materialed" native="true"/>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+    <item row="0" column="2">
+     <widget class="QDockWidget" name="curveDock">
+      <property name="windowTitle">
+       <string>Curves</string>
+      </property>
+      <widget class="QWidget" name="dockWidgetContents_7">
+       <layout class="QVBoxLayout" name="verticalLayout_8">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="margin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="CurvePanel" name="curvepanel" native="true"/>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="curveNameEdit"/>
         </item>
        </layout>
       </widget>
@@ -68,7 +191,7 @@
     <item row="0" column="4" rowspan="4">
      <widget class="QDockWidget" name="parametersDock">
       <property name="windowTitle">
-       <string>Parameters</string>
+       <string>Configuration</string>
       </property>
       <widget class="QWidget" name="dockWidgetContents_3">
        <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -353,7 +476,7 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>73</width>
+             <width>98</width>
              <height>233</height>
             </rect>
            </property>
@@ -479,6 +602,29 @@
         </widget>
        </item>
       </layout>
+     </widget>
+    </item>
+    <item row="1" column="2" rowspan="4">
+     <widget class="QDockWidget" name="objectDock">
+      <property name="windowTitle">
+       <string>Visual Parameters</string>
+      </property>
+      <widget class="QWidget" name="dockWidgetContents_10">
+       <layout class="QVBoxLayout" name="verticalLayout_10">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="margin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="ObjectPanel" name="objectpanel" native="true"/>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="objectNameEdit"/>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
     <item row="1" column="7">
@@ -788,7 +934,7 @@
       </layout>
      </widget>
     </item>
-    <item row="4" column="1" colspan="7">
+    <item row="4" column="1">
      <widget class="QDockWidget" name="interpreterDock">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -810,129 +956,6 @@
         <property name="margin">
          <number>9</number>
         </property>
-       </layout>
-      </widget>
-     </widget>
-    </item>
-    <item row="0" column="2">
-     <widget class="QDockWidget" name="curveDock">
-      <property name="windowTitle">
-       <string>Curves</string>
-      </property>
-      <widget class="QWidget" name="dockWidgetContents_7">
-       <layout class="QVBoxLayout" name="verticalLayout_8">
-        <property name="spacing">
-         <number>0</number>
-        </property>
-        <property name="margin">
-         <number>0</number>
-        </property>
-        <item>
-         <widget class="CurvePanel" name="curvepanel" native="true"/>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="curveNameEdit"/>
-        </item>
-       </layout>
-      </widget>
-     </widget>
-    </item>
-    <item row="0" column="0">
-     <widget class="QDockWidget" name="scalarDock">
-      <property name="windowTitle">
-       <string>Scalars</string>
-      </property>
-      <widget class="QWidget" name="dockWidgetContents_8">
-       <layout class="QGridLayout" name="gridLayout_2">
-        <property name="leftMargin">
-         <number>1</number>
-        </property>
-        <property name="topMargin">
-         <number>1</number>
-        </property>
-        <property name="rightMargin">
-         <number>1</number>
-        </property>
-        <property name="bottomMargin">
-         <number>2</number>
-        </property>
-        <item row="0" column="0">
-         <widget class="ScalarEditor" name="scalarEditor">
-          <property name="palette">
-           <palette>
-            <active>
-             <colorrole role="Base">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>222</red>
-                <green>255</green>
-                <blue>222</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="AlternateBase">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>191</red>
-                <green>255</green>
-                <blue>191</blue>
-               </color>
-              </brush>
-             </colorrole>
-            </active>
-            <inactive>
-             <colorrole role="Base">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>222</red>
-                <green>255</green>
-                <blue>222</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="AlternateBase">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>191</red>
-                <green>255</green>
-                <blue>191</blue>
-               </color>
-              </brush>
-             </colorrole>
-            </inactive>
-            <disabled>
-             <colorrole role="Base">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>236</red>
-                <green>233</green>
-                <blue>216</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="AlternateBase">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>191</red>
-                <green>255</green>
-                <blue>191</blue>
-               </color>
-              </brush>
-             </colorrole>
-            </disabled>
-           </palette>
-          </property>
-          <property name="alternatingRowColors">
-           <bool>true</bool>
-          </property>
-          <property name="itemsExpandable">
-           <bool>false</bool>
-          </property>
-          <property name="allColumnsShowFocus">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
        </layout>
       </widget>
      </widget>
@@ -1642,6 +1665,12 @@
    <class>ScalarEditor</class>
    <extends>QTreeView</extends>
    <header location="global">scalareditor.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ObjectPanel</class>
+   <extends>QWidget</extends>
+   <header>objectpanel.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <tabstops>

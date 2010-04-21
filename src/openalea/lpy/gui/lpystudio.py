@@ -126,10 +126,13 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.debugger = LpyVisualDebugger(self)
         self.functionpanel.setCurveNameEditor(self.funcNameEdit)
         self.curvepanel.setCurveNameEditor(self.curveNameEdit)
+        self.objectpanel.setObjectNameEditor(self.objectNameEdit)
+        self.objectpanel.name = "parameters1"
         st = self.statusBar()
         self.materialed.statusBar = st
         self.functionpanel.setStatusBar(st)
         self.curvepanel.setStatusBar(st)
+        self.objectpanel.setStatusBar(st)
         
         self.newfile()
         self.textEditionWatch = False
@@ -183,6 +186,9 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         QObject.connect(self.curvepanel, SIGNAL('valueChanged()'),self.projectEdited)
         QObject.connect(self.functionpanel, SIGNAL('valueChanged()'),self.projectParameterEdited)
         QObject.connect(self.curvepanel, SIGNAL('valueChanged()'),self.projectParameterEdited)
+        QObject.connect(self.objectpanel, SIGNAL('valueChanged()'),self.projectEdited)
+        QObject.connect(self.objectpanel, SIGNAL('valueChanged()'),self.projectParameterEdited)
+        QObject.connect(self.objectpanel, SIGNAL('AutomaticUpdate()'),self.projectAutoRun)
         QObject.connect(self.scalarEditor, SIGNAL('valueChanged()'),self.projectEdited)
         QObject.connect(self.scalarEditor, SIGNAL('valueChanged()'),self.projectParameterEdited)
         QObject.connect(self.actionPrint, SIGNAL('triggered(bool)'),self.printCode)
@@ -199,6 +205,8 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         settings.restoreState(self)
         self.createRecentMenu()
         self.textEditionWatch = True
+    def getObjectPanels(self):
+        return [self.objectpanel]
     def abortViewer(self):
         self.viewAbortFunc.shouldAbort()
     def currentSimulation(self):
@@ -242,12 +250,13 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         if id is None:
             id = self.currentSimulationId
         if self.simulations[id].close():
+            self.documentNames.removeTab(id)
             for i in xrange(id+1,len(self.simulations)):
                 self.simulations[i].index = i-1
             self.textEditionWatch = False
             defaultdoc = self.codeeditor.defaultdoc
             self.codeeditor.setLpyDocument(defaultdoc)
-            self.simulations.pop(id)            
+            self.simulations.pop(id)
             self.textEditionWatch = True
             if len(self.simulations) == 0:
                 self.currentSimulationId = None
@@ -296,7 +305,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
             self.actionDebug.setEnabled(enabled)
         self.actionStop.setEnabled(not enabled)  
         self.documentNames.setEnabled(enabled)  
-    def projectAutoRun(self,value):
+    def projectAutoRun(self,value = True):
         self.currentSimulation().autorun = value
     def viewer_plot(self,scene):
         Viewer.display(scene)
