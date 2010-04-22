@@ -33,7 +33,8 @@ class NurbsPatchManager(AbstractPglObjectManager):
             glVertex2f(x0c,objectthumbwidth/2.)
             glEnd()                
         glRotatef(90,1,0,0)
-        glScalef(scaling,-scaling,scaling)
+        glRotatef(180,0,0,1)
+        glScalef(scaling,scaling,scaling)
         glTranslatef(*-b.getCenter())
         if focus:
             glColor4f(0.0,0.5,1.0,0.0)
@@ -43,12 +44,13 @@ class NurbsPatchManager(AbstractPglObjectManager):
         obj.apply(self.renderer)
 
     def createDefaultObject(self):
-        return NurbsPatch([[(j/3.-0.5,0,i/3.,1) for j in range(4)] for i in range(4)])
+        return NurbsPatch([[(0.5-j/3.,0,i/3.,1) for j in range(4)] for i in range(4)])
 
     def getEditor(self,parent):
         editor = NurbsPatchEditor(parent)
         editor.camera().setPosition(Vec(0,1,0.5))
         editor.camera().setUpVector(Vec(0,0,1))
+        editor.camera().setViewDirection(Vec(0,-1,0))
         editor.camera().fitSphere(Vec(0,0,0.5),0.8)
         return editor
 

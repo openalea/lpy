@@ -325,7 +325,6 @@ class LpySimulation:
             for panel,data in params:
                 if len(data) > 0: return False
             return True
-        print self.visualparameters
         if not emptyparameterset(self.visualparameters) :
             intialized_managers = {}
             for panelname,objects in self.visualparameters:

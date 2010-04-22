@@ -9,9 +9,10 @@ def __get_plugins_path():
 
 def __read_manager_plugins():
     oldpathes = list(sys.path)
-    sys.path.insert(0,"plugins")
+    pluginpath = __get_plugins_path()
+    sys.path.insert(0,pluginpath)
     managers = []
-    pattern = join(__get_plugins_path(),'*.py')
+    pattern = join(pluginpath,'*.py')
     listplugins = glob(pattern)
     listplugins = [ splitext(basename(i))[0] for i in listplugins]
     listplugins = [ i  for i in listplugins if i[:2] != '__']

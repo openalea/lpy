@@ -67,6 +67,7 @@ class ManagerDialogContainer (QObject):
             self.editorDialog = ObjectDialog(self.panel)
             self.editor = self.manager.getEditor(self.editorDialog)
             self.editorDialog.setupUi(self.editor)
+            self.editorDialog.setWindowTitle(self.manager.typename+' Editor')
             if not self.editor:
                 return
             QObject.connect(self.editorDialog,SIGNAL("valueChanged()"),self.__transmit_valueChanged__)
@@ -99,6 +100,7 @@ class ManagerDialogContainer (QObject):
     def endEditionEvent(self):
         """ called when closing editor. """
         self.editedobjectid = None
+    
         
     
 class ObjectListDisplay(QGLWidget): 
@@ -192,7 +194,12 @@ class ObjectListDisplay(QGLWidget):
         
     def setSelectedObjectName(self,name):
         manager,object = self.objects[self.selection]
-        return manager.setName(object,name)
+        dialogmanager = self.managerDialogs[manager]
+        editedobj,objid = dialogmanager.getEditedObject()
+        if objid == self.selection:
+            manager.setName(editedobj,name)
+            dialogmanager.startObjectEdition(editedobj,objid)
+        manager.setName(object,name)
         
 
     def createDefaultObject(self,typename):
