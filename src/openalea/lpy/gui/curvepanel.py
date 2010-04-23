@@ -158,6 +158,7 @@ class CurveListDisplay(QGLWidget):
         glEnable(GL_BLEND)
     def resizeGL(self,w,h):
         w,h = self.parent().width(),self.parent().height()
+        if w == 0 or h == 0: return
         if w > h+50 :
             self.thumbwidth = max(20,min(self.maxthumbwidth,h*0.95))
             self.curvethumbwidth = self.thumbwidth*0.9
@@ -176,9 +177,8 @@ class CurveListDisplay(QGLWidget):
         glClearColor(0.0,0.0,0.0,1.0)
         if not self.isVisible(): return
         w = self.width()
-        if w == 0:  return
         h = self.height()
-        if h == 0: return
+        if w == 0 or h == 0: return
         glViewport(0,0,w,h)
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
@@ -232,9 +232,9 @@ class CurveListDisplay(QGLWidget):
             py = self.thumbwidth-1-fm.descent()
             if mth > th:
                 py -= (mth-th)/2
-            glDisable(GL_DEPTH_TEST)
+
+            glPolygonMode(GL_FRONT_AND_BACK,GL_FILL)
             self.renderText(px,py,0,tname)
-            glEnable(GL_DEPTH_TEST)
             
             glTranslatef(self.thumbwidth/2,(self.thumbwidth/2)-10,0)
             b = BoundingBox(curve)

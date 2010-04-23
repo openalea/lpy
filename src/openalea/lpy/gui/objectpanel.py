@@ -296,16 +296,17 @@ class ObjectListDisplay(QGLWidget):
     def resizeGL(self,w,h):
         """resizeGL: function handling resizing events"""
         w,h = self.parent().width(),self.parent().height()
+        if w == 0 or h == 0: return
         if w > h+50 :
             self.thumbwidth = max(20,min(self.maxthumbwidth,h*0.95))
-            self.objectthumbwidth = self.thumbwidth*0.9
+            self.objectthumbwidth = self.thumbwidth*0.7
             if self.orientation == Qt.Vertical:
                 self.setOrientation(Qt.Horizontal)
             else:
                 self.updateFrameView()
         else:
             self.thumbwidth = max(20,min(self.maxthumbwidth,w*0.95))
-            self.objectthumbwidth = self.thumbwidth*0.9
+            self.objectthumbwidth = self.thumbwidth*0.7
             if self.orientation == Qt.Horizontal:
                 self.setOrientation(Qt.Vertical)
             else:
@@ -317,22 +318,21 @@ class ObjectListDisplay(QGLWidget):
             First it traces the edges of the thumbnail outlines and the name of the object, 
             It also call the function 'displayThumbnail' to draw the thumbnail of the object 
             take into account the orientation of the panel (vertical or horizontal)"""
-        
-        glClearColor(0.0,0.0,0.0,1.0)
         w = self.width()
-        if w == 0:  w = 1
         h = self.height()
-        if h == 0: h = 1
+        if w == 0 or h == 0: return
+        glClearColor(0.0,0.0,0.0,1.0)
+        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
         glViewport(0,0,w,h)
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         glOrtho(0,w,h,0,-1000,1000);
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity()
-        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
         i=0
         b1,b2 = self.getBorderSize()
         for manager,obj in self.objects:
+
             glPushMatrix()
             if self.orientation == Qt.Vertical:
                 glTranslatef(b1,(i*self.thumbwidth)+b2,0)
@@ -356,8 +356,7 @@ class ObjectListDisplay(QGLWidget):
             glTranslatef(self.thumbwidth/2,self.thumbwidth/2,0)  
             manager.displayThumbnail(obj,i,self.cursorselection==i,self.objectthumbwidth)
             
-            glPopMatrix() 
-            
+            glPopMatrix()
             if self.cursorselection == i:
                 glColor4f(1.0,1.0,1.0,1.0)            
             else:
@@ -369,7 +368,10 @@ class ObjectListDisplay(QGLWidget):
             self.drawTextIn(manager.getName(obj),tx,ty,self.thumbwidth)
             glColor4f(1,1,1,1.0)
             self.drawTextIn(manager.typename,tx,ty2,self.thumbwidth,below = True)
-            i+=1
+
+            i += 1
+            
+
 
     def drawTextIn(self,text,x,y,width, below = False):
             fm = QFontMetrics(self.font())
@@ -389,7 +391,8 @@ class ObjectListDisplay(QGLWidget):
             py = width-1-fm.descent()
             if mth > th:
                 py -= (mth-th)/2
-            self.renderText(x+px,y+py,0,text)
+            glPolygonMode(GL_FRONT_AND_BACK,GL_FILL)
+            self.renderText(x+px,y+py,0,QString(text))
             
     def itemUnderPos(self,pos):
         """function that will return the object under mouseCursor, if no object is present, this wil return None"""
