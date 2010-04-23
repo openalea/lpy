@@ -86,12 +86,8 @@ class MaterialEditor (QGLWidget):
         glEnd()
         glEndList()
     def paintGL(self):
-        w = self.width()
-        if w == 0:
-            w = 1
-        h = self.height()
-        if h == 0:
-            h = 1
+        w,h = self.width(), self.height()
+        if w == 0 or h == 0: return
         cursorselection = -1
         if self.mousepos != None:            
             cursorselection = self.selectedColor(self.mousepos.x(),self.mousepos.y())
