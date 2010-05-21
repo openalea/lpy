@@ -268,6 +268,8 @@ DeclareModuleReal1(up,    "Pitch up around Left vector. Params : angle (optional
 DeclareModuleReal1(down,  "Pitch down around Left vector. Params : angle (optional, in degrees).",eRotation)
 DeclareModuleReal1(rollL, "Roll left  around Heading vector. Params : angle (optional, in degrees).",eRotation)
 DeclareModuleReal1(rollR, "Roll right  around Heading vector. Params : angle (optional, in degrees).",eRotation)
+DeclareModuleReal1(iRollL, "Roll left intrinsically around Heading vector. Params : angle (optional, in degrees).",eRotation)
+DeclareModuleReal1(iRollR, "Roll right intrinsically around Heading vector. Params : angle (optional, in degrees).",eRotation)
 
 #if PGL_VERSION >= 0x020501
 DeclareSimpleModule(turnAround, "Turn around 180deg the Up vector.",eRotation)
@@ -582,6 +584,8 @@ void ModuleClass::createPredefinedClasses() {
 	Down = new DeclaredModule(down)("&","Down");
 	RollL = new DeclaredModule(rollL)("/","RollL");
 	RollR = new DeclaredModule(rollR)("\\","RollR");
+	iRollL = new DeclaredModule(iRollL)("iRollL");
+	iRollR = new DeclaredModule(iRollR)("iRollR");
 	TurnAround = new DeclaredModule(turnAround)("|","TurnAround");
 	RollToVert = new DeclaredModule(rollToVert)("@v","RollToVert");
 	Sphere = new DeclaredModule(sphere)("@O","Sphere");

@@ -46,6 +46,9 @@ def restoreState(lpywidget):
     lpywidget.actionTabHightlight.setChecked(tabhlght)
     settings.endGroup()
     settings.beginGroup('appearance')
+    nbDock, nbDockValid  = settings.value('nbMaxDocks').toInt()
+    if nbDockValid:
+        lpywidget.setObjectPanelNb(nbDock,True)
     if settings.contains('state'):
         ba = settings.value('state').toByteArray() 
         if ba: lpywidget.restoreState(ba,0);
@@ -64,6 +67,10 @@ def restoreState(lpywidget):
             print 'read font'
             lpywidget.codeeditor.setEditionFont(f)
     settings.endGroup()
+    settings.beginGroup('pythonshell')
+    lpywidget.shell.multipleStdOutRedirection(not settings.value('uniqueStdout',QVariant(True)).toBool())
+    settings.endGroup()
+    
     settings.beginGroup('edition')
     lpywidget.codeeditor.replaceTab = settings.value('replaceTab',QVariant(lpywidget.codeeditor.replaceTab)).toBool()
     val,ok = settings.value('tabSize',QVariant(lpywidget.codeeditor.tabSize())).toInt()
@@ -111,6 +118,7 @@ def saveState(lpywidget):
     settings.setValue('tabSize',QVariant(lpywidget.codeeditor.tabSize())) 
     settings.endGroup()
     settings.beginGroup('appearance')
+    settings.setValue('nbMaxDocks',QVariant(lpywidget.getMaxObjectPanelNb()))    
     settings.setValue('state',QVariant(lpywidget.saveState(0))) 
     settings.setValue('geometry',QVariant(lpywidget.geometry())) 
     settings.setValue('toolbarStyle',QVariant(lpywidget.getToolBarApp()[1]))
@@ -121,7 +129,7 @@ def saveState(lpywidget):
     settings.endGroup()
     if not lpywidget.interpreter is None:
         settings.beginGroup('pythonshell')
-        settings.setValue('visible',QVariant(lpywidget.interpreterDock.isVisible()))
+        settings.setValue('uniqueStdout',QVariant(lpywidget.shell.hasMultipleStdOutRedirection()))
         settings.endGroup()
     settings.beginGroup('syntax')
     settings.setValue('highlighted',QVariant(lpywidget.codeeditor.isSyntaxHighLightActivated()))

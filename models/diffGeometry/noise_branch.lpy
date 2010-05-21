@@ -1,0 +1,93 @@
+from openalea.plantgl.all import *
+from random import uniform, seed
+from math import pi
+
+seed(6)
+
+def amplitude(x): return 1
+
+def myrandom(radius): 
+    return uniform(-radius,radius)
+
+def gen_noise_branch(radius,nbp=10):
+    return  NurbsCurve([(0,0,0,1),(0,0,1/float(nbp-1),1)]+[(myrandom(radius*amplitude(pt/float(nbp-1))),
+                                     myrandom(radius*amplitude(pt/float(nbp-1))),
+                                     pt/float(nbp-1),1) for pt in xrange(2,nbp)],
+                        degree=min(nbp-1,3),stride=nbp*100)
+
+length = 10
+dis = 1.00/unitstep
+print dis
+
+nbstep = 1 if isAnimationEnabled() else 100
+dt = 1/float(nbstep+1)
+
+module Normal
+
+path = gen_noise_branch(radius/100.,freq)
+l = path.getLength()
+
+
+Axiom:  _(0.01)  -(90) Frame(0.1) Normal(0) @g(Scaled(length/l,Translated(Vector3(-path.ctrlPointList[0].x,0,0),path)))[SetGuide(path,length)A(length/dis)][,(2)B(freq,length/l)]
+
+derivation length: nbstep
+production:
+
+Normal(t) --> Normal(t+dt)
+
+A(x):
+    nproduce Normal
+    if with_branches:
+         bstep = int(x * branch_step / 1000.)
+         if bstep < 1: bstep = 1
+         print bstep
+    for i in xrange(int(x)+0):
+        nproduce F(dis) iRollR(10)
+        if with_branches and ((i % bstep) == 0):
+            nproduce [+(90) F(dis)]
+        if with_frames: 
+            nproduce Frame(0.1) 
+
+B(freq,length):
+  if with_ticks:
+    ul = length/freq
+    nproduce @O(ul/5)
+    for i in xrange(int(freq)):
+        nproduce F(ul)@O(ul/5)
+
+interpretation:
+
+Normal(t) :
+    if not isAnimationEnabled():
+        t = show_pos/1000.
+    u = path.getArcLengthToUMapping()(t)
+    p = path.getPointAt(u)
+    p *= length/l
+    t = path.getTangentAt(u)
+    t.normalize()
+    u = path.getNormalAt(u)
+    u.normalize()
+    produce [ ,(3)MoveTo(p.x,p.z,-p.y) SetHead(t.x,t.z,-t.y,u.x,u.z,-u.y) Frame(0.15) @O(0.05) ]
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	context.animation_timestep = 0.001
+	scalars = [('radius', 14, 1, 100), ('freq', 33, 3, 100), ('unitstep', 1, 1, 1000), ('with_ticks', True, False, True), ('show_pos', 347, 0, 1000), ('with_frames', True, False, True), ('with_branches', False, False, True), ('branch_step', 1, 1, 1000)]
+	context["__scalars__"] = scalars
+	for n,v,mnv,mxv in scalars:
+		context[n] = v
+	import openalea.plantgl.all as pgl
+	amplitude = pgl.NurbsCurve2D(
+	    ctrlPointList = pgl.Point3Array([(0, 0.00398406, 1),(0.135147, 1.09012, 1),(0.255548, 1.10149, 1),(0.462358, -0.133011, 1),(0.575864, 0.0540148, 1),(0.666072, 0.994762, 1),(0.857973, 1.00619, 1),(1, 0, 1)]) , 
+)
+	amplitude.name = "amplitude"
+	
+	parameterset = [({'active': True, 'visible': False, 'name': 'Panel 1'},[('Function',amplitude)]),]
+	context["__functions__"] = [amplitude]
+	context["__curves__"] = []
+	context["__parameterset__"] = parameterset
+	context["amplitude"] = pgl.QuantisedFunction(amplitude)

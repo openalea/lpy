@@ -12,7 +12,7 @@ from objectmanagers import get_managers
 def retrieveidinname(name,prefix):
     if name == prefix: return 1
     postfix = name[len(prefix):]
-    if postfix[0] == '_':
+    if postfix[0] in '_ ':
         postfix = postfix[1:]
     try:
         return int(postfix)
@@ -57,7 +57,6 @@ class ManagerDialogContainer (QObject):
         self.editedobjectid = None
     def __transmit_valueChanged__(self):
         self.panel.retrieveObject(self)
-        #self.emit(SIGNAL("valueChanged()"))
         
     def __transmit_autoUpdate__(self,enabled):
         self.panel.transmit_autoUpdate(enabled)
@@ -93,9 +92,8 @@ class ManagerDialogContainer (QObject):
         
     def getEditedObject(self):
         """ used by panel. ask for object edition to start. Use getEditor and  setObjectToEditor """
-        if self.editedobjectid is None:
-            raise ValueError("No object is currently edited")
-        return self.manager.retrieveObjectFromEditor(self.editor),self.editedobjectid
+        if not self.editedobjectid is None:
+            return self.manager.retrieveObjectFromEditor(self.editor),self.editedobjectid
 
     def endEditionEvent(self):
         """ called when closing editor. """
@@ -106,12 +104,15 @@ class ManagerDialogContainer (QObject):
 class ObjectListDisplay(QGLWidget): 
     """ Display and edit a list of parameter objects """
     
-    def __init__(self,parent):
+    def __init__(self,parent, panelmanager = None):
         QGLWidget.__init__(self,parent)
+        self.panelmanager = panelmanager
         self.objects = [] # list of pair (manager,obj)
+        self.active = True
         self.maxthumbwidth = 150
         self.minthumbwidth = 20
         self.thumbwidth = 80
+        self.cornersize = 5
         self.objectthumbwidth = self.thumbwidth*0.9
         self.orientation = Qt.Vertical
         self.setMinimumHeight(self.thumbwidth*len(self.objects))
@@ -120,6 +121,8 @@ class ObjectListDisplay(QGLWidget):
         self.cursorselection = None
         self.managers = {}
         self.managerDialogs = {}
+        self.borderList = None
+        self.selectedBorderList = None
         for typename, manager in get_managers().items():
             try:
                 md = ManagerDialogContainer(self,manager)
@@ -130,36 +133,23 @@ class ObjectListDisplay(QGLWidget):
                 exc_info = sys.exc_info()
                 traceback.print_exception(*exc_info)
                 continue
-            #QObject.connect(manager,SIGNAL('valueChanged()'),TriggerParamFunc(self.retrieveObject,manager))
-            #QObject.connect(manager,SIGNAL('AutomaticUpdate(bool)'),self.__transmit_autoupdate)
-        self.createContextMenu()
+        self.createContextMenuActions()
+    
+    def isActive(self):
+        return self.active
+        
+    def setActive(self,enabled):
+        if self.active != enabled:
+            self.active = enabled
+            self.generateDisplayList()
+            if not self.active:
+                self.setSelection(None)
+            self.emit(SIGNAL('valueChanged(int)'),-1)
 
     def transmit_autoUpdate(self,enabled):
         if enabled:
             self.emit(SIGNAL('AutomaticUpdate()'))
-        
-    def createContextMenu(self):
-        """ define the context menu """
-        self.contextmenu = QMenu(self)
-        self.editAction = QAction('Edit',self)
-        f = QFont()
-        f.setBold(True)
-        self.editAction.setFont(f)
-        QObject.connect(self.editAction,SIGNAL('triggered(bool)'),self.editSelection)
-        self.contextmenu.addAction(self.editAction)
-        self.contextmenu.addSeparator()
-        subMenu=self.contextmenu.addMenu("New item")
-        for k in self.managers.keys():
-                subMenu.addAction(k,TriggerParamFunc(self.createDefaultObject,k) )
-                #subMenu.addSeparator()
-        self.contextmenu.addSeparator()
-        self.copyAction = QAction('Copy',self)
-        QObject.connect(self.copyAction,SIGNAL('triggered(bool)'),self.copySelection)
-        self.contextmenu.addAction(self.copyAction)
-        self.deleteAction = QAction('Delete',self)
-        QObject.connect(self.deleteAction,SIGNAL('triggered(bool)'),self.deleteSelection)
-        self.contextmenu.addAction(self.deleteAction)
-
+    
 
     def setOrientation(self,orientation):
         self.orientation  = orientation
@@ -182,7 +172,7 @@ class ObjectListDisplay(QGLWidget):
    
     def hasSelection(self):
         """function hasSelection: check if an object of the objectListDisplay is selected, return True in this case"""
-        return not self.selection is None
+        return not (self.selection is None or self.selection == -1)
 
 
     def getSelectedObject(self):
@@ -195,37 +185,15 @@ class ObjectListDisplay(QGLWidget):
     def setSelectedObjectName(self,name):
         manager,object = self.objects[self.selection]
         dialogmanager = self.managerDialogs[manager]
-        editedobj,objid = dialogmanager.getEditedObject()
-        if objid == self.selection:
-            manager.setName(editedobj,name)
-            dialogmanager.startObjectEdition(editedobj,objid)
+        edition = dialogmanager.getEditedObject()
+        if edition:
+            editedobj,objid = edition
+            if objid == self.selection:
+                manager.setName(editedobj,name)
+                dialogmanager.startObjectEdition(editedobj,objid)
         manager.setName(object,name)
+        self.emit(SIGNAL('valueChanged(int)'),self.selection)
         
-
-    def createDefaultObject(self,typename):
-        """ adding a new object to the objectListDisplay, a new object will be created following a default rule defined in its manager"""
-        manager = self.managers[typename]
-        obj = manager.createDefaultObject()
-        defname = typename
-        mid = retrievemaxidname([manageri.getName(obji) for manageri,obji in self.objects],defname)        
-        if not mid is None:
-            manager.setName(obj,defname+'_'+str(mid+1))
-        else:
-            manager.setName(obj,defname)
-        self.appendObject(manager,obj)
-
-
-    def appendObject(self,typename_or_manager,obj):
-        """ add the obj and its type to the panel's list """
-        if type(typename_or_manager) == str:
-            manager = self.managers[typename_or_manager]
-        else:
-            manager = typename_or_manager
-        self.objects.append((manager,obj))
-        ln = len(self.objects)
-        self.updateFrameView()
-        self.emit(SIGNAL('valueChanged(int)'),ln-1)
-        self.setSelection(ln-1)
         
 
     def getBorderSize(self):
@@ -247,27 +215,52 @@ class ObjectListDisplay(QGLWidget):
             b1,b2 = self.getBorderSize()
             self.setMinimumSize(int((self.thumbwidth*len(self.objects))+b2),self.minthumbwidth)
 
-
     def copySelection(self):
         """ copy one of the panel's objects"""
+        from copy import deepcopy
         if self.hasSelection() :
             f = self.getSelectedObject()
-            fc = f.deepcopy()
-            bn = retrievebasename(f.name)
-            mid = retrievemaxidname([i.name for i in self.objects],bn)
-            if not mid is None:
-                fc.name = bn+'_'+str(mid+1)
-            self.appendObject(fc)
+            fc = (f[0],deepcopy(f[1]))
+            self.panelmanager.setClipboard(fc)
 
-
+    def cutSelection(self):
+        """ copy one of the panel's objects"""
+        if self.hasSelection() :
+            self.panelmanager.setClipboard(self.getSelectedObject())
+            self.deleteObject(self.selection)
+    
+    def paste(self):
+        if self.panelmanager.hasClipboard():
+            manager,obj = self.panelmanager.getClipboard()
+            manager.setName(obj,self.computeNewName(manager.getName(obj)))
+            self.appendObject(manager,obj,self.selection)
+        
+    def computeNewName(self,basename):
+        bn = retrievebasename(basename)
+        allnames = []
+        for panel in self.panelmanager.getObjectPanels():
+            allnames += [ manager.getName(obj) for manager,obj in panel.getObjects() ]
+        mid = retrievemaxidname(allnames,bn)
+        if not mid is None:
+            return bn+'_'+str(mid+1)
+        return bn
+        
     def deleteSelection(self):
         """ delete an object from the list """
         if self.hasSelection() :
-            self.objects.pop(self.selection)
-            self.updateFrameView()
-            self.emit(SIGNAL('valueChanged(int)'),self.selection)
+            self.deleteObject(self.selection)
             self.setSelection(None)
+            
+    def deleteObject(self,i):
+        """ delete an object from the list """
+        self.objects.pop(i)
+        self.updateFrameView()
+        self.emit(SIGNAL('valueChanged(int)'),i)
 
+    def renameSelection(self):
+        """ rename an object in the list """
+        if self.hasSelection() :
+            self.emit(SIGNAL('renameRequest(int)'),self.selection)
 
     def editSelection(self):
         """ Edit the current selection """
@@ -284,15 +277,17 @@ class ObjectListDisplay(QGLWidget):
             self.updateGL()
             self.emit(SIGNAL('valueChanged(int)'),self.selection)
 
-        
-    def init(self):
-        """ OpenGL initialisation """
-        glEnable(GL_LIGHTING)
-        glEnable(GL_LIGHT0)
-        glEnable(GL_DEPTH_TEST)
-        glEnable(GL_BLEND)
+    def sendSelectionTo(self,panelname):
+        targetpanel = self.panelmanager.getPanel(panelname)
+        if targetpanel and self.hasSelection():
+            object = self.objects[self.selection]
+            self.deleteSelection()
+            targetpanel.appendObjects([object])        
 
-
+    def sendSelectionToNewPanel(self):
+        self.panelmanager.createNewPanel()
+        self.sendSelectionTo(self.panelmanager.getObjectPanels()[-1].name)
+    
     def resizeGL(self,w,h):
         """resizeGL: function handling resizing events"""
         w,h = self.parent().width(),self.parent().height()
@@ -311,7 +306,83 @@ class ObjectListDisplay(QGLWidget):
                 self.setOrientation(Qt.Vertical)
             else:
                 self.updateFrameView()
-
+        self.generateDisplayList()
+    
+    def generateDisplayList(self):
+        if self.borderList is  None:
+            self.borderList = glGenLists(1)
+        cornersize = self.cornersize
+        thumbwidth = self.thumbwidth
+        glNewList(self.borderList,GL_COMPILE)
+        glPolygonMode(GL_FRONT_AND_BACK,GL_FILL)
+        if self.active:
+            glColor4f(0.05,0.05,0.05,0.0)
+        else:
+            glColor4f(0.45,0.45,0.45,0.0)
+        glBegin(GL_QUADS)
+        glVertex2f(0,0)
+        glVertex2f(thumbwidth-1,0)
+        glVertex2f(thumbwidth-1,thumbwidth-1)
+        glVertex2f(0,thumbwidth-1)
+        glEnd()
+        glLineWidth(1)
+        glColor4f(0.9,0.9,0.9,0.0)
+        glBegin(GL_LINE_STRIP)
+        glVertex2f(cornersize,0)
+        glVertex2f(thumbwidth-cornersize-1,0)
+        glVertex2f(thumbwidth-1,cornersize)
+        glVertex2f(thumbwidth-1,thumbwidth-cornersize-1)           
+        glVertex2f(thumbwidth-cornersize-1,thumbwidth-1)           
+        glVertex2f(cornersize,thumbwidth-1)
+        glVertex2f(0,thumbwidth-cornersize-1)
+        glVertex2f(0,cornersize)
+        glVertex2f(cornersize,0)
+        glEnd()
+        glEndList()
+        if self.selectedBorderList is  None:
+            self.selectedBorderList = glGenLists(1)
+        glNewList(self.selectedBorderList,GL_COMPILE)
+        glColor4f(0.1,0.1,0.1,0.0)
+        glBegin(GL_QUADS)
+        glVertex2f(0,0)
+        glVertex2f(thumbwidth-1,0)
+        glVertex2f(thumbwidth-1,thumbwidth-1)
+        glVertex2f(0,thumbwidth-1)
+        glEnd()
+        glLineWidth(3)
+        glColor4f(0.5,0.5,0.5,0.0)
+        glBegin(GL_LINE_STRIP)
+        glVertex2f(0,0)
+        glVertex2f(thumbwidth-1,0)
+        glVertex2f(thumbwidth-1,thumbwidth-1)
+        glVertex2f(0,thumbwidth-1)
+        glVertex2f(0,0)
+        glEnd()
+        glLineWidth(1)
+        glColor4f(1.0,1.0,1.0,0.0)
+        glBegin(GL_LINE_STRIP)
+        glVertex2f(0,0)
+        glVertex2f(thumbwidth-1,0)
+        glVertex2f(thumbwidth-1,thumbwidth-1)
+        glVertex2f(0,thumbwidth-1)
+        glVertex2f(0,0)
+        glEnd()
+        glColor4f(0.0,0.0,0.0,0.0)
+        glBegin(GL_TRIANGLES)
+        glVertex2f(-2,-1)
+        glVertex2f(cornersize,-1)
+        glVertex2f(-2,cornersize)
+        glVertex2f(thumbwidth,-1)
+        glVertex2f(thumbwidth,cornersize)
+        glVertex2f(thumbwidth-cornersize,-1)
+        glVertex2f(-2,thumbwidth+1)
+        glVertex2f(cornersize,thumbwidth+1)
+        glVertex2f(-2,thumbwidth-cornersize)
+        glVertex2f(thumbwidth,thumbwidth+1)
+        glVertex2f(thumbwidth,thumbwidth-cornersize)
+        glVertex2f(thumbwidth-cornersize,thumbwidth+1)
+        glEnd()
+        glEndList()
 
     def paintGL(self):
         """ Paint the different object.
@@ -321,7 +392,10 @@ class ObjectListDisplay(QGLWidget):
         w = self.width()
         h = self.height()
         if w == 0 or h == 0: return
-        glClearColor(0.0,0.0,0.0,1.0)
+        if self.active:
+            glClearColor(0.0,0.0,0.0,1.0)
+        else:
+            glClearColor(0.4,0.4,0.4,1.0)
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
         glViewport(0,0,w,h)
         glMatrixMode(GL_PROJECTION);
@@ -339,38 +413,31 @@ class ObjectListDisplay(QGLWidget):
             else:
                 glTranslatef((i*self.thumbwidth)+b2,b1,0)                
             if self.selection == i:
-                glLineWidth(3)
-                glColor4f(1.0,1.0,1.0,0.0)
+                glCallList(self.selectedBorderList)
             else:
-                glLineWidth(1)
-                glColor4f(0.9,0.9,0.9,0.0)
-            
-            glBegin(GL_LINE_STRIP)
-            glVertex2f(0,0)
-            glVertex2f(self.thumbwidth-1,0)
-            glVertex2f(self.thumbwidth-1,self.thumbwidth-1)           
-            glVertex2f(0,self.thumbwidth-1)
-            glVertex2f(0,0)
-            glEnd()
+                glCallList(self.borderList)
            
             glTranslatef(self.thumbwidth/2,self.thumbwidth/2,0)  
+            
             manager.displayThumbnail(obj,i,self.cursorselection==i,self.objectthumbwidth)
             
             glPopMatrix()
-            if self.cursorselection == i:
-                glColor4f(1.0,1.0,1.0,1.0)            
+            if self.active:
+                if self.cursorselection == i:
+                    glColor4f(1.0,1.0,1.0,1.0)            
+                else:
+                    glColor4f(1.0,1.0,0.0,1.0)
             else:
-                glColor4f(1.0,1.0,0.0,1.0)
+                glColor4f(0.8,0.8,0.8,1.0)
             if self.orientation == Qt.Vertical:
                 tx,ty, ty2 = b1,(i*self.thumbwidth)+b2,((i-1)*self.thumbwidth)+b2+3
             else:
                 tx,ty, ty2 = (i*self.thumbwidth)+b2,b1, b1-self.thumbwidth+3
             self.drawTextIn(manager.getName(obj),tx,ty,self.thumbwidth)
-            glColor4f(1,1,1,1.0)
+            if self.active:
+                glColor4f(1,1,1,1.0)
             self.drawTextIn(manager.typename,tx,ty2,self.thumbwidth,below = True)
-
-            i += 1
-            
+            i+=1            
 
 
     def drawTextIn(self,text,x,y,width, below = False):
@@ -413,10 +480,12 @@ class ObjectListDisplay(QGLWidget):
     def mousePressEvent(self,event):
         """mousePressEvent: function handling mouse press events"""
         if event.button() == Qt.LeftButton:
-            self.setSelection(self.itemUnderPos(event.pos()))
+            if self.active:
+                self.setSelection(self.itemUnderPos(event.pos()))
             event.accept()
         elif event.button() == Qt.RightButton:
-            self.setSelection(self.itemUnderPos(event.pos()))
+            if self.active:
+                self.setSelection(self.itemUnderPos(event.pos()))
             QGLWidget.mousePressEvent(self,event)
         else:
             QGLWidget.mousePressEvent(self,event)
@@ -424,27 +493,93 @@ class ObjectListDisplay(QGLWidget):
 
     def mouseMoveEvent(self,event):
         """mouse move events, will check constantly if the cursor is placed on one of the Panel's objects"""
-        item = self.itemUnderPos(event.pos())
-        self.setCursorSelection(item)
-        if not item is None:
-            self.showMessage("Mouse on item "+str(item)+ " : '"+self.objects[item][0].getName(self.objects[item][1])+"'",2000)
+        if self.active:
+            item = self.itemUnderPos(event.pos())
+            self.setCursorSelection(item)
+            if event.buttons() & Qt.LeftButton:
+                if not item is None and not self.selection is None and item != self.selection:
+                    self.objects[item],self.objects[self.selection] = self.objects[self.selection],self.objects[item]
+                    self.updateGL()
+                    self.selection = item 
+            if not item is None:
+                self.showMessage("Mouse on item "+str(item)+ " : '"+self.objects[item][0].getName(self.objects[item][1])+"'",2000)
+                
 
 
     def mouseDoubleClickEvent(self,event):
         """ mouse double-click events, call editSelection() """
-        if event.button() == Qt.LeftButton:
+        if self.active and event.button() == Qt.LeftButton:
             self.setSelection(self.itemUnderPos(event.pos()))
             self.editSelection()
             event.accept()
 
+    def createContextMenuActions(self):
+        """ define the context menu """
+        self.editAction = QAction('Edit',self)
+        f = QFont()
+        f.setBold(True)
+        self.editAction.setFont(f)
+        QObject.connect(self.editAction,SIGNAL('triggered(bool)'),self.editSelection)
+        self.newItemMenu = QMenu("New item",self)
+        for k in self.managers.keys():
+            self.newItemMenu.addAction(k,TriggerParamFunc(self.createDefaultObject,k) )
+        self.copyAction = QAction('Copy',self)
+        QObject.connect(self.copyAction,SIGNAL('triggered(bool)'),self.copySelection)
+        self.cutAction = QAction('Cut',self)
+        QObject.connect(self.cutAction,SIGNAL('triggered(bool)'),self.cutSelection)
+        self.pasteAction = QAction('Paste',self)
+        QObject.connect(self.pasteAction,SIGNAL('triggered(bool)'),self.paste)
+        self.deleteAction = QAction('Delete',self)
+        QObject.connect(self.deleteAction,SIGNAL('triggered(bool)'),self.deleteSelection)
+        self.renameAction = QAction('Rename',self)
+        QObject.connect(self.renameAction,SIGNAL('triggered(bool)'),self.renameSelection)
 
+
+    def createContextMenu(self):
+        """ define the context menu """
+        contextmenu = QMenu(self)
+        contextmenu.addAction(self.editAction)
+        contextmenu.addSeparator()
+        contextmenu.addMenu(self.newItemMenu)
+        contextmenu.addSeparator()
+        contextmenu.addAction(self.copyAction)
+        contextmenu.addAction(self.cutAction)
+        contextmenu.addAction(self.pasteAction)
+        contextmenu.addSeparator()
+        contextmenu.addAction(self.renameAction)
+        contextmenu.addAction(self.deleteAction)
+        if self.panelmanager and self.hasSelection():
+            panels = self.panelmanager.getObjectPanels()
+            if len(panels) > 1:
+                contextmenu.addSeparator()
+                sendToMenu = contextmenu.addMenu('Send To')
+                for panel in panels:
+                    if not panel is self.dock:
+                        sendToAction = QAction(panel.name,contextmenu)
+                        QObject.connect(sendToAction,SIGNAL('triggered(bool)'),TriggerParamFunc(self.sendSelectionTo,panel.name))
+                        sendToMenu.addAction(sendToAction)
+                sendToNewAction = QAction('New Panel',contextmenu)
+                QObject.connect(sendToAction,SIGNAL('triggered(bool)'),self.sendSelectionToNewPanel)
+                sendToMenu.addSeparator()
+                sendToMenu.addAction(sendToNewAction)
+        contextmenu.addSeparator()
+        self.panelmanager.completeMenu(contextmenu,self.dock)
+        #contextmenu.addAction(self.newPanelAction)
+        return contextmenu
+            
 
     def contextMenuEvent(self, event):
         """ function defining actions to do according to the menu's button chosen"""
-        self.editAction.setEnabled(not self.selection is None)
-        self.copyAction.setEnabled(not self.selection is None)
-        self.deleteAction.setEnabled(not self.selection is None)
-        self.contextmenu.exec_(event.globalPos())
+        selcond = not self.selection is None
+        contextmenu = self.createContextMenu()
+        self.newItemMenu.setEnabled(self.active)
+        self.editAction.setEnabled(selcond)
+        self.copyAction.setEnabled(selcond)
+        self.cutAction.setEnabled(selcond)
+        self.pasteAction.setEnabled(self.panelmanager.hasClipboard() and self.active)
+        self.renameAction.setEnabled(selcond)
+        self.deleteAction.setEnabled(selcond)
+        contextmenu.exec_(event.globalPos())
 
 
     def enterEvent(self,event):
@@ -459,8 +594,20 @@ class ObjectListDisplay(QGLWidget):
         self.setCursorSelection(None)
         QGLWidget.leaveEvent(self,event)
 
-
-    def setobjects(self,objects):
+    def getObjects(self):
+        """ 
+            Return the object list
+        """
+        return self.objects
+    
+    def getObjectsCopy(self):
+        """ 
+            Return the object list
+        """
+        from copy import deepcopy
+        return [(m,deepcopy(o)) for m,o in self.objects]
+    
+    def setObjects(self,objects):
         """ 
             if we chose to change the entire objectListDisplay by another, 
             this function is called, sending the new objectListDisplay in parameter
@@ -469,58 +616,85 @@ class ObjectListDisplay(QGLWidget):
         self.updateFrameView()
         self.setSelection(None)
 
+    def appendObjects(self,objects):
+        """ 
+            if we chose to change the entire objectListDisplay by another, 
+            this function is called, sending the new objectListDisplay in parameter
+        """
+        nbelem = len(self.objects)
+        self.objects = self.objects+objects
+        self.updateFrameView()
+        self.setSelection(None)
+        self.emit(SIGNAL('valueChanged(int)'),nbelem)
 
+    def createDefaultObject(self,typename):
+        """ adding a new object to the objectListDisplay, a new object will be created following a default rule defined in its manager"""
+        manager = self.managers[typename]
+        obj = manager.createDefaultObject()
+        manager.setName(obj,self.computeNewName('parameter'))
+        self.appendObject(manager,obj,self.selection)
+        self.renameSelection()
+
+
+    def appendObject(self,typename_or_manager,obj, pos = None):
+        """ add the obj and its type to the panel's list """
+        if type(typename_or_manager) == str:
+            manager = self.managers[typename_or_manager]
+        else:
+            manager = typename_or_manager
+        if pos is None:
+            self.objects.append((manager,obj))
+            pos = len(self.objects) - 1
+        else:
+            self.objects.insert(pos,(manager,obj))
+        self.updateFrameView()
+        self.emit(SIGNAL('valueChanged(int)'),pos)
+        self.setSelection(pos)
+    
     def showMessage(self,msg,timeout):
         if hasattr(self,'statusBar'):
             self.statusBar.showMessage(msg,timeout)
         else:
             print(msg)
 
-class ObjectPanel(QScrollArea): 
-    """Class object Panel, will contain and display thumbnails of the ObjectListDisplay"""
 
-    def __init__(self,parent):
-        QScrollArea.__init__(self,parent)
-        self.view = ObjectListDisplay(self)
-        self.name = None
-        self.setWidget(self.view)
-        self.setWidgetResizable(True)
-        QObject.connect(self.view,SIGNAL('selectionChanged(int)'),self.displayName)
+
+class LpyObjectPanelDock (QDockWidget):
+    def __init__(self,parent,name,panelmanager = None):    
+        QDockWidget.__init__(self,parent)
+        self.panelmanager = panelmanager
+        self.setObjectName(name.replace(' ','_'))
+        self.setName(name)
+        self.dockWidgetContents = QWidget()
+        self.dockWidgetContents.setObjectName(name+"DockWidgetContents")
+        self.verticalLayout = QVBoxLayout(self.dockWidgetContents)
+        self.verticalLayout.setSpacing(0)
+        self.verticalLayout.setMargin(0)
+        self.verticalLayout.setObjectName(name+"verticalLayout")
+        
+        self.objectpanel = QScrollArea(self.dockWidgetContents)
+        self.view = ObjectListDisplay(self,panelmanager)
+        self.view.dock = self
+        self.objectpanel.setWidget(self.view)
+        self.objectpanel.setWidgetResizable(True)
+        self.objectpanel.setObjectName(name+"panelarea")
+        
+        self.verticalLayout.addWidget(self.objectpanel)
+        self.objectNameEdit = QLineEdit(self.dockWidgetContents)
+        self.objectNameEdit.setObjectName(name+"NameEdit")
+        self.verticalLayout.addWidget(self.objectNameEdit)        
+        self.objectNameEdit.hide()
+        self.setWidget(self.dockWidgetContents)
+        
         QObject.connect(self.view,SIGNAL('valueChanged(int)'),self.__updateStatus)
         QObject.connect(self.view,SIGNAL('AutomaticUpdate()'),self.__transmit_autoupdate)
-        self.setAcceptDrops(True)
-
-    def setStatusBar(self,st):
-        self.statusBar = st
-        self.view.statusBar = st
-
-    def __updateStatus(self,i=None):
-        self.emit(SIGNAL('valueChanged()'))
-
-    def __transmit_autoupdate(self):
-        self.emit(SIGNAL('AutomaticUpdate()'))
-    
-    def setObjectNameEditor(self,objectNameEdit):
-        self.objectNameEdit = objectNameEdit
+        QObject.connect(self.view,SIGNAL('selectionChanged(int)'),self.endNameEditing)
+        QObject.connect(self.view,SIGNAL('renameRequest(int)'),self.displayName)
         QObject.connect(self.objectNameEdit,SIGNAL('editingFinished()'),self.updateName)
-
-    def displayName(self,id):
-        if id == -1:
-            self.objectNameEdit.clear()
-        else:
-            self.objectNameEdit.setText(self.view.getSelectedObjectName())
-
-    def updateName(self):
-        if not (self.view.selection is None or self.view.selection == -1):
-            self.view.setSelectedObjectName(str(self.objectNameEdit.text()))
-            self.view.updateGL()
-
-    def setObjects(self,objects):
-        self.view.setobjects(objects)
-
-    def getObjects(self):
-        return self.view.objects
-
+        self.dockNameEdition = False
+        self.setAcceptDrops(True)
+    
+    
     def dragEnterEvent(self,event):
         event.acceptProposedAction()
 
@@ -529,17 +703,189 @@ class ObjectPanel(QScrollArea):
             self.fileDropEvent(str(event.mimeData().urls()[0].toLocalFile()))
 
     def fileDropEvent(self,fname):
-        from lpfg_data_import import import_contours
-        objects = import_contours(fname)
-        if len(objects) > 0:
-            manager = self.view.managers['Curve2D']
-            self.setobjects(self.getObjects()+[(manager,i) for i in objects])
-            self.__updateStatus()
-            self.showMessage('import '+str(len(objects))+" object(s) from '"+fname+"'.",5000)
+        for manager in self.view.managers.itervalues():
+            if manager.canImportData(fname):
+                objects = manager.importData(fname)
+                self.view.appendObjects([(manager,i) for i in objects])    
+                self.showMessage('import '+str(len(objects))+" object(s) from '"+fname+"'.",5000)
+                return
+
+    def endNameEditing(self,id):
+        if id != -1 and self.objectNameEdit.isVisible():
+            self.displayName(-1)
+    
+    def displayName(self,id):
+        if id == -1:
+            self.objectNameEdit.clear()
+            self.objectNameEdit.hide()
+        else:
+            self.objectNameEdit.show()
+            self.objectNameEdit.setText(self.view.getSelectedObjectName())
+            self.objectNameEdit.setFocus()
+
+    def updateName(self):
+        if not self.dockNameEdition :
+            if self.view.hasSelection():
+                self.view.setSelectedObjectName(str(self.objectNameEdit.text()))
+                self.view.updateGL()
+                self.objectNameEdit.hide()
+        else :
+            self.setName(self.objectNameEdit.text())
+            self.dockNameEdition = False
+            self.objectNameEdit.hide()            
+        
+    def setObjects(self,objects):
+        self.view.setObjects(objects)
+
+    def appendObjects(self,objects):
+        self.view.appendObjects(objects)
+
+    def getObjects(self):
+        return self.view.objects
+
+    def getObjectsCopy(self):
+        return self.view.getObjectsCopy()
+
+    def setStatusBar(self,st):
+        self.objectpanel.statusBar = st
+        self.view.statusBar = st
 
     def showMessage(self,msg,timeout):
         if hasattr(self,'statusBar'):
             self.statusBar.showMessage(msg,timeout)
         else:
-            seprint(msg)
+            print(msg)    
+    def __updateStatus(self,i=None):
+        self.emit(SIGNAL('valueChanged()'))
 
+    def __transmit_autoupdate(self):
+        self.emit(SIGNAL('AutomaticUpdate()'))
+        
+    def setName(self,name):
+        self.name = name
+        self.setWindowTitle(name)
+        
+    def rename(self):
+        self.dockNameEdition = True
+        self.objectNameEdit.show()
+        self.objectNameEdit.setText(self.name)
+        self.objectNameEdit.setFocus()
+    
+    def getInfo(self):
+        return {'name':self.name,'active':self.view.isActive(),'visible':self.isVisible() }
+        
+    def setInfo(self,info):
+        self.setName(info['name'])
+        if info.has_key('active'):
+            self.view.setActive(info['active'])        
+        if info.has_key('visible'):
+            self.setVisible(info['visible'])
+
+class ObjectPanelManager(QObject):
+    def __init__(self,parent):
+        QObject.__init__(self,parent)
+        self.parent = parent
+        self.vparameterView = self.parent.vparameterView        
+        self.panels  = []
+        self.unusedpanels = []
+        self.vparameterView.addAction("New Panel",self.createNewPanel)
+        self.vparameterView.addSeparator()
+        self.clipboard = None
+    def setClipboard(self,obj):
+        self.clipboard = obj
+    def getClipboard(self):
+        obj = self.clipboard
+        self.clipboard = None
+        return obj
+    def hasClipboard(self):
+        return not self.clipboard is None
+    def getObjectPanels(self):
+        return self.panels
+    def getMaxObjectPanelNb(self):
+        return len(self.panels)+len(self.unusedpanels)
+    def setObjectPanelNb(self,nb, new_visible = True):
+        nbpanel = len(self.panels)
+        if nb < nbpanel:
+            newunusedpanels = self.panels[nb:]
+            self.unusedpanels = [(panel,panel.isVisible()) for panel in newunusedpanels]+self.unusedpanels
+            self.panels = self.panels[:nb]
+            for panel in newunusedpanels:
+                panel.hide()
+                self.vparameterView.removeAction(panel.toggleViewAction())
+        else:
+            nbtoadd = nb - nbpanel
+            nbunusedpanels = len(self.unusedpanels)
+            nbreused = min(nbtoadd,nbunusedpanels)
+            if nbreused > 0:
+                for i in xrange(nbreused):
+                    npanel,visible = self.unusedpanels.pop(0)
+                    self.panels.append(npanel)
+                    if visible:
+                        npanel.show()
+                    self.vparameterView.addAction(npanel.toggleViewAction())
+            if nbtoadd-nbunusedpanels > 0:
+                for i in xrange(nbtoadd-nbunusedpanels):
+                    npanel = LpyObjectPanelDock(self.parent,"Panel "+str(i+nbpanel+nbunusedpanels),self)
+                    npanel.setStatusBar(self.parent.statusBar())
+                    QObject.connect(npanel, SIGNAL('valueChanged()'),self.parent.projectEdited)
+                    QObject.connect(npanel, SIGNAL('valueChanged()'),self.parent.projectParameterEdited)
+                    QObject.connect(npanel, SIGNAL('AutomaticUpdate()'),self.parent.projectAutoRun)
+                    self.panels.append(npanel)
+                    self.parent.addDockWidget(Qt.LeftDockWidgetArea,npanel)
+                    self.vparameterView.addAction(npanel.toggleViewAction())
+                    if new_visible:
+                        npanel.show()
+                    #self.restoreDockWidget(npanel)
+    def completeMenu(self,menu,panel):
+        panelmenu = QMenu("Panel",menu)
+        menu.addSeparator()
+        menu.addMenu(panelmenu)
+        panelAction = QAction('Rename',panelmenu)
+        QObject.connect(panelAction,SIGNAL('triggered(bool)'),panel.rename)
+        panelmenu.addAction(panelAction)
+        panelAction = QAction('Delete',panelmenu)
+        QObject.connect(panelAction,SIGNAL('triggered(bool)'),TriggerParamFunc(self.deletePanel,panel))
+        panelmenu.addAction(panelAction)
+        panelAction = QAction('New',panelmenu)
+        QObject.connect(panelAction,SIGNAL('triggered(bool)'),TriggerParamFunc(self.createNewPanel,panel))
+        panelmenu.addAction(panelAction)
+        panelAction = QAction('Duplicate',panelmenu)
+        QObject.connect(panelAction,SIGNAL('triggered(bool)'),TriggerParamFunc(self.duplicatePanel,panel))
+        panelmenu.addAction(panelAction)
+        panelAction = QAction('Disable' if panel.view.isActive() else 'Enable',panelmenu)
+        QObject.connect(panelAction,SIGNAL('triggered(bool)'),TriggerParamFunc(panel.view.setActive,not panel.view.isActive()))
+        panelmenu.addAction(panelAction)
+    def createNewPanel(self,above = None):
+        nb = len(self.panels)+1
+        self.setObjectPanelNb(nb)
+        npanel = self.panels[-1]
+        npanel.setObjects([])
+        npanel.show()
+        npanel.setName(self.computeNewPanelName('Panel'))
+        if not above is None:
+            self.parent.tabifyDockWidget(above,npanel)
+    def duplicatePanel(self,source):
+        nb = len(self.panels)+1
+        self.setObjectPanelNb(nb)
+        npanel = self.panels[-1]
+        npanel.setObjects(source.getObjectsCopy())
+        npanel.show()
+        npanel.setName(self.computeNewPanelName(source.name))
+        self.parent.tabifyDockWidget(source,npanel)
+        source.setActive(False)
+    def getPanel(self,panelname):
+        for panel in self.panels:
+            if panel.name == panelname:
+                return panel
+    def deletePanel(self,panel):
+        self.panels.pop( self.panels.index(panel) )
+        panel.hide()
+        self.vparameterView.removeAction(panel.toggleViewAction())
+        self.parent.projectEdited()
+    def computeNewPanelName(self,basename):
+        bn = retrievebasename(basename)
+        mid = retrievemaxidname([panel.name for panel in self.panels],bn)
+        if not mid is None:
+            return bn+' '+str(mid+1)
+        return bn
+        

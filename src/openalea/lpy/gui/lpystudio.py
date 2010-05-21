@@ -23,6 +23,7 @@ import lpypreferences
 from simulation import LpySimulation
 from killsimulationdialog import KillSimulationDialog
 from openalea.plantgl.all import *
+from objectpanel import ObjectPanelManager
 
 from openalea.lpy import *
 
@@ -59,7 +60,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         ComputationTaskManager.__init__(self)
         lsmw.Ui_MainWindow.__init__(self)
         self.withinterpreter = withinterpreter
-        self.setupUi(self)     
+        self.setupUi(self)
         self.editToolBar.hide()
         lpydock.initDocks(self)
         self.preferences = lpypreferences.LpyPreferences(self)
@@ -124,16 +125,9 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.codeeditor.initWithEditor(self)        
         self.debugMode = False
         self.debugger = LpyVisualDebugger(self)
-        self.functionpanel.setCurveNameEditor(self.funcNameEdit)
-        self.curvepanel.setCurveNameEditor(self.curveNameEdit)
-        self.objectpanel.setObjectNameEditor(self.objectNameEdit)
-        self.objectpanel.name = "parameters1"
         st = self.statusBar()
         self.materialed.statusBar = st
-        self.functionpanel.setStatusBar(st)
-        self.curvepanel.setStatusBar(st)
-        self.objectpanel.setStatusBar(st)
-        
+        self.panelmanager = ObjectPanelManager(self)
         self.newfile()
         self.textEditionWatch = False
         self.documentNames.setDrawBase(False)
@@ -182,13 +176,6 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         QObject.connect(self.intitutesEdit, SIGNAL('textChanged()'),self.projectEdited)
         QObject.connect(self.copyrightEdit, SIGNAL('textChanged()'),self.projectEdited)
         QObject.connect(self.materialed, SIGNAL('valueChanged()'),self.projectEdited)
-        QObject.connect(self.functionpanel, SIGNAL('valueChanged()'),self.projectEdited)
-        QObject.connect(self.curvepanel, SIGNAL('valueChanged()'),self.projectEdited)
-        QObject.connect(self.functionpanel, SIGNAL('valueChanged()'),self.projectParameterEdited)
-        QObject.connect(self.curvepanel, SIGNAL('valueChanged()'),self.projectParameterEdited)
-        QObject.connect(self.objectpanel, SIGNAL('valueChanged()'),self.projectEdited)
-        QObject.connect(self.objectpanel, SIGNAL('valueChanged()'),self.projectParameterEdited)
-        QObject.connect(self.objectpanel, SIGNAL('AutomaticUpdate()'),self.projectAutoRun)
         QObject.connect(self.scalarEditor, SIGNAL('valueChanged()'),self.projectEdited)
         QObject.connect(self.scalarEditor, SIGNAL('valueChanged()'),self.projectParameterEdited)
         QObject.connect(self.actionPrint, SIGNAL('triggered(bool)'),self.printCode)
@@ -205,8 +192,15 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         settings.restoreState(self)
         self.createRecentMenu()
         self.textEditionWatch = True
+        
     def getObjectPanels(self):
-        return [self.objectpanel]
+        return self.panelmanager.getObjectPanels()
+    def getMaxObjectPanelNb(self):
+        return self.panelmanager.getMaxObjectPanelNb()
+    def setObjectPanelNb(self,nb, new_visible = True):
+        self.panelmanager.setObjectPanelNb(nb, new_visible)
+    #def createNewPanel(self,above):
+    #    self.panelmanager.createNewPanel(above)
     def abortViewer(self):
         self.viewAbortFunc.shouldAbort()
     def currentSimulation(self):

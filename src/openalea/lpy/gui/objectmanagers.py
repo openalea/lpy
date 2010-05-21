@@ -30,11 +30,11 @@ def __read_manager_plugins():
             try:
                 iter(lmanagers)
                 managers += lmanagers
-                for m in lmanagers:
-                    print "import manager '"+m.typename+"' from plugin '"+plugin+"'"
+                # for m in lmanagers:
+                #    print "import manager '"+m.typename+"' from plugin '"+plugin+"'"
             except:
                 managers.append(lmanagers)
-                print "import manager '"+lmanagers.typename+"' from plugin '"+plugin+"'"
+                #print "import manager '"+lmanagers.typename+"' from plugin '"+plugin+"'"
         except Exception, e:
             exc_info = sys.exc_info()
             traceback.print_exception(*exc_info)

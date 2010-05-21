@@ -1,0 +1,24 @@
+module A
+module B : base = A
+
+assert ModuleClass.get('B').issubclass(ModuleClass.get('A'))
+
+Axiom: B
+
+derivation length: 1
+production:
+
+A:
+    print 'Find A'
+
+*(name):
+   print 'find',name
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	context.options.setSelection('Module inheritance',1)

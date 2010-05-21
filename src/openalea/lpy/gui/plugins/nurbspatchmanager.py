@@ -33,7 +33,7 @@ class NurbsPatchManager(AbstractPglObjectManager):
             glVertex2f(x0c,objectthumbwidth/2.)
             glEnd()                
         glRotatef(90,1,0,0)
-        glRotatef(180,0,0,1)
+        glRotatef(-90,0,0,1)
         glScalef(scaling,scaling,scaling)
         glTranslatef(*-b.getCenter())
         if focus:
@@ -44,13 +44,13 @@ class NurbsPatchManager(AbstractPglObjectManager):
         obj.apply(self.renderer)
 
     def createDefaultObject(self):
-        return NurbsPatch([[(0.5-j/3.,0,i/3.,1) for j in range(4)] for i in range(4)])
+        return NurbsPatch([[(0,0.5-j/3.,i/3.,1) for j in range(4)] for i in range(4)])
 
     def getEditor(self,parent):
         editor = NurbsPatchEditor(parent)
-        editor.camera().setPosition(Vec(0,1,0.5))
+        editor.camera().setPosition(Vec(1,0,0.5))
         editor.camera().setUpVector(Vec(0,0,1))
-        editor.camera().setViewDirection(Vec(0,-1,0))
+        editor.camera().setViewDirection(Vec(-1,0,0))
         editor.camera().fitSphere(Vec(0,0,0.5),0.8)
         return editor
 
@@ -62,6 +62,14 @@ class NurbsPatchManager(AbstractPglObjectManager):
     def retrieveObjectFromEditor(self,editor):
         """ ask for current value of object being edited """
         return editor.getNurbsPatch()
+
+    def canImportData(self,fname):
+        from os.path import splitext
+        return splitext(fname)[1] == '.s'
+    
+    def importData(self,fname):
+        from openalea.lpy.gui.lpfg_data_import import import_patch
+        return [import_patch(fname)]
 
 def get_managers():
     return NurbsPatchManager()

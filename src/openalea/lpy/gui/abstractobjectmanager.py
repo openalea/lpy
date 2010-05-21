@@ -1,5 +1,6 @@
 from PyQt4.QtCore import QObject, SIGNAL
 
+MouseFocus, Selection, Actived = 1,2,4
 
 class AbstractObjectManager(QObject):
     """ Manage a type of data. Make it possible to name it, display it as thumbnail and edit it"""
@@ -14,11 +15,11 @@ class AbstractObjectManager(QObject):
     def getName(self,obj):
         return obj.name
 
-    def displayThumbnail(self,obj,id,focus,objectthumbwidth):
+    def displayThumbnail(self,obj,id,mode,objectthumbwidth):
         """ display of an object in the Lpy main window Panel, 
             :param obj: the object to display
             :param id: id of the object in the list
-            :param focus: define if object has mouse focus, 
+            :param mode: define if object has mode, 
             :param thumbwidth: width of the thumbnail representing the object in the panel
             :param objectthumbwidth: width for the representation of the object in the panel
             Should be reimplemented
@@ -53,7 +54,12 @@ class AbstractObjectManager(QObject):
     
     def writeObjectToLsysContext(self,obj):
         return obj.name
-        
+    
+    def canImportData(self,fname):
+        return False
+    
+    def importData(self,fname):
+        raise NotImplementedError('importData')        
     
 from openalea.plantgl.all import Discretizer, GLRenderer, BBoxComputer, BoundingBox, PyStrPrinter
 

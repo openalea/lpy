@@ -1,0 +1,28 @@
+module A(t)
+module B : base = A, scale = 2
+module C(x) : base = (A,B) # perfect
+
+assert ModuleClass.get('C').issubclass(ModuleClass.get('A'))
+
+Axiom: C(1,2)
+
+derivation length: 1
+production:
+
+A(*args):
+    print 'A(',args,')'
+
+B(*args):
+    print 'B(',args,')'
+
+C(*args):
+    print 'C(',args,')'
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	context.options.setSelection('Module inheritance',1)

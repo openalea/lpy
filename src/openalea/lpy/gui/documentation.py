@@ -142,11 +142,12 @@ def aboutVPlants(parent):
 def splashLPy(): 
     try:
         return vplantsDialog("<b>L-Py - "+LPY_VERSION_STR+"</b>")
-    except:
+    except Exception,e:
+        print e
         pass
 
 def vplantsDialog(txt, parent = None):
-    if parent and not hasattr(parent,'splash'):
+    if not parent or not hasattr(parent,'splash'):
         #if not os.path.exists(logofilename): raise Exception('No logo image')
         pix = QPixmap(logofilename)
         splash = QSplashScreen(pix)

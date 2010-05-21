@@ -4,7 +4,7 @@ from code import InteractiveInterpreter as Interpreter
 import shell
 import debugger_ui
 import debugger_right_ui
-
+from objectpanel import LpyObjectPanelDock
 
 class DebugLeftWidget(QWidget,debugger_ui.Ui_Form):
     def __init__(self,parent):
@@ -27,15 +27,21 @@ def showMessage(self,msg,timeout):
 def initDocks(lpywidget):
     prevdock = None
     st = lpywidget.statusBar()
-    for dock in [lpywidget.materialDock, lpywidget.functionDock, lpywidget.curveDock, lpywidget.scalarDock, lpywidget.descriptionDock, lpywidget.parametersDock, lpywidget.objectDock]:
+    for i,dock in enumerate([lpywidget.materialDock, lpywidget.scalarDock, lpywidget.descriptionDock, lpywidget.parametersDock]):
         lpywidget.addDockWidget(Qt.LeftDockWidgetArea,dock)
-        action = dock.toggleViewAction()
-        lpywidget.menuView.addAction(action)
+        #lpywidget.menuView.addAction(dock.toggleViewAction())
         dock.statusBar = st
         dock.showMessage = showMessage
         if not prevdock is None:
             lpywidget.tabifyDockWidget(prevdock,dock)
         prevdock = dock
+    lpywidget.menuView.addAction(lpywidget.materialDock.toggleViewAction())
+    lpywidget.menuView.addAction(lpywidget.scalarDock.toggleViewAction())
+    lpywidget.vparameterView = lpywidget.menuView.addMenu("Visual Parameters")
+    lpywidget.menuView.addSeparator()
+    lpywidget.menuView.addAction(lpywidget.descriptionDock.toggleViewAction())
+    lpywidget.menuView.addAction(lpywidget.parametersDock.toggleViewAction())
+        
     lpywidget.addDockWidget(Qt.LeftDockWidgetArea,lpywidget.helpDock)
     action = lpywidget.helpDock.toggleViewAction()
     action.setShortcut(QApplication.translate("MainWindow", "F1", None, QApplication.UnicodeUTF8))
@@ -48,8 +54,6 @@ def initDocks(lpywidget):
     lpywidget.menuHelp.addAction(action)
     lpywidget.tabifyDockWidget(lpywidget.materialDock,lpywidget.parametersDock)
     lpywidget.tabifyDockWidget(lpywidget.parametersDock,lpywidget.descriptionDock)
-    lpywidget.tabifyDockWidget(lpywidget.descriptionDock,lpywidget.functionDock)
-    lpywidget.tabifyDockWidget(lpywidget.functionDock,lpywidget.curveDock)
     # debug dock
     lpywidget.debugDock = QDockWidget("Debugger",lpywidget)
     lpywidget.debugDock.setObjectName("LpyDebugger")

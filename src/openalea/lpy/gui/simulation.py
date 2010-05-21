@@ -37,11 +37,12 @@ class LpySimulation:
                           '__copyright__'   : '' ,
                           '__description__' : '' ,
                           '__references__'  : '' }
-        self.functions = []
-        self.curves = []
-        self.visualparameters = [('parameters1',[])]
+        #self.functions = []
+        #self.curves = []
+        self.visualparameters = [({'name':'Panel 1'},[])]
         self.scalars = []
         self.scalarEditState = None
+        self.keepCode_1_0_Compatibility = True
         if not fname is None:
             self.open(fname)
     def getFname(self) : return self._fname
@@ -82,7 +83,6 @@ class LpySimulation:
             if len(i) > 0:
                 return False
         ini = self.getInitialisationCode()
-        print ini
         if len(ini) > 0: return False
         return True            
     def getShortName(self):
@@ -138,11 +138,12 @@ class LpySimulation:
         self.lpywidget.setTimeStep(self.lsystem.context().animation_timestep)
         self.lpywidget.materialed.turtle = self.lsystem.context().turtle
         self.lpywidget.materialed.updateGL()
-        self.lpywidget.functionpanel.setFunctions(self.functions)
-        self.lpywidget.curvepanel.setCurves(self.curves)
+        #self.lpywidget.functionDock.setFunctions(self.functions)
+        #self.lpywidget.curveDock.setCurves(self.curves)
+        self.lpywidget.setObjectPanelNb(len(self.visualparameters))
         for panel,data in zip(self.lpywidget.getObjectPanels(),self.visualparameters):
-            panelname,objects = data
-            panel.name = panelname
+            panelinfo,objects = data
+            panel.setInfo(panelinfo)
             panel.setObjects(objects)
         if self.scalarEditState is None:
             self.lpywidget.scalarEditor.setScalars(self.scalars)
@@ -168,9 +169,9 @@ class LpySimulation:
                 self.desc_items[key] = editor.text()
             else:
                 self.desc_items[key] = editor.toPlainText()
-        self.functions = self.lpywidget.functionpanel.getFunctions()
-        self.curves = self.lpywidget.curvepanel.getCurves()
-        self.visualparameters = [(panel.name,panel.getObjects()) for panel in self.lpywidget.getObjectPanels()]
+        #self.functions = self.lpywidget.functionpanel.getFunctions()
+        #self.curves = self.lpywidget.curvepanel.getCurves()
+        self.visualparameters = [(panel.getInfo(),panel.getObjects()) for panel in self.lpywidget.getObjectPanels()]
         self.scalars,self.scalarEditState = self.lpywidget.scalarEditor.getState()
     def initializeParametersTable(self):
         self.optionModel = QStandardItemModel(0, 1)
@@ -282,7 +283,7 @@ class LpySimulation:
         code = self.initialisationFunction(withall)
         code += self.creditsCode()
         if len(code) > 0:
-            code = LpyParsing.InitialisationBeginTag+'\n\n'+code
+            code = LpyParsing.InitialisationBeginTag+'\n\n'+'__lpy_code_version__ = '+str(1.1)+'\n\n'+code
         return code
     def initialisationFunction(self,withall=True):
         header = "def "+LsysContext.InitialisationFunctionName+"(context):\n"
@@ -307,16 +308,16 @@ class LpySimulation:
             for i in xrange(len(options)):
                 if not options[i].isToDefault():
                     init_txt += '\tcontext.options.setSelection('+repr(options[i].name)+','+str(options[i].selection)+')\n'
-        if len(self.functions) > 0 or len(self.curves) > 0 :
-            init_txt += "\tfrom openalea.plantgl.all import QuantisedFunction,NurbsCurve2D,Point3Array,Vector3,RealArray\n"
-        if len(self.functions):
-            init_txt += '\tfunctions = '+str([(i.name,i) for i in self.functions])+'\n'
-            init_txt += '\tcontext["__functions__"] = functions\n'
-            init_txt += '\tfor n,c in functions:\n\t\tcontext[n] = QuantisedFunction(c)\n'
-        if len(self.curves):
-            init_txt += '\tcurves = '+str([(i.name,i) for i in self.curves])+'\n'
-            init_txt += '\tcontext["__curves__"] = curves\n'
-            init_txt += '\tfor n,c in curves:\n\t\tcontext[n] = c\n'
+        # if len(self.functions) > 0 or len(self.curves) > 0 :
+            # init_txt += "\tfrom openalea.plantgl.all import QuantisedFunction,NurbsCurve2D,Point3Array,Vector3,RealArray\n"
+        # if len(self.functions):
+            # init_txt += '\tfunctions = '+str([(i.name,i) for i in self.functions])+'\n'
+            # init_txt += '\tcontext["__functions__"] = functions\n'
+            # init_txt += '\tfor n,c in functions:\n\t\tcontext[n] = QuantisedFunction(c)\n'
+        # if len(self.curves):
+            # init_txt += '\tcurves = '+str([(i.name,i) for i in self.curves])+'\n'
+            # init_txt += '\tcontext["__curves__"] = curves\n'
+            # init_txt += '\tfor n,c in curves:\n\t\tcontext[n] = c\n'
         if len(self.scalars):
             init_txt += '\tscalars = '+str([(i.name,i.value,i.minvalue,i.maxvalue) for i in self.scalars])+'\n'
             init_txt += '\tcontext["__scalars__"] = scalars\n'
@@ -327,20 +328,35 @@ class LpySimulation:
             return True
         if not emptyparameterset(self.visualparameters) :
             intialized_managers = {}
-            for panelname,objects in self.visualparameters:
-                for manager,obj in objects:
-                    if not intialized_managers.has_key(manager):
-                        intialized_managers[manager] = True
-                        init_txt += manager.initWriting('\t') 
-                    init_txt += manager.writeObject(obj,'\t')
+            for panelinfo,objects in self.visualparameters:
+                if panelinfo.get('active',True) or withall:
+                    for manager,obj in objects:
+                        if not intialized_managers.has_key(manager):
+                            intialized_managers[manager] = True
+                            init_txt += manager.initWriting('\t') 
+                        init_txt += manager.writeObject(obj,'\t')
             init_txt += '\tparameterset = ['
-            for panelname,objects in self.visualparameters:
-                init_txt += '('+repr(panelname)+',['+','.join(['('+repr(manager.typename)+','+manager.getName(obj)+')' for manager,obj in objects])+']),'
+            for panelinfo,objects in self.visualparameters:
+                if panelinfo.get('active',True) or withall:
+                    init_txt += '('+repr(panelinfo)+',['+','.join(['('+repr(manager.typename)+','+manager.getName(obj)+')' for manager,obj in objects])+']),'
             init_txt += ']\n'
+            if withall and self.keepCode_1_0_Compatibility:
+                init_txt += '\tcontext["__functions__"] = ['
+                for panelinfo,objects in self.visualparameters:
+                    if panelinfo.get('active',True):
+                        init_txt += ','.join([manager.getName(obj) for manager,obj in objects if manager.typename == 'Function'])
+                init_txt += ']\n'
+                init_txt += '\tcontext["__curves__"] = ['
+                for panelinfo,objects in self.visualparameters:
+                    if panelinfo.get('active',True):
+                        init_txt += ','.join([manager.getName(obj) for manager,obj in objects if manager.typename == 'Curve2D'])
+                init_txt += ']\n'
+                
             init_txt += '\tcontext["__parameterset__"] = parameterset\n'
-            for panelname,objects in self.visualparameters:
-                for manager,obj in objects:
-                    init_txt += '\tcontext["'+manager.getName(obj)+'"] = '+manager.writeObjectToLsysContext(obj) + '\n'
+            for panelinfo,objects in self.visualparameters:
+                if panelinfo.get('active',True):
+                    for manager,obj in objects:
+                        init_txt += '\tcontext["'+manager.getName(obj)+'"] = '+manager.writeObjectToLsysContext(obj) + '\n'
         if len(init_txt) > 0:
             return header+init_txt
         else:
@@ -388,23 +404,35 @@ class LpySimulation:
                         init = True
                 else:
                     self.desc_items[key] = ''
-            if context.has_key('__functions__'):
+            from objectmanagers import get_managers
+            managers = get_managers()
+            self.visualparameters = []
+            lpy_code_version = 1.0
+            if context.has_key('__lpy_code_version__'):
+                lpy_code_version = ['__lpy_code_version__']
+            if context.has_key('__functions__') and lpy_code_version <= 1.0 :
                 functions = context['__functions__']
                 for n,c in functions: c.name = n
-                self.functions = [ c for n,c in functions ]
-            if context.has_key('__curves__'):
+                # self.functions = [ c for n,c in functions ]
+                funcmanager = managers['Function']
+                self.visualparameters += [ ({'name':'Functions'}, [(funcmanager,func) for n,func in functions]) ]
+            if context.has_key('__curves__') and lpy_code_version <= 1.0 :
                 curves = context['__curves__']
                 for n,c in curves: c.name = n
-                self.curves = [ c for n,c in curves ]
+                # self.curves = [ c for n,c in curves ]
+                curvemanager = managers['Curve2D']
+                self.visualparameters += [ ({'name':'Curve2D'}, [(curvemanager,curve) for n,curve in curves]) ]
             if context.has_key('__scalars__'):
                 scalars = context['__scalars__']                
                 self.scalars = [ Scalar(*v) for v in scalars ]
             if context.has_key('__parameterset__'):
-                from objectmanagers import get_managers
-                managers = get_managers()
+                def checkinfo(info):    
+                    if type(info) == str:
+                        return {'name':info}
+                    return info
                 parameterset = context['__parameterset__']
-                parameterset = [ (panelname, [(managers[typename],obj) for typename,obj in objects]) for panelname,objects in parameterset]
-                self.visualparameters = parameterset
+                parameterset = [ (checkinfo(panelinfo), [(managers[typename],obj) for typename,obj in objects]) for panelinfo,objects in parameterset]
+                self.visualparameters += parameterset
             if init is None:
                 import warnings
                 warnings.warn('initialisation failed')

@@ -86,6 +86,8 @@ typedef std::vector<ModuleClassPtr> ModuleClassList;
 	MACRO(Down) \
 	MACRO(RollL) \
 	MACRO(RollR) \
+	MACRO(iRollL) \
+	MACRO(iRollR) \
 	MACRO(TurnAround) \
 	MACRO(RollToVert) \
 	MACRO(Sphere) \

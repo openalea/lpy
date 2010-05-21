@@ -101,7 +101,10 @@ class GraphicalStreamRedirection:
             sys.stdout   = MultipleRedirection(sys_stdout, ThreadedRedirection(self))
         else:
             sys.stdout   = ThreadedRedirection(self)
-        
+
+    def hasMultipleStdOutRedirection(self):
+        return isinstance(sys.stdout, MultipleRedirection)
+            
     def multipleStdErrRedirection(self,enabled = True):
         """ make multiple (sys.stderr/pyconsole) or single (pyconsole) redirection of stderr """
         if enabled:
