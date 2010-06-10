@@ -66,13 +66,14 @@ def import_patch(fn):
     l = heading.normalize()
     v = f.readline().split()
     up = Vector3(float(v[2]),float(v[4]),float(v[6]))
+    up.normalize()
     v = f.readline().split()
     size = float(v[1])
     name = f.readline().split()[0]
     for i in xrange(4): f.readline()
     ctrlpoints = []
     left = heading^up
-    m = Matrix3(left,up,heading)
+    m = Matrix3(-up,-left,heading)
     m = m.inverse()
     for i in xrange(4):
         v = f.readline().split()

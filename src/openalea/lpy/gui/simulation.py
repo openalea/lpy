@@ -344,12 +344,12 @@ class LpySimulation:
                 init_txt += '\tcontext["__functions__"] = ['
                 for panelinfo,objects in self.visualparameters:
                     if panelinfo.get('active',True):
-                        init_txt += ','.join([manager.getName(obj) for manager,obj in objects if manager.typename == 'Function'])
+                        init_txt += ','.join(['('+repr(manager.getName(obj))+','+manager.getName(obj)+')' for manager,obj in objects if manager.typename == 'Function'])
                 init_txt += ']\n'
                 init_txt += '\tcontext["__curves__"] = ['
                 for panelinfo,objects in self.visualparameters:
                     if panelinfo.get('active',True):
-                        init_txt += ','.join([manager.getName(obj) for manager,obj in objects if manager.typename == 'Curve2D'])
+                        init_txt += ','.join(['('+repr(manager.getName(obj))+','+manager.getName(obj)+')' for manager,obj in objects if manager.typename == 'Curve2D'])
                 init_txt += ']\n'
                 
             init_txt += '\tcontext["__parameterset__"] = parameterset\n'

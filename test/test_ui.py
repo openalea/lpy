@@ -42,7 +42,7 @@ if sys.platform == 'win32':
         
     def test_exit():
         """ Test exit of Lpy widget """
-        widget.actionExit.trigger()
+        widget.end(force=True)
         qapp.processEvents()
         #QCoreApplication.quit()
         

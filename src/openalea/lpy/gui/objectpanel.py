@@ -223,6 +223,14 @@ class ObjectListDisplay(QGLWidget):
             fc = (f[0],deepcopy(f[1]))
             self.panelmanager.setClipboard(fc)
 
+    def copySelectionName(self):
+        """ copy the name of the panel selection"""
+        
+        from copy import deepcopy
+        if self.hasSelection() :
+            name = self.getSelectedObjectName()
+            QApplication.clipboard().setText(name)
+
     def cutSelection(self):
         """ copy one of the panel's objects"""
         if self.hasSelection() :
@@ -531,6 +539,8 @@ class ObjectListDisplay(QGLWidget):
         QObject.connect(self.pasteAction,SIGNAL('triggered(bool)'),self.paste)
         self.deleteAction = QAction('Delete',self)
         QObject.connect(self.deleteAction,SIGNAL('triggered(bool)'),self.deleteSelection)
+        self.copyNameAction = QAction('Copy Name',self)
+        QObject.connect(self.copyNameAction,SIGNAL('triggered(bool)'),self.copySelectionName)
         self.renameAction = QAction('Rename',self)
         QObject.connect(self.renameAction,SIGNAL('triggered(bool)'),self.renameSelection)
 
@@ -547,6 +557,8 @@ class ObjectListDisplay(QGLWidget):
         contextmenu.addAction(self.pasteAction)
         contextmenu.addSeparator()
         contextmenu.addAction(self.renameAction)
+        contextmenu.addAction(self.copyNameAction)
+        contextmenu.addSeparator()
         contextmenu.addAction(self.deleteAction)
         if self.panelmanager and self.hasSelection():
             panels = self.panelmanager.getObjectPanels()
@@ -578,6 +590,7 @@ class ObjectListDisplay(QGLWidget):
         self.cutAction.setEnabled(selcond)
         self.pasteAction.setEnabled(self.panelmanager.hasClipboard() and self.active)
         self.renameAction.setEnabled(selcond)
+        self.copyNameAction.setEnabled(selcond)
         self.deleteAction.setEnabled(selcond)
         contextmenu.exec_(event.globalPos())
 
@@ -772,13 +785,20 @@ class LpyObjectPanelDock (QDockWidget):
         self.objectNameEdit.setFocus()
     
     def getInfo(self):
-        return {'name':self.name,'active':self.view.isActive(),'visible':self.isVisible() }
+        visibility = True
+        if not self.isVisible() :
+            if self.parent().isVisible() :
+                visibility = False
+            else:
+                visibility = getattr(self,'previousVisibility',True)
+        return {'name':str(self.name),'active':bool(self.view.isActive()),'visible':visibility }
         
     def setInfo(self,info):
         self.setName(info['name'])
         if info.has_key('active'):
             self.view.setActive(info['active'])        
         if info.has_key('visible'):
+            self.previousVisibility = info['visible']
             self.setVisible(info['visible'])
 
 class ObjectPanelManager(QObject):

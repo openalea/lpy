@@ -1,6 +1,9 @@
 from openalea.plantgl.all import *
 from math import degrees,pi
-from random import uniform
+from random import uniform, seed
+
+
+seed(0)
 
 l = 50.
 nbpt = int(l)
@@ -17,20 +20,20 @@ def gen_noise_branch(radius,nbp=10):
 
 
 def End():
-    print 'end'
+    pass #print 'end'
 
 module SGT, A
 
-Axiom:  SGT _(diameter(0)) A(l,0,0,0)
+Axiom:  SGT _(diameter(0)) @Gc A(l,0,0,0)
 
 derivation length: nbpt
 production:
 
 SGT :
      if with_guide:
-         produce SetGuide(path,l,True)
+         nproduce SetGuide(path,l,True)
      if with_tropism:
-         produce @Tp(0,0,1) @Ts(0.02)
+         produce @Tp(0,0,1) @Ts(0.01*elasticity)
 
 A(x,phi,nq,order) :
     u = (l-x)/l
@@ -39,7 +42,8 @@ A(x,phi,nq,order) :
     if nq > 1:
         nq -= 1
         if x > branch_decal and order < max_order:
-            nproduce [/(phi) +(100*branching_angle(u)) @v 
+            nproduce [/(phi) +(100*branching_angle(u)) @v
+            llength =  x-branch_decal
             if with_frame:
                 nproduce Frame(3)
             if with_guide:
@@ -50,16 +54,16 @@ A(x,phi,nq,order) :
                 else:
                     bp = branchpath
                 #print bp
-                nproduce SetGuide(bp,x) 
+                nproduce SetGuide(bp,llength) 
                 if ctrl_lines:
                     p0 = bp.getPointAt(0)
                     if isinstance(bp,NurbsCurve):
-                        rep = AxisRotated(Vector3.OZ,pi,Translated(-p0,bp))
+                        rep = AxisRotated(Vector3.OZ,0,Translated(-p0,bp))
                     else:
                         rep = Translated(-Vector3(0,p0.y,p0.x),NurbsCurve([Vector4(0,i.y,i.x,1) for i in bp.ctrlPointList]))
                         
-                    nproduce F(0)[,(3) @g(Scaled(x/bp.getLength(),rep))]
-            nproduce A(x-branch_decal,phi, 0,order+1) ]
+                    nproduce F(0)[,(3) @g(Scaled(llength/bp.getLength(),rep))]
+            nproduce A(llength,phi, 0,order+1) ]
         phi+=phyllotaxy
     produce F(1,diameter(u))A(x-1,(phi),nq,order)
 
@@ -71,9 +75,10 @@ interpretation:
 endlsystem
 ###### INITIALISATION ######
 
-__lpy_code_version__ =1.1
+__lpy_code_version__ = 1.1
+
 def __initialiseContext__(context):
-	scalars = [('with_frame', False, False, True), ('branch_decal', 5, 0, 50), ('with_guide', True, False, True), ('with_tropism', False, False, True), ('jitter_branch', False, False, True), ('jitter_radius', 5, 0, 100), ('ctrl_lines', True, False, True), ('max_order', 8, 0, 100), ('noise_branch', True, False, True), ('noise_freq', 24, 3, 100)]
+	scalars = [('with_frame', False, False, True), ('branch_decal', 5, 0, 50), ('with_guide', True, False, True), ('with_tropism', True, False, True), ('jitter_branch', False, False, True), ('jitter_radius', 2, 0, 100), ('ctrl_lines', False, False, True), ('max_order', 6, 0, 100), ('noise_branch', True, False, True), ('noise_freq', 11, 3, 100), ('elasticity', 2, 0, 100)]
 	context["__scalars__"] = scalars
 	for n,v,mnv,mxv in scalars:
 		context[n] = v
@@ -104,7 +109,9 @@ def __initialiseContext__(context):
 )
 	branching_angle.name = "branching_angle"
 	
-	parameterset = [({'active': True, 'visible': False, 'name': 'Panel 1'},[('Curve2D',path),('Function',diameter),('Curve2D',branchpath),('Function',node_length),('Function',branching_angle)]),]
+	parameterset = [({'active': True, 'visible': True, 'name': 'Panel 1'},[('Curve2D',path),('Function',diameter),('Curve2D',branchpath),('Function',node_length),('Function',branching_angle)]),]
+	context["__functions__"] = [('diameter',diameter),('node_length',node_length),('branching_angle',branching_angle)]
+	context["__curves__"] = [('path',path),('branchpath',branchpath)]
 	context["__parameterset__"] = parameterset
 	context["path"] = path
 	context["diameter"] = pgl.QuantisedFunction(diameter)

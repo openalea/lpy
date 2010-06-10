@@ -257,6 +257,10 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
                 self.newfile()
             else:
                 self.currentSimulation().restoreState()
+    def end(self,force = False):
+        if force:
+            self.exitWithoutPrompt = force
+        self.close()
     def closeEvent(self,e):
         self.debugger.endDebug()
         Viewer.stop()    
@@ -266,16 +270,18 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
             for simu in self.simulations:
                prompt = (prompt or simu.isEdited())
                if prompt: break
-        if not prompt:
-            answer = QMessageBox.warning(self,"Quitting","Are you sure ?", QMessageBox.Ok,QMessageBox.Cancel)
-            if answer == QMessageBox.Cancel: e.ignore()
-            else:  e.accept()
-        else:    
-            for simu in reversed(self.simulations):
-                if not simu.close(): 
-                    e.ignore()
-                    return
-            e.accept()
+            if not prompt :
+                answer = QMessageBox.warning(self,"Quitting","Are you sure ?", QMessageBox.Ok,QMessageBox.Cancel)
+                if answer == QMessageBox.Cancel: e.ignore()
+                else:  e.accept()
+            else:    
+                for simu in reversed(self.simulations):
+                    if not simu.close(): 
+                        e.ignore()
+                        return
+                e.accept()
+        else:
+            e.accept()            
         if e.isAccepted():
             self.interpreter.locals.clear()
     def taskRunningEvent(self):
