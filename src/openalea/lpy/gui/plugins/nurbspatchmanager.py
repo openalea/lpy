@@ -37,13 +37,13 @@ class NurbsPatchManager(AbstractPglObjectManager):
         glScalef(scaling,scaling,scaling)
         glTranslatef(*-b.getCenter())
         if focus:
-            glColor4f(0.0,0.5,1.0,0.0)
+            glColor4f(0.0,0.5,1.0,1.0)
         else:
-            glColor4f(0.0,0.5,0.5,0.0)
+            glColor4f(0.0,0.4,0.8,1.0)
         glLineWidth(1)
         obj.apply(self.renderer)
 
-    def createDefaultObject(self):
+    def createDefaultObject(self,subtype):
         return NurbsPatch([[(0,0.5-j/3.,i/3.,1) for j in range(4)] for i in range(4)])
 
     def getEditor(self,parent):

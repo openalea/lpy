@@ -5,7 +5,8 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
-import sys, traceback
+import sys, traceback, os
+from math import sin, pi
 
 from objectmanagers import get_managers
 
@@ -38,11 +39,11 @@ def retrievebasename(name):
     return name
 
 class TriggerParamFunc:
-    def __init__(self,func,value):
+    def __init__(self,func,*value):
         self.func = func
         self.value= value
     def __call__(self):
-        self.func(self.value)
+        self.func(*self.value)
 
         
 from objectdialog import ObjectDialog
@@ -119,10 +120,13 @@ class ObjectListDisplay(QGLWidget):
         self.selection = None
         self.editedobject = None
         self.cursorselection = None
+        self.selectionPositionBegin = None
+        self.selectionPositionCurrent = None
         self.managers = {}
         self.managerDialogs = {}
         self.borderList = None
         self.selectedBorderList = None
+        self.backGroundList = None
         for typename, manager in get_managers().items():
             try:
                 md = ManagerDialogContainer(self,manager)
@@ -134,6 +138,21 @@ class ObjectListDisplay(QGLWidget):
                 traceback.print_exception(*exc_info)
                 continue
         self.createContextMenuActions()
+        self.withImgBg = False
+        self.normalBgColor = 0
+        self.inactiveBgColor = 0.4
+        if self.withImgBg:
+            bgimfname = os.path.join(os.path.dirname(__file__),'icons/plantbg.png')
+            if os.path.exists(bgimfname):
+                self.bgObjectGeom = QuadSet([(0.8,1,0),(-0.8,1,0),(-0.8,-1,0),(0.8,-1,0)],[range(4)],texCoordList=[(0,0),(1,0),(1,1),(0,1)])
+                self.bgObject = Shape(self.bgObjectGeom,ImageTexture(bgimfname))
+            else:
+                self.withImgBg = False
+        if not self.withImgBg:        
+            self.bgObject = None
+            #self.computeBackGround(self.width(),self.height())
+        self.discretizer = Discretizer()
+        self.renderer = GLRenderer(self.discretizer)
     
     def isActive(self):
         return self.active
@@ -166,7 +185,8 @@ class ObjectListDisplay(QGLWidget):
 
     def setCursorSelection(self,selection):
         """function setCursorSelection: update the cursorselection parameter of the objectpanel, if the mouse cursor is not placed over an object, it will be None"""
-        self.cursorselection = selection            
+        self.cursorselection = selection
+        self.setToolTip('' if selection is None else self.getCursorSelectionObjectName())
         self.updateGL()     
 
    
@@ -180,6 +200,10 @@ class ObjectListDisplay(QGLWidget):
         
     def getSelectedObjectName(self):
         manager,object = self.objects[self.selection]
+        return manager.getName(object)
+        
+    def getCursorSelectionObjectName(self):
+        manager,object = self.objects[self.cursorselection]
         return manager.getName(object)
         
     def setSelectedObjectName(self,name):
@@ -297,7 +321,7 @@ class ObjectListDisplay(QGLWidget):
         self.sendSelectionTo(self.panelmanager.getObjectPanels()[-1].name)
     
     def resizeGL(self,w,h):
-        """resizeGL: function handling resizing events"""
+        """ resizing events"""
         w,h = self.parent().width(),self.parent().height()
         if w == 0 or h == 0: return
         if w > h+50 :
@@ -314,6 +338,7 @@ class ObjectListDisplay(QGLWidget):
                 self.setOrientation(Qt.Vertical)
             else:
                 self.updateFrameView()
+        self.computeBackGround(w,h)
         self.generateDisplayList()
     
     def generateDisplayList(self):
@@ -321,12 +346,17 @@ class ObjectListDisplay(QGLWidget):
             self.borderList = glGenLists(1)
         cornersize = self.cornersize
         thumbwidth = self.thumbwidth
+        
+        # list for simple thumbnail
         glNewList(self.borderList,GL_COMPILE)
         glPolygonMode(GL_FRONT_AND_BACK,GL_FILL)
+        activeGreyColor = 0.25
+        inactiveGreyColor = self.inactiveBgColor + 0.05
+        selectionGreyColor = 0.4
         if self.active:
-            glColor4f(0.05,0.05,0.05,0.0)
+            glColor4f(activeGreyColor,activeGreyColor,activeGreyColor,0.5)
         else:
-            glColor4f(0.45,0.45,0.45,0.0)
+            glColor4f(inactiveGreyColor,inactiveGreyColor,inactiveGreyColor,0.5)
         glBegin(GL_QUADS)
         glVertex2f(0,0)
         glVertex2f(thumbwidth-1,0)
@@ -334,7 +364,7 @@ class ObjectListDisplay(QGLWidget):
         glVertex2f(0,thumbwidth-1)
         glEnd()
         glLineWidth(1)
-        glColor4f(0.9,0.9,0.9,0.0)
+        glColor4f(0.9,0.9,0.9,1.0)
         glBegin(GL_LINE_STRIP)
         glVertex2f(cornersize,0)
         glVertex2f(thumbwidth-cornersize-1,0)
@@ -347,10 +377,12 @@ class ObjectListDisplay(QGLWidget):
         glVertex2f(cornersize,0)
         glEnd()
         glEndList()
+        
+        # list for selected thumbnail
         if self.selectedBorderList is  None:
             self.selectedBorderList = glGenLists(1)
         glNewList(self.selectedBorderList,GL_COMPILE)
-        glColor4f(0.1,0.1,0.1,0.0)
+        glColor4f(selectionGreyColor,selectionGreyColor,selectionGreyColor,0.5)
         glBegin(GL_QUADS)
         glVertex2f(0,0)
         glVertex2f(thumbwidth-1,0)
@@ -358,7 +390,7 @@ class ObjectListDisplay(QGLWidget):
         glVertex2f(0,thumbwidth-1)
         glEnd()
         glLineWidth(3)
-        glColor4f(0.5,0.5,0.5,0.0)
+        glColor4f(0.5,0.5,0.5,1.0)
         glBegin(GL_LINE_STRIP)
         glVertex2f(0,0)
         glVertex2f(thumbwidth-1,0)
@@ -367,7 +399,7 @@ class ObjectListDisplay(QGLWidget):
         glVertex2f(0,0)
         glEnd()
         glLineWidth(1)
-        glColor4f(1.0,1.0,1.0,0.0)
+        glColor4f(1.0,1.0,1.0,1.0)
         glBegin(GL_LINE_STRIP)
         glVertex2f(0,0)
         glVertex2f(thumbwidth-1,0)
@@ -392,6 +424,67 @@ class ObjectListDisplay(QGLWidget):
         glEnd()
         glEndList()
 
+        if self.backGroundList is  None:
+            self.backGroundList = glGenLists(1)
+        glNewList(self.backGroundList,GL_COMPILE)
+        self.drawBackGround(self.width(),self.height())
+        glEndList()
+        
+    def computeBackGround(self,w,h):
+        if self.orientation == Qt.Vertical:
+            self.bgheigth = w * .3
+        else:
+            self.bgheigth = h * .3
+        self.bgwidth = 300
+        nbpoint = 50
+        midheigth =  max(self.bgheigth-30,self.bgheigth*0.7)
+        bottomheigth = max(self.bgheigth-60,self.bgheigth*0.4)
+        def heigth(i,nbpoint,maxheigth=self.bgheigth,midheigth=midheigth,bottomheigth=bottomheigth):
+            if i < nbpoint/2:
+                return midheigth + ((maxheigth - midheigth)    *sin(pi*2*i/float(nbpoint-1)))
+            else:
+                return midheigth + ((midheigth - bottomheigth) *sin(pi*2*i/float(nbpoint-1)))
+                
+        points = ([ (self.bgwidth *i / float(nbpoint-1), heigth(i,nbpoint), 0) for i in xrange(nbpoint)]+
+                  [ (self.bgwidth *i / float(nbpoint-1), 0, 0) for i in xrange(nbpoint)])
+        indices = [ (i,i+1,nbpoint+i+1,nbpoint+i) for i in xrange(nbpoint-1)]
+        self.bgObject = QuadSet(points,indices)
+            
+    def drawBackGround(self,w,h):
+        glPushMatrix()
+        if not self.withImgBg:
+          if self.active:
+            c = self.normalBgColor+0.1
+          else:
+            c = self.inactiveBgColor+0.05
+          c2 = c+0.02
+          if self.orientation == Qt.Vertical:
+            glTranslatef(0,0,-10)
+            glScalef(-1,1,1)
+            glRotatef(90,0,0,1)
+            nb = h/(self.bgwidth)
+          else:
+            glTranslatef(0,h,-10)
+            glScalef(1,-1,1)
+            nb = w/(self.bgwidth)
+          for i in xrange(int(nb)+1):
+                glColor4f(c,c,c,1.0)
+                self.bgObject.apply(self.renderer)
+                glColor4f(c2,c2,c2,1.0)
+                glTranslatef(self.bgwidth,0,0)
+        else:
+            glTranslatef(w/2,h/2,-10)
+            bs = max(w,h)*0.49
+            glScalef(bs,bs,1)
+            glEnable(GL_TEXTURE_2D)
+            self.bgObject.apply(self.renderer)
+            glDisable(GL_TEXTURE_2D)
+            if not self.active:
+                glTranslatef(0,0,1)
+                glColor4f(self.inactiveBgColor*2,self.inactiveBgColor*2,self.inactiveBgColor*2,0.5) 
+                self.bgObjectGeom.apply(self.renderer)
+        glPopMatrix()
+        
     def paintGL(self):
         """ Paint the different object.
             First it traces the edges of the thumbnail outlines and the name of the object, 
@@ -401,16 +494,20 @@ class ObjectListDisplay(QGLWidget):
         h = self.height()
         if w == 0 or h == 0: return
         if self.active:
-            glClearColor(0.0,0.0,0.0,1.0)
+            glClearColor(self.normalBgColor,self.normalBgColor,self.normalBgColor,1.0)
         else:
-            glClearColor(0.4,0.4,0.4,1.0)
+            glClearColor(self.inactiveBgColor,self.inactiveBgColor,self.inactiveBgColor,1.0)
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA)
         glViewport(0,0,w,h)
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         glOrtho(0,w,h,0,-1000,1000);
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity()
+        glCallList(self.backGroundList)
+        self.drawBackGround(w,h)
         i=0
         b1,b2 = self.getBorderSize()
         for manager,obj in self.objects:
@@ -419,14 +516,19 @@ class ObjectListDisplay(QGLWidget):
             if self.orientation == Qt.Vertical:
                 glTranslatef(b1,(i*self.thumbwidth)+b2,0)
             else:
-                glTranslatef((i*self.thumbwidth)+b2,b1,0)                
+                glTranslatef((i*self.thumbwidth)+b2,b1,0)
+            
+            if (not self.selectionPositionCurrent is None) and (not self.selectionPositionBegin is None) and (self.selection==i):
+                decal = self.selectionPositionCurrent - self.selectionPositionBegin
+                glTranslatef(decal.x(),decal.y(),0)
+            else : decal = QPoint(0,0)
+
             if self.selection == i:
                 glCallList(self.selectedBorderList)
             else:
                 glCallList(self.borderList)
            
-            glTranslatef(self.thumbwidth/2,self.thumbwidth/2,0)  
-            
+            glTranslatef(self.thumbwidth/2,self.thumbwidth/2,0)                  
             manager.displayThumbnail(obj,i,self.cursorselection==i,self.objectthumbwidth)
             
             glPopMatrix()
@@ -441,10 +543,10 @@ class ObjectListDisplay(QGLWidget):
                 tx,ty, ty2 = b1,(i*self.thumbwidth)+b2,((i-1)*self.thumbwidth)+b2+3
             else:
                 tx,ty, ty2 = (i*self.thumbwidth)+b2,b1, b1-self.thumbwidth+3
-            self.drawTextIn(manager.getName(obj),tx,ty,self.thumbwidth)
+            self.drawTextIn(manager.getName(obj),tx+decal.x(),ty+decal.y(),self.thumbwidth)
             if self.active:
                 glColor4f(1,1,1,1.0)
-            self.drawTextIn(manager.typename,tx,ty2,self.thumbwidth,below = True)
+            self.drawTextIn(manager.typename,tx+decal.x(),ty2+decal.y(),self.thumbwidth,below = True)
             i+=1            
 
 
@@ -489,6 +591,7 @@ class ObjectListDisplay(QGLWidget):
         """mousePressEvent: function handling mouse press events"""
         if event.button() == Qt.LeftButton:
             if self.active:
+                self.selectionPositionBegin = event.pos()
                 self.setSelection(self.itemUnderPos(event.pos()))
             event.accept()
         elif event.button() == Qt.RightButton:
@@ -505,14 +608,24 @@ class ObjectListDisplay(QGLWidget):
             item = self.itemUnderPos(event.pos())
             self.setCursorSelection(item)
             if event.buttons() & Qt.LeftButton:
+                self.selectionPositionCurrent = event.pos()
                 if not item is None and not self.selection is None and item != self.selection:
                     self.objects[item],self.objects[self.selection] = self.objects[self.selection],self.objects[item]
+                    if self.orientation == Qt.Vertical:
+                        self.selectionPositionBegin -= QPoint(0,self.thumbwidth*(self.selection-item))
+                        print self.thumbwidth*(self.selection-item),0
+                    else:
+                        self.selectionPositionBegin -= QPoint(self.thumbwidth*(self.selection-item),0)
                     self.updateGL()
                     self.selection = item 
             if not item is None:
                 self.showMessage("Mouse on item "+str(item)+ " : '"+self.objects[item][0].getName(self.objects[item][1])+"'",2000)
                 
-
+    def mouseReleaseEvent(self,event):
+        self.selectionPositionBegin = None
+        self.selectionPositionCurrent = None
+        QGLWidget.mouseReleaseEvent(self,event)
+        self.updateGL()
 
     def mouseDoubleClickEvent(self,event):
         """ mouse double-click events, call editSelection() """
@@ -529,8 +642,18 @@ class ObjectListDisplay(QGLWidget):
         self.editAction.setFont(f)
         QObject.connect(self.editAction,SIGNAL('triggered(bool)'),self.editSelection)
         self.newItemMenu = QMenu("New item",self)
-        for k in self.managers.keys():
-            self.newItemMenu.addAction(k,TriggerParamFunc(self.createDefaultObject,k) )
+        for mname, manager in self.managers.items():
+            subtypes = manager.defaultObjectTypes()
+            if not subtypes is None and len(subtypes) == 1:
+                mname = subtypes[0]
+                subtypes = None
+            if subtypes is None:
+                self.newItemMenu.addAction(mname,TriggerParamFunc(self.createDefaultObject,manager) )
+            else:
+                subtypeMenu = self.newItemMenu.addMenu(mname)
+                for subtype in subtypes: 
+                    subtypeMenu.addAction(subtype,TriggerParamFunc(self.createDefaultObject,manager,subtype) )
+                
         self.copyAction = QAction('Copy',self)
         QObject.connect(self.copyAction,SIGNAL('triggered(bool)'),self.copySelection)
         self.cutAction = QAction('Cut',self)
@@ -560,20 +683,23 @@ class ObjectListDisplay(QGLWidget):
         contextmenu.addAction(self.copyNameAction)
         contextmenu.addSeparator()
         contextmenu.addAction(self.deleteAction)
-        if self.panelmanager and self.hasSelection():
-            panels = self.panelmanager.getObjectPanels()
-            if len(panels) > 1:
-                contextmenu.addSeparator()
-                sendToMenu = contextmenu.addMenu('Send To')
-                for panel in panels:
-                    if not panel is self.dock:
-                        sendToAction = QAction(panel.name,contextmenu)
-                        QObject.connect(sendToAction,SIGNAL('triggered(bool)'),TriggerParamFunc(self.sendSelectionTo,panel.name))
-                        sendToMenu.addAction(sendToAction)
-                sendToNewAction = QAction('New Panel',contextmenu)
-                QObject.connect(sendToAction,SIGNAL('triggered(bool)'),self.sendSelectionToNewPanel)
-                sendToMenu.addSeparator()
-                sendToMenu.addAction(sendToNewAction)
+        if self.hasSelection():
+            manager,object = self.objects[self.selection]
+            manager.completeContextMenu(contextmenu,object)
+            if self.panelmanager :
+                panels = self.panelmanager.getObjectPanels()
+                if len(panels) > 1:
+                    contextmenu.addSeparator()
+                    sendToMenu = contextmenu.addMenu('Send To')
+                    for panel in panels:
+                        if not panel is self.dock:
+                            sendToAction = QAction(panel.name,contextmenu)
+                            QObject.connect(sendToAction,SIGNAL('triggered(bool)'),TriggerParamFunc(self.sendSelectionTo,panel.name))
+                            sendToMenu.addAction(sendToAction)
+                    sendToNewAction = QAction('New Panel',contextmenu)
+                    QObject.connect(sendToAction,SIGNAL('triggered(bool)'),self.sendSelectionToNewPanel)
+                    sendToMenu.addSeparator()
+                    sendToMenu.addAction(sendToNewAction)                
         contextmenu.addSeparator()
         self.panelmanager.completeMenu(contextmenu,self.dock)
         #contextmenu.addAction(self.newPanelAction)
@@ -640,10 +766,9 @@ class ObjectListDisplay(QGLWidget):
         self.setSelection(None)
         self.emit(SIGNAL('valueChanged(int)'),nbelem)
 
-    def createDefaultObject(self,typename):
+    def createDefaultObject(self,manager,subtype = None):
         """ adding a new object to the objectListDisplay, a new object will be created following a default rule defined in its manager"""
-        manager = self.managers[typename]
-        obj = manager.createDefaultObject()
+        obj = manager.createDefaultObject(subtype)
         manager.setName(obj,self.computeNewName('parameter'))
         self.appendObject(manager,obj,self.selection)
         self.renameSelection()

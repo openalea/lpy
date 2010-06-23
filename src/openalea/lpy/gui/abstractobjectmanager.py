@@ -37,8 +37,12 @@ class AbstractObjectManager(QObject):
     def retrieveObjectFromEditor(self,editor):
         """ ask for current value of object being edited """
         raise NotImplementedError('startObjectEdition')
-
-    def createDefaultObject(self):
+    
+    def defaultObjectTypes(self):
+        """ ask for type of object managed by this manager. Several are possible. None means that typename should be used. """
+        return None
+        
+    def createDefaultObject(self, objtype = None):
         """ 
             create a default object of the type handled by the manager.
             requires instanciate a new item in the panel.
@@ -59,7 +63,10 @@ class AbstractObjectManager(QObject):
         return False
     
     def importData(self,fname):
-        raise NotImplementedError('importData')        
+        raise NotImplementedError('importData')
+    
+    def completeContextMenu(self,menu,obj):
+        pass
     
 from openalea.plantgl.all import Discretizer, GLRenderer, BBoxComputer, BoundingBox, PyStrPrinter
 
