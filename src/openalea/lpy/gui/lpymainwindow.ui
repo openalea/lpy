@@ -361,8 +361,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>137</width>
-             <height>184</height>
+             <width>139</width>
+             <height>191</height>
             </rect>
            </property>
            <attribute name="label">
@@ -430,8 +430,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>98</width>
-             <height>233</height>
+             <width>123</width>
+             <height>230</height>
             </rect>
            </property>
            <attribute name="label">
@@ -504,58 +504,6 @@
         </item>
        </layout>
       </widget>
-     </widget>
-    </item>
-    <item row="0" column="5">
-     <widget class="QFrame" name="frame">
-      <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
-      </property>
-      <layout class="QGridLayout" name="gridLayout">
-       <property name="margin">
-        <number>0</number>
-       </property>
-       <property name="spacing">
-        <number>0</number>
-       </property>
-       <item row="0" column="0">
-        <widget class="QTabBar" name="documentNames" native="true"/>
-       </item>
-       <item row="0" column="1">
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>0</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="1" column="0" colspan="2">
-        <widget class="LpyCodeEditor" name="codeeditor">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="font">
-          <font>
-           <family>Courier New</family>
-          </font>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::WinPanel</enum>
-         </property>
-         <property name="tabStopWidth">
-          <number>20</number>
-         </property>
-        </widget>
-       </item>
-      </layout>
      </widget>
     </item>
     <item row="1" column="5">
@@ -891,6 +839,51 @@
       </widget>
      </widget>
     </item>
+    <item row="0" column="5">
+     <widget class="QFrame" name="frame">
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QGridLayout" name="gridLayout">
+       <property name="margin">
+        <number>0</number>
+       </property>
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <item row="0" column="0">
+        <widget class="LpyTabBar" name="documentNames" native="true"/>
+       </item>
+       <item row="1" column="0" colspan="3">
+        <widget class="LpyCodeEditor" name="codeeditor">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="font">
+          <font>
+           <family>Courier New</family>
+          </font>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::WinPanel</enum>
+         </property>
+         <property name="tabStopWidth">
+          <number>20</number>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="LpyTabBarNeighbor" name="documentNamesMore" native="true"/>
+       </item>
+       <item row="0" column="2">
+        <widget class="LpyTabBarNeighbor" name="documentNamesMore2" native="true"/>
+       </item>
+      </layout>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -899,7 +892,7 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuL_systems">
@@ -1575,15 +1568,21 @@
    <header>lpycodeeditor.h</header>
   </customwidget>
   <customwidget>
-   <class>QTabBar</class>
+   <class>LpyTabBar</class>
    <extends>QWidget</extends>
-   <header>PyQt4.QtGui.h</header>
+   <header>lpytabbar.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>ScalarEditor</class>
    <extends>QTreeView</extends>
    <header location="global">scalareditor.h</header>
+  </customwidget>
+  <customwidget>
+   <class>LpyTabBarNeighbor</class>
+   <extends>QWidget</extends>
+   <header>lpytabbar.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <tabstops>

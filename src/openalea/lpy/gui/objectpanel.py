@@ -353,13 +353,18 @@ class ObjectListDisplay(QGLWidget):
         activeGreyColor = 0.25
         inactiveGreyColor = self.inactiveBgColor + 0.05
         selectionGreyColor = 0.4
+        enhancementColor = 0.3
         if self.active:
-            glColor4f(activeGreyColor,activeGreyColor,activeGreyColor,0.5)
+           bc = activeGreyColor
+           ec = bc + enhancementColor
         else:
-            glColor4f(inactiveGreyColor,inactiveGreyColor,inactiveGreyColor,0.5)
+           bc = inactiveGreyColor
+           ec = bc
         glBegin(GL_QUADS)
+        glColor4f(bc,bc,bc,0.5)
         glVertex2f(0,0)
         glVertex2f(thumbwidth-1,0)
+        glColor4f(ec,ec,ec,0.5)
         glVertex2f(thumbwidth-1,thumbwidth-1)
         glVertex2f(0,thumbwidth-1)
         glEnd()
@@ -382,10 +387,11 @@ class ObjectListDisplay(QGLWidget):
         if self.selectedBorderList is  None:
             self.selectedBorderList = glGenLists(1)
         glNewList(self.selectedBorderList,GL_COMPILE)
-        glColor4f(selectionGreyColor,selectionGreyColor,selectionGreyColor,0.5)
         glBegin(GL_QUADS)
+        glColor4f(selectionGreyColor,selectionGreyColor,selectionGreyColor,0.5)
         glVertex2f(0,0)
         glVertex2f(thumbwidth-1,0)
+        glColor4f(selectionGreyColor+enhancementColor,selectionGreyColor+enhancementColor,selectionGreyColor+enhancementColor,0.5)
         glVertex2f(thumbwidth-1,thumbwidth-1)
         glVertex2f(0,thumbwidth-1)
         glEnd()
@@ -406,21 +412,6 @@ class ObjectListDisplay(QGLWidget):
         glVertex2f(thumbwidth-1,thumbwidth-1)
         glVertex2f(0,thumbwidth-1)
         glVertex2f(0,0)
-        glEnd()
-        glColor4f(0.0,0.0,0.0,0.0)
-        glBegin(GL_TRIANGLES)
-        glVertex2f(-2,-1)
-        glVertex2f(cornersize,-1)
-        glVertex2f(-2,cornersize)
-        glVertex2f(thumbwidth,-1)
-        glVertex2f(thumbwidth,cornersize)
-        glVertex2f(thumbwidth-cornersize,-1)
-        glVertex2f(-2,thumbwidth+1)
-        glVertex2f(cornersize,thumbwidth+1)
-        glVertex2f(-2,thumbwidth-cornersize)
-        glVertex2f(thumbwidth,thumbwidth+1)
-        glVertex2f(thumbwidth,thumbwidth-cornersize)
-        glVertex2f(thumbwidth-cornersize,thumbwidth+1)
         glEnd()
         glEndList()
 

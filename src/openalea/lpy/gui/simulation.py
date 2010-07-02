@@ -1,7 +1,7 @@
 from PyQt4.QtCore import QObject, SIGNAL, Qt
 from PyQt4.QtGui import *
 from openalea.lpy import *
-from openalea.plantgl.all import PglTurtle, Viewer
+from openalea.plantgl.all import PglTurtle, Viewer, Material
 import optioneditordelegate as oed
 import os, shutil, sys, traceback
 from time import clock
@@ -136,8 +136,7 @@ class LpySimulation:
         for key,editor in self.lpywidget.desc_items.iteritems():
             editor.setText(self.desc_items[key])
         self.lpywidget.setTimeStep(self.lsystem.context().animation_timestep)
-        self.lpywidget.materialed.turtle = self.lsystem.context().turtle
-        self.lpywidget.materialed.updateGL()
+        self.lpywidget.materialed.setTurtle(self.lsystem.context().turtle)
         #self.lpywidget.functionDock.setFunctions(self.functions)
         #self.lpywidget.curveDock.setCurves(self.curves)
         self.lpywidget.setObjectPanelNb(len(self.visualparameters))
@@ -294,14 +293,17 @@ class LpySimulation:
             nbdefault = len(defaultlist)
             nbcurrent = len(currentlist)
             firstcol = True
+            defaultmat = Material('default')
             for i in xrange(nbcurrent):
+                cmat = currentlist[i]
                 if ( (i >= nbdefault) or 
-                    (not currentlist[i].isSimilar(defaultlist[i])) or 
-                    (currentlist[i].name != defaultlist[i].name)):
-                    if firstcol :
-                        init_txt += "\tfrom openalea.plantgl.scenegraph import Material,ImageTexture,Color3\n"
-                        firstcol = False
-                    init_txt += '\tcontext.turtle.setMaterial('+repr(i)+','+str(currentlist[i])+')\n'
+                    (not cmat.isSimilar(defaultlist[i])) or 
+                    (cmat.name != defaultlist[i].name)):
+                    if not cmat.isSimilar(defaultmat):
+                        if firstcol :
+                            init_txt += "\tfrom openalea.plantgl.scenegraph import Material,ImageTexture,Color3\n"
+                            firstcol = False
+                        init_txt += '\tcontext.turtle.setMaterial('+repr(i)+','+str(cmat)+')\n'
             if not self.lsystem.context().is_animation_timestep_to_default():
                 init_txt += '\tcontext.animation_timestep = '+str(self.getTimeStep())+'\n'           
             options = self.lsystem.context().options

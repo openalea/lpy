@@ -130,18 +130,13 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.panelmanager = ObjectPanelManager(self)
         self.newfile()
         self.textEditionWatch = False
-        self.documentNames.setDrawBase(False)
-        
-        def tb_mouseMoveEvent(event):
-            tabselect = self.documentNames.tabAt(event.pos())
-            if tabselect != -1 :
-                originaltab = self.documentNames.currentIndex()
-                if tabselect != originaltab:
-                    self.documentNames.emit(SIGNAL("switchDocument"),tabselect,originaltab)
-        self.documentNames.mouseMoveEvent = tb_mouseMoveEvent
+
         QObject.connect(self,SIGNAL('endTask(PyQt_PyObject)'),self.endTaskCheck)
         QObject.connect(self.documentNames,SIGNAL('switchDocument'),self.switchDocuments)
         QObject.connect(self.documentNames,SIGNAL('currentChanged(int)'),self.changeDocument)
+        QObject.connect(self.documentNames,SIGNAL('newDocumentRequest'),self.newfile)
+        QObject.connect(self.documentNamesMore,SIGNAL('newDocumentRequest'),self.newfile)
+        QObject.connect(self.documentNamesMore2,SIGNAL('newDocumentRequest'),self.newfile)
         QObject.connect(self.actionNew,SIGNAL('triggered(bool)'),self.newfile)
         QObject.connect(self.actionOpen,SIGNAL('triggered(bool)'),lambda : self.openfile())
         QObject.connect(self.actionSave,SIGNAL('triggered(bool)'),lambda : self.savefile())

@@ -89,3 +89,38 @@ def import_patch(fn):
     smb = BezierPatch([[Vector4(i.project()/actualdim,1) for i in ctrllines] for ctrllines in ctrlpoints])
     smb.name = name
     return smb
+
+def import_colormap(fn):
+    import array
+    a = array.array('B')
+    a.fromfile(open(fn,'rb'),256*3)
+    return [Material('Color_'+str(i),Color3(a[3*i],a[3*i+1],a[3*i+2])) for i in xrange(256)]
+
+def import_materialmap(fn):
+    import array
+    stream = open(fn,'rb')
+    result = []
+    while True:
+        a = array.array('B')
+        try:
+            a.fromfile(stream,15)
+        except Exception,e:
+            break
+        valiter = iter(a)
+        id = valiter.next()
+        transparency = valiter.next()
+        ambient = (valiter.next(),valiter.next(),valiter.next())
+        diffuse = (valiter.next(),valiter.next(),valiter.next())
+        emission = Color3(valiter.next(),valiter.next(),valiter.next())
+        specular = Color3(valiter.next(),valiter.next(),valiter.next())
+        shininess = valiter.next()
+        sdiffuse = sum(diffuse)
+        sambient = sum(ambient)
+        if sdiffuse > 0 and sambient > 0:
+            ambient_ratio = sambient/float(sdiffuse)
+            m = Material('Color_'+str(id),Color3(*(int(i * ambient_ratio) for i in diffuse)),1./ambient_ratio,specular,emission,shininess,transparency)
+        else:
+            m = Material('Color_'+str(id),Color3(*ambient),0,specular,emission,shininess,transparency)
+            
+        result.append(m)
+    return result
