@@ -107,26 +107,16 @@ class ObjectListDisplay(QGLWidget):
     
     def __init__(self,parent, panelmanager = None):
         QGLWidget.__init__(self,parent)
-        self.panelmanager = panelmanager
-        self.objects = [] # list of pair (manager,obj)
-        self.active = True
-        self.maxthumbwidth = 150
-        self.minthumbwidth = 20
-        self.thumbwidth = 80
-        self.cornersize = 5
-        self.objectthumbwidth = self.thumbwidth*0.9
-        self.orientation = Qt.Vertical
-        self.setMinimumHeight(self.thumbwidth*len(self.objects))
-        self.selection = None
-        self.editedobject = None
-        self.cursorselection = None
-        self.selectionPositionBegin = None
-        self.selectionPositionCurrent = None
-        self.managers = {}
-        self.managerDialogs = {}
-        self.borderList = None
-        self.selectedBorderList = None
-        self.backGroundList = None
+        
+        # global manager of all the panels
+        self.panelmanager = panelmanager 
+        
+        # objects and their managers
+        self.objects = [] # list of pair (manager,obj) 
+        self.managers = {} # dict of managers of object
+        self.managerDialogs = {} # dialog for editor corresponding to manager
+        
+        # loading managers
         for typename, manager in get_managers().items():
             try:
                 md = ManagerDialogContainer(self,manager)
@@ -137,23 +127,38 @@ class ObjectListDisplay(QGLWidget):
                 exc_info = sys.exc_info()
                 traceback.print_exception(*exc_info)
                 continue
-        self.createContextMenuActions()
-        self.withImgBg = False
-        self.normalBgColor = 0
-        self.inactiveBgColor = 0.4
-        if self.withImgBg:
-            bgimfname = os.path.join(os.path.dirname(__file__),'icons/plantbg.png')
-            if os.path.exists(bgimfname):
-                self.bgObjectGeom = QuadSet([(0.8,1,0),(-0.8,1,0),(-0.8,-1,0),(0.8,-1,0)],[range(4)],texCoordList=[(0,0),(1,0),(1,1),(0,1)])
-                self.bgObject = Shape(self.bgObjectGeom,ImageTexture(bgimfname))
-            else:
-                self.withImgBg = False
-        if not self.withImgBg:        
-            self.bgObject = None
-            #self.computeBackGround(self.width(),self.height())
+        
+        # selection
+        self.selection = None
+        self.editedobject = None
+        self.cursorselection = None
+        self.selectionPositionBegin = None
+        self.selectionPositionCurrent = None
+        
+        # Geometry
+        self.active = True
+        self.maxthumbwidth = 150
+        self.minthumbwidth = 20
+        self.thumbwidth = 80
+        self.cornersize = 5
+        self.objectthumbwidth = self.thumbwidth*0.9
+        self.orientation = Qt.Vertical
+        self.setMinimumHeight(self.thumbwidth*len(self.objects))
+    
+        # BackGround
+        self.normalBgColor = 0          # in grey level
+        self.inactiveBgColor = 0.4      # in grey level
+        self.bgObject = None
+        
+        # OpenGL object
         self.discretizer = Discretizer()
         self.renderer = GLRenderer(self.discretizer)
-    
+        self.borderList = None
+        self.selectedBorderList = None
+        self.backGroundList = None
+
+        self.createContextMenuActions()
+        
     def isActive(self):
         return self.active
         
@@ -443,37 +448,25 @@ class ObjectListDisplay(QGLWidget):
             
     def drawBackGround(self,w,h):
         glPushMatrix()
-        if not self.withImgBg:
-          if self.active:
+        if self.active:
             c = self.normalBgColor+0.1
-          else:
+        else:
             c = self.inactiveBgColor+0.05
-          c2 = c+0.02
-          if self.orientation == Qt.Vertical:
+        c2 = c+0.02
+        if self.orientation == Qt.Vertical:
             glTranslatef(0,0,-10)
             glScalef(-1,1,1)
             glRotatef(90,0,0,1)
             nb = h/(self.bgwidth)
-          else:
+        else:
             glTranslatef(0,h,-10)
             glScalef(1,-1,1)
             nb = w/(self.bgwidth)
-          for i in xrange(int(nb)+1):
-                glColor4f(c,c,c,1.0)
-                self.bgObject.apply(self.renderer)
-                glColor4f(c2,c2,c2,1.0)
-                glTranslatef(self.bgwidth,0,0)
-        else:
-            glTranslatef(w/2,h/2,-10)
-            bs = max(w,h)*0.49
-            glScalef(bs,bs,1)
-            glEnable(GL_TEXTURE_2D)
+        for i in xrange(int(nb)+1):
+            glColor4f(c,c,c,1.0)
             self.bgObject.apply(self.renderer)
-            glDisable(GL_TEXTURE_2D)
-            if not self.active:
-                glTranslatef(0,0,1)
-                glColor4f(self.inactiveBgColor*2,self.inactiveBgColor*2,self.inactiveBgColor*2,0.5) 
-                self.bgObjectGeom.apply(self.renderer)
+            glColor4f(c2,c2,c2,1.0)
+            glTranslatef(self.bgwidth,0,0)
         glPopMatrix()
         
     def paintGL(self):
@@ -688,7 +681,7 @@ class ObjectListDisplay(QGLWidget):
                             QObject.connect(sendToAction,SIGNAL('triggered(bool)'),TriggerParamFunc(self.sendSelectionTo,panel.name))
                             sendToMenu.addAction(sendToAction)
                     sendToNewAction = QAction('New Panel',contextmenu)
-                    QObject.connect(sendToAction,SIGNAL('triggered(bool)'),self.sendSelectionToNewPanel)
+                    QObject.connect(sendToNewAction,SIGNAL('triggered(bool)'),self.sendSelectionToNewPanel)
                     sendToMenu.addSeparator()
                     sendToMenu.addAction(sendToNewAction)                
         contextmenu.addSeparator()
@@ -860,8 +853,8 @@ class LpyObjectPanelDock (QDockWidget):
                 self.objectNameEdit.hide()
         else :
             self.setName(self.objectNameEdit.text())
-            self.dockNameEdition = False
             self.objectNameEdit.hide()            
+            self.dockNameEdition = False
         
     def setObjects(self,objects):
         self.view.setObjects(objects)

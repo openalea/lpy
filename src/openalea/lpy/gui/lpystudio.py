@@ -130,11 +130,9 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.panelmanager = ObjectPanelManager(self)
         self.newfile()
         self.textEditionWatch = False
+        self.documentNames.connectTo(self)
 
         QObject.connect(self,SIGNAL('endTask(PyQt_PyObject)'),self.endTaskCheck)
-        QObject.connect(self.documentNames,SIGNAL('switchDocument'),self.switchDocuments)
-        QObject.connect(self.documentNames,SIGNAL('currentChanged(int)'),self.changeDocument)
-        QObject.connect(self.documentNames,SIGNAL('newDocumentRequest'),self.newfile)
         QObject.connect(self.documentNamesMore,SIGNAL('newDocumentRequest'),self.newfile)
         QObject.connect(self.documentNamesMore2,SIGNAL('newDocumentRequest'),self.newfile)
         QObject.connect(self.actionNew,SIGNAL('triggered(bool)'),self.newfile)
@@ -372,14 +370,14 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
     def projectParameterEdited(self):
         if self.currentSimulation().autorun :
             if not self.isRunning():
-                self.run()
+                self.run(rerun=True)
             else:
                 self.shouldrerun = True
     def endTaskCheck(self,task):
         if hasattr(task,'checkRerun'):
             if hasattr(self,'shouldrerun'):
                 del self.shouldrerun
-                self.run()
+                self.run(rerun=True)
     def printTitle(self):
         t = 'L-Py - '
         t += self.currentSimulation().getTabName()
@@ -464,12 +462,12 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
                 sim.save()
                 nbsaving += 1
         self.statusBar().showMessage("No file to save." if nbsaving == 0 else "%i file(s) saved." % nbsaving)
-    def run(self):
+    def run(self,rerun=False):
       self.acquireCR()
       try:
         self.viewAbortFunc.reset()
         Viewer.start()
-        Viewer.animation(False)
+        Viewer.animation(rerun)
         simu = self.currentSimulation()
         simu.updateLsystemCode()
         simu.isTextEdited()
