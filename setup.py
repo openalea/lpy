@@ -54,7 +54,7 @@ setup(
     create_namespaces = True,
     
     # pure python  packages
-    packages = [ pkg_name, pkg_name+'.gui', wralea_name ],
+    packages = [ pkg_name, pkg_name+'.gui',pkg_name+'.gui.plugins', wralea_name ],
     py_modules = ['lpygui_postinstall'],
 
     # python packages directory

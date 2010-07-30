@@ -61,7 +61,12 @@ else:
   extra_options = { "dll_excludes" : ['MSVCP80.dll','MSVCR80.dll'] }
   build_prefix = ''
 
-goptions = { option_name : {"includes" : ["sip","OpenGL","stat","PyQt4.QtXml","distutils.util","ctypes", "ctypes.util","random"]  } }
+import glob
+from os.path import splitext,basename
+plugins = [splitext(basename(i))[0] for i in glob.glob('src/openalea/lpy/gui/plugins/[a-zA-Z0-9]*.py')]
+print plugins
+
+goptions = { option_name : {"includes" : ["sip","OpenGL","stat","PyQt4.QtXml","distutils.util","ctypes", "ctypes.util","random"]+map(lambda x : '.'.join(['openalea.lpy.gui.plugins',x]), plugins) } }
 goptions[option_name].update(extra_options)
 print goptions
 
@@ -83,7 +88,7 @@ setup(
     create_namespaces = True,
     
     # pure python  packages
-    packages = [ pkg_name, pkg_name+'.gui', 
+    packages = [ pkg_name, pkg_name+'.gui', pkg_name+'.gui.plugins', 
                  'openalea.plantgl'
                 ]+map(lambda x : '.'.join(['openalea.plantgl',x]),['math','scenegraph','algo','gui','codec']),
     py_modules = ['lpygui_postinstall'],
