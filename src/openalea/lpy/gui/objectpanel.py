@@ -567,10 +567,8 @@ class ObjectListDisplay(QGLWidget):
             py = width-1-fm.descent()
             if mth > th:
                 py -= (mth-th)/2
-            glPolygonMode(GL_FRONT_AND_BACK,GL_FILL)
-            # glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE)
-            self.renderText(x+px,y+py,0,QString(text))
-            # glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE)
+            #glPolygonMode(GL_FRONT_AND_BACK,GL_FILL)
+            self.renderText(x+px,y+py,QString(text))
             
     def itemUnderPos(self,pos):
         """function that will return the object under mouseCursor, if no object is present, this wil return None"""
