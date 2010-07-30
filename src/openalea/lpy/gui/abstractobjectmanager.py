@@ -26,6 +26,9 @@ class AbstractObjectManager(QObject):
         """
         raise NotImplementedError('displayThumbnail')
             
+    def reset(self,obj):
+        return self.createDefaultObject()
+        
     def getEditor(self,parent_widget):
         """ ask for creation of editor. Should be reimplemented """
         raise NotImplementedError('getEditor')

@@ -43,7 +43,7 @@ class NurbsPatchManager(AbstractPglObjectManager):
         glLineWidth(1)
         obj.apply(self.renderer)
 
-    def createDefaultObject(self,subtype):
+    def createDefaultObject(self,subtype=None):
         return NurbsPatch([[(0,0.5-j/3.,i/3.,1) for j in range(4)] for i in range(4)])
 
     def getEditor(self,parent):

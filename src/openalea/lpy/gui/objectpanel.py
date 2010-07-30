@@ -100,7 +100,9 @@ class ManagerDialogContainer (QObject):
         """ called when closing editor. """
         self.editedobjectid = None
     
-        
+    def isVisible(self):
+        """ Tell whether editor is visible """
+        return (not (self.editorDialog is None)) and self.editorDialog.isVisible()
     
 class ObjectListDisplay(QGLWidget): 
     """ Display and edit a list of parameter objects """
@@ -299,6 +301,19 @@ class ObjectListDisplay(QGLWidget):
         if self.hasSelection() :
             self.emit(SIGNAL('renameRequest(int)'),self.selection)
 
+    def resetSelection(self):
+        """ reset an object in the list """
+        if self.hasSelection() :
+            manager,obj = self.getSelectedObject()
+            name = manager.getName(obj)
+            obj = manager.reset(obj)
+            manager.setName(obj,name)
+            self.objects[self.selection] = (manager,obj)
+            self.emit(SIGNAL('valueChanged(int)'),self.selection)
+            managerDialog = self.managerDialogs[manager]
+            if managerDialog.isVisible() and managerDialog.getEditedObject()[1] == self.selection:
+                self.editSelection()
+            
     def editSelection(self):
         """ Edit the current selection """
         if self.hasSelection() :
@@ -652,6 +667,8 @@ class ObjectListDisplay(QGLWidget):
         QObject.connect(self.copyNameAction,SIGNAL('triggered(bool)'),self.copySelectionName)
         self.renameAction = QAction('Rename',self)
         QObject.connect(self.renameAction,SIGNAL('triggered(bool)'),self.renameSelection)
+        self.resetAction = QAction('Reset',self)
+        QObject.connect(self.resetAction,SIGNAL('triggered(bool)'),self.resetSelection)
 
 
     def createContextMenu(self):
@@ -664,6 +681,8 @@ class ObjectListDisplay(QGLWidget):
         contextmenu.addAction(self.copyAction)
         contextmenu.addAction(self.cutAction)
         contextmenu.addAction(self.pasteAction)
+        contextmenu.addSeparator()
+        contextmenu.addAction(self.resetAction)
         contextmenu.addSeparator()
         contextmenu.addAction(self.renameAction)
         contextmenu.addAction(self.copyNameAction)
@@ -704,6 +723,7 @@ class ObjectListDisplay(QGLWidget):
         self.renameAction.setEnabled(selcond)
         self.copyNameAction.setEnabled(selcond)
         self.deleteAction.setEnabled(selcond)
+        self.resetAction.setEnabled(selcond)
         contextmenu.exec_(event.globalPos())
 
 
