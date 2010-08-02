@@ -485,7 +485,7 @@ class LpySimulation:
         task.timing = clock() - timing
         task.dl = self.lsystem.getLastIterationNb()+1
     def pre_animate(self,task):
-        if self.isTextEdited() or self.lsystem.empty() :
+        if self.isTextEdited() or self.lsystem.empty() or self.nbiterations == 0 or self.nbiterations >= self.lsystem.derivationLength:
             self.updateLsystemCode()
         Viewer.start()
         Viewer.animation(False if self.firstView and task.fitAnimationView else True)
