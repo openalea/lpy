@@ -367,17 +367,23 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
     def projectEdited(self):
         if self.textEditionWatch :
             self.currentSimulation().setEdited(True)        
-    def projectParameterEdited(self):
+    def projectParameterEdited(self,primitiveChanged=False):
         if self.currentSimulation().autorun :
             if not self.isRunning():
-                self.run(rerun=True)
+                self.run(True,primitiveChanged)
             else:
                 self.shouldrerun = True
+                if hasattr(self,'primitiveChanged'):
+                    self.primitiveChanged |= primitiveChanged
+                else:
+                    self.primitiveChanged = primitiveChanged
     def endTaskCheck(self,task):
         if hasattr(task,'checkRerun'):
             if hasattr(self,'shouldrerun'):
                 del self.shouldrerun
-                self.run(rerun=True)
+                primitiveChanged = self.primitiveChanged
+                del self.primitiveChanged
+                self.run(True,primitiveChanged)
     def printTitle(self):
         t = 'L-Py - '
         t += self.currentSimulation().getTabName()
@@ -462,12 +468,18 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
                 sim.save()
                 nbsaving += 1
         self.statusBar().showMessage("No file to save." if nbsaving == 0 else "%i file(s) saved." % nbsaving)
-    def run(self,rerun=False):
+    def run(self,rerun=False,primitiveChanged=False):
       self.acquireCR()
       try:
         self.viewAbortFunc.reset()
         Viewer.start()
-        Viewer.animation(rerun)
+        if not rerun :
+            Viewer.setAnimation(eStatic)
+        else:
+            if primitiveChanged:
+                Viewer.setAnimation(eAnimatedPrimitives)
+            else:
+                Viewer.setAnimation(eAnimatedScene)
         simu = self.currentSimulation()
         simu.updateLsystemCode()
         simu.isTextEdited()

@@ -327,7 +327,7 @@ class ObjectListDisplay(QGLWidget):
         if not objectid is None:
             self.objects[objectid] = (managerDialog.manager,object)
             self.updateGL()
-            self.emit(SIGNAL('valueChanged(int)'),self.selection)
+            self.emit(SIGNAL('valueChanged(int)'),objectid)
 
     def sendSelectionTo(self,panelname):
         targetpanel = self.panelmanager.getPanel(panelname)
@@ -438,6 +438,7 @@ class ObjectListDisplay(QGLWidget):
         if self.backGroundList is  None:
             self.backGroundList = glGenLists(1)
         glNewList(self.backGroundList,GL_COMPILE)
+        glPolygonMode(GL_FRONT_AND_BACK,GL_FILL)
         self.drawBackGround(self.width(),self.height())
         glEndList()
         
@@ -612,7 +613,6 @@ class ObjectListDisplay(QGLWidget):
                     self.objects[item],self.objects[self.selection] = self.objects[self.selection],self.objects[item]
                     if self.orientation == Qt.Vertical:
                         self.selectionPositionBegin -= QPoint(0,self.thumbwidth*(self.selection-item))
-                        print self.thumbwidth*(self.selection-item),0
                     else:
                         self.selectionPositionBegin -= QPoint(self.thumbwidth*(self.selection-item),0)
                     self.updateGL()
@@ -834,6 +834,7 @@ class LpyObjectPanelDock (QDockWidget):
         QObject.connect(self.view,SIGNAL('renameRequest(int)'),self.displayName)
         QObject.connect(self.objectNameEdit,SIGNAL('editingFinished()'),self.updateName)
         self.dockNameEdition = False
+        self.nameEditorAutoHide = True
         self.setAcceptDrops(True)
     
     
@@ -859,9 +860,11 @@ class LpyObjectPanelDock (QDockWidget):
     def displayName(self,id):
         if id == -1:
             self.objectNameEdit.clear()
-            self.objectNameEdit.hide()
+            if self.nameEditorAutoHide : 
+                self.objectNameEdit.hide()
         else:
-            self.objectNameEdit.show()
+            if self.nameEditorAutoHide : 
+                self.objectNameEdit.show()
             self.objectNameEdit.setText(self.view.getSelectedObjectName())
             self.objectNameEdit.setFocus()
 
@@ -870,10 +873,12 @@ class LpyObjectPanelDock (QDockWidget):
             if self.view.hasSelection():
                 self.view.setSelectedObjectName(str(self.objectNameEdit.text()))
                 self.view.updateGL()
-                self.objectNameEdit.hide()
+                if self.nameEditorAutoHide : 
+                    self.objectNameEdit.hide()
         else :
             self.setName(self.objectNameEdit.text())
-            self.objectNameEdit.hide()            
+            if self.nameEditorAutoHide : 
+                self.objectNameEdit.hide()            
             self.dockNameEdition = False
         
     def setObjects(self,objects):
@@ -898,7 +903,10 @@ class LpyObjectPanelDock (QDockWidget):
         else:
             print(msg)    
     def __updateStatus(self,i=None):
-        self.emit(SIGNAL('valueChanged()'))
+        if not i is None and i >= 0 and self.view.objects[i][0].managePrimitive():
+            self.emit(SIGNAL('valueChanged(bool)'),True)
+        else:
+            self.emit(SIGNAL('valueChanged(bool)'),False)
 
     def __transmit_autoupdate(self):
         self.emit(SIGNAL('AutomaticUpdate()'))
@@ -909,7 +917,8 @@ class LpyObjectPanelDock (QDockWidget):
         
     def rename(self):
         self.dockNameEdition = True
-        self.objectNameEdit.show()
+        if self.nameEditorAutoHide : 
+            self.objectNameEdit.show()
         self.objectNameEdit.setText(self.name)
         self.objectNameEdit.setFocus()
     
@@ -976,8 +985,8 @@ class ObjectPanelManager(QObject):
                 for i in xrange(nbtoadd-nbunusedpanels):
                     npanel = LpyObjectPanelDock(self.parent,"Panel "+str(i+nbpanel+nbunusedpanels),self)
                     npanel.setStatusBar(self.parent.statusBar())
-                    QObject.connect(npanel, SIGNAL('valueChanged()'),self.parent.projectEdited)
-                    QObject.connect(npanel, SIGNAL('valueChanged()'),self.parent.projectParameterEdited)
+                    QObject.connect(npanel, SIGNAL('valueChanged(bool)'),self.parent.projectEdited)
+                    QObject.connect(npanel, SIGNAL('valueChanged(bool)'),self.parent.projectParameterEdited)
                     QObject.connect(npanel, SIGNAL('AutomaticUpdate()'),self.parent.projectAutoRun)
                     self.panels.append(npanel)
                     self.parent.addDockWidget(Qt.LeftDockWidgetArea,npanel)

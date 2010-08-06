@@ -297,11 +297,12 @@ class LpySimulation:
             for i in xrange(nbcurrent):
                 cmat = currentlist[i]
                 if ( (i >= nbdefault) or 
+                    (cmat.isTexture()) or
                     (not cmat.isSimilar(defaultlist[i])) or 
                     (cmat.name != defaultlist[i].name)):
-                    if not cmat.isSimilar(defaultmat):
+                    if cmat.isTexture() or not cmat.isSimilar(defaultmat):
                         if firstcol :
-                            init_txt += "\tfrom openalea.plantgl.scenegraph import Material,ImageTexture,Color3\n"
+                            init_txt += "\tfrom openalea.plantgl.scenegraph import Material, Texture2D, ImageTexture,Color3\n"
                             firstcol = False
                         init_txt += '\tcontext.turtle.setMaterial('+repr(i)+','+str(cmat)+')\n'
             if not self.lsystem.context().is_animation_timestep_to_default():

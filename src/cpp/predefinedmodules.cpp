@@ -527,6 +527,103 @@ DeclareModuleBegin(positiononguide,"Set position on Guide for turtle tracing.",e
 #endif
 }
 DeclareModuleEnd
+
+DeclareModuleBegin(TextureScale,"Set the scale coefficient for texture application. Params : uscale, vscale (default = 1,1).",eTexture)
+{
+#if PGL_VERSION >= 0x020C00
+	size_t nbargs = m.size();
+	switch (nbargs) {
+         case 0:  LsysWarning("missing argument to TextureScale");  break;
+         case 1:  LsysWarning("missing argument to TextureScale"); break;
+         default:  
+			 real_t valueU = m._getReal(0);
+			 real_t valueV = m._getReal(1);
+			 if (fabs(valueU) < GEOM_EPSILON || fabs(valueV) < GEOM_EPSILON) LsysWarning("invalid argument to TextureVCoeff. Should be non null.");
+			 else t.setTextureScale(valueU,valueV); 
+			 break;
+	}
+}
+#endif
+DeclareModuleEnd
+
+DeclareModuleBegin(TextureUScale,"Set the u-scale coefficient for texture application. Params : uscale (default = 1).",eTexture)
+{
+#if PGL_VERSION >= 0x020C00
+	size_t nbargs = m.size();
+	switch (nbargs) {
+         case 0:  LsysWarning("missing argument to TextureUScale");  break;
+         default:  
+			 real_t value = m._getReal(0);
+			 if (fabs(value) < GEOM_EPSILON) LsysWarning("invalid argument to TextureUScale. Should be non null.");
+			 else t.setTextureUScale(value); 
+			 break;
+	}
+}
+#endif
+DeclareModuleEnd
+
+DeclareModuleBegin(TextureVScale,"Set the v-scale coefficient for texture application. Params : vscale (default = 1).",eTexture)
+{
+#if PGL_VERSION >= 0x020C00
+	size_t nbargs = m.size();
+	switch (nbargs) {
+         case 0:  LsysWarning("missing argument to TextureVScale");  break;
+         default:  
+			 real_t value = m._getReal(0);
+			 if (fabs(value) < GEOM_EPSILON) LsysWarning("invalid argument to TextureVScale. Should be non null.");
+			 else t.setTextureVScale(value); 
+			 break;
+	}
+}
+#endif
+DeclareModuleEnd
+
+DeclareModuleBegin(TextureTranslation,"Set the translation for texture application. Params : utranslation, vtranslation (default = 0,0).",eTexture)
+{
+#if PGL_VERSION >= 0x020C00
+	size_t nbargs = m.size();
+	switch (nbargs) {
+         case 0:  LsysWarning("missing argument to TextureTranslation");  break;
+         case 1:  LsysWarning("missing argument to TextureTranslation"); break;
+         default:  
+			 t.setTextureTranslation(m._getReal(0),m._getReal(1)); 
+			 break;
+	}
+}
+#endif
+DeclareModuleEnd
+
+DeclareModuleBegin(TextureRotation,"Set the rotation for texture application. Params : angle, urotcenter, vrotcenter (default = 0,0.5,0.5).",eTexture)
+{
+#if PGL_VERSION >= 0x020C00
+	size_t nbargs = m.size();
+	switch (nbargs) {
+         case 0:  LsysWarning("missing argument to TextureTranslation"); break;
+         case 1:  t.setTextureRotation(m._getReal(0));  break;
+		 case 2:  t.setTextureRotation(m._getReal(0),m._getReal(1)); break;
+         default:  
+			 t.setTextureRotation(m._getReal(0),m._getReal(1),m._getReal(2)); 
+			 break;
+	}
+}
+#endif
+DeclareModuleEnd
+
+DeclareModuleBegin(TextureTransformation,"Set the transformation for texture application. Params : uscale, vscale, utranslation, vtranslation, angle, urotcenter, vrotcenter (default = 1,1,0,0,0,0.5,0.5).",eTexture)
+{
+#if PGL_VERSION >= 0x020C00
+	size_t nbargs = m.size();
+	if (nbargs < 7)LsysWarning("missing argument to TextureCoeff"); 
+	else {
+			 real_t valueU = m._getReal(0);
+			 real_t valueV = m._getReal(1);
+			 if (fabs(valueU) < GEOM_EPSILON || fabs(valueV) < GEOM_EPSILON) LsysWarning("invalid argument to TextureTransformation. Should be non null.");
+			 else t.setTextureTransformation(valueU,valueV,m._getReal(2),m._getReal(3),m._getReal(4),m._getReal(5),m._getReal(6)); 
+	}
+}
+#endif
+DeclareModuleEnd
+
 /*---------------------------------------------------------------------------*/
 
 std::vector<ModuleClassPtr> * ModuleClass::PredefinedClasses = NULL;
@@ -611,6 +708,13 @@ void ModuleClass::createPredefinedClasses() {
 	SetGuide = new DeclaredModule(setguide)("SetGuide");
 	EndGuide = new DeclaredModule(endguide)("EndGuide");
 	PositionOnGuide = new DeclaredModule(positiononguide)("PositionOnGuide");
+	TextureScale = new DeclaredModule(TextureScale)("TextureScale");
+	TextureUScale = new DeclaredModule(TextureUScale)("TextureUScale");
+	TextureVScale = new DeclaredModule(TextureVScale)("TextureVScale","TextureVCoeff");
+	TextureTranslation = new DeclaredModule(TextureTranslation)("TextureTranslation");
+	TextureRotation = new DeclaredModule(TextureRotation)("TextureRotation");
+	TextureTransformation = new DeclaredModule(TextureTransformation)("TextureTransformation");
+
 	GetIterator = new PredefinedModuleClass("?I","GetIterator","Request an iterator over the current Lstring.",PredefinedModuleClass::ePatternMatching);
 	GetModule = new PredefinedModuleClass("$","GetModule","Request a module of the current Lstring.",PredefinedModuleClass::ePatternMatching);
 	New = new PredefinedModuleClass("new","newmodule","Create a new module whose name is given by first argument.",PredefinedModuleClass::eStringManipulation);
@@ -642,6 +746,7 @@ const char * PredefinedModuleClass::CATEGORY_NAME[] = {
 		"Color",
 	    "Tropism",
 		"Request",
+		"Texture",
 		"String Manipulation",
 		"Pattern Matching",
 		"User Defined"

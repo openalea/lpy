@@ -44,7 +44,7 @@ class NurbsPatchManager(AbstractPglObjectManager):
         obj.apply(self.renderer)
 
     def createDefaultObject(self,subtype=None):
-        return NurbsPatch([[(0,0.5-j/3.,i/3.,1) for j in range(4)] for i in range(4)])
+        return NurbsPatch([[(0,-0.5+j/3.,i/3.,1) for j in range(4)] for i in range(4)])
 
     def getEditor(self,parent):
         editor = NurbsPatchEditor(parent)
@@ -70,6 +70,10 @@ class NurbsPatchManager(AbstractPglObjectManager):
     def importData(self,fname):
         from openalea.lpy.gui.lpfg_data_import import import_patch
         return [import_patch(fname)]
+        
+    def managePrimitive(self):
+        return True
+        
 
 def get_managers():
     return NurbsPatchManager()

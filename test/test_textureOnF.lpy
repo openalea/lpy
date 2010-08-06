@@ -1,0 +1,21 @@
+Axiom: _(0.5) ,(5) SectionResolution(60) TextureCoeff(USCALE/100.,VSCALE/100.) TextureRotation(ROTATION,0.5,0.5) TextureTranslation(UTRANSLATION/100.,VTRANSLATION/100.) F(2)
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	from openalea.plantgl.scenegraph import Material, Texture2D, ImageTexture,Color3
+	context.turtle.setMaterial(5,Texture2D(name='APPID_1_64251048',image=ImageTexture(filename='''../src/openalea/lpy/gui/biglogo.png'''),))
+	scalars = [('USCALE', 90, 1, 100), ('VSCALE', 30, 1, 100), ('ROTATION', 359, 0, 359), ('UTRANSLATION', 0, 0, 100), ('VTRANSLATION', 0, 0, 100)]
+	context["__scalars__"] = scalars
+	for n,v,mnv,mxv in scalars:
+		context[n] = v

@@ -113,6 +113,12 @@ typedef std::vector<ModuleClassPtr> ModuleClassList;
 	MACRO(SetGuide) \
 	MACRO(EndGuide) \
 	MACRO(PositionOnGuide) \
+	MACRO(TextureScale) \
+	MACRO(TextureUScale) \
+	MACRO(TextureVScale) \
+	MACRO(TextureTranslation) \
+	MACRO(TextureRotation) \
+	MACRO(TextureTransformation) \
 	MACRO(GetIterator) \
 	MACRO(GetModule) \
 	MACRO(New) \
@@ -223,6 +229,7 @@ public:
 		eColor,
 	    eTropism,
 		eRequest,
+		eTexture,
 		eStringManipulation,
 		ePatternMatching,
 		eUserDefined,

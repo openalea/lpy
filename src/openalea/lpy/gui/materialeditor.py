@@ -327,7 +327,7 @@ class MaterialPanelView (QGLWidget):
             cmat = self.getMaterial(self.cursorselection)
             if cmat.isTexture():
                 if lastcursorselection != self.cursorselection or (self.preview is None and not self.previewtrigger.isActive()):                    
-                    self.setToolTip('Texture '+str(self.cursorselection)+' : "'+cmat.filename+'"')
+                    self.setToolTip('Texture '+str(self.cursorselection)+' : "'+cmat.image.filename+'"')
                     if not self.preview is None:
                         self.preview.hide()
                     self.previewselection = self.cursorselection
@@ -344,7 +344,7 @@ class MaterialPanelView (QGLWidget):
         self.showMessage("Mouse on color "+str(self.cursorselection),2000) 
         self.updateGL()
     def displayPreview(self):
-        self.preview = QSplashScreen(self,QPixmap(self.getMaterial(self.previewselection).filename))
+        self.preview = QSplashScreen(self,QPixmap(self.getMaterial(self.previewselection).image.filename))
         self.preview.move(QCursor.pos()+QPoint(2,2))
         self.preview.show()
     def leaveEvent(self,event):
@@ -378,7 +378,7 @@ class MaterialPanelView (QGLWidget):
                     print e
                     print 'editMaterialInDialog not supported by your version of PlantGL'
             else:
-                self.edittexture(color.filename)
+                self.edittexture(color.image.filename)
     def contextMenuEvent(self,event):
         self.menuselection = self.selectedColor(event.x(),event.y())
         if self.lenSelection() > 0:

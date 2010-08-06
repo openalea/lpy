@@ -71,6 +71,9 @@ class AbstractObjectManager(QObject):
     def completeContextMenu(self,menu,obj):
         pass
     
+    def managePrimitive(self):
+        return False
+    
 from openalea.plantgl.all import Discretizer, GLRenderer, BBoxComputer, BoundingBox, PyStrPrinter
 
 class AbstractPglObjectManager(AbstractObjectManager):
