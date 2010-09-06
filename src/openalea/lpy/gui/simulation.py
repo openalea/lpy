@@ -1,7 +1,7 @@
 from PyQt4.QtCore import QObject, SIGNAL, Qt
 from PyQt4.QtGui import *
 from openalea.lpy import *
-from openalea.plantgl.all import PglTurtle, Viewer, Material
+from openalea.plantgl.all import PglTurtle, Viewer, Material, PyStrPrinter
 import optioneditordelegate as oed
 import os, shutil, sys, traceback
 from time import clock
@@ -294,6 +294,14 @@ class LpySimulation:
             nbcurrent = len(currentlist)
             firstcol = True
             defaultmat = Material('default')
+            printer = PyStrPrinter()
+            printer.pglnamespace = 'pgl'
+            printer.indentation = '\t'
+            printer.indentation_increment = '\t'
+            printer.line_between_object = 0
+            if self.fname and len(self.fname) > 0:
+                printer.reference_dir = os.path.abspath(os.path.dirname(self.fname))
+                #print printer.reference_dir
             for i in xrange(nbcurrent):
                 cmat = currentlist[i]
                 if ( (i >= nbdefault) or 
@@ -302,9 +310,13 @@ class LpySimulation:
                     (cmat.name != defaultlist[i].name)):
                     if cmat.isTexture() or not cmat.isSimilar(defaultmat):
                         if firstcol :
-                            init_txt += "\tfrom openalea.plantgl.scenegraph import Material, Texture2D, ImageTexture,Color3\n"
+                            init_txt += "\timport openalea.plantgl.all as pgl\n"
                             firstcol = False
-                        init_txt += '\tcontext.turtle.setMaterial('+repr(i)+','+str(cmat)+')\n'
+                        cmat.name = 'Color_'+str(i)
+                        cmat.apply(printer)
+                        init_txt += printer.str()
+                        printer.clear()
+                        init_txt += '\tcontext.turtle.setMaterial('+repr(i)+','+str(cmat.name)+')\n'
             if not self.lsystem.context().is_animation_timestep_to_default():
                 init_txt += '\tcontext.animation_timestep = '+str(self.getTimeStep())+'\n'           
             options = self.lsystem.context().options

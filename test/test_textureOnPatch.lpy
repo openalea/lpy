@@ -13,18 +13,21 @@ endlsystem
 __lpy_code_version__ = 1.1
 
 def __initialiseContext__(context):
-	from openalea.plantgl.scenegraph import Material, Texture2D, ImageTexture,Color3
-	context.turtle.setMaterial(5,Texture2D(name='APPID_6_62697816',image=ImageTexture(filename='''../src/openalea/lpy/gui/biglogo.png'''),))
+	import openalea.plantgl.all as pgl
+	PGL_62574224 = pgl.ImageTexture("PGL_62574224" , "../src/openalea/lpy/gui/biglogo.png" , )
+	PGL_62574224.name = "PGL_62574224"
+	Color_5 = pgl.Texture2D(image = PGL_62574224 , )
+	Color_5.name = "Color_5"
+	context.turtle.setMaterial(5,Color_5)
 	scalars = [('USCALE', 100, 1, 100), ('VSCALE', 100, 1, 100), ('ROTATION', 0, 0, 359), ('UTRANSLATION', 0, 0, 100), ('VTRANSLATION', 0, 0, 100)]
 	context["__scalars__"] = scalars
 	for n,v,mnv,mxv in scalars:
 		context[n] = v
 	import openalea.plantgl.all as pgl
-	patch = pgl.NurbsPatch(
+	patch = pgl.NurbsPatch(	
 	    pgl.Point4Matrix([[(0, -0.69851, -0.102678, 1), (0, -0.166667, 0, 1), (0, 0.454164, -0.18482, 1), (0, 1.11607, -0.0684522, 1)], [(0, -1.25297, 0.634521, 1), (0.69283, -0.345855, -0.113705, 1), (0.757915, 0.124505, -0.100512, 1), (0, 0.493155, 0.367559, 1)], [(0, -0.274109, 0.358634, 1), (-1.14651, -0.215328, 0.455866, 1), (-0.797591, 0.375172, 0.404912, 1), (0, 0.5, 0.666667, 1)], [(0, -0.575297, 1.02738, 1), (0, -0.152976, 1.26012, 1), (0, 0.392557, 1.26012, 1), (0, 0.965472, 0.822025, 1)]]) , 
-)
+	    )
 	patch.name = "patch"
-	
 	parameterset = [({'active': True, 'visible': True, 'name': 'Panel 2'},[('NurbsPatch',patch)]),]
 	context["__functions__"] = []
 	context["__curves__"] = []
