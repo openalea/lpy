@@ -913,6 +913,8 @@
     <addaction name="separator"/>
     <addaction name="actionDebug"/>
     <addaction name="actionProfile"/>
+    <addaction name="separator"/>
+    <addaction name="actionRecord"/>
    </widget>
    <widget class="QMenu" name="menuFile">
     <property name="title">
@@ -1554,6 +1556,15 @@
     <string>Print</string>
    </property>
   </action>
+  <action name="actionRecord">
+   <property name="icon">
+    <iconset resource="lpyresources.qrc">
+     <normaloff>:/images/icons/record.png</normaloff>:/images/icons/record.png</iconset>
+   </property>
+   <property name="text">
+    <string>Record</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -1732,38 +1743,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionFind</sender>
-   <signal>triggered()</signal>
-   <receiver>findEdit</receiver>
-   <slot>selectAll()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>134</x>
-     <y>488</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionFind</sender>
-   <signal>triggered()</signal>
-   <receiver>findEdit</receiver>
-   <slot>setFocus()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>107</x>
-     <y>488</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>codeeditor</sender>
    <signal>redoAvailable(bool)</signal>
    <receiver>actionRedo</receiver>
@@ -1840,22 +1819,6 @@
     <hint type="destinationlabel">
      <x>179</x>
      <y>257</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionFind</sender>
-   <signal>triggered()</signal>
-   <receiver>frameFind</receiver>
-   <slot>show()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>179</x>
-     <y>433</y>
     </hint>
    </hints>
   </connection>

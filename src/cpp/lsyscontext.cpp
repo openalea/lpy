@@ -644,18 +644,18 @@ LsysContext::start(){
   func("Start");
 }
 
-void 
+boost::python::object 
 LsysContext::end(){
-  func("End");
+  return func("End");
 }
 
-void
+boost::python::object
 LsysContext::end(AxialTree& lstring)
-{ controlMethod("End",lstring); }
+{ return controlMethod("End",lstring); }
 
-void
+boost::python::object
 LsysContext::end(AxialTree& lstring, const PGL::ScenePtr& scene)
-{ controlMethod("End",lstring,scene); }
+{ return controlMethod("End",lstring,scene); }
 
 
 void 
@@ -663,31 +663,38 @@ LsysContext::startEach(){
   func("StartEach");
 }
 
-void 
-LsysContext::endEach(){
-  func("EndEach");
+void
+LsysContext::postDraw(){
+  func("PostDraw");
 }
-void
+
+boost::python::object 
+LsysContext::endEach(){
+  return func("EndEach");
+}
+
+boost::python::object
 LsysContext::endEach(AxialTree& lstring)
-{ controlMethod("EndEach",lstring); }
+{ return controlMethod("EndEach",lstring); }
 
-void
+boost::python::object
 LsysContext::endEach(AxialTree& lstring, const PGL::ScenePtr& scene)
-{ controlMethod("EndEach",lstring,scene); }
+{ return controlMethod("EndEach",lstring,scene); }
 
 
-void
+boost::python::object
 LsysContext::controlMethod(const std::string& name, AxialTree& lstring){
   ContextMaintainer c(this);
   if (hasObject(name)){
 	reference_existing_object::apply<AxialTree*>::type converter;
 	PyObject* obj = converter( &lstring );
 	object real_obj = object( handle<>( obj ) );
-	getObject(name)(real_obj);
+	return getObject(name)(real_obj);
   }
+  return object();
 }
 
-void
+boost::python::object
 LsysContext::controlMethod(const std::string& name, AxialTree& lstring, const PGL::ScenePtr& scene)
 {
   ContextMaintainer c(this);
@@ -695,8 +702,9 @@ LsysContext::controlMethod(const std::string& name, AxialTree& lstring, const PG
 	reference_existing_object::apply<AxialTree*>::type converter;
 	PyObject* obj = converter( &lstring );
 	object real_obj = object( handle<>( obj ) );
-	getObject(name)(real_obj, scene);
+	return getObject(name)(real_obj, scene);
   }
+  return object();
 }
 
 
@@ -755,9 +763,15 @@ LsysContext::setEndEach(object func){
 }
 
 void 
+LsysContext::setPostDraw(object func){
+  setObject("PostDraw",func);
+}
+
+boost::python::object 
 LsysContext::func(const std::string& funcname){
   ContextMaintainer c(this);
-  if (hasObject(funcname))getObject(funcname)();
+  if (hasObject(funcname))return getObject(funcname)();
+  return object();
 }
 
 void 

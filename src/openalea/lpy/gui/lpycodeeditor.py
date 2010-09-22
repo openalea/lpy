@@ -363,6 +363,7 @@ class LpyCodeEditor(QTextEdit):
     def initWithEditor(self,lpyeditor):
         self.editor = lpyeditor
         self.findEdit = lpyeditor.findEdit
+        self.frameFind = lpyeditor.frameFind
         self.gotoEdit = lpyeditor.gotoEdit
         self.matchCaseButton = lpyeditor.matchCaseButton
         self.wholeWordButton = lpyeditor.wholeWordButton
@@ -375,6 +376,7 @@ class LpyCodeEditor(QTextEdit):
         self.positionLabel = QLabel(self.statusBar)
         self.statusBar.addPermanentWidget(self.positionLabel)
         QObject.connect(self.findEdit, SIGNAL('textEdited(const QString&)'),self.findText)
+        QObject.connect(lpyeditor.actionFind, SIGNAL('triggered()'),self.focusFind)
         QObject.connect(self.findEdit, SIGNAL('returnPressed()'),self.setFocus)
         QObject.connect(self.gotoEdit, SIGNAL('returnPressed()'),self.gotoLineFromEdit)
         QObject.connect(self.gotoEdit, SIGNAL('returnPressed()'),self.setFocus)
@@ -461,17 +463,23 @@ class LpyCodeEditor(QTextEdit):
                 lcursor.movePosition(QTextCursor.PreviousCharacter,QTextCursor.KeepAnchor)
             else:
                 lcursor.movePosition(QTextCursor.NextCharacter,QTextCursor.KeepAnchor)
-        seltxt = lcursor.selection().toPlainText()
-        sbn = seltxt.count('\n')
-        rev = self.document().revision()
-        QTextEdit.keyPressEvent(self,event)
-        if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter:
-            self.returnEvent()
-            sbn -=1
-        elif event.key() == Qt.Key_Tab :
-            self.tabEvent()
-        if rev != self.document().revision():
-            self.sidebar.decalMarkers(bbn+sbn,-sbn)        
+        if event.key() == Qt.Key_Tab and lcursor.hasSelection():
+            if event.modifiers() == Qt.NoModifier:
+                self.tab()
+            else:
+                self.untab()
+        else:
+            seltxt = lcursor.selection().toPlainText()
+            sbn = seltxt.count('\n')
+            rev = self.document().revision()
+            QTextEdit.keyPressEvent(self,event)
+            if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter:
+                self.returnEvent()
+                sbn -=1
+            elif event.key() == Qt.Key_Tab :
+                self.tabEvent()
+            if rev != self.document().revision():
+                self.sidebar.decalMarkers(bbn+sbn,-sbn)        
     def returnEvent(self):
         cursor = self.textCursor()
         beg = cursor.selectionStart()
@@ -510,10 +518,16 @@ class LpyCodeEditor(QTextEdit):
     def tabEvent(self):
         if self.replaceTab:
             cursor = self.textCursor()
-            cursor.joinPreviousEditBlock()
-            cursor.deletePreviousChar() 
-            cursor.insertText(self.indentation)
-            cursor.endEditBlock()        
+            if cursor.hasSelection():
+                cursor.joinPreviousEditBlock()
+                cursor.deletePreviousChar() 
+                self.tab(cursor)
+                cursor.endEditBlock()        
+            else:
+                cursor.joinPreviousEditBlock()
+                cursor.deletePreviousChar() 
+                cursor.insertText(self.indentation)
+                cursor.endEditBlock()        
     def getFindOptions(self):
         options = QTextDocument.FindFlags()
         if self.matchCaseButton.isChecked():
@@ -525,15 +539,32 @@ class LpyCodeEditor(QTextEdit):
         cursor = self.textCursor()
         cursor.setPosition(0,QTextCursor.MoveAnchor)
         self.setTextCursor(cursor)            
-    def findNextText(self):
+    def focusFind(self):
+        if not self.frameFind.isVisible():
+            self.setfindEditColor(QColor(255,255,255))
+            self.frameFind.show()
+            cursor = self.textCursor()
+            if cursor.hasSelection() :
+                self.findEdit.setText(cursor.selectedText())
+            self.findEdit.selectAll()
+            self.findEdit.setFocus()
+        else:
+            self.findNextText()
+    def findNextText(self):        
         txt = self.findEdit.text()
         found = self.find(txt,self.getFindOptions())
         if found:
             self.setFocus()
+            self.setfindEditColor(QColor(255,255,255))
         else:
             #self.statusBar.showMessage('Text not found !',2000)
             self.findEndOFFile()
             self.cursorAtStart()
+            self.setfindEditColor(QColor(255,100,100))
+    def setfindEditColor(self,color):
+        palette = self.findEdit.palette()
+        palette.setColor(QPalette.Base,color)
+        self.findEdit.setPalette(palette)
     def findEndOFFile(self):
             q = QLabel('Text not found !')
             q.setPixmap(QPixmap(':/images/icons/wrap.png'))
@@ -609,13 +640,13 @@ class LpyCodeEditor(QTextEdit):
         beg = cursor.selectionStart()
         end = cursor.selectionEnd()
         pos = cursor.position()
-        cursor.beginEditBlock()
+        cursor.beginEditBlock() 
         cursor.setPosition(beg,QTextCursor.MoveAnchor)
         cursor.movePosition(QTextCursor.StartOfBlock,QTextCursor.MoveAnchor)
         while cursor.position() <= end:
             cursor.insertText('#')
             oldpos = cursor.position()
-            cursor.movePosition(QTextCursor.Down,QTextCursor.MoveAnchor)
+            cursor.movePosition(QTextCursor.NextBlock,QTextCursor.MoveAnchor)
             if cursor.position() == oldpos:
                 break
             end+=1
@@ -639,12 +670,12 @@ class LpyCodeEditor(QTextEdit):
             cursor.movePosition(QTextCursor.Left,QTextCursor.MoveAnchor)
         cursor.endEditBlock()
         cursor.setPosition(pos,QTextCursor.MoveAnchor)
-    def tab(self):
-        cursor = self.textCursor()
+    def tab(self, initcursor = None):
+        cursor = self.textCursor() if initcursor is None else initcursor
         beg = cursor.selectionStart()
         end = cursor.selectionEnd()
         pos = cursor.position()
-        cursor.beginEditBlock()
+        if not initcursor : cursor.beginEditBlock()
         cursor.setPosition(beg,QTextCursor.MoveAnchor)
         cursor.movePosition(QTextCursor.StartOfBlock,QTextCursor.MoveAnchor)
         while cursor.position() <= end :
@@ -655,10 +686,10 @@ class LpyCodeEditor(QTextEdit):
                 cursor.insertText('\t')
                 end+=1
             oldpos = cursor.position()
-            cursor.movePosition(QTextCursor.Down,QTextCursor.MoveAnchor)
+            cursor.movePosition(QTextCursor.NextBlock,QTextCursor.MoveAnchor)
             if cursor.position() == oldpos:
                 break
-        cursor.endEditBlock()
+        if not initcursor : cursor.endEditBlock()
         cursor.setPosition(pos,QTextCursor.MoveAnchor)
     def untab(self):
         cursor = self.textCursor()

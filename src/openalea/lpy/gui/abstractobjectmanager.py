@@ -93,6 +93,7 @@ class AbstractPglObjectManager(AbstractObjectManager):
         printer = PyStrPrinter()
         printer.pglnamespace = 'pgl'
         printer.indentation = indentation
+        printer.line_between_object = 0
         obj.apply(printer)
         return printer.str()
         

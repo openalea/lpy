@@ -134,7 +134,8 @@ __max_derivation(1),
 __decomposition_max_depth(1),
 __homomorphism_max_depth(1),
 __currentGroup(0),
-__context()
+__context(),
+__newrules(false)
 #ifdef MULTI_THREADED_LSYSTEM
 ,__ressource(new LsysRessource())
 #endif
@@ -149,7 +150,8 @@ Lsystem::Lsystem(const std::string& filename):
 __max_derivation(1),
 __decomposition_max_depth(1),
 __homomorphism_max_depth(1),
-__context()
+__context(),
+__newrules(false)
 #ifdef MULTI_THREADED_LSYSTEM
 ,__ressource(new LsysRessource())
 #endif
@@ -164,7 +166,8 @@ __rules(lsys.__rules),
 __max_derivation(lsys.__max_derivation),
 __decomposition_max_depth(lsys.__decomposition_max_depth),
 __homomorphism_max_depth(lsys.__homomorphism_max_depth),
-__context(lsys.__context)
+__context(lsys.__context),
+__newrules(lsys.__newrules)
 #ifdef MULTI_THREADED_LSYSTEM
 ,__ressource(new LsysRessource())
 #endif
@@ -442,6 +445,7 @@ Lsystem::__addProdRule( const std::string& code, size_t groupid, int lineno ){
   r.set(code);
   group.production.push_back(r);
   if (r.hasQuery())group.__prodhasquery = true;
+  __newrules = true;
   return *(group.production.end()-1);
 }
 
@@ -452,6 +456,7 @@ Lsystem::__addDecRule( const std::string& code, size_t groupid , int lineno ){
   r.set(code);
   group.decomposition.push_back(r);
   if (r.hasQuery())group.__dechasquery = true;
+  __newrules = true;
   return *(group.decomposition.end()-1);
 }
 
@@ -463,6 +468,7 @@ Lsystem::__addHomRule( const std::string& code, size_t groupid, int lineno ){
   if (!r.isContextFree())LsysWarning("Homomorphism rules should be context free. Contexts not supported for multiple iterations.");
   group.homomorphism.push_back(r);
   if (r.hasQuery())group.__homhasquery = true;
+  __newrules = true;
   return *(group.homomorphism.end()-1);
 }
 
@@ -525,6 +531,7 @@ Lsystem::addRule(  const LsysRule& rule, int type, size_t groupid){
     if (rule.hasQuery())__group(groupid).__prodhasquery = true;
 	break;
   }
+  __newrules = true;
 }
 
 void Lsystem::addRule( const std::string& rule, int type, size_t group ){
@@ -943,6 +950,8 @@ Lsystem::iterate( size_t starting_iter ,
   RELEASE_RESSOURCE
 }
 
+
+
 AxialTree 
 Lsystem::__iterate( size_t starting_iter , 
                     size_t nb_iter , 
@@ -994,17 +1003,19 @@ Lsystem::__iterate( size_t starting_iter ,
 
 			  }
 		  }
+		  __lastcomputedscene = ScenePtr();
 		  __context.frameDisplay(true);
 		  __context.setIterationNb(starting_iter+i);
 		  __context.startEach();
 		  eDirection dir = getDirection();
 		  size_t group = __context.getGroup();
 		  if (group > __rules.size()) LsysError("Group not valid.");
-		  if (i == 0 || dir != ndir || group != __currentGroup){
+		  if (i == 0 || dir != ndir || group != __currentGroup || __newrules){
 			  ndir = dir;
 			  __currentGroup = group;
 			  production = __getRules(eProduction,group,ndir,&productionHasQuery);
 			  decomposition = __getRules(eDecomposition,group,ndir,&decompositionHasQuery);
+			  __newrules = false;
 		  }
 		  if (!production.empty()){
 			  if(!hasDebugger())
@@ -1020,49 +1031,69 @@ Lsystem::__iterate( size_t starting_iter ,
 				  if (decmatching) matching = true;
 			  }
 		  }
-		  switch (__context.getEndEachNbArgs()){
-			default:
-			case 0:
-				__context.endEach();
-				break;
-			case 1:
-				__context.endEach(workstring);
-				break;
-			case 2:
-				__interpret(workstring,__context.turtle);
-				__context.endEach(workstring,__context.turtle.getScene());
-				break;
-		  }
+		  // Call endeach function
+		  if(__context.hasEndEachFunction())
+			__lastcomputedscene = __apply_post_process(workstring);
 		  if(isEarlyReturnEnabled())  break;
 		  if( (i+1) <  nb_iter && __context.isSelectionRequested()) {
-			  __plot(workstring);
+			 __plot(workstring,true);
 		  }
 	  }
 	  if(starting_iter+i == __max_derivation) {
-		  switch (__context.getEndNbArgs()){
-			default:
-			case 0:
-				__context.end();
-				break;
-			case 1:
-				__context.end(workstring);
-				break;
-			case 2:
-				__interpret(workstring,__context.turtle);
-				__context.end(workstring,__context.turtle.getScene());
-				break;
-		  }
+		  // Call end function
+		  if(__context.hasEndFunction())
+			__lastcomputedscene = __apply_post_process(workstring,false);
 	  }
 	}
   }
   return workstring;
 }
 
+ScenePtr
+Lsystem::__apply_post_process(AxialTree& workstring, bool endeach)
+{
+	// Call endeach function
+	object result;
+	ScenePtr rep;
+	switch (endeach?__context.getEndEachNbArgs():__context.getEndNbArgs()){
+		default:
+		case 0:
+			result = endeach ? __context.endEach() : __context.end();
+				break;
+		case 1:
+			result = endeach ? __context.endEach(workstring) : __context.end(workstring);
+				break;
+		case 2:
+				// if a frame should be displayed, representation is computed
+				if(__context.isFrameDisplayed()) {
+					__interpret(workstring,__context.turtle);
+					rep = __context.turtle.getScene();
+				}
+				result = endeach ? __context.endEach(workstring,rep) : __context.end(workstring,rep);
+				break;
+	}
+	// Check result of endeach function
+	if(PyTuple_Check(result.ptr()) && len(result) >= 2){
+		if (result[0] != object()) workstring = extract<AxialTree>(result[0])();
+		if (result[1] == object()) rep = ScenePtr();
+		else rep = extract<ScenePtr>(result[1])();
+	}
+	else if (result != object()){
+		extract<ScenePtr> scextract(result);
+		if(scextract.check())rep = scextract();
+		else {
+			workstring = extract<AxialTree>(result)();
+			rep = ScenePtr();
+		}
+	}
+	return rep;
+}
+
 
 void 
-Lsystem::plot( AxialTree& workstring ){
+Lsystem::plot( AxialTree& workstring, bool checkLastComputedScene ){
     ACQUIRE_RESSOURCE
-    __plot(workstring);
+    __plot(workstring,checkLastComputedScene);
     RELEASE_RESSOURCE
 }
 
@@ -1120,9 +1151,17 @@ Lsystem::__interpret(AxialTree& wstring, PGL::Turtle& t){
 }
 
 void 
-Lsystem::__plot( AxialTree& workstring ){
-    __interpret(workstring,__context.turtle);
-    LPY::plot(__context.turtle.getScene());
+Lsystem::__plot( AxialTree& workstring, bool checkLastComputedScene){
+	ScenePtr result;
+	if (checkLastComputedScene) {
+		result = __lastcomputedscene;
+	}
+	if (is_null_ptr(result)) {
+		__interpret(workstring,__context.turtle);
+		result = __context.turtle.getScene();
+	}
+    LPY::plot(result);
+	__context.postDraw();
 }
 
 #include <plantgl/tool/sequencer.h>
@@ -1144,7 +1183,7 @@ Lsystem::animate(const AxialTree& workstring,double dt,size_t beg,size_t nb_iter
 	    tree = __iterate(i,1,tree,true);
 		if(__context.isFrameDisplayed()) {
 			timer.touch();
-			__plot(tree);
+			__plot(tree,true);
 		}
         timer.setTimeStep(__context.get_animation_timestep());
         if(isEarlyReturnEnabled()) break;
@@ -1167,24 +1206,28 @@ std::string conv_number(size_t num, size_t fill){
 }
 
 void
-Lsystem::record(const std::string& prefix, 
+Lsystem::record(const std::string& prefix,
+				const AxialTree& workstring,
 				size_t beg, size_t nb_iter){
     ACQUIRE_RESSOURCE
     enableEarlyReturn(false);
-    AxialTree tree = __axiom;
+    AxialTree tree = workstring;
     ContextMaintainer c(&__context);
-    if (beg > 0) tree = __iterate(0,beg,tree);
+	__context.setAnimationEnabled(true);
     __plot(tree);
 	int fill = (int)ceil(log10((float)beg+nb_iter+1));
 	LPY::saveImage(prefix+conv_number(beg,fill)+".png");
     if (nb_iter > 0){
 	  for (size_t i = beg+1; i <= beg+nb_iter; i++){
 		tree = __iterate(i-1,1,tree,true);
-        __plot(tree);
+		if(__context.isFrameDisplayed()) {
+			__plot(tree,true);
+		}
 		LPY::saveImage(prefix+conv_number(i,fill)+".png");
         if(isEarlyReturnEnabled()) break;
 	  }
 	}
+	__context.setAnimationEnabled(false);
     enableEarlyReturn(false);
     RELEASE_RESSOURCE
 }

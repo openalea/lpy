@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'd:\fred\mes documents\develop\vplants\trunk\lpy\src\openalea\lpy\gui\lpymainwindow.ui'
 #
-# Created: Fri Jul 02 15:54:23 2010
+# Created: Tue Sep 21 11:54:16 2010
 #      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -644,6 +644,11 @@ class Ui_MainWindow(object):
         icon31.addPixmap(QtGui.QPixmap(":/images/icons/print.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionPrint.setIcon(icon31)
         self.actionPrint.setObjectName("actionPrint")
+        self.actionRecord = QtGui.QAction(MainWindow)
+        icon32 = QtGui.QIcon()
+        icon32.addPixmap(QtGui.QPixmap(":/images/icons/record.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionRecord.setIcon(icon32)
+        self.actionRecord.setObjectName("actionRecord")
         self.menuL_systems.addAction(self.actionRun)
         self.menuL_systems.addAction(self.actionAnimate)
         self.menuL_systems.addSeparator()
@@ -658,6 +663,8 @@ class Ui_MainWindow(object):
         self.menuL_systems.addSeparator()
         self.menuL_systems.addAction(self.actionDebug)
         self.menuL_systems.addAction(self.actionProfile)
+        self.menuL_systems.addSeparator()
+        self.menuL_systems.addAction(self.actionRecord)
         self.menuRecents.addAction(self.actionClear)
         self.menuFile.addAction(self.actionNew)
         self.menuFile.addSeparator()
@@ -737,14 +744,11 @@ class Ui_MainWindow(object):
         QtCore.QObject.connect(self.actionFind, QtCore.SIGNAL("triggered()"), self.frameReplace.hide)
         QtCore.QObject.connect(self.actionReplace, QtCore.SIGNAL("triggered()"), self.frameReplace.show)
         QtCore.QObject.connect(self.actionReplace, QtCore.SIGNAL("triggered()"), self.findEdit.setFocus)
-        QtCore.QObject.connect(self.actionFind, QtCore.SIGNAL("triggered()"), self.findEdit.selectAll)
-        QtCore.QObject.connect(self.actionFind, QtCore.SIGNAL("triggered()"), self.findEdit.setFocus)
         QtCore.QObject.connect(self.codeeditor, QtCore.SIGNAL("redoAvailable(bool)"), self.actionRedo.setEnabled)
         QtCore.QObject.connect(self.closeFind, QtCore.SIGNAL("pressed()"), self.frameFind.hide)
         QtCore.QObject.connect(self.actionCut, QtCore.SIGNAL("triggered()"), self.codeeditor.cut)
         QtCore.QObject.connect(self.actionUndo, QtCore.SIGNAL("triggered()"), self.codeeditor.undo)
         QtCore.QObject.connect(self.actionCopy, QtCore.SIGNAL("triggered()"), self.codeeditor.copy)
-        QtCore.QObject.connect(self.actionFind, QtCore.SIGNAL("triggered()"), self.frameFind.show)
         QtCore.QObject.connect(self.actionRedo, QtCore.SIGNAL("triggered()"), self.codeeditor.redo)
         QtCore.QObject.connect(self.codeeditor, QtCore.SIGNAL("undoAvailable(bool)"), self.actionUndo.setEnabled)
         QtCore.QObject.connect(self.closeGoto, QtCore.SIGNAL("pressed()"), self.frameGoto.hide)
@@ -864,6 +868,7 @@ class Ui_MainWindow(object):
         self.actionAutoRun.setText(QtGui.QApplication.translate("MainWindow", "Auto-Run", None, QtGui.QApplication.UnicodeUTF8))
         self.actionProfile.setText(QtGui.QApplication.translate("MainWindow", "Profile", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPrint.setText(QtGui.QApplication.translate("MainWindow", "Print", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionRecord.setText(QtGui.QApplication.translate("MainWindow", "Record", None, QtGui.QApplication.UnicodeUTF8))
 
 from lpycodeeditor import LpyCodeEditor
 from materialeditor import MaterialEditor

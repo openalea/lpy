@@ -50,6 +50,18 @@ import lpymainwindow as lsmw
 from computationtask import *
 from lpystudiodebugger import LpyVisualDebugger
 from lpyprofiling import AnimatedProfiling, ProfilingWithFinalPlot, ProfilingWithNoPlot
+
+class LpyPlotter:
+    def __init__(self,parent):
+        self.parent = parent
+    def plot(self,scene):
+        self.parent.plotScene(scene)
+    def selection(self):
+        return Viewer.selection
+    def waitSelection(self,txt):
+        return Viewer.waitSelection(txt)
+    def save(self,fname,format):
+        Viewer.frameGL.saveImage(fname,format)
         
 class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
     def __init__(self, parent=None, withinterpreter = True):
@@ -90,16 +102,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.com_mutex = QMutex()
         self.com_waitcondition = QWaitCondition()
         self.killsimudialog = KillSimulationDialog(self)
-        class Plotter:
-            def __init__(self,parent):
-                self.parent = parent
-            def plot(self,scene):
-                self.parent.plotScene(scene)
-            def selection(self):
-                return Viewer.selection
-            def waitSelection(self,txt):
-                return Viewer.waitSelection(txt)
-        self.plotter = Plotter(self)
+        self.plotter = LpyPlotter(self)
         registerPlotter(self.plotter)
         class ViewerFuncAborter:
             def __init__(self):
@@ -151,6 +154,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         QObject.connect(self.actionAutoRun, SIGNAL('triggered(bool)'),self.projectAutoRun)
         QObject.connect(self.actionDebug, SIGNAL('triggered(bool)'),self.debug)
         QObject.connect(self.actionProfile, SIGNAL('triggered(bool)'),self.profile)
+        QObject.connect(self.actionRecord, SIGNAL('triggered(bool)'),self.record)
         QObject.connect(self.actionStop, SIGNAL('triggered(bool)'),self.cancelTask)
         QObject.connect(self.actionStop, SIGNAL('triggered(bool)'),self.abortViewer)
         QObject.connect(self.actionComment, SIGNAL('triggered(bool)'),self.codeeditor.comment)
@@ -566,6 +570,24 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
       except:
         self.graberror()
         self.releaseCR()
+    def record(self):
+        fname = '.'
+        if len(self.currentSimulation().fname) > 0:
+            fname = os.path.splitext(self.currentSimulation().fname)[0]+'.png'
+        fname = QFileDialog.getSaveFileName(self,'Choose template image file name',fname,'Images (*.png,*.bmp,*.jpg);;All Files (*)')
+        if fname:
+              fname = str(fname)
+              self.acquireCR()
+              simu = self.currentSimulation()
+              self.viewAbortFunc.reset()
+              try:
+                task = ComputationTask(simu.animate,simu.post_animate,simu.pre_animate,cleanupprocess=simu.cleanup)
+                task.fitAnimationView = self.fitAnimationView
+                task.recording = os.path.splitext(fname)[0]+'-'
+                self.registerTask(task)
+              except:
+                self.graberror()
+                self.releaseCR()
     def clear(self):
         self.acquireCR()
         try:

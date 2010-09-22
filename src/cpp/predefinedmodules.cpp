@@ -402,7 +402,9 @@ DeclareModuleBegin(Frame,"Draw the current turtle frame as 3 arrows (red=heading
 		case 0:  t.frame(); break;
 		case 1:  t.frame(m._getReal(0)); break;
 		case 2:  t.frame(m._getReal(0), m._getReal(1)); break;
-		default: t.frame(m._getReal(0), m._getReal(1), m._getReal(2)); break;
+		case 3:  t.frame(m._getReal(0), m._getReal(1), m._getReal(2)); break;
+		case 4:  t.frame(m._getReal(0), m._getReal(1), m._getReal(2), m._getReal(3)); break;
+		default: t.frame(m._getReal(0), m._getReal(1), m._getReal(2), m._getReal(3), m._getReal(4)); break;
 	}
 #else
 #ifdef _MSC_VER

@@ -105,7 +105,8 @@ public:
   const AxialTree& getAxiom( ) const ;
 
   /** Plot and interpret */
-  void plot( AxialTree& workstring );
+  void plot( AxialTree& workstring, bool checkLastComputedScene =  false);
+
   inline void interpret( AxialTree& workstring)
   { interpret(workstring,__context.envturtle); }
   void interpret( AxialTree& workstring, PGL::Turtle& t );
@@ -137,10 +138,12 @@ public:
 
   /** Record */
   inline void record(const std::string& prefix)
-  { record(prefix,0,__max_derivation); }
+  { record(prefix,__axiom,0,__max_derivation); }
   inline void record(const std::string& prefix, size_t nb_iter)
-  { record(prefix,0,nb_iter); }
-  void record(const std::string& prefix, size_t beg, size_t nb_iter);
+  { record(prefix,__axiom,0,nb_iter); }
+  inline void record(const std::string& prefix, size_t beg, size_t nb_iter)
+  { return record(prefix,__axiom,beg,nb_iter); }
+  void record(const std::string& prefix, const AxialTree& workstring, size_t beg, size_t nb_iter);
 
   /** nb of iterations */
   inline size_t derivationLength() const { return __max_derivation; }
@@ -165,7 +168,10 @@ public:
   /** early return */
   void enableEarlyReturn(bool val) ;
   bool isEarlyReturnEnabled() ;
+
+  /* last computation result */
   size_t getLastIterationNb() { return __context.getIterationNb(); }
+  PGL(ScenePtr) getLastComputedScene() { return __lastcomputedscene; }
 
    /** test if self is actually iterating */
    bool isRunning() const;
@@ -315,7 +321,7 @@ protected:
  Lsystem& operator=(const Lsystem& lsys);
 
  AxialTree __homomorphism(AxialTree& workstring);
- void __plot(AxialTree& workstring );
+ void __plot(AxialTree& workstring, bool checkLastComputedScene =  false);
  void __interpret(AxialTree& workstring, PGL::Turtle& t);
  AxialTree __iterate( size_t starting_iter , 
                       size_t nb_iter , 
@@ -344,6 +350,8 @@ protected:
 
  RulePtrMap __getRules(eRuleType type, size_t group, eDirection direction, bool * hasQuery = NULL);
 
+ PGL(ScenePtr) __apply_post_process(AxialTree& workstring, bool endeach = true);
+
   AxialTree __axiom;
   RuleGroupList __rules;
 
@@ -352,11 +360,13 @@ protected:
   size_t __homomorphism_max_depth;
   size_t __currentGroup;
   LocalContext __context;
+  PGL(ScenePtr) __lastcomputedscene;
   
   RuleGroup& __group(size_t group) ;
   const RuleGroup& __group(size_t group) const;
 
   DebuggerPtr __debugger;
+  bool __newrules;
 
 private:
 #ifdef MULTI_THREADED_LSYSTEM

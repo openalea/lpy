@@ -79,21 +79,33 @@ public:
   /** string representation */
   std::string str() const ;
 
-  /** The Start, End, StartEach and EndEach execution */
+  /** The Start, End, StartEach, EndEach and PostDraw execution */
   void start();
-  void end();
-  void end(AxialTree&);
-  void end(AxialTree&, const PGL::ScenePtr&);
   void startEach();
-  void endEach();
-  void endEach(AxialTree&);
-  void endEach(AxialTree&, const PGL::ScenePtr&);
 
-  /** The Start, End, StartEach and EndEach initialisation */
+  boost::python::object end();
+  boost::python::object end(AxialTree&);
+  boost::python::object end(AxialTree&, const PGL::ScenePtr&);
+
+  boost::python::object endEach();
+  boost::python::object endEach(AxialTree&);
+  boost::python::object endEach(AxialTree&, const PGL::ScenePtr&);
+
+  void postDraw();
+
+  inline bool hasStartFunction() const { return hasObject("Start"); }
+  inline bool hasStartEachFunction() const { return hasObject("StartEach"); }
+  inline bool hasEndFunction() const { return hasObject("End"); }
+  inline bool hasEndEachFunction() const { return hasObject("EndEach"); }
+  inline bool hasPostDrawFunction() const { return hasObject("PostDraw"); }
+
+  /** The Start, End, StartEach, EndEach and PostDraw initialisation */
   void setStart(boost::python::object func);
   void setEnd(boost::python::object func);
   void setStartEach(boost::python::object func);
   void setEndEach(boost::python::object func);
+  void setPostDraw(boost::python::object func);
+
   void check_init_functions();
   inline size_t getEndEachNbArgs() const { return  __nbargs_of_endeach; }
   inline size_t getEndNbArgs() const { return  __nbargs_of_end; }
@@ -111,7 +123,7 @@ public:
   virtual boost::python::object compile(const std::string& name, const std::string& code)  ;
 
   /** application of a function */
-  void func(const std::string& funcname);
+  boost::python::object func(const std::string& funcname);
 
   /** access to value of the python namespace */
   int readInt(const std::string&) ;
@@ -264,8 +276,8 @@ protected:
   void setIterationNb(size_t) ;
 
 protected:
-  void controlMethod(const std::string&, AxialTree&);
-  void controlMethod(const std::string&, AxialTree&, const PGL::ScenePtr&);
+  boost::python::object controlMethod(const std::string&, AxialTree&);
+  boost::python::object controlMethod(const std::string&, AxialTree&, const PGL::ScenePtr&);
 
   /// initialise context using python function in namespace.
   bool __initialise();

@@ -1,7 +1,7 @@
 from PyQt4.QtCore import QObject, SIGNAL, Qt
 from PyQt4.QtGui import *
 from openalea.lpy import *
-from openalea.plantgl.all import PglTurtle, Viewer, Material, PyStrPrinter
+from openalea.plantgl.all import PglTurtle, Viewer, Material, PyStrPrinter, eStatic, eAnimatedPrimitives, eAnimatedScene
 import optioneditordelegate as oed
 import os, shutil, sys, traceback
 from time import clock
@@ -477,7 +477,7 @@ class LpySimulation:
         if hasattr(task,'result'):
             self.setTree(task.result,task.dl,task.timing)
             self.firstView = False
-            self.lsystem.plot(task.result)
+            self.lsystem.plot(task.result,True)
             if self.lpywidget.displayMetaInfo and not self.autorun and  self.lsystem.context().has_key('__description__'):
                 Viewer.showMessage(self.lsystem.context()['__description__'],5000)
     def animate(self,task):
@@ -487,21 +487,30 @@ class LpySimulation:
         dl = self.lsystem.derivationLength
         if self.firstView and task.fitAnimationView:
             nbiter = self.lsystem.context().get('initial_view',dl)
-            self.lsystem.plot(self.lsystem.iterate(nbiter))
+            self.lsystem.plot(self.lsystem.iterate(nbiter),True)
             self.firstView = False
-            Viewer.animation(True)
+            Viewer.setAnimation(eAnimatedPrimitives)
         timing = clock()
+        make_animation = self.lsystem.animate 
+        if hasattr(task,'recording') :
+            def record(*args):
+                # removing dt arg
+                args = list(args)
+                if len(args) == 4: args.pop(1)
+                else: args.pop(0)
+                self.lsystem.record(task.recording,*args)
+            make_animation = record
         if (not edition) and (not self.tree is None) and (0 < nbiter < dl):
-            task.result = self.lsystem.animate(self.tree,dt,nbiter,dl-nbiter)
+            task.result = make_animation(self.tree,dt,nbiter,dl-nbiter)
         else:
-            task.result = self.lsystem.animate(dt,dl)
+            task.result = make_animation(dt,dl)
         task.timing = clock() - timing
         task.dl = self.lsystem.getLastIterationNb()+1
     def pre_animate(self,task):
         if self.isTextEdited() or self.lsystem.empty() or self.nbiterations == 0 or self.nbiterations >= self.lsystem.derivationLength:
             self.updateLsystemCode()
         Viewer.start()
-        Viewer.animation(False if self.firstView and task.fitAnimationView else True)
+        Viewer.setAnimation(eStatic if self.firstView and task.fitAnimationView else eAnimatedPrimitives)
     def post_animate(self,task):
         if hasattr(task,'result'):
             self.setTree(task.result,task.dl,task.timing)
@@ -525,7 +534,7 @@ class LpySimulation:
     def post_step(self,task):
         if hasattr(task,'result'):
             self.setTree(task.result,task.dl,task.timing)
-            self.lsystem.plot(self.tree)
+            self.lsystem.plot(self.tree,True)
             self.firstView = False
     def iterate(self,task,n = None):    
         timing = clock()
@@ -550,7 +559,7 @@ class LpySimulation:
             self.lsystem.clearDebugger()
             raise
         self.lsystem.clearDebugger()
-        self.lsystem.plot(self.tree)
+        self.lsystem.plot(self.tree,True)
         self.firstView = False
     def rewind(self):
         self.updateLsystemCode()
@@ -569,7 +578,7 @@ class LpySimulation:
             else:
                 task.result = self.lsystem.iterate(dl) 
                 if task.mode == ProfilingWithFinalPlot:
-                    self.lsystem.plot(task.result)
+                    self.lsystem.plot(task.result,True)
         profile.enable()
         run()
         profile.disable()

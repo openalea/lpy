@@ -1,5 +1,6 @@
 <RCC>
-  <qresource prefix="/images" >
+  <qresource prefix="/images">
+    <file>icons/record.png</file>
     <file>icons/print.png</file>
     <file>icons/play-yellow.png</file>
     <file>icons/wrap.png</file>
@@ -41,7 +42,7 @@
     <file>icons/rewind.png</file>
     <file>icons/step.png</file>
   </qresource>
-  <qresource prefix="/logo" >
+  <qresource prefix="/logo">
     <file>logo.png</file>
     <file>biglogo.png</file>
   </qresource>
