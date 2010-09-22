@@ -1004,7 +1004,7 @@ Lsystem::__iterate( size_t starting_iter ,
 			  }
 		  }
 		  __lastcomputedscene = ScenePtr();
-		  __context.frameDisplay(true);
+		  __context.frameDisplay(i == (nb_iter -1));
 		  __context.setIterationNb(starting_iter+i);
 		  __context.startEach();
 		  eDirection dir = getDirection();

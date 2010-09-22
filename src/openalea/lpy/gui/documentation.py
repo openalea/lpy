@@ -28,7 +28,7 @@ Here comes the python commands that control the simulation.
 <tr><td><b>def Start()   </b></td><td> is called at the beginning of the simulation.</td></tr>
 <tr><td><b>def End([lstring,geometries])     </b></td><td> is called at the end of the simulation. One or two arguments can be optionally defined to receive the current lstring and its geometric interpretation.</td></tr>
 <tr><td><b>def StartEach() </b></td><td> is called before each derivation step.</td></tr>
-<tr><td><b>def EndEach([lstring,geometries]) </b></td><td> is called at the end of the simulation. One or two arguments can be optionally defined to receive the current lstring and its geometric interpretation. Returning an lstring or (lstring, geometries) will be used for next iterations and display. It avoids also to recompute the representation. If frameDisplayed() is False, geometries is empty.</td></tr>
+<tr><td><b>def EndEach([lstring,geometries]) </b></td><td> is called at the end of the simulation. One or two arguments can be optionally defined to receive the current lstring and its geometric interpretation. Returning an lstring or (lstring, geometries) will be used for next iterations and display. It avoids also to recompute the representation. If frameDisplayed() is False, geometries is None.</td></tr>
 <tr><td><b>def PostDraw() </b></td><td> is called after drawing the representation of a new lstring.  </td></tr></table>
 
 <H3>Python commands that control the rule application:</H3>
@@ -40,10 +40,10 @@ Here comes the python commands that control the simulation.
 <tr><td><b>getIterationNb() </b></td><td> Return the id of the current iteration.</td></tr>
 <tr><td><b>useGroup(int)    </b></td><td> Next iteration will use rules of given group and default group 0.</td></tr>
 <tr><td><b>getGroup()       </b></td><td> Gives which group will be used.</td></tr>
-<tr><td><b>frameDisplay(bool)</b></td><td> Set whether a frame will be displayed at the end of the iteration. default is True</td></tr>
-<tr><td><b>frameDisplayed() </b></td><td> Tell whether a frame will be displayed at the end of the iteration.</td></tr>
+<tr><td><b>frameDisplay(bool)</b></td><td> Set whether a frame will be displayed at the end of the iteration. default is True in animation and False except for last iteration in run mode.</td></tr>
+<tr><td><b>isFrameDisplayed() </b></td><td> Tell whether a frame will be displayed at the end of the iteration.</td></tr>
 <tr><td><b>isAnimationEnabled() </b></td><td> Return the current simulation is in an animation.</td></tr>
-<tr><td><b>requireSelection(caption) </b></td><td> Wait before next iteration selection in the viewer.</td></tr>
+<tr><td><b>requireSelection(caption) </b></td><td> Wait selection in the viewer before next iteration. Set frameDisplay to True.</td></tr>
 </table>
 
 <H3>Lpy specific declaration: </H3>

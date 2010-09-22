@@ -217,14 +217,15 @@ public:
   bool isSelectionAlwaysRequired() const;
   void setSelectionAlwaysRequired(bool enabled);
 
-  void requestSelection(const std::string& message) {
+  inline void requestSelection(const std::string& message) {
 	__selection_requested = true;
 	__selection_message = message;
+	frameDisplay(true);
   }
   inline bool isSelectionRequested() const { return __selection_requested; }
   inline const std::string& getSelectionMessage() const { return __selection_message; }
 
-  void selectionAquired() {
+  inline void selectionAquired() {
 	__selection_requested = false;
   }
 
