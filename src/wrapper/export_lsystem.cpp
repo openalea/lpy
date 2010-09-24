@@ -104,6 +104,12 @@ void export_Lsystem(){
 	  .value("eBackward",eBackward)
 	  .export_values()
 	  ;
+  enum_<Lsystem::eRuleType>("eRuleType")
+	  .value("eProduction",Lsystem::eProduction)
+	  .value("eDecomposition",Lsystem::eDecomposition)
+  	  .value("eHomomorphism",Lsystem::eHomomorphism)
+	  .export_values()
+	  ;
   
   class_<Lsystem,boost::noncopyable>
 	("Lsystem", init<optional<std::string> >("Lsystem([filename])"))
@@ -126,23 +132,24 @@ void export_Lsystem(){
 	.def("read", &Lsystem::read)
 	.def("set", &lsys_setCode1)
 	.def("set", &lsys_setCode2)
-	.def("plot", (void(Lsystem::*)(AxialTree&,bool))&Lsystem::plot,(bp::arg("lstring"),bp::arg("checkLastComputedScene")=false))
 	.def("iterate", (AxialTree(Lsystem::*)())&Lsystem::iterate)
 	.def("iterate", (AxialTree(Lsystem::*)(size_t))&Lsystem::iterate)
     .def("iterate", &py_iter)
 	.def("iterate", (AxialTree(Lsystem::*)(size_t,size_t,const AxialTree&,bool))&Lsystem::iterate)
-	.def("interpret", (void(Lsystem::*)(AxialTree&))&Lsystem::interpret)
-	.def("interpret", (void(Lsystem::*)(AxialTree&, PGL::Turtle&))&Lsystem::interpret)
-	.def("sceneInterpretation", &Lsystem::sceneInterpretation)
-	.def("homomorphism", &Lsystem::homomorphism)
+	.def("interpret", (void(Lsystem::*)(AxialTree&))&Lsystem::interpret,"Apply interpretation with context().turtle.")
+	.def("interpret", (void(Lsystem::*)(AxialTree&, PGL::Turtle&))&Lsystem::interpret,"Apply interpretation with given turtle.")
+	.def("sceneInterpretation", &Lsystem::sceneInterpretation,"Apply interpretation with context().turtle and return resulting scene.")
+	.def("plot", (void(Lsystem::*)(AxialTree&,bool))&Lsystem::plot,(bp::arg("lstring"),bp::arg("checkLastComputedScene")=false),"Apply interpretation with context().turtle and plot the resulting scene. If checkLastComputedScene, check whether during last iteration a scene was computed. If yes reuse it.")
+	.def("homomorphism", &Lsystem::homomorphism,"Apply interpretation rule and gives the resulting string.")
 	.def("nbProductionRules", &Lsystem::nbProductionRules, (bp::arg("group")=0))
 	.def("nbDecompositionRules", &Lsystem::nbDecompositionRules, (bp::arg("group")=0))
 	.def("nbHomomorphismRules", &Lsystem::nbHomomorphismRules, (bp::arg("group")=0))
-	.def("nbTotalRules", &Lsystem::nbTotalRules)
-	.def("nbGroups", &Lsystem::nbGroups)
+	.def("nbTotalRules", &Lsystem::nbTotalRules,"Return total number of rules considering all groups")
+	.def("nbGroups", &Lsystem::nbGroups,"Return number of groups")
 	.def("prodRule", prodRule, return_internal_reference<>(), (bp::arg("ruleid")=0,bp::arg("group")=0))
 	.def("decRule", decRule, return_internal_reference<>(), (bp::arg("ruleid")=0,bp::arg("group")=0))
 	.def("homRule", homRule, return_internal_reference<>(), (bp::arg("ruleid")=0,bp::arg("group")=0))
+
 	.def("animate", (AxialTree(Lsystem::*)())&Lsystem::animate)
 	.def("animate", (AxialTree(Lsystem::*)(double))&Lsystem::animate)
 	.def("animate", (AxialTree(Lsystem::*)(double,size_t))&Lsystem::animate)
@@ -153,11 +160,17 @@ void export_Lsystem(){
 	.def("record",  (void(Lsystem::*)(const std::string&,size_t,size_t))&Lsystem::record)
 	.def("record",  (void(Lsystem::*)(const std::string&,size_t,size_t))&Lsystem::record)
 	.def("record",  (void(Lsystem::*)(const std::string&,const AxialTree&,size_t,size_t))&Lsystem::record)
-	.def("addRule",      (void(Lsystem::*)(const std::string&, int, size_t))&Lsystem::addRule)
-	.def("addRule",      (void(Lsystem::*)(const LsysRule&, int, size_t))&Lsystem::addRule)
-	.def("addProdRule",  &Lsystem::addProdRule, "Add Production rule")
-	.def("addDecRule",   &Lsystem::addDecRule, "Add Decomposition rule")
-	.def("addHomRule",   &Lsystem::addHomRule, "Add Homorphism rule")
+
+	.def("addRule",      (void(Lsystem::*)(const std::string&, int, size_t))&Lsystem::addRule, "Add a rule", 
+						 (bp::arg("code"),bp::arg("ruletype")=Lsystem::eProduction,bp::arg("group")=0))
+	.def("addRule",      (void(Lsystem::*)(const LsysRule&, int, size_t))&Lsystem::addRule,"Add a rule", 
+						 (bp::arg("rule"),bp::arg("ruletype")=Lsystem::eProduction,bp::arg("group")=0))
+	.def("addProdRule",  &Lsystem::addProdRule, "Add Production rule", 
+						 (bp::arg("code"),bp::arg("group")=0))
+	.def("addDecRule",   &Lsystem::addDecRule, "Add Decomposition rule", 
+						 (bp::arg("code"),bp::arg("group")=0))
+	.def("addHomRule",   &Lsystem::addHomRule, "Add Homorphism rule", 
+						 (bp::arg("code"),bp::arg("group")=0))
     // .def("enableEarlyReturn", &Lsystem::enableEarlyReturn, "Allow an early return (for threaded application).")
     // .def("isEarlyReturnEnabled", &Lsystem::isEarlyReturnEnabled, "Tell if an early return is required (for threaded application).")
 	.add_property("early_return",&Lsystem::isEarlyReturnEnabled,&Lsystem::enableEarlyReturn)

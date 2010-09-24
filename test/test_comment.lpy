@@ -1,0 +1,28 @@
+# produce toto )
+# --> titi )
+' produce toto )'
+" produce toto )"
+' --> titi )'
+" --> titi )"
+a = ' produce toto )'
+b = " produce toto )"
+c = ' --> titi )'
+d = " --> titi )"
+
+Axiom: A
+
+derivation length: 1
+production:
+
+A --> B
+
+B : 
+    # produce toto
+    # --> titi )
+    ' produce toto )'
+    " produce toto )"
+    ' --> titi )'
+    " --> titi )"
+    produce A
+
+endlsystem

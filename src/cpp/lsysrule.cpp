@@ -202,6 +202,18 @@ LsysRule::getCoreCode() {
   while( _it != __definition.end()){
 	if (*_it == '\n') { ++llineno; _it++;}
 	else if (*_it == '#') { while(_it != __definition.end() && *_it != '\n') _it++; }
+	else if (*_it == '\'') 
+	{ 
+	  _it++;  
+	  while(_it != __definition.end() && *_it != '\'') { if (*_it == '\n') { ++llineno; } _it++; } 
+	  if (_it != __definition.end()) _it++;  
+	}
+	else if (*_it == '"') 
+	{ 
+		_it++;  
+		while(_it != __definition.end() && *_it != '"') { if (*_it == '\n') { ++llineno; } _it++; } 
+	    if (_it != __definition.end()) _it++;  
+	}
 	else if (*_it == '-' && std::distance<std::string::const_iterator>(_it,__definition.end())> 3){
 	  if(std::string(_it,_it+3) == "-->"){
 		definition.insert(definition.end(),_beg,_it);

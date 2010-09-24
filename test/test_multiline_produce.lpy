@@ -1,0 +1,28 @@
+def End(lstring):
+    assert len(lstring) == 3
+    for i in xrange(3):
+      n = lstring[i].name
+      assert n != '\n'
+      assert n != '\r'
+      assert n != '\t'
+      assert n != ' '
+
+module CA
+
+Axiom: A
+
+derivation length: 1
+production:
+
+A :
+    produce (B
+             CA #test
+             D 
+             )
+    test = 3
+
+interpretation:
+
+D --> F
+
+endlsystem

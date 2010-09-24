@@ -106,7 +106,7 @@ void ToEndline(std::string::const_iterator& _it, std::string::const_iterator _en
 
 inline 
 void ToEndlineA(std::string::const_iterator& _it,std::string::const_iterator _end, int& lineno){
-	while( _it!=_end && (*_it)!='\n' && (*_it)!='A' && (*_it)!='n' && (*_it)!='p' && (*_it)!='#' ) ++_it;
+	while( _it!=_end && (*_it)!='\n' && (*_it)!='A' && (*_it)!='n' && (*_it)!='p' && (*_it)!='#' && (*_it)!='\'' && (*_it)!='"' ) ++_it;
     if(_it!=_end && (*_it)=='\n') 
     { 
         ++lineno; ++_it;
@@ -235,6 +235,16 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
 		switch(*_it){
 	    case '#':
 			while(_it != endpycode && *_it != '\n')++_it;
+			break;
+	    case '\'':
+			++_it;
+			while(_it != endpycode && *_it != '\'')++_it;
+			if (_it != endpycode) ++_it;
+			break;
+	    case '"':
+			++_it;
+			while(_it != endpycode && *_it != '"')++_it;
+			if (_it != endpycode) ++_it;
 			break;
 		case 'A':
 		  _it2 = _it;
@@ -829,7 +839,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
 
 void LsysRule::set( const std::string& rule ){
   std::string::const_iterator endheader = rule.begin();
-  std::string::const_iterator starcode = endheader;
+  std::string::const_iterator startcode = endheader;
   bool foundendheader = false;
   bool arrow = false;
   std::string staticarrowtxt = "-static->";
@@ -843,11 +853,11 @@ void LsysRule::set( const std::string& rule ){
   while(endheader != rule.end() && !foundendheader){
 	  if(*endheader==':') { 
 		  foundendheader = true; 
-		  starcode = endheader+1; 
-		  std::string::const_iterator marker = starcode;
+		  startcode = endheader+1; 
+		  std::string::const_iterator marker = startcode;
 		  while (marker!= rule.end() && (*marker == ' ' || *marker == '\t'))++marker;
 		  if(distance(marker,rule.end())>=staticmarkertxt.size() && std::string(marker,marker+staticmarkertxt.size()) == staticmarkertxt){
-			starcode = marker+staticmarkertxt.size();
+			startcode = marker+staticmarkertxt.size();
 			staticrule = true;
 		  }
 	  }
@@ -855,13 +865,13 @@ void LsysRule::set( const std::string& rule ){
 		  if(distance(endheader,rule.end())>=2 && *(endheader+1) == '-' && *(endheader+2) == '>'){
 			foundendheader = true;
 			arrow = true;
-			starcode = endheader+3;
+			startcode = endheader+3;
 		  }
 		  else if (distance(endheader,rule.end())>=staticarrowtxt.size() && std::string(endheader,endheader+staticarrowtxt.size()) == staticarrowtxt){
 			foundendheader = true;
 			arrow = true;
 			staticrule = true;
-			starcode = endheader+staticarrowtxt.size();
+			startcode = endheader+staticarrowtxt.size();
 		  }
 		  else endheader++;
       } 
@@ -871,8 +881,8 @@ void LsysRule::set( const std::string& rule ){
 	LsysError("Ill-formed Rule : unfound delimiter ':' in "+rule,"",lineno);
   }
   // identify successor code
-  if (arrow)__definition = " --> "+std::string(starcode,rule.end());
-  else __definition =  std::string(starcode,rule.end());
+  if (arrow)__definition = " --> "+std::string(startcode,rule.end());
+  else __definition =  std::string(startcode,rule.end());
   // parse header
   std::string header(rule.begin(),endheader);
   parseHeader(header);

@@ -489,29 +489,29 @@ Lsystem::__addRule( const std::string& rule, int type, size_t group, int lineno 
 
 void 
 Lsystem::addProdRule( const std::string& code, size_t group ){
-  ACQUIRE_RESSOURCE
+  // ACQUIRE_RESSOURCE
   ContextMaintainer m(&__context);
   LsysRule& r = __addProdRule(code,group);
   r.compile();
-  RELEASE_RESSOURCE
+  // RELEASE_RESSOURCE
 }
 
 void 
 Lsystem::addDecRule( const std::string& code, size_t group ){
-  ACQUIRE_RESSOURCE
+  // ACQUIRE_RESSOURCE
   ContextMaintainer m(&__context);
   LsysRule& r = __addDecRule(code,group);
   r.compile();
-  RELEASE_RESSOURCE
+  // RELEASE_RESSOURCE
 }
 
 void 
 Lsystem::addHomRule( const std::string& code, size_t group ){
-  ACQUIRE_RESSOURCE
+  // ACQUIRE_RESSOURCE
   ContextMaintainer m(&__context);
   LsysRule& r = __addHomRule(code,group);
   r.compile();
-  RELEASE_RESSOURCE
+  // RELEASE_RESSOURCE
 }
 
 void 
@@ -535,7 +535,10 @@ Lsystem::addRule(  const LsysRule& rule, int type, size_t groupid){
 }
 
 void Lsystem::addRule( const std::string& rule, int type, size_t group ){
-    __addRule(rule,type,group);
+	__newrules = true;
+    ContextMaintainer m(&__context);
+    LsysRule& r = __addRule(rule,type,group);
+	r.compile();
 }
 
 bool 
