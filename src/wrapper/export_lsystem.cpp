@@ -139,6 +139,7 @@ void export_Lsystem(){
 	.def("interpret", (void(Lsystem::*)(AxialTree&))&Lsystem::interpret,"Apply interpretation with context().turtle.")
 	.def("interpret", (void(Lsystem::*)(AxialTree&, PGL::Turtle&))&Lsystem::interpret,"Apply interpretation with given turtle.")
 	.def("sceneInterpretation", &Lsystem::sceneInterpretation,"Apply interpretation with context().turtle and return resulting scene.")
+	.def("stepInterpretation", &Lsystem::stepInterpretation,"Apply interpretation step by step and display construction of the scene.")
 	.def("plot", (void(Lsystem::*)(AxialTree&,bool))&Lsystem::plot,(bp::arg("lstring"),bp::arg("checkLastComputedScene")=false),"Apply interpretation with context().turtle and plot the resulting scene. If checkLastComputedScene, check whether during last iteration a scene was computed. If yes reuse it.")
 	.def("homomorphism", &Lsystem::homomorphism,"Apply interpretation rule and gives the resulting string.")
 	.def("nbProductionRules", &Lsystem::nbProductionRules, (bp::arg("group")=0))

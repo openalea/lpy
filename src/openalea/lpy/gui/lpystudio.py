@@ -149,6 +149,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         QObject.connect(self.actionAnimate, SIGNAL('triggered(bool)'),self.animate)
         QObject.connect(self.actionStep, SIGNAL('triggered(bool)'),self.step)
         QObject.connect(self.actionRewind, SIGNAL('triggered(bool)'),self.rewind)
+        QObject.connect(self.actionStepInterpretation, SIGNAL('triggered(bool)'),self.stepInterpretation)
         QObject.connect(self.actionIterateTo, SIGNAL('triggered(bool)'),self.iterateTo)
         QObject.connect(self.actionNextIterate, SIGNAL('triggered(bool)'),self.nextIterate)
         QObject.connect(self.actionAutoRun, SIGNAL('triggered(bool)'),self.projectAutoRun)
@@ -499,6 +500,16 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
       self.viewAbortFunc.reset()
       try:
         task = ComputationTask(simu.step,simu.post_step,simu.pre_step,cleanupprocess=simu.cleanup)
+        self.registerTask(task)
+      except:
+        self.graberror()
+        self.releaseCR()      
+    def stepInterpretation(self):
+      self.acquireCR()
+      simu = self.currentSimulation()
+      self.viewAbortFunc.reset()
+      try:
+        task = ComputationTask(simu.stepInterpretation,simu.post_stepInterpretation,simu.pre_stepInterpretation,cleanupprocess=simu.cleanup)
         self.registerTask(task)
       except:
         self.graberror()

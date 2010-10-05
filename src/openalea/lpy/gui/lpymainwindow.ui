@@ -905,6 +905,7 @@
     <addaction name="actionStep"/>
     <addaction name="actionRewind"/>
     <addaction name="actionStop"/>
+    <addaction name="actionStepInterpretation"/>
     <addaction name="separator"/>
     <addaction name="actionIterateTo"/>
     <addaction name="actionNextIterate"/>
@@ -1563,6 +1564,15 @@
    </property>
    <property name="text">
     <string>Record</string>
+   </property>
+  </action>
+  <action name="actionStepInterpretation">
+   <property name="icon">
+    <iconset resource="lpyresources.qrc">
+     <normaloff>:/images/icons/step.png</normaloff>:/images/icons/step.png</iconset>
+   </property>
+   <property name="text">
+    <string>Step Interpretation</string>
    </property>
   </action>
  </widget>

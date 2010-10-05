@@ -112,6 +112,29 @@ uint_t LPY::waitSelection(const std::string& txt)
 
 /*---------------------------------------------------------------------------*/
 
+
+
+static void DEFAULTDISPLAYMESSAGE(const std::string& txt) { ViewerApplication::showMessage(txt); }
+
+static DisplayMessageFunction __DISPLAYMESSAGE = &DEFAULTDISPLAYMESSAGE;
+
+void LPY::registerDisplayMessageFunction(DisplayMessageFunction func)
+{
+    __DISPLAYMESSAGE = func;
+}
+
+void LPY::cleanDisplayMessageFunction()
+{
+	__DISPLAYMESSAGE = &DEFAULTDISPLAYMESSAGE;
+}
+
+void LPY::displayMessage(const std::string& txt)
+{
+	__DISPLAYMESSAGE(txt);
+}
+
+/*---------------------------------------------------------------------------*/
+
 static void pglSaveImage(const std::string& fname, const std::string& format)
 { ViewerApplication::saveImage(fname,format); }
 

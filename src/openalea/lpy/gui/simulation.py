@@ -566,6 +566,24 @@ class LpySimulation:
         self.isTextEdited()
         self.setTree(self.lsystem.axiom,0)
         self.lsystem.plot(self.tree)
+    def pre_stepInterpretation(self,task):
+        if self.isTextEdited() or self.lsystem.empty() or not self.tree:
+            self.updateLsystemCode()
+            self.nbiterations = 0
+            self.tree = self.lsystem.axiom
+        Viewer.start()
+        Viewer.setAnimation(eAnimatedScene)
+    def stepInterpretation(self,task):
+        if self.tree:
+            self.lsystem.stepInterpretation(self.tree)
+        else:
+            self.lsystem.stepInterpretation(self.lsystem.axiom)
+            task.dl = 0
+            task.result = self.lsystem.axiom
+    def post_stepInterpretation(self,task):
+        if hasattr(task,'result'):
+            self.setTree(task.result,task.dl)
+            self.firstView = False
     def profile(self,task):
         edition = self.isTextEdited()
         nbiter = self.nbiterations

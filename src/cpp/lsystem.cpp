@@ -34,6 +34,7 @@
 #include "tracker.h"
 #include <QtCore/QThread>
 #include <QtCore/QFileInfo>
+#include <plantgl/tool/sequencer.h>
 
 using namespace boost::python;
 TOOLS_USING_NAMESPACE
@@ -871,6 +872,159 @@ Lsystem::__recursiveSteps(AxialTree& workingstring,
   return targetstring;
 }
 
+template<class Interpreter, class EarlyStop>
+void Lsystem::__gRecursiveInterpretation(AxialTree& workingstring,
+										 const RulePtrMap& ruleset,
+										 Interpreter& interpreter,
+										 size_t maxdepth,
+										 bool withid)
+{
+  ContextMaintainer c(&__context);
+  if( workingstring.empty()) return ;
+  AxialTree::iterator _itn = workingstring.begin();
+
+  AxialTree::const_iterator _it = workingstring.begin();
+  AxialTree::const_iterator _it3 = _it;
+  AxialTree::const_iterator _endit = workingstring.end();
+  size_t dist = 0;
+  if (withid) interpreter.start();
+  while ( _it != _endit && EarlyStop::isDisabled() ) {
+      if ( _it->isCut() ){
+	  _it3 = _it;
+          _it = workingstring.endBracket(_it3);
+          _itn += distance(_it3,_it);
+      }
+      else{
+          AxialTree ltargetstring;
+          bool match = false;
+		  const RulePtrSet& mruleset = ruleset[_it->getClassId()];
+          for(RulePtrSet::const_iterator _it2 = mruleset.begin();
+              _it2 != mruleset.end(); _it2++){
+				  ArgList args;
+                  if((*_it2)->match(workingstring,_it,ltargetstring,_it3,args)){
+                      match = (*_it2)->applyTo(ltargetstring,args);
+					  if (match) {
+						dist = distance(_it,_it3);
+						_it = _it3;
+						_itn += dist;
+						break;
+					  }
+                  }
+          }
+          if (match){
+              if(maxdepth > 1) __gRecursiveInterpretation<Interpreter,EarlyStop>(ltargetstring,ruleset,interpreter,maxdepth-1,false);
+              else { 
+                 for(AxialTree::iterator _itl = ltargetstring.begin();
+					 _itl != ltargetstring.end(); ++_itl){
+					 interpreter.interpret(_itl);
+                 } 
+              }
+              if(withid)interpreter.incId(dist); 
+          }
+          else { 
+			  interpreter.interpret(_itn);
+			  interpreter.incId();
+			  ++_it; ++_itn;
+          }
+      }
+  }
+  if(withid) interpreter.stop();
+}
+
+	
+
+void 
+Lsystem::__recursiveInterpretation(AxialTree& workingstring,
+				                const RulePtrMap& ruleset,
+                                Turtle& t,
+                                size_t maxdepth)
+{
+	struct EarlyReturn {
+		static inline bool isDisabled() { return true; }
+	};
+
+	struct TurtleInterpreter {
+		TurtleInterpreter(Turtle& t) : turtle(t) {}
+		Turtle& turtle;
+
+		inline void start() 
+		{ turtle.start(); turtle.setId(0); }
+		inline void stop()  
+		{ turtle.stop();
+		  if (!turtle.emptyStack()){
+			printf("Turtle stack size : %i\n",turtle.getStack().size());
+			LsysError("Ill-formed string in interpretation: unmatched brackets");
+			}
+		}
+
+		inline void interpret(AxialTree::iterator m){
+			  m->interpret(turtle);
+		}
+		inline void incId(size_t nb = 1){
+              turtle.incId(nb); 
+		}
+	};
+
+	__gRecursiveInterpretation<TurtleInterpreter,EarlyReturn>(workingstring,ruleset,TurtleInterpreter(t),maxdepth);
+}
+
+void 
+Lsystem::__recursiveStepInterpretation(AxialTree& workingstring,
+				                const RulePtrMap& ruleset,
+                                PglTurtle& t,
+                                size_t maxdepth)
+{
+	struct EarlyReturn {
+		static inline bool isDisabled() { return !LsysContext::current()->isEarlyReturnEnabled(); }
+	};
+
+	struct TurtleStepInterpreter {
+		TurtleStepInterpreter(PglTurtle& t, LsysContext& c) : turtle(t), context(c), timer(c.get_animation_timestep()) {}
+
+		PglTurtle& turtle;
+		LsysContext& context;
+		TOOLS::Sequencer timer;
+
+		inline void start() 
+		{ turtle.start(); turtle.setId(0); context.enableEarlyReturn(false); }
+
+		inline void stop()  
+		{ 
+			if(!context.isEarlyReturnEnabled()){
+				turtle.stop();
+				if (!turtle.emptyStack()){
+					printf("Turtle stack size : %i\n",turtle.getStack().size());
+					LsysError("Ill-formed string in interpretation: unmatched brackets");
+				}
+				else {
+					timer.touch();
+					LPY::plot(turtle.getScene());
+					LPY::displayMessage("");
+				}
+			}
+			else { turtle.reset(); }
+		}
+
+		inline void interpret(AxialTree::iterator m){
+			 m->interpret(turtle);
+			 timer.touch();
+			 if (m->getClass() && m->getClass()->isPredefined()){
+				LPY::plot(turtle.partialView());
+			 }
+			 LPY::displayMessage(m->str());
+			 timer.setTimeStep(context.get_animation_timestep());
+		}
+
+		inline void incId(size_t nb = 1){
+              turtle.incId(nb); 
+		}
+	};
+
+	__gRecursiveInterpretation<TurtleStepInterpreter,EarlyReturn>(workingstring,ruleset,TurtleStepInterpreter(t,__context),maxdepth);
+}
+
+
+/*
 void 
 Lsystem::__recursiveInterpretation(AxialTree& workingstring,
 				                const RulePtrMap& ruleset,
@@ -937,6 +1091,8 @@ Lsystem::__recursiveInterpretation(AxialTree& workingstring,
       }
   }
 }
+
+*/
 
 AxialTree 
 Lsystem::iterate( size_t starting_iter , 
@@ -1116,6 +1272,15 @@ ScenePtr Lsystem::sceneInterpretation( AxialTree& workstring )
   RELEASE_RESSOURCE
 }
 
+void Lsystem::stepInterpretation(AxialTree& wstring)
+{
+  ACQUIRE_RESSOURCE
+  if ( wstring.empty() )return;
+  bool homHasQuery = false;
+  RulePtrMap homomorphism = __getRules(eHomomorphism,__currentGroup,eForward,&homHasQuery);
+  __recursiveStepInterpretation(wstring,homomorphism,__context.turtle,__homomorphism_max_depth);
+  RELEASE_RESSOURCE
+}
 
 
 AxialTree 
@@ -1167,7 +1332,6 @@ Lsystem::__plot( AxialTree& workstring, bool checkLastComputedScene){
 	__context.postDraw();
 }
 
-#include <plantgl/tool/sequencer.h>
 // #include <plantgl/gui/viewer/pglapplication.h>
 
 AxialTree

@@ -114,6 +114,9 @@ public:
 
   AxialTree homomorphism(AxialTree& workstring);
 
+  // interpret the string and plot it module by module
+  void stepInterpretation(AxialTree& workstring);
+
   /** Iterate */
   inline AxialTree iterate( )
   { return iterate(0,__max_derivation,__axiom); }
@@ -346,7 +349,19 @@ protected:
  void __recursiveInterpretation(AxialTree& workingstring,
 				                const RulePtrMap& ruleset,
                                 PGL::Turtle& turtle,
-                                size_t maxdepth, bool withid = true);
+                                size_t maxdepth);
+
+ void __recursiveStepInterpretation(AxialTree& workingstring,
+				                const RulePtrMap& ruleset,
+                                PGL::PglTurtle& turtle,
+                                size_t maxdepth);
+
+ template<class Interpreter, class EarlyStop>
+ void __gRecursiveInterpretation(AxialTree& workingstring,
+				                const RulePtrMap& ruleset,
+                                Interpreter& interpreter,
+                                size_t maxdepth,
+								bool withid = true);
 
  RulePtrMap __getRules(eRuleType type, size_t group, eDirection direction, bool * hasQuery = NULL);
 

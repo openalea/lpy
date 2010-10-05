@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'd:\fred\mes documents\develop\vplants\trunk\lpy\src\openalea\lpy\gui\lpymainwindow.ui'
 #
-# Created: Tue Sep 21 11:54:16 2010
+# Created: Tue Oct 05 15:34:46 2010
 #      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -649,12 +649,16 @@ class Ui_MainWindow(object):
         icon32.addPixmap(QtGui.QPixmap(":/images/icons/record.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionRecord.setIcon(icon32)
         self.actionRecord.setObjectName("actionRecord")
+        self.actionStepInterpretation = QtGui.QAction(MainWindow)
+        self.actionStepInterpretation.setIcon(icon10)
+        self.actionStepInterpretation.setObjectName("actionStepInterpretation")
         self.menuL_systems.addAction(self.actionRun)
         self.menuL_systems.addAction(self.actionAnimate)
         self.menuL_systems.addSeparator()
         self.menuL_systems.addAction(self.actionStep)
         self.menuL_systems.addAction(self.actionRewind)
         self.menuL_systems.addAction(self.actionStop)
+        self.menuL_systems.addAction(self.actionStepInterpretation)
         self.menuL_systems.addSeparator()
         self.menuL_systems.addAction(self.actionIterateTo)
         self.menuL_systems.addAction(self.actionNextIterate)
@@ -869,6 +873,7 @@ class Ui_MainWindow(object):
         self.actionProfile.setText(QtGui.QApplication.translate("MainWindow", "Profile", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPrint.setText(QtGui.QApplication.translate("MainWindow", "Print", None, QtGui.QApplication.UnicodeUTF8))
         self.actionRecord.setText(QtGui.QApplication.translate("MainWindow", "Record", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionStepInterpretation.setText(QtGui.QApplication.translate("MainWindow", "Step Interpretation", None, QtGui.QApplication.UnicodeUTF8))
 
 from lpycodeeditor import LpyCodeEditor
 from materialeditor import MaterialEditor
