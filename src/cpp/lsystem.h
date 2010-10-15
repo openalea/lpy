@@ -356,7 +356,7 @@ protected:
                                 PGL::PglTurtle& turtle,
                                 size_t maxdepth);
 
- template<class Interpreter, class EarlyStop>
+ template<class Interpreter>
  void __gRecursiveInterpretation(AxialTree& workingstring,
 				                const RulePtrMap& ruleset,
                                 Interpreter& interpreter,

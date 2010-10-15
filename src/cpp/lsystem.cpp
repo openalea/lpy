@@ -872,7 +872,7 @@ Lsystem::__recursiveSteps(AxialTree& workingstring,
   return targetstring;
 }
 
-template<class Interpreter, class EarlyStop>
+template<class Interpreter>
 void Lsystem::__gRecursiveInterpretation(AxialTree& workingstring,
 										 const RulePtrMap& ruleset,
 										 Interpreter& interpreter,
@@ -888,7 +888,7 @@ void Lsystem::__gRecursiveInterpretation(AxialTree& workingstring,
   AxialTree::const_iterator _endit = workingstring.end();
   size_t dist = 0;
   if (withid) interpreter.start();
-  while ( _it != _endit && EarlyStop::isDisabled() ) {
+  while ( _it != _endit && !interpreter.earlyReturn() ) {
       if ( _it->isCut() ){
 	  _it3 = _it;
           _it = workingstring.endBracket(_it3);
@@ -912,7 +912,7 @@ void Lsystem::__gRecursiveInterpretation(AxialTree& workingstring,
                   }
           }
           if (match){
-              if(maxdepth > 1) __gRecursiveInterpretation<Interpreter,EarlyStop>(ltargetstring,ruleset,interpreter,maxdepth-1,false);
+              if(maxdepth > 1) __gRecursiveInterpretation<Interpreter>(ltargetstring,ruleset,interpreter,maxdepth-1,false);
               else { 
                  for(AxialTree::iterator _itl = ltargetstring.begin();
 					 _itl != ltargetstring.end(); ++_itl){
@@ -933,20 +933,11 @@ void Lsystem::__gRecursiveInterpretation(AxialTree& workingstring,
 
 	
 
-void 
-Lsystem::__recursiveInterpretation(AxialTree& workingstring,
-				                const RulePtrMap& ruleset,
-                                Turtle& t,
-                                size_t maxdepth)
-{
-	struct EarlyReturn {
-		static inline bool isDisabled() { return true; }
-	};
-
 	struct TurtleInterpreter {
 		TurtleInterpreter(Turtle& t) : turtle(t) {}
 		Turtle& turtle;
 
+		static inline bool earlyReturn() { return false; }
 		inline void start() 
 		{ turtle.start(); turtle.setId(0); }
 		inline void stop()  
@@ -965,18 +956,17 @@ Lsystem::__recursiveInterpretation(AxialTree& workingstring,
 		}
 	};
 
-	__gRecursiveInterpretation<TurtleInterpreter,EarlyReturn>(workingstring,ruleset,TurtleInterpreter(t),maxdepth);
-}
-
 void 
-Lsystem::__recursiveStepInterpretation(AxialTree& workingstring,
+Lsystem::__recursiveInterpretation(AxialTree& workingstring,
 				                const RulePtrMap& ruleset,
-                                PglTurtle& t,
+                                Turtle& t,
                                 size_t maxdepth)
 {
-	struct EarlyReturn {
-		static inline bool isDisabled() { return !LsysContext::current()->isEarlyReturnEnabled(); }
-	};
+
+
+	TurtleInterpreter i (t);
+	__gRecursiveInterpretation<TurtleInterpreter>(workingstring,ruleset,i,maxdepth);
+}
 
 	struct TurtleStepInterpreter {
 		TurtleStepInterpreter(PglTurtle& t, LsysContext& c) : turtle(t), context(c), timer(c.get_animation_timestep()) {}
@@ -984,6 +974,8 @@ Lsystem::__recursiveStepInterpretation(AxialTree& workingstring,
 		PglTurtle& turtle;
 		LsysContext& context;
 		TOOLS::Sequencer timer;
+
+		inline bool earlyReturn() { return context.isEarlyReturnEnabled(); }
 
 		inline void start() 
 		{ turtle.start(); turtle.setId(0); context.enableEarlyReturn(false); }
@@ -1019,8 +1011,17 @@ Lsystem::__recursiveStepInterpretation(AxialTree& workingstring,
               turtle.incId(nb); 
 		}
 	};
+void 
+Lsystem::__recursiveStepInterpretation(AxialTree& workingstring,
+				                const RulePtrMap& ruleset,
+                                PglTurtle& t,
+                                size_t maxdepth)
+{
 
-	__gRecursiveInterpretation<TurtleStepInterpreter,EarlyReturn>(workingstring,ruleset,TurtleStepInterpreter(t,__context),maxdepth);
+
+
+	TurtleStepInterpreter i(t,__context);
+	__gRecursiveInterpretation<TurtleStepInterpreter>(workingstring,ruleset,i,maxdepth);
 }
 
 
