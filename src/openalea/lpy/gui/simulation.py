@@ -343,6 +343,7 @@ class LpySimulation:
             return True
         if not emptyparameterset(self.visualparameters) :
             intialized_managers = {}
+            panelid = 0
             for panelinfo,objects in self.visualparameters:
                 if panelinfo.get('active',True) or withall:
                     for manager,obj in objects:
@@ -350,10 +351,14 @@ class LpySimulation:
                             intialized_managers[manager] = True
                             init_txt += manager.initWriting('\t') 
                         init_txt += manager.writeObject(obj,'\t')
+                    init_txt += '\tpanel_'+str(panelid)+' = ('+repr(panelinfo)+',['+','.join(['('+repr(manager.typename)+','+manager.getName(obj)+')' for manager,obj in objects])+'])\n'
+                panelid += 1    
             init_txt += '\tparameterset = ['
+            panelid = 0
             for panelinfo,objects in self.visualparameters:
                 if panelinfo.get('active',True) or withall:
-                    init_txt += '('+repr(panelinfo)+',['+','.join(['('+repr(manager.typename)+','+manager.getName(obj)+')' for manager,obj in objects])+']),'
+                    init_txt += 'panel_'+str(panelid)+','
+                panelid += 1
             init_txt += ']\n'
             if withall and self.keepCode_1_0_Compatibility:
                 init_txt += '\tcontext["__functions__"] = ['
