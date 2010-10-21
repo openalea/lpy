@@ -477,15 +477,15 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
       self.acquireCR()
       try:
         self.viewAbortFunc.reset()
+        simu = self.currentSimulation()
         Viewer.start()
         if not rerun :
             Viewer.setAnimation(eStatic)
         else:
-            if primitiveChanged:
+            if primitiveChanged or simu.getOptimisationLevel() < 2:
                 Viewer.setAnimation(eAnimatedPrimitives)
             else:
                 Viewer.setAnimation(eAnimatedScene)
-        simu = self.currentSimulation()
         simu.updateLsystemCode()
         simu.isTextEdited()
         task = ComputationTask(simu.run,simu.post_run,cleanupprocess=simu.cleanup)

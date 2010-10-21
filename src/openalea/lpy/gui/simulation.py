@@ -121,6 +121,8 @@ class LpySimulation:
         self.lpywidget.documentNames.setTabText(self.index,self.getTabName())
     def getTimeStep(self):
         return self.timestep*0.001
+    def getOptimisationLevel(self):
+        return self.lsystem.context().options.find('Optimization').selection
     def getBackupName(self):
         if self.fname:
             return os.path.join(os.path.dirname(self.fname),'#'+os.path.basename(self.fname)+'#')
