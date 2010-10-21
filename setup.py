@@ -10,11 +10,6 @@ metadata = read_metainfo('metainfo.ini', verbose=True)
 for key,value in metadata.iteritems():
     exec("%s = '%s'" % (key, value))
 
-f = pj(os.path.dirname(__file__),'src', 'openalea', 'lpy','__version__.py')
-d = {}
-execfile(f,d,d)
-
-    
 ##############
 # Setup script
 
@@ -22,8 +17,19 @@ execfile(f,d,d)
 pkg_name= namespace + '.' + package
 wralea_name= namespace + '.' + package + '_wralea'
 
+
+meta_version = version 
+# check that meta version is updated
+f = pj(os.path.dirname(__file__),'src', 'openalea', 'lpy','__version__.py')
+d = {}
+execfile(f,d,d)
 version= d['LPY_NUM_VERSION_STR']
+if meta_version != version:
+    print 'Warning:: Update the version in metainfo.ini !!'
 print pkg_name,': version =',version
+
+
+
 
 
 # Scons build directory
