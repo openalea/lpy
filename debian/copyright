@@ -1,0 +1,23 @@
+This package was debianized by Christophe Pradal <christophe.pradal@cirad.fr> on Tue, 21 Sep 2010 16:27:36 +0200.
+
+It was downloaded from http://gforge.inria.fr/projects/openalea/
+
+Upstream Authors: 
+
+  Frederic Boudon <frederic.boudon@cirad.fr>
+
+Copyright: 
+
+ Copyright (C) 2009-2010 INRIA - CIRAD - INRA
+
+License:
+
+    This software is governed by the CeCILL-V2 license under French law and
+    abiding by the rules of distribution of free software.  You can  use, 
+    modify and/ or redistribute the software under the terms of the CeCILL-V2
+    license as circulated by CEA, CNRS and INRIA at the following URL
+    "http://www.cecill.info". 
+
+The Debian packaging is (C) 2010, Christophe Pradal <christophe.pradal@cirad.fr> and
+is licensed under the GPL, see `/usr/share/common-licenses/GPL'.
+

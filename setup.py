@@ -57,7 +57,7 @@ setup(
     scons_parameters = ["build_prefix="+build_prefix],
     
     namespace_packages = [namespace],
-    create_namespaces = True,
+    create_namespaces = False,
     
     # pure python  packages
     packages = [ pkg_name, pkg_name+'.gui',pkg_name+'.gui.plugins', wralea_name ],

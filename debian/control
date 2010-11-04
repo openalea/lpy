@@ -1,0 +1,15 @@
+Source: vplants-lpy
+Maintainer: Frederic Boudon <frederic.boudon@cirad.fr>
+Section: python
+Priority: optional
+Build-Depends: python-setuptools (>= 0.6b3), python-all-dev, debhelper (>= 7), python-support (>= 0.8.4), python-vplants.plantgl, python-openalea.deploy, python-openalea.sconsx, libqt4-dev, libqt4-opengl-dev, libboost-python-dev, libreadline-dev, pkg-config, libglut3-dev
+Standards-Version: 3.8.4
+XS-Python-Version: current
+
+Package: python-vplants.lpy
+Architecture: any
+Depends: ${misc:Depends}, ${python:Depends}, ${shlibs:Depends}, python-vplants.plantgl, python-opengl, pyqglviewer
+XB-Python-Version: ${python:Versions}
+Provides: ${python:Provides}
+Description: Lindenmayer Systems in Python package for OpenAlea.
+ A Python version of Lindenmayer Systems. Based on Dr. Prusinkiewicz et al. cpfg-lpfg specifications. Implemented by the Virtual Plants team.
