@@ -33,6 +33,10 @@ class AbstractObjectManager(QObject):
         """ ask for creation of editor. Should be reimplemented """
         raise NotImplementedError('getEditor')
 
+    def fillEditorMenu(self,menubar,editor):
+        """ Function call to fill the menu of the editor """
+        pass
+        
     def setObjectToEditor(self,editor,obj):
         """ ask for edition of obj with editor. Should be reimplemented """
         raise NotImplementedError('setObjectToEditor')
@@ -68,11 +72,19 @@ class AbstractObjectManager(QObject):
     def importData(self,fname):
         raise NotImplementedError('importData')
     
-    def completeContextMenu(self,menu,obj):
+    def completeContextMenu(self,menu,obj,widget):
         pass
     
     def managePrimitive(self):
         return False
+    
+    def getTheme(self):
+        """ get the color theme currenlty used """
+        return {}
+    
+    def setTheme(self,theme):
+        """ get the color theme acccording to the theme dict """
+        pass
     
 from openalea.plantgl.all import Discretizer, GLRenderer, BBoxComputer, BoundingBox, PyStrPrinter
 

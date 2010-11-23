@@ -16,6 +16,7 @@ except:
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+from PyQGLViewer import *
 import traceback as tb
 import documentation as doc
 import settings
@@ -24,6 +25,7 @@ from simulation import LpySimulation
 from killsimulationdialog import KillSimulationDialog
 from openalea.plantgl.all import *
 from objectpanel import ObjectPanelManager
+
 
 from openalea.lpy import *
 
@@ -61,7 +63,10 @@ class LpyPlotter:
     def waitSelection(self,txt):
         return Viewer.waitSelection(txt)
     def save(self,fname,format):
-        Viewer.frameGL.saveImage(fname,format)
+        if self.parent.use_own_view3D:
+            self.parent.view3d.saveSnapShot(fname,format)
+        else:
+            Viewer.frameGL.saveImage(fname,format)
         
 class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
     def __init__(self, parent=None, withinterpreter = True):
@@ -103,6 +108,8 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.com_waitcondition = QWaitCondition()
         self.killsimudialog = KillSimulationDialog(self)
         self.plotter = LpyPlotter(self)
+        self.use_own_view3D = True
+        self.viewer = self.view3D
         registerPlotter(self.plotter)
         class ViewerFuncAborter:
             def __init__(self):
@@ -177,6 +184,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         QObject.connect(self.scalarEditor, SIGNAL('valueChanged()'),self.projectEdited)
         QObject.connect(self.scalarEditor, SIGNAL('valueChanged()'),self.projectParameterEdited)
         QObject.connect(self.actionPrint, SIGNAL('triggered(bool)'),self.printCode)
+        QObject.connect(self.actionView3D, SIGNAL('triggered(bool)'),self.switchCentralView)
         self.aboutLpy = lambda x : doc.aboutLpy(self)
         QObject.connect(self.actionAbout, SIGNAL('triggered(bool)'),self.aboutLpy)
         QObject.connect(self.actionAboutQt, SIGNAL('triggered(bool)'),QApplication.aboutQt)
@@ -187,10 +195,31 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         QObject.connect(self.actionFitAnimationView,SIGNAL('triggered()'),self.toggleFitAnimationView)
         QObject.connect(self.menuRecents,SIGNAL("triggered(QAction *)"),self.recentMenuAction)
         self.printTitle()
+        self.centralViewIsGL = False
+        self.stackedWidget.setCurrentIndex(0)
         settings.restoreState(self)
         self.createRecentMenu()
         self.textEditionWatch = True
-        
+    def switchCentralView(self):
+        if not self.centralViewIsGL:
+            self.stackedWidget.setCurrentIndex(1)
+        else:
+            self.stackedWidget.setCurrentIndex(0)
+        self.centralViewIsGL = not self.centralViewIsGL
+        self.actionView3D.setChecked(self.centralViewIsGL)
+    def setView3DCentral(self,enabled=True):
+        if self.centralViewIsGL != enabled:
+            self.switchCentralView()
+    def setIntegratedView3D(self,enabled):
+        if self.use_own_view3D != enabled:
+            self.use_own_view3D = enabled
+            if not enabled and self.centralViewIsGL:
+                self.switchCentralView()
+            if not enabled:
+                self.viewer = Viewer
+            else:
+                self.viewer = self.view3D
+            self.actionView3D.setEnabled(enabled)
     def getObjectPanels(self):
         return self.panelmanager.getObjectPanels()
     def getMaxObjectPanelNb(self):
@@ -261,7 +290,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.close()
     def closeEvent(self,e):
         self.debugger.endDebug()
-        Viewer.stop()    
+        self.viewer.stop()    
         settings.saveState(self)
         prompt = False
         if not self.exitWithoutPrompt:
@@ -306,7 +335,9 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
     def projectAutoRun(self,value = True):
         self.currentSimulation().autorun = value
     def viewer_plot(self,scene):
-        Viewer.display(scene)
+        if self.use_own_view3D:
+            self.setView3DCentral()
+        self.viewer.display(scene)            
     def plotScene(self,scene):
       if self.thread() != QThread.currentThread():
         #Viewer.display(scene)
@@ -334,7 +365,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
                     print "Force release"
                 self.releaseCR()
     def customEvent(self,event):
-        Viewer.display(event.scene)
+        self.viewer_plot(event.scene)
         self.com_mutex.lock()
         self.com_mutex.unlock()
         self.com_waitcondition.wakeAll()
@@ -432,9 +463,9 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
     def openfile(self,fname = None):
         if fname is None:
             initialname = os.path.dirname(self.currentSimulation().fname) if self.currentSimulation().fname else '.'
-            fname = QFileDialog.getOpenFileName(self, "Open Py Lsystems file",
+            fname = QFileDialog.getOpenFileName(self, "Open  L-Py file",
                                                     initialname,
-                                                    "Py Lsystems Files (*.lpy);;All Files (*.*)"
+                                                    "L-Py Files (*.lpy);;All Files (*.*)"
                                                     )
             if not fname: return
             fname = str(fname)
@@ -476,16 +507,17 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
     def run(self,rerun=False,primitiveChanged=False):
       self.acquireCR()
       try:
-        self.viewAbortFunc.reset()
+        if not self.use_own_view3D:
+            self.viewAbortFunc.reset()
         simu = self.currentSimulation()
-        Viewer.start()
+        self.viewer.start()
         if not rerun :
-            Viewer.setAnimation(eStatic)
+            self.viewer.setAnimation(eStatic)
         else:
             if primitiveChanged or simu.getOptimisationLevel() < 2:
-                Viewer.setAnimation(eAnimatedPrimitives)
+                self.viewer.setAnimation(eAnimatedPrimitives)
             else:
-                Viewer.setAnimation(eAnimatedScene)
+                self.viewer.setAnimation(eAnimatedScene)
         simu.updateLsystemCode()
         simu.isTextEdited()
         task = ComputationTask(simu.run,simu.post_run,cleanupprocess=simu.cleanup)
@@ -497,7 +529,8 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
     def step(self):
       self.acquireCR()
       simu = self.currentSimulation()
-      self.viewAbortFunc.reset()
+      if not self.use_own_view3D:
+        self.viewAbortFunc.reset()
       try:
         task = ComputationTask(simu.step,simu.post_step,simu.pre_step,cleanupprocess=simu.cleanup)
         self.registerTask(task)
@@ -507,7 +540,8 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
     def stepInterpretation(self):
       self.acquireCR()
       simu = self.currentSimulation()
-      self.viewAbortFunc.reset()
+      if not self.use_own_view3D:
+        self.viewAbortFunc.reset()
       try:
         task = ComputationTask(simu.stepInterpretation,simu.post_stepInterpretation,simu.pre_stepInterpretation,cleanupprocess=simu.cleanup)
         self.registerTask(task)
@@ -528,7 +562,8 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.iterateTo()
       else:
         self.acquireCR()
-        self.viewAbortFunc.reset()
+        if not self.use_own_view3D:
+            self.viewAbortFunc.reset()
         simu = self.currentSimulation()
         try:
           task = ComputationTask(simu.iterate,simu.post_step,simu.pre_step,cleanupprocess=simu.cleanup)
@@ -542,7 +577,8 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
       else:
         self.debugMode = True
         self.acquireCR()
-        self.viewAbortFunc.reset()
+        if not self.use_own_view3D:
+            self.viewAbortFunc.reset()
         simu = self.currentSimulation()
         try:
             simu.debug()
@@ -553,8 +589,9 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
     def profile(self):
       self.profilerDock.show()
       self.acquireCR()
-      simu = self.currentSimulation()      
-      self.viewAbortFunc.reset()
+      simu = self.currentSimulation()
+      if not self.use_own_view3D:
+        self.viewAbortFunc.reset()
       try:
         task = ComputationTask(simu.profile,simu.post_profile,simu.pre_profile,cleanupprocess=simu.cleanup)
         task.mode = self.profilingMode
@@ -573,7 +610,8 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
     def animate(self):
       self.acquireCR()
       simu = self.currentSimulation()
-      self.viewAbortFunc.reset()
+      if not self.use_own_view3D:
+        self.viewAbortFunc.reset()
       try:
         task = ComputationTask(simu.animate,simu.post_animate,simu.pre_animate,cleanupprocess=simu.cleanup)
         task.fitAnimationView = self.fitAnimationView
@@ -590,7 +628,8 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
               fname = str(fname)
               self.acquireCR()
               simu = self.currentSimulation()
-              self.viewAbortFunc.reset()
+              if not self.use_own_view3D:
+                self.viewAbortFunc.reset()
               try:
                 task = ComputationTask(simu.animate,simu.post_animate,simu.pre_animate,cleanupprocess=simu.cleanup)
                 task.fitAnimationView = self.fitAnimationView

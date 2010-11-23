@@ -56,6 +56,7 @@ class ManagerDialogContainer (QObject):
         self.editor   =  None
         self.editorDialog   =  None
         self.editedobjectid = None
+
     def __transmit_valueChanged__(self):
         self.panel.retrieveObject(self)
         
@@ -66,14 +67,14 @@ class ManagerDialogContainer (QObject):
         if not self.editor:
             self.editorDialog = ObjectDialog(self.panel)
             self.editor = self.manager.getEditor(self.editorDialog)
+            if not self.editor: return
             self.editorDialog.setupUi(self.editor)
             self.editorDialog.setWindowTitle(self.manager.typename+' Editor')
-            if not self.editor:
-                return
+            self.manager.fillEditorMenu(self.editorDialog.menu(),self.editor)
             QObject.connect(self.editorDialog,SIGNAL("valueChanged()"),self.__transmit_valueChanged__)
             QObject.connect(self.editorDialog,SIGNAL('hidden()'),self.endEditionEvent)
             QObject.connect(self.editorDialog,SIGNAL('AutomaticUpdate(bool)'),self.__transmit_autoUpdate__)
-        
+            
     def startObjectEdition(self,obj,id):
         """ used by panel. ask for object edition to start. Use getEditor and  setObjectToEditor """
         self.editedobjectid = id
@@ -83,7 +84,10 @@ class ManagerDialogContainer (QObject):
                 QMessageBox.warning(self,"Cannot edit","Cannot edit curve ! Python module (PyQGLViewer) is missing!")
                 return
         self.manager.setObjectToEditor(self.editor,obj)
-        self.editor.updateGL()
+        try:
+            self.editor.updateGL()
+        except:
+            pass
         self.editorDialog.hasChanged = False
         self.editorDialog.show()
 
@@ -103,9 +107,50 @@ class ManagerDialogContainer (QObject):
     def isVisible(self):
         """ Tell whether editor is visible """
         return (not (self.editorDialog is None)) and self.editorDialog.isVisible()
-    
+
+
 class ObjectListDisplay(QGLWidget): 
     """ Display and edit a list of parameter objects """
+    class Theme:
+        def __init__(self):
+            self.values = {}
+            
+    BLACK_THEME = {'backGroundColor' : (0,0,0),
+                      'waveColor' : (25,25,25),
+                      'inactiveBackGroundColor' : (102,102,102),
+                      'inactiveWaveColor' : (115,115,115),
+                      'topText' : (255,255,255),
+                      'selectedTopText' : (255,255,255),
+                      'bottomText' : (255,255,0),
+                      'selectedBottomText' : (255,255,255),
+                      'inactiveText' : (204,204,204),
+                      'thumbnailBackGround' : (64,64,64),
+                      'thumbnailBackGround2' : (140,140,140),
+                      'inactiveThumbnailBackGround' : (115,115,115),
+                      'selectedThumbnailBackGround' : (102,102,102),
+                      'selectedThumbnailBackGround2' : (179,179,179),
+                      'thumbnailLine' : (180,180,180),
+                      'thumbnailSelectedLine' : (255,255,255),
+                      'thumbnailLineShadow' : (122,122,122)}
+                      
+    WHITE_THEME = {'backGroundColor' : (255,255,255),
+                   'waveColor' : (255,255,255), #?(230,230,230),
+                   'inactiveBackGroundColor' : (102,102,102),
+                   'inactiveWaveColor' : (115,115,115),
+                   'topText' : (0,0,0),
+                   'selectedTopText' : (0,0,0),
+                   'bottomText' : (200,0,0),
+                   'selectedBottomText' : (255,0,0),
+                   'inactiveText' : (204,204,204),
+                   'thumbnailBackGround' : (250,250,250),
+                   'thumbnailBackGround2' : (250,250,250),
+                   'inactiveThumbnailBackGround' : (115,115,115),
+                   'selectedThumbnailBackGround' : (200,200,200),
+                   'selectedThumbnailBackGround2' : (200,200,200),
+                   'thumbnailLine' : (60,60,60),
+                   'thumbnailSelectedLine' : (0,0,0),
+                   'thumbnailLineShadow' : (122,122,122),
+                   'Curve2D' : (0,0,220), 'FocusCurve2D' : (0,0,255), }
     
     def __init__(self,parent, panelmanager = None):
         QGLWidget.__init__(self,parent)
@@ -148,8 +193,6 @@ class ObjectListDisplay(QGLWidget):
         self.setMinimumHeight(self.thumbwidth*len(self.objects))
     
         # BackGround
-        self.normalBgColor = 0          # in grey level
-        self.inactiveBgColor = 0.4      # in grey level
         self.bgObject = None
         
         # OpenGL object
@@ -160,6 +203,28 @@ class ObjectListDisplay(QGLWidget):
         self.backGroundList = None
 
         self.createContextMenuActions()
+        self.theme = self.Theme()
+        self.setTheme(self.WHITE_THEME)
+
+    def setTheme(self,theme):
+        self.theme.values.update(theme)
+        
+        for name,value in self.theme.values.items():
+            setattr(self.theme,name,[i/255. for i in value]+[0.5 if 'humbnailBackGround' in name else 1.0])
+        
+        for m in self.managers.values():
+            m.setTheme(theme)
+    
+    def getTheme(self):
+        from copy import deepcopy
+        theme = deepcopy(self.theme.values)
+        
+        for m in self.managers.values():
+            theme.update(m.getTheme())
+    
+    def applyTheme(self,theme):
+        self.setTheme(theme)
+        self.updateGL()
         
     def isActive(self):
         return self.active
@@ -370,26 +435,29 @@ class ObjectListDisplay(QGLWidget):
         # list for simple thumbnail
         glNewList(self.borderList,GL_COMPILE)
         glPolygonMode(GL_FRONT_AND_BACK,GL_FILL)
-        activeGreyColor = 0.25
-        inactiveGreyColor = self.inactiveBgColor + 0.05
-        selectionGreyColor = 0.4
-        enhancementColor = 0.3
+        # activeGreyColor = 0.25
+        # inactiveGreyColor = self.inactiveBgColor + 0.05
+        # selectionGreyColor = 0.4
+        # enhancementColor = 0.3
         if self.active:
-           bc = activeGreyColor
-           ec = bc + enhancementColor
+           bc = self.theme.thumbnailBackGround
+           ec = self.theme.thumbnailBackGround2
         else:
-           bc = inactiveGreyColor
+           bc = self.theme.inactiveThumbnailBackGround
            ec = bc
+        #bc[3] = 0.5
+        #ec[3] = 0.5
         glBegin(GL_QUADS)
-        glColor4f(bc,bc,bc,0.5)
+        
+        glColor4fv(bc)
         glVertex2f(0,0)
         glVertex2f(thumbwidth-1,0)
-        glColor4f(ec,ec,ec,0.5)
+        glColor4fv(ec)
         glVertex2f(thumbwidth-1,thumbwidth-1)
         glVertex2f(0,thumbwidth-1)
         glEnd()
-        glLineWidth(1)
-        glColor4f(0.9,0.9,0.9,1.0)
+        glLineWidth(2)
+        glColor4fv(self.theme.thumbnailLine)
         glBegin(GL_LINE_STRIP)
         glVertex2f(cornersize,0)
         glVertex2f(thumbwidth-cornersize-1,0)
@@ -403,20 +471,25 @@ class ObjectListDisplay(QGLWidget):
         glEnd()
         glEndList()
         
+        bc = self.theme.selectedThumbnailBackGround
+        ec = self.theme.selectedThumbnailBackGround2
+        #bc[3] = 0.5
+        #ec[3] = 0.5
         # list for selected thumbnail
         if self.selectedBorderList is  None:
             self.selectedBorderList = glGenLists(1)
         glNewList(self.selectedBorderList,GL_COMPILE)
         glBegin(GL_QUADS)
-        glColor4f(selectionGreyColor,selectionGreyColor,selectionGreyColor,0.5)
+        glColor4fv(bc)
         glVertex2f(0,0)
         glVertex2f(thumbwidth-1,0)
-        glColor4f(selectionGreyColor+enhancementColor,selectionGreyColor+enhancementColor,selectionGreyColor+enhancementColor,0.5)
+        glColor4fv(ec)
         glVertex2f(thumbwidth-1,thumbwidth-1)
         glVertex2f(0,thumbwidth-1)
         glEnd()
+        
         glLineWidth(3)
-        glColor4f(0.5,0.5,0.5,1.0)
+        glColor4fv(self.theme.thumbnailLineShadow)
         glBegin(GL_LINE_STRIP)
         glVertex2f(0,0)
         glVertex2f(thumbwidth-1,0)
@@ -425,7 +498,7 @@ class ObjectListDisplay(QGLWidget):
         glVertex2f(0,0)
         glEnd()
         glLineWidth(1)
-        glColor4f(1.0,1.0,1.0,1.0)
+        glColor4fv(self.theme.thumbnailSelectedLine)
         glBegin(GL_LINE_STRIP)
         glVertex2f(0,0)
         glVertex2f(thumbwidth-1,0)
@@ -465,10 +538,9 @@ class ObjectListDisplay(QGLWidget):
     def drawBackGround(self,w,h):
         glPushMatrix()
         if self.active:
-            c = self.normalBgColor+0.1
+            c = self.theme.waveColor
         else:
-            c = self.inactiveBgColor+0.05
-        c2 = c+0.02
+            c = self.theme.inactiveWaveColor
         if self.orientation == Qt.Vertical:
             glTranslatef(0,0,-10)
             glScalef(-1,1,1)
@@ -479,9 +551,8 @@ class ObjectListDisplay(QGLWidget):
             glScalef(1,-1,1)
             nb = w/(self.bgwidth)
         for i in xrange(int(nb)+1):
-            glColor4f(c,c,c,1.0)
+            glColor4fv(c)
             self.bgObject.apply(self.renderer)
-            glColor4f(c2,c2,c2,1.0)
             glTranslatef(self.bgwidth,0,0)
         glPopMatrix()
         
@@ -494,9 +565,10 @@ class ObjectListDisplay(QGLWidget):
         h = self.height()
         if w == 0 or h == 0: return
         if self.active:
-            glClearColor(self.normalBgColor,self.normalBgColor,self.normalBgColor,1.0)
+            bgcol = self.theme.backGroundColor
         else:
-            glClearColor(self.inactiveBgColor,self.inactiveBgColor,self.inactiveBgColor,1.0)
+            bgcol = self.theme.inactiveBackGroundColor
+        glClearColor(*bgcol)
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA)
@@ -532,20 +604,23 @@ class ObjectListDisplay(QGLWidget):
             manager.displayThumbnail(obj,i,self.cursorselection==i,self.objectthumbwidth)
             
             glPopMatrix()
-            if self.active:
-                if self.cursorselection == i:
-                    glColor4f(1.0,1.0,1.0,1.0)            
-                else:
-                    glColor4f(1.0,1.0,0.0,1.0)
+            if not self.active:
+                glColor4fv(self.theme.inactiveText)
             else:
-                glColor4f(0.8,0.8,0.8,1.0)
+                if self.cursorselection == i:
+                    glColor4fv(self.theme.selectedBottomText)
+                else:
+                    glColor4fv(self.theme.bottomText)
             if self.orientation == Qt.Vertical:
                 tx,ty, ty2 = b1,(i*self.thumbwidth)+b2,((i-1)*self.thumbwidth)+b2+3
             else:
                 tx,ty, ty2 = (i*self.thumbwidth)+b2,b1, b1-self.thumbwidth+3
             self.drawTextIn(manager.getName(obj),tx+decal.x(),ty+decal.y(),self.thumbwidth)
             if self.active:
-                glColor4f(1,1,1,1.0)
+                if self.cursorselection == i:
+                    glColor4fv(self.theme.selectedTopText)
+                else:
+                    glColor4fv(self.theme.topText)
             self.drawTextIn(manager.typename,tx+decal.x(),ty2+decal.y(),self.thumbwidth,below = True)
             i+=1            
 
@@ -667,7 +742,9 @@ class ObjectListDisplay(QGLWidget):
         QObject.connect(self.renameAction,SIGNAL('triggered(bool)'),self.renameSelection)
         self.resetAction = QAction('Reset',self)
         QObject.connect(self.resetAction,SIGNAL('triggered(bool)'),self.resetSelection)
-
+        self.savePanelImageAction = QAction('Save Image',self)
+        QObject.connect(self.savePanelImageAction,SIGNAL('triggered(bool)'),self.saveImage)
+        
 
     def createContextMenu(self):
         """ define the context menu """
@@ -680,15 +757,16 @@ class ObjectListDisplay(QGLWidget):
         contextmenu.addAction(self.cutAction)
         contextmenu.addAction(self.pasteAction)
         contextmenu.addSeparator()
-        contextmenu.addAction(self.resetAction)
-        contextmenu.addSeparator()
         contextmenu.addAction(self.renameAction)
         contextmenu.addAction(self.copyNameAction)
         contextmenu.addSeparator()
         contextmenu.addAction(self.deleteAction)
         if self.hasSelection():
+            contextmenu.addSeparator()
+            itemmenu = contextmenu.addMenu('Transform')
+            itemmenu.addAction(self.resetAction)
             manager,object = self.objects[self.selection]
-            manager.completeContextMenu(contextmenu,object)
+            manager.completeContextMenu(itemmenu,object,self)
             if self.panelmanager :
                 panels = self.panelmanager.getObjectPanels()
                 if len(panels) > 1:
@@ -704,7 +782,9 @@ class ObjectListDisplay(QGLWidget):
                     sendToMenu.addSeparator()
                     sendToMenu.addAction(sendToNewAction)                
         contextmenu.addSeparator()
-        self.panelmanager.completeMenu(contextmenu,self.dock)
+        panelmenu = self.panelmanager.completeMenu(contextmenu,self.dock)
+        panelmenu.addSeparator()
+        panelmenu.addAction(self.savePanelImageAction)
         #contextmenu.addAction(self.newPanelAction)
         return contextmenu
             
@@ -799,7 +879,11 @@ class ObjectListDisplay(QGLWidget):
         else:
             print(msg)
 
-
+    def saveImage(self):
+        fname = QFileDialog.getSaveFileName(self,'Save Image','.',';;'.join([str(i)+' (*.'+str(i)+')' for i in QImageWriter.supportedImageFormats()]))
+        if fname:
+            self.grabFrameBuffer(True).save(fname)
+            self.showMessage('Save '+repr(fname),3000)
 
 class LpyObjectPanelDock (QDockWidget):
     def __init__(self,parent,name,panelmanager = None):    
@@ -1013,6 +1097,7 @@ class ObjectPanelManager(QObject):
         panelAction = QAction('Disable' if panel.view.isActive() else 'Enable',panelmenu)
         QObject.connect(panelAction,SIGNAL('triggered(bool)'),TriggerParamFunc(panel.view.setActive,not panel.view.isActive()))
         panelmenu.addAction(panelAction)
+        return panelmenu
     def createNewPanel(self,above = None):
         nb = len(self.panels)+1
         self.setObjectPanelNb(nb)

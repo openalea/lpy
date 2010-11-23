@@ -486,7 +486,7 @@ class LpySimulation:
             self.firstView = False
             self.lsystem.plot(task.result,True)
             if self.lpywidget.displayMetaInfo and not self.autorun and  self.lsystem.context().has_key('__description__'):
-                Viewer.showMessage(self.lsystem.context()['__description__'],5000)
+                self.lpywidget.viewer.showMessage(self.lsystem.context()['__description__'],5000)
     def animate(self,task):
         edition = self.isTextEdited()
         nbiter = self.nbiterations
@@ -496,7 +496,7 @@ class LpySimulation:
             nbiter = self.lsystem.context().get('initial_view',dl)
             self.lsystem.plot(self.lsystem.iterate(nbiter),True)
             self.firstView = False
-            Viewer.setAnimation(eAnimatedPrimitives)
+            self.lpywidget.viewer.setAnimation(eAnimatedPrimitives)
         timing = clock()
         make_animation = self.lsystem.animate 
         if hasattr(task,'recording') :
@@ -516,8 +516,8 @@ class LpySimulation:
     def pre_animate(self,task):
         if self.isTextEdited() or self.lsystem.empty() or self.nbiterations == 0 or self.nbiterations >= self.lsystem.derivationLength:
             self.updateLsystemCode()
-        Viewer.start()
-        Viewer.setAnimation(eStatic if self.firstView and task.fitAnimationView else eAnimatedPrimitives)
+        self.lpywidget.viewer.start()
+        self.lpywidget.viewer.setAnimation(eStatic if self.firstView and task.fitAnimationView else eAnimatedPrimitives)
     def post_animate(self,task):
         if hasattr(task,'result'):
             self.setTree(task.result,task.dl,task.timing)
@@ -578,8 +578,8 @@ class LpySimulation:
             self.updateLsystemCode()
             self.nbiterations = 0
             self.tree = self.lsystem.axiom
-        Viewer.start()
-        Viewer.setAnimation(eAnimatedScene)
+        self.lpywidget.viewer.start()
+        self.lpywidget.viewer.setAnimation(eAnimatedScene)
     def stepInterpretation(self,task):
         if self.tree:
             self.lsystem.stepInterpretation(self.tree)
@@ -613,8 +613,8 @@ class LpySimulation:
     def pre_profile(self,task):
         if self.isTextEdited() or self.lsystem.empty() :
             self.updateLsystemCode()
-        Viewer.start()
-        Viewer.animation(True)
+        self.lpywidget.viewer.start()
+        self.lpywidget.viewer.animation(True)
     def post_profile(self,task):
         if hasattr(task,'result'):
             self.setTree(task.result,task.dl,task.timing)

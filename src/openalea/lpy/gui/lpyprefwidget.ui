@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>300</width>
+    <width>315</width>
     <height>274</height>
    </rect>
   </property>
@@ -441,11 +441,11 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="groupBox_5">
+        <widget class="QGroupBox" name="visuCheckBoxLayout">
          <property name="title">
           <string>Visualization</string>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <layout class="QVBoxLayout" name="verticalLayout_9">
           <item>
            <widget class="QCheckBox" name="fitViewEdit">
             <property name="text">
@@ -453,6 +453,13 @@
             </property>
             <property name="checked">
              <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="integratedViewEdit">
+            <property name="text">
+             <string>Integrated viewer</string>
             </property>
            </widget>
           </item>

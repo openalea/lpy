@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'd:\fred\mes documents\develop\vplants\trunk\lpy\src\openalea\lpy\gui\lpyprefwidget.ui'
 #
-# Created: Thu Jan 07 11:01:38 2010
-#      by: PyQt4 UI code generator 4.5.4
+# Created: Fri Nov 19 09:47:55 2010
+#      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_PreferenceDialog(object):
     def setupUi(self, PreferenceDialog):
         PreferenceDialog.setObjectName("PreferenceDialog")
-        PreferenceDialog.resize(300, 274)
+        PreferenceDialog.resize(315, 274)
         self.verticalLayout_4 = QtGui.QVBoxLayout(PreferenceDialog)
         self.verticalLayout_4.setObjectName("verticalLayout_4")
         self.prefTab = QtGui.QTabWidget(PreferenceDialog)
@@ -32,10 +32,10 @@ class Ui_PreferenceDialog(object):
         self.horizontalLayout.addItem(spacerItem)
         self.toolbarAppEdit = QtGui.QComboBox(self.groupBox)
         self.toolbarAppEdit.setObjectName("toolbarAppEdit")
-        self.toolbarAppEdit.addItem(QtCore.QString())
-        self.toolbarAppEdit.addItem(QtCore.QString())
-        self.toolbarAppEdit.addItem(QtCore.QString())
-        self.toolbarAppEdit.addItem(QtCore.QString())
+        self.toolbarAppEdit.addItem("")
+        self.toolbarAppEdit.addItem("")
+        self.toolbarAppEdit.addItem("")
+        self.toolbarAppEdit.addItem("")
         self.horizontalLayout.addWidget(self.toolbarAppEdit)
         self.verticalLayout_2.addWidget(self.groupBox)
         self.groupBox_2 = QtGui.QGroupBox(self.tabAppearance)
@@ -61,7 +61,7 @@ class Ui_PreferenceDialog(object):
         self.fontSizeEdit = QtGui.QSpinBox(self.groupBox_2)
         self.fontSizeEdit.setMinimum(6)
         self.fontSizeEdit.setMaximum(20)
-        self.fontSizeEdit.setProperty("value", QtCore.QVariant(8))
+        self.fontSizeEdit.setProperty("value", 8)
         self.fontSizeEdit.setObjectName("fontSizeEdit")
         self.gridLayout.addWidget(self.fontSizeEdit, 1, 2, 1, 1)
         self.verticalLayout_2.addWidget(self.groupBox_2)
@@ -86,7 +86,7 @@ class Ui_PreferenceDialog(object):
         self.gridLayout_2.addItem(spacerItem4, 1, 1, 1, 1)
         self.tabSizeEdit = QtGui.QSpinBox(self.groupBox_4)
         self.tabSizeEdit.setMinimum(1)
-        self.tabSizeEdit.setProperty("value", QtCore.QVariant(2))
+        self.tabSizeEdit.setProperty("value", 2)
         self.tabSizeEdit.setObjectName("tabSizeEdit")
         self.gridLayout_2.addWidget(self.tabSizeEdit, 1, 2, 1, 1)
         self.verticalLayout_5.addWidget(self.groupBox_4)
@@ -104,7 +104,7 @@ class Ui_PreferenceDialog(object):
         self.gridLayout_3.addItem(spacerItem6, 0, 1, 1, 1)
         self.historySizeEdit = QtGui.QSpinBox(self.tabFile)
         self.historySizeEdit.setMinimum(1)
-        self.historySizeEdit.setProperty("value", QtCore.QVariant(50))
+        self.historySizeEdit.setProperty("value", 50)
         self.historySizeEdit.setObjectName("historySizeEdit")
         self.gridLayout_3.addWidget(self.historySizeEdit, 0, 2, 1, 1)
         self.startupReloadEdit = QtGui.QCheckBox(self.tabFile)
@@ -187,15 +187,18 @@ class Ui_PreferenceDialog(object):
         self.useThreadEdit.setObjectName("useThreadEdit")
         self.horizontalLayout_2.addWidget(self.useThreadEdit)
         self.verticalLayout_3.addWidget(self.groupBox_3)
-        self.groupBox_5 = QtGui.QGroupBox(self.tabExecution)
-        self.groupBox_5.setObjectName("groupBox_5")
-        self.horizontalLayout_3 = QtGui.QHBoxLayout(self.groupBox_5)
-        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
-        self.fitViewEdit = QtGui.QCheckBox(self.groupBox_5)
+        self.visuCheckBoxLayout = QtGui.QGroupBox(self.tabExecution)
+        self.visuCheckBoxLayout.setObjectName("visuCheckBoxLayout")
+        self.verticalLayout_9 = QtGui.QVBoxLayout(self.visuCheckBoxLayout)
+        self.verticalLayout_9.setObjectName("verticalLayout_9")
+        self.fitViewEdit = QtGui.QCheckBox(self.visuCheckBoxLayout)
         self.fitViewEdit.setChecked(True)
         self.fitViewEdit.setObjectName("fitViewEdit")
-        self.horizontalLayout_3.addWidget(self.fitViewEdit)
-        self.verticalLayout_3.addWidget(self.groupBox_5)
+        self.verticalLayout_9.addWidget(self.fitViewEdit)
+        self.integratedViewEdit = QtGui.QCheckBox(self.visuCheckBoxLayout)
+        self.integratedViewEdit.setObjectName("integratedViewEdit")
+        self.verticalLayout_9.addWidget(self.integratedViewEdit)
+        self.verticalLayout_3.addWidget(self.visuCheckBoxLayout)
         spacerItem9 = QtGui.QSpacerItem(20, 3, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.verticalLayout_3.addItem(spacerItem9)
         self.prefTab.addTab(self.tabExecution, "")
@@ -266,8 +269,9 @@ class Ui_PreferenceDialog(object):
         self.prefTab.setTabText(self.prefTab.indexOf(self.tab), QtGui.QApplication.translate("PreferenceDialog", "Compilation", None, QtGui.QApplication.UnicodeUTF8))
         self.groupBox_3.setTitle(QtGui.QApplication.translate("PreferenceDialog", "Threading", None, QtGui.QApplication.UnicodeUTF8))
         self.useThreadEdit.setText(QtGui.QApplication.translate("PreferenceDialog", "Use thread (Experimental).", None, QtGui.QApplication.UnicodeUTF8))
-        self.groupBox_5.setTitle(QtGui.QApplication.translate("PreferenceDialog", "Visualization", None, QtGui.QApplication.UnicodeUTF8))
+        self.visuCheckBoxLayout.setTitle(QtGui.QApplication.translate("PreferenceDialog", "Visualization", None, QtGui.QApplication.UnicodeUTF8))
         self.fitViewEdit.setText(QtGui.QApplication.translate("PreferenceDialog", "Fit last view before animation.", None, QtGui.QApplication.UnicodeUTF8))
+        self.integratedViewEdit.setText(QtGui.QApplication.translate("PreferenceDialog", "Integrated viewer", None, QtGui.QApplication.UnicodeUTF8))
         self.prefTab.setTabText(self.prefTab.indexOf(self.tabExecution), QtGui.QApplication.translate("PreferenceDialog", "Execution", None, QtGui.QApplication.UnicodeUTF8))
         self.groupBox_9.setTitle(QtGui.QApplication.translate("PreferenceDialog", "Visualisation", None, QtGui.QApplication.UnicodeUTF8))
         self.profilingAnimatedButton.setText(QtGui.QApplication.translate("PreferenceDialog", "Animated Mode", None, QtGui.QApplication.UnicodeUTF8))

@@ -26,6 +26,9 @@ class ObjectDialog(QDialog):
         self.verticalLayout.setSpacing(2)
         self.verticalLayout.setMargin(2)
         self.verticalLayout.setObjectName("verticalLayout")
+        self._menu = QMenuBar(self)
+        self._menu.setNativeMenuBar(False)
+        self.verticalLayout.addWidget(self._menu)
         self.objectView = editor
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
@@ -65,7 +68,10 @@ class ObjectDialog(QDialog):
         QObject.connect(self.applyButton,SIGNAL('pressed()'),self.__apply)
         QObject.connect(self.autoUpdateCheckBox,SIGNAL('toggled(bool)'),self.setAutomaticUpdate)
         QObject.connect(self.objectView,SIGNAL('valueChanged()'),self.__valueChanged)
-
+        
+    def menu(self):
+        return self._menu
+    
     def __valueChanged(self):
         if self.automaticUpdate:
             self.emit(SIGNAL('valueChanged()'))
