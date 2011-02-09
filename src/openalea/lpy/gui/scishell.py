@@ -719,3 +719,27 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
 
         else:
             event.ignore()
+
+def main():        
+    # Test the widget independently.
+    from code import InteractiveInterpreter as Interpreter
+    a = QtGui.QApplication(sys.argv)
+
+    # Restore default signal handler for CTRL+C
+    import signal; signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+    interpreter = Interpreter()
+    aw = SciShell(interpreter)
+
+    # static resize
+    aw.resize(600,400)
+
+    aw.show()
+    a.exec_()
+
+
+if __name__=="__main__":
+    main()
+
+    
+

@@ -152,6 +152,8 @@ class ObjectListDisplay(QGLWidget):
                    'thumbnailLineShadow' : (122,122,122),
                    'Curve2D' : (0,0,220), 'FocusCurve2D' : (0,0,255), }
     
+    THEMES = { "Black" : BLACK_THEME, "White": WHITE_THEME }
+    
     def __init__(self,parent, panelmanager = None):
         QGLWidget.__init__(self,parent)
         
@@ -204,7 +206,7 @@ class ObjectListDisplay(QGLWidget):
 
         self.createContextMenuActions()
         self.theme = self.Theme()
-        self.setTheme(self.WHITE_THEME)
+        self.setTheme(self.BLACK_THEME)
 
     def setTheme(self,theme):
         self.theme.values.update(theme)
@@ -224,6 +226,7 @@ class ObjectListDisplay(QGLWidget):
     
     def applyTheme(self,theme):
         self.setTheme(theme)
+        self.generateDisplayList()
         self.updateGL()
         
     def isActive(self):
@@ -1097,6 +1100,15 @@ class ObjectPanelManager(QObject):
         panelAction = QAction('Disable' if panel.view.isActive() else 'Enable',panelmenu)
         QObject.connect(panelAction,SIGNAL('triggered(bool)'),TriggerParamFunc(panel.view.setActive,not panel.view.isActive()))
         panelmenu.addAction(panelAction)
+        subpanelmenu = QMenu("Theme",menu)
+        panelmenu.addSeparator()
+        panelmenu.addMenu(subpanelmenu)
+        for themename,value in ObjectListDisplay.THEMES.iteritems():
+            panelAction = QAction(themename,subpanelmenu)
+            
+            QObject.connect(panelAction,SIGNAL('triggered(bool)'),TriggerParamFunc(panel.view.applyTheme,value))
+            subpanelmenu.addAction(panelAction)
+            
         return panelmenu
     def createNewPanel(self,above = None):
         nb = len(self.panels)+1

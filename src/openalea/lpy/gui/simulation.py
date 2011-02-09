@@ -231,7 +231,7 @@ class LpySimulation:
         self.code = str(self.lpywidget.codeeditor.toPlainText().toAscii())
         lpycode = self.code
         lpycode += '\n'+self.getInitialisationCode(False)
-        res = self.lsystem.set(lpycode,self.lpywidget.showPyCode)
+        res = self.lsystem.set(lpycode,{},self.lpywidget.showPyCode)
         if not res is None: print res
     def close(self):
         if self._edited:

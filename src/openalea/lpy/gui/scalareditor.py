@@ -39,56 +39,69 @@ class ScalarDialog(QDialog,sme.Ui_ScalarDialog):
             self.maxValueEdit.setValue(self.minValueEdit.value()+1)
         self.valueEdit.setRange(self.minValueEdit.value(),self.maxValueEdit.value())
 
-
-class ItemSlider(QWidget):
-    def __init__(self,orientation,parent,item):
-        QWidget.__init__(self,parent)
-        horizontalLayout = QHBoxLayout(self)
-        horizontalLayout.setContentsMargins(0, 0, 0, 0)
-        horizontalLayout
-        self.label = QLabel(self)
-        horizontalLayout.addWidget(self.label)
-        self.slider = QSlider(orientation,self)
-        horizontalLayout.addWidget(self.slider)
-        self.spinBox = QSpinBox(self)
-        horizontalLayout.addWidget(self.spinBox)
-        self.spinBox.hide()
-        self.chgButton = QPushButton('O',self)
-        self.chgButton.setMaximumWidth(10)
-        horizontalLayout.addWidget(self.chgButton)
-        self.item = item
-        scalar = item.scalar
-        self.setRange(scalar.minvalue,scalar.maxvalue)
-        self.setValue(scalar.value)
-        QObject.connect(self.slider,SIGNAL('valueChanged(int)'),self.updateItem)
-        QObject.connect(self.spinBox,SIGNAL('valueChanged(int)'),self.updateItem)
-        QObject.connect(self.chgButton,SIGNAL('pressed()'),self.changeEditor)
-        if sys.platform == 'darwin':
-            self.changeEditor()
-    def updateItem(self,value):
-        self.item.scalar.value = value
-        self.slider.setValue(value)
-        self.spinBox.setValue(value)
-        self.item.setText(str(value))
-        self.label.setText(' '*(2+len(str(self.item.scalar.maxvalue))))
-        self.emit(SIGNAL('valueChanged(PyQt_PyObject)'),self.item.scalar)
-    def setRange(self,minv,maxv):
-        self.slider.setRange(minv,maxv)
-        self.spinBox.setRange(minv,maxv)
-        self.label.setText(' '*(2+len(str(maxv))))
-    def setValue(self,value):
-        self.slider.setValue(value)
-        self.spinBox.setValue(value)
-    def changeEditor(self):
-        if self.spinBox.isHidden():
-            self.slider.hide()
-            self.label.hide()
-            self.spinBox.show()
-        else:
-            self.slider.show()
-            self.label.show()
+if not sys.platform == 'darwin':        
+    class ItemSlider(QWidget):
+        def __init__(self,orientation,parent,item):
+            QWidget.__init__(self,parent)
+            horizontalLayout = QHBoxLayout(self)
+            horizontalLayout.setContentsMargins(0, 0, 0, 0)
+            self.label = QLabel(self)
+            horizontalLayout.addWidget(self.label)
+            self.slider = QSlider(orientation,self)
+            horizontalLayout.addWidget(self.slider)
+            self.spinBox = QSpinBox(self)
+            horizontalLayout.addWidget(self.spinBox)
             self.spinBox.hide()
-            
+            self.chgButton = QPushButton('O',self)
+            self.chgButton.setMaximumWidth(15)
+            self.chgButton.setMinimumWidth(15)
+            horizontalLayout.addWidget(self.chgButton)
+            self.item = item
+            scalar = item.scalar
+            self.setRange(scalar.minvalue,scalar.maxvalue)
+            self.setValue(scalar.value)
+            QObject.connect(self.slider,SIGNAL('valueChanged(int)'),self.updateItem)
+            QObject.connect(self.spinBox,SIGNAL('valueChanged(int)'),self.updateItem)
+            QObject.connect(self.chgButton,SIGNAL('pressed()'),self.changeEditor)
+            if sys.platform == 'darwin':
+                self.changeEditor()
+        def updateItem(self,value):
+            self.item.scalar.value = value
+            self.slider.setValue(value)
+            self.spinBox.setValue(value)
+            self.item.setText(str(value))
+            self.label.setText(' '*(2+len(str(self.item.scalar.maxvalue))))
+            self.emit(SIGNAL('valueChanged(PyQt_PyObject)'),self.item.scalar)
+        def setRange(self,minv,maxv):
+            self.slider.setRange(minv,maxv)
+            self.spinBox.setRange(minv,maxv)
+            self.label.setText(' '*(2+len(str(maxv))))
+        def setValue(self,value):
+            self.slider.setValue(value)
+            self.spinBox.setValue(value)
+        def changeEditor(self):
+            if self.spinBox.isHidden():
+                self.slider.hide()
+                self.label.hide()
+                self.spinBox.show()
+            else:
+                self.slider.show()
+                self.label.show()
+                self.spinBox.hide()
+
+else:
+    class ItemSlider(QSpinBox):
+        def __init__(self,orientation, parent, item):
+            QSpinBox.__init__(self, parent)
+            self.item = item
+            scalar = item.scalar
+            self.setRange(scalar.minvalue,scalar.maxvalue)
+            self.setValue(scalar.value)
+            QObject.connect(self,SIGNAL('valueChanged(int)'),self.updateItem)
+        def updateItem(self,value):
+            self.item.scalar.value = value
+            self.item.setText(str(value))
+            self.emit(SIGNAL('valueChanged(PyQt_PyObject)'),self.item.scalar)
 
 class ScalarEditorDelegate(QItemDelegate):
     """ 

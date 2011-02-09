@@ -36,7 +36,7 @@ def restoreState(lpywidget):
     lpywidget.setIntegratedView3D(settings.value('integratedView',QVariant(lpywidget.use_own_view3D)).toBool())
     settings.endGroup()
     settings.beginGroup('profiling')
-    lpywidget.profilingMode = settings.value('mode',QVariant(lpywidget.profilingMode)).toInt() 
+    lpywidget.profilingMode, success = settings.value('mode',QVariant(lpywidget.profilingMode)).toInt() 
     settings.endGroup()
     settings.beginGroup('syntax')
     syntaxhlght = settings.value('highlighted',QVariant(True)).toBool()

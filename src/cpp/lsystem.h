@@ -55,6 +55,7 @@ public:
   /** Constructor and Destructor */
   Lsystem();
   Lsystem(const std::string& filename);
+  Lsystem(const std::string& filename, const boost::python::dict& parameters);
   ~Lsystem();
 
   /** clear */
@@ -82,8 +83,12 @@ public:
   std::string getShortFilename( ) const ;
 
   /** build from file/string */
-  void read( const std::string& filename );
-  void set( const std::string& rules , std::string * pycode = NULL);
+  void read( const std::string& filename, 
+			 const boost::python::dict& parameters = boost::python::dict() );
+
+  void set( const std::string& rules , 
+		    std::string * pycode = NULL, 
+			const boost::python::dict& parameters = boost::python::dict());
 
   /** set rules */
   void addRule( const LsysRule& rule, int type, size_t group );

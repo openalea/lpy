@@ -181,7 +181,8 @@ size_t LsysContext::initialiseFrom(const std::string& _lcode)
 }
 
 void 
-Lsystem::set( const std::string&   _rules , std::string * pycode){
+Lsystem::set( const std::string&   _rules , std::string * pycode, 
+			  const boost::python::dict& parameters){
   ACQUIRE_RESSOURCE
   std::string filename = getFilename();
   __clear();
@@ -226,6 +227,8 @@ Lsystem::set( const std::string&   _rules , std::string * pycode){
   
   //  context initialisation
   size_t initpos = __context.__initialiseFrom(rules);
+  __context.updateNamespace(parameters);
+
   if (initpos != std::string::npos) endpycode = rules.begin()+initpos;
 
   while(_it!=endpycode){

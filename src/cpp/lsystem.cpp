@@ -162,6 +162,22 @@ __newrules(false)
   read(filename);
 }
 
+Lsystem::Lsystem(const std::string& filename, 
+			     const boost::python::dict& parameters):
+__max_derivation(1),
+__decomposition_max_depth(1),
+__homomorphism_max_depth(1),
+__context(),
+__newrules(false)
+#ifdef MULTI_THREADED_LSYSTEM
+,__ressource(new LsysRessource())
+#endif
+{
+  IncTracker(Lsystem)
+  PRINT_RESSOURCE("create")
+  read(filename,parameters);
+}
+
 Lsystem::Lsystem(const Lsystem& lsys):
 __rules(lsys.__rules),
 __max_derivation(lsys.__max_derivation),
@@ -386,7 +402,8 @@ Lsystem::__importPyFunctions(){
 #include <fstream>
 
 void 
-Lsystem::read(const std::string& filename){
+Lsystem::read(const std::string& filename, 
+			  const boost::python::dict& parameters){
   clear();
   std::ifstream file(filename.c_str());
   if(file){
@@ -411,7 +428,7 @@ Lsystem::read(const std::string& filename){
   file.close();
   //std::cout << "buffer : " << buffer.str() << '\n';
   //std::cout << "Taille du buffer : " << buffer.str().size() << '\n';
-  set(buffer.str());
+  set(buffer.str(),NULL,parameters);
   }
   else {
 	LsysError('\''+filename+"': No such file or directory.");

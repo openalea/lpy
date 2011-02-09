@@ -30,10 +30,10 @@ class ObjectDialog(QDialog):
         self._menu.setNativeMenuBar(False)
         self.verticalLayout.addWidget(self._menu)
         self.objectView = editor
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Maximum)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.objectView.sizePolicy().hasHeightForWidth())
+        sizePolicy.setVerticalStretch(5)
+        #sizePolicy.setHeightForWidth(self.objectView.sizePolicy().hasHeightForWidth())
         self.objectView.setSizePolicy(sizePolicy)
         self.objectView.setObjectName("objectView")
         self.verticalLayout.addWidget(self.objectView)

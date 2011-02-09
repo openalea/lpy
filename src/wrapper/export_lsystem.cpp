@@ -77,8 +77,9 @@ const LsysRule& homRule(Lsystem * lsys, int pos, int group)
 
 AxialTree lsys_axiom(Lsystem * lsys) { return lsys->getAxiom(); }
 
-void lsys_setCode1(Lsystem * lsys, const std::string& code) { return lsys->set(code); }
-object lsys_setCode2(Lsystem * lsys, const std::string& code, bool debug) { 
+object lsys_setCode(Lsystem * lsys, const std::string& code, 
+									 const boost::python::dict& parameters = boost::python::dict(), 
+									 bool debug = false) { 
 	if (!debug) { lsys->set(code); return object(); }
 	else {
 		std::string pycode;
@@ -112,7 +113,7 @@ void export_Lsystem(){
 	  ;
   
   class_<Lsystem,boost::noncopyable>
-	("Lsystem", init<optional<std::string> >("Lsystem([filename])"))
+	  ("Lsystem", init<optional<std::string,boost::python::dict> >("Lsystem([filename])"))
 	.add_property("axiom",&lsys_axiom,(void(Lsystem::*)(const AxialTree&))&Lsystem::setAxiom)
 	.add_property("derivationLength",&Lsystem::derivationLength,&Lsystem::setDerivationLength)
 	.add_property("decompositionMaxDepth",&Lsystem::decompositionMaxDepth,&Lsystem::setDecompositionMaxDepth)
@@ -129,9 +130,8 @@ void export_Lsystem(){
 	.def("clear", &Lsystem::clear)
 	.def("empty", &Lsystem::empty)
 	.def("code", &Lsystem::code)
-	.def("read", &Lsystem::read)
-	.def("set", &lsys_setCode1)
-	.def("set", &lsys_setCode2)
+	.def("read", &Lsystem::read,"Read the content of a file and execute it",(boost::python::arg("filename"),boost::python::arg("parameters")=boost::python::dict()))
+	.def("set", &lsys_setCode,"Set Lsystem code. If debug parameter is set to True, the translated Python code is returned.",(boost::python::arg("filename"),boost::python::arg("parameters")=boost::python::dict(),boost::python::arg("debug")=false))
 	.def("iterate", (AxialTree(Lsystem::*)())&Lsystem::iterate)
 	.def("iterate", (AxialTree(Lsystem::*)(size_t))&Lsystem::iterate)
     .def("iterate", &py_iter)

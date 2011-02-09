@@ -16,7 +16,7 @@ def writeLstring(lstring,fname):
 
 def lsystem(code, axiom = '', derivationlength = -1, parameters = {}):
     """ Build a lsystem object from code """
-
+    l.set(str(code),parameters)
     l = Lsystem()
     if len(axiom):
         if type(axiom) != AxialTree:
@@ -24,8 +24,6 @@ def lsystem(code, axiom = '', derivationlength = -1, parameters = {}):
         l.axiom = axiom
     if derivationlength >= 0:
         l.derivationLength = derivationlength
-    l.set(str(code))
-    l.context().updateNamespace(parameters)
 
     return l
 
