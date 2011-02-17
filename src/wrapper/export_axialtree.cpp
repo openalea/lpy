@@ -71,15 +71,15 @@ boost::python::object veciter_to_list(AxialTree * tree, std::vector<AxialTree::c
   }
 }
 
-object findmod(AxialTree * tree, const PatternModule& mod, int start, int stop){
-  return iter_to_int(tree,tree->find(mod,int_to_iter(tree,start),int_to_iter(tree,stop)));
+object py_find_mod(AxialTree * tree, const PatternModule& mod, int start, int stop){
+	return iter_to_int(tree,tree->find(mod,int_to_iter(tree,start),int_to_iter(tree,stop)));
 }
 
-object find(AxialTree * tree,const std::string& name, int start, int stop)
-{ return findmod(tree,PatternModule(name),start,stop); }
+object py_find_str(AxialTree * tree,const std::string& name, int start, int stop)
+{ return py_find_mod(tree,PatternModule(name),start,stop); }
 
 object py_roots(AxialTree * tree)
-{ return veciter_to_list(tree,tree->roots()); }
+{ return veciter_to_list(tree,tree->roots()); } 
 
 object py_father(AxialTree * tree, int pos)
 { return iter_to_int(tree,tree->father(int_to_iter(tree,pos))); }
@@ -258,8 +258,8 @@ void export_AxialTree() {
     .def( "count", (size_t(AxialTree::*)(const std::string& name)const)&AxialTree::count ) 
     .def( "count", (size_t(AxialTree::*)(const std::string& name, size_t nbparam)const)&AxialTree::count ) 
     .def( "count", (size_t(AxialTree::*)(const ParamModule&)const)&AxialTree::count ) 
-    .def( "find", (int (*)(AxialTree*,const ParamModule&,int,int))&find, (bp::arg("pattern"),bp::arg("start")=0,bp::arg("end")=-1) ) 
-    .def( "find", (int (*)(AxialTree*,const std::string&,int,int))&find, (bp::arg("pattern"),bp::arg("start")=0,bp::arg("end")=-1)) 
+    .def( "find", &py_find_mod, (bp::arg("pattern"),bp::arg("start")=0,bp::arg("end")=-1) ) 
+    .def( "find", &py_find_str, (bp::arg("pattern"),bp::arg("start")=0,bp::arg("end")=-1)) 
     .def( "replace",&replace ) 
 	.PY_MATCH_WRAPPER_DEC(match)
 	.PY_MATCH_WRAPPER_DEC(reverse_match)
