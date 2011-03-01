@@ -16,12 +16,14 @@ def writeLstring(lstring,fname):
 
 def lsystem(code, axiom = '', derivationlength = -1, parameters = {}):
     """ Build a lsystem object from code """
-    l.set(str(code),parameters)
     l = Lsystem()
+    l.set(str(code),parameters)
     if len(axiom):
+        l.makeCurrent()
         if type(axiom) != AxialTree:
             axiom = AxialTree(axiom)
         l.axiom = axiom
+        l.done()
     if derivationlength >= 0:
         l.derivationLength = derivationlength
 
@@ -44,17 +46,21 @@ def run(lsystem, axiom = '', nbstep = -1, parameters = {}):
     if len(axiom) == 0:
         axiom = lsystem.axiom
     elif type(axiom) == str:
+        lsystem.makeCurrent()
         axiom = AxialTree(axiom)
+        lsystem.done()
     if len(parameters) > 0:
         lsystem.context().updateNamespace(parameters)
-    return (lsystem.iterate(c_iter,nbstep,axiom),)
+    return lsystem.iterate(c_iter,nbstep,axiom), lsystem
 
 def plot(axiom = '', lsystem = None):
     """ Plot a string """
     if len(axiom) == 0:
         axiom = lsystem.axiom
     elif type(axiom) != AxialTree:
+        if lsystem: lsystem.makeCurrent()
         axiom = AxialTree(axiom)
+        if lsystem: lsystem.done()
     if (lsystem):
         Viewer.animation(False)
         lsystem.plot(axiom)

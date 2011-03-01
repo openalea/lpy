@@ -18,7 +18,8 @@ lsystem_node = Factory( name="LSystem",
                    category="scene.lsystem", 
                    nodemodule="lpy_nodes",
                    nodeclass="lsystem",
-                   widgetclass = widgetclass,
+                   #widgetmodule="lpy_nodes",
+                   #widgetclass = widgetclass,
 
                   inputs=(dict(name='Code', interface=ITextStr, value=''),
                           dict(name='Axiom', interface=ITextStr, value=''),
@@ -84,7 +85,8 @@ run_node = Factory( name="run",
                           dict(name='Parameters', interface=IDict, value={}),
                           ),
                   
-                  outputs=(dict(name='AxialTree', interface=None),)
+                  outputs=(dict(name='AxialTree', interface=ITextStr),
+                           dict(name='LSystem'), )
                   )
 
 __all__.append('run_node')
@@ -99,7 +101,7 @@ plot_node = Factory( name="plot",
                           dict(name='LSystem', interface=None, value=None)
                           ),
                   
-                  outputs=()
+                  outputs=(dict(name='Axiom', interface=ITextStr),)
                   )
 __all__.append('plot_node')
 

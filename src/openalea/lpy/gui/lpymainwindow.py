@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'd:\fred\mes documents\develop\vplants\trunk\lpy\src\openalea\lpy\gui\lpymainwindow.ui'
+# Form implementation generated from reading ui file '/home/pradal/devlp/vplants/lpy/src/openalea/lpy/gui/lpymainwindow.ui'
 #
-# Created: Fri Nov 19 10:27:10 2010
-#      by: PyQt4 UI code generator 4.7.3
+# Created: Wed Feb 16 10:14:38 2011
+#      by: PyQt4 UI code generator 4.7.4
 #
 # WARNING! All changes made in this file will be lost!
 
