@@ -2,19 +2,17 @@ from openalea.mtg.io import *
 import openalea.mtg.plantframe as plantframe
 import openalea.mtg.algo as algo 
 from openalea.mtg import aml, dresser
-
+from openalea.plantgl.all import norm,Vector3
 
 def flatten(g):
     microroot = g.component_roots_at_scale(g.root,g.max_scale()).next()
-    print microroot
     
     g = g.sub_tree(microroot,True)
     g, props = colored_tree(g,colors={1:list(g.vertices())})
     
-    f = file('debug.txt','w')
-    f.write(str(g))
-    f.close()
-    print len(g)
+    #f = file('debug.txt','w')
+    #f.write(str(g))
+    #f.close()
     return g
 
 def construct_lstring():
@@ -35,7 +33,7 @@ def construct_lstring():
     toppositions = pf.points
     
     g.properties()['TopDiameter']=diameters
-    g.properties()['TopPosition']=toppositions
+    g.properties()['TopPosition']= dict([ (k,Vector3(v)) for k,v in toppositions.iteritems()])
     
     g = flatten(g)
     

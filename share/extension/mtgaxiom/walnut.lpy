@@ -1,22 +1,87 @@
+from openalea.plantgl.all import norm,Vector3
 import mtgimport as mi
 reload(mi)
 
-def Start():
-    pass
+from  random import randint, seed
 
-Axiom: Start
 
-derivation length: 1
+
+dl = 2.
+dseg = 2.
+dd = 0.1
+
+nbiter = 4 # 1 if WITHLEAF else 20
+
+module Start, LeafSet
+
+def StartEach():
+    seed(SEED)
+    print getIterationNb()
+    if getIterationNb() == 1:
+      useGroup(2)
+    else:
+      useGroup(3)
+
+Axiom:    @Gc Start
+
+derivation length: nbiter
 production:
 
 Start : 
-  myaxiom = mi.construct_lstring()
+  myaxiom = mi.construct_lstring()[:10177]
   assert myaxiom.wellBracketed()
   nsproduce(myaxiom)
 
-interpretation:
 
-S(position,topdiameter) --> LineTo(position[0],position[1],position[2]) _(topdiameter)
-U(position,topdiameter) --> LineTo(position[0],position[1],position[2]) _(topdiameter)
+group 1: # diam growth
+
+S(position,topdiameter) --> S(position,topdiameter+dd)
+U(position,topdiameter) --> U(position,topdiameter+dd)
+
+group 2: # Add Buds
+
+*(n, p,td) < U(ap,ad) > U(*args2) --> U(ap,ad) [+(90)B(dseg)]
+*(n, p,td) < U(ap,ad) -->  U(ap,ad) B(dseg)
+
+group 3: # Bud Growth
+
+B(l) --> M(l)B(l)
+
+group 0:
+
+interpretation:
+maximum depth: 2
+
+[S(position,topdiameter) --> [ _(topdiameter/2) OLineTo(position[0],position[1],position[2],topdiameter/2)
+S(position,topdiameter) -->  OLineTo(position[0],position[1],position[2],topdiameter/2) 
+
+S(oldpos,olddiam) < U(position,topdiameter) --> @Ge @Gc ,(2) Pinpoint(position[0],position[1],position[2]) LeafSet(norm(position-oldpos),topdiameter) 
+
+U(oldpos,olddiam) < U(position,topdiameter) --> ,(2) Pinpoint(position[0],position[1],position[2]) LeafSet(norm(position-oldpos),topdiameter) 
+
+M(l) --> LeafSet(l,None)
+
+LeafSet(l,topdiam) :
+  nbsegment,lastseg = divmod(l,dl)
+  if WITHLEAF:
+    nproduce [ @Ge _(0.1)
+    for i in xrange(nbsegment):
+      nproduce f(dl)/(137)[&(60) 
+      nproduce F(2)[+(60) ^(10) ~l(5)][-(60) ^(10) ~l(5)]
+      nproduce F(5)[+(60)~l(5)][-(60)~l(5)]
+      nproduce F(2) ^(10) ~l(5) ]
+    nproduce ]
+  if topdiam is None: produce F(l)
+  else : produce F(l,topdiam/2)
+  
 
 endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	scalars = [('WITHLEAF', True, False, True), ('SEED', 1, 0, 100)]
+	context["__scalars__"] = scalars
+	for n,v,mnv,mxv in scalars:
+		context[n] = v
