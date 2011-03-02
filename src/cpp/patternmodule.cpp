@@ -66,6 +66,8 @@ std::string LsysVar::str() const
 std::string LsysVar::varname() const
 { 
   if (__name.empty()) return __name;
+  else if (__name.end() != __name.begin()+1 && __name[0] == '*' && __name[1] == '*') 
+	  return std::string(__name.begin()+2,__name.end());
   else if (__name[0] == '*') return std::string(__name.begin()+1,__name.end());
   else return __name;
 }
@@ -100,6 +102,7 @@ void LsysVar::setCondition(const std::string& textualcondition, int lineno)
 void LsysVar::setUnnamed()
 {
   if (__name.empty()) __name = "-";
+  else if (__name.end() != __name.begin()+1 && __name[0] == '*' && __name[1] == '*') __name = "**-";
   else if (__name[0] == '*') __name = "*-";
   else __name = "-";
 }
@@ -184,6 +187,20 @@ size_t PatternModule::getVarNb() const
   return res;
 }
 
+#define check_var_order(var,itarg,endarg,shouldBeArgs) \
+	if(var.isKwds()) { \
+		if (itarg == endarg-1) ; \
+		else if (itarg == args.end()-2) shouldBeArgs = true; \
+		else { LsysError("Invalid syntax : invalid variable name '"+*itarg+"'","",lineno); } \
+	} \
+	else if(var.isArgs()) { \
+		if (itarg == endarg-1) ; \
+		else { LsysError("Invalid syntax : invalid variable name '"+*itarg+"'","",lineno); } \
+	} \
+	else if (shouldBeArgs) { \
+		LsysError("Invalid syntax : invalid variable name '"+getAt(size()-1).str()+"'","",lineno); \
+	} \
+
 
 void PatternModule::__processPatternModule(const std::string& argstr, int lineno)
 {
@@ -222,33 +239,45 @@ void PatternModule::__processPatternModule(const std::string& argstr, int lineno
   }
   else {
 	  std::vector<std::string> args = LpyParsing::parse_arguments(argstr);
+	  bool shouldBeArgs = false;
+	  bool error = false;
+	  std::string msgerror;
+
 	  for(std::vector<std::string>::const_iterator itarg = args.begin(); itarg != args.end(); ++itarg){
-		  bool notvar = false;
+		  bool notvar = true;
 		  if (MatchingEngine::getModuleMatchingMethod() == MatchingEngine::eMWithStarNValueConstraint){
-			  try {
-				std::pair<std::string,std::string> vartxt = LpyParsing::parse_variable(*itarg,lineno);
+			 std::pair<std::string,std::string> vartxt;
+			 try {
+				 vartxt = LpyParsing::parse_variable(*itarg,lineno);				 
+				 notvar = false;
+			  }
+			  catch (boost::python::error_already_set) {   PyErr_Clear(); /* PyErr_Print();*/ }
+			  if (!notvar){
 				if(vartxt.first == "-"){
 					append(LsysVar(vartxt.first));
-				    notvar = true;
 				}
 				else if(LpyParsing::isValidVariableName(vartxt.first)){
 					LsysVar var(vartxt.first);
-				    if(!vartxt.second.empty())var.setCondition(vartxt.second,lineno);
+				    if(!vartxt.second.empty()) var.setCondition(vartxt.second,lineno);
+					check_var_order(var,itarg,args.end(),shouldBeArgs)
 				    append(var);
-				    notvar = true;
 				}
 			  }
-			  catch (boost::python::error_already_set) {   PyErr_Clear(); /* PyErr_Print();*/ }
-			  if (!notvar) {
+			  else {
 			      object o = LsysContext::currentContext()->try_evaluate(*itarg);
 			      if(o != object()){ append(o); notvar = true; }
 			  }
 		  }
-		  if (!notvar){
-			  if(*itarg == "-" || LpyParsing::isValidVariableName(*itarg))
-				  append(LsysVar(*itarg));
+		  else {
+			  if(*itarg == "-" || LpyParsing::isValidVariableName(*itarg)){
+				  LsysVar var(*itarg);
+				  check_var_order(var,itarg,args.end(),shouldBeArgs);
+				  append(var);
+			  }
 			  else LsysError(*itarg+" is invalid","",lineno);
 		  }
+		  // var order checking
+
 	  }
   }
 }

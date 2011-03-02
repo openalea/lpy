@@ -182,9 +182,9 @@ void export_LsysContext(){
 	def("backward",      &py_backward);
 	def("forward",      &py_forward);
 	def("isForward",      &py_isForward);
-	def("nproduce",  (void (*)(const AxialTree&) )&nproduce);
-    def("nproduce",  (void (*)(const boost::python::list&) )&nproduce);
-    def("nproduce",  (void (*)(const std::string&) )&nproduce);
+	def("nsproduce",  (void (*)(const AxialTree&) )&nproduce);
+    def("nsproduce",  (void (*)(const boost::python::list&) )&nproduce);
+    def("nsproduce",  (void (*)(const std::string&) )&nproduce);
 	def("pproduce",  bp::raw_function(py_pproduce,1));
 	def("useGroup",  &useGroup);
     def("getGroup",  &getGroup);

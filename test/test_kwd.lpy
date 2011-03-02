@@ -1,0 +1,124 @@
+module A(x,t)
+
+Axiom: A(1,2)
+
+results = [False for i in xrange(20) ]
+
+def validate(i):
+  global results
+  results[i] = True
+
+def unvalidate(i):
+  global results
+  results[i] = False
+
+def Start():
+  validate(6)
+  validate(10)
+  validate(16)
+  validate(19)
+
+def End():
+  failed = False
+  for i,v in enumerate(results):
+    if not v:
+      print 'Error on test',i
+      failed = True
+  assert not failed
+
+derivation length: 1
+production:
+
+*(*args):
+  validate(0)
+  print 'args=',args
+
+*(**kwds):
+  validate(1)
+  print 'kwd=',kwds 
+
+*(**kwds,*args):
+  validate(2)
+  print 'kwd=',kwds , 'args=',args
+
+*(name,**kwds,*args):
+  validate(3)
+  print 'name=',name,'kwd=',kwds , 'args=',args
+
+*(name,x,**kwds,*args):
+  validate(4)
+  print 'name=',name,'x=',x,'kwd=',kwds , 'args=',args
+
+*(name,x,y,**kwds,*args):
+  validate(5)
+  print 'name=',name,'x=',x,'y=',y,'kwd=',kwds , 'args=',args
+
+*(name,x,y,z,**kwds,*args):
+  unvalidate(6)
+  print 'name=',name,'x=',x,'y=',y,'z=',z,'kwd=',kwds , 'args=',args
+
+*(name,**kwds):
+  validate(7)
+  print 'name=',name,'kwd=',kwds 
+
+*(name,x,**kwds):
+  validate(8)
+  print 'name=',name,'x=',x,'kwd=',kwds 
+
+*(name,x,y,**kwds):
+  validate(9)
+  print 'name=',name,'x=',x,'y=',y,'kwd=',kwds 
+
+*(name,x,y,z,**kwds):
+  unvalidate(10)
+  print 'name=',name,'x=',x,'y=',y,'z=',z,'kwd=',kwds 
+
+
+A(*args):
+  validate(11)
+  print 'args=',args
+
+A(**kwds):
+  validate(12)
+  print 'kwd=',kwds
+
+A(**kwds,*args):
+  validate(13)
+  print 'kwd=',kwds, 'args=',repr(args)
+
+A(x,**kwds,*args):
+  validate(14)
+  print 'x=',x,'kwd=',kwds , 'args=',args
+
+
+A(x,y,**kwds,*args):
+  validate(15)
+  print 'x=',x,'y=',y,'kwd=',kwds , 'args=',args
+
+A(x,y,z,**kwds,*args):
+  unvalidate(16)
+  print 'x=',x,'y=',y,'z=',z,'kwd=',kwds , 'args=',args
+
+A(x,**kwds):
+  validate(17)
+  print 'x=',x,'kwd=',kwds 
+
+A(x,y,**kwds):
+  validate(18)
+  print 'x=',x,'y=',y,'kwd=',kwds 
+
+A(x,y,z,**kwds):
+  unvalidate(19)
+  print name,'x=',x,'y=',y,'z=',z,'kwd=',kwds 
+
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	context.options.setSelection('Module matching',1)

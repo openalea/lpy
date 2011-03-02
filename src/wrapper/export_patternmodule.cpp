@@ -52,6 +52,7 @@ void export_PatternModule(){
 	.def("__repr__", &LsysVar::str)
 	.def("varname", &LsysVar::varname)
 	.def("isArgs",  &LsysVar::isArgs)
+	.def("isKwds",  &LsysVar::isKwds)
 	.add_property("name",var_getname,&LsysVar::setName)
 	;
 

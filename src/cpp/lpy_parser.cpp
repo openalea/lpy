@@ -1457,9 +1457,11 @@ bool LpyParsing::isValidVariableName(std::string::const_iterator beg,
 	while(beg != end && (*beg == ' ' || *beg == '\t'))++beg;
 	if (beg == end)return false;
 	if(*beg == '*' && MatchingEngine::getModuleMatchingMethod() != MatchingEngine::eMSimple){
-		++beg;
+		++beg;		
 		if(beg == end)return false;
-		else {while(beg != end && (*beg == ' ' || *beg == '\t'))++beg; }
+		if(*beg == '*') { ++beg; if(beg == end) return false; }
+
+		while(beg != end && (*beg == ' ' || *beg == '\t'))++beg; 
 	}
 	bool b = true;
 	if(beg != end && (isalpha(*beg) || *beg == '_')) ++beg;
@@ -1482,6 +1484,8 @@ std::pair<std::string,std::string> LpyParsing::parse_variable(std::string::const
 		if(it == end) return std::pair<std::string,std::string>("-","");
 		else LsysError("Error parsing variable name with '-' (3)","",lineno);
 	}
+	if(*it == '*'){ ++it; begfilter = it; }
+	if(it == end) LsysError("Error parsing variable name (2)","",lineno);
 	if(*it == '*'){ ++it; begfilter = it; }
 	if(it != end && (isalpha(*it) || *it == '_'))++it;
 	else LsysError("Error parsing variable name (2)","",lineno);

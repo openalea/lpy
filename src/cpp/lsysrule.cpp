@@ -228,7 +228,7 @@ LsysRule::getCoreCode() {
 	  }
 	  else _it++;
 	}
-	else if (*_it == 'p' && std::distance<std::string::const_iterator>(_it,__definition.end())> 7){
+	else if (*_it == 'p' && std::distance<std::string::const_iterator>(_it,__definition.end())> 7 && (_it == _beg || !isalnum(*(_it-1)) && *(_it-1) != '_')){
 	  if(std::string(_it,_it+7) == "produce"){
 		definition.insert(definition.end(),_beg,_it);
 		_it += 7;

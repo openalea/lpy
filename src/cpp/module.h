@@ -218,6 +218,9 @@ public:
     inline std::vector<std::string> getParameterNames() const
     { return getClass()->getParameterNames(); }
 
+	inline size_t getNamedParameterNb() const
+    { return getClass()->getNamedParameterNb(); }
+
     inline size_t getParameterPosition(const std::string& pname) const  
     { return getClass()->getParameterPosition(pname); }
 
@@ -231,6 +234,16 @@ public:
 	{ return setAt(getValidParameterPosition(pname),value); }
 
     inline const ParameterList& getParameterList() const { return __constargs(); }
+
+	void getNamedParameters(boost::python::dict& parameters, size_t fromIndex = 0) const
+	{
+		const ParameterNameDict& pnames = getClass()->getParameterNameDict();
+		for(ParameterNameDict::const_iterator itp = pnames.begin(); itp != pnames.end(); ++itp){
+			if(itp->second >= fromIndex) {
+				parameters[boost::python::object(itp->first)] = getAt(itp->second);
+			}
+		}
+	}
 
 protected:
      inline size_t getValidParameterPosition(const std::string& pname) const

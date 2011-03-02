@@ -62,8 +62,10 @@ class LPY_API LsysVar {
 
 	inline const boost::python::object& getPyValue() const { return __pyvalue; }
 
-    inline bool isNamed() const { return !(__name.empty() || __name[0] == '-' || (__name[0] == '*' && __name[1] == '-')); }
-	inline bool isArgs() const { return !__name.empty() && __name[0] == '*'; }
+    inline bool isNamed() const { return !(__name.empty() || __name[0] == '-' || 
+		                                   (__name[0] == '*' && ( __name[1] == '-' || (__name[1] == '*' && __name[2] == '-')))); }
+	inline bool isArgs() const { return !__name.empty() && __name[0] == '*' && (__name.end() == __name.begin()+1 ||__name[1] != '*'); }
+	inline bool isKwds() const { return !__name.empty() && __name[0] == '*' && __name.end() != __name.begin()+1 && __name[1] == '*'; }
 	inline bool hasCondition() const { return __conditionType != NoCondition; }
 
 	void setUnnamed();

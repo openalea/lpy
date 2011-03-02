@@ -277,39 +277,157 @@ bool MatchingImplementation::module_matching_with_star(const ParamModule& module
 		  ArgsCollector::append_as_arg(l,arg);
 		  return true; 
 	  }
+	  else if(v.isKwds()) { 
+		  if( module.getNamedParameterNb() != module.size()) {
+			  return false;
+		  }
+		  boost::python::dict largs;
+		  largs[boost::python::object("name")] = boost::python::object(module.name());
+		  module.getNamedParameters(largs);
+		  ArgsCollector::append_arg(l,largs);
+		  return true; 
+	  }
 	  else {
 		if( s2 == 0){ ArgsCollector::append_arg(l,boost::python::object(module.name()));return true; }
 	    else return false;
 	  }
 	}
 	else {
-	  size_t s2 = module.argSize();
-	  if (s2 < s-2) return false;
-	  LsysVar v = pattern.getAt(s-1);
-	  if(!v.isArgs()){
+	  size_t s2 = module.size();
+	  if (s2 + 3 < s) return false; // name,args,kwd can be extra args
+
+	  LsysVar vlast = pattern.getAt(s-1);
+	  LsysVar vbeforelast = pattern.getAt(s-2);
+
+	  if(!vlast.isArgs() && !vlast.isKwds()){
   		if (s2 != s-1) return false;
 		ArgsCollector::append_arg(l,boost::python::object(module.name()));
 		ArgsCollector::append_modargs(l,module.getParameterList());
 		return true;
 	  }
-	  ArgsCollector::append_arg(l,boost::python::object(module.name()));
-	  if(s != 2){
-		for(int i = 0; i < s-2; i++)
-		  ArgsCollector::append_arg_ref(l,module.getAt(i));
-		if(s2 > s-2)ArgsCollector::append_arg(l,module.getSlice(s-2,s2));
-		else ArgsCollector::append_arg(l,boost::python::list());
+
+
+	  if (s == 2 && vbeforelast.isKwds() && vlast.isArgs()){ // (**kwds,*args)
+		  size_t nbNamedParameter = module.getNamedParameterNb();
+		  if(nbNamedParameter > s2 )  return false;
+		  boost::python::dict largs;
+		  largs[boost::python::object("name")] = boost::python::object(module.name());
+		  module.getNamedParameters(largs);
+		  ArgsCollector::append_arg(l,largs);
+		  ArgsCollector::append_arg(l,module.getSlice(nbNamedParameter,s2));
+		  return true;
 	  }
-	  else ArgsCollector::append_arg(l,module.getPyArgs());
+
+
+	  size_t normalparam = s - 1;
+	  if (vbeforelast.isKwds()) --normalparam;
+	  if (vlast.isArgs() || vlast.isKwds()) --normalparam;
+
+	  // check if normal number of parameter to retrieve is compatible
+	  if( normalparam > s2) return false;
+
+	  // retrieve name
+	  ArgsCollector::append_arg(l,boost::python::object(module.name()));
+	  // retrieve normal parameters
+	  for(int i = 0; i < normalparam; i++)
+		ArgsCollector::append_arg_ref(l,module.getAt(i));
+
+	  if (vbeforelast.isKwds() || vlast.isKwds()){
+		  boost::python::dict largs;
+		  module.getNamedParameters(largs,normalparam);
+		  ArgsCollector::append_arg(l,largs);
+		  normalparam = module.getNamedParameterNb();
+	  }
+
+	  if (vlast.isArgs()){
+		  if ( normalparam == 0) // (name,*args)
+			  ArgsCollector::append_arg(l,module.getPyArgs());			
+		  else if (normalparam == s2) // (name,x,*args) on A(1)
+			  ArgsCollector::append_arg(l,boost::python::list());
+		  else 
+			  ArgsCollector::append_arg(l,module.getSlice(normalparam,s2));
+
+	  }
+
 	  return true;
 	}
   }
   else {
+
 	if (!compatibleName(module,pattern)) return false;
 	size_t s = pattern.argSize();
     size_t s2 = module.argSize();
-	if (s2 < s-1) return false;
+	if (s2+2 < s) return false;
 	if( s == 0) return s2 == 0;
-	else{
+	else if(s == 1) {
+	  LsysVar v = pattern.getAt(0);
+	  if(v.isArgs()) { 
+		ArgsCollector::append_arg(l,module.getPyArgs());
+		return true; 
+	  }
+	  else if(v.isKwds()) { 
+		  if( module.getNamedParameterNb() != module.size()) {
+			  return false;
+		  }
+		  boost::python::dict largs;
+		  module.getNamedParameters(largs);
+		  ArgsCollector::append_arg(l,largs);
+		  return true; 
+	  }
+	  else {
+		  if(s2 != 1) return false;
+		  ArgsCollector::append_arg_ref(l,module.getAt(0));
+		  return true;
+	  }
+	}
+	else { // args >= 2
+
+	  LsysVar vlast = pattern.getAt(s-1);
+	  LsysVar vbeforelast = pattern.getAt(s-2);
+
+	  if(!vlast.isArgs() && !vlast.isKwds()){
+  		if (s2 != s) return false;
+		ArgsCollector::append_modargs(l,module.getParameterList());
+		return true;
+	  }
+
+
+	  if (s == 2 && vbeforelast.isKwds() && vlast.isArgs()){ // (**kwds,*args)
+		  size_t nbNamedParameter = module.getNamedParameterNb();
+		  if(nbNamedParameter > s2 )  return false;
+		  boost::python::dict largs;
+		  module.getNamedParameters(largs);
+		  ArgsCollector::append_arg(l,largs);
+		  ArgsCollector::append_arg(l,module.getSlice(nbNamedParameter,s2));
+		  return true;
+	  }
+
+
+	  size_t normalparam = s ;
+	  if (vbeforelast.isKwds()) --normalparam;
+	  if (vlast.isArgs() || vlast.isKwds()) --normalparam;
+
+	  if( normalparam > s2) return false;
+	  // retrieve normal parameters
+	  for(int i = 0; i < normalparam; i++)
+		ArgsCollector::append_arg_ref(l,module.getAt(i));
+
+	  if (vbeforelast.isKwds() || vlast.isKwds()){
+		  boost::python::dict largs;
+		  module.getNamedParameters(largs,normalparam);
+		  ArgsCollector::append_arg(l,largs);
+		  normalparam = module.getNamedParameterNb();
+	  }
+
+	  if (vlast.isArgs()){
+		  if (normalparam == s2) // (x,*args) on A(1)
+			  ArgsCollector::append_arg(l,boost::python::list());
+		  else 
+			  ArgsCollector::append_arg(l,module.getSlice(normalparam,s2));
+
+	  }
+	}
+     /*
 	  LsysVar v = pattern.getAt(s-1);
 	  if(!v.isArgs()) {
 		if(s2 == s) { ArgsCollector::append_modargs(l,module.getParameterList()); return true; }
@@ -324,7 +442,7 @@ bool MatchingImplementation::module_matching_with_star(const ParamModule& module
 	  else ArgsCollector::append_arg(l,module.getPyArgs());
 	  return true;
 	}
-	return true;
+	return true; */
   }
 }
 

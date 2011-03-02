@@ -38,7 +38,7 @@ ignore: /&[
 production:
 
 A(t,o) :
-  print t1
+  print t
   if t < maxduration(o):
      # simply produces a metamer and ages the apex
      produce I(1,0.1)L(0,t,0)A(t+1,o) 
@@ -143,10 +143,22 @@ def EndEach(lstring,scene):
    #Viewer.frameGL.saveImage('light_lpy_example_'+str(getIterationNb())+'.png')
 ###### INITIALISATION ######
 
+__lpy_code_version__ = 1.1
+
 def __initialiseContext__(context):
-	from openalea.plantgl.scenegraph import Material,ImageTexture,Color3
-	context.turtle.setMaterial(5,Material('purple',Color3(70,0,73),2.19178,Color3(40,40,40),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(6,Material('Wall',Color3(47,47,47),1.2766,Color3(4,4,4),Color3(0,0,0),1,0.79))
+	import openalea.plantgl.all as pgl
+	Color_5 = pgl.Material("Color_5" , 		ambient = (70,0,73) , 
+		diffuse = 2.19178 , 
+)
+	Color_5.name = "Color_5"
+	context.turtle.setMaterial(5,Color_5)
+	Color_6 = pgl.Material("Color_6" , 		ambient = (47,47,47) , 
+		diffuse = 1.2766 , 
+		specular = (4,4,4) , 
+		transparency = 0.79 , 
+)
+	Color_6.name = "Color_6"
+	context.turtle.setMaterial(6,Color_6)
 	context.animation_timestep = 0.001
 __references__ = 'Halle, 71'
 __description__ = 'Leuwenberg architectural model. '

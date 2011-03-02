@@ -1,0 +1,12 @@
+# Dressing file for WalnuTree trees
+
+#SMBPath = D:/Documents/pradal/devlp/vplants/aml/databases/SMBFiles
+#SMBPath = ../../../databases/SMBFiles
+
+#SMBModel entrenoeud = nentn105
+
+#Class S = entrenoeud
+#Class U = entrenoeud
+
+DiameterUnit = 10	
+

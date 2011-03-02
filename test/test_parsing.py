@@ -45,7 +45,7 @@ def test_comments():
 def test_parsingcorrespondance():
     """ Test parsing correspondance """
     l = Lsystem()
-    pycode = l.set(lcode,True)
+    pycode = l.set(lcode,debug=True)
     # It work only because rules are simple and do not necessitate new lines of code.
     assert lcode.count('\n') == pycode.count('\n') and "lines correspondance is maybe not preserved." 
 

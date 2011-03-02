@@ -163,14 +163,14 @@ void ModuleClass::setParameterNames(const std::vector<std::string>& names){
 	}
 }
 
-const ModuleClass::InternalParameterNameList * ModuleClass::sorter = NULL;
+const ParameterNameDict * ModuleClass::sorter = NULL;
 bool ModuleClass::sortNames(const std::string& a, const std::string& b) 
 {  return sorter->find(a)->second < sorter->find(b)->second; }
 
 std::vector<std::string> ModuleClass::getParameterNames() const
 {
 	std::vector<std::string> res;
-	for(InternalParameterNameList::const_iterator itname = __paramnames.begin(); itname != __paramnames.end(); ++itname)
+	for(ParameterNameDict::const_iterator itname = __paramnames.begin(); itname != __paramnames.end(); ++itname)
 		res.push_back(itname->first);
 	sorter = &__paramnames;
 	std::sort(res.begin(),res.end(),sortNames);
@@ -179,7 +179,7 @@ std::vector<std::string> ModuleClass::getParameterNames() const
 }
 
 size_t ModuleClass::getParameterPosition(const std::string& name) const{
-	InternalParameterNameList::const_iterator res = __paramnames.find(name);
+	ParameterNameDict::const_iterator res = __paramnames.find(name);
 	if(res != __paramnames.end()) return res->second;
 	else return NOPOS;
 }
