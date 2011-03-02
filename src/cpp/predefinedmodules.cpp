@@ -160,7 +160,7 @@ DeclareModuleBegin(moveRel,"Move relatively from current the turtle position. Pa
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(lineTo,"Trace line to (x,y,z) without changing the orientation. Params : x, y, z (optionals, default = 0).",ePrimitive)
+DeclareModuleBegin(lineTo,"Trace line to (x,y,z) without changing the orientation. Params : x, y, z, topdiameter (optionals, default = 0).",ePrimitive)
 {
 #if PGL_VERSION >= 0x020B00
 	size_t nbargs = m.size();
@@ -168,13 +168,14 @@ DeclareModuleBegin(lineTo,"Trace line to (x,y,z) without changing the orientatio
          case 0:  break;
          case 1:  t.lineTo(m._getReal(0),0,0); break;
          case 2:  t.lineTo(m._getReal(0),m._getReal(1)); break;
-         default: t.lineTo(m._getReal(0),m._getReal(1),m._getReal(2)); break;
+         case 3:  t.lineTo(m._getReal(0),m._getReal(1),m._getReal(2)); break;
+         default: t.lineTo(m._getReal(0),m._getReal(1),m._getReal(2),m._getReal(3)); break;
 	}
 #endif
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(orientedLineTo,"Trace line toward (x,y,z) and change the orientation. Params : x, y, z (optionals, default = 0).",ePrimitive)
+DeclareModuleBegin(orientedLineTo,"Trace line toward (x,y,z) and change the orientation. Params : x, y, z, topdiameter (optionals, default = 0).",ePrimitive)
 {
 #if PGL_VERSION >= 0x020B00
 	size_t nbargs = m.size();
@@ -182,7 +183,8 @@ DeclareModuleBegin(orientedLineTo,"Trace line toward (x,y,z) and change the orie
          case 0:  break;
          case 1:  t.oLineTo(m._getReal(0)); break;
          case 2:  t.oLineTo(m._getReal(0),m._getReal(1)); break;
-         default: t.oLineTo(m._getReal(0),m._getReal(1),m._getReal(2)); break;
+         case 3:  t.oLineTo(m._getReal(0),m._getReal(1),m._getReal(2)); break;
+         default: t.oLineTo(m._getReal(0),m._getReal(1),m._getReal(2),m._getReal(3)); break;
 	}
 #endif
 }
@@ -202,7 +204,7 @@ DeclareModuleBegin(pinPoint,"Orient turtle toward (x,y,z) . Params : x, y, z (op
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(lineRel,"Trace line to pos+(x,y,z) without changing the orientation. Params : x, y, z (optionals, default = 0).",ePrimitive)
+DeclareModuleBegin(lineRel,"Trace line to pos+(x,y,z) without changing the orientation. Params : x, y, z, topdiameter (optionals, default = 0).",ePrimitive)
 {
 #if PGL_VERSION >= 0x020B00
 	size_t nbargs = m.size();
@@ -210,13 +212,14 @@ DeclareModuleBegin(lineRel,"Trace line to pos+(x,y,z) without changing the orien
          case 0:  break;
          case 1:  t.lineRel(m._getReal(0),0,0); break;
          case 2:  t.lineRel(m._getReal(0),m._getReal(1)); break;
-         default: t.lineRel(m._getReal(0),m._getReal(1),m._getReal(2)); break;
+         case 3:  t.lineRel(m._getReal(0),m._getReal(1),m._getReal(2)); break;
+         default: t.lineRel(m._getReal(0),m._getReal(1),m._getReal(2),m._getReal(3)); break;
 	}
 #endif
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(oLineRel,"Trace line toward pos+(x,y,z) and change the orientation. Params : x, y, z (optionals, default = 0).",ePrimitive)
+DeclareModuleBegin(oLineRel,"Trace line toward pos+(x,y,z) and change the orientation. Params : x, y, z, topdiameter (optionals, default = 0).",ePrimitive)
 {
 #if PGL_VERSION >= 0x020B00
 	size_t nbargs = m.size();
@@ -224,7 +227,8 @@ DeclareModuleBegin(oLineRel,"Trace line toward pos+(x,y,z) and change the orient
          case 0:  break;
          case 1:  t.oLineRel(m._getReal(0)); break;
          case 2:  t.oLineRel(m._getReal(0),m._getReal(1)); break;
-         default: t.oLineRel(m._getReal(0),m._getReal(1),m._getReal(2)); break;
+         case 3: t.oLineRel(m._getReal(0),m._getReal(1),m._getReal(2)); break;
+         default: t.oLineRel(m._getReal(0),m._getReal(1),m._getReal(2),m._getReal(3)); break;
 	}
 #endif
 }
