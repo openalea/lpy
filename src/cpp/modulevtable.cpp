@@ -59,6 +59,7 @@ void ModuleVTable::desactivate()
 
 void ModuleVTable::setBase(ModuleClassPtr mclass) 
 { 
+	__bases.clear();
 	__bases.push_back(mclass.get()); 
 	updateInheritedParameters();
 }
@@ -66,6 +67,7 @@ void ModuleVTable::setBase(ModuleClassPtr mclass)
 
 void ModuleVTable::setBases(const ModuleClassList& mclass) 
 { 
+	__bases.clear();
 	for(ModuleClassList::const_iterator it = mclass.begin(); it != mclass.end(); ++it)
 		__bases.push_back(it->get());			
 	updateInheritedParameters();

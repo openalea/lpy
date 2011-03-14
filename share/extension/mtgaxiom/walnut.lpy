@@ -1,26 +1,44 @@
-from openalea.plantgl.all import norm,Vector3
+from openalea.plantgl.all import norm,Vector3, dot
 import mtgimport as mi
 reload(mi)
 
 from  random import randint, seed
-
+from math import degrees
 
 
 dl = 2.
-dseg = 2.
+dseg = 3.
 dd = 0.1
+dbranch = 10
 
-nbiter = 4 # 1 if WITHLEAF else 20
+nbiter = 2 # 1 if WITHLEAF else 20
+
+
+def generate_segment(position,op,topdiameter,u,l):
+  if ROTATION:
+    nt = position - op
+    lgth = nt.normalize()
+    deltaL = -degrees(dot(nt,u))
+    deltaU = degrees(dot(nt,l))
+    nproduce +(deltaU) &(deltaL) F(lgth,topdiameter/2) 
+  else:
+    nproduce OLineTo(position[0],position[1],position[2],topdiameter/2) 
 
 module Start, LeafSet
 
+module B (position,topradius)
+
+module S : base = B
+module U : base = B
+
 def StartEach():
     seed(SEED)
-    print getIterationNb()
-    if getIterationNb() == 1:
-      useGroup(2)
-    else:
-      useGroup(3)
+    useGroup(4)
+#    print getIterationNb()
+#    if getIterationNb() == 1:
+#      useGroup(2)
+#    else:
+#      useGroup(3)
 
 Axiom:    @Gc Start
 
@@ -28,38 +46,51 @@ derivation length: nbiter
 production:
 
 Start : 
-  myaxiom = mi.construct_lstring()[:10177]
+  myaxiom = mi.construct_walnut_lstring()
   assert myaxiom.wellBracketed()
   nsproduce(myaxiom)
 
 
 group 1: # diam growth
 
-S(position,topdiameter) --> S(position,topdiameter+dd)
-U(position,topdiameter) --> U(position,topdiameter+dd)
+B(position,topdiameter) --> B(position,topdiameter+dd)
 
 group 2: # Add Buds
 
-*(n, p,td) < U(ap,ad) > U(*args2) --> U(ap,ad) [+(90)B(dseg)]
-*(n, p,td) < U(ap,ad) -->  U(ap,ad) B(dseg)
+*(n, p,td) < U(ap,ad) > U(*args2) --> U(ap,ad) [+(90) @Ge M(0) B(0)]
+*(n, p,td) < U(ap,ad) -->  U(ap,ad) @Ge @v M(0) B(0)
 
 group 3: # Bud Growth
 
-B(l) --> M(l)B(l)
+M(l) B(t) :
+  if t > 10: 
+    nproduce [+(60) ^(20) M(0)B(0)][-(60) ^(20) M(0)B(0)]
+    l = 0
+  produce M(l+dseg)B(t+1)
 
-group 0:
+group 4:
+
+*(n0 in 'SU',pos0,td0) < *(n in 'SU',pos,td) --> ?F new(n,pos,td)
+
+?F(p,h,u,l) --> ?F(p,h,u,l)
+
 
 interpretation:
 maximum depth: 2
 
+group 0:
+
+
+
 [S(position,topdiameter) --> [ _(topdiameter/2) OLineTo(position[0],position[1],position[2],topdiameter/2)
+
 S(position,topdiameter) -->  OLineTo(position[0],position[1],position[2],topdiameter/2) 
 
 S(oldpos,olddiam) < U(position,topdiameter) --> @Ge @Gc ,(2) Pinpoint(position[0],position[1],position[2]) LeafSet(norm(position-oldpos),topdiameter) 
 
 U(oldpos,olddiam) < U(position,topdiameter) --> ,(2) Pinpoint(position[0],position[1],position[2]) LeafSet(norm(position-oldpos),topdiameter) 
 
-M(l) --> LeafSet(l,None)
+M(l) --> ,(3)LeafSet(l,None)
 
 LeafSet(l,topdiam) :
   nbsegment,lastseg = divmod(l,dl)
@@ -75,13 +106,44 @@ LeafSet(l,topdiam) :
   else : produce F(l,topdiam/2)
   
 
+
+group 4:
+
+B(op,topd) <  [ ?F(p,h,u,l) B(position,topdiameter) : 
+    nproduce [ _(topdiameter/2) @Ge @Gc ,(4)
+    generate_segment(position,op,topdiameter,u,l)
+
+B(op,topdiameter0) ?F(p,h,u,l) < B(position,topdiameter) :
+    nproduce [ _(topdiameter/2) @Ge @Gc ,(3)
+    generate_segment(position,op,topdiameter,u,l)
+
+
+M(l) --> ,(3)LeafSet(l,None)
+
+LeafSet(l,topdiam) :
+  nbsegment,lastseg = divmod(l,dl)
+  if WITHLEAF:
+    nproduce [ @Ge _(0.1)
+    for i in xrange(int(nbsegment)):
+      nproduce f(dl)/(137)[&(60) 
+      nproduce F(2)[+(60) ^(10) ~l(5)][-(60) ^(10) ~l(5)]
+      nproduce F(5)[+(60)~l(5)][-(60)~l(5)]
+      nproduce F(2) ^(10) ~l(5) ]
+    nproduce ]
+  if topdiam is None: produce F(l)
+  else : produce F(l,topdiam/2)
+
+
+
+
 endlsystem
 ###### INITIALISATION ######
 
 __lpy_code_version__ = 1.1
 
 def __initialiseContext__(context):
-	scalars = [('WITHLEAF', True, False, True), ('SEED', 1, 0, 100)]
+	context.options.setSelection('Module inheritance',1)
+	scalars = [('WITHLEAF', True, False, True), ('SEED', 1, 0, 100), ('ROTATION', False, False, True)]
 	context["__scalars__"] = scalars
 	for n,v,mnv,mxv in scalars:
 		context[n] = v

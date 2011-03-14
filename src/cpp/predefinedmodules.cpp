@@ -131,6 +131,7 @@ DeclareSimpleModule(startGC, "Start a new generalized cylinder.",ePrimitive)
 DeclareSimpleModule(stopGC,  "Pop generalized cylinder from the stack and render it.",ePrimitive)
 DeclareSimpleModule(startPolygon,"Start a new polygon.",ePrimitive)
 DeclareSimpleModule(stopPolygon,"Pop a polygon from the stack and render it.",ePrimitive)
+DeclareSimpleModule(polygonPoint,"Add a point for polygon.",ePrimitive)
 
 DeclareModuleBegin(MoveTo,"Set the turtle position. Params : x, y, z (optionals, default = 0).",ePosition)
 {
@@ -672,6 +673,7 @@ void ModuleClass::createPredefinedClasses() {
 	EndGC = new DeclaredModule(stopGC)("@Ge","EndGC");
 	StartPolygon = new DeclaredModule(startPolygon)("{","BP");
 	EndPolygon = new DeclaredModule(stopPolygon)("}","EP");
+	PointPolygon = new DeclaredModule(polygonPoint)(".","PP");
 	SetPosition = new DeclaredModule(MoveTo)("@M","MoveTo");
 	SetPositionRel = new DeclaredModule(moveRel)("MoveRel");
 	LineTo= new DeclaredModule(lineTo)("LineTo");

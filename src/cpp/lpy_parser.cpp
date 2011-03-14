@@ -325,20 +325,26 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 								LsysError("Invalid base modules '"+it->second+"'","",lineno);
 							inherit.insert(inherit.end()-1,'\'');
 							std::string::iterator itinh = inherit.begin();
+							size_t nbelem = 0;
 							while (itinh != inherit.end()){
 								itinh = std::find<std::string::iterator>(itinh,inherit.end(),',');
 								if (itinh != inherit.end()){
+									nbelem += 1;
 									inherit.insert(itinh+1,'\'');
 									inherit.insert(itinh,'\'');
 									itinh += 2;
 								}
 							}
+							if (nbelem == 0) {
+								inherit.insert(inherit.end()-1,',');
+							}
 						}
 						else {
 							inherit.insert(inherit.begin(),'\'');
+							inherit.insert(inherit.begin(),'[');
 							inherit.insert(inherit.end(),'\'');
+							inherit.insert(inherit.end(),']');
 						}
-						printf("looking for base classes\n");
 						std::vector<std::string> inheritedclassnames = extract_vec<std::string>(__context.evaluate(inherit))();
 						for(std::vector<std::string>::const_iterator iticl = inheritedclassnames.begin(); iticl != inheritedclassnames.end(); ++iticl){
 							ModuleClassPtr bsclass = ModuleClassTable::get().find(*iticl);
@@ -363,6 +369,8 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 						}
 						mod->setParameterNames(args);
 					}
+					// clean parameter set in case it has none declared but only some from inheritance
+					else mod->setParameterNames(std::vector<std::string>());
 				}
 				else {
 					mod = ModuleClassTable::get().alias(itmod->name,itmod->parameters);
@@ -579,7 +587,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
               PROCESS_RULE(rule,code,addedcode,mode,group)
 		  }
 		  _it2 = _it;
-		  if(mode == 0 && has_pattern(_it,endpycode,"group ")){
+		  if(has_pattern(_it,endpycode,"group ")){
             beg = _it;
 			while( _it!=endpycode && (*_it)!=':' && (*_it)!='\n')
 			  _it++;

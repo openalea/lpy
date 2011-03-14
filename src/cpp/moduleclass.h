@@ -72,6 +72,7 @@ typedef pgl_hash_map_string<size_t> ParameterNameDict;
 	MACRO(EndGC) \
 	MACRO(StartPolygon) \
 	MACRO(EndPolygon) \
+	MACRO(PointPolygon) \
 	MACRO(SetPosition) \
 	MACRO(SetPositionRel) \
 	MACRO(LineTo) \

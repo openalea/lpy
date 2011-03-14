@@ -3,6 +3,7 @@ import openalea.mtg.plantframe as plantframe
 import openalea.mtg.algo as algo 
 from openalea.mtg import aml, dresser
 from openalea.plantgl.all import norm,Vector3
+from numpy import mean
 
 def flatten(g):
     microroot = g.component_roots_at_scale(g.root,g.max_scale()).next()
@@ -15,11 +16,7 @@ def flatten(g):
     #f.close()
     return g
 
-def construct_lstring():
-    
-    fn = r'walnut.mtg'
-    drf = r'walnut.drf'
-
+def read_mtg(fn = 'walnut.mtg' ,drf = 'walnut.drf'):
     g = read_mtg_file(fn)
 
     topdia = lambda x: g.property('TopDia').get(x)
@@ -36,17 +33,80 @@ def construct_lstring():
     g.properties()['TopPosition']= dict([ (k,Vector3(v)) for k,v in toppositions.iteritems()])
     
     g = flatten(g)
+    return g
+
+def color_last_year_node(g):
+    def year_ancestors(i):
+        ancestors = [i]   
+        while g.label(g.parent(i))[0] == 'U' :
+            i = g.parent(i)
+            ancestors.append(i)
+        return ancestors
+    leaves = [i for i in g.vertices(scale=1) if g.nb_children(i) == 0]
+    gu = [year_ancestors(i) for i in leaves]
+    toppos = g.property('TopPosition')
+    def nodepos(i):
+        try:
+            return toppos[i]
+        except:
+            return toppos[g.parent(i)]
     
+    def nodelength(i):
+        try:
+           return norm(toppos[i]-nodepos(g.parent(i)))
+        except:
+           return 0
+    
+    gul = [sum([nodelength(i) for i in ui]) for ui in gu]
+    avg_length_gu = mean(gul)
+    print '**', avg_length_gu, min(gul), max(gul)
+    leavesly = [g.parent(i[-1]) for i in gu]
+    
+    def last_year_ancestors(i):
+        ancestors = [i]
+        l = 0
+        p = nodepos(i)
+        while l < avg_length_gu:
+            i = g.parent(i)
+            if i:
+                ancestors.append(i)
+                try:
+                  np = toppos[i]
+                  l += norm(p-np)
+                  p = np
+                except:
+                  pass
+            else:
+               break
+        return ancestors
+    lygus = [last_year_ancestors(i) for i in leavesly]
+    labels = g.property('label')
+    for lygu in reversed(lygus):
+        for i in lygu:
+          if len([j for j in g.children(i) if labels[j][0] in 'S']) == 0:
+            assert labels[i][0] in 'SV'
+            labels[i] = 'V'+labels[i][1:]
+        
+    
+def construct_lstring(g):
+   
     paramnames = ['TopPosition','TopDiameter']
     
-    params = { 'S': paramnames, 'U' : paramnames }
+    params = { 'S': paramnames, 'U' : paramnames, 'V' : paramnames }
     lstring = mtg2axialtree(g, params)
     return lstring
 
-if __name__ == '__main__':
-    lstring = construct_lstring()
-    print len(lstring)
-    print len([0 for i in lstring if not i.name in '[]'])
-    print lstring[0:10]
-    print lstring[5]
-    print len(lstring[5])
+def construct_walnut_lstring():
+    g = read_mtg()
+    color_last_year_node(g)
+    return construct_lstring(g)
+    
+if __name__ == '__m_ain__':
+    g = read_mtg()
+    color_last_year_node(g)
+    lstring = construct_lstring(g)
+    # print len(lstring)
+    # print len([0 for i in lstring if not i.name in '[]'])
+    # print lstring[0:10]
+    # print lstring[5]
+    # print len(lstring[5])

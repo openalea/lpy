@@ -34,6 +34,7 @@
 #include "error.h"
 #include <vector>
 #include <plantgl/python/boost_python.h>
+#include <plantgl/tool/util_string.h>
 
 #include "moduleclass.h"
 #include "argcollector.h"
@@ -250,7 +251,7 @@ protected:
 	 {
 		size_t pos = getParameterPosition(pname);
 		if (pos == ModuleClass::NOPOS) LsysError("Invalid parameter name '"+pname+"' for module '"+name()+"'.");
-		if (pos >= size()) LsysError("Inexisting value for parameter '"+pname+"' for module '"+name()+"'.");
+		if (pos >= size()) LsysError("Inexisting value for parameter '"+pname+" '("+TOOLS(number)(pos)+") for module '"+name()+"'.");
 		return pos;
 	 }
 

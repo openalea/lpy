@@ -1,0 +1,298 @@
+from openalea.plantgl.all import norm,Vector3, dot, angle, direction
+
+import mtgimport as mi
+reload(mi)
+
+import openalea.tree_matching.mtgimport as tmi
+reload(tmi)
+
+import mtgcompare as mc
+reload(mc)
+
+from openalea.mtg.io import axialtree2mtg
+
+
+from  random import randint, seed, uniform, random
+from math import degrees
+from numpy import mean
+
+
+dseg = 4.
+
+nbiter = 3 # 1 if WITHLEAF else 20
+avgnodelength = 10.64
+
+
+module Init, LeafSet
+
+
+module B(position3,topdiameter) : scale = 1
+
+module S : base = B
+module U : base = B
+module V : base = B
+
+module K(newdir,length,topdiam,botdiam) : scale = 1
+module W : base = K
+module Z : base = K
+
+module Bud
+
+initialmtg = None
+
+def Start():
+    global initialmtg
+    initialmtg = mi.read_mtg()
+    mi.color_last_year_node(initialmtg)
+
+def End(lstring,scene):
+  if COMPARE:
+    compare(lstring,scene)
+
+def compare(lstring,scene):
+  print 'compare'
+  parameters = {}
+  scales = {}
+  for m in 'SUVWZ':
+    mod = ModuleClass.get(m)
+    scales[m] = mod.scale
+    parameters[m] = mod.parameterNames
+  resultingmtg = axialtree2mtg(lstring,scales,scene,parameters)
+  mc.compare(initialmtg,resultingmtg)
+  
+def StartEach():
+    seed(SEED)
+    if REGENERATE:
+      groupChanged = {1 : 1, 2 :2 }
+      try:      
+        useGroup(groupChanged[getIterationNb()])
+        print getIterationNb(),groupChanged[getIterationNb()]
+      except:
+        pass
+    #print getIterationNb()
+    
+
+
+def EndEach(lstring):
+    pass #print getIterationNb(),getGroup(), len(lstring), lstring.wellBracketed()
+
+
+def directlength(n,originalpos):
+    nbsons = 1
+    while not n is None:
+      ln = n
+      n = n.directSon()
+      nbsons += 1
+    dir = ln[0] - originalpos
+    return norm(dir),nbsons
+    
+def nbLateralSons(it):
+  latsons = it.lateralSons()
+  if latsons is None: 
+    return 0,0.0,0
+  nbsons = len(latsons)
+  lgts = [directlength(s,it[0]) for s in latsons]
+  avgl = mean([i[0] for i in lgts])
+  avgnb = mean([i[1] for i in lgts])
+  return nbsons, avgl, avgnb
+      
+
+
+Axiom:     @Tp(0,0,-1 if TROPISM < 50 else 1) @Gc  Init 
+
+derivation length: nbiter
+production:
+
+Init : 
+  # nproduce P
+  myaxiom = mi.construct_lstring(initialmtg)
+  assert myaxiom.wellBracketed()
+  nsproduce(myaxiom)
+
+group 1: # pruning
+
+U(p,d) --> %
+
+S(p0,d0) < $V(it): 
+  p,d = it[0],it[1]
+  nbdsons = 1
+  latsons = []
+  while not it is None and it.name == 'V':
+    lit = it
+    latsons.append(nbLateralSons(it))
+    it = it.directSon()
+    nbdsons += 1
+  vpos = lit[0]
+  vtdiam = lit[1]
+  dr = vpos - p0    
+  l = norm(dr)
+  if l > 0.001: 
+    dr = direction(dr)
+    avglatsons = [mean([i for i,j,k in latsons]),mean([j for i,j,k in latsons]),mean([k for i,j,k in latsons])]
+    vinfo = (dr,l,d,vtdiam,nbdsons,avglatsons) 
+    
+    nbdsons2 = 1
+    latsons = []
+    while not it is None and it.name == 'U':
+      lit = it
+      latsons.append(nbLateralSons(it))
+      it = it.directSon()
+      nbdsons2 += 1
+    upos = lit[0]
+    dr2 = upos - vpos
+    l2 = norm(dr2)
+    avglatsons = [mean([i for i,j,k in latsons]),mean([j for i,j,k in latsons]),mean([k for i,j,k in latsons])]
+    uinfo = (dr2,l2,vtdiam,lit[1],nbdsons2,avglatsons)
+   
+    # print dr
+    produce Bud(vinfo,uinfo)
+
+V(p,d) --> %
+
+group 2: # growth
+
+% --> 
+
+Bud(vinfo,uinfo) :
+  ndir,l,d,tdiam,nbdsons,avglatsons = vinfo
+  avglats, avglatl, avglatnb = avglatsons
+  l = l / nbdsons
+  nproduce @Ge   _(d/2) PinpointRel(ndir[0],ndir[1],ndir[2])
+  bdiam = d
+  for i in xrange(nbdsons):
+    lgth = uniform(l*0.8,l*1.2)
+    tpdiam = d+i*(tdiam-d)/(nbdsons-1)
+    nproduce  W(ndir, lgth,tpdiam,bdiam)
+    bdiam = tpdiam
+    if random() < avglats:
+       nb = round(avglatnb)
+       nproduce  [ /(137.5*i) +(60) 
+       for i in xrange(nb):
+         nproduce Z(ndir, uniform(avglatl/(2*nb), 3*avglatl/(2*nb)) ,tdiam/2,bdiam/2)
+       nproduce ]
+  ndir,l,d,tdiam,nbdsons,avglatsons = uinfo
+  avglats, avglatl, avglatnb = avglatsons
+  l = l / nbdsons
+  bdiam = tpdiam
+  nproduce @Ge @Gc   PinpointRel(ndir[0],ndir[1],ndir[2])
+  for i in xrange(nbdsons):
+    lgth = uniform(l*0.8,l*1.2)
+    tpdiam = d+i*(tdiam-d)/(nbdsons-1)
+    nproduce  Z(ndir, lgth,tpdiam,bdiam)
+    bdiam = tpdiam
+    if random() < avglats:
+       nb = round(avglatnb)
+       nproduce  [ /(137.5*i) +(60) 
+       for i in xrange(nb):
+         nproduce Z(ndir, uniform(avglatl/(2*nb), 3*avglatl/(2*nb)) ,tdiam/2,bdiam/2)
+       nproduce ]
+
+group 0:
+
+interpretation:
+maximum depth: 3
+
+
+
+S(oldpos,topdiameter0) < S(position,topdiameter) :
+    newdir = position-oldpos
+    l = newdir.normalize()
+    nproduce PinpointRel(newdir[0],newdir[1],newdir[2])
+    if l > 0:
+      if WITH_TROPISM:
+        nbseg,lastseg = divmod(l,dseg)
+        basediam = topdiameter0/2
+        ddiam = (topdiameter - topdiameter0) / (2 * l)
+        for i in xrange(int(nbseg)): nproduce F(dseg,basediam+ddiam*dseg*i)
+        if lastseg > 0: produce F(lastseg,topdiameter/2)
+      else:
+        produce F(l,topdiameter/2)
+
+S(oldpos,topdiameter0) < [ S(position,topdiameter) : 
+    nproduce [ @Ts(abs(TROPISM-50)/500.) _(topdiameter/2) 
+    newdir = position-oldpos
+    l = newdir.normalize()
+    nproduce PinpointRel(newdir[0],newdir[1],newdir[2])
+    if WITH_TROPISM:
+      nbseg,lastseg = divmod(l,dseg)
+      for i in xrange(int(nbseg)): nproduce F(dseg)
+      if lastseg > 0: produce F(lastseg)
+    else:
+       produce F(l)
+
+S(position,topdiameter) -->  _(topdiameter/2) OLineRel(position[0],
+                                      position[1],
+                                      position[2],topdiameter/2)
+
+*(pn,oldpos,olddiam) < [ *(n in 'UV',position,topdiameter) :
+    nproduce [
+    if OLDSTRUCTURE : produce 
+    if pn != n:
+      nproduce  @Ge _(topdiameter) @Gc  ,(2 if n is 'U' else 3) 
+    newdir = position-oldpos
+    l = newdir.normalize()
+    nproduce PinpointRel(newdir[0],newdir[1],newdir[2]) LeafSet(l,topdiameter)
+
+*(pn,oldpos,olddiam) < *(n in 'UV',position,topdiameter) :
+    if OLDSTRUCTURE : produce 
+    if pn != n:
+      nproduce @Ge @Gc ,(2 if n is 'U' else 3) 
+    newdir = position-oldpos
+    l = newdir.normalize()
+    nproduce PinpointRel(newdir[0],newdir[1],newdir[2]) LeafSet(l,topdiameter,olddiam)
+
+
+W(newdir,l,tdiam,bdiam) --> ,(3) K(l,tdiam,bdiam)
+
+K(l,tdiam,bdiam):
+    if not GENERATED_WITH_TROPISM:
+          nproduce F(l,tdiam/2)
+    else:
+          nbsegment,lastseg = divmod(l,dseg)
+          basediam = bdiam/2.
+          ddiam = (tdiam - bdiam) / (2 * l)
+          for i in xrange(int(nbsegment)): 
+            nproduce F(dseg,basediam+(ddiam*dseg*i))
+          if lastseg > 0: produce F(lastseg,tdiam/2)
+      
+  
+Z(newdir,l,tdiam,bdiam) --> ,(2)   K(l,tdiam,bdiam)
+  
+
+M(l) --> ,(3)LeafSet(l,None)
+
+LeafSet(l,topdiameter,basediameter) :
+  if l > 0:
+    nbsegment,lastseg = divmod(l,dseg)
+    if WITHLEAF:
+      nproduce [ @Ge _(0.1)
+      for i in xrange(int(nbsegment)):
+        nproduce f(dseg)/(137)[&(60) 
+        nproduce F(2)[+(60) ^(10) ~l(5)][-(60) ^(10) ~l(5)]
+        nproduce F(5)[+(60)~l(5)][-(60)~l(5)]
+        nproduce F(2) ^(10) ~l(5) ]
+      nproduce ]
+    # if topdiameter is None: produce F(l)
+    # else : produce F(l,topdiameter/2)  
+    if WITH_TROPISM:
+          basediam = basediameter/2
+          ddiam = (topdiameter - basediameter) / (2 * l)
+          for i in xrange(int(nbsegment)): nproduce F(dseg,basediam+ddiam*dseg*i)
+          if lastseg > 0: produce F(lastseg,topdiameter/2)
+    else:	
+          produce F(l,topdiameter/2)
+
+Bud(dir,diam) --> ,(3) @O
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	context.options.setSelection('Module inheritance',1)
+	scalars = [('WITHLEAF', False, False, True), ('SEED', 1, 0, 100), ('WITH_TROPISM', False, False, True), ('TROPISM', 60, 0, 100), ('OLDSTRUCTURE', False, False, True), ('GENERATED_WITH_TROPISM', True, False, True), ('REGENERATE', True, False, True), ('COMPARE', True, False, True)]
+	context["__scalars__"] = scalars
+	for n,v,mnv,mxv in scalars:
+		context[n] = v

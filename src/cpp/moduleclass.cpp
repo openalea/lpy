@@ -159,6 +159,7 @@ void ModuleClass::setParameterNames(const std::vector<std::string>& names){
 	__paramnames.clear();
 	std::vector<std::string>::const_iterator itname = names.begin();
 	for(size_t id = 0; itname != names.end(); ++itname,++id){
+		// printf("'%s' %i : %s\n",name.c_str(),id,itname->c_str());
 		__paramnames[*itname] = id;
 	}
 }

@@ -940,7 +940,7 @@ void Lsystem::__gRecursiveInterpretation(AxialTree& workingstring,
           }
           else { 
 			  interpreter.interpret(_itn);
-			  interpreter.incId();
+			  if(withid) interpreter.incId();
 			  ++_it; ++_itn;
           }
       }
