@@ -20,5 +20,7 @@ def compare(mtg1,mtg2,scale1=1,scale2=1):
     m = Matching(tree1,tree2,node_cost,1)
     val = m.match()
     res = m.getList(0,0)
+    idmap1 = dict([(j,i) for i,j in idmap1.iteritems()])
+    idmap2 = dict([(j,i) for i,j in idmap2.iteritems()])
     res = [(idmap1[i],idmap2[j],k) for i,j,k in res]
     return val,res

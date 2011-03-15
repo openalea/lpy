@@ -95,7 +95,7 @@ def construct_lstring(g):
     
     params = { 'S': paramnames, 'U' : paramnames, 'V' : paramnames }
     lstring = mtg2axialtree(g, params)
-    return lstring, g
+    return lstring
 
 def construct_walnut_lstring():
     g = read_mtg()

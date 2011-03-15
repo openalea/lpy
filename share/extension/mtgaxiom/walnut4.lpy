@@ -23,11 +23,18 @@ nbiter = 4 if COMPARE else 3
 avgnodelength = 10.64
 
 
-class UnMatchedType:
-  def __init__(self):
-    pass
+class MatchingType:
+  def __init__(self,value):
+    self.matching = value
 
-UnMatched = UnMatchedType()
+UnMatched = MatchingType(False)
+Matched   = MatchingType(True)
+
+def matchingcolor(arg,defaultval):
+  if arg == [] : return defaultval
+  else:
+    if arg[0] == UnMatched: return 2
+    else: return 1
 
 module Init, LeafSet
 
@@ -56,31 +63,33 @@ def End(lstring,scene):
   pass
 
 comparison_fname = 'comparison.pkl'
-def save_comparison(map):
+def dump(map,fname = comparison_fname):
    import pickle
-   f = file(comparison_fname,'w')
+   f = file(fname,'w')
    pickle.dump(map,f)
    f.close()
 
-def load_comparison():
+def load(fname = comparison_fname):
    import pickle
-   f = file(comparison_fname,'r')
+   f = file(fname,'r')
    return pickle.load(f)
 
-def check_comparison():
+def check_dump(fname = comparison_fname):
    import os
-   return os.path.exists(comparison_fname)
+   return os.path.exists(fname)
 
 def compare(lstring):
   print 'compare'
-  if check_comparison():
-    map = load_comparison()
+  if check_dump():
+    map = load()
   else:
     map = compute_comparison(lstring)
-    save_comparison(map)
+    dump(map)
   for i,m in enumerate(lstring):
-    if not i in map and m.label in exported_symbols:
+    if not i in map and m.name in 'WZ':
       m.append(UnMatched)
+    elif m.name in 'WZ':
+      m.append(Matched)
 
 def compute_comparison(lstring):
   parameters = {}
@@ -89,9 +98,14 @@ def compute_comparison(lstring):
     mod = ModuleClass.get(m)
     scales[m] = mod.scale
     parameters[m] = mod.parameterNames
-  resultingmtg = axialtree2mtg(lstring,scales,None,parameters)  
-  val,matching = mc.compare(initialmtg,resultingmtg)
+  resultingmtg = axialtree2mtg(lstring,scales,None,parameters)
+  if check_dump('matching.pkl'):
+    matching = load('matching.pkl')
+  else:
+    val,matching = mc.compare(initialmtg,resultingmtg)
+    dump(matching,'matching.pkl')
   idmap = resultingmtg.property('_axial_id')
+  print idmap
   return set([idmap[r] for i,r,v in matching])
 
 def StartEach():
@@ -108,7 +122,7 @@ def StartEach():
 
 
 def EndEach(lstring):
-  if COMPARE and getIterationNb() == 2:
+  if COMPARE and getIterationNb() == 3:
     compare(lstring)
     
 
@@ -134,7 +148,7 @@ def nbLateralSons(it):
       
 
 
-Axiom:     @Tp(0,0,-1 if TROPISM < 50 else 1) @Gc  Init 
+Axiom:     @Tp(0,0,-1 if TROPISM < 50 else 1) @Gc Init 
 
 derivation length: nbiter
 production:
@@ -226,6 +240,8 @@ Bud(vinfo,uinfo) :
 
 group 3:
 
+[] --> 
+
 group 0:
 
 interpretation:
@@ -270,7 +286,7 @@ S(position,topdiameter) -->  _(topdiameter/2) OLineRel(position[0],
       nproduce  @Ge _(topdiameter) @Gc  ,(2 if n is 'U' else 3) 
     newdir = position-oldpos
     l = newdir.normalize()
-    nproduce PinpointRel(newdir[0],newdir[1],newdir[2]) LeafSet(l,topdiameter)
+    nproduce PinpointRel(newdir[0],newdir[1],newdir[2]) LeafSet(l,topdiameter,olddiam,WITH_TROPISM)
 
 *(pn,oldpos,olddiam) < *(n in 'UV',position,topdiameter) :
     if OLDSTRUCTURE : produce 
@@ -278,12 +294,13 @@ S(position,topdiameter) -->  _(topdiameter/2) OLineRel(position[0],
       nproduce @Ge @Gc ,(2 if n is 'U' else 3) 
     newdir = position-oldpos
     l = newdir.normalize()
-    nproduce PinpointRel(newdir[0],newdir[1],newdir[2]) LeafSet(l,topdiameter,olddiam)
+    nproduce PinpointRel(newdir[0],newdir[1],newdir[2]) LeafSet(l,topdiameter,olddiam,WITH_TROPISM)
 
-
-W(newdir,l,tdiam,bdiam) --> ,(3) K(l,tdiam,bdiam)
+Z(newdir,l,tdiam,bdiam,*matched) --> ,(matchingcolor(matched,2))   K(l,tdiam,bdiam)
+W(newdir,l,tdiam,bdiam,*matched) --> ,(matchingcolor(matched,3))   K(l,tdiam,bdiam)
 
 K(l,tdiam,bdiam):
+    produce LeafSet(l,tdiam,bdiam,GENERATED_WITH_TROPISM) 
     if not GENERATED_WITH_TROPISM:
           nproduce F(l,tdiam/2)
     else:
@@ -295,16 +312,16 @@ K(l,tdiam,bdiam):
           if lastseg > 0: produce F(lastseg,tdiam/2)
       
   
-Z(newdir,l,tdiam,bdiam) --> ,(2)   K(l,tdiam,bdiam)
-  
+
+
 
 M(l) --> ,(3)LeafSet(l,None)
 
-LeafSet(l,topdiameter,basediameter) :
+LeafSet(l,topdiameter,basediameter,tropism) :
   if l > 0:
     nbsegment,lastseg = divmod(l,dseg)
     if WITHLEAF:
-      nproduce [ @Ge _(0.1)
+      nproduce [ @Ge SectionResolution(4) _(0.1)
       for i in xrange(int(nbsegment)):
         nproduce f(dseg)/(137)[&(60) 
         nproduce F(2)[+(60) ^(10) ~l(5)][-(60) ^(10) ~l(5)]
@@ -313,7 +330,7 @@ LeafSet(l,topdiameter,basediameter) :
       nproduce ]
     # if topdiameter is None: produce F(l)
     # else : produce F(l,topdiameter/2)  
-    if WITH_TROPISM:
+    if tropism:
           basediam = basediameter/2
           ddiam = (topdiameter - basediameter) / (2 * l)
           for i in xrange(int(nbsegment)): nproduce F(dseg,basediam+ddiam*dseg*i)
