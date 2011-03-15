@@ -19,9 +19,15 @@ from numpy import mean
 
 dseg = 4.
 
-nbiter = 3 # 1 if WITHLEAF else 20
+nbiter = 4 if COMPARE else 3
 avgnodelength = 10.64
 
+
+class UnMatchedType:
+  def __init__(self):
+    pass
+
+UnMatched = UnMatchedType()
 
 module Init, LeafSet
 
@@ -38,6 +44,7 @@ module Z : base = K
 
 module Bud
 
+exported_symbols = 'SUVWZ'
 initialmtg = None
 
 def Start():
@@ -46,24 +53,51 @@ def Start():
     mi.color_last_year_node(initialmtg)
 
 def End(lstring,scene):
-  if COMPARE:
-    compare(lstring,scene)
+  pass
 
-def compare(lstring,scene):
+comparison_fname = 'comparison.pkl'
+def save_comparison(map):
+   import pickle
+   f = file(comparison_fname,'w')
+   pickle.dump(map,f)
+   f.close()
+
+def load_comparison():
+   import pickle
+   f = file(comparison_fname,'r')
+   return pickle.load(f)
+
+def check_comparison():
+   import os
+   return os.path.exists(comparison_fname)
+
+def compare(lstring):
   print 'compare'
+  if check_comparison():
+    map = load_comparison()
+  else:
+    map = compute_comparison(lstring)
+    save_comparison(map)
+  for i,m in enumerate(lstring):
+    if not i in map and m.label in exported_symbols:
+      m.append(UnMatched)
+
+def compute_comparison(lstring):
   parameters = {}
   scales = {}
-  for m in 'SUVWZ':
+  for m in exported_symbols:
     mod = ModuleClass.get(m)
     scales[m] = mod.scale
     parameters[m] = mod.parameterNames
-  resultingmtg = axialtree2mtg(lstring,scales,scene,parameters)
-  mc.compare(initialmtg,resultingmtg)
-  
+  resultingmtg = axialtree2mtg(lstring,scales,None,parameters)  
+  val,matching = mc.compare(initialmtg,resultingmtg)
+  idmap = resultingmtg.property('_axial_id')
+  return set([idmap[r] for i,r,v in matching])
+
 def StartEach():
     seed(SEED)
     if REGENERATE:
-      groupChanged = {1 : 1, 2 :2 }
+      groupChanged = {1 : 1, 2 :2, 3 : 3}
       try:      
         useGroup(groupChanged[getIterationNb()])
         print getIterationNb(),groupChanged[getIterationNb()]
@@ -74,7 +108,9 @@ def StartEach():
 
 
 def EndEach(lstring):
-    pass #print getIterationNb(),getGroup(), len(lstring), lstring.wellBracketed()
+  if COMPARE and getIterationNb() == 2:
+    compare(lstring)
+    
 
 
 def directlength(n,originalpos):
@@ -186,6 +222,9 @@ Bud(vinfo,uinfo) :
        for i in xrange(nb):
          nproduce Z(ndir, uniform(avglatl/(2*nb), 3*avglatl/(2*nb)) ,tdiam/2,bdiam/2)
        nproduce ]
+
+
+group 3:
 
 group 0:
 

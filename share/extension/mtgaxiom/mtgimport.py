@@ -37,13 +37,14 @@ def read_mtg(fn = 'walnut.mtg' ,drf = 'walnut.drf'):
 
 def color_last_year_node(g):
     def year_ancestors(i):
-        ancestors = [i]   
+        ancestors = [i]
+        assert g.label(i)[0] == 'U'
         while g.label(g.parent(i))[0] == 'U' :
             i = g.parent(i)
             ancestors.append(i)
         return ancestors
-    leaves = [i for i in g.vertices(scale=1) if g.nb_children(i) == 0]
-    gu = [year_ancestors(i) for i in leaves]
+    leaves = [vtx for vtx in g.vertices(scale=1) if g.nb_children(vtx) == 0 and g.label(vtx)[0] == 'U']
+    gu = [year_ancestors(leaf) for leaf in leaves]
     toppos = g.property('TopPosition')
     def nodepos(i):
         try:
