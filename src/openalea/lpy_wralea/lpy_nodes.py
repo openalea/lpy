@@ -29,6 +29,25 @@ def lsystem(code, axiom = '', derivationlength = -1, parameters = {}):
 
     return l
 
+def run_lpy(lpy_filename, axiom = '', derivationlength = -1, parameters = {}):
+    """ Run a LSystem file and return the resulting AxialTree.
+
+    :Parameter:
+        - LSystem source: (IFileStr) a lpy filename
+        - axiom: (str) axiom for lpy
+        - derivationlength (int)
+        - parameters: (dict) global parameters that can be changed outside lpy.
+
+    :Returns:
+        - axial tree
+        - the modified lsystem object
+    """
+    code = ''
+    with open(lpy_filename) as f:
+        code = f.read()
+    
+    l = lsystem(code, axiom, derivationlength, parameters)
+    return run(l, axiom='', parameters=parameters)
 
 def animate(lsystem, timestep):
     """ Animate a lsystem """

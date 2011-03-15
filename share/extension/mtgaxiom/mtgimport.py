@@ -9,7 +9,7 @@ def flatten(g):
     microroot = g.component_roots_at_scale(g.root,g.max_scale()).next()
     
     g = g.sub_tree(microroot,True)
-    g, props = colored_tree(g,colors={1:list(g.vertices())})
+    g, props = colored_tree(g,colors={1:list(g.vertices(scale=g.max_scale()))})
     
     #f = file('debug.txt','w')
     #f.write(str(g))
@@ -94,7 +94,7 @@ def construct_lstring(g):
     
     params = { 'S': paramnames, 'U' : paramnames, 'V' : paramnames }
     lstring = mtg2axialtree(g, params)
-    return lstring
+    return lstring, g
 
 def construct_walnut_lstring():
     g = read_mtg()
@@ -110,3 +110,4 @@ if __name__ == '__m_ain__':
     # print lstring[0:10]
     # print lstring[5]
     # print len(lstring[5])
+

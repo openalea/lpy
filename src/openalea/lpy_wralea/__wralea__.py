@@ -120,4 +120,21 @@ generate_scene = Factory( name="generateScene",
 
 __all__.append('generate_scene')
 
+run_lpy = Factory( name="run lpy", 
+                  description="Run a LSystem", 
+                  category="scene.lsystem", 
+                  nodemodule="lpy_nodes",
+                  nodeclass="run_lpy",
+
+                  inputs=(dict(name='LSystem file', interface=IFileStr),
+                          dict(name='Axiom', interface=ITextStr, value=''),
+                          dict(name='DerivationLength', interface=IInt, value=-1),
+                          dict(name='Parameters', interface=IDict, value={}),
+                          ),
+                  
+                  outputs=(dict(name='AxialTree', interface=ITextStr),
+                           dict(name='LSystem'), )
+                  )
+
+__all__.append('run_lpy')
 
