@@ -19,7 +19,7 @@ from numpy import mean
 
 dseg = 4.
 
-nbiter = 4 if COMPARE else 3
+nbiter = 4 #if COMPARE else 3
 avgnodelength = 10.64
 
 
@@ -89,12 +89,13 @@ def check_dump(fname = comparison_fname):
 def compare(lstring):
   print 'compare'
   mtg = export_to_mtg(lstring)
-  if check_dump():
-    map = load()
+  print 'MTG:',len(initialmtg),len(mtg)
+  if check_dump() and not FORCE_COMPARE:
+    val,map = load()
   else:
-    map = compute_comparison(mtg)
-    dump(map)
-  
+    val,map = compute_comparison(mtg)
+    dump((val,map))
+  print 'Comparison : ',val
   if PROP_VIEW:
     set_matching_proportion_tag(lstring,mtg,map)
   else:
@@ -129,6 +130,7 @@ def set_matching_proportion_tag(lstring,mtg,map):
         if isinstance(m,int): l += [m]
         else: l += m
 
+
 def export_to_mtg(lstring):
   parameters = {}
   scales = {}
@@ -139,9 +141,9 @@ def export_to_mtg(lstring):
   return axialtree2mtg(lstring,scales,None,parameters)
 
 def compute_comparison(resultingmtg):
-  val,matching = mc.compare(initialmtg,resultingmtg)
+  val,matching = mc.compare(initialmtg,resultingmtg)  
   idmap = resultingmtg.property('_axial_id')
-  return set([idmap[r] for i,r,v in matching])
+  return val,set([idmap[r] for i,r,v in matching])
 
 def StartEach():
     seed(SEED)
@@ -158,8 +160,12 @@ def StartEach():
 from openalea.plantgl.all import Viewer
 
 def EndEach(lstring):
-  if COMPARE and getIterationNb() == 3:
-    compare(lstring)
+  if getIterationNb() == 3:
+    if COMPARE :
+      compare(lstring)
+    else:
+      mtg = export_to_mtg(lstring)
+      print len(initialmtg),len(mtg)
     
 
 
@@ -186,9 +192,7 @@ def nbLateralSons(it):
 def getmainbranches(lstring,fid=42):
   mb = [fid]
   pid = lstring.father(fid)
-  print pid
   pid2 = lstring.sons(pid)[1]
-  print pid2
   br,pid2 = lstring.sons(pid2)
   mb.append(br)
   br,pid2 = lstring.sons(pid2)
@@ -198,7 +202,7 @@ def getmainbranches(lstring,fid=42):
   mb += lstring.sons(pid2)
   return mb
 
-MainBranchRoots = [42, 1846, 6263, 8220, 10666, 13271]
+#MainBranchRoots = [42, 1846, 6263, 8220, 10666, 13271]
 
 Axiom:     @Tp(0,0,-1 if TROPISM < 50 else 1) @Gc  Init 
 
@@ -266,8 +270,8 @@ Bud(vinfo,uinfo) :
     tpdiam = d+i*(tdiam-d)/(nbdsons-1)
     nproduce  W(ndir, lgth,tpdiam,bdiam)
     bdiam = tpdiam
-    if random() < avglats:
-       nb = round(avglatnb)
+    if random() < avglats*0.85:
+       nb = round(avglatnb*.9)
        nproduce  [ /(137.5*i) +(60) 
        for i in xrange(nb):
          nproduce Z(ndir, uniform(avglatl/(2*nb), 3*avglatl/(2*nb)) ,tdiam/2,bdiam/2)
@@ -277,7 +281,7 @@ Bud(vinfo,uinfo) :
   l = l / nbdsons
   bdiam = tpdiam
   nproduce @Ge @Gc   PinpointRel(ndir[0],ndir[1],ndir[2])
-  for i in xrange(nbdsons):
+  for i in xrange(nbdsons*.9):
     lgth = uniform(l*0.8,l*1.2)
     tpdiam = d+i*(tdiam-d)/(nbdsons-1)
     nproduce  Z(ndir, lgth,tpdiam,bdiam)
@@ -472,7 +476,7 @@ def __initialiseContext__(context):
 	Color_20.name = "Color_20"
 	context.turtle.setMaterial(20,Color_20)
 	context.options.setSelection('Module inheritance',1)
-	scalars = [('WITHLEAF', False, False, True), ('SEED', 1, 0, 100), ('WITH_TROPISM', False, False, True), ('TROPISM', 60, 0, 100), ('OLDSTRUCTURE', False, False, True), ('GENERATED_WITH_TROPISM', True, False, True), ('REGENERATE', True, False, True), ('COMPARE', True, False, True), ('PROP_VIEW', True, False, True)]
+	scalars = [('WITHLEAF', False, False, True), ('SEED', 1, 0, 100), ('WITH_TROPISM', False, False, True), ('TROPISM', 60, 0, 100), ('OLDSTRUCTURE', False, False, True), ('GENERATED_WITH_TROPISM', True, False, True), ('REGENERATE', True, False, True), ('COMPARE', True, False, True), ('FORCE_COMPARE', False, False, True), ('PROP_VIEW', True, False, True)]
 	context["__scalars__"] = scalars
 	for n,v,mnv,mxv in scalars:
 		context[n] = v

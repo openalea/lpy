@@ -31,9 +31,10 @@ def getproportion(mtg,roots,matched,rebuildclasses = 'WZ'):
      nbelements = 0
      nbmatched = 0
      for vtx in algo.descendants(mtg,r):
-       nbelements += 1
-       if vtx in matched:
-           nbmatched += 1
+       if True : # mtg.label(vtx)[0] in rebuildclasses:
+         nbelements += 1
+         if vtx in matched:
+             nbmatched += 1
      print r,nbmatched,nbelements,nbmatched/float(nbelements)
      proportions[r]=(nbmatched/float(nbelements))
    return proportions
