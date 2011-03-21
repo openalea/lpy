@@ -30,6 +30,7 @@
 
 #include "axialtree.h"
 #include "patternstring.h"
+#include "nodemodule.h"
 #include "axialtree_manip.h"
 #include "axialtree_iter.h"
 #include "export_lstring.h"
@@ -234,6 +235,9 @@ AxialTree& py_iadd_ax_tuple(AxialTree * first, const boost::python::tuple& patte
 void py_insert_ax_tuple(AxialTree * first, int i, const boost::python::tuple& pattern) 
 {   first->setItemAt(i,ParamModule(pattern));  }
 
+NodeModule py_node(AxialTree * lstring, int i) 
+{   return NodeModule(int_to_iter(lstring,i),lstring->const_begin(),lstring->const_end());  }
+
 void export_AxialTree() {
 
   class_<AxialTree>
@@ -266,6 +270,7 @@ void export_AxialTree() {
 	.PY_MATCH_WRAPPER_DEC(leftmatch)
 	.PY_MATCH_WRAPPER_DEC(rightmatch)
     .def( "__iter__", &py_at_iter )
+    .def( "node", &py_node )
 	;
     axialtree_from_str();
 

@@ -30,11 +30,19 @@ class MatchingType:
 UnMatched = MatchingType(False)
 Matched   = MatchingType(True)
 
+class MatchingProp:
+  def __init__(self,value):
+    self.value = value
+  def __repr__(self):
+    return 'MatchingProp('+repr(self.value)+')'
+
 def matchingcolor(arg,defaultval):
   if arg == [] : return defaultval
   else:
-    if arg[0] == UnMatched: return 2
-    else: return 1
+    if isinstance(arg[0],MatchingProp) : 
+      return 10 + int(10*arg[0].value)
+    elif arg[0] == UnMatched: return 5
+    else: return 6
 
 module Init, LeafSet
 
@@ -80,32 +88,55 @@ def check_dump(fname = comparison_fname):
 
 def compare(lstring):
   print 'compare'
+  mtg = export_to_mtg(lstring)
   if check_dump():
     map = load()
   else:
-    map = compute_comparison(lstring)
+    map = compute_comparison(mtg)
     dump(map)
-  for i,m in enumerate(lstring):
-    if not i in map and m.name in 'WZ':
-      m.append(UnMatched)
-    elif m.name in 'WZ':
-      m.append(Matched)
+  #set_matching_tag(lstring,map)
+  set_matching_proportion_tag(lstring,mtg,map)
 
-def compute_comparison(lstring):
+def set_matching_tag(lstring,map):
+  for i,m in enumerate(lstring):
+    if m.name in 'WZ':
+      if i in map:
+        m.append(Matched)
+      else:
+        m.append(UnMatched)
+
+def set_matching_proportion_tag(lstring,mtg,map):
+  idmap = dict([(j,i) for i,j in mtg.property('_axial_id').iteritems()])
+  mtgrootids = [idmap[i] for i in MainBranchRoots]
+  propmap = mc.getproportion(mtg,mtgrootids,map)
+  propmap = dict([(mtg.property('_axial_id')[i],j) for i,j in propmap.iteritems()])
+  print propmap
+  for r in MainBranchRoots:
+    p = propmap[r]
+    mp = MatchingProp(p)
+    l = [r]
+    while len(l) > 0:
+      n = l.pop(0)
+      a = lstring[n]      
+      if a.name in 'WZ':
+        a.append(mp)
+      m = lstring.sons(n)
+      if not m is None: 
+        if isinstance(m,int): l += [m]
+        else: l += m
+
+def export_to_mtg(lstring):
   parameters = {}
   scales = {}
   for m in exported_symbols:
     mod = ModuleClass.get(m)
     scales[m] = mod.scale
     parameters[m] = mod.parameterNames
-  resultingmtg = axialtree2mtg(lstring,scales,None,parameters)
-  if check_dump('matching.pkl'):
-    matching = load('matching.pkl')
-  else:
-    val,matching = mc.compare(initialmtg,resultingmtg)
-    dump(matching,'matching.pkl')
+  return axialtree2mtg(lstring,scales,None,parameters)
+
+def compute_comparison(resultingmtg):
+  val,matching = mc.compare(initialmtg,resultingmtg)
   idmap = resultingmtg.property('_axial_id')
-  print idmap
   return set([idmap[r] for i,r,v in matching])
 
 def StartEach():
@@ -120,6 +151,7 @@ def StartEach():
     #print getIterationNb()
     
 
+from openalea.plantgl.all import Viewer
 
 def EndEach(lstring):
   if COMPARE and getIterationNb() == 3:
@@ -145,10 +177,11 @@ def nbLateralSons(it):
   avgl = mean([i[0] for i in lgts])
   avgnb = mean([i[1] for i in lgts])
   return nbsons, avgl, avgnb
-      
 
 
-Axiom:     @Tp(0,0,-1 if TROPISM < 50 else 1) @Gc Init 
+MainBranchRoots = [42, 1846, 6263, 8220, 10666, 13271]
+
+Axiom:     @Tp(0,0,-1 if TROPISM < 50 else 1) @Gc  Init 
 
 derivation length: nbiter
 production:
@@ -296,8 +329,8 @@ S(position,topdiameter) -->  _(topdiameter/2) OLineRel(position[0],
     l = newdir.normalize()
     nproduce PinpointRel(newdir[0],newdir[1],newdir[2]) LeafSet(l,topdiameter,olddiam,WITH_TROPISM)
 
-Z(newdir,l,tdiam,bdiam,*matched) --> ,(matchingcolor(matched,2))   K(l,tdiam,bdiam)
-W(newdir,l,tdiam,bdiam,*matched) --> ,(matchingcolor(matched,3))   K(l,tdiam,bdiam)
+Z(newdir,l,tdiam,bdiam,*matched) --> ,(matchingcolor(matched,2)) @Ge  K(l,tdiam,bdiam)
+W(newdir,l,tdiam,bdiam,*matched) --> ,(matchingcolor(matched,3)) @Ge  K(l,tdiam,bdiam)
 
 K(l,tdiam,bdiam):
     produce LeafSet(l,tdiam,bdiam,GENERATED_WITH_TROPISM) 
@@ -347,6 +380,78 @@ endlsystem
 __lpy_code_version__ = 1.1
 
 def __initialiseContext__(context):
+	import openalea.plantgl.all as pgl
+	Color_4 = pgl.Material("Color_4" , 		ambient = (0,0,127) , 
+		diffuse = 1.09449 , 
+)
+	Color_4.name = "Color_4"
+	context.turtle.setMaterial(4,Color_4)
+	Color_5 = pgl.Material("Color_5" , 		ambient = (60,60,15) , 
+		diffuse = 3 , 
+)
+	Color_5.name = "Color_5"
+	context.turtle.setMaterial(5,Color_5)
+	Color_6 = pgl.Material("Color_6" , 		ambient = (78,0,117) , 
+		diffuse = 1.53846 , 
+		specular = (0,0,0) , 
+)
+	Color_6.name = "Color_6"
+	context.turtle.setMaterial(6,Color_6)
+	Color_10 = pgl.Material("Color_10" , 		ambient = (0,0,127) , 
+		diffuse = 1.09449 , 
+)
+	Color_10.name = "Color_10"
+	context.turtle.setMaterial(10,Color_10)
+	Color_11 = pgl.Material("Color_11" , 		ambient = (6,0,114) , 
+		diffuse = 1.28504 , 
+)
+	Color_11.name = "Color_11"
+	context.turtle.setMaterial(11,Color_11)
+	Color_12 = pgl.Material("Color_12" , 		ambient = (12,0,101) , 
+		diffuse = 1.47559 , 
+)
+	Color_12.name = "Color_12"
+	context.turtle.setMaterial(12,Color_12)
+	Color_13 = pgl.Material("Color_13" , 		ambient = (18,0,88) , 
+		diffuse = 1.66614 , 
+)
+	Color_13.name = "Color_13"
+	context.turtle.setMaterial(13,Color_13)
+	Color_14 = pgl.Material("Color_14" , 		ambient = (24,0,76) , 
+		diffuse = 1.85669 , 
+)
+	Color_14.name = "Color_14"
+	context.turtle.setMaterial(14,Color_14)
+	Color_15 = pgl.Material("Color_15" , 		ambient = (30,0,63) , 
+		diffuse = 2.04725 , 
+)
+	Color_15.name = "Color_15"
+	context.turtle.setMaterial(15,Color_15)
+	Color_16 = pgl.Material("Color_16" , 		ambient = (36,0,50) , 
+		diffuse = 2.2378 , 
+)
+	Color_16.name = "Color_16"
+	context.turtle.setMaterial(16,Color_16)
+	Color_17 = pgl.Material("Color_17" , 		ambient = (42,0,38) , 
+		diffuse = 2.42835 , 
+)
+	Color_17.name = "Color_17"
+	context.turtle.setMaterial(17,Color_17)
+	Color_18 = pgl.Material("Color_18" , 		ambient = (47,0,25) , 
+		diffuse = 2.6189 , 
+)
+	Color_18.name = "Color_18"
+	context.turtle.setMaterial(18,Color_18)
+	Color_19 = pgl.Material("Color_19" , 		ambient = (53,0,12) , 
+		diffuse = 2.80945 , 
+)
+	Color_19.name = "Color_19"
+	context.turtle.setMaterial(19,Color_19)
+	Color_20 = pgl.Material("Color_20" , 		ambient = (60,0,0) , 
+		diffuse = 3 , 
+)
+	Color_20.name = "Color_20"
+	context.turtle.setMaterial(20,Color_20)
 	context.options.setSelection('Module inheritance',1)
 	scalars = [('WITHLEAF', False, False, True), ('SEED', 1, 0, 100), ('WITH_TROPISM', False, False, True), ('TROPISM', 60, 0, 100), ('OLDSTRUCTURE', False, False, True), ('GENERATED_WITH_TROPISM', True, False, True), ('REGENERATE', True, False, True), ('COMPARE', True, False, True)]
 	context["__scalars__"] = scalars

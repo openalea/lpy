@@ -1,7 +1,7 @@
 
 from openalea.tree_matching import *
 from openalea.tree_matching.mtgimport import mtg2treegraph
-
+import openalea.mtg.algo as algo
 
 class MyNodeCost (NodeCost):
   def __init__(self):
@@ -24,3 +24,19 @@ def compare(mtg1,mtg2,scale1=1,scale2=1):
     idmap2 = dict([(j,i) for i,j in idmap2.iteritems()])
     res = [(idmap1[i],idmap2[j],k) for i,j,k in res]
     return val,res
+
+def getproportion(mtg,roots,matched,rebuildclasses = 'WZ'):
+   proportions = {}
+   for r in roots:
+     nbelements = 0
+     nbmatched = 0
+     for vtx in algo.descendants(mtg,r):
+       nbelements += 1
+       if vtx in matched:
+           nbmatched += 1
+     print r,nbmatched,nbelements,nbmatched/float(nbelements)
+     proportions[r]=(nbmatched/float(nbelements))
+   return proportions
+
+def setproportions(axialtree,mapping,proportions):
+   pass
