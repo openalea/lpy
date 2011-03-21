@@ -94,8 +94,11 @@ def compare(lstring):
   else:
     map = compute_comparison(mtg)
     dump(map)
-  #set_matching_tag(lstring,map)
-  set_matching_proportion_tag(lstring,mtg,map)
+  
+  if PROP_VIEW:
+    set_matching_proportion_tag(lstring,mtg,map)
+  else:
+    set_matching_tag(lstring,map)  
 
 def set_matching_tag(lstring,map):
   for i,m in enumerate(lstring):
@@ -106,6 +109,7 @@ def set_matching_tag(lstring,map):
         m.append(UnMatched)
 
 def set_matching_proportion_tag(lstring,mtg,map):
+  MainBranchRoots = getmainbranches(lstring)
   idmap = dict([(j,i) for i,j in mtg.property('_axial_id').iteritems()])
   mtgrootids = [idmap[i] for i in MainBranchRoots]
   propmap = mc.getproportion(mtg,mtgrootids,map)
@@ -178,6 +182,21 @@ def nbLateralSons(it):
   avgnb = mean([i[1] for i in lgts])
   return nbsons, avgl, avgnb
 
+
+def getmainbranches(lstring,fid=42):
+  mb = [fid]
+  pid = lstring.father(fid)
+  print pid
+  pid2 = lstring.sons(pid)[1]
+  print pid2
+  br,pid2 = lstring.sons(pid2)
+  mb.append(br)
+  br,pid2 = lstring.sons(pid2)
+  mb.append(br)
+  br,pid2 = lstring.sons(pid2)
+  mb.append(br)
+  mb += lstring.sons(pid2)
+  return mb
 
 MainBranchRoots = [42, 1846, 6263, 8220, 10666, 13271]
 
@@ -453,7 +472,7 @@ def __initialiseContext__(context):
 	Color_20.name = "Color_20"
 	context.turtle.setMaterial(20,Color_20)
 	context.options.setSelection('Module inheritance',1)
-	scalars = [('WITHLEAF', False, False, True), ('SEED', 1, 0, 100), ('WITH_TROPISM', False, False, True), ('TROPISM', 60, 0, 100), ('OLDSTRUCTURE', False, False, True), ('GENERATED_WITH_TROPISM', True, False, True), ('REGENERATE', True, False, True), ('COMPARE', True, False, True)]
+	scalars = [('WITHLEAF', False, False, True), ('SEED', 1, 0, 100), ('WITH_TROPISM', False, False, True), ('TROPISM', 60, 0, 100), ('OLDSTRUCTURE', False, False, True), ('GENERATED_WITH_TROPISM', True, False, True), ('REGENERATE', True, False, True), ('COMPARE', True, False, True), ('PROP_VIEW', True, False, True)]
 	context["__scalars__"] = scalars
 	for n,v,mnv,mxv in scalars:
 		context[n] = v
