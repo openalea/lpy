@@ -91,6 +91,27 @@ run_node = Factory( name="run",
 
 __all__.append('run_node')
 
+_iter_node = Factory( name="iterate", 
+                  description="iterate over a LSystem", 
+                  category="scene.lsystem", 
+                  nodemodule="lpy_nodes",
+                  nodeclass="iterate",
+
+                  inputs=(dict(name='LSystem', interface=None, value=None),
+                          dict(name='Axiom', interface=ITextStr, value=''),
+                          dict(name='DerivationLength', interface=IInt, value=-1),
+                          dict(name='Parameters', interface=IDict, value={}),
+                          dict(name='Local Parameters', interface=IDict, value={}),
+                          ),
+                  
+                  outputs=(dict(name='AxialTree', interface=ITextStr),
+                           dict(name='LSystem'),
+                            dict(name='Parameters', interface=IDict),
+                        )
+                  )
+
+__all__.append('_iter_node')
+
 plot_node = Factory( name="plot", 
                   description="Plot a LSystem", 
                   category="scene.lsystem", 

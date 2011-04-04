@@ -1,8 +1,11 @@
+import os
 
 from openalea.lpy import Lsystem,AxialTree,generateScene
 from openalea.plantgl.all import Viewer,PglTurtle
 import PyQt4.QtCore as qt
 
+def is_file(str):
+    return os.path.isfile(str)
 
 def axialtree(lstring):
     """ Build an axial tree object """
@@ -17,13 +20,25 @@ def writeLstring(lstring,fname):
 def lsystem(code, axiom = '', derivationlength = -1, parameters = {}):
     """ Build a lsystem object from code """
     l = Lsystem()
+
+    # Check if the string is the filename or he Lpy code.
+    if is_file(code):
+        with open(code) as f:
+            code = f.read()
+
+    if parameters and (not isinstance(parameters, dict)) and is_file(parameters):
+        with open(parameters) as f:
+            py_code = f.read()
+            parameters = {}
+            exec(py_code, globals(), parameters)
+
     l.set(str(code),parameters)
     if len(axiom):
         l.makeCurrent()
         if type(axiom) != AxialTree:
             axiom = AxialTree(axiom)
         l.axiom = axiom
-        l.done()
+        #l.done()
     if derivationlength >= 0:
         l.derivationLength = derivationlength
 
@@ -46,8 +61,8 @@ def run_lpy(lpy_filename, axiom = '', derivationlength = -1, parameters = {}):
     with open(lpy_filename) as f:
         code = f.read()
     
-    l = lsystem(code, axiom, derivationlength, parameters)
-    return run(l, axiom='', parameters=parameters)
+    l = lsystem(code, axiom, derivationlength)
+    return run(l, axiom=axiom, parameters=parameters)
 
 def animate(lsystem, timestep):
     """ Animate a lsystem """
@@ -71,6 +86,25 @@ def run(lsystem, axiom = '', nbstep = -1, parameters = {}):
     if len(parameters) > 0:
         lsystem.context().updateNamespace(parameters)
     return lsystem.iterate(c_iter,nbstep,axiom), lsystem
+
+def iterate(lsystem, axiom = '', nbstep = -1, parameters = {}, local = {}):
+    if parameters and (not isinstance(parameters, dict)) and is_file(parameters):
+        with open(parameters) as f:
+            py_code = f.read()
+            parameters = {}
+            exec(py_code, globals(), parameters)
+
+    local_settings = dict(parameters)
+    if local:
+        local_settings.update(local)
+
+    axial, l = run(lsystem, axiom, nbstep, local_settings)
+    params = dict(parameters)
+    d = dict()
+    l.context().getNamespace(d)
+    for k in parameters:
+        params[k] = d[k]
+    return axial, l, params
 
 def plot(axiom = '', lsystem = None):
     """ Plot a string """

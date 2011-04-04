@@ -11,7 +11,12 @@ Axiom: A(VAR)
 
 def test_namespace_at_creation():
    l = Lsystem()
-   l.set(code,{'VAR':True})
+   d = {'VAR':True}
+   l.set(code,d)
+   l.iterate()
+
+   l = Lsystem()
+   l.set(code,d)
    l.iterate()
 
 code = """
