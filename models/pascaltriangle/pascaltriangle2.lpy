@@ -1,0 +1,34 @@
+# See http://fr.wikipedia.org/wiki/Triangle_de_Pascal
+# symmetrical version
+
+Axiom: -(90) U(1) 
+
+derivation length: 10
+production:
+
+
+E < U(y) > E--> E
+U(x) < E > U(y)--> U(x+y)
+
+U(x) > E --> U(x) E
+E < U(x) --> E U(x)
+U(x) --> U(x) E U(x) 
+
+
+interpretation:
+
+U(x) --> f(1)[+(90)f(0.1) Label(str(x))]
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	import openalea.plantgl.all as pgl
+	Color_1 = pgl.Material("Color_1" , 		ambient = (0,0,0) , 
+		diffuse = 3 , 
+		specular = (0,0,0) , 
+)
+	Color_1.name = "Color_1"
+	context.turtle.setMaterial(1,Color_1)
