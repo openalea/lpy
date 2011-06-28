@@ -319,17 +319,17 @@ public:
   inline std::vector<const_iterator> roots() const
   {  return LPY::roots(const_begin(),const_end()); }
 
-  inline const_iterator father(const_iterator pos) const
-  { return LPY::father(pos,const_begin(),const_end());}
+  inline const_iterator parent(const_iterator pos) const
+  { return LPY::parent(pos,const_begin(),const_end());}
 
-  inline std::vector<const_iterator> sons(const_iterator pos) const
-  { return LPY::sons(pos,const_end()); }
+  inline std::vector<const_iterator> children(const_iterator pos) const
+  { return LPY::children(pos,const_end()); }
 
-  inline std::vector<const_iterator> lateralSons(const_iterator pos) const
-  { return LPY::lateralSons(pos,const_end()); }
+  inline std::vector<const_iterator> lateral_children(const_iterator pos) const
+  { return LPY::lateral_children(pos,const_end()); }
 
-  inline const_iterator directSon(const_iterator pos) const
-  { return LPY::directSon(pos,const_end()); }
+  inline const_iterator direct_child(const_iterator pos) const
+  { return LPY::direct_child(pos,const_end()); }
 
   inline const_iterator complex(const_iterator pos, int scale) const
   {  return LPY::complex(pos,scale,const_begin(),const_end()); }

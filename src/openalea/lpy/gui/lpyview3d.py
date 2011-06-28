@@ -1,6 +1,7 @@
 from PyQGLViewer import QGLViewer, Vec
 from openalea.plantgl.all import *
 from openalea.plantgl.gui.pglnqgl import *
+from PyQt4.QtCore import QEvent, QCoreApplication
 
 class LpyView3D (QGLViewer):
     def __init__(self,parent):
@@ -46,3 +47,14 @@ class LpyView3D (QGLViewer):
         self.glrenderer.renderingMode = modemap[flag]
     def showMessage(self,txt,timeout=0):
         self.displayMessage(txt,timeout)
+    def saveTSnapshot(self,fname):
+        self.saveSnapshot(fname,True)
+        # e = QEvent(QEvent.MaxUser-1)
+        # e.fname = fname
+        # QCoreApplication.sendEvent(self,e)
+    # def event(self,e):
+        # if e.type() == QEvent.MaxUser-1:
+            ## self.grabFrameBuffer(True).save(e.fname)
+            # self.saveSnapshot(e.fname)
+            # return True
+        # else: return QGLViewer.event(self,e)

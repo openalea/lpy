@@ -3,9 +3,6 @@ from openalea.plantgl.all import norm,Vector3, dot, angle, direction
 import mtgimport as mi
 reload(mi)
 
-import openalea.tree_matching.mtgimport as tmi
-reload(tmi)
-
 import mtgcompare as mc
 reload(mc)
 
@@ -36,31 +33,31 @@ class MatchingProp:
   def __repr__(self):
     return 'MatchingProp('+repr(self.value)+')'
 
-def matchingcolor(arg,defaultval):
+def matchingcolor(arg,defaultval,threshold = 0.8):
   if arg == [] : return defaultval
   else:
     if isinstance(arg[0],MatchingProp) : 
-      return 10 + int(10*arg[0].value)
-    elif arg[0] == UnMatched: return 5
-    else: return 6
+      if arg[0].value >= threshold : return 20
+      else: return 10
+      #return 10 + int(10*arg[0].value)
+      #return 10 + int(10*(arg[0].value-0.70)/0.15)
+    elif arg[0] == UnMatched: return 4
+    else: return 1
 
 module Init, LeafSet
 
 
 module B(position3,topdiameter) : scale = 1
-
-module S : base = B
-module U : base = B
-module V : base = B
+module S,U,V : base = B
 
 module K(newdir,length,topdiam,botdiam) : scale = 1
-module W : base = K
-module Z : base = K
+module W,Z : base = K
 
 module Bud
 
 exported_symbols = 'SUVWZ'
 initialmtg = None
+result = None
 
 def Start():
     global initialmtg
@@ -70,19 +67,42 @@ def Start():
 def End(lstring,scene):
   pass
 
+def StartEach():    
+    seed(SEED)
+    context().turtle.setMaterial(1,context().turtle.getMaterial(7 if getIterationNb() != 3 else 8))
+    if REGENERATE:
+      groupChanged = {1 : 1, 2 :2, 3 : 3}
+      try:      
+        useGroup(groupChanged[getIterationNb()])
+        print getIterationNb(),groupChanged[getIterationNb()]
+      except:
+        pass
+    #print getIterationNb()
+    
+
+
+def EndEach(lstring):
+  if getIterationNb() == 3:
+    if COMPARE :
+      compare(lstring)
+    else:
+      mtg = export_to_mtg(lstring)
+      print len(initialmtg),len(mtg)
+
 comparison_fname = 'comparison.pkl'
-def dump(map,fname = comparison_fname):
+comparisoni_fname = 'comparisoncache/ncomparison%i.pkl'%RAMIF
+def dump(map,fname = comparisoni_fname):
    import pickle
    f = file(fname,'w')
    pickle.dump(map,f)
    f.close()
 
-def load(fname = comparison_fname):
+def load(fname = comparisoni_fname):
    import pickle
    f = file(fname,'r')
    return pickle.load(f)
 
-def check_dump(fname = comparison_fname):
+def check_dump(fname = comparisoni_fname):
    import os
    return os.path.exists(fname)
 
@@ -93,13 +113,29 @@ def compare(lstring):
   if check_dump() and not FORCE_COMPARE:
     val,map = load()
   else:
-    val,map = compute_comparison(mtg)
+    val,map = compute_comparison(mtg,lstring)
     dump((val,map))
-  print 'Comparison : ',val
+  print 'Comparison : ',val,len(mtg)-len(map)
   if PROP_VIEW:
     set_matching_proportion_tag(lstring,mtg,map)
   else:
-    set_matching_tag(lstring,map)  
+    set_matching_tag(lstring,map)
+  print 'done'
+
+def compute_comparison(resultingmtg,lstring):
+  MainBranchRoots = getmainbranches(lstring)
+  idmap = resultingmtg.property('_axial_id')
+  idmap1 = dict([(j,i) for i,j in idmap.iteritems()])
+  MainBranchRoots = [idmap1[i] for i in MainBranchRoots]
+  InitialMainBranchRoots = getinitialmainbranches(initialmtg)
+  
+  totval,totmatching = 0,[]
+  for r1,r2 in zip(InitialMainBranchRoots,MainBranchRoots):
+    val,matching = mc.compare(initialmtg,resultingmtg,root1=r1,root2=r2)  
+    totval += val
+    totmatching += [set([idmap[r] for i,r,v in matching])]
+  return totval,totmatching
+    
 
 def set_matching_tag(lstring,map):
   for i,m in enumerate(lstring):
@@ -110,12 +146,18 @@ def set_matching_tag(lstring,map):
         m.append(UnMatched)
 
 def set_matching_proportion_tag(lstring,mtg,map):
+  global result
   MainBranchRoots = getmainbranches(lstring)
+  InitialMainBranchRoots = getinitialmainbranches(initialmtg)
+  
   idmap = dict([(j,i) for i,j in mtg.property('_axial_id').iteritems()])
+  map2 = [set([idmap[i] for i in j]) for j in map]
   mtgrootids = [idmap[i] for i in MainBranchRoots]
-  propmap = mc.getproportion(mtg,mtgrootids,map)
+  propmap = mc.getproportion(mtg,mtgrootids,initialmtg,InitialMainBranchRoots,map2)
   propmap = dict([(mtg.property('_axial_id')[i],j) for i,j in propmap.iteritems()])
   print propmap
+  result = propmap
+  print 'Tot prop:',mean(propmap.values())
   for r in MainBranchRoots:
     p = propmap[r]
     mp = MatchingProp(p)
@@ -123,7 +165,7 @@ def set_matching_proportion_tag(lstring,mtg,map):
     while len(l) > 0:
       n = l.pop(0)
       a = lstring[n]      
-      if a.name in 'WZ':
+      if a.name in 'WZS':
         a.append(mp)
       m = lstring.sons(n)
       if not m is None: 
@@ -140,46 +182,19 @@ def export_to_mtg(lstring):
     parameters[m] = mod.parameterNames
   return axialtree2mtg(lstring,scales,None,parameters)
 
-def compute_comparison(resultingmtg):
-  val,matching = mc.compare(initialmtg,resultingmtg)  
-  idmap = resultingmtg.property('_axial_id')
-  return val,set([idmap[r] for i,r,v in matching])
-
-def StartEach():
-    seed(SEED)
-    if REGENERATE:
-      groupChanged = {1 : 1, 2 :2, 3 : 3}
-      try:      
-        useGroup(groupChanged[getIterationNb()])
-        print getIterationNb(),groupChanged[getIterationNb()]
-      except:
-        pass
-    #print getIterationNb()
-    
-
-from openalea.plantgl.all import Viewer
-
-def EndEach(lstring):
-  if getIterationNb() == 3:
-    if COMPARE :
-      compare(lstring)
-    else:
-      mtg = export_to_mtg(lstring)
-      print len(initialmtg),len(mtg)
-    
 
 
 def directlength(n,originalpos):
     nbsons = 1
     while not n is None:
       ln = n
-      n = n.directSon()
+      n = n.direct_child()
       nbsons += 1
     dir = ln[0] - originalpos
     return norm(dir),nbsons
     
 def nbLateralSons(it):
-  latsons = it.lateralSons()
+  latsons = it.lateral_children()
   if latsons is None: 
     return 0,0.0,0
   nbsons = len(latsons)
@@ -190,18 +205,36 @@ def nbLateralSons(it):
 
 
 def getmainbranches(lstring,fid=42):
-  mb = [fid]
-  pid = lstring.father(fid)
-  pid2 = lstring.sons(pid)[1]
-  br,pid2 = lstring.sons(pid2)
-  mb.append(br)
-  br,pid2 = lstring.sons(pid2)
-  mb.append(br)
-  br,pid2 = lstring.sons(pid2)
-  mb.append(br)
-  mb += lstring.sons(pid2)
-  return mb
+  return detectmainbranches(fid, lambda x :lstring.parent(x), lambda x :  lstring.children(x))
+#  mb = [fid]
+#  pid = lstring.father(fid)
+#  pid2 = lstring.sons(pid)[1]
+#  br,pid2 = lstring.sons(pid2)
+#  mb.append(br)
+#  br,pid2 = lstring.sons(pid2)
+#  mb.append(br)
+#  br,pid2 = lstring.sons(pid2)
+#  mb.append(br)
+#  mb += lstring.sons(pid2)
+#  return mb
 
+def getinitialmainbranches(mtg,fid = 21):
+  return detectmainbranches(fid, lambda x : mtg.parent(x), lambda x : list(mtg.children(x)))
+
+def detectmainbranches(fid,funcparent,funcchildren):
+  mb = [fid]
+  pid = funcparent(fid)
+  pid2 = funcchildren(pid)[1]
+  br,pid2 = funcchildren(pid2)
+  mb.append(br)
+  br,pid2 = funcchildren(pid2)
+  mb.append(br)
+  br,pid2 = funcchildren(pid2)
+  mb.append(br)
+  mb += funcchildren(pid2)
+  return mb
+  
+  
 #MainBranchRoots = [42, 1846, 6263, 8220, 10666, 13271]
 
 Axiom:     @Tp(0,0,-1 if TROPISM < 50 else 1) @Gc  Init 
@@ -226,7 +259,7 @@ S(p0,d0) < $V(it):
   while not it is None and it.name == 'V':
     lit = it
     latsons.append(nbLateralSons(it))
-    it = it.directSon()
+    it = it.direct_child()
     nbdsons += 1
   vpos = lit[0]
   vtdiam = lit[1]
@@ -265,12 +298,13 @@ Bud(vinfo,uinfo) :
   l = l / nbdsons
   nproduce @Ge   _(d/2) PinpointRel(ndir[0],ndir[1],ndir[2])
   bdiam = d
+  prob = RAMIF/100.
   for i in xrange(nbdsons):
     lgth = uniform(l*0.8,l*1.2)
     tpdiam = d+i*(tdiam-d)/(nbdsons-1)
     nproduce  W(ndir, lgth,tpdiam,bdiam)
     bdiam = tpdiam
-    if random() < avglats*0.85:
+    if random() < prob:
        nb = round(avglatnb*.9)
        nproduce  [ /(137.5*i) +(60) 
        for i in xrange(nb):
@@ -305,10 +339,10 @@ maximum depth: 3
 
 
 
-S(oldpos,topdiameter0) < S(position,topdiameter) :
+S(oldpos,topdiameter0,*arg0) < S(position,topdiameter,*arg) :
     newdir = position-oldpos
     l = newdir.normalize()
-    nproduce PinpointRel(newdir[0],newdir[1],newdir[2])
+    nproduce PinpointRel(newdir[0],newdir[1],newdir[2]) ,(matchingcolor(arg,1))
     if l > 0:
       if WITH_TROPISM:
         nbseg,lastseg = divmod(l,dseg)
@@ -319,8 +353,8 @@ S(oldpos,topdiameter0) < S(position,topdiameter) :
       else:
         produce F(l,topdiameter/2)
 
-S(oldpos,topdiameter0) < [ S(position,topdiameter) : 
-    nproduce [ @Ts(abs(TROPISM-50)/500.) _(topdiameter/2) 
+S(oldpos,topdiameter0,*arg0) < [ S(position,topdiameter,*arg) : 
+    nproduce [ @Ts(abs(TROPISM-50)/500.) _(topdiameter/2) ,(matchingcolor(arg,1))
     newdir = position-oldpos
     l = newdir.normalize()
     nproduce PinpointRel(newdir[0],newdir[1],newdir[2])
@@ -404,6 +438,13 @@ __lpy_code_version__ = 1.1
 
 def __initialiseContext__(context):
 	import openalea.plantgl.all as pgl
+	Color_1 = pgl.Material("Color_1" , 		ambient = (0,0,0) , 
+		diffuse = 3 , 
+		specular = (0,0,0) , 
+		shininess = 0 , 
+)
+	Color_1.name = "Color_1"
+	context.turtle.setMaterial(1,Color_1)
 	Color_4 = pgl.Material("Color_4" , 		ambient = (0,0,127) , 
 		diffuse = 1.09449 , 
 )
@@ -420,63 +461,104 @@ def __initialiseContext__(context):
 )
 	Color_6.name = "Color_6"
 	context.turtle.setMaterial(6,Color_6)
-	Color_10 = pgl.Material("Color_10" , 		ambient = (0,0,127) , 
-		diffuse = 1.09449 , 
+	Color_7 = pgl.Material("Color_7" , 		ambient = (65,45,15) , 
+		diffuse = 3 , 
+)
+	Color_7.name = "Color_7"
+	context.turtle.setMaterial(7,Color_7)
+	Color_8 = pgl.Material("Color_8" , 		ambient = (0,0,0) , 
+		diffuse = 3 , 
+		specular = (0,0,0) , 
+		shininess = 0 , 
+)
+	Color_8.name = "Color_8"
+	context.turtle.setMaterial(8,Color_8)
+	Color_10 = pgl.Material("Color_10" , 		ambient = (0,0,255) , 
+		diffuse = 0 , 
+		specular = (0,0,0) , 
+		shininess = 0 , 
 )
 	Color_10.name = "Color_10"
 	context.turtle.setMaterial(10,Color_10)
-	Color_11 = pgl.Material("Color_11" , 		ambient = (6,0,114) , 
-		diffuse = 1.28504 , 
+	Color_11 = pgl.Material("Color_11" , 		ambient = (63,63,207) , 
+		diffuse = 0 , 
+		specular = (0,0,0) , 
+		shininess = 0 , 
 )
 	Color_11.name = "Color_11"
 	context.turtle.setMaterial(11,Color_11)
-	Color_12 = pgl.Material("Color_12" , 		ambient = (12,0,101) , 
-		diffuse = 1.47559 , 
+	Color_12 = pgl.Material("Color_12" , 		ambient = (127,127,159) , 
+		diffuse = 0 , 
+		specular = (0,0,0) , 
+		shininess = 0 , 
 )
 	Color_12.name = "Color_12"
 	context.turtle.setMaterial(12,Color_12)
-	Color_13 = pgl.Material("Color_13" , 		ambient = (18,0,88) , 
-		diffuse = 1.66614 , 
+	Color_13 = pgl.Material("Color_13" , 		ambient = (191,191,111) , 
+		diffuse = 0 , 
+		specular = (0,0,0) , 
+		shininess = 0 , 
 )
 	Color_13.name = "Color_13"
 	context.turtle.setMaterial(13,Color_13)
-	Color_14 = pgl.Material("Color_14" , 		ambient = (24,0,76) , 
-		diffuse = 1.85669 , 
+	Color_14 = pgl.Material("Color_14" , 		ambient = (255,255,63) , 
+		diffuse = 0 , 
+		specular = (0,0,0) , 
+		shininess = 0 , 
 )
 	Color_14.name = "Color_14"
 	context.turtle.setMaterial(14,Color_14)
-	Color_15 = pgl.Material("Color_15" , 		ambient = (30,0,63) , 
-		diffuse = 2.04725 , 
+	Color_15 = pgl.Material("Color_15" , 		ambient = (255,212,52) , 
+		diffuse = 0 , 
+		specular = (0,0,0) , 
+		shininess = 0 , 
 )
 	Color_15.name = "Color_15"
 	context.turtle.setMaterial(15,Color_15)
-	Color_16 = pgl.Material("Color_16" , 		ambient = (36,0,50) , 
-		diffuse = 2.2378 , 
+	Color_16 = pgl.Material("Color_16" , 		ambient = (255,170,42) , 
+		diffuse = 0 , 
+		specular = (0,0,0) , 
+		shininess = 0 , 
 )
 	Color_16.name = "Color_16"
 	context.turtle.setMaterial(16,Color_16)
-	Color_17 = pgl.Material("Color_17" , 		ambient = (42,0,38) , 
-		diffuse = 2.42835 , 
+	Color_17 = pgl.Material("Color_17" , 		ambient = (255,127,31) , 
+		diffuse = 0 , 
+		specular = (0,0,0) , 
+		shininess = 0 , 
 )
 	Color_17.name = "Color_17"
 	context.turtle.setMaterial(17,Color_17)
-	Color_18 = pgl.Material("Color_18" , 		ambient = (47,0,25) , 
-		diffuse = 2.6189 , 
+	Color_18 = pgl.Material("Color_18" , 		ambient = (255,85,21) , 
+		diffuse = 0 , 
+		specular = (0,0,0) , 
+		shininess = 0 , 
 )
 	Color_18.name = "Color_18"
 	context.turtle.setMaterial(18,Color_18)
-	Color_19 = pgl.Material("Color_19" , 		ambient = (53,0,12) , 
-		diffuse = 2.80945 , 
+	Color_19 = pgl.Material("Color_19" , 		ambient = (255,42,10) , 
+		diffuse = 0 , 
+		specular = (0,0,0) , 
+		shininess = 0 , 
 )
 	Color_19.name = "Color_19"
 	context.turtle.setMaterial(19,Color_19)
-	Color_20 = pgl.Material("Color_20" , 		ambient = (60,0,0) , 
-		diffuse = 3 , 
+	Color_20 = pgl.Material("Color_20" , 		ambient = (255,0,0) , 
+		diffuse = 0 , 
+		specular = (0,0,0) , 
+		shininess = 0 , 
 )
 	Color_20.name = "Color_20"
 	context.turtle.setMaterial(20,Color_20)
+	Color_21 = pgl.Material("Color_21" , 		ambient = (127,255,42) , 
+		diffuse = 0 , 
+		specular = (0,0,0) , 
+		shininess = 0 , 
+)
+	Color_21.name = "Color_21"
+	context.turtle.setMaterial(21,Color_21)
 	context.options.setSelection('Module inheritance',1)
-	scalars = [('WITHLEAF', False, False, True), ('SEED', 1, 0, 100), ('WITH_TROPISM', False, False, True), ('TROPISM', 60, 0, 100), ('OLDSTRUCTURE', False, False, True), ('GENERATED_WITH_TROPISM', True, False, True), ('REGENERATE', True, False, True), ('COMPARE', True, False, True), ('FORCE_COMPARE', False, False, True), ('PROP_VIEW', True, False, True)]
+	scalars = [('WITHLEAF', False, False, True), ('SEED', 1, 0, 100), ('WITH_TROPISM', False, False, True), ('TROPISM', 60, 0, 100), ('OLDSTRUCTURE', False, False, True), ('GENERATED_WITH_TROPISM', True, False, True), ('REGENERATE', True, False, True), ('COMPARE', True, False, True), ('FORCE_COMPARE', False, False, True), ('PROP_VIEW', True, False, True), ('RAMIF', 77, 0, 200)]
 	context["__scalars__"] = scalars
 	for n,v,mnv,mxv in scalars:
 		context[n] = v

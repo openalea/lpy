@@ -91,20 +91,30 @@ boost::python::object py_roots(LString * tree)
 { return veciter_to_list(tree,tree->roots()); }
 
 template<class LString>
-boost::python::object py_father(LString * tree, int pos)
-{ return iter_to_int(tree,tree->father(int_to_iter(tree,pos))); }
+boost::python::object py_parent(LString * tree, int pos)
+{ return iter_to_int(tree,tree->parent(int_to_iter(tree,pos))); }
 
 template<class LString>
-boost::python::object py_sons(LString * tree, int pos)
-{ return veciter_to_list(tree,tree->sons(int_to_iter(tree,pos))); }
+boost::python::object py_children(LString * tree, int pos)
+{ return veciter_to_list(tree,tree->children(int_to_iter(tree,pos))); }
 
 template<class LString>
-boost::python::object py_lateralSons(LString * tree, int pos)
-{ return veciter_to_list(tree,tree->lateralSons(int_to_iter(tree,pos))); }
+boost::python::object py_lateral_children(LString * tree, int pos)
+{ return veciter_to_list(tree,tree->lateral_children(int_to_iter(tree,pos))); }
 
 template<class LString>
-boost::python::object py_directSon(LString * tree, int pos)
-{ return iter_to_int(tree,tree->directSon(int_to_iter(tree,pos))); }
+boost::python::object py_direct_child(LString * tree, int pos)
+{ return iter_to_int(tree,tree->direct_child(int_to_iter(tree,pos))); }
+
+template<class LString>
+boost::python::object py_typed_children(LString * tree, int pos, char edge_type)
+{ if (edge_type == '<') return py_direct_child<LString>(tree,pos);
+  else if (edge_type == '+') return py_lateral_children<LString>(tree,pos);
+  else {
+    PyErr_SetString(PyExc_ValueError, "invalid edge type");
+    boost::python::throw_error_already_set();
+  }
+}
 
 template<class LString>
 boost::python::object py_endBracket(LString * tree, int pos, bool startingBeforePos) 
@@ -207,10 +217,12 @@ class lstring_func : public boost::python::def_visitor<lstring_func<LString> >
 		 .def( "hasRequestModule", &LString::hasRequestModule )
 
 		 .def( "roots",  &py_roots<LString> ) 
-		 .def( "father", &py_father<LString>, boost::python::args("pos") ) 
-		 .def( "sons",   &py_sons<LString>, boost::python::args("pos") ) 
-		 .def( "lateralSons", &py_lateralSons<LString>, boost::python::args("pos") ) 
-		 .def( "directSon", &py_directSon<LString>, boost::python::args("pos") ) 
+		 .def( "parent", &py_parent<LString>, boost::python::args("pos") ) 
+		 .def( "children",   &py_children<LString>, boost::python::args("pos") ) 
+		 .def( "children",   &py_typed_children<LString>, boost::python::args("pos","edge_type") ) 
+		 
+		 .def( "lateral_children", &py_lateral_children<LString>, boost::python::args("pos") ) 
+		 .def( "direct_child", &py_direct_child<LString>, boost::python::args("pos") ) 
 		 .def( "endBracket", &py_endBracket<LString>, (bp::arg("startingBeforePos")=false) ) 
 		 .def( "beginBracket", &py_beginBracket<LString>, (bp::arg("startingAfterPos")=false) ) 
 		 .def( "complex", &py_complex1<LString>, boost::python::args("pos") ) 

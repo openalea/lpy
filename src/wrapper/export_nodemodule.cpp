@@ -46,20 +46,20 @@ bp::object translate_nodes(const std::vector<NodeModule>& res) {
 	else return make_list(res);
 }
 
-bp::object py_father(const NodeModule* obj) { return translate_node(obj->father()); }
-bp::object py_directSon(const NodeModule* obj) { return translate_node(obj->directSon()); }
-bp::object py_sons(const NodeModule* obj) { return translate_nodes(obj->sons()); }
-bp::object py_lateralSons(const NodeModule* obj) { return translate_nodes(obj->lateralSons()); }
+bp::object py_parent(const NodeModule* obj) { return translate_node(obj->parent()); }
+bp::object py_direct_child(const NodeModule* obj) { return translate_node(obj->direct_child()); }
+bp::object py_children(const NodeModule* obj) { return translate_nodes(obj->children()); }
+bp::object py_lateral_children(const NodeModule* obj) { return translate_nodes(obj->lateral_children()); }
 bp::object py_complex(const NodeModule* obj) { return translate_node(obj->complex()); }
 bp::object py_complex1(const NodeModule* obj, int s) { return translate_node(obj->complex(s)); }
 
 void export_NodeModule(){
 
 	class_<NodeModule,  bases<ParamModule> >("NodeModule",no_init)
-	.def("father", &py_father)
-	.def("sons", &py_sons)
-	.def("lateralSons", &py_lateralSons)
-	.def("directSon", &py_directSon)
+	.def("parent", &py_parent)
+	.def("children", &py_children)
+	.def("lateral_children", &py_lateral_children)
+	.def("direct_child", &py_direct_child)
 	.def("complex", &py_complex)
 	.def("complex", &py_complex1)
 	.def("isValid", &NodeModule::isValid)

@@ -130,8 +130,17 @@ DeclareModuleEnd
 DeclareSimpleModule(startGC, "Start a new generalized cylinder.",ePrimitive)
 DeclareSimpleModule(stopGC,  "Pop generalized cylinder from the stack and render it.",ePrimitive)
 DeclareSimpleModule(startPolygon,"Start a new polygon.",ePrimitive)
-DeclareSimpleModule(stopPolygon,"Pop a polygon from the stack and render it.",ePrimitive)
 DeclareSimpleModule(polygonPoint,"Add a point for polygon.",ePrimitive)
+DeclareModuleBegin(stopPolygon,"Pop a polygon from the stack and render it. Params : concavetest (default=False).",ePrimitive)
+{
+	size_t nbargs = m.size();
+	switch (nbargs) {
+		case 0:  t.stopPolygon(); break;
+		default:  t.stopPolygon(m._getBool(0)); break;
+	}
+}
+DeclareModuleEnd
+
 
 DeclareModuleBegin(MoveTo,"Set the turtle position. Params : x, y, z (optionals, default = 0).",ePosition)
 {

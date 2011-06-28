@@ -1,0 +1,11 @@
+Axiom: +(90) BP F-F++F-F++F-F++F-F++F-F++F-F EP(True)
+#Axiom: -(90) BP F+F--F+F--F+F--F+F--F+F--F+F EP(True)
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem

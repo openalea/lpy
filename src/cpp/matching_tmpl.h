@@ -95,7 +95,7 @@ struct GetFather {
 public:
 	static inline Iterator next(Iterator pos, RPIterator pattern, 
 							    Iterator string_begin, Iterator string_end) { 
-		return father(pos,string_begin,string_end);
+		return parent(pos,string_begin,string_end);
 	}
 };
 

@@ -74,7 +74,7 @@ Iterator beginBracket(Iterator pos, Iterator string_begin, Iterator string_end, 
 
 
 template<class Iterator>
-Iterator father(Iterator pos, Iterator string_begin, Iterator string_end)
+Iterator parent(Iterator pos, Iterator string_begin, Iterator string_end)
 {
   if( pos == string_begin ) return string_end;
   --pos;
@@ -104,7 +104,7 @@ bool wellBracketed(Iterator string_begin, Iterator string_end)
 }
 
 template<class Iterator>
-std::vector<Iterator>  sons(Iterator pos, Iterator string_end)
+std::vector<Iterator>  children(Iterator pos, Iterator string_end)
 { 
   std::vector<Iterator> result; 
   // current pos is the end of a branch
@@ -116,14 +116,14 @@ std::vector<Iterator>  sons(Iterator pos, Iterator string_end)
   while((pos != string_end) && (pos->isLeftBracket() || pos->isIgnored())){ 
 	while((pos != string_end) && !pos->isBracket() && pos->isIgnored()) ++pos; // skip ignored
 	while((pos != string_end) && pos->isLeftBracket()){ // find lateral branches
-	  std::vector<Iterator> res = sons(pos,string_end); // get sons
+	  std::vector<Iterator> res = children(pos,string_end); // get children
 	  if(!res.empty()) result.insert(result.end(),res.begin(),res.end());
 	  pos = endBracket(pos,string_end); // go to the end of this sub branches
 	  if( pos == string_end ) return result;
 	  ++pos;
 	}
   }
-  // add direct sons if any
+  // add direct children if any
   if( (pos != string_end) && !pos->isRightBracket()){
 	result.push_back(pos);
   }
@@ -131,7 +131,7 @@ std::vector<Iterator>  sons(Iterator pos, Iterator string_end)
 }
 
 template<class Iterator>
-std::vector<Iterator> lateralSons(Iterator pos, Iterator string_end) {
+std::vector<Iterator> lateral_children(Iterator pos, Iterator string_end) {
   std::vector<Iterator> result; 
   // current pos is the end of a branch
   if( (pos == string_end) || pos->isRightBracket()) return result;
@@ -142,7 +142,7 @@ std::vector<Iterator> lateralSons(Iterator pos, Iterator string_end) {
   while((pos != string_end) && (pos->isLeftBracket() || pos->isIgnored())){
 	while((pos != string_end) && !pos->isBracket() && pos->isIgnored()) ++pos;  // skip ignored
 	while((pos != string_end) && pos->isLeftBracket()){ // find lateral branches
-	  std::vector<Iterator> res = sons(pos,string_end);
+	  std::vector<Iterator> res = children(pos,string_end);
 	  if(!res.empty()) result.insert(result.end(),res.begin(),res.end());
 	  pos = endBracket(pos,string_end);
 	  if( pos == string_end ) return result;
@@ -154,15 +154,15 @@ std::vector<Iterator> lateralSons(Iterator pos, Iterator string_end) {
 }
 
 template<class Iterator>
-Iterator directSon(Iterator pos, Iterator string_end) 
+Iterator direct_child(Iterator pos, Iterator string_end) 
 {
   if( (pos == string_end) || pos->isRightBracket()) return string_end;
   ++pos;
-  return directSonFromPreviousPos(pos,string_end);
+  return direct_child_from_previous_pos(pos,string_end);
 }
 
 template<class Iterator>
-Iterator directSonFromPreviousPos(Iterator pos, Iterator string_end) 
+Iterator direct_child_from_previous_pos(Iterator pos, Iterator string_end) 
 {
   // remove ignored modules and lateral branches
   while((pos != string_end) && (pos->isLeftBracket() || pos->isIgnored())){
@@ -173,7 +173,7 @@ Iterator directSonFromPreviousPos(Iterator pos, Iterator string_end)
 	  ++pos;
 	}
   }
-  // return direct sons if any
+  // return direct child if any
   if( (pos == string_end) || pos->isRightBracket()) return string_end;
   else return pos;
 }
@@ -190,7 +190,7 @@ std::vector<Iterator> roots(Iterator string_begin, Iterator string_end)
   else if(i->isLeftBracket()){
 	while((i != string_end) && (i->isBracket() || i->isIgnored())){
 	  while((i != string_end) && i->isLeftBracket()){
-		std::vector<Iterator> res2 = sons(i,string_end);
+		std::vector<Iterator> res2 = children(i,string_end);
 		if(!res2.empty())
 		  res.insert(res.end(),res2.begin(),res2.end());
 		i = endBracket(i,string_end);
@@ -202,11 +202,11 @@ std::vector<Iterator> roots(Iterator string_begin, Iterator string_end)
 	if( (i != string_end) && !i->isRightBracket()){
 	  res.push_back(i);
 	}
-	// std::vector<const_iterator> res2 = sons(i);
+	// std::vector<const_iterator> res2 = children(i);
 	// if(!res2.empty())res.insert(res.end(),res2.begin(),res2.end());
   }
   else if(i->isIgnored()){
-	std::vector<Iterator> res2 = sons(i,string_end);
+	std::vector<Iterator> res2 = children(i,string_end);
 	if(!res2.empty())res.insert(res.end(),res2.begin(),res2.end());
   }
   else res.push_back(i);
@@ -218,9 +218,9 @@ Iterator complex(Iterator pos, int scale, Iterator string_begin, Iterator string
 {
   if( pos == string_begin ) return string_end;
   if( !is_lower_scale(pos->scale(),scale)) return string_end;
-  pos = father(pos,string_begin, string_end);
+  pos = parent(pos,string_begin, string_end);
   while(pos != string_end && is_lower_scale(pos->scale(),scale)){
-	  pos = father(pos,string_begin, string_end);
+	  pos = parent(pos,string_begin, string_end);
   }
   if (pos == string_end) return string_end;
   if (is_eq_scale(pos->scale(),scale))  return pos;
@@ -232,20 +232,20 @@ Iterator predecessor_at_scale(Iterator pos, int scale, Iterator string_begin, It
 {
   if( pos == string_begin ) return string_end;
   int previousscale = pos->scale();
-  pos = father(pos,string_begin, string_end); 
+  pos = parent(pos,string_begin, string_end); 
   if( pos == string_end ) return string_end;
   int curscale = pos->scale();
   if (!is_upper_scale(scale,previousscale)) { // mean that we look for a predecessor, not a complex
     // Go up into complex.
 	while(pos != string_end && is_upper_scale(curscale,previousscale)){
-	  pos = father(pos,string_begin, string_end);
+	  pos = parent(pos,string_begin, string_end);
 	  previousscale = curscale;
 	  curscale = pos->scale();
 	}
   }
   // Skip predecessor components to go to the complex at good scale
   while(pos != string_end && is_lower_scale(pos->scale(),scale)){
-	  pos = father(pos,string_begin, string_end);
+	  pos = parent(pos,string_begin, string_end);
   }
   if (pos == string_end) return string_end;
   if (is_eq_scale(pos->scale(),scale))  return pos;
@@ -259,24 +259,24 @@ Iterator successor_at_scale(Iterator pos, int scale,
 							int previous_scale = -1)
 {
   if( pos == string_end ) return string_end;  
-  if(fromPreviousPosition) pos = directSonFromPreviousPos(pos, string_end);
+  if(fromPreviousPosition) pos = direct_child_from_previous_pos(pos, string_end);
   else {
 	previous_scale = pos->scale();
-	pos = directSon(pos, string_end);
+	pos = direct_child(pos, string_end);
   }
   if (!is_lower_scale(scale,previous_scale)) { // mean that we look for a successor, not a components
     // Skip successor components
     while(pos != string_end && is_lower_scale(pos->scale(),scale)){
-	  pos = directSon(pos,string_end);
+	  pos = direct_child(pos,string_end);
     }
     if (pos == string_end) return string_end;
   }
-  // If exists, we are on the sons or at least one of its complex.
+  // If exists, we are on the child or at least one of its complex.
   int curscale = pos->scale();
   if (is_upper_scale(curscale,scale)) { // We look for a component of current module
     // Go down into components.
 	do {
-	  pos = directSon(pos,string_end);
+	  pos = direct_child(pos,string_end);
 	  if (pos == string_end) return string_end;	  
 	  previous_scale = curscale;
 	  curscale = pos->scale();
@@ -292,10 +292,10 @@ template<class Iterator>
 Iterator predecessor_at_level(Iterator pos, int scale, Iterator string_begin, Iterator string_end)
 {
   if( pos == string_begin ) return string_end;
-  pos = father(pos,string_begin, string_end);
+  pos = parent(pos,string_begin, string_end);
   // Skip predecessors at other levels
   while(pos != string_end && is_neq_scale(pos->scale(),scale)){
-	  pos = father(pos,string_begin, string_end);
+	  pos = parent(pos,string_begin, string_end);
   }
   if (pos == string_end) return string_end;
   if (is_eq_scale(pos->scale(),scale))  return pos;
@@ -306,11 +306,11 @@ template<class Iterator>
 Iterator successor_at_level(Iterator pos, int scale, Iterator string_end, bool fromPreviousPosition = false)
 {
   if( pos == string_end ) return string_end;
-  if(fromPreviousPosition) pos = directSonFromPreviousPos(pos, string_end);
-  else pos = directSon(pos, string_end);
+  if(fromPreviousPosition) pos = direct_child_from_previous_pos(pos, string_end);
+  else pos = direct_child(pos, string_end);
   // Skip successors at other levels
   while(pos != string_end && is_neq_scale(pos->scale(),scale)){
-	  pos = directSon(pos, string_end);
+	  pos = direct_child(pos, string_end);
   }
   if (pos == string_end) return string_end;
   if (is_eq_scale(pos->scale(),scale))  return pos;

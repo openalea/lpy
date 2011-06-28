@@ -263,6 +263,20 @@ ParamModule::_getReal(int i) const
     return ext();
 }
 
+bool ParamModule::_getBool(int i) const
+{
+	const ParameterList& p = __constargs();
+	assert(p.size() > i);
+    extract<bool> ext(p[i]); 
+    if (!ext.check()){
+        std::stringstream str;
+        str << "Invalid type for " << i << "th parameter in module '" << name() << "'. Looking for bool.";
+        LsysError(str.str());
+    }         
+    return ext();
+}
+
+
 std::string 
 ParamModule::_getString(int i) const 
 { 

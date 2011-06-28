@@ -64,7 +64,8 @@ class LpyPlotter:
         return Viewer.waitSelection(txt)
     def save(self,fname,format):
         if self.parent.use_own_view3D:
-            self.parent.view3d.saveSnapShot(fname,format)
+            #self.parent.view3D.setSnapshotFormat(format)
+            self.parent.view3D.saveTSnapshot(fname)
         else:
             Viewer.frameGL.saveImage(fname,format)
         

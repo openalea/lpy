@@ -1,6 +1,6 @@
 
 from openalea.tree_matching import *
-from openalea.tree_matching.mtgimport import mtg2treegraph
+from openalea.tree_matching.mtgmatching import MtgMatching
 import openalea.mtg.algo as algo
 
 class MyNodeCost (NodeCost):
@@ -11,33 +11,26 @@ class MyNodeCost (NodeCost):
   def getChangingCost(self,a,b): return 0
  
 
-def compare(mtg1,mtg2,scale1=1,scale2=1):
-    tree1,idmap1 = mtg2treegraph(mtg1,scale1)
-    print len(idmap1)
-    tree2,idmap2 = mtg2treegraph(mtg2,scale2)
-    print len(idmap2)
+def compare(mtg1,mtg2,scale1=1,scale2=1,root1=None,root2=None):
     node_cost = MyNodeCost()
-    m = Matching(tree1,tree2,node_cost,1)
+    m = MtgMatching(mtg1,mtg2,scale1,scale2,node_cost,1,root1,root2)
     val = m.match()
-    res = m.getList(0,0)
-    idmap1 = dict([(j,i) for i,j in idmap1.iteritems()])
-    idmap2 = dict([(j,i) for i,j in idmap2.iteritems()])
-    res = [(idmap1[i],idmap2[j],k) for i,j,k in res]
+    res = m.getList()
     return val,res
 
-def getproportion(mtg,roots,matched,rebuildclasses = 'WZ'):
+def getproportion(mtg,roots,initialmtg,initialroot,matched,rebuildclasses = 'WZ'):
    proportions = {}
-   for r in roots:
-     nbelements = 0
-     nbmatched = 0
-     for vtx in algo.descendants(mtg,r):
-       if True : # mtg.label(vtx)[0] in rebuildclasses:
-         nbelements += 1
-         if vtx in matched:
-             nbmatched += 1
-     print r,nbmatched,nbelements,nbmatched/float(nbelements)
-     proportions[r]=(nbmatched/float(nbelements))
+   for r,ir,m in zip(roots,initialroot,matched):
+     p = getpropforsubtree(mtg,r,initialmtg,ir,m,rebuildclasses) 
+     proportions[r]=p
    return proportions
+     
+def getpropforsubtree(mtg,root,initialmtg,initialroot,matched,rebuildclasses = 'WZ'):
+     nbelements1 = len(list(algo.descendants(mtg,root)))
+     nbelements2 = len(list(algo.descendants(initialmtg,initialroot)))
+     nbmatched = len(matched)
+     return 2*nbmatched/float(nbelements1+nbelements2)
+     nbtotelem = nbelements1+nbelements2-nbmatched
+     print root,nbmatched,nbelements1,nbelements2,nbmatched/float(nbtotelem)
+     return nbmatched/float(nbtotelem)
 
-def setproportions(axialtree,mapping,proportions):
-   pass

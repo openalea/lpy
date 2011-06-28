@@ -79,20 +79,21 @@ object py_find_mod(AxialTree * tree, const PatternModule& mod, int start, int st
 object py_find_str(AxialTree * tree,const std::string& name, int start, int stop)
 { return py_find_mod(tree,PatternModule(name),start,stop); }
 
+/*
 object py_roots(AxialTree * tree)
 { return veciter_to_list(tree,tree->roots()); } 
 
-object py_father(AxialTree * tree, int pos)
-{ return iter_to_int(tree,tree->father(int_to_iter(tree,pos))); }
+object py_parent(AxialTree * tree, int pos)
+{ return iter_to_int(tree,tree->parent(int_to_iter(tree,pos))); }
 
-object py_sons(AxialTree * tree, int pos)
-{ return veciter_to_list(tree,tree->sons(int_to_iter(tree,pos))); }
+object py_children(AxialTree * tree, int pos)
+{ return veciter_to_list(tree,tree->children(int_to_iter(tree,pos))); }
 
-object py_lateralSons(AxialTree * tree, int pos)
-{ return veciter_to_list(tree,tree->lateralSons(int_to_iter(tree,pos))); }
+object py_lateral_children(AxialTree * tree, int pos)
+{ return veciter_to_list(tree,tree->lateral_children(int_to_iter(tree,pos))); }
 
-object py_directSon(AxialTree * tree, int pos)
-{ return iter_to_int(tree,tree->directSon(int_to_iter(tree,pos))); }
+object py_direct_child(AxialTree * tree, int pos)
+{ return iter_to_int(tree,tree->direct_child(int_to_iter(tree,pos))); }
 
 object py_endBracket(AxialTree * tree, int pos, bool startingBeforePos) 
 { return iter_to_int(tree,tree->endBracket(int_to_iter(tree,pos),startingBeforePos)); }
@@ -117,6 +118,7 @@ object py_predecessor_at_scale(AxialTree * tree, int pos, int scale)
 
 object py_predecessor_at_level(AxialTree * tree, int pos, int scale)
 { return iter_to_int(tree,predecessor_at_level(int_to_iter(tree,pos),scale,tree->const_begin(),tree->const_end())); }
+*/
 
 #define PY_MATCH_WRAPPER(matchfunc) \
   bool py_##matchfunc(AxialTree * tree, const PatternModule& a, int pos) \

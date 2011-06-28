@@ -46,17 +46,17 @@ public:
 
   virtual ~NodeModule();
 
-  inline NodeModule father() const
-  { return make_node(LPY::father(__pos,__beg,__end));}
+  inline NodeModule parent() const
+  { return make_node(LPY::parent(__pos,__beg,__end));}
 
-  inline std::vector<NodeModule> sons() const
-  { return make_nodes(LPY::sons(__pos,__end)); }
+  inline std::vector<NodeModule> children() const
+  { return make_nodes(LPY::children(__pos,__end)); }
 
-  inline std::vector<NodeModule> lateralSons() const
-  { return make_nodes(LPY::lateralSons(__pos,__end)); }
+  inline std::vector<NodeModule> lateral_children() const
+  { return make_nodes(LPY::lateral_children(__pos,__end)); }
 
-  inline NodeModule directSon() const
-  { return make_node(LPY::directSon(__pos,__end)); }
+  inline NodeModule direct_child() const
+  { return make_node(LPY::direct_child(__pos,__end)); }
 
   inline NodeModule complex(int scale) const
   {  return make_node(LPY::complex(__pos,scale,__beg,__end)); }

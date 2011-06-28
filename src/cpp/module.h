@@ -365,6 +365,7 @@ public:
 
   virtual int  _getInt(int)   const;
   virtual real_t _getReal(int) const;
+  virtual bool _getBool(int) const;
   virtual std::string _getString(int) const;
 
   virtual void _setValues(real_t,real_t,real_t) ;
