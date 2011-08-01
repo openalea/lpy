@@ -68,8 +68,8 @@ class NurbsPatchManager(AbstractPglObjectManager):
         return splitext(fname)[1] == '.s'
     
     def importData(self,fname):
-        from openalea.lpy.gui.lpfg_data_import import import_patch
-        return [import_patch(fname)]
+        from openalea.lpy.cpfg_compat.data_import import import_patch
+        return import_patch(fname)
         
     def managePrimitive(self):
         return True

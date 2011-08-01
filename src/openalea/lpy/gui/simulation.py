@@ -45,6 +45,10 @@ class LpySimulation:
         self.keepCode_1_0_Compatibility = True
         if not fname is None:
             self.open(fname)
+        else:
+            self.setFname(None)
+            if self.lpywidget.isVisible():
+                self.setEdited(False)
     def getFname(self) : return self._fname
     def setFname(self,value) :
         self._fname = value
@@ -325,16 +329,6 @@ class LpySimulation:
             for i in xrange(len(options)):
                 if not options[i].isToDefault():
                     init_txt += '\tcontext.options.setSelection('+repr(options[i].name)+','+str(options[i].selection)+')\n'
-        # if len(self.functions) > 0 or len(self.curves) > 0 :
-            # init_txt += "\tfrom openalea.plantgl.all import QuantisedFunction,NurbsCurve2D,Point3Array,Vector3,RealArray\n"
-        # if len(self.functions):
-            # init_txt += '\tfunctions = '+str([(i.name,i) for i in self.functions])+'\n'
-            # init_txt += '\tcontext["__functions__"] = functions\n'
-            # init_txt += '\tfor n,c in functions:\n\t\tcontext[n] = QuantisedFunction(c)\n'
-        # if len(self.curves):
-            # init_txt += '\tcurves = '+str([(i.name,i) for i in self.curves])+'\n'
-            # init_txt += '\tcontext["__curves__"] = curves\n'
-            # init_txt += '\tfor n,c in curves:\n\t\tcontext[n] = c\n'
         if len(self.scalars):
             init_txt += '\tscalars = '+str([(i.name,i.value,i.minvalue,i.maxvalue) for i in self.scalars])+'\n'
             init_txt += '\tcontext["__scalars__"] = scalars\n'
@@ -393,6 +387,17 @@ class LpySimulation:
             if len(value) > 0:
                 txt += key+' = '+repr(str(value))+'\n'
         return txt
+    def importcpfgproject(self,fname):
+        from openalea.lpy.cpfg_compat.cpfg2lpy import translate_obj
+        self.textedition = True
+        self.setEdited(True)
+        try:
+            lpycode = translate_obj(fname)
+            self.opencode(lpycode)
+        except:
+            exc_info = sys.exc_info()
+            traceback.print_exception(*exc_info)
+        
     def open(self,fname):
         self.setFname(fname)
         assert self._fname == fname
@@ -406,13 +411,15 @@ class LpySimulation:
                 readname = bckupname
             elif answer == QMessageBox.Discard:
                 os.remove(bckupname)     
-        os.chdir(os.path.dirname(self.fname))
-        f = file(readname,'rU')
-        txt = f.read()
-        txts = txt.split(LpyParsing.InitialisationBeginTag)            
-        self.code = txts[0]
+        os.chdir(os.path.dirname(self.fname))        
+        code = file(readname,'rU').read()
         self.textedition = recovery
         self.setEdited(recovery)
+        self.opencode(code)
+        self.mtime = os.stat(self.fname).st_mtime
+    def opencode(self,txt):
+        txts = txt.split(LpyParsing.InitialisationBeginTag)            
+        self.code = txts[0]
         if len(txts) == 2:
             context = self.lsystem.context()
             try:
@@ -465,7 +472,6 @@ class LpySimulation:
         else:
             for key in self.desc_items.iterkeys():
                 self.desc_items[key] = ''
-        self.mtime = os.stat(self.fname).st_mtime
         if self.textdocument:
             self.lpywidget.textEditionWatch = False
             self.textdocument.clear()

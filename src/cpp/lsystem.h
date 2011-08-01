@@ -49,7 +49,7 @@ public:
   enum eRuleType {
       eProduction,
       eDecomposition,
-      eHomomorphism
+      eInterpretation
   };
 
   /** Constructor and Destructor */
@@ -65,7 +65,7 @@ public:
   bool empty() const;
   size_t nbProductionRules( size_t group ) const;
   size_t nbDecompositionRules( size_t group ) const ;
-  size_t nbHomomorphismRules( size_t group ) const;
+  size_t nbInterpretationRules( size_t group ) const;
   size_t nbTotalRules( ) const;
   size_t nbGroups( ) const;
 
@@ -93,17 +93,17 @@ public:
   /** set rules */
   void addRule( const LsysRule& rule, int type, size_t group );
   void addRule( const std::string& rule, int type, size_t group );
-  void addProdRule( const std::string& rule, size_t group );
-  void addDecRule( const std::string& rule, size_t group );
-  void addHomRule( const std::string& rule, size_t group );
+  void addProductionRule( const std::string& rule, size_t group );
+  void addDecompositionRule( const std::string& rule, size_t group );
+  void addInterpretationRule( const std::string& rule, size_t group );
 
   /** get rules */
-  inline const LsysRule& prodRule( size_t i, size_t group) const
+  inline const LsysRule& productionRule( size_t i, size_t group) const
   { return __rules[group].production[i]; }
-  inline const LsysRule& decRule( size_t i, size_t group) const
+  inline const LsysRule& decompositionRule( size_t i, size_t group) const
   { return __rules[group].decomposition[i]; }
-  inline const LsysRule& homRule( size_t i, size_t group) const
-  { return __rules[group].homomorphism[i]; }
+  inline const LsysRule& interpretationRule( size_t i, size_t group) const
+  { return __rules[group].interpretation[i]; }
 
   /** Axiom */
   void setAxiom( const AxialTree& axiom );
@@ -112,23 +112,23 @@ public:
   /** Plot and interpret */
   void plot( AxialTree& workstring, bool checkLastComputedScene =  false);
 
-  inline void interpret( AxialTree& workstring)
-  { interpret(workstring,__context.envturtle); }
-  void interpret( AxialTree& workstring, PGL::Turtle& t );
+  inline void turtle_interpretation( AxialTree& workstring)
+  { turtle_interpretation(workstring,__context.envturtle); }
+  void turtle_interpretation( AxialTree& workstring, PGL::Turtle& t );
   PGL(ScenePtr) sceneInterpretation( AxialTree& workstring );
 
-  AxialTree homomorphism(AxialTree& workstring);
+  AxialTree interpret(AxialTree& workstring);
 
   // interpret the string and plot it module by module
   void stepInterpretation(AxialTree& workstring);
 
-  /** Iterate */
-  inline AxialTree iterate( )
-  { return iterate(0,__max_derivation,__axiom); }
-  inline AxialTree iterate( size_t nb_iter )
-  { return iterate(0, nb_iter,__axiom); }
+  /** derive */
+  inline AxialTree derive( )
+  { return derive(0,__max_derivation,__axiom); }
+  inline AxialTree derive( size_t nb_iter )
+  { return derive(0, nb_iter,__axiom); }
 
-  AxialTree iterate( size_t starting_iter , 
+  AxialTree derive( size_t starting_iter , 
                      size_t nb_iter , 
                      const AxialTree& workstring, 
                      bool previouslyinterpreted = false  );
@@ -160,8 +160,8 @@ public:
   inline size_t decompositionMaxDepth() const { return __decomposition_max_depth; }
   inline void setDecompositionMaxDepth(size_t v) { __decomposition_max_depth = v; }
 
-  inline size_t homomorphismMaxDepth() const { return __homomorphism_max_depth; }
-  inline void setHomomorphismMaxDepth(size_t v) { __homomorphism_max_depth = v; }
+  inline size_t interpretationMaxDepth() const { return __interpretation_max_depth; }
+  inline void setInterpretationMaxDepth(size_t v) { __interpretation_max_depth = v; }
 
   /** context */
   inline LsysContext * context() { return &__context; }
@@ -309,18 +309,18 @@ protected:
 
     RuleSet production;
     RuleSet decomposition;
-    RuleSet homomorphism;
+    RuleSet interpretation;
     bool __prodhasquery;
     bool __dechasquery;
-    bool __homhasquery;
+    bool __inthasquery;
   };
 
   typedef std::vector<RuleGroup> RuleGroupList;
 
   LsysRule& __addRule( const std::string& rule, int type, size_t group,  int lineno = -1 );
-  LsysRule& __addProdRule( const std::string& rule, size_t group,  int lineno = -1 );
-  LsysRule& __addDecRule( const std::string& rule, size_t group,  int lineno = -1 );
-  LsysRule& __addHomRule( const std::string& rule, size_t group,  int lineno = -1 );
+  LsysRule& __addProductionRule( const std::string& rule, size_t group,  int lineno = -1 );
+  LsysRule& __addDecompositionRule( const std::string& rule, size_t group,  int lineno = -1 );
+  LsysRule& __addInterpretationRule( const std::string& rule, size_t group,  int lineno = -1 );
 
  void __clear();
  void __importPyFunctions();
@@ -330,8 +330,8 @@ protected:
 
  AxialTree __homomorphism(AxialTree& workstring);
  void __plot(AxialTree& workstring, bool checkLastComputedScene =  false);
- void __interpret(AxialTree& workstring, PGL::Turtle& t);
- AxialTree __iterate( size_t starting_iter , 
+ void __turtle_interpretation(AxialTree& workstring, PGL::Turtle& t);
+ AxialTree __derive( size_t starting_iter , 
                       size_t nb_iter , 
                       const AxialTree& workstring, 
                       bool previouslyinterpreted = false);
@@ -377,7 +377,7 @@ protected:
 
   size_t __max_derivation;
   size_t __decomposition_max_depth;
-  size_t __homomorphism_max_depth;
+  size_t __interpretation_max_depth;
   size_t __currentGroup;
   LocalContext __context;
   PGL(ScenePtr) __lastcomputedscene;

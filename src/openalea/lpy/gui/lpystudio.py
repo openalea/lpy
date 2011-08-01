@@ -152,6 +152,8 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         QObject.connect(self.actionSaveAll,SIGNAL('triggered(bool)'),lambda : self.saveallfiles())
         QObject.connect(self.actionSaveAs,SIGNAL('triggered(bool)'),self.saveas)
         QObject.connect(self.actionClose,SIGNAL('triggered(bool)'),self.closeDoc)
+        QObject.connect(self.actionImportCpfgProject,SIGNAL('triggered(bool)'),lambda : self.importcpfgproject())
+        QObject.connect(self.actionImportCpfgFile,SIGNAL('triggered(bool)'),lambda : self.importcpfgfile())
         QObject.connect(self.actionClear,SIGNAL('triggered(bool)'),self.clearHistory)
         QObject.connect(self.actionRun, SIGNAL('triggered(bool)'),self.run)
         QObject.connect(self.actionAnimate, SIGNAL('triggered(bool)'),self.animate)
@@ -466,8 +468,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
             initialname = os.path.dirname(self.currentSimulation().fname) if self.currentSimulation().fname else '.'
             fname = QFileDialog.getOpenFileName(self, "Open  L-Py file",
                                                     initialname,
-                                                    "L-Py Files (*.lpy);;All Files (*.*)"
-                                                    )
+                                                    "L-Py Files (*.lpy);;All Files (*.*)")
             if not fname: return
             fname = str(fname)
             self.appendInHistory(fname)
@@ -505,6 +506,46 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
                 sim.save()
                 nbsaving += 1
         self.statusBar().showMessage("No file to save." if nbsaving == 0 else "%i file(s) saved." % nbsaving)
+    def importcpfgfile(self,fname = None):
+        if fname is None:
+            initialname = os.path.dirname(self.currentSimulation().fname) if self.currentSimulation().fname else '.'
+            fname = QFileDialog.getOpenFileName(self, "Open  Cpfg File",
+                                                    initialname,
+                                                    "Cpfg Files (*.l);;All Files (*.*)")
+            if not fname: return
+            fname = str(fname)
+        elif not os.path.exists(fname):
+            QMessageBox.warning(self,"Inexisting file","File '"+fname+"' does not exist anymore.",QMessageBox.Ok)
+            fname = None
+        if fname:
+            self.importcpfgproject(fname)
+    def importcpfgproject(self,fname = None):
+        if fname is None:
+            initialname = os.path.dirname(self.currentSimulation().fname) if self.currentSimulation().fname else '.'
+            fname = QFileDialog.getExistingDirectory(self, "Open  Cpfg Project",
+                                                    initialname)
+            if not fname: return
+            fname = str(fname)
+        elif not os.path.exists(fname):
+            QMessageBox.warning(self,"Inexisting file","File '"+fname+"' does not exist anymore.",QMessageBox.Ok)
+            fname = None
+        if fname:
+            ind = self.getSimuIndex(fname)
+            if not ind is None:
+                self.simulations[ind].makeCurrent()
+            else:
+                self.acquireCR()
+                try:
+                    self.currentSimulation().saveState()
+                    self.createNewLsystem()
+                    self.currentSimulation().importcpfgproject(fname)
+                    self.currentSimulation().restoreState()
+                    self.statusBar().showMessage("Load file '"+fname+"'",2000)
+                    if len(self.simulations) == 2 and self.simulations[0].isDefault():
+                        self.closeDocument(0)
+                except:
+                    self.graberror()
+                self.releaseCR()
     def run(self,rerun=False,primitiveChanged=False):
       self.acquireCR()
       try:

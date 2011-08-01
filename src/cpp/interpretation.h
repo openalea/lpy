@@ -46,8 +46,8 @@ class AxialTree;
 std::string LPY_API helpTurtle(const std::string& command );
 std::string LPY_API helpTurtle() ;
 
-void LPY_API interpret(AxialTree& tree, PGL::Turtle& turtle);
-void LPY_API interpret(AxialTree& tree, PGL::Turtle& turtle, const StringMatching& matching);
+void LPY_API turtle_interpretation(AxialTree& tree, PGL::Turtle& turtle);
+void LPY_API turtle_interpretation(AxialTree& tree, PGL::Turtle& turtle, const StringMatching& matching);
 
 /*---------------------------------------------------------------------------*/
 

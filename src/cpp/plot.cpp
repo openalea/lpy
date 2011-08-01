@@ -182,7 +182,7 @@ ScenePtr LPY::scene(AxialTree& tree){
 }
 
 ScenePtr LPY::scene(AxialTree& tree, PglTurtle& turtle){
-  interpret(tree,turtle);
+  turtle_interpretation(tree,turtle);
   return turtle.getScene();
 }
 
@@ -191,7 +191,7 @@ ScenePtr LPY::scene(AxialTree& tree,StringMatching& matching){
 }
 
 ScenePtr LPY::scene(AxialTree& tree,StringMatching& matching, PglTurtle& turtle){
-  interpret(tree,turtle,matching);
+  turtle_interpretation(tree,turtle,matching);
   return turtle.getScene();
 }
 

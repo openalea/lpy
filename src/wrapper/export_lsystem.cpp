@@ -53,25 +53,25 @@ void check_ruleid(int& id, size_t nbRule) {
   }
 }
 
-const LsysRule& prodRule(Lsystem * lsys, int pos = 0, int group = 0)
+const LsysRule& py_productionRule(Lsystem * lsys, int pos = 0, int group = 0)
 { 
   check_group(group,lsys->nbGroups());
   check_ruleid(pos,lsys->nbProductionRules(group));
-  return lsys->prodRule(pos,group);
+  return lsys->productionRule(pos,group);
 }
 
-const LsysRule& decRule(Lsystem * lsys, int pos = 0, int group = 0)
+const LsysRule& py_decompositionRule(Lsystem * lsys, int pos = 0, int group = 0)
 { 
   check_group(group,lsys->nbGroups());
   check_ruleid(pos,lsys->nbDecompositionRules(group));
-  return lsys->decRule(pos,group);
+  return lsys->decompositionRule(pos,group);
 }
 
-const LsysRule& homRule(Lsystem * lsys, int pos, int group)
+const LsysRule& py_interpretationRule(Lsystem * lsys, int pos, int group)
 { 
   check_group(group,lsys->nbGroups());
-  check_ruleid(pos,lsys->nbHomomorphismRules(group));
-  return lsys->homRule(pos,group);
+  check_ruleid(pos,lsys->nbInterpretationRules(group));
+  return lsys->interpretationRule(pos,group);
 }
 
 
@@ -88,8 +88,8 @@ object lsys_setCode(Lsystem * lsys, const std::string& code,
 	}
 }
 
-AxialTree py_iter(Lsystem * lsys, size_t beg, size_t end, const AxialTree& wstring)
-{ return lsys->iterate(beg,end,wstring); }
+AxialTree py_derive(Lsystem * lsys, size_t beg, size_t end, const AxialTree& wstring)
+{ return lsys->derive(beg,end,wstring); }
 
 void py_set_debugger(Lsystem * lsys, Lsystem::Debugger * debugger)
 { return lsys->setDebugger(Lsystem::DebuggerPtr(debugger)); }
@@ -108,7 +108,7 @@ void export_Lsystem(){
   enum_<Lsystem::eRuleType>("eRuleType")
 	  .value("eProduction",Lsystem::eProduction)
 	  .value("eDecomposition",Lsystem::eDecomposition)
-  	  .value("eHomomorphism",Lsystem::eHomomorphism)
+  	  .value("eInterpretation",Lsystem::eInterpretation)
 	  .export_values()
 	  ;
   
@@ -117,7 +117,7 @@ void export_Lsystem(){
 	.add_property("axiom",&lsys_axiom,(void(Lsystem::*)(const AxialTree&))&Lsystem::setAxiom)
 	.add_property("derivationLength",&Lsystem::derivationLength,&Lsystem::setDerivationLength)
 	.add_property("decompositionMaxDepth",&Lsystem::decompositionMaxDepth,&Lsystem::setDecompositionMaxDepth)
-	.add_property("homomorphismMaxDepth",&Lsystem::homomorphismMaxDepth,&Lsystem::setHomomorphismMaxDepth)
+	.add_property("interpretationMaxDepth",&Lsystem::interpretationMaxDepth,&Lsystem::setInterpretationMaxDepth)
 	.add_property("filename",&Lsystem::getFilename,&Lsystem::setFilename)
 	.def("__str__", &Lsystem::str)
 	//.def("__repr__", &Lsystem::str)
@@ -132,24 +132,24 @@ void export_Lsystem(){
 	.def("code", &Lsystem::code)
 	.def("read", &Lsystem::read,"Read the content of a file and execute it",(boost::python::arg("filename"),boost::python::arg("parameters")=boost::python::dict()))
 	.def("set", &lsys_setCode,"Set Lsystem code. If debug parameter is set to True, the translated Python code is returned.",(boost::python::arg("filename"),boost::python::arg("parameters")=boost::python::dict(),boost::python::arg("debug")=false))
-	.def("iterate", (AxialTree(Lsystem::*)())&Lsystem::iterate)
-	.def("iterate", (AxialTree(Lsystem::*)(size_t))&Lsystem::iterate)
-    .def("iterate", &py_iter)
-	.def("iterate", (AxialTree(Lsystem::*)(size_t,size_t,const AxialTree&,bool))&Lsystem::iterate)
-	.def("interpret", (void(Lsystem::*)(AxialTree&))&Lsystem::interpret,"Apply interpretation with context().turtle.")
-	.def("interpret", (void(Lsystem::*)(AxialTree&, PGL::Turtle&))&Lsystem::interpret,"Apply interpretation with given turtle.")
+	.def("derive", (AxialTree(Lsystem::*)())&Lsystem::derive)
+	.def("derive", (AxialTree(Lsystem::*)(size_t))&Lsystem::derive)
+    .def("derive", &py_derive)
+	.def("derive", (AxialTree(Lsystem::*)(size_t,size_t,const AxialTree&,bool))&Lsystem::derive)
+	.def("turtle_interpretation", (void(Lsystem::*)(AxialTree&))&Lsystem::turtle_interpretation,"Apply interpretation with context().turtle.")
+	.def("turtle_interpretation", (void(Lsystem::*)(AxialTree&, PGL::Turtle&))&Lsystem::turtle_interpretation,"Apply interpretation with given turtle.")
 	.def("sceneInterpretation", &Lsystem::sceneInterpretation,"Apply interpretation with context().turtle and return resulting scene.")
 	.def("stepInterpretation", &Lsystem::stepInterpretation,"Apply interpretation step by step and display construction of the scene.")
 	.def("plot", (void(Lsystem::*)(AxialTree&,bool))&Lsystem::plot,(bp::arg("lstring"),bp::arg("checkLastComputedScene")=false),"Apply interpretation with context().turtle and plot the resulting scene. If checkLastComputedScene, check whether during last iteration a scene was computed. If yes reuse it.")
-	.def("homomorphism", &Lsystem::homomorphism,"Apply interpretation rule and gives the resulting string.")
+	.def("interpret", &Lsystem::interpret,"Apply interpretation rule and gives the resulting string.")
 	.def("nbProductionRules", &Lsystem::nbProductionRules, (bp::arg("group")=0))
 	.def("nbDecompositionRules", &Lsystem::nbDecompositionRules, (bp::arg("group")=0))
-	.def("nbHomomorphismRules", &Lsystem::nbHomomorphismRules, (bp::arg("group")=0))
+	.def("nbInterpretationRules", &Lsystem::nbInterpretationRules, (bp::arg("group")=0))
 	.def("nbTotalRules", &Lsystem::nbTotalRules,"Return total number of rules considering all groups")
 	.def("nbGroups", &Lsystem::nbGroups,"Return number of groups")
-	.def("prodRule", prodRule, return_internal_reference<>(), (bp::arg("ruleid")=0,bp::arg("group")=0))
-	.def("decRule", decRule, return_internal_reference<>(), (bp::arg("ruleid")=0,bp::arg("group")=0))
-	.def("homRule", homRule, return_internal_reference<>(), (bp::arg("ruleid")=0,bp::arg("group")=0))
+	.def("productionRule", py_productionRule, return_internal_reference<>(), (bp::arg("ruleid")=0,bp::arg("group")=0))
+	.def("decompositionRule", py_decompositionRule, return_internal_reference<>(), (bp::arg("ruleid")=0,bp::arg("group")=0))
+	.def("interpretationRule", py_interpretationRule, return_internal_reference<>(), (bp::arg("ruleid")=0,bp::arg("group")=0))
 
 	.def("animate", (AxialTree(Lsystem::*)())&Lsystem::animate)
 	.def("animate", (AxialTree(Lsystem::*)(double))&Lsystem::animate)
@@ -166,11 +166,11 @@ void export_Lsystem(){
 						 (bp::arg("code"),bp::arg("ruletype")=Lsystem::eProduction,bp::arg("group")=0))
 	.def("addRule",      (void(Lsystem::*)(const LsysRule&, int, size_t))&Lsystem::addRule,"Add a rule", 
 						 (bp::arg("rule"),bp::arg("ruletype")=Lsystem::eProduction,bp::arg("group")=0))
-	.def("addProdRule",  &Lsystem::addProdRule, "Add Production rule", 
+	.def("addProductionRule",  &Lsystem::addProductionRule, "Add Production rule", 
 						 (bp::arg("code"),bp::arg("group")=0))
-	.def("addDecRule",   &Lsystem::addDecRule, "Add Decomposition rule", 
+	.def("addDecompositionRule",   &Lsystem::addDecompositionRule, "Add Decomposition rule", 
 						 (bp::arg("code"),bp::arg("group")=0))
-	.def("addHomRule",   &Lsystem::addHomRule, "Add Homorphism rule", 
+	.def("addInterpretationRule",   &Lsystem::addInterpretationRule, "Add Interpretation rule", 
 						 (bp::arg("code"),bp::arg("group")=0))
     // .def("enableEarlyReturn", &Lsystem::enableEarlyReturn, "Allow an early return (for threaded application).")
     // .def("isEarlyReturnEnabled", &Lsystem::isEarlyReturnEnabled, "Tell if an early return is required (for threaded application).")

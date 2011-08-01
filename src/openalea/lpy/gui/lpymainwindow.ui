@@ -367,8 +367,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>149</width>
-             <height>207</height>
+             <width>148</width>
+             <height>201</height>
             </rect>
            </property>
            <attribute name="label">
@@ -436,8 +436,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>133</width>
-             <height>230</height>
+             <width>131</width>
+             <height>266</height>
             </rect>
            </property>
            <attribute name="label">
@@ -928,7 +928,7 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuL_systems">
@@ -963,6 +963,13 @@
      </property>
      <addaction name="actionClear"/>
     </widget>
+    <widget class="QMenu" name="menuImport">
+     <property name="title">
+      <string>Import</string>
+     </property>
+     <addaction name="actionImportCpfgProject"/>
+     <addaction name="actionImportCpfgFile"/>
+    </widget>
     <addaction name="actionNew"/>
     <addaction name="separator"/>
     <addaction name="actionOpen"/>
@@ -970,6 +977,8 @@
     <addaction name="actionSaveAs"/>
     <addaction name="actionSaveAll"/>
     <addaction name="actionClose"/>
+    <addaction name="separator"/>
+    <addaction name="menuImport"/>
     <addaction name="separator"/>
     <addaction name="actionPrint"/>
     <addaction name="separator"/>
@@ -1623,6 +1632,16 @@
    </property>
    <property name="text">
     <string>View 3D</string>
+   </property>
+  </action>
+  <action name="actionImportCpfgProject">
+   <property name="text">
+    <string>Cpfg project</string>
+   </property>
+  </action>
+  <action name="actionImportCpfgFile">
+   <property name="text">
+    <string>Cpfg file</string>
    </property>
   </action>
  </widget>

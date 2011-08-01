@@ -87,3 +87,49 @@ NodeModule.father = father
 NodeModule.sons = sons
 NodeModule.lateralSons = lateralSons
 NodeModule.directSon = directSon
+
+Lsystem.iterate = Lsystem.derive
+Lsystem.homomorphism = Lsystem.interpret
+
+Lstring = AxialTree
+
+class LsystemIterator:
+    """ Lsystem iterator """
+    def __init__(self, lsystem):
+        self.lsystem = lsystem
+        self.axiom = self.lsystem.axiom
+        self.nbstep = self.lsystem.derivationLength
+        self.currentstep = -1
+    def next(self):
+        if self.currentstep == -1:
+            self.axiom = self.lsystem.axiom
+            self.currentstep += 1
+        if self.currentstep == self.lsystem.derivationLength:
+            raise StopIteration()
+        else:
+            self.axiom = self.lsystem.derive(self.currentstep,1,self.axiom)
+            self.currentstep += 1
+        return self.axiom
+    def __iter__(self):
+        return self
+
+def __make_iter(lsystem): return LsystemIterator(lsystem)
+
+Lsystem.__iter__ = __make_iter
+del __make_iter
+
+def __lsystem_getattribute__(self,name):
+    if self.context().has_key(name): return self.context()[name]
+    else: raise AttributeError(name)
+
+__original_lsystem_setattr__ = Lsystem.__setattr__
+def __lsystem_setattribute__(self,name,value):
+    try :
+        self.__getattribute__(name)
+    except:
+        self.context()[name] = value
+    else:
+       __original_lsystem_setattr__(self,name,value) # previous method
+
+Lsystem.__getattr__ =  __lsystem_getattribute__
+Lsystem.__setattr__ =  __lsystem_setattribute__

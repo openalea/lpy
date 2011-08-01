@@ -1,0 +1,119 @@
+initial_auxin_level = 10.
+min_auxin_level = 5.
+medium_auxin_level = (initial_auxin_level+min_auxin_level)/2.
+
+mstate = 8
+internal_degradation_rate = 0.0
+flower_degradation_rate = 0.0
+root_auxin_level = 0.0
+transport_speed = 1/3. # should be < 1/3. for numerical constraints
+maxorder = 4
+
+txt = lambda val: str(round(val,2))[:5]
+
+class MeristemData:
+    def __init__(self,s = mstate,o = 0):
+        self.state = s
+        self.order = o
+
+class InternodeData:
+    def __init__(self,a = initial_auxin_level):
+        self.auxin = a
+
+class RootData:
+    def __init__(self,a = 0):
+        self.auxin = a
+    def getLevel(self): return root_auxin_level
+    def setLevel(self,a) : self.auxin = a
+
+module M(data)
+module I(data)
+module R(data)
+
+Axiom: _(0.5)R(RootData())M(MeristemData())
+
+derivation length: 500
+ignore: +-
+production:
+
+
+M(data) :
+	if data.state > 0:
+		angle = 20+70*data.state/(mstate*(data.order+1))
+		if data.state % 2:
+		 	produce I(InternodeData(initial_auxin_level)) [+(angle)m(data.order+1)]M(MeristemData(data.state-1,data.order))
+		else:
+			produce I(InternodeData(initial_auxin_level)) [-(angle)m(data.order+1)]M(MeristemData(data.state-1,data.order))
+	else:
+		produce I(InternodeData(initial_auxin_level))L
+
+
+I(a) < m(order) :
+	if order >= maxorder:    produce *
+	if a.auxin <= min_auxin_level: produce M(MeristemData(mstate/(2**order),order))
+
+
+
+I(a) > M(state,i) -->  I(InternodeData(initial_auxin_level))
+I(n) < I(a) > L -->  I(InternodeData((a.auxin+(n.auxin-a.auxin)*transport_speed)*(1-internal_degradation_rate - flower_degradation_rate)))
+
+I(n) < I(p) > [I(k)]I(q) :
+	plevel = p.auxin + ((n.auxin+q.auxin+k.auxin)-3*p.auxin)*transport_speed  - p.auxin * internal_degradation_rate
+	# produce I(InternodeData(plevel))
+	p.auxin = plevel
+	produce I(p)
+
+I(n) < I(p) > I(q) :
+	plevel = p.auxin + (n.auxin+q.auxin-2*p.auxin)*transport_speed - p.auxin * internal_degradation_rate
+	# produce I(InternodeData(plevel))
+	p.auxin = plevel
+	produce I(p)
+
+
+R(r) < I(n) > I(p):
+	nn = (r.getLevel()+p.auxin-2*n.auxin)*transport_speed
+	n.auxin += nn
+	produce I(n)
+
+R(r) < I(n) > [I(k)]I(p):
+	nn = (r.getLevel()+p.auxin+k.auxin-3*n.auxin)*transport_speed
+	n.auxin += nn
+	produce I(n)
+
+R(r) > I(n) :
+  r.setLevel(r.auxin+(n.auxin-r.getLevel())*transport_speed)
+  produce R(r)
+
+interpretation:
+
+I(a) :
+	col = 1
+	if min_auxin_level <= a.auxin  < medium_auxin_level:
+		col = 4
+	elif a.auxin < min_auxin_level:
+		col = 3
+	produce ;(col)F(10)[+(90)f(2);(3)@L(txt(a.auxin))]
+
+M(state,i) --> F(2);(2)@O(1)
+
+
+m(order) --> ;(2)F(1)@O(0.5)
+
+L --> ;(3)@O(1)
+
+R(r) :
+	produce[+(180)F(max(2*r.auxin,1)/10.)@O(max(r.auxin,1)/10.)-(90)f(2*max(r.auxin,1)/10.);(3)@L(txt(r.auxin))]
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	import openalea.plantgl.all as pgl
+	Color_1 = pgl.Material("Color_1" , ambient = (33,22,6) , diffuse = 2.72727 , )
+	Color_1.name = "Color_1"
+	context.turtle.setMaterial(1,Color_1)
+__copyright__ = 'open-source GPL'
+__institutes__ = 'INRIA - CIRAD Virtual Plants'
+__authors__ = 'F. Boudon, C. Godin'

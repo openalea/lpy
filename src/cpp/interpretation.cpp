@@ -106,7 +106,7 @@ std::string LPY::helpTurtle() {
 
 /*---------------------------------------------------------------------------*/
 
-void LPY::interpret(AxialTree& tree, Turtle& turtle){
+void LPY::turtle_interpretation(AxialTree& tree, Turtle& turtle){
   turtle.start();
   turtle.setId(0);
   for(AxialTree::iterator _it = tree.begin();
@@ -121,7 +121,7 @@ void LPY::interpret(AxialTree& tree, Turtle& turtle){
   }
 }
 
-void LPY::interpret(AxialTree& tree, Turtle& turtle, const StringMatching& matching){
+void LPY::turtle_interpretation(AxialTree& tree, Turtle& turtle, const StringMatching& matching){
   turtle.start();
   StringMatching::const_iterator _iditer = matching.begin();
   turtle.setId(*_iditer);

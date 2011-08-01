@@ -830,13 +830,13 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
   }
   if (__context.hasObject(LsysContext::HomomorphismMaxDepthVariable)){
       try
-      { __homomorphism_max_depth = extract<int>(__context.getObject(LsysContext::HomomorphismMaxDepthVariable)); }
+      { __interpretation_max_depth = extract<int>(__context.getObject(LsysContext::HomomorphismMaxDepthVariable)); }
       catch(error_already_set const &)
       { 
           PyErr_Clear();
           extract<float> t(__context.getObject(LsysContext::HomomorphismMaxDepthVariable)); 
           if (t.check()) {
-              __homomorphism_max_depth = (int)t();
+              __interpretation_max_depth = (int)t();
               LsysWarning("Floating point value is given for homomorphism maximum length. Rounding.",filename,homomorphism_max_depth_lineno); 
           }
           else LsysError("Homomorphism maximum length has an invalid value.",filename,homomorphism_max_depth_lineno); 

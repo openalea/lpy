@@ -68,7 +68,7 @@ Lsystem::LsysAcquirer::~LsysAcquirer() { __lsys->release(); }
 Lsystem::RuleGroup::RuleGroup():
   __prodhasquery(false),
   __dechasquery(false),
-  __homhasquery(false)
+  __inthasquery(false)
 {}
 
 const RuleSet& 
@@ -81,8 +81,8 @@ Lsystem::RuleGroup::getGroup(eRuleType t) const
         case eDecomposition:
             return decomposition;
             break;
-        case eHomomorphism:
-            return homomorphism;
+        case eInterpretation:
+            return interpretation;
             break;
         default:
             return production;
@@ -100,8 +100,8 @@ Lsystem::RuleGroup::getGroup(eRuleType t)
         case eDecomposition:
             return decomposition;
             break;
-        case eHomomorphism:
-            return homomorphism;
+        case eInterpretation:
+            return interpretation;
             break;
         default:
             return production;
@@ -118,8 +118,8 @@ bool Lsystem::RuleGroup::hasQuery(eRuleType t) const
         case eDecomposition:
             return __dechasquery;
             break;
-        case eHomomorphism:
-            return __homhasquery;
+        case eInterpretation:
+            return __inthasquery;
             break;
         default:
             return __prodhasquery;
@@ -133,7 +133,7 @@ bool Lsystem::RuleGroup::hasQuery(eRuleType t) const
 Lsystem::Lsystem():
 __max_derivation(1),
 __decomposition_max_depth(1),
-__homomorphism_max_depth(1),
+__interpretation_max_depth(1),
 __currentGroup(0),
 __context(),
 __newrules(false)
@@ -150,7 +150,7 @@ __newrules(false)
 Lsystem::Lsystem(const std::string& filename):
 __max_derivation(1),
 __decomposition_max_depth(1),
-__homomorphism_max_depth(1),
+__interpretation_max_depth(1),
 __context(),
 __newrules(false)
 #ifdef MULTI_THREADED_LSYSTEM
@@ -166,7 +166,7 @@ Lsystem::Lsystem(const std::string& filename,
 			     const boost::python::dict& parameters):
 __max_derivation(1),
 __decomposition_max_depth(1),
-__homomorphism_max_depth(1),
+__interpretation_max_depth(1),
 __context(),
 __newrules(false)
 #ifdef MULTI_THREADED_LSYSTEM
@@ -182,7 +182,7 @@ Lsystem::Lsystem(const Lsystem& lsys):
 __rules(lsys.__rules),
 __max_derivation(lsys.__max_derivation),
 __decomposition_max_depth(lsys.__decomposition_max_depth),
-__homomorphism_max_depth(lsys.__homomorphism_max_depth),
+__interpretation_max_depth(lsys.__interpretation_max_depth),
 __context(lsys.__context),
 __newrules(lsys.__newrules)
 #ifdef MULTI_THREADED_LSYSTEM
@@ -198,7 +198,7 @@ Lsystem& Lsystem::operator=(const Lsystem& lsys)
     __rules = lsys.__rules;
     __max_derivation =lsys.__max_derivation;
     __decomposition_max_depth = lsys.__decomposition_max_depth;
-    __homomorphism_max_depth = lsys.__homomorphism_max_depth;
+    __interpretation_max_depth = lsys.__interpretation_max_depth;
     __context = lsys.__context;
     return *this;
 }
@@ -240,7 +240,7 @@ Lsystem::__clear(){
   __rules.clear();
   __max_derivation = 1;
   __decomposition_max_depth = 1;
-  __homomorphism_max_depth = 1;
+  __interpretation_max_depth = 1;
   __context.clear();
   reference_existing_object::apply<Lsystem*>::type converter;
   PyObject* obj = converter( this );
@@ -291,12 +291,12 @@ Lsystem::str() const {
                       s << i->str()+'\n';
               }
           }
-          if(!g->homomorphism.empty()){
-              s << "homomorphism:\n";
+          if(!g->interpretation.empty()){
+              s << "interpretation:\n";
               if (gid == 0)
-                s << "maximum depth:"  << __homomorphism_max_depth << '\n';
-              for (RuleSet::const_iterator i = g->homomorphism.begin();
-                  i != g->homomorphism.end(); i++){
+                s << "maximum depth:"  << __interpretation_max_depth << '\n';
+              for (RuleSet::const_iterator i = g->interpretation.begin();
+                  i != g->interpretation.end(); i++){
                       s << i->str()+'\n';
               }
           }
@@ -334,11 +334,11 @@ Lsystem::code()  {
                       s << i->getCode()+'\n';
               }
           }
-          if(!g->homomorphism.empty()){
-              s << "homomorphism:\n";
+          if(!g->interpretation.empty()){
+              s << "interpretation:\n";
               if (gid == 0)
-                s << "maximum depth:"  << __homomorphism_max_depth << '\n';
-              for (RuleSet::iterator i = g->homomorphism.begin(); i != g->homomorphism.end(); ++i){
+                s << "maximum depth:"  << __interpretation_max_depth << '\n';
+              for (RuleSet::iterator i = g->interpretation.begin(); i != g->interpretation.end(); ++i){
                       s << i->getCode()+'\n';
               }
           }
@@ -359,7 +359,7 @@ Lsystem::isCompiled(){
           if(!i->isCompiled())return false;
       for ( i = g->decomposition.begin(); i != g->decomposition.end(); ++i)
           if(!i->isCompiled())return false;
-      for ( i = g->homomorphism.begin();  i != g->homomorphism.end(); ++i)
+      for ( i = g->interpretation.begin();  i != g->interpretation.end(); ++i)
           if(!i->isCompiled())return false;
   }
   return true;
@@ -378,7 +378,7 @@ Lsystem::compile(){
           i->compile();
       for (i = g->decomposition.begin(); i != g->decomposition.end(); ++i)
           i->compile();
-      for (i = g->homomorphism.begin();  i != g->homomorphism.end(); ++i)
+      for (i = g->interpretation.begin();  i != g->interpretation.end(); ++i)
           i->compile();
   }
   RELEASE_RESSOURCE
@@ -394,7 +394,7 @@ Lsystem::__importPyFunctions(){
           i->importPyFunction();
       for ( i = g->decomposition.begin(); i != g->decomposition.end(); ++i)
           i->importPyFunction();
-      for ( i = g->homomorphism.begin();  i != g->homomorphism.end(); ++i)
+      for ( i = g->interpretation.begin();  i != g->interpretation.end(); ++i)
           i->importPyFunction();
   }
 }
@@ -457,7 +457,7 @@ std::string Lsystem::getShortFilename( ) const
 }
 
 LsysRule& 
-Lsystem::__addProdRule( const std::string& code, size_t groupid, int lineno ){
+Lsystem::__addProductionRule( const std::string& code, size_t groupid, int lineno ){
   RuleGroup& group = __group(groupid);
   LsysRule r(group.production.size(),groupid,'p',lineno);
   r.set(code);
@@ -468,7 +468,7 @@ Lsystem::__addProdRule( const std::string& code, size_t groupid, int lineno ){
 }
 
 LsysRule& 
-Lsystem::__addDecRule( const std::string& code, size_t groupid , int lineno ){
+Lsystem::__addDecompositionRule( const std::string& code, size_t groupid , int lineno ){
   RuleGroup& group = __group(groupid);
   LsysRule r(group.decomposition.size(),groupid,'d',lineno);
   r.set(code);
@@ -479,55 +479,55 @@ Lsystem::__addDecRule( const std::string& code, size_t groupid , int lineno ){
 }
 
 LsysRule&
-Lsystem::__addHomRule( const std::string& code, size_t groupid, int lineno ){
+Lsystem::__addInterpretationRule( const std::string& code, size_t groupid, int lineno ){
   RuleGroup& group = __group(groupid);
-  LsysRule r(group.homomorphism.size(),groupid,'h',lineno);
+  LsysRule r(group.interpretation.size(),groupid,'h',lineno);
   r.set(code);
-  if (!r.isContextFree())LsysWarning("Homomorphism rules should be context free. Contexts not supported for multiple iterations.");
-  group.homomorphism.push_back(r);
-  if (r.hasQuery())group.__homhasquery = true;
+  if (!r.isContextFree())LsysWarning("Interpretation rules should be context free. Contexts not supported for multiple iterations.");
+  group.interpretation.push_back(r);
+  if (r.hasQuery())group.__inthasquery = true;
   __newrules = true;
-  return *(group.homomorphism.end()-1);
+  return *(group.interpretation.end()-1);
 }
 
 LsysRule&
 Lsystem::__addRule( const std::string& rule, int type, size_t group, int lineno ){
   switch(type){
   case 1:
-	return __addDecRule(rule,group,lineno);
+	return __addDecompositionRule(rule,group,lineno);
 	break;
   case 2:
-	return __addHomRule(rule,group,lineno);
+	return __addInterpretationRule(rule,group,lineno);
 	break;
   default:
-	return __addProdRule(rule,group,lineno);
+	return __addProductionRule(rule,group,lineno);
 	break;
   }
 }
 
 void 
-Lsystem::addProdRule( const std::string& code, size_t group ){
+Lsystem::addProductionRule( const std::string& code, size_t group ){
   // ACQUIRE_RESSOURCE
   ContextMaintainer m(&__context);
-  LsysRule& r = __addProdRule(code,group);
+  LsysRule& r = __addProductionRule(code,group);
   r.compile();
   // RELEASE_RESSOURCE
 }
 
 void 
-Lsystem::addDecRule( const std::string& code, size_t group ){
+Lsystem::addDecompositionRule( const std::string& code, size_t group ){
   // ACQUIRE_RESSOURCE
   ContextMaintainer m(&__context);
-  LsysRule& r = __addDecRule(code,group);
+  LsysRule& r = __addDecompositionRule(code,group);
   r.compile();
   // RELEASE_RESSOURCE
 }
 
 void 
-Lsystem::addHomRule( const std::string& code, size_t group ){
+Lsystem::addInterpretationRule( const std::string& code, size_t group ){
   // ACQUIRE_RESSOURCE
   ContextMaintainer m(&__context);
-  LsysRule& r = __addHomRule(code,group);
+  LsysRule& r = __addInterpretationRule(code,group);
   r.compile();
   // RELEASE_RESSOURCE
 }
@@ -540,9 +540,9 @@ Lsystem::addRule(  const LsysRule& rule, int type, size_t groupid){
     if (rule.hasQuery())__group(groupid).__dechasquery = true;
     break;
   case 2:
-    if (!rule.isContextFree())LsysWarning("Homomorphism rules should be context free. Contexts not supported for multiple iterations.");
-    __group(groupid).homomorphism.push_back(rule);
-    if (rule.hasQuery())__group(groupid).__homhasquery = true;
+    if (!rule.isContextFree())LsysWarning("Interpretation rules should be context free. Contexts not supported for multiple iterations.");
+    __group(groupid).interpretation.push_back(rule);
+    if (rule.hasQuery())__group(groupid).__inthasquery = true;
 	break;
   default:
     __group(groupid).production.push_back(rule);
@@ -576,15 +576,15 @@ Lsystem::nbDecompositionRules( size_t group ) const {
   return __group(group).decomposition.size();
 }
 
-size_t Lsystem::nbHomomorphismRules( size_t group ) const {
+size_t Lsystem::nbInterpretationRules( size_t group ) const {
   if (__rules.size() < group) return 0;
-  return __group(group).homomorphism.size();
+  return __group(group).interpretation.size();
 }
 
 size_t Lsystem::nbTotalRules(  ) const {
   size_t nbrules = 0;
   for(RuleGroupList::const_iterator it = __rules.begin(); it != __rules.end(); ++it)
-        nbrules += it->production.size()+it->decomposition.size()+it->homomorphism.size();
+        nbrules += it->production.size()+it->decomposition.size()+it->interpretation.size();
   return nbrules;
 }
 
@@ -615,7 +615,7 @@ pgl_hash_map_string<std::string> Lsystem::get_rule_fonction_table() const
 		{ result[itr->functionName()] = itr->name(); }
 		for(RuleSet::const_iterator itr = it->decomposition.begin(); itr != it->decomposition.end(); ++itr)
 		{ result[itr->functionName()] = itr->name(); }
-		for(RuleSet::const_iterator itr = it->homomorphism.begin(); itr != it->homomorphism.end(); ++itr)
+		for(RuleSet::const_iterator itr = it->interpretation.begin(); itr != it->interpretation.end(); ++itr)
 		{ result[itr->functionName()] = itr->name(); }
 	}
   return result;
@@ -655,7 +655,7 @@ AxialTree Lsystem::__debugStep(AxialTree& workingstring,
   if( workingstring.empty()) return workingstring;
   AxialTree targetstring;
   targetstring.reserve(workingstring.size());
-  if ( query )__interpret(workingstring,__context.envturtle);
+  if ( query )__turtle_interpretation(workingstring,__context.envturtle);
   debugger.begin(workingstring,direction);
   if ( direction == eForward){
       AxialTree::const_iterator _it = workingstring.begin();
@@ -752,7 +752,7 @@ Lsystem::__step(AxialTree& workingstring,
   if( workingstring.empty()) return workingstring;
   AxialTree targetstring;
   targetstring.reserve(workingstring.size());
-  if ( query )__interpret(workingstring,__context.envturtle);
+  if ( query )__turtle_interpretation(workingstring,__context.envturtle);
   if ( direction == eForward){
       AxialTree::const_iterator _it = workingstring.begin();
       AxialTree::const_iterator _it3 = _it;
@@ -817,7 +817,7 @@ Lsystem::__stepWithMatching(AxialTree& workingstring,
   if( workingstring.empty()) return workingstring;
   AxialTree targetstring;
   targetstring.reserve(workingstring.size());
-  if ( query )LPY::interpret(workingstring,__context.turtle);
+  if ( query )LPY::turtle_interpretation(workingstring,__context.turtle);
   AxialTree::const_iterator _it = workingstring.begin();
   AxialTree::const_iterator _it3 = _it;
   AxialTree::const_iterator _endit = workingstring.end();
@@ -1113,7 +1113,7 @@ Lsystem::__recursiveInterpretation(AxialTree& workingstring,
 */
 
 AxialTree 
-Lsystem::iterate( size_t starting_iter , 
+Lsystem::derive( size_t starting_iter , 
                   size_t nb_iter , 
                   const AxialTree& wstring, 
                   bool previouslyinterpreted ){
@@ -1121,7 +1121,7 @@ Lsystem::iterate( size_t starting_iter ,
   enableEarlyReturn(false);
   if ( (__rules.empty() || wstring.empty()) && __context.return_if_no_matching )return wstring;
   ContextMaintainer c(&__context);
-  AxialTree res = __iterate(starting_iter,nb_iter,wstring,previouslyinterpreted);
+  AxialTree res = __derive(starting_iter,nb_iter,wstring,previouslyinterpreted);
   enableEarlyReturn(false);
   return res;
   RELEASE_RESSOURCE
@@ -1130,7 +1130,7 @@ Lsystem::iterate( size_t starting_iter ,
 
 
 AxialTree 
-Lsystem::__iterate( size_t starting_iter , 
+Lsystem::__derive( size_t starting_iter , 
                     size_t nb_iter , 
                     const AxialTree& wstring, 
                     bool previouslyinterpreted){
@@ -1243,7 +1243,7 @@ Lsystem::__apply_post_process(AxialTree& workstring, bool endeach)
 		case 2:
 				// if a frame should be displayed, representation is computed
 				if(__context.isFrameDisplayed()) {
-					__interpret(workstring,__context.turtle);
+					__turtle_interpretation(workstring,__context.turtle);
 					rep = __context.turtle.getScene();
 				}
 				result = endeach ? __context.endEach(workstring,rep) : __context.end(workstring,rep);
@@ -1275,17 +1275,17 @@ Lsystem::plot( AxialTree& workstring, bool checkLastComputedScene ){
 }
 
 void 
-Lsystem::interpret( AxialTree& workstring, PGL::Turtle& t )
+Lsystem::turtle_interpretation( AxialTree& workstring, PGL::Turtle& t )
 {
   ACQUIRE_RESSOURCE
-  __interpret(workstring,t);
+  __turtle_interpretation(workstring,t);
   RELEASE_RESSOURCE
 }
 
 ScenePtr Lsystem::sceneInterpretation( AxialTree& workstring )
 {
   ACQUIRE_RESSOURCE
-  __interpret(workstring,__context.turtle);
+  __turtle_interpretation(workstring,__context.turtle);
   return __context.turtle.getScene();
   RELEASE_RESSOURCE
 }
@@ -1295,14 +1295,14 @@ void Lsystem::stepInterpretation(AxialTree& wstring)
   ACQUIRE_RESSOURCE
   if ( wstring.empty() )return;
   bool homHasQuery = false;
-  RulePtrMap homomorphism = __getRules(eHomomorphism,__currentGroup,eForward,&homHasQuery);
-  __recursiveStepInterpretation(wstring,homomorphism,__context.turtle,__homomorphism_max_depth);
+  RulePtrMap interpretation = __getRules(eInterpretation,__currentGroup,eForward,&homHasQuery);
+  __recursiveStepInterpretation(wstring,interpretation,__context.turtle,__interpretation_max_depth);
   RELEASE_RESSOURCE
 }
 
 
 AxialTree 
-Lsystem::homomorphism(AxialTree& wstring){
+Lsystem::interpret(AxialTree& wstring){
   ACQUIRE_RESSOURCE
   return __homomorphism(wstring);
   RELEASE_RESSOURCE
@@ -1311,28 +1311,28 @@ Lsystem::homomorphism(AxialTree& wstring){
 AxialTree 
 Lsystem::__homomorphism(AxialTree& wstring){
   if ( wstring.empty() || __rules.empty() || 
-       ( __group(0).homomorphism.empty() && 
-        (__group(__currentGroup).homomorphism.empty()||
+       ( __group(0).interpretation.empty() && 
+        (__group(__currentGroup).interpretation.empty()||
          __rules.size() < __currentGroup)))return wstring;
   AxialTree workstring;
   bool homHasQuery = false;  
-  RulePtrMap homomorphism = __getRules(eHomomorphism,__currentGroup,eForward,&homHasQuery);
-  if (!homomorphism.empty()){
-      workstring = __recursiveSteps(wstring,homomorphism,__homomorphism_max_depth);
+  RulePtrMap interpretation = __getRules(eInterpretation,__currentGroup,eForward,&homHasQuery);
+  if (!interpretation.empty()){
+      workstring = __recursiveSteps(wstring,interpretation,__interpretation_max_depth);
   }
   return workstring;
 }
 
 void
-Lsystem::__interpret(AxialTree& wstring, PGL::Turtle& t){
+Lsystem::__turtle_interpretation(AxialTree& wstring, PGL::Turtle& t){
     if ( wstring.empty() )return;
     bool homHasQuery = false;
-    RulePtrMap homomorphism = __getRules(eHomomorphism,__currentGroup,eForward,&homHasQuery);
-    if (!homomorphism.empty()){
-      __recursiveInterpretation(wstring,homomorphism,t,__homomorphism_max_depth);
+    RulePtrMap interpretation = __getRules(eInterpretation,__currentGroup,eForward,&homHasQuery);
+    if (!interpretation.empty()){
+      __recursiveInterpretation(wstring,interpretation,t,__interpretation_max_depth);
     }
     else {
-		LPY::interpret(wstring,t);
+		LPY::turtle_interpretation(wstring,t);
     }
 }
 
@@ -1343,7 +1343,7 @@ Lsystem::__plot( AxialTree& workstring, bool checkLastComputedScene){
 		result = __lastcomputedscene;
 	}
 	if (is_null_ptr(result)) {
-		__interpret(workstring,__context.turtle);
+		__turtle_interpretation(workstring,__context.turtle);
 		result = __context.turtle.getScene();
 	}
     LPY::plot(result);
@@ -1365,7 +1365,7 @@ Lsystem::animate(const AxialTree& workstring,double dt,size_t beg,size_t nb_iter
     __plot(tree);
     if (nb_iter > 0 && !isEarlyReturnEnabled()){
 	  for (size_t i = beg; i < beg+nb_iter; i++){
-	    tree = __iterate(i,1,tree,true);
+	    tree = __derive(i,1,tree,true);
 		if(__context.isFrameDisplayed()) {
 			timer.touch();
 			__plot(tree,true);
@@ -1404,7 +1404,7 @@ Lsystem::record(const std::string& prefix,
 	LPY::saveImage(prefix+conv_number(beg,fill)+".png");
     if (nb_iter > 0){
 	  for (size_t i = beg+1; i <= beg+nb_iter; i++){
-		tree = __iterate(i-1,1,tree,true);
+		tree = __derive(i-1,1,tree,true);
 		if(__context.isFrameDisplayed()) {
 			__plot(tree,true);
 		}

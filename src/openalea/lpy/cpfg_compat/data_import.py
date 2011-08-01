@@ -54,47 +54,99 @@ def import_functions(fn):
        result.append(n)
     return result
 
-def import_patch(fn):
+def import_function(fn):
+    import os.path
     f = open(fn,'r')
     # read header of the file
-    f.readline()
-    v = f.readline().split()
-    contact = Vector3(float(v[3]),float(v[5]),float(v[7]))
-    f.readline()
-    v = f.readline().split()
-    heading = Vector3(float(v[2]),float(v[4]),float(v[6]))
+    f.readline() # range 0, 1
+    nbpoints = int(f.readline().split()[1]) # points: 4
+    points = []
+    for j in xrange(nbpoints):
+       coord = map(float,f.readline().split()) # 0.000000 0.577929
+       point = Vector3(coord+[1])
+       points.append(point) 
+    result = NurbsCurve2D(points)
+    name = os.path.basename(os.path.splitext(fn)[0])
+    result.name = name
+    return result
+
+linetofloat = lambda l : map(float,l.split())
+def vec3inline(l,i,j,k):
+    values = l.split()
+    return Vector3(float(values[i]),float(values[j]),float(values[k]))
+
+def import_patch(fn):
+    from os.path import basename,splitext
+    f = open(fn,'r')
+    base = splitext(basename(fn))[0]
+    # read header of the file
+    f.next() # bbox
+    nextline = f.next()
+    # PRECISION S: s T: t
+    if nextline.split()[0] == 'PRECISION':
+        nextline = f.next()
+    # CONTACT POINT X: x Y: y Z: z
+    contact = vec3inline(nextline,3,5,7)
+    # END POINT X: x Y: y Z: z
+    f.next()
+    # HEADING X: x Y: y Z: z
+    heading = vec3inline(f.next(),2,4,6)
     l = heading.normalize()
-    v = f.readline().split()
-    up = Vector3(float(v[2]),float(v[4]),float(v[6]))
+    # UP X: x Y: y Z: z
+    up = vec3inline(f.next(),2,4,6)
     up.normalize()
-    v = f.readline().split()
-    size = float(v[1])
-    name = f.readline().split()[0]
-    for i in xrange(4): f.readline()
-    ctrlpoints = []
-    left = heading^up
-    m = Matrix3(-up,-left,heading)
-    m = m.inverse()
-    for i in xrange(4):
-        v = f.readline().split()
-        row = []
-        for j in range(4):
-            p = Vector3(float(v[j*3]),float(v[j*3+1]),float(v[j*3+2]))
-            p -= contact
-            p = m*p
-            row.append(Vector4(p,1))
-        ctrlpoints.append(row)    
-    smb = BezierPatch(ctrlpoints)
-    actualdim = 2*max(BoundingBox(smb).getSize())
-    smb = BezierPatch([[Vector4(i.project()/actualdim,1) for i in ctrllines] for ctrllines in ctrlpoints])
-    smb.name = name
-    return smb
+    # SIZE: x
+    size = float(f.next().split()[1])
+    patchlist = []
+    while True :
+        try :
+            nextline = f.next()
+        except:
+            break
+        nextline = nextline.strip()
+        dobreak = False
+        while len(nextline) == 0 :
+            try :
+                nextline = f.next()
+                nextline = nextline.strip()
+            except:
+                dobreak = True
+                break
+        if dobreak:
+            break
+        # patchname
+        name = nextline
+        # TOP COLOR: i DIFFUSE: x BOTTOM COLOR: i DIFFUSE: y
+        # AL: patch1 A: patch2 AR: patch3
+        # L: patch4 R: patch5
+        # BL: patch6 B: patch7 BR: patch8
+        for i in xrange(4): f.next()
+        ctrlpoints = []
+        left = heading^up
+        m = Matrix3(-up,-left,heading)
+        #m = Matrix3(-left, -heading, up)
+        m = m.inverse()
+        for i in xrange(4):
+            v = f.next().split()
+            row = []
+            for j in range(4):
+                p = Vector3(float(v[j*3]),float(v[j*3+1]),float(v[j*3+2]))
+                p -= contact
+                p = m*p
+                row.append(Vector4(p,1))
+            ctrlpoints.append(row)    
+        smb = BezierPatch(ctrlpoints)
+        actualdim = 2*max(BoundingBox(smb).getSize())
+        smb = BezierPatch([[Vector4(i.project()/actualdim,1) for i in ctrllines] for ctrllines in ctrlpoints],ustride = 10, vstride = 10)
+        smb.name = base+'_'+name
+        patchlist.append(smb)
+    return patchlist
 
 def import_colormap(fn):
     import array
     a = array.array('B')
     a.fromfile(open(fn,'rb'),256*3)
-    return [Material('Color_'+str(i),Color3(a[3*i],a[3*i+1],a[3*i+2])) for i in xrange(256)]
+    return [Material('Color_'+str(i),Color3(a[3*i],a[3*i+1],a[3*i+2]),diffuse=0) for i in xrange(256)]
 
 def import_materialmap(fn):
     import array

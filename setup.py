@@ -33,7 +33,7 @@ print pkg_name,': version =',version
 
 
 # Scons build directory
-build_prefix= "build-scons"
+build_prefix= ""
 
 from setuptools import setup
 from openalea.deploy.binary_deps import binary_deps
@@ -60,7 +60,7 @@ setup(
     create_namespaces = False,
     
     # pure python  packages
-    packages = [ pkg_name, pkg_name+'.gui',pkg_name+'.gui.plugins', wralea_name ],
+    packages = [ pkg_name, pkg_name+'.gui',pkg_name+'.gui.plugins', pkg_name+'.cpfg_compat', wralea_name ],
     py_modules = ['lpygui_postinstall'],
 
     # python packages directory
@@ -74,14 +74,15 @@ setup(
     # Specific options of openalea.deploy
     lib_dirs = {'lib' : pj(build_prefix, 'lib'),},
     bin_dirs = {'bin':  pj(build_prefix, 'bin'),},
-    inc_dirs = {'include' : pj(build_prefix, 'include') },
+    inc_dirs = {'include' : pj(build_prefix, 'src','cpp') },
     share_dirs = {'share' : 'share', },
 
     # Dependencies
     # entry_points
     entry_points = {
         "wralea": ["lpy = openalea.lpy_wralea",],
-        'gui_scripts': ['lpy = openalea.lpy.gui.lpystudio:main',]
+        'gui_scripts': ['lpy = openalea.lpy.gui.lpystudio:main',],
+        'console_scripts': ['cpfg2lpy = openalea.lpy.cpfg_compat.cpfg2lpy:main',]
         },
     
     postinstall_scripts = ['lpygui_postinstall'],

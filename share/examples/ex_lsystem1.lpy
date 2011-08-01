@@ -73,9 +73,3 @@ _(r) :
     if r<20 : produce _(r+0.5)
 
 endlsystem
-###### INITIALISATION ######
-
-def __initialiseContext__(context):
-	from openalea.plantgl.all import Material,Color3
-	context.options.setSelection("Selection Required",0)
-	context.options.setSelection("Module declaration",0)

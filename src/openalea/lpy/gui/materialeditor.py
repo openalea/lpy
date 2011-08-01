@@ -497,7 +497,7 @@ class MaterialPanelView (QGLWidget):
             self.fileDropEvent(self.selectedColor(event.pos().x(),event.pos().y()),str(event.mimeData().urls()[0].toLocalFile()))
 
     def fileDropEvent(self,pos,fname):
-        from openalea.lpy.gui.lpfg_data_import import import_colormap, import_materialmap
+        from openalea.lpy.cpfgcompat.data_import import import_colormap, import_materialmap
         base , ext = os.path.splitext(fname)
         if ext == '.map' or ext == '.mat':
             if ext == '.map':
