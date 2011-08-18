@@ -33,7 +33,7 @@ print pkg_name,': version =',version
 
 
 # Scons build directory
-build_prefix= ""
+build_prefix = "build-scons"
 
 from setuptools import setup
 from openalea.deploy.binary_deps import binary_deps
@@ -54,7 +54,6 @@ setup(
     license=license,
     
     scons_scripts = ['SConstruct'],
-    scons_parameters = ["build_prefix="+build_prefix],
     
     namespace_packages = [namespace],
     create_namespaces = False,
