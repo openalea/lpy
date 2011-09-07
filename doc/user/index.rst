@@ -25,7 +25,8 @@ how to use VPlants.Lpy see :ref:`lpy_reference`.
 
 
 
-.. .. toctree::
+.. toctree::
     :maxdepth: 1
-            
-    *rst
+    :glob:
+
+    *
