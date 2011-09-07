@@ -1,18 +1,21 @@
-from copy import deepcopy as cp
+from copy import deepcopy
 
 nbSteps = 10
 
 transport_speed = 0.05
 internal_degradation_rate = 0.01
 
-
-def update_auxin(d, di):
-   newauxin = d.auxin + (sum([i.auxin for i in di]) - len(di)*d.auxin)*transport_speed - d.auxin* internal_degradation_rate
+class N_data:
+  def __init__(self, aux):
+    self.auxine = aux
+    
+def update_hormon(d, di):
+   newhormon = d.hormon + (sum([i.auxin for i in di]) - len(di)*d.auxin)*transport_speed - d.auxin* internal_degradation_rate
    # need to copy all structure to avoid side effect
-   d = cp(d)
+   d = deepcopy(d)
    d.auxin = newauxin
    # print 'auxin',d.auxin,'-->',newauxin
-   nproduce I(d)
+   nproduce N(d)
 
 derivation length: nbSteps
 production:

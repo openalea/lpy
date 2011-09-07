@@ -30,16 +30,16 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
         keywordFormat.setFontWeight(QFont.Bold)
         self.lpykeywords = ['Axiom:','production','homomorphism','interpretation',
                             'decomposition','endlsystem','group','endgroup',
-                            'derivation length','maximum depth','produce','nproduce','-->',
+                            'derivation length','maximum depth','produce','nproduce','nsproduce','makestring','-->',
                             'consider:','ignore:','forward','backward','isForward',
-                            'Start','End','StartEach','EndEach','getGroup','useGroup',
+                            'Start','End','StartEach','EndEach','getGroup','useGroup','getIterationNb'
                             'module','-static->','@static']
         for pattern in self.lpykeywords:
             self.rules.append((QRegExp(pattern),keywordFormat))
         keywordFormat = QTextCharFormat()
         keywordFormat.setForeground(Qt.blue)
         keywordFormat.setFontWeight(QFont.Bold)
-        self.pykeywords = ['class','if','else','elif','while','None','not','is', 'def',
+        self.pykeywords = ['class','if','else','elif','while','None','not','is', 'def','del',
                             'for','range','xrange', 'True','False','from','import',
                             'lambda','or','and','print','pass','in','return','global',
                             'as','int','float','str','tuple','list','assert','try','except','raise']
@@ -53,12 +53,12 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
         self.prodFormat = QTextCharFormat()
         self.prodFormat.setForeground(Qt.black)
         self.prodFormat.setFontWeight(QFont.Bold)
-        self.prodkeywords = ['Axiom:','produce','nproduce','-->','-static->','module','ignore:','consider:']
+        self.prodkeywords = ['Axiom:','produce','nproduce','nsproduce','makestring','-->','-static->','module','ignore:','consider:']
         for pattern in self.prodkeywords:
             self.exprules.append((QRegExp(pattern+'.*$'),len(pattern),self.prodFormat,0))
         self.funcFormat = QTextCharFormat()
         self.funcFormat.setForeground(Qt.magenta)
-        self.exprules.append((QRegExp('def.*\('),3,self.funcFormat,1))
+        self.exprules.append((QRegExp('def[ \t]+.*\('),3,self.funcFormat,1))
         self.stringFormat = QTextCharFormat()
         self.stringFormat.setForeground(Qt.darkGray)
         self.exprules.append((QRegExp('\"[^\"]*\"'),0,self.stringFormat,0))

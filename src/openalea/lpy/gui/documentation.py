@@ -55,6 +55,8 @@ Here comes the python commands that control the simulation.
 <tr><td><b>Axiom: <i>Lstring</i> </b></td><td> declaration of the axiom of the Lsystem</td></tr>
 <tr><td><b>produce <i>Lstring</i> </b></td><td> produce an <i>Lstring</i> and return.</td></tr>
 <tr><td><b>nproduce <i>Lstring</i> </b></td><td> produce an <i>Lstring</i> whithout returning.</td></tr>
+<tr><td><b>nsproduce(<i>LstringStruct</i>) </b></td><td> produce a given <i>Lstring</i> data structure whithout returning.</td></tr>
+<tr><td><b>makestring(<i>Lstring</i>) </b></td><td> create an <i>LstringStruct</i> from <i>Lstring</i>.</td></tr>
 <tr><td><b>derivation length: <i>value</i> </b></td><td> number of derivation to do (default=1).</td></tr>
 <tr><td><b>initial_view=<i>value</i> </b></td><td> number of derivation for bounding box evaluation (default=derivation length).</td></tr>
 <tr><td><b>production:     </b></td><td> start of the production rules declaration.</td></tr>
@@ -84,6 +86,7 @@ All these functions are imported from openalea.lpy module. Other data structures
 <H2> References </H2>
 For More details, see:
 <ul>
+<li>  F. Boudon, T. Cokelaer, C. Pradal and C. Godin, L-Py, an open L-systems framework in Python, FSPM 2010.</li>
 <li>  P. Prusinkiewicz et al., 89, The algorithmic Beauty of Plants, Springer-Verlag.</li>
 <li>  P. Prusinkiewicz. Graphical applications of L-systems. Proceedings of Graphics Interface '86, pp. 247-253.</li>
 <li>  P. Prusinkiewicz, R. Karwowski, and B. Lane. The L+C plant modelling language. In Functional-Structural Plant Modelling in Crop Production, J. Vos et al. (eds.), Springer, 2007.</li>

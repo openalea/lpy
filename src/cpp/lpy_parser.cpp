@@ -106,7 +106,7 @@ void ToEndline(std::string::const_iterator& _it, std::string::const_iterator _en
 
 inline 
 void ToEndlineA(std::string::const_iterator& _it,std::string::const_iterator _end, int& lineno){
-	while( _it!=_end && (*_it)!='\n' && (*_it)!='A' && (*_it)!='n' && (*_it)!='p' && (*_it)!='#' && (*_it)!='\'' && (*_it)!='"' ) ++_it;
+	while( _it!=_end && (*_it)!='\n' && (*_it)!='A' && (*_it)!='m' && (*_it)!='n' && (*_it)!='p' && (*_it)!='#' && (*_it)!='\'' && (*_it)!='"' ) ++_it;
     if(_it!=_end && (*_it)=='\n') 
     { 
         ++lineno; ++_it;
@@ -266,15 +266,21 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
             else LsysParserSyntaxError("Cannot find ':' after Axiom");
 			beg = _it;
 		  }
-		  else if(has_pattern(_it,endpycode,"AxialTree")){
-			code += std::string(beg,_it)+'(';
-			while (_it!=endpycode&&*_it!='(')_it++;
+          else {if(_it!=endpycode)++_it; toendlineA(_it,endpycode); }
+		  break;
+        case 'm':
+		  _it2 = _it;
+		  if(has_pattern(_it,endpycode,"makestring")){
+			code += std::string(beg,_it2) + "AxialTree(";
+		    while(_it != endpycode && (*_it == ' ' || *_it == '\t') )++_it;
+		    char endproduction = '\n';
+		    if(*_it == '(') { endproduction = ')'; ++_it; }
 			if(_it!=endpycode){
-			  _it++;
-			  code += LpyParsing::lstring2py(_it,endpycode,')',lineno);
+			  code += LpyParsing::lstring2py(_it,endpycode,endproduction,lineno);
 			  if(_it!=endpycode)_it++;
 			}
 			code += ')';
+            if (endproduction == '\n') code += '\n';
 			beg = _it;
 			toendlineA(_it,endpycode);
 		  }
@@ -789,6 +795,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
   if (!addedcode.empty())
 	code+='\n'+addedcode;
   if(pycode) *pycode = code;
+  // printf("%s",code.c_str());
   __context.compile(code);
   __importPyFunctions();
   if (__context.hasObject(LsysContext::AxiomVariable)){

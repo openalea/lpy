@@ -7,23 +7,39 @@ def Lsystem__call__(self,lstring,nbsteps=None):
 Lsystem.__call__ = Lsystem__call__
 
 def simulation():
-  aging = Lsystem('aging.lpy')
-  auxin = Lsystem('auxin.lpy')
+  a = Lsystem('aging.lpy')
+  b = Lsystem('auxin.lpy')
   interpretation = Lsystem('interpretation.lpy')
   a2b = Lsystem('A2B.lpy')
   b2a = Lsystem('B2A.lpy')  
   a2c = Lsystem('A2C.lpy')
-  lstring = aging.axiom
+  
   s = Sequencer(0.1)
   for y in xrange(200):
-     lstring = aging(lstring,1)
+     lstring = a(lstring,1)
      lstring = a2b(lstring)
      #print lstring
-     lstring = auxin(lstring)
+     lstring = b(lstring)
      lstring = b2a(lstring)
-     ilstring = a2c(lstring)
+     
+     ilstring = a2c(lstring)     
      interpretation.plot(ilstring)
      s.touch()
+
+def simulation2():
+  a = Lsystem('aging.lpy')
+  b = Lsystem('auxin.lpy')
+  interpretation = Lsystem('interpretation.lpy')
+  a2b = Lsystem('A2B.lpy')
+  b2a = Lsystem('B2A.lpy')  
+  a2c = Lsystem('A2C.lpy')
+  
+  lsystem = ComposedLsystem([a,a2b,b,b2a],[a2c,c])
+  lstring = lsystem.axiom
+  for i in xrange(10):
+    lstring = lsystem(lstring)
+    lsystem.plot(ilstring)
+
 
 if __name__ == '__main__':
     simulation()

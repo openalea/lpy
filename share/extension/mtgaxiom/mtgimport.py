@@ -90,10 +90,11 @@ def color_last_year_node(g):
         
     
 def construct_lstring(g):
-   
+    idp = dict([(i,i) for i in g.property('TopPosition').iterkeys()])
+    g.properties()['mtgid'] = idp
     paramnames = ['TopPosition','TopDiameter']
     
-    params = { 'S': paramnames, 'U' : paramnames, 'V' : paramnames }
+    params = { 'S': paramnames+['mtgid'], 'U' : paramnames, 'V' : paramnames }
     lstring = mtg2axialtree(g, params)
     return lstring
 

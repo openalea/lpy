@@ -36,6 +36,7 @@ def getevaluation(i=0, j=101,step = 1):
 
 def plotresult(i=0, j=101,step = 1):
     import matplotlib.pyplot as mpl
+    from numpy import arange
     res = getevaluation(i, j,step)
     x = [k/100. for k in range(i,j,step)]
     nbcurve = len(res[0])
@@ -59,6 +60,8 @@ def plotresult(i=0, j=101,step = 1):
     mpl.xlim(0,1)
     mpl.axhline(0.8)
     mpl.axvline(0.77)
+    mpl.xticks(arange(0,1.1,0.1))
+    mpl.yticks(arange(0.5,1.04,0.05))
     mpl.show()
 
 if __name__ == '__main__':

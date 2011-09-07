@@ -2,52 +2,51 @@ from copy import deepcopy as cp
 
 phyllochrone = 10
 dt = 1.
-nbSteps = phyllochrone 
+nbSteps = phyllochrone *5
 
 
-class AgeData:
-    def __init__(self,age = 0):
-        self.age = age
-    def increment_age(self):
-        self.age += dt
-
-class MeristemData (AgeData): 
-    def __init__(self,age = 0):
-        AgeData.__init__(self,age)
-        
-class InternodeData(AgeData): 
-    def __init__(self,age = 0):
-        AgeData.__init__(self,age)
-
-class LeafData(AgeData): 
-    def __init__(self,age = 0):
-        AgeData.__init__(self,age)
+class Parameters:
+  def __init__(self,**params):
+    self.__dir__.update(params)
 
 
+module Aging(data)
+module M : bases = Aging
+module I : bases = Aging
+module L : bases = Aging
 
 
-Axiom:  M(MeristemData())
+Axiom:  M(Parameters(age=0))
 
 derivation length: nbSteps
 production:
-consider: I
 
-#group 1:
+
 # Aging stuff
 M(m) :
-    m.increment_age()
-    if divmod(m.age,phyllochrone)[1] == 0:
+    m.age += dt
+    if m.age % phyllochrone == 0:
       produce I(InternodeData()) [ L(LeafData()) ] /(180) M(m)
     else: produce M(m)
 
-
-I(d) : 
-  d.increment_age() # Side effect ?
-
-L(d):
-  d.increment_age() # Side effect ?
+$Aging(a):
+  print a
+  a.data.age += dt
+  produce $a
 
 
+
+
+#I(d) : 
+#  d.increment_age() # Side effect ?
+#
+#L(d):
+#  d.increment_age() # Side effect ?
+interpretation:
+
+I(d) --> F
+L(d) --> +/(90);~l
+M(d) --> ;;@O
 endlsystem
 ###### INITIALISATION ######
 
@@ -88,6 +87,7 @@ def __initialiseContext__(context):
 	Color_20 = pgl.Material("Color_20" , ambient = (60,0,0) , diffuse = 3 , )
 	Color_20.name = "Color_20"
 	context.turtle.setMaterial(20,Color_20)
+	context.options.setSelection('Module inheritance',1)
 	import openalea.plantgl.all as pgl
 	diameter = pgl.NurbsCurve2D(	
 	    ctrlPointList = pgl.Point3Array([(0, 0.246801, 1),(0.300168, 0.67595, 1),(0.874817, 0.683975, 1),(1, 0.999808, 1)]) , 

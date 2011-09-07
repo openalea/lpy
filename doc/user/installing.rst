@@ -4,20 +4,20 @@ Installing Lpy
 Dependencies
 ============
 
-''L-Py'' core is a ''C++'' library but based on the ''Python'' language. \\
-The communication between both language is made using ''Boost.Python''. \\
-The ''PlantGL'' library is used for the 3D modelling. \\
-The ''Qt'' library and its python wrappers ''PyQt'' (build with ''SIP'') are used to create the visual interface. \\
-''PyOpenGL'' is used to display and edit the materials. \\
+``L-Py`` core is a ``C++`` library but based on the ``Python`` language. 
+The communication between both language is made using ``Boost.Python``. 
+The ``PlantGL`` library is used for the 3D modelling. 
+The ``Qt`` library and its python wrappers ``PyQt`` (build with ``SIP``) are used to create the visual interface. 
+``PyOpenGL`` is used to display and edit the materials. 
 
-To compile and install it from sources, the project requires ''scons'' and ''setuptools'' and their
-openalea extension ''OpenAlea.SconsX'' and ''OpenAlea.Deploy''.
+To compile and install it from sources, the project requires ``scons`` and ``setuptools`` and their
+openalea extension ``OpenAlea.SconsX`` and ``OpenAlea.Deploy``.
 
-To test it, the ''nosetests'' conventions is used.
+To test it, the ``nosetests`` conventions is used.
 
-All these projects have to be correctly installed before compiling ''L-Py''.
+All these projects have to be correctly installed before compiling ``L-Py``.
 
-Additionally, the ''Cython'' module that make it possible to translate python code into ''C'' code is automatically integrated to the project if detected. You can install it if you want to test this extension.
+Additionally, the ``Cython`` module that make it possible to translate python code into ``C`` code is automatically integrated to the project if detected. You can install it if you want to test this extension.
 
 Installing binaries
 ===================
@@ -30,24 +30,32 @@ Installing from sources
 You should first install all dependencies.
 Then in a shell, go in the project home directory and simply type
 
-        $ scons
+.. code-block:: bash 
 
-to compile. You can use option ''-j numproc'' if you have several processors.
+        scons
+
+to compile. You can use option ``-j numproc`` if you have several processors.
 Then type
 
-        $ python setup.py install
+.. code-block:: bash 
+
+        python setup.py install
 
 to install it into you python system.
 
 To run test,
 
-        $ cd test/
-        $ nosetests
+.. code-block:: bash 
 
-To launch the visual editor, on windows you can click on ''[Start]/Programs/OpenAlea/Lpy''. On linux,
+        cd test/
+        nosetests
+
+To launch the visual editor, on windows you can click on ``[Start]/Programs/OpenAlea/Lpy``. On linux,
 just type
 
-        $ lpy
+.. code-block:: bash 
+
+        lpy
 
 
 

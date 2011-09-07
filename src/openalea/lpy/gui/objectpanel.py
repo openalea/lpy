@@ -28,6 +28,7 @@ def retrievemaxidname(names,prefix):
     return mid
 
 def retrievebasename(name):
+    name = str(name)
     lastindex = len(name)-1
     i = lastindex
     while i >= 0 and name[i].isdigit():

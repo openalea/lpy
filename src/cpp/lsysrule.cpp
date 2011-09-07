@@ -243,6 +243,21 @@ LsysRule::getCoreCode() {
 	  }
 	  else _it++;
 	}
+	else if(*_it == 'm' && std::distance<std::string::const_iterator>(_it,__definition.end())> 10){
+	  if(std::string(_it,_it+10) == "makestring"){
+		 definition.insert(definition.end(),_beg,_it);
+		 _it += 10;
+		 while(_it != __definition.end() && (*_it == ' ' || *_it == '\t') )++_it;
+		 char endproduction = '\n';
+		 if(*_it == '(') { endproduction = ')'; ++_it; }
+		 definition += "AxialTree(";
+         definition += LpyParsing::lstring2py(_it,__definition.end(),endproduction,lineno==-1?lineno:lineno+llineno);
+         definition += ')';
+ 		 if (endproduction == ')') ++_it;
+		 _beg = _it;
+      }
+      else _it++;
+    }
 	else if(*_it == 'n' && std::distance<std::string::const_iterator>(_it,__definition.end())> 8){
 	  if(std::string(_it,_it+8) == "nproduce"){
 		definition.insert(definition.end(),_beg,_it);

@@ -46,6 +46,15 @@ class MultipleRedirection:
         for stream in self.streams:
             stream.write(str)
 
+class NoneOutput:
+    """ Dummy file which redirects stream to nothing """
+
+    def __init__(self):
+        """ The stream is redirect to nothing """
+        pass
+    def write(self, str):
+        """ Emulate write function """
+        pass
 
 class ThreadedRedirection:
     """ Dummy file which redirects stream to threaded gui output """
@@ -59,7 +68,6 @@ class ThreadedRedirection:
         """ Emulate write function """
 
         if self.guistream.thread() != QThread.currentThread():
-            sys_stdout.write(str)
             e = QEvent(QEvent.Type(RedirectionEventId))
             e.txt = str
             QApplication.postEvent(self.guistream,e)
@@ -78,10 +86,7 @@ class GraphicalStreamRedirection:
         if sys_stderr is None:  sys_stderr = sys.stderr
         if sys_stdin is None:   sys_stdin = sys.stdin
         sys.stdout   = ThreadedRedirection(self)
-        if py2exe_release:
-            sys.stderr   = ThreadedRedirection(self)
-        else:
-            sys.stderr   = MultipleRedirection(sys_stderr, ThreadedRedirection(self))
+        sys.stderr   = ThreadedRedirection(self)
         sys.stdin    = self
         #self.multipleStdOutRedirection()
 
@@ -102,12 +107,68 @@ class GraphicalStreamRedirection:
         else:
             sys.stdout   = ThreadedRedirection(self)
 
+    def selfAsStdOutRedirection(self):
+        sys.stdout   = ThreadedRedirection(self)
+        
+    def sysAsStdOutRedirection(self):
+        sys.stdout   = sys_stdout
+        
+    def noneAsStdOutRedirection(self):
+        sys.stdout   = NoneOutput()
+        
     def hasMultipleStdOutRedirection(self):
         return isinstance(sys.stdout, MultipleRedirection)
-            
+        
+    def isSelfStdOutRedirection(self):
+        return isinstance(sys.stdout, ThreadedRedirection)
+        
+    def isSysAsStdOutRedirection(self):
+        return sys.stdout   == sys_stdout
+        
+    def isNoneAsStdOutRedirection(self):
+        return isinstance(sys.stdout, NoneOutput)
+        
+        
+        
     def multipleStdErrRedirection(self,enabled = True):
         """ make multiple (sys.stderr/pyconsole) or single (pyconsole) redirection of stderr """
         if enabled:
             sys.stderr   = MultipleRedirection(sys_stderr, ThreadedRedirection(self))
         else:
             sys.stderr   = ThreadedRedirection(self)
+    def selfAsStdErrRedirection(self):
+        sys.stderr   = ThreadedRedirection(self)
+                
+    def sysAsStdErrRedirection(self):
+        sys.stderr   = sys_stderr
+        
+    def noneAsStdErrRedirection(self):
+        sys.stderr   = NoneOutput()
+        
+    def hasMultipleStdErrRedirection(self):
+        return isinstance(sys.stderr, MultipleRedirection)
+        
+    def isSelfStdErrRedirection(self):
+        return isinstance(sys.stderr, ThreadedRedirection)
+        
+    def isSysAsStdErrRedirection(self):
+        return sys.stderr   == sys_stderr
+        
+    def isNoneAsStdErrRedirection(self):
+        return isinstance(sys.stderr, NoneOutput)
+
+    def setOutputRedirection(self, selfoutput = True, sysoutput = True, outanderr = 3):
+        if selfoutput:
+            if sysoutput:
+                if outanderr & 1 : self.multipleStdOutRedirection()
+                if outanderr & 2 : self.multipleStdErrRedirection()                
+            else:
+                if outanderr & 1 :self.selfAsStdOutRedirection()
+                if outanderr & 2 : self.selfAsStdErrRedirection() 
+        elif sysoutput:
+            if outanderr & 1 :self.sysAsStdOutRedirection()
+            if outanderr & 2 : self.sysAsStdErrRedirection()
+        else:
+            if outanderr & 1 :self.noneAsStdOutRedirection()
+            if outanderr & 2 : self.noneAsStdErrRedirection()
+        
