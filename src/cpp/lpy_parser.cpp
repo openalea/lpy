@@ -268,24 +268,6 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 		  }
           else {if(_it!=endpycode)++_it; toendlineA(_it,endpycode); }
 		  break;
-        case 'm':
-		  _it2 = _it;
-		  if(has_pattern(_it,endpycode,"makestring")){
-			code += std::string(beg,_it2) + "AxialTree(";
-		    while(_it != endpycode && (*_it == ' ' || *_it == '\t') )++_it;
-		    char endproduction = '\n';
-		    if(*_it == '(') { endproduction = ')'; ++_it; }
-			if(_it!=endpycode){
-			  code += LpyParsing::lstring2py(_it,endpycode,endproduction,lineno);
-			  if(_it!=endpycode)_it++;
-			}
-			code += ')';
-            if (endproduction == '\n') code += '\n';
-			beg = _it;
-			toendlineA(_it,endpycode);
-		  }
-          else {if(_it!=endpycode)++_it; toendlineA(_it,endpycode); }
-		  break;
 		case 'n':
 		  _it2 = _it;
           if(has_pattern(_it,endpycode,"nproduce")){
@@ -385,6 +367,20 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 				if(scale != ModuleClass::DEFAULT_SCALE)mod->setScale(scale);
 				if(!inheritance.empty())mod->setBases(inheritance);
 			}
+			beg = _it;
+			toendlineA(_it,endpycode);
+		  }
+		  else if(has_pattern(_it,endpycode,"makestring")){
+			code += std::string(beg,_it2) + "AxialTree(";
+		    while(_it != endpycode && (*_it == ' ' || *_it == '\t') )++_it;
+		    char endproduction = '\n';
+		    if(*_it == '(') { endproduction = ')'; ++_it; }
+			if(_it!=endpycode){
+			  code += LpyParsing::lstring2py(_it,endpycode,endproduction,lineno);
+			  if(_it!=endpycode)_it++;
+			}
+			code += ')';
+            if (endproduction == '\n') code += '\n';
 			beg = _it;
 			toendlineA(_it,endpycode);
 		  }
