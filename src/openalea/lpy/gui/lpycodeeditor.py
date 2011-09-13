@@ -32,7 +32,7 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
                             'decomposition','endlsystem','group','endgroup',
                             'derivation length','maximum depth','produce','nproduce','nsproduce','makestring','-->',
                             'consider:','ignore:','forward','backward','isForward',
-                            'Start','End','StartEach','EndEach','getGroup','useGroup','getIterationNb'
+                            'Start','End','StartEach','EndEach','getGroup','useGroup','getIterationNb',
                             'module','-static->','@static']
         for pattern in self.lpykeywords:
             self.rules.append((QRegExp(pattern),keywordFormat))
@@ -53,7 +53,7 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
         self.prodFormat = QTextCharFormat()
         self.prodFormat.setForeground(Qt.black)
         self.prodFormat.setFontWeight(QFont.Bold)
-        self.prodkeywords = ['Axiom:','produce','nproduce','nsproduce','makestring','-->','-static->','module','ignore:','consider:']
+        self.prodkeywords = ['Axiom:','module','produce','nproduce','nsproduce','makestring','-->','-static->','ignore:','consider:']
         for pattern in self.prodkeywords:
             self.exprules.append((QRegExp(pattern+'.*$'),len(pattern),self.prodFormat,0))
         self.funcFormat = QTextCharFormat()
