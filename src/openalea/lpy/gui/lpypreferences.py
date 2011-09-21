@@ -66,7 +66,7 @@ class LpyPreferences:
             else:
                 self.widget.LPyConsoleButton.setChecked(self.editor.shell.isSelfStdOutRedirection() or  self.editor.shell.hasMultipleStdOutRedirection())
                 QObject.connect(self.widget.LPyConsoleButton,SIGNAL('clicked(bool)'),self.setOutputRedirection)
-                self.widget.systemConsoleButton.setChecked(self.editor.shell.isSysAsStdOutRedirection() or  self.editor.shell.hasMultipleStdOutRedirection())
+                self.widget.systemConsoleButton.setChecked(self.editor.shell.isSysStdOutRedirection() or  self.editor.shell.hasMultipleStdOutRedirection())
                 QObject.connect(self.widget.systemConsoleButton,SIGNAL('clicked(bool)'),self.setOutputRedirection)
         self.dialog.show()
     def chooseCCompilerPath(self):

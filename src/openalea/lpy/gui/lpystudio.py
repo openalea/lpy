@@ -109,7 +109,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.com_waitcondition = QWaitCondition()
         self.killsimudialog = KillSimulationDialog(self)
         self.plotter = LpyPlotter(self)
-        self.use_own_view3D = True
+        self.use_own_view3D = False
         self.viewer = self.view3D
         registerPlotter(self.plotter)
         class ViewerFuncAborter:
@@ -735,11 +735,16 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
             os.environ['PATH']+=';'+self.cCompilerPath
 
 def main():
+    import sys, os
+    args = sys.argv
     qapp = QApplication([])
     splash = doc.splashLPy()
     qapp.processEvents()
     w = LPyWindow()
     w.show()
+    if len(args) > 1:
+        for f in args[1:]:            
+            w.openfile(f)
     if splash:
         splash.finish(w)
         w.splash = splash

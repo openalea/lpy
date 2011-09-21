@@ -142,8 +142,10 @@ def saveState(lpywidget):
     settings.endGroup()
     if not lpywidget.interpreter is None:
         settings.beginGroup('stdout')
-        settings.setValue('lpyshell',QVariant(lpywidget.shell.hasMultipleStdOutRedirection() or lpywidget.shell.isSelfStdOutRedirection()))
-        settings.setValue('sysconsole',QVariant(lpywidget.shell.hasMultipleStdOutRedirection() or lpywidget.shell.isSysStdOutRedirection()))
+        outinshell = lpywidget.shell.hasMultipleStdOutRedirection() or lpywidget.shell.isSelfStdOutRedirection()
+        outinsys   = lpywidget.shell.hasMultipleStdOutRedirection() or lpywidget.shell.isSysStdOutRedirection()
+        settings.setValue('lpyshell',QVariant(outinshell))
+        settings.setValue('sysconsole',QVariant(outinsys))
         settings.endGroup()
         settings.beginGroup('stderr')
         settings.setValue('lpyshell',QVariant(lpywidget.shell.hasMultipleStdErrRedirection() or lpywidget.shell.isSelfStdErrRedirection()))

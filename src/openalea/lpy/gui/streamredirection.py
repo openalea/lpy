@@ -122,7 +122,7 @@ class GraphicalStreamRedirection:
     def isSelfStdOutRedirection(self):
         return isinstance(sys.stdout, ThreadedRedirection)
         
-    def isSysAsStdOutRedirection(self):
+    def isSysStdOutRedirection(self):
         return sys.stdout   == sys_stdout
         
     def isNoneAsStdOutRedirection(self):
@@ -151,7 +151,7 @@ class GraphicalStreamRedirection:
     def isSelfStdErrRedirection(self):
         return isinstance(sys.stderr, ThreadedRedirection)
         
-    def isSysAsStdErrRedirection(self):
+    def isSysStdErrRedirection(self):
         return sys.stderr   == sys_stderr
         
     def isNoneAsStdErrRedirection(self):
@@ -160,8 +160,8 @@ class GraphicalStreamRedirection:
     def setOutputRedirection(self, selfoutput = True, sysoutput = True, outanderr = 3):
         if selfoutput:
             if sysoutput:
-                if outanderr & 1 : self.multipleStdOutRedirection()
-                if outanderr & 2 : self.multipleStdErrRedirection()                
+                if outanderr & 1 : self.multipleStdOutRedirection(True)
+                if outanderr & 2 : self.multipleStdErrRedirection(True)                
             else:
                 if outanderr & 1 :self.selfAsStdOutRedirection()
                 if outanderr & 2 : self.selfAsStdErrRedirection() 
