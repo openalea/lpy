@@ -1,5 +1,5 @@
 def EndEach():
-    if getIterationNb() == 3:
+    if getIterationNb() == 2:
         requestSelection('Please select a branch to cut')
 
 Axiom: A
@@ -8,7 +8,7 @@ derivation length:5
 production:
 
 A --> F[-A]FA
-X --> %
+X --> ,(3)@O %
 
 interpretation:
 
@@ -16,5 +16,7 @@ A --> ,(2)@O
 
 endlsystem
 ###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
 
 __description__ = 'Test of interaction'

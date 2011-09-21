@@ -43,7 +43,7 @@ Here comes the python commands that control the simulation.
 <tr><td><b>frameDisplay(bool)</b></td><td> Set whether a frame will be displayed at the end of the iteration. default is True in animation and False except for last iteration in run mode.</td></tr>
 <tr><td><b>isFrameDisplayed() </b></td><td> Tell whether a frame will be displayed at the end of the iteration.</td></tr>
 <tr><td><b>isAnimationEnabled() </b></td><td> Return the current simulation is in an animation.</td></tr>
-<tr><td><b>requireSelection(caption) </b></td><td> Wait selection in the viewer before next iteration. Set frameDisplay to True.</td></tr>
+<tr><td><b>requestSelection(caption) </b></td><td> Wait selection in the viewer before next iteration. Set frameDisplay to True.</td></tr>
 </table>
 
 <H3>Lpy specific declaration: </H3>

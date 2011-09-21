@@ -110,7 +110,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.killsimudialog = KillSimulationDialog(self)
         self.plotter = LpyPlotter(self)
         self.use_own_view3D = False
-        self.viewer = self.view3D
+        self.viewer = Viewer
         registerPlotter(self.plotter)
         class ViewerFuncAborter:
             def __init__(self):
