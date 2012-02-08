@@ -1,0 +1,11 @@
+Axiom: +(90)_(0.01)F(1)
+
+derivation length: 5
+production:
+
+F(x) --> F(x/6.)f(x/6.)F(x/6.)f(x/3.)F(x/6.)f(x/6.)F(x/6.)
+
+interpretation:
+
+
+endlsystem

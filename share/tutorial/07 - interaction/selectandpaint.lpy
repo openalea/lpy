@@ -1,0 +1,42 @@
+# Should be played with animation
+
+from openalea.plantgl.all import *
+
+def StartEach():
+  print getIterationNb()
+  if getIterationNb() >= 3:
+    frameDisplay(True)
+    requestSelection('''Iteration %d : Please select a node.
+First selection of a node will paint the branching system.
+Second will cut it. 
+To end the simulation, select the sphere''' % getIterationNb())
+    useGroup(2)
+  else:
+    frameDisplay(False)
+    useGroup(1)
+
+Axiom: S A
+
+derivation length: 7
+production:
+
+X S : 
+  print 'Stop'
+  Stop()
+
+group 1:
+
+A --> F[+FA][-FA]FA
+F --> FF
+
+group 2:
+
+XX --> %
+
+interpretation:
+
+S --> ,(2)@O(1),(1)
+
+X --> ,(3)
+
+endlsystem

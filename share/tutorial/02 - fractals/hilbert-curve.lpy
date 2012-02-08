@@ -1,0 +1,15 @@
+execContext().turtle.setAngleIncrement(90)
+
+Axiom: L
+
+derivation length: 5
+production:
+
+
+L --> +RF - LFL - FR +
+R --> - LF + RFR + FL -
+
+interpretation:
+
+
+endlsystem

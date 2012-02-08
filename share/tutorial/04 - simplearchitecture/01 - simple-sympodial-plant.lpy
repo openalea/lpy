@@ -1,0 +1,26 @@
+def alpha(x):
+  return 30  # try other decreasing functions ex: 30-10*x 
+
+def long(x):  
+  return 1   # try other decreasing functions ex: 50/(x*x) ; 2-x/6+1 
+
+
+Axiom: A(1)
+
+production:
+
+derivation length: 6
+
+A(n) :
+  produce F(long(n))[+(alpha(n))A(n+1)] [-(alpha(n))A(n+1)]F(0.2);(3)@o(0.2)
+
+endlsystem
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	from openalea.plantgl.scenegraph import Material,ImageTexture,Color3
+	context.turtle.setMaterial(0,Material('default',Color3(0,85,127),1.25984,Color3(40,40,40),Color3(0,0,0),1,0))
+__copyright__ = 'open-source GPL'
+__description__ = '- try to apply different functions for branching angle and length of segments'
+__institutes__ = 'INRIA - CIRAD Virtual Plants'
+__authors__ = 'C. Godin, F. Boudon'

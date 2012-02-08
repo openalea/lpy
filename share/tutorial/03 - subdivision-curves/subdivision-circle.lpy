@@ -1,0 +1,23 @@
+from math import *
+
+il = 10.
+rl = 0.5
+#rl = 1./(sqrt(2)+1)
+print rl
+assert 0 < rl < 1
+
+Axiom: F(il/2)+(90.)F(il/2)F(il/2)+(90.)F(il/2)F(il/2)+(90.)F(il/2)F(il/2)+(90.)F(il/2)
+
+derivation length: 10
+production:
+
+F(x)+(a)F(y) :
+	#assert abs(x-y) < 1e-5
+	v1 = (1-rl)*sqrt(x**2+y**2)/2.
+	#assert abs(x*rl-v1) < 1e-5
+	produce F(x*rl)+(a/2)F(v1)F(v1)+(a/2)F(y*rl)
+
+homomorphism:
+
+
+endlsystem

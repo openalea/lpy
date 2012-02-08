@@ -1,0 +1,27 @@
+Axiom: SetGuide(path,10) nF(10, 0.1)
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	import openalea.plantgl.all as pgl
+	path = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.192641, 0.281385, 1),(0.0238095, -0.177489, 1),(0.5, 0, 1)]) , 
+	    )
+	path.name = "path"
+	panel_0 = ({'active': True, 'visible': True, 'name': 'Panel 1'},[('Curve2D',path)])
+	parameterset = [panel_0,]
+	context["__functions__"] = []
+	context["__curves__"] = [('path',path),]
+	context["__parameterset__"] = parameterset
+	context["path"] = path
+__description__ = 'The path curve is defined in the Panel 1. It is set as a predefined path of length 10 for the turtle. The nF produce a series of F of total length 10 and unit step 0.1.'

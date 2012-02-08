@@ -1,0 +1,265 @@
+from openalea.plantgl.all import *
+from random import *
+
+
+maxorder = 3
+maxlength = 12
+cmaxlength = 1
+maxcambiumgrowth = 240
+rotationtime = 100
+maxgrowth = 300
+maxiter  = 480. if ROTATION else maxgrowth
+
+lateral_delay = 20
+dx = 0.1
+da = 0.2
+dt = 1
+maxwidth = 1.0
+CINC = True
+INCANG = True
+Enviro = False
+minl, maxl = 0,0
+
+def getmidheigth(t):
+    return midheigth(min(maxgrowth,getIterationNb())/float(maxgrowth))
+
+def getmaxheigth(t):
+    return 2+ 2*heigth(min(maxgrowth,getIterationNb())/float(maxgrowth))
+
+def getmaxradius(t):
+    return 2 + 2*radius(min(maxgrowth,getIterationNb())/float(maxgrowth))*(t/10.)
+    
+def StartEach():
+    global Enviro
+    Enviro = False
+    pass
+
+from openalea.plantgl.all import Viewer,eStatic,eAnimatedScene, eAnimatedPrimitives
+
+from openalea.fractalysis.light.directLight import diffuseInterception
+
+def End():
+    if isAnimationEnabled():
+        print minl,maxl
+        f = file('interception.txt','w')
+        f.write(str(minl)+'\n')
+        f.write(str(maxl)+'\n')
+        f.close()
+
+import os
+def Start():
+    global minl, maxl
+    if os.path.exists('interception.txt'):
+        f = file('interception.txt','r')
+        minl = float(f.readline())
+        maxl = float(f.readline())
+        f.close()
+        
+
+def EndEach(lstring,scene):
+   if isAnimationEnabled():
+      global minl, maxl # read from initial simu
+      Viewer.redrawPolicy = False # stop redrawing. do every thing with buffer
+      Viewer.display(scene) 
+      pos,h,up = Viewer.camera.getPosition() # save camera position
+      shapes = dict([(sh.id,sh) for sh in scene])
+      res = diffuseInterception(scene)   # compute light from turtle dome
+      for k,v in res.items(): # res contains pair of id, light level
+         if lstring[k].name in 'AB': # check for module A and B
+           v /= surface(shapes[k])   # normalized 
+           lstring[k][3] = v         # set ligth level into param 4 
+           if minl > v: minl = v
+           if maxl < v: maxl = v
+      Viewer.camera.lookAt(pos,pos+h)      # restaure camera
+      Viewer.redrawPolicy = True # redraw normaly
+
+
+def do_houpppier(p,s,c)   :
+    seed(s)
+    p2 = (p[0],p[1])
+    t = norm(p2)/1.8 
+    maxr = getmaxradius(t)
+    args = [maxr-uniform(0,maxr/3) for i in xrange(4)]
+    maxh = getmaxheigth(t)
+    midh = maxh*getmidheigth(t)
+    args += [midh+uniform(-0.5,0.5) for i in xrange(4)]
+    args += [(0,0,0),(0,0,maxh)]
+    ah = AsymmetricHull(*args)
+    l = 17 if (c < 0 or maxl <= minl) else 2+(11 * ((c-minl)/(maxl-minl)) )   
+    nproduce ,(int(l)) @v f(-midh) @g(ah)
+
+
+module ROT
+
+Axiom: SOIL ROT @Gc  @Tp(0,0,1) @Ts(0.025) N(2,20) ?P A(0,0,0,-1) 
+
+derivation length: maxiter
+production:
+
+N(l,t) < ?P(p) A(x,o,s,c)  :
+  global cmaxlength
+  if l >= 2.0:
+    if o == 0:
+        cmaxlength = x+1
+    nproduce  /(60)
+    if x < maxlength :
+        if o < maxorder and x % 2 == 0 and x < maxlength-1: 
+            nproduce  [ &(60)  D(lateral_delay,x+1,o+1,randint(1,1000))]
+        produce N(0,0) ?P A(x+1,o,s,c)
+    else:
+        produce ?P B(x,o,s,c) 
+
+D(t,x,o,s):
+    if t > 0:
+        produce D(t-1,x,o,s)
+    else :
+        produce N(1,0) ?P A(x,o,s,-1)
+
+N(x,t) :
+    global CINC
+    if x < 2:
+        x += dx
+    if CINC:
+        t +=dt
+        if t >= maxcambiumgrowth:
+           CINC = False
+    produce N(x,t)
+
+&(a) :
+   global INCANG
+   if a > 120:
+       INCANG = False
+   elif a < 55:
+       INCANG = True
+   if INCANG:
+       a += da
+   else:
+       a -= da
+   nproduce &(a)
+
+interpretation:
+
+N(x,t) :
+    if t > maxcambiumgrowth:
+        t = maxcambiumgrowth
+    dnt = min(20,x*10)
+    lowt = max(t-dnt,0)
+    w2 = width(lowt/(maxcambiumgrowth+1.))
+    w1 = width(t/(maxcambiumgrowth+1.))
+    nproduce _(maxwidth*w1)
+    nb,reminder = divmod(x,0.2)
+    if nb > 0:
+      for i in xrange(nb):
+        lr = maxwidth*(w1+(w2-w1)*((i+1)/nb))
+        #print lr
+        nproduce F(0.2,lr)
+        
+    if reminder>0: produce F(reminder,w1) 
+
+N(ox,t) ?P(p) < A(x,o,s,c) :
+        do_houpppier(p,s,c)
+        pass
+
+?P(p) < B(x,o,s,c) :
+    do_houpppier(p,s,c)
+    pass
+
+ROT:
+    if getIterationNb() > 300:
+        produce /(2*(getIterationNb() - 300))
+
+SOIL:
+    if Enviro:
+        s = 20
+        produce [,(20) @g(QuadSet([(-s,s,0),(s,s,0),(s,-s,0),(-s,-s,0)],[range(4)],texCoordList = [(0,1),(1,1),(1,0),(0,0)])) ]
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	import openalea.plantgl.all as pgl
+	Color_1 = pgl.Material("Color_1" , ambient = (62,42,13) , diffuse = 1.27419 , specular = (0,0,0) , )
+	Color_1.name = "Color_1"
+	context.turtle.setMaterial(1,Color_1)
+	Color_2 = pgl.Material("Color_2" , ambient = (0,0,39) , diffuse = 4.10256 , transparency = 0.11 , )
+	Color_2.name = "Color_2"
+	context.turtle.setMaterial(2,Color_2)
+	Color_3 = pgl.Material("Color_3" , ambient = (6,0,35) , diffuse = 3.90384 , transparency = 0.1 , )
+	Color_3.name = "Color_3"
+	context.turtle.setMaterial(3,Color_3)
+	Color_4 = pgl.Material("Color_4" , ambient = (13,0,31) , diffuse = 3.70512 , transparency = 0.09 , )
+	Color_4.name = "Color_4"
+	context.turtle.setMaterial(4,Color_4)
+	Color_5 = pgl.Material("Color_5" , ambient = (19,0,28) , diffuse = 3.50641 , transparency = 0.08 , )
+	Color_5.name = "Color_5"
+	context.turtle.setMaterial(5,Color_5)
+	Color_6 = pgl.Material("Color_6" , ambient = (26,0,24) , diffuse = 3.30769 , transparency = 0.07 , )
+	Color_6.name = "Color_6"
+	context.turtle.setMaterial(6,Color_6)
+	Color_7 = pgl.Material("Color_7" , ambient = (32,0,21) , diffuse = 3.10897 , transparency = 0.06 , )
+	Color_7.name = "Color_7"
+	context.turtle.setMaterial(7,Color_7)
+	Color_8 = pgl.Material("Color_8" , ambient = (39,0,17) , diffuse = 2.91025 , transparency = 0.05 , )
+	Color_8.name = "Color_8"
+	context.turtle.setMaterial(8,Color_8)
+	Color_9 = pgl.Material("Color_9" , ambient = (45,0,14) , diffuse = 2.71154 , transparency = 0.04 , )
+	Color_9.name = "Color_9"
+	context.turtle.setMaterial(9,Color_9)
+	Color_10 = pgl.Material("Color_10" , ambient = (52,0,10) , diffuse = 2.51282 , transparency = 0.03 , )
+	Color_10.name = "Color_10"
+	context.turtle.setMaterial(10,Color_10)
+	Color_11 = pgl.Material("Color_11" , ambient = (58,0,7) , diffuse = 2.3141 , transparency = 0.02 , )
+	Color_11.name = "Color_11"
+	context.turtle.setMaterial(11,Color_11)
+	Color_12 = pgl.Material("Color_12" , ambient = (65,0,3) , diffuse = 2.11538 , transparency = 0.01 , )
+	Color_12.name = "Color_12"
+	context.turtle.setMaterial(12,Color_12)
+	Color_13 = pgl.Material("Color_13" , ambient = (72,0,0) , diffuse = 1.91667 , )
+	Color_13.name = "Color_13"
+	context.turtle.setMaterial(13,Color_13)
+	Color_14 = pgl.Material("Color_14" , ambient = (30,60,10) , diffuse = 3 , transparency = 0.12 , )
+	Color_14.name = "Color_14"
+	context.turtle.setMaterial(14,Color_14)
+	Color_15 = pgl.Material("Color_15" , ambient = (26,0,40) , diffuse = 2.975 , transparency = 0.12 , )
+	Color_15.name = "Color_15"
+	context.turtle.setMaterial(15,Color_15)
+	Color_16 = pgl.Material("Color_16" , ambient = (0,0,39) , diffuse = 4.10256 , transparency = 0.11 , )
+	Color_16.name = "Color_16"
+	context.turtle.setMaterial(16,Color_16)
+	Color_17 = pgl.Material("Color_17" , ambient = (0,37,0) , diffuse = 2.40541 , )
+	Color_17.name = "Color_17"
+	context.turtle.setMaterial(17,Color_17)
+	Color_18 = pgl.Material("Color_18" , ambient = (60,60,15) , diffuse = 3 , )
+	Color_18.name = "Color_18"
+	context.turtle.setMaterial(18,Color_18)
+	scalars = [('SAVE_ANIM', False, False, True), ('ROTATION', False, False, True)]
+	context["__scalars__"] = scalars
+	for n,v,mnv,mxv in scalars:
+		context[n] = v
+	import openalea.plantgl.all as pgl
+	heigth = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.823531, 1),(0.40992, 1.05523, 1),(0.708241, 1.01986, 1),(1, 1.18804, 1)]) , 
+	    )
+	heigth.name = "heigth"
+	midheigth = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.270999, 1),(0.471402, 0.636793, 1),(0.821493, 0.569673, 1),(1, 0.616857, 1)]) , 
+	    )
+	midheigth.name = "midheigth"
+	radius = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.420427, 1),(0.473903, 0.838665, 1),(0.825947, 1.01859, 1),(1, 0.967167, 1)]) , 
+	    )
+	radius.name = "radius"
+	width = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.18073, 1),(0.27434, 0.408218, 1),(0.655226, 0.468072, 1),(1, 0.747973, 1)]) , 
+	    )
+	width.name = "width"
+	panel_0 = ({'active': True, 'visible': True, 'name': 'Panel 1'},[('Function',heigth),('Function',midheigth),('Function',radius),('Function',width)])
+	parameterset = [panel_0,]
+	context["__functions__"] = [('heigth',heigth),('midheigth',midheigth),('radius',radius),('width',width),]
+	context["__curves__"] = []
+	context["__parameterset__"] = parameterset
+	context["heigth"] = pgl.QuantisedFunction(heigth)
+	context["midheigth"] = pgl.QuantisedFunction(midheigth)
+	context["radius"] = pgl.QuantisedFunction(radius)
+	context["width"] = pgl.QuantisedFunction(width)

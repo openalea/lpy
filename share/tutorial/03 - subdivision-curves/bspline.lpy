@@ -1,0 +1,54 @@
+from openalea.plantgl.all import *
+
+# Lane and Riesenfeld algo for generating BSpline with subdivision
+
+Axiom: P(Vector2(0,0)) E P(Vector2(0,1)) E P(Vector2(1,1)) E P(Vector2(1,0)) E P(Vector2(2,0))
+
+
+
+def StartEach():
+  if getIterationNb() % (DEGREE +1) == 0:
+    useGroup(1)
+  else: useGroup(2)
+
+derivation length: DERIVATION * (DEGREE +1)
+production:
+
+group 1:
+P(vl) < E > P(vr) --> E P(vl * 1/2. + vr * 1/2.) E
+
+group 2:
+P(vl) < E > P(vr) --> P(vl * 1/2. + vr * 1/2.)
+E < P(v) > E --> E
+
+# needed to keep end point. Else use cyclic Lsystems
+E < P(v) --> E P(v) 
+P(v) > E --> P(v) E 
+
+interpretation:
+
+group 0:
+
+P(vl) < E > P(vr) --> ,(5) _(0.02) OLineTo(0,vr[0],vr[1])
+P(v) : 
+  if POINTS : produce ,(3)@O(0.04)
+
+endlsystem
+
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	import openalea.plantgl.all as pgl
+	Color_5 = pgl.Material("Color_5" , 		ambient = (0,0,0) , 
+		diffuse = 40 , 
+		specular = (0,0,0) , 
+)
+	Color_5.name = "Color_5"
+	context.turtle.setMaterial(5,Color_5)
+	scalars = [('DEGREE', 2, 1, 6), ('DERIVATION', 3, 1, 20), ('POINTS', True, False, True)]
+	context["__scalars__"] = scalars
+	for n,v,mnv,mxv in scalars:
+		context[n] = v
+__references__ = 'Przemyslaw Prusinkiewicz, Mitra Shirmohammadi, and Faramarz Samavati. L-systems in Geometric Modeling. Proceedings of the Twelfth Annual Worskshop on Descriptional Complexity of Formal Systems, pp. 3-12, 2010. '

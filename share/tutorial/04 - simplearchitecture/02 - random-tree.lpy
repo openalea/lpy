@@ -1,0 +1,58 @@
+
+import random
+
+phi = 90
+alpha = 32
+beta  = 20
+step = 0.1
+stepleaf = 0.02
+
+def Start():
+   #random.seed(150)
+   pass
+
+Axiom: _(0.3)@GsG(1)A(1.0)
+
+derivation length: 250
+production:
+
+A(k) :
+    p1 = min(1,(2*k+1)/k**2)
+    r = random.random()
+    if r <= p1:
+        produce /(phi)[+(alpha)C(0.1,k)]-(beta)C(step,k)
+    else:
+        produce /(phi)[+(alpha)/(90);k(step)]-(beta)C(0.1,k)
+
+C(x,k) :
+    if x >= 1:
+        if k < 19:
+            produce F(1,0.05+0.25/k)A(k+1)
+        else:
+            produce F(1,0.05+0.25/k)
+    else:
+        produce C(x+step,k)
+
+k(s):
+    if s >= 1.2:
+        produce ~l(s)
+    else:
+        produce k(s+stepleaf)
+
+homomorphism:
+
+C(x,k):
+    d = 1
+    if k > 1:
+        d = 0.05+0.25* ((x/k)+(1-x)/(k-1))
+    else:
+        d = (0.3*(1-x))+((0.05+0.25/k)*x)
+    produce F(x, d)
+
+k(s):
+    produce ~l(s)
+###### INITIALISATION ######
+
+__copyright__ = 'open-source GPL'
+__institutes__ = 'INRIA - CIRAD Virtual Plants'
+__authors__ = 'F. Boudon, C. Godin'

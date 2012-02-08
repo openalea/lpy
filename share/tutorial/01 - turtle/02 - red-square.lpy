@@ -1,0 +1,12 @@
+
+derivation length: 0
+
+Axiom: _(0.01) ,(3) F -(90) F -(90) F -(90) F
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+__copyright__ = 'open-source GPL'
+__description__ = 'A red square'
+__institutes__ = 'INRIA - CIRAD Virtual Plants'
+__authors__ = 'C. Godin, F. Boudon'

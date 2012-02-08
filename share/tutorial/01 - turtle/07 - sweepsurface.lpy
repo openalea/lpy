@@ -1,0 +1,44 @@
+length = 1
+dl = 0.01
+globalwidth = 0.5
+
+# path, section and leafwith are graphically defined in "Panel 1"
+
+Axiom: ,(2) Sweep(path,section,length,dl,globalwidth,leafwidth)
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	import openalea.plantgl.all as pgl
+	path = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.192641, 0.281385, 1),(0.0238095, -0.177489, 1),(0.5, 0, 1)]) , 
+	    )
+	path.name = "path"
+	section = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.508658, 0.112554, 1),(-0.162338, -0.155844, 1),(-0.0238095, 0.158009, 1),(0.192641, -0.177489, 1),(0.582251, 0.168831, 1)]) , 
+	    )
+	section.name = "section"
+	import openalea.plantgl.all as pgl
+	leafwidth = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.0137255, 1),(0.320346, 0.341991, 1),(0.649351, 0.121212, 1),(1, 0, 1)]) , 
+	    )
+	leafwidth.name = "leafwidth"
+	panel_0 = ({'active': True, 'visible': True, 'name': 'Panel 1'},[('Curve2D',path),('Curve2D',section),('Function',leafwidth)])
+	parameterset = [panel_0,]
+	context["__functions__"] = [('leafwidth',leafwidth),]
+	context["__curves__"] = [('path',path),('section',section),]
+	context["__parameterset__"] = parameterset
+	context["path"] = path
+	context["section"] = section
+	context["leafwidth"] = pgl.QuantisedFunction(leafwidth)
+__description__ = 'The path curve is defined in the Panel 1. It is set as a predefined path of length 10 for the turtle. The nF produce a series of F of total length 10 and unit step 0.1.'

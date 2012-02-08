@@ -1,0 +1,101 @@
+STEPS = 71
+SHOW_COUNT = False
+SHOW_FLUX = True
+alpha_1 = 10 # branching angle - straigh segment #
+alpha_2 = 32 # branching angle - lateral segment #
+lbda = 0.7 # default flux portion flowing into the main segment #
+v_th = 5.0
+eta = 0.89
+sigma_0 = 7 # CHANGE 7 TO 17 #
+LEN = 1
+
+ignore: +-/
+# colour=1 for neutral, 2 for terminals down, 3 for flux up#
+color = [ 1, 3, 2]
+	
+derivation length: STEPS
+Axiom:  N(1)I(0,2,0,1)A
+
+# A #
+# I(b,m,v,c) #
+
+# b - Type - 0=base, 1=major, 2=minor #
+# m - MType - 0=normal 1=flux up 2=terminals down #
+# v - Flux - Flux through the internode #
+# c - TerminalsSupported by this internode #
+# First branch at any node is dominant #
+
+production:
+
+N(k) < I(b,m,v,c) :
+	# terminal numbers reached base; start flux moving up #
+	if b==0 and m==2 :
+		flux= sigma_0*(2**((k-1)*(eta**k)))
+		produce [;(3)+(90)F(0.03*flux)][;(3)-(90)F(0.03*flux)]I(b,1,flux,c)
+
+N(k) > I(b,m,v,c) : 
+	if b==0 and m==2 : 
+		produce N(k+1)
+
+I(b,m,v,c) < A :
+	# flux reaching apices #
+	# branch if sufficient flux #
+	# note that this starts sending the terminal counting message down #
+	if m==1 and v>v_th : 
+		produce [-(alpha_2)I(2,2,v*(1-lbda),1)A]+(alpha_1)I(1,2,v*lbda,1)B
+
+I(b,m,v,c) < B :
+	if m==1 and v>v_th :
+		produce [+(alpha_2)I(2,2,v*(1-lbda),1)B]-(alpha_1)I(1,2,v*lbda,1)A
+
+I(b,m,v,c) > A : 
+	# Reset the internode message state #
+	# and if the apex didn't branch start terminal down message #
+	if m==1 and v <= v_th :
+		produce I(b,2,v,c)
+
+I(b,m,v,c) > B : 
+	if m==1 and v <= v_th :
+		produce I(b,2,v,c) 
+
+I(b_l,m_l,v_l,c_l) < I(b,m,v,c) :
+	# upward movement of flux #
+	if m_l==1 :
+		if b==1 :
+			produce I(b,m_l,v_l-v_l*(1-lbda)*((c_l-c)/c),c)
+		elif b==2 :
+			produce I(b,m_l,v_l*(1-lbda)*(c/(c_l-c)),c)
+	elif m_l==2 and m==2 :
+		produce I(b,0,v,c)
+
+I(b,m,v,c) > [I(b_2,m_2,v_2,c_2)]I(b_1,m_1,v_1,c_1) :
+	# downward movement of terminal stats #
+	if m==0 and m_1==2 and m_2==2 :
+		produce I(b,2,v,c_1+c_2)
+
+I(b,m,v,c) :
+	# reset message once transferred #
+	if m==1 :
+		produce I(b,0,v,c)
+
+homomorphism:
+
+I(b,m,v,c) : 
+	if SHOW_COUNT:
+		produce _((c*0.01)**0.7);(color[m])F(LEN)@c[|f(LEN/3.)^(90)f(LEN)&(90);(4)@L(str(int(round(c))))] 
+	elif SHOW_FLUX  :
+		produce _((c*0.01)**0.7);(color[m])F(LEN)@c[|f(LEN/3.)^(90)f(LEN)&(90);(4)@L(str(int(round(v))))]
+
+endlsystem
+
+
+
+
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	from openalea.plantgl.all import Material,Color3
+	context.turtle.setMaterial(4,Material('Yellow',Color3(0,0,0),3,Color3(40,40,40),Color3(0,0,0),1,0))
+__copyright__ = 'open-source GPL'
+__institutes__ = 'INRIA - CIRAD Virtual Plants'
+__authors__ = 'F. Boudon, C. Godin'

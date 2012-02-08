@@ -1,0 +1,20 @@
+Axiom: F [-(90) _(0.05) @Tp(0,0,1 if tropism >= 0 else -1 ) Elasticity(abs(tropism)/1000.) nF(1.5,0.02) ] F
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	scalars = [('tropism', 18, -100, 100)]
+	context["__scalars__"] = scalars
+	for n,v,mnv,mxv in scalars:
+		context[n] = v
+__description__ = 'You can control the tropism strength with tropism variable in Scalar Tab '

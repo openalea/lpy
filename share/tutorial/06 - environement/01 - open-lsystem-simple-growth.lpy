@@ -1,0 +1,20 @@
+Axiom: A
+derivation length: 24
+production:
+
+A :    
+	produce [+(60)B][-(60)B]F?P(0,0,0)A
+
+B :
+	produce F?P(0,0,0)@O(0.2)B
+
+?P(x,y,z) :
+    if 4*y*y +(z-10)**2 > 100:
+        produce [+(2*z)F][-(2*z)F]%
+    else:
+        produce *
+###### INITIALISATION ######
+
+__copyright__ = """open-source GPL"""
+__institutes__ = """INRIA - CIRAD Virtual Plants"""
+__authors__ = """C. Godin, F. Boudon"""

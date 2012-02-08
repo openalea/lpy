@@ -1,0 +1,11 @@
+Axiom: FX
+
+derivation length: 10
+production:
+X --> X+(90)YF+(90)
+Y --> -(90)FX-(90)Y
+
+interpretation:
+
+
+endlsystem

@@ -1,0 +1,79 @@
+from random import uniform
+
+transport_speed = 1/3.
+
+nbEntity = 10
+
+min_level = 0.01
+max_level = 10
+
+sumauxin = 0
+
+def txt(val):
+	return str(round(val,2))[:5]
+
+def Start():
+	global sumauxin
+	sumauxin = 0
+
+	
+# Axiom: -(90)_(2)I(10)M(nbEntity-1)
+Axiom: _(2)M(nbEntity)
+
+derivation length: 300
+ignore: +-
+production:
+
+
+
+I(a) < I(p) > I(b) :
+	produce I(p + (a+b-2*p)*transport_speed)
+
+
+I(p) > I(b):
+	produce I(p + (b-p)*transport_speed)
+
+I(a) < I(p) :
+	produce I(p+ (a-p)*transport_speed)
+
+decomposition:
+maximum depth: nbEntity+1
+
+M(0) --> E
+M(x) :
+	global sumauxin
+	auxin = uniform(min_level,max_level)
+	sumauxin += auxin
+	produce I(auxin)M(x-1)
+
+homomorphism:
+
+I(a) :
+	col = int(10*(a-min_level)/(max_level-min_level))
+	a += 0.1
+	produce ;(col)F(3)[-(90)f(5);(3)@L(txt(a-0.1))f(5);(col)F(a)]F(3)
+
+E --> f(3)[+(90)f(3);(3)@L(txt(sumauxin))]
+
+endlsystem
+
+
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	from openalea.plantgl.all import Material,Color3
+	context.turtle.setMaterial(0,Material('Red',Color3(39,0,0),4.61538,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(1,Material('APPID_15',Color3(40,5,0),4.518,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(2,Material('APPID_63',Color3(41,10,0),4.42061,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(3,Material('APPID_8',Color3(43,15,0),4.32322,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(4,Material('APPID_99',Color3(44,21,0),4.22583,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(5,Material('APPID_3',Color3(46,26,0),4.12845,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(6,Material('APPID_39',Color3(47,31,0),4.03106,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(7,Material('APPID_39',Color3(48,37,0),3.93367,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(8,Material('APPID_39',Color3(50,42,0),3.83628,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(9,Material('APPID_87',Color3(51,47,0),3.7389,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(10,Material('Yellow',Color3(53,53,0),3.64151,Color3(40,40,40),Color3(0,0,0),1,0))
+__copyright__ = 'open-source GPL'
+__description__ = '- Set the initial condition so that the leftmost entity only contains auxin'
+__institutes__ = 'INRIA - CIRAD Virtual Plants'
+__authors__ = 'F. Boudon, C. Godin'

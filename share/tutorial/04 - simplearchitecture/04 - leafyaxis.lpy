@@ -1,0 +1,62 @@
+# Leafy axis
+
+from openalea.plantgl.all import *
+from math import * 
+
+nb_vertical_segments = 8
+length = 1     # in some units (= cm for example)
+dl = 0.1
+scaling = 2    # to dilate/contract the leaf
+
+phi = 180      # Phyllotactic angle
+h = 1          # height of an internode
+
+module Leaf
+
+Axiom: /(90) A(0)
+derivation length: 10
+production:
+
+# try ^(-90)f(0.05)^(90) to translate the leaf on the periphery of the stem
+A(n):
+  produce F(h)/(phi)[^(-45)Leaf(scaling)]A(n+1) 
+
+interpretation:
+maximum depth: 2
+
+# Organ definitions
+Leaf(x) --> ;(2)Sweep(nerve,section,length,dl,x,width)
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	import openalea.plantgl.all as pgl
+	width = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.0368034, 1),(0.321038, 0.20082, 1),(0.674863, 0.127049, 1),(1, 0.00418017, 1)]) , 
+	    )
+	width.name = "width"
+	panel_0 = ({'active': True, 'visible': True, 'name': 'Functions'},[('Function',width)])
+	import openalea.plantgl.all as pgl
+	nerve = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.223915, 0.114315, 1),(0.121756, 0.0370409, 1),(0.467244, -0.216243, 1)]) , 
+	    )
+	nerve.name = "nerve"
+	section = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.195355, -0.24554, 1),(0.203326, -0.162142, 1),(0.5, 0, 1)]) , 
+	    )
+	section.name = "section"
+	panel_1 = ({'active': True, 'visible': True, 'name': 'Curve2D'},[('Curve2D',nerve),('Curve2D',section)])
+	parameterset = [panel_0,panel_1,]
+	context["__functions__"] = [('width',width),]
+	context["__curves__"] = [('nerve',nerve),('section',section),]
+	context["__parameterset__"] = parameterset
+	context["width"] = pgl.QuantisedFunction(width)
+	context["nerve"] = nerve
+	context["section"] = section
+__copyright__ = 'open-source GPL'
+__description__ = "Axe feuille\n=======\n\n0. Comprendre la regle de production\n\n1. Controle de la position de la premiere feuille: positionner la premiere feuille sur l'axe des Y inclinee, vers les Y positifs\n\n2. Epaissir un peu les entrenoeuds. Que remarquez vous ?\n\n3. Decaler le point d'insertion de la feuille de maniere a le mettre juste a la peripherie de l'entreneud\n\n4. Rajouter un petiole a chaque feuille\n\n5. Changer l'angle d'insertion des feuilles\n\n6. augmenter le nombre d'entrenoeuds\n\n7. Changer la taille des entrenoeuds\n\n8. Mettre une legere courbure a la tige\n\n9. Enlever les premieres feuilles (jusqu'a la moitie de l'axe par exemple)\n\n10. Utiliser tout ce que vous avez vu dans ce TD pour contruire votre arbre ...\n\n"
+__institutes__ = 'INRIA - CIRAD Virtual Plants'
+__authors__ = 'C. Godin, F. Boudon'

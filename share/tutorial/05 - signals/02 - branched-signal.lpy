@@ -1,0 +1,21 @@
+Axiom: B[-A]A[+A]A[-A]A
+
+derivation length: 3
+ignore: +-
+production:
+
+B < A --> B
+
+homomorphism:
+
+B --> ;(3)F
+A --> ;(1)F
+
+endlsystem
+###### INITIALISATION ######
+
+__copyright__ = """opensource GPL"""
+__description__ = """change B < A --> B to use fast information transfer
+"""
+__institutes__ = """INRIA-CIRAD V.Plants team"""
+__authors__ = """F. Boudon, C. Godin"""

@@ -1,0 +1,96 @@
+from random import *
+from openalea.plantgl.all import *
+
+gravity =  -Vector3.OZ * 9.80665
+mass = 0.05
+step = 0.2
+g = gravity*mass*step
+maxparticule = 2000
+maxtime = 500
+maxcol = 35
+maxrad = 8
+
+from time import clock
+timer = 0
+
+def Start():
+  global timer
+  timer = clock()
+
+def End():
+  print 'time=',clock()-timer
+
+Axiom: [;(0)[_(0.5)F(1)][_(maxrad)F(1)]]A(0)
+
+derivation length: maxtime
+production:
+
+A(x) :
+  if x < maxparticule:
+    nbprod = randint(0,4)
+    for i in xrange(nbprod):
+      nproduce P(Vector3(0,0,0),Vector3((random()/2)-.25,(random()/2)-.25,3+2*random()),0) 
+    produce A(x+nbprod)
+  else:
+    produce
+
+P(pos,speed,t):
+  speed += g
+  pos += speed * step
+  if pos.z < 0:
+     #if norm(pos) > maxrad:
+     #    produce
+     pos.z *= -1
+     speed.z *= -1
+     speed *= 0.8
+     if norm(speed) < 1e-4:
+        produce
+  produce P(pos,speed,t+1)
+
+homomorphism:
+
+
+P(pos,speed,t) --> [;(min(35,1+maxcol*t/200))@M(pos.x,pos.y,pos.z)@O(max(0.1,0.3-0.001*t))]
+
+endlsystem
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	from openalea.plantgl.scenegraph import Material,ImageTexture,Color3
+	context.turtle.setMaterial(0,Material('default',Color3(26,0,0),6.15385,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(1,Material('Brown',Color3(2,0,22),10.7727,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(2,Material('APPID_206',Color3(2,0,22),10.6878,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(3,Material('APPID_22',Color3(3,1,22),10.6028,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(4,Material('APPID_14',Color3(3,1,22),10.5179,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(5,Material('APPID_310',Color3(4,2,22),10.4329,Color3(40,40,40),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(6,Material('APPID_214',Color3(4,2,22),10.348,Color3(41,41,41),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(7,Material('APPID_146',Color3(5,3,22),10.2631,Color3(41,41,41),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(8,Material('APPID_94',Color3(5,4,22),10.1781,Color3(41,41,41),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(9,Material('APPID_286',Color3(6,4,22),10.0932,Color3(41,41,41),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(10,Material('APPID_182',Color3(6,5,23),10.0082,Color3(42,42,42),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(11,Material('APPID_358',Color3(7,5,23),9.92328,Color3(42,42,42),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(12,Material('APPID_54',Color3(7,6,23),9.83834,Color3(42,42,42),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(13,Material('APPID_6',Color3(8,7,23),9.75339,Color3(42,42,42),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(14,Material('APPID_78',Color3(8,7,23),9.66845,Color3(43,43,43),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(15,Material('APPID_122',Color3(9,8,23),9.5835,Color3(43,43,43),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(16,Material('APPID_186',Color3(9,8,23),9.49856,Color3(43,43,43),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(17,Material('APPID_114',Color3(10,9,23),9.41362,Color3(43,43,43),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(18,Material('APPID_58',Color3(11,10,24),9.32867,Color3(44,44,44),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(19,Material('APPID_194',Color3(11,10,24),9.24373,Color3(44,44,44),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(20,Material('APPID_86',Color3(12,11,24),9.15878,Color3(44,44,44),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(21,Material('APPID_38',Color3(12,11,24),9.07384,Color3(44,44,44),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(22,Material('APPID_2',Color3(13,12,24),8.98889,Color3(44,44,44),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(23,Material('APPID_338',Color3(13,12,24),8.90395,Color3(45,45,45),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(24,Material('APPID_170',Color3(14,13,24),8.819,Color3(45,45,45),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(25,Material('APPID_90',Color3(14,14,24),8.73406,Color3(45,45,45),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(26,Material('APPID_10',Color3(15,14,24),8.64912,Color3(45,45,45),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(27,Material('APPID_42',Color3(15,15,25),8.56417,Color3(46,46,46),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(28,Material('APPID_50',Color3(16,15,25),8.47923,Color3(46,46,46),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(29,Material('APPID_250',Color3(16,16,25),8.39428,Color3(46,46,46),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(30,Material('APPID_34',Color3(17,17,25),8.30934,Color3(46,46,46),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(31,Material('APPID_30',Color3(17,17,25),8.22439,Color3(47,47,47),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(32,Material('APPID_74',Color3(18,18,25),8.13945,Color3(47,47,47),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(33,Material('APPID_426',Color3(18,18,25),8.0545,Color3(47,47,47),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(34,Material('APPID_18',Color3(19,19,25),7.96956,Color3(47,47,47),Color3(0,0,0),1,0))
+	context.turtle.setMaterial(35,Material('Default',Color3(20,20,26),7.88462,Color3(48,48,48),Color3(0,0,0),1,0))
+	context.animation_timestep = 0.001

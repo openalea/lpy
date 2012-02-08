@@ -1,0 +1,32 @@
+Axiom: _(0.02) /(90) ,(2) F(0.5) &(60) F(0.5) ,(5) TextureRotation(180) @g(leafpatch, 1)
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	import openalea.plantgl.all as pgl
+	PGL_301614096 = pgl.ImageTexture("PGL_301614096" , "D:/Fred/Mes Documents/Develop/vplants/trunk/lpy/share/image/leaf2.jpg" , )
+	PGL_301614096.name = "PGL_301614096"
+	Color_5 = pgl.Texture2D(image = PGL_301614096 , )
+	Color_5.name = "Color_5"
+	context.turtle.setMaterial(5,Color_5)
+	import openalea.plantgl.all as pgl
+	leafpatch = pgl.NurbsPatch(	
+	    pgl.Point4Matrix([[(0.0350157, -0.0564739, 0.00852821, 1), (-0.002078, -0.0265793, 0.00248597, 1), (-0.020636, -0.0169826, 0.0161601, 1), (0.00765696, 0.0214234, 0.0149268, 1), (-0.00107968, 0.0362601, 0.0209523, 1)], [(0.0928912, -0.481079, 0.410742, 1), (-0.000589914, -0.168841, 0.331184, 1), (-0.0780759, -0.0115492, 0.379307, 1), (0.0707107, 0.166667, 0.333333, 1), (0.149728, 0.471735, 0.429672, 1)], [(0.136151, -0.475051, 0.778779, 1), (0, -0.166667, 0.666667, 1), (-0.0490841, -0.0170079, 0.65842, 1), (0.0707107, 0.166667, 0.666667, 1), (0.180942, 0.401745, 0.752074, 1)], [(0.0372865, -0.0746766, 0.965309, 1), (0.00362886, -0.0585631, 0.971955, 1), (-0.00738887, -0.01653, 0.983488, 1), (0.0267801, 0.0366139, 0.981845, 1), (-0.0200809, 0.0476732, 0.951535, 1)]]) , 
+	    )
+	leafpatch.name = "leafpatch"
+	panel_0 = ({'active': True, 'visible': True, 'name': 'Panel 1'},[('NurbsPatch',leafpatch)])
+	parameterset = [panel_0,]
+	context["__functions__"] = []
+	context["__curves__"] = []
+	context["__parameterset__"] = parameterset
+	context["leafpatch"] = leafpatch

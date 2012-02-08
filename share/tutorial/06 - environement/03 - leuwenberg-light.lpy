@@ -1,0 +1,141 @@
+import random as rd
+from openalea.plantgl.all import *
+from openalea.fractalysis.light.directLight import diffuseInterception
+
+leafduration = 3 # life time of a leaf
+leafold =      2 # age at which a leaf is considered as old
+maxorder =     4 # maximum number of branching order
+radinc =    0.01 # increment of radius through time
+
+maxduration = lambda order : int(10./(order+1))+3  # life time of an apex
+branch_angle = lambda order : 60+30*((maxorder-order)/maxorder) # branching angle
+nb_axes = lambda order : rd.randint(3,5)  # number of axe at a ramification
+up_angle = lambda t,order : 7        # up angle for lateral branches
+
+# number total of iterations of the system
+archi_steps = [maxduration(o) for o in xrange(maxorder+1)]
+nbiter = sum(archi_steps)
+
+initial_view = 1
+
+module A # represent trunk apical meristem
+module B # represent apical meristem of lateral branches
+module L # whorl of leaf
+module I # Internode
+module T # Meristem ending
+module P,W1,W2,W3,W4
+module Home
+
+Axiom:   _(0.1)@M(5,-10,0)PI(0.5,0.1)L(0,0,0)A(0,0) Home
+
+test_step = 1
+dotest = True
+
+derivation length: nbiter
+ignore: /&[
+production:
+
+A(t,o) :
+  print t
+  if t < maxduration(o):
+     # simply produces a metamer and ages the apex
+     produce I(1,0.1)L(0,t,0)A(t+1,o) 
+  else:
+      # produce a whorl of sympodial branches
+      nbaxe = nb_axes(o)
+      for i in xrange(nbaxe):
+        nproduce [/(360*i/nbaxe)&(branch_angle(o))B(0,o+1)]
+      produce T
+
+
+L(t1,n,lg) < B(t,o) :
+  if dotest and lg < 0.03: produce C
+  if t < maxduration(o):
+    # simply produces a metamer and ages the apex
+    # reorient smoothly the branch toward the up
+    produce ^(up_angle(t,o))I(1,0.1)L(0,t,0)B(t+1,o)
+  else:
+    # produce a whorl of sympodial branches
+    nbaxe = nb_axes(o)
+    for i in xrange(nbaxe):      
+      nproduce [/(360*i/nbaxe)&(branch_angle(o))B(0,o+1)]
+    produce T
+
+
+
+L(t,n,lg) :
+  # ages the leaf. If too old, removes
+  if lg < 0.1 : produce *
+  if t < leafduration :  produce L(t+1,n,lg)
+  else:   produce *
+
+# Increment radius of internodes
+I(s,r) --> I(s,r+radinc)
+_(r) --> _(r+radinc)
+
+homomorphism:
+
+Home : @static
+    nproduce [;(6)
+    nproduce [@M(0,15,15)  @g(Box(15,0.5,15))]
+    nproduce [@M(-15,0,15) @g(Box(0.5,15,15))] 
+    nproduce [@M(0,0,30)   @g(Box(15,15,0.5))]
+    nproduce [@M(15,0,15)  @g(Box(0.5,15,15))]
+    nproduce [@M(0,-15,5)  @g(Box(15,0.5,5))]
+    nproduce [@M(0,-15,26) @g(Box(15,0.5,4))]
+    nproduce ]
+
+I(a,r) --> F(a,r)
+T --> @Ge_(0.05);(3)F(0.5)@O(0.2)
+B(t,o,l) --> @Ge_(0.05);(3)F(0.5)@O(0.2)
+C --> @Ge_(0.05);(5)F(0.5)@O(0.3)
+
+L(t,p,lg) :
+    phi = 0 if p % 2 == 0 else 90  # phyllotactic angle
+    col = 4 if t >= leafold else 2 # color is chosen according to age
+    lsize = 5
+    produce [/(phi)^(120);(col)~l(1,lsize)][/(phi)&(120);(col)~l(1,lsize)]
+
+endlsystem
+
+
+def Start():
+   rd.seed(0)
+   Viewer.camera.setOrthographic()
+
+def StartEach():
+  global dotest
+  dotest = (((getIterationNb()-1) % test_step) == 0)
+  frameDisplay(True)
+    
+def EndEach(lstring,scene):
+   if getIterationNb() % test_step == 0:
+      #print 'computing star'
+      Viewer.redrawPolicy = False
+      Viewer.display(scene)
+      pos,h,up = Viewer.camera.getPosition()
+      res = diffuseInterception(scene)
+      leaves = {}
+      for k,v in res.items():
+         if lstring[k].name == 'L':
+           lstring[k][2] = v
+      Viewer.redrawPolicy = False
+      Viewer.camera.lookAt(pos,pos+h)      
+      Viewer.redrawPolicy = True
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	import openalea.plantgl.all as pgl
+	Color_5 = pgl.Material("Color_5" , ambient = (70,0,73) , diffuse = 2.19178 , )
+	Color_5.name = "Color_5"
+	context.turtle.setMaterial(5,Color_5)
+	Color_6 = pgl.Material("Color_6" , ambient = (47,47,47) , diffuse = 1.2766 , specular = (4,4,4) , transparency = 0.79 , )
+	Color_6.name = "Color_6"
+	context.turtle.setMaterial(6,Color_6)
+	context.animation_timestep = 0.001
+__references__ = 'Halle, 71'
+__description__ = 'Leuwenberg architectural model. '
+__institutes__ = 'CIRAD\nINRIA'
+__authors__ = 'F. Boudon\nD. Da SILVA'
