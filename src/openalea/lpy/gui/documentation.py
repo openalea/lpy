@@ -28,7 +28,7 @@ Here comes the python commands that control the simulation.
 <tr><td><b>def Start()   </b></td><td> is called at the beginning of the simulation.</td></tr>
 <tr><td><b>def End([lstring,geometries])     </b></td><td> is called at the end of the simulation. One or two arguments can be optionally defined to receive the current lstring and its geometric interpretation.</td></tr>
 <tr><td><b>def StartEach() </b></td><td> is called before each derivation step.</td></tr>
-<tr><td><b>def EndEach([lstring,geometries]) </b></td><td> is called at the end of the simulation. One or two arguments can be optionally defined to receive the current lstring and its geometric interpretation. Returning an lstring or (lstring, geometries) will be used for next iterations and display. It avoids also to recompute the representation. If frameDisplayed() is False, geometries is None.</td></tr>
+<tr><td><b>def EndEach([lstring,geometries]) </b></td><td> is called after each derivation step. One or two arguments can be optionally defined to receive the current lstring and its geometric interpretation. Returning an lstring or (lstring, geometries) will be used for next iterations and display. It avoids also to recompute the representation. If frameDisplayed() is False, geometries is None.</td></tr>
 <tr><td><b>def PostDraw() </b></td><td> is called after drawing the representation of a new lstring.  </td></tr></table>
 
 <H3>Python commands that control the rule application:</H3>

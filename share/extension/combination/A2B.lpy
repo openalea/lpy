@@ -1,12 +1,11 @@
-init_auxin = 10
+init_hormone = 10
 
 derivation length: 1
 production:
 
 # Initialization of auxin stuff
 I(data): 
-    if not hasattr(data,'auxin'):  
-      data.auxin = init_auxin
+    data.check('hormone',init_hormone)
     produce N(data)
 
 

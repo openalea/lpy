@@ -1,6 +1,6 @@
 from __version__ import *
 from __lpy_kernel__ import *
- 
+
 
 def __mod_getattr__(self,name):
     if self.hasParameter(name): return self.getParameter(name)
@@ -91,7 +91,11 @@ NodeModule.directSon = directSon
 Lsystem.iterate = Lsystem.derive
 Lsystem.homomorphism = Lsystem.interpret
 
-Lstring = AxialTree
+class Lstring (AxialTree):
+    def __init__(self, input = None, lsyscontext = None):
+        if lsyscontext: lsyscontext.makeCurrent()
+        if input : AxialTree.__init__(self,input)
+        else: AxialTree.__init__(self)
 
 class LsystemIterator:
     """ Lsystem iterator """
@@ -107,7 +111,7 @@ class LsystemIterator:
         if self.currentstep == self.lsystem.derivationLength:
             raise StopIteration()
         else:
-            self.axiom = self.lsystem.derive(self.currentstep,1,self.axiom)
+            self.axiom = self.lsystem.derive(self.axiom,self.currentstep,1)
             self.currentstep += 1
         return self.axiom
     def __iter__(self):
@@ -115,8 +119,15 @@ class LsystemIterator:
 
 def __make_iter(lsystem): return LsystemIterator(lsystem)
 
+
 Lsystem.__iter__ = __make_iter
 del __make_iter
+
+def Lsystem__call__(self,lstring,nbsteps=None):
+    if nbsteps is None: nbsteps = self.derivationLength
+    return self.derive(0,nbsteps,lstring)
+Lsystem.__call__ = Lsystem__call__
+del Lsystem__call__
 
 def __lsystem_getattribute__(self,name):
     if self.context().has_key(name): return self.context()[name]

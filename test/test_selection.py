@@ -24,7 +24,7 @@ def test_selection():
     print res
     assert len(res) == ln+1
     assert res[3].name == '%'
-    res = l.iterate(1,1,res)
+    res = l.derive(res,1,1)
     print res
     assert len(res) == ln-2
     assert plot.selectionAsked and "Selection has not been asked"

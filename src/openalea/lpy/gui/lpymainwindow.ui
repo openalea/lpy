@@ -28,7 +28,7 @@
     <item row="0" column="0">
      <widget class="QDockWidget" name="scalarDock">
       <property name="windowTitle">
-       <string>Scalars</string>
+       <string>Scalar Parameters</string>
       </property>
       <widget class="QWidget" name="dockWidgetContents_8">
        <layout class="QGridLayout" name="gridLayout_2">
@@ -110,11 +110,17 @@
             </disabled>
            </palette>
           </property>
+          <property name="dragDropMode">
+           <enum>QAbstractItemView::InternalMove</enum>
+          </property>
+          <property name="defaultDropAction">
+           <enum>Qt::MoveAction</enum>
+          </property>
           <property name="alternatingRowColors">
            <bool>true</bool>
           </property>
           <property name="itemsExpandable">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="allColumnsShowFocus">
            <bool>true</bool>
@@ -902,7 +908,7 @@
        <bool>false</bool>
       </property>
       <property name="windowTitle">
-       <string>Documentation</string>
+       <string>Help Card</string>
       </property>
       <widget class="QWidget" name="dockWidgetContents_5">
        <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -1032,6 +1038,7 @@
     <addaction name="actionTabHightlight"/>
     <addaction name="separator"/>
     <addaction name="actionView3D"/>
+    <addaction name="separator"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuL_systems"/>

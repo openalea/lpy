@@ -549,7 +549,14 @@ class LpyCodeEditor(QTextEdit):
             self.findEdit.selectAll()
             self.findEdit.setFocus()
         else:
-            self.findNextText()
+            cursor = self.textCursor()
+            if not cursor.hasSelection() or cursor.selectedText() == self.findEdit.text():
+                self.findNextText()
+            elif cursor.hasSelection():
+                self.findEdit.setText(cursor.selectedText())
+                self.findEdit.selectAll()
+                self.findEdit.setFocus()
+            
     def findNextText(self):        
         txt = self.findEdit.text()
         found = self.find(txt,self.getFindOptions())

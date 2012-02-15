@@ -52,6 +52,8 @@ class LpyPreferences:
             QObject.connect(self.widget.useThreadEdit,SIGNAL('clicked(bool)'),lambda x : setattr(self.editor,'with_thread',x))
             self.widget.fitViewEdit.setChecked(self.editor.fitAnimationView)
             QObject.connect(self.widget.fitViewEdit,SIGNAL('clicked(bool)'),lambda x : setattr(self.editor,'fitAnimationView',x))
+            self.widget.visuInfoEdit.setChecked(self.editor.displayMetaInfo)
+            QObject.connect(self.widget.visuInfoEdit,SIGNAL('clicked(bool)'),lambda x : setattr(self.editor,'displayMetaInfo',x))
             QObject.connect(self.widget.gccPathButton,SIGNAL('clicked(bool)'),self.chooseCCompilerPath)
             self.widget.gccPathEdit.setText(self.editor.cCompilerPath)
             QObject.connect(self.widget.gccPathEdit,SIGNAL('returnPressed()'),self.editor.setCCompilerPath)

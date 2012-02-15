@@ -67,11 +67,13 @@ bool LpyParsing::isSupportedFormat(float format) { return ( 1.0f <= format && fo
 
 inline bool
 has_pattern(std::string::const_iterator& pos,
+	        std::string::const_iterator beg,
 	        std::string::const_iterator end,
 			const std::string& pattern){
+
   size_t s = pattern.size();
-  if (std::distance(pos,end) >= s && 
-	  std::string(pos,pos+s) == pattern){
+  if ( (std::distance(pos,end) >= s) && 
+	  (std::string(pos,pos+s) == pattern) ){
 	pos+=s;
 	return true;
   }
@@ -82,7 +84,29 @@ inline bool
 has_pattern(const std::string& src,
 			std::string::const_iterator& pos,
 			const std::string& pattern){
- return has_pattern(pos,src.end(),pattern);
+ return has_pattern(pos,src.begin(),src.end(),pattern);
+}
+
+inline bool
+has_keyword_pattern(std::string::const_iterator& pos,
+	                std::string::const_iterator beg,
+	                std::string::const_iterator end,
+			        const std::string& pattern){
+
+  size_t s = pattern.size();
+  if ( (std::distance(pos,end) >= s) && 
+	  (std::string(pos,pos+s) == pattern)  && ( (pos==beg) || !isalnum(*(pos-1)) )){
+	pos+=s;
+	return true;
+  }
+  else return false;
+}
+
+inline bool
+has_keyword_pattern(const std::string& src,
+			std::string::const_iterator& pos,
+			const std::string& pattern){
+ return has_keyword_pattern(pos,src.begin(),src.end(),pattern);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -106,7 +130,7 @@ void ToEndline(std::string::const_iterator& _it, std::string::const_iterator _en
 
 inline 
 void ToEndlineA(std::string::const_iterator& _it,std::string::const_iterator _end, int& lineno){
-	while( _it!=_end && (*_it)!='\n' && (*_it)!='A' && (*_it)!='m' && (*_it)!='n' && (*_it)!='p' && (*_it)!='#' && (*_it)!='\'' && (*_it)!='"' ) ++_it;
+	while( _it!=_end && (*_it)!='\n' && (*_it)!='A' && (*_it)!='a' && (*_it)!='m' && (*_it)!='n' && (*_it)!='p' && (*_it)!='#' && (*_it)!='\'' && (*_it)!='"' ) ++_it;
     if(_it!=_end && (*_it)=='\n') 
     { 
         ++lineno; ++_it;
@@ -131,20 +155,20 @@ bool notOnlySpace(std::string::const_iterator beg, std::string::const_iterator e
 
 float LpyParsing::getFormatVersion(const std::string& lcode) {
   std::string::const_iterator it = lcode.begin();
-  return getFormatVersion(it,lcode.end());
+  return getFormatVersion(it,it,lcode.end());
 }
 
-float LpyParsing::getFormatVersion(std::string::const_iterator& it, std::string::const_iterator endcode) {
+float LpyParsing::getFormatVersion(std::string::const_iterator& it, std::string::const_iterator begcode, std::string::const_iterator endcode) {
   // Retrieve of lpy format version
   float lpyversion = LPY_DEFAULT_FORMAT_VERSION;
   size_t p = VersionTag.find("%f");
   std::string::const_iterator _it = it;
 
-  if (has_pattern(_it,endcode,std::string(VersionTag.begin(),VersionTag.begin()+p))) {
+  if (has_pattern(_it,begcode,endcode,std::string(VersionTag.begin(),VersionTag.begin()+p))) {
 	  std::string::const_iterator _it2 = _it;
 	  while(_it != endcode && (*_it != ' ' && *_it != '\t'  && *_it != '\n')) { ++_it; }
 	  std::string::const_iterator _it3 = _it;
-	  if (has_pattern(_it,endcode,std::string(VersionTag.begin()+p+2,VersionTag.end())) && (_it != endcode && *_it == '\n')){
+	  if (has_pattern(_it,begcode,endcode,std::string(VersionTag.begin()+p+2,VersionTag.end())) && (_it != endcode && *_it == '\n')){
 		lpyversion = atof(std::string(_it2,_it3).c_str());
 		it = _it+1;
 	  }
@@ -197,7 +221,8 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 #else
   const std::string& rules = _rules;
 #endif
-  std::string::const_iterator _it = rules.begin();
+  std::string::const_iterator begcode = rules.begin();
+  std::string::const_iterator _it = begcode;
   std::string::const_iterator endcode = rules.end();
   std::string::const_iterator endpycode = endcode;
   std::string::const_iterator _it2 = _it;
@@ -208,6 +233,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
   std::string code;
   std::string addedcode;
   int axiom_lineno;
+  bool axiom_is_function = false;
   int max_derivation_lineno;
   int decomposition_max_depth_lineno;
   int homomorphism_max_depth_lineno;
@@ -216,7 +242,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
   int lineno = 1;
   int group = 0;
   // Retrieve of lpy format version
-  float lpyversion = LpyParsing::getFormatVersion(_it2,endpycode);
+  float lpyversion = LpyParsing::getFormatVersion(_it2,begcode,endpycode);
   if (!LpyParsing::isSupportedFormat(lpyversion)){
 	  std::stringstream stream;
 	  stream << "Not supported lpy format : " << lpyversion << ". Supported = " << LpyParsing::LPY_FORMAT_VERSION << ".";
@@ -249,19 +275,29 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 			while(_it != endpycode && *_it != '"')++_it;
 			if (_it != endpycode) ++_it;
 			break;
+		case 'a':
 		case 'A':
 		  _it2 = _it;
-		  if(has_pattern(_it,endpycode,"Axiom") && 
+		  if(has_keyword_pattern(_it,begcode,endpycode,"Axiom") || has_keyword_pattern(_it,begcode,endpycode,"axiom") && 
 			 (_it2 == rules.begin() || *(_it2-1) == '\n')){
             code += std::string(beg,_it2);
 			beg = _it;
-			while( _it!=endpycode && (*_it)!=':' && (*_it)!='\n')
-			  _it++;
+			while( _it!=endpycode && (*_it)!=':' && (*_it)!='\n') _it++;
 			if(_it!=endpycode && (*_it)==':'){
 			  _it++;
               axiom_lineno = lineno;
-              code += LsysContext::AxiomVariable + " = ";
-              code += LpyParsing::lstring2py(_it,endpycode,'\n',lineno);
+              std::string axiomcode = LsysContext::AxiomVariable + " = ";
+              int axiomsize = 0;
+              axiomcode += LpyParsing::lstring2py(_it,endpycode,'\n',lineno,&axiomsize);
+              ++_it;
+              if (axiomsize == 0 && (*_it == '\t' || *_it == ' ')){
+                  code += "def "+LsysContext::AxiomVariable+"() :\n";
+                  axiom_is_function = true;
+              }
+              else {
+                  code += axiomcode + *(_it-1);
+              }
+
 			}
             else LsysParserSyntaxError("Cannot find ':' after Axiom");
 			beg = _it;
@@ -270,7 +306,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 		  break;
 		case 'n':
 		  _it2 = _it;
-          if(has_pattern(_it,endpycode,"nproduce")){
+          if(has_keyword_pattern(_it,begcode,endpycode,"nproduce")){
 			code += std::string(beg,_it2);
 			code += "pproduce";
 		    while(_it != endpycode && (*_it == ' ' || *_it == '\t') )++_it;
@@ -287,7 +323,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 		  break;
 		case 'm':
 		  _it2 = _it;
-          if(has_pattern(_it,endpycode,"module")){
+          if(has_keyword_pattern(_it,begcode,endpycode,"module")){
             code+=std::string(beg,_it2);
 			LpyParsing::ModLineDeclaration modules = LpyParsing::parse_moddeclaration_line(_it,endpycode);
 			code+="# "+std::string(_it2,_it);
@@ -370,7 +406,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 			beg = _it;
 			toendlineA(_it,endpycode);
 		  }
-		  else if(has_pattern(_it,endpycode,"makestring")){
+		  else if(has_keyword_pattern(_it,begcode,endpycode,"makestring")){
 			code += std::string(beg,_it2) + "AxialTree(";
 		    while(_it != endpycode && (*_it == ' ' || *_it == '\t') )++_it;
 		    char endproduction = '\n';
@@ -388,7 +424,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 		  break;
 		case 'u':
 		  _it2 = _it;
-          if(has_pattern(_it,endpycode,"undeclare")){
+          if(has_keyword_pattern(_it,begcode,endpycode,"undeclare")){
             code+=std::string(beg,_it2);
 			LpyParsing::ModNameList modules = LpyParsing::parse_modlist(_it,endpycode,false);
 			code+="# "+std::string(_it2,_it);
@@ -405,21 +441,32 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 		  break;
 		case 'p':
 		  _it2 = _it;
-		  if(has_pattern(_it,endpycode,"production")){
+		  if(has_keyword_pattern(_it,begcode,endpycode,"production")){
             code+=std::string(beg,_it2);
 			toendlineC(_it,endpycode);
             code+="# "+std::string(_it2,_it);
 			beg = _it;
 			mode = 0;
 		  }
-		  else if(has_pattern(_it,endpycode,"produce")){
-			  LsysWarning("Cannot use 'produce' outside production body. Use 'nproduce' instead.",filename,lineno);
+		  else if(has_keyword_pattern(_it,begcode,endpycode,"produce")){
+			  // LsysWarning("Cannot use 'produce' outside production body. Use 'nproduce' instead.",filename,lineno);
+			code += std::string(beg,_it2);
+			code += "return pproduce";
+		    while(_it != endpycode && (*_it == ' ' || *_it == '\t') )++_it;
+		    char endproduction = '\n';
+			if(*_it == '(') { endproduction = ')'; ++_it; }
+			if(_it!=endpycode){
+			  code += LpyParsing::lstring2pyparam(_it,endpycode,endproduction,lineno);
+			  if (endproduction == ')') ++_it;
+			}
+			beg = _it;
+			toendlineA(_it,endpycode);
 		  }
 		  else { if(_it!=endpycode)++_it; toendlineA(_it,endpycode); }
 		  break;
 		case 'd':
 		  _it2 = _it;
-		  if(has_pattern(_it,endpycode,"derivation length")){
+		  if(has_keyword_pattern(_it,begcode,endpycode,"derivation length")){
             code+=std::string(beg,_it2);
 			beg = _it;
 			while( _it!=endpycode && (*_it)!=':' && (*_it)!='\n')
@@ -443,7 +490,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 		  break;
 		case 'c':
 		  _it2 = _it;
-		  if(has_pattern(_it,endpycode,"consider")){
+		  if(has_keyword_pattern(_it,begcode,endpycode,"consider")){
             code+=std::string(beg,_it2);
 			beg = _it;
 			while( _it!=endpycode && (*_it)!=':' && (*_it)!='\n')
@@ -464,14 +511,14 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 		  break;
 		case 'e':
           _it2 = _it;
-		  if(has_pattern(_it,endpycode,"endlsystem")){
+		  if(has_keyword_pattern(_it,begcode,endpycode,"endlsystem")){
             LsysParserSyntaxError("endlsystem found before production statement.");
 		  }
           else toendlineA(_it,endpycode);
 		  break;
 		case 'i':
 		  _it2 = _it;
-		  if(has_pattern(_it,endpycode,"ignore")){
+		  if(has_keyword_pattern(_it,begcode,endpycode,"ignore")){
             code+=std::string(beg,_it2);
 			beg = _it;
 			while( _it!=endpycode && (*_it)!=':' && (*_it)!='\n')
@@ -502,7 +549,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 		switch(*_it){
 		case 'e':
           _it2 = _it;
-		  if(has_pattern(_it,endpycode,"endlsystem")){
+		  if(has_keyword_pattern(_it,begcode,endpycode,"endlsystem")){
 			if(!rule.empty()){
               PROCESS_RULE(rule,code,addedcode,mode,group)
 			}
@@ -511,7 +558,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 			mode = -1;
             beg = _it;
 		  }
-		  else if(has_pattern(_it,endpycode,"endgroup")){
+		  else if(has_keyword_pattern(_it,begcode,endpycode,"endgroup")){
 			if(!rule.empty()){
               PROCESS_RULE(rule,code,addedcode,mode,group)
 			}
@@ -534,7 +581,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
               PROCESS_RULE(rule,code,addedcode,mode,group)
 		  }
 		  _it2 = _it;
-		  if(mode == 0 && has_pattern(_it,endpycode,"derivation length")){
+		  if(mode == 0 && has_keyword_pattern(_it,begcode,endpycode,"derivation length")){
 			while( _it!=endpycode && (*_it)!=':' && (*_it)!='\n')
 			  _it++;
 			if(_it!=endpycode && (*_it)==':'){
@@ -550,13 +597,13 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 			}
             else LsysParserSyntaxError("Cannot find ':' after derivation length");
 		  }
-		  else if(has_pattern(_it,endpycode,"decomposition")){
+		  else if(has_keyword_pattern(_it,begcode,endpycode,"decomposition")){
 			mode = 1;
 			toendlineC(_it,endpycode);
             code+='#'+std::string(_it2,_it);
 			beg = _it;
 		  }
-		  else if(has_pattern(_it,endpycode,"def")){
+		  else if(has_keyword_pattern(_it,begcode,endpycode,"def")){
 			mode = -1;
 			beg = _it2;
             LsysParserWarning("a python function is declared inside production section. Switching to python mode.");
@@ -572,7 +619,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
             PROCESS_RULE(rule,code,addedcode,mode,group)
 		  }
 		  _it2 = _it;
-          if(has_pattern(_it,endpycode,"homomorphism")){
+          if(has_keyword_pattern(_it,begcode,endpycode,"homomorphism")){
 			toendlineC(_it,endpycode);
             code+="# "+std::string(_it2,_it);
 			beg = _it;
@@ -589,7 +636,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
               PROCESS_RULE(rule,code,addedcode,mode,group)
 		  }
 		  _it2 = _it;
-		  if(has_pattern(_it,endpycode,"group ")){
+		  if(has_keyword_pattern(_it,begcode,endpycode,"group ")){
             beg = _it;
 			while( _it!=endpycode && (*_it)!=':' && (*_it)!='\n')
 			  _it++;
@@ -621,7 +668,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
             PROCESS_RULE(rule,code,addedcode,mode,group)
 		  }
 		  _it2 = _it;
-		  if(has_pattern(_it,endpycode,"production")){
+		  if(has_keyword_pattern(_it,begcode,endpycode,"production")){
 			toendlineC(_it,endpycode);
             code+="# "+std::string(_it2,_it);
 			beg = _it;
@@ -638,7 +685,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
             PROCESS_RULE(rule,code,addedcode,mode,group)
 		  }
 		  _it2 = _it;
-		  if((mode == 1||mode == 2) && has_pattern(_it,endpycode,"maximum depth")){
+		  if((mode == 1||mode == 2) && has_keyword_pattern(_it,begcode,endpycode,"maximum depth")){
 			while( _it!=endpycode && (*_it)!=':' && (*_it)!='\n')_it++;
 			if(_it!=endpycode && (*_it)==':'){
 			  _it++;
@@ -680,7 +727,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
             PROCESS_RULE(rule,code,addedcode,mode,group)
 		  }
 		  _it2 = _it;
-		  if(has_pattern(_it,endpycode,"consider")){
+		  if(has_keyword_pattern(_it,begcode,endpycode,"consider")){
 			while( _it!=endpycode && (*_it)!=':' && (*_it)!='\n')_it++;
 			if(_it!=endpycode && (*_it)==':'){
 			  _it++;
@@ -704,7 +751,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
             PROCESS_RULE(rule,code,addedcode,mode,group)
 		  }
 		  _it2 = _it;
-		  if(has_pattern(_it,endpycode,"ignore")){
+		  if(has_keyword_pattern(_it,begcode,endpycode,"ignore")){
 			while( _it!=endpycode && (*_it)!=':' && (*_it)!='\n')_it++;
 			if(_it!=endpycode && (*_it)==':'){
 			  _it++;
@@ -717,7 +764,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 			}
             else LsysParserSyntaxError("Cannot find ':' after ignore");
 		  }
-		  if(has_pattern(_it,endpycode,"interpretation")){
+		  if(has_keyword_pattern(_it,begcode,endpycode,"interpretation")){
 			toendlineC(_it,endpycode);
             code+="# "+std::string(_it2,_it);
 			beg = _it;
@@ -795,12 +842,20 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
   __context.compile(code);
   __importPyFunctions();
   if (__context.hasObject(LsysContext::AxiomVariable)){
-      try
-      { __axiom = AxialTree(extract<boost::python::list>(__context.getObject(LsysContext::AxiomVariable))); }
-      catch(error_already_set const &)
-      { 
-		  PyErr_Clear();
-          LsysError("Axiom has an invalid value.",filename,axiom_lineno); 
+      if (!axiom_is_function){
+          try
+          { __axiom = AxialTree(extract<boost::python::list>(__context.getObject(LsysContext::AxiomVariable))); }
+          catch(error_already_set const &)
+          { 
+		      PyErr_Clear();
+              LsysError("Axiom has an invalid value.",filename,axiom_lineno); 
+          }
+      }
+      else {
+          // Execute function axiom
+           __context.func(LsysContext::AxiomVariable);
+           __axiom =  __context.get_nproduction();
+           __context.reset_nproduction();
       }
   }
   if (__context.hasObject(LsysContext::DerivationLengthVariable)){
@@ -1055,7 +1110,7 @@ std::string LpyParsing::lstring2py(const std::string& lcode)
 
 std::string LpyParsing::lstring2py( std::string::const_iterator& beg,
 								    std::string::const_iterator endpos,
-								    char delim, int lineno){
+								    char delim, int lineno, int * nbModules){
   std::string result("[");
   std::vector<std::pair<size_t,std::string> > parsedstring = parselstring(beg, endpos, delim, lineno,true);
   bool first = true;
@@ -1075,6 +1130,7 @@ std::string LpyParsing::lstring2py( std::string::const_iterator& beg,
 		}
   } // end for
   result += "]";
+  if(nbModules) *nbModules = parsedstring.size();
   return result;
 }
 

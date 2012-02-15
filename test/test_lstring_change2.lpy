@@ -1,0 +1,25 @@
+
+def EndEach(lstring):
+  lstring[0][0] = 2
+
+def End(lstring):
+  print 'End', lstring
+  assert lstring[0][0] == 2
+
+Axiom: A(1)
+
+derivation length: 1
+production:
+
+A(x) --> A(x)
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	context.options.setSelection('Early return when no matching',0)

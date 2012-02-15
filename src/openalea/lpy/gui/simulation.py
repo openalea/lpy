@@ -483,7 +483,7 @@ class LpySimulation:
     def run(self,task):
         dl = self.lsystem.derivationLength
         timing = clock()
-        task.result = self.lsystem.iterate(dl)
+        task.result = self.lsystem.derive(dl)
         task.timing = clock() - timing
         task.dl = self.lsystem.getLastIterationNb()+1
     def post_run(self,task):
@@ -500,7 +500,7 @@ class LpySimulation:
         dl = self.lsystem.derivationLength
         if self.firstView and task.fitAnimationView:
             nbiter = self.lsystem.context().get('initial_view',dl)
-            self.lsystem.plot(self.lsystem.iterate(nbiter),True)
+            self.lsystem.plot(self.lsystem.derive(nbiter),True)
             self.firstView = False
             self.lpywidget.viewer.setAnimation(eAnimatedPrimitives)
         timing = clock()
@@ -537,7 +537,7 @@ class LpySimulation:
     def step(self,task):
         if not task.done and self.nbiterations < self.lsystem.derivationLength:
             timing = clock()
-            task.result = self.lsystem.iterate(self.nbiterations,1,self.tree)
+            task.result = self.lsystem.derive(self.tree,self.nbiterations,1)
             task.timing = clock() - timing
             task.dl = self.lsystem.getLastIterationNb()+1
         else:
@@ -551,7 +551,7 @@ class LpySimulation:
             self.firstView = False
     def iterate(self,task,n = None):    
         timing = clock()
-        task.result = self.lsystem.iterate(self.nbiterations,self.iterateStep,self.tree)        
+        task.result = self.lsystem.self.tree(self.tree,self.nbiterations,self.iterateStep)        
         task.timing = clock() - timing
         task.dl = self.lsystem.getLastIterationNb()+1
     def debug(self):
@@ -559,12 +559,12 @@ class LpySimulation:
         try:
             if self.isTextEdited() or self.lsystem.empty() or not self.tree:
                 self.updateLsystemCode()
-                self.setTree(self.lsystem.iterate(0,1,self.lsystem.axiom),1)
+                self.setTree(self.lsystem.derive(self.lsystem.axiom,0,1),1)
             else:
                 if self.nbiterations < self.lsystem.derivationLength:
-                    self.setTree(self.lsystem.iterate(self.nbiterations,1,self.tree),self.nbiterations+1)
+                    self.setTree(self.lsystem.derive(self.tree,self.nbiterations,1),self.nbiterations+1)
                 else:
-                    self.setTree(self.lsystem.iterate(0,1,self.lsystem.axiom),1)
+                    self.setTree(self.lsystem.derive(self.lsystem.axiom,0,1),1)
         except AbortDebugger,e :
             self.lsystem.clearDebugger()            
             return
@@ -607,7 +607,7 @@ class LpySimulation:
             if task.mode == AnimatedProfiling:
                 task.result = self.lsystem.animate(0,dl) 
             else:
-                task.result = self.lsystem.iterate(dl) 
+                task.result = self.lsystem.derive(dl) 
                 if task.mode == ProfilingWithFinalPlot:
                     self.lsystem.plot(task.result,True)
         profile.enable()

@@ -103,6 +103,27 @@ DeclareModuleBegin(f, "Move forward and without draw. Params: length.",ePrimitiv
 }
 DeclareModuleEnd
 
+DeclareModuleBegin(nF,"Produce a n steps path of a given length and varying radius. Params : length, dlength [, radius = 1, radiusvariation = None].",ePrimitive)
+{
+#if PGL_VERSION >= 0x020F00
+	size_t nbargs = m.size();
+	switch (nbargs) {
+		case 0: 
+		case 1: 
+			LsysWarning("missing argument to nF"); break;
+		case 2: 
+            t.nF(m._getReal(0),m._getReal(1)); break;
+		case 3:
+            t.nF(m._getReal(0),m._getReal(1),m._getReal(2)); break;
+		default:
+            t.nF(m._getReal(0),m._getReal(1),m._getReal(2),bp::extract<QuantisedFunctionPtr>(m.getAt(3)));
+			break;
+	}
+#endif
+}
+DeclareModuleEnd
+
+
 DeclareModuleBegin(GetPos,"Request position vector information. Params : x,y,z or v (optional, default=Vector3, filled by Turtle).",eRequest)
 { m._setValues(t.getPosition()); }
 DeclareModuleEnd
@@ -544,6 +565,42 @@ DeclareModuleBegin(positiononguide,"Set position on Guide for turtle tracing.",e
 }
 DeclareModuleEnd
 
+DeclareModuleBegin(sweep,"Produce a sweep surface. Params : path, section, length, dlength [, radius = 1, radiusvariation = None].",ePrimitive)
+{
+#if PGL_VERSION >= 0x020F00
+	size_t nbargs = m.size();
+	switch (nbargs) {
+		case 0: 
+		case 1: 
+		case 2: 
+		case 3: 
+			LsysWarning("missing argument to sweep"); break;
+		case 4:
+            {
+			    bp::extract<Curve2DPtr> ec2d(m.getAt(0));
+			    if (ec2d.check()) t.sweep(ec2d(), bp::extract<Curve2DPtr>(m.getAt(1))(),m._getReal(2),m._getReal(3)); 
+			    else t.sweep(bp::extract<LineicModelPtr>(m.getAt(0))(), bp::extract<Curve2DPtr>(m.getAt(1))(),m._getReal(2),m._getReal(3)); 
+            }
+            break;
+		case 5:
+            {
+			    bp::extract<Curve2DPtr> ec2d(m.getAt(0));
+			    if (ec2d.check()) t.sweep(ec2d(), bp::extract<Curve2DPtr>(m.getAt(1))(),m._getReal(2),m._getReal(3),m._getReal(4)); 
+			    else t.sweep(bp::extract<LineicModelPtr>(m.getAt(0))(), bp::extract<Curve2DPtr>(m.getAt(1))(),m._getReal(2),m._getReal(3),m._getReal(4)); 
+            }
+            break;
+		default:
+            {
+			    bp::extract<Curve2DPtr> ec2d(m.getAt(0));
+			    if (ec2d.check()) t.sweep(ec2d(), bp::extract<Curve2DPtr>(m.getAt(1))(),m._getReal(2),m._getReal(3),m._getReal(4),bp::extract<QuantisedFunctionPtr>(m.getAt(5))()); 
+			    else t.sweep(bp::extract<LineicModelPtr>(m.getAt(0))(), bp::extract<Curve2DPtr>(m.getAt(1))(),m._getReal(2),m._getReal(3),m._getReal(4),bp::extract<QuantisedFunctionPtr>(m.getAt(5))()); 
+            }
+			break;
+	}
+#endif
+}
+DeclareModuleEnd
+
 DeclareModuleBegin(TextureScale,"Set the scale coefficient for texture application. Params : uscale, vscale (default = 1,1).",eTexture)
 {
 #if PGL_VERSION >= 0x020C00
@@ -666,6 +723,7 @@ void ModuleClass::createPredefinedClasses() {
 	ExactRightBracket = new PredefinedModuleClass("=]","Match exactly a closing bracket",PredefinedModuleClass::ePatternMatching);
 	F = new DeclaredModule(F)("F");
 	f = new DeclaredModule(f)("f");
+	nF = new DeclaredModule(nF)("nF");
 	X = new PredefinedModuleClass("X","MouseIns","Module inserted just before module selected by user in visualisation.",PredefinedModuleClass::eStringManipulation); 
 	Cut = new PredefinedModuleClass("%","Cut","Cut the remainder of the current branch in the string.",PredefinedModuleClass::eStringManipulation);
 	Star = new PredefinedModuleClass("*","any","Used to match any module in rules predecessor. First argument will become name of the module.",PredefinedModuleClass::ePatternMatching);
@@ -724,6 +782,7 @@ void ModuleClass::createPredefinedClasses() {
 	SectionResolution = new DeclaredModule(sectionResolution)("SectionResolution");
 	SetGuide = new DeclaredModule(setguide)("SetGuide");
 	EndGuide = new DeclaredModule(endguide)("EndGuide");
+	Sweep = new DeclaredModule(sweep)("Sweep");
 	PositionOnGuide = new DeclaredModule(positiononguide)("PositionOnGuide");
 	TextureScale = new DeclaredModule(TextureScale)("TextureScale");
 	TextureUScale = new DeclaredModule(TextureUScale)("TextureUScale");

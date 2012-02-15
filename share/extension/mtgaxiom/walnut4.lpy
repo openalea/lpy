@@ -509,7 +509,7 @@ def __initialiseContext__(context):
 	Color_21.name = "Color_21"
 	context.turtle.setMaterial(21,Color_21)
 	context.options.setSelection('Module inheritance',1)
-	scalars = [('WITHLEAF', False, False, True), ('SEED', 1, 0, 100), ('WITH_TROPISM', False, False, True), ('TROPISM', 60, 0, 100), ('OLDSTRUCTURE', False, False, True), ('GENERATED_WITH_TROPISM', True, False, True), ('REGENERATE', True, False, True), ('COMPARE', False, False, True), ('FORCE_COMPARE', False, False, True), ('PROP_VIEW', True, False, True), ('RAMIF', 77, 0, 200), ('DETAILS', False, False, True)]
+	scalars = [('WITHLEAF', False, False, True), ('SEED', 1, 0, 100), ('WITH_TROPISM', False, False, True), ('TROPISM', 60, 0, 100), ('OLDSTRUCTURE', False, False, True), ('GENERATED_WITH_TROPISM', True, False, True), ('REGENERATE', True, False, True), ('COMPARE', True, False, True), ('FORCE_COMPARE', False, False, True), ('PROP_VIEW', True, False, True), ('RAMIF', 77, 0, 200), ('DETAILS', False, False, True)]
 	context["__scalars__"] = scalars
 	for n,v,mnv,mxv in scalars:
 		context[n] = v

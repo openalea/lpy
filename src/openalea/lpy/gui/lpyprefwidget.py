@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'd:\fred\mes documents\develop\vplants\trunk\lpy\src\openalea\lpy\gui\lpyprefwidget.ui'
 #
-# Created: Fri Aug 05 11:10:50 2011
+# Created: Thu Jan 19 16:08:46 2012
 #      by: PyQt4 UI code generator 4.8.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -203,6 +203,9 @@ class Ui_PreferenceDialog(object):
         self.integratedViewEdit = QtGui.QCheckBox(self.visuCheckBoxLayout)
         self.integratedViewEdit.setObjectName(_fromUtf8("integratedViewEdit"))
         self.verticalLayout_9.addWidget(self.integratedViewEdit)
+        self.visuInfoEdit = QtGui.QCheckBox(self.visuCheckBoxLayout)
+        self.visuInfoEdit.setObjectName(_fromUtf8("visuInfoEdit"))
+        self.verticalLayout_9.addWidget(self.visuInfoEdit)
         self.verticalLayout_3.addWidget(self.visuCheckBoxLayout)
         self.textOutputBox = QtGui.QGroupBox(self.tabExecution)
         self.textOutputBox.setObjectName(_fromUtf8("textOutputBox"))
@@ -294,6 +297,7 @@ class Ui_PreferenceDialog(object):
         self.visuCheckBoxLayout.setTitle(QtGui.QApplication.translate("PreferenceDialog", "Visualization", None, QtGui.QApplication.UnicodeUTF8))
         self.fitViewEdit.setText(QtGui.QApplication.translate("PreferenceDialog", "Fit last view before animation.", None, QtGui.QApplication.UnicodeUTF8))
         self.integratedViewEdit.setText(QtGui.QApplication.translate("PreferenceDialog", "Integrated viewer", None, QtGui.QApplication.UnicodeUTF8))
+        self.visuInfoEdit.setText(QtGui.QApplication.translate("PreferenceDialog", "Display info at run", None, QtGui.QApplication.UnicodeUTF8))
         self.textOutputBox.setTitle(QtGui.QApplication.translate("PreferenceDialog", "Text Output", None, QtGui.QApplication.UnicodeUTF8))
         self.LPyConsoleButton.setText(QtGui.QApplication.translate("PreferenceDialog", "LPy Console", None, QtGui.QApplication.UnicodeUTF8))
         self.systemConsoleButton.setText(QtGui.QApplication.translate("PreferenceDialog", "System Console", None, QtGui.QApplication.UnicodeUTF8))

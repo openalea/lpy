@@ -1,13 +1,9 @@
+from openalea.lpy.parameterset import *
 from copy import deepcopy as cp
 
 phyllochrone = 10
 dt = 1.
 nbSteps = phyllochrone *5
-
-
-class Parameters:
-  def __init__(self,**params):
-    self.__dir__.update(params)
 
 
 module Aging(data)
@@ -16,7 +12,7 @@ module I : bases = Aging
 module L : bases = Aging
 
 
-Axiom:  M(Parameters(age=0))
+Axiom:  M(ParameterSet(age=0))
 
 derivation length: nbSteps
 production:
@@ -26,7 +22,7 @@ production:
 M(m) :
     m.age += dt
     if m.age % phyllochrone == 0:
-      produce I(InternodeData()) [ L(LeafData()) ] /(180) M(m)
+      produce I(ParameterSet(age=0)) [ L(ParameterSet(age=0)) ] /(180) M(m)
     else: produce M(m)
 
 $Aging(a):
@@ -36,12 +32,6 @@ $Aging(a):
 
 
 
-
-#I(d) : 
-#  d.increment_age() # Side effect ?
-#
-#L(d):
-#  d.increment_age() # Side effect ?
 interpretation:
 
 I(d) --> F

@@ -94,7 +94,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.fitAnimationView = True
         self.with_thread = False
         self.showPyCode = False
-        self.displayMetaInfo = True
+        self.displayMetaInfo = False
         self.reloadAtStartup = True
         self.fileMonitoring = True
         self.exitWithoutPrompt = False
@@ -187,6 +187,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         QObject.connect(self.scalarEditor, SIGNAL('valueChanged()'),self.projectEdited)
         QObject.connect(self.scalarEditor, SIGNAL('valueChanged()'),self.projectParameterEdited)
         QObject.connect(self.actionPrint, SIGNAL('triggered(bool)'),self.printCode)
+        self.actionView3D.setEnabled(self.use_own_view3D)
         QObject.connect(self.actionView3D, SIGNAL('triggered(bool)'),self.switchCentralView)
         self.aboutLpy = lambda x : doc.aboutLpy(self)
         QObject.connect(self.actionAbout, SIGNAL('triggered(bool)'),self.aboutLpy)

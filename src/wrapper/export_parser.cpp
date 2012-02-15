@@ -46,7 +46,7 @@ boost::python::object py_getformats() {
 
 bool isFormatDefined(const std::string& s) {  
 	std::string::const_iterator it = s.begin(); 
-	float format = LpyParsing::getFormatVersion(it,s.end()); 
+	float format = LpyParsing::getFormatVersion(it,s.begin(),s.end()); 
 	return it != s.begin(); 
 }
 

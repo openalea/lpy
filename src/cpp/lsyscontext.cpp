@@ -686,10 +686,10 @@ boost::python::object
 LsysContext::controlMethod(const std::string& name, AxialTree& lstring){
   ContextMaintainer c(this);
   if (hasObject(name)){
-	reference_existing_object::apply<AxialTree*>::type converter;
-	PyObject* obj = converter( &lstring );
-	object real_obj = object( handle<>( obj ) );
-	return getObject(name)(real_obj);
+	// reference_existing_object::apply<AxialTree*>::type converter;
+	// PyObject* obj = converter( &lstring );
+	// object real_obj = object( handle<>( obj ) );
+	return getObject(name)(object(lstring));
   }
   return object();
 }

@@ -67,6 +67,7 @@ typedef pgl_hash_map_string<size_t> ParameterNameDict;
 	MACRO(QueryFrame) \
 	MACRO(F) \
 	MACRO(f) \
+	MACRO(nF) \
 	MACRO(X) \
 	MACRO(StartGC) \
 	MACRO(EndGC) \
@@ -114,6 +115,7 @@ typedef pgl_hash_map_string<size_t> ParameterNameDict;
 	MACRO(SectionResolution) \
 	MACRO(SetGuide) \
 	MACRO(EndGuide) \
+	MACRO(Sweep) \
 	MACRO(PositionOnGuide) \
 	MACRO(TextureScale) \
 	MACRO(TextureUScale) \

@@ -55,7 +55,8 @@ public:
 	static const std::vector<float> getSupportedFormat() ; 
 	static bool isSupportedFormat(float format);
 	static float getFormatVersion(const std::string& lcode) ; 
-	static float getFormatVersion(std::string::const_iterator& beg,
+	static float getFormatVersion(std::string::const_iterator& it,
+								  std::string::const_iterator begpos,
 								  std::string::const_iterator endpos) ; 
 /*---------------------------------------------------------------------------*/
     /// transforming text describing an lstring  in python code
@@ -67,7 +68,8 @@ public:
 	static std::string lstring2py(std::string::const_iterator& beg,
 				 std::string::const_iterator endpos,
 				 char delim = '\n',
-				 int lineno = -1);
+				 int lineno = -1,
+                 int * nbModules = NULL);
 
 
 	static std::string lstring2pyparam(std::string::const_iterator& beg,

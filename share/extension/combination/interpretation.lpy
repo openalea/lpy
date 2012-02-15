@@ -13,7 +13,7 @@ def branch_diameter(age):
 production:
 interpretation:
 
-S(d) --> ,(int(10+d.auxin))_(branch_diameter(d.age))[f(ILENGTH/2)-(90)f(MAXRADIUS*2) Label(str(round(d.auxin,3)))] F(ILENGTH)
+S(d) --> ,(int(10+d.hormone))_(branch_diameter(d.age))[f(ILENGTH/2)-(90)f(MAXRADIUS*2) Label(str(round(d.hormone,3)))] F(ILENGTH)
 
 M(d) --> ,(4)_(diameter(0)*MAXRADIUS) F(ILENGTH * 0.1 * divmod(d.age,10.)[1]) @O
 S(id) < L(d) --> ,(2) +(90)f(branch_diameter(id.age))/(90)^(90*(1-normedage(d.age))-30) ~l(diameter(normedage(d.age))*MAX_LEAF_SIZE)

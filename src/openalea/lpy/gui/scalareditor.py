@@ -133,6 +133,16 @@ class ScalarEditorDelegate(QItemDelegate):
         #model.itemFromIndex(index).scalar.value = value
         #model.itemFromIndex(index).setText(str(value))
 
+        
+class MyItemModel(QStandardItemModel):
+    def __init__(self,a,b):
+        QStandardItemModel.__init__(self,a,b)
+        
+    def dropMimeData(self,data,action,row,column,parent):
+        print data,action,row,column,parent
+        print parent.row(),parent.column()
+        return QStandardItemModel.dropMimeData(self,data,action,row,column,parent)
+
 class ScalarEditor (QTreeView):
     def __init__(self,parent):
         QTableView.__init__(self,parent)
@@ -143,7 +153,7 @@ class ScalarEditor (QTreeView):
         self.createContextMenu()
         self.metaEdit = ScalarDialog(self)
     def initTable(self):
-        self.scalarModel = QStandardItemModel(0, 1)
+        self.scalarModel = MyItemModel(0, 1)
         QObject.connect(self.scalarModel,SIGNAL('itemChanged(QStandardItem*)'),self.internalItemChanged)
         self.scalarModel.setHorizontalHeaderLabels(["Parameter", "Value" ])
         self.setModel(self.scalarModel)

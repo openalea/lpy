@@ -88,8 +88,6 @@ object lsys_setCode(Lsystem * lsys, const std::string& code,
 	}
 }
 
-AxialTree py_derive(Lsystem * lsys, size_t beg, size_t end, const AxialTree& wstring)
-{ return lsys->derive(beg,end,wstring); }
 
 void py_set_debugger(Lsystem * lsys, Lsystem::Debugger * debugger)
 { return lsys->setDebugger(Lsystem::DebuggerPtr(debugger)); }
@@ -121,7 +119,8 @@ void export_Lsystem(){
 	.add_property("filename",&Lsystem::getFilename,&Lsystem::setFilename)
 	.def("__str__", &Lsystem::str)
 	//.def("__repr__", &Lsystem::str)
-	.def("context", &Lsystem::context,return_internal_reference<>())
+	.def("context", &Lsystem::context,return_internal_reference<>(),"Return execution context of the L-system. See also execContext.")
+	.def("execContext", &Lsystem::context,return_internal_reference<>(),"Return the execution context of the L-system.")
 	.def("makeCurrent",    &Lsystem::makeCurrent)
 	.def("isCurrent",      &Lsystem::isCurrent)
 	.def("done",           &Lsystem::done)
@@ -134,13 +133,14 @@ void export_Lsystem(){
 	.def("set", &lsys_setCode,"Set Lsystem code. If debug parameter is set to True, the translated Python code is returned.",(boost::python::arg("filename"),boost::python::arg("parameters")=boost::python::dict(),boost::python::arg("debug")=false))
 	.def("derive", (AxialTree(Lsystem::*)())&Lsystem::derive)
 	.def("derive", (AxialTree(Lsystem::*)(size_t))&Lsystem::derive)
-    .def("derive", &py_derive)
-	.def("derive", (AxialTree(Lsystem::*)(size_t,size_t,const AxialTree&,bool))&Lsystem::derive)
-	.def("turtle_interpretation", (void(Lsystem::*)(AxialTree&))&Lsystem::turtle_interpretation,"Apply interpretation with context().turtle.")
-	.def("turtle_interpretation", (void(Lsystem::*)(AxialTree&, PGL::Turtle&))&Lsystem::turtle_interpretation,"Apply interpretation with given turtle.")
-	.def("sceneInterpretation", &Lsystem::sceneInterpretation,"Apply interpretation with context().turtle and return resulting scene.")
+	.def("derive", (AxialTree(Lsystem::*)(const AxialTree&))&Lsystem::derive)
+	.def("derive", (AxialTree(Lsystem::*)(const AxialTree&,size_t))&Lsystem::derive)
+	.def("derive", (AxialTree(Lsystem::*)(const AxialTree&,size_t,size_t,bool))&Lsystem::derive,(bp::arg("workstring"),bp::arg("starting_iter"),bp::arg("nb_iter"),bp::arg("previouslyinterpreted")=false))
+	.def("turtle_interpretation", (void(Lsystem::*)(AxialTree&))&Lsystem::turtle_interpretation,"Apply interpretation with execContext().turtle.")
+	.def("turtle_interpretation", (void(Lsystem::*)(AxialTree& , PGL::Turtle&))&Lsystem::turtle_interpretation,"Apply interpretation with given turtle.")
+	.def("sceneInterpretation", &Lsystem::sceneInterpretation,"Apply interpretation with execContext().turtle and return resulting scene.")
 	.def("stepInterpretation", &Lsystem::stepInterpretation,"Apply interpretation step by step and display construction of the scene.")
-	.def("plot", (void(Lsystem::*)(AxialTree&,bool))&Lsystem::plot,(bp::arg("lstring"),bp::arg("checkLastComputedScene")=false),"Apply interpretation with context().turtle and plot the resulting scene. If checkLastComputedScene, check whether during last iteration a scene was computed. If yes reuse it.")
+	.def("plot", (void(Lsystem::*)(AxialTree&,bool))&Lsystem::plot,(bp::arg("lstring"),bp::arg("checkLastComputedScene")=false),"Apply interpretation with execContext().turtle and plot the resulting scene. If checkLastComputedScene, check whether during last iteration a scene was computed. If yes reuse it.")
 	.def("interpret", &Lsystem::interpret,"Apply interpretation rule and gives the resulting string.")
 	.def("nbProductionRules", &Lsystem::nbProductionRules, (bp::arg("group")=0))
 	.def("nbDecompositionRules", &Lsystem::nbDecompositionRules, (bp::arg("group")=0))

@@ -37,7 +37,7 @@ def initDocks(lpywidget):
         prevdock = dock
     lpywidget.menuView.addAction(lpywidget.materialDock.toggleViewAction())
     lpywidget.menuView.addAction(lpywidget.scalarDock.toggleViewAction())
-    lpywidget.vparameterView = lpywidget.menuView.addMenu("Visual Parameters")
+    lpywidget.vparameterView = lpywidget.menuView.addMenu("Graphical Parameters")
     lpywidget.menuView.addSeparator()
     lpywidget.menuView.addAction(lpywidget.descriptionDock.toggleViewAction())
     lpywidget.menuView.addAction(lpywidget.parametersDock.toggleViewAction())
@@ -66,6 +66,7 @@ def initDocks(lpywidget):
     lpywidget.debugDock.setWidget(lpywidget.debugWidget)
     lpywidget.addDockWidget(Qt.BottomDockWidgetArea,lpywidget.debugDock)    
     action = lpywidget.debugDock.toggleViewAction()
+    lpywidget.menuView.addSeparator()
     lpywidget.menuView.addAction(action)
     lpywidget.debugDock.hide()
     #profiler dock

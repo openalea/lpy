@@ -463,6 +463,13 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QCheckBox" name="visuInfoEdit">
+            <property name="text">
+             <string>Display info at run</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>

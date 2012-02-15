@@ -1,0 +1,16 @@
+
+def End(lstring):
+    assert len(lstring) == 20
+
+Axiom: 
+  for i in xrange(10): 
+    nproduce F f 
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem

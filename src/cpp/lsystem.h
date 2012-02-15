@@ -124,13 +124,19 @@ public:
 
   /** derive */
   inline AxialTree derive( )
-  { return derive(0,__max_derivation,__axiom); }
+  { return derive(__axiom, 0,__max_derivation); }
   inline AxialTree derive( size_t nb_iter )
-  { return derive(0, nb_iter,__axiom); }
+  { return derive(__axiom, 0, nb_iter); }
 
-  AxialTree derive( size_t starting_iter , 
+  inline AxialTree derive( const AxialTree& workstring )
+  { return derive(workstring, 0,__max_derivation); }
+
+  inline AxialTree derive( const AxialTree& workstring, size_t nb_iter )
+  { return derive(workstring, 0,nb_iter ); }
+
+  AxialTree derive( const AxialTree& workstring, 
+                     size_t starting_iter , 
                      size_t nb_iter , 
-                     const AxialTree& workstring, 
                      bool previouslyinterpreted = false  );
 
   /** Animation */

@@ -68,7 +68,7 @@ def test_Ls( nb = 1, length = maxlength):
     l = Lsystem()
     l.derivationLength = length
     l.axiom = AxialTree('F')
-    l.addProdRule('F --> F[+F]F[-F]F',0)
+    l.addProductionRule('F --> F[+F]F[-F]F',0)
     ln = lnLs(length)
     for i in range(nb):
         a = l.iterate()
@@ -81,7 +81,7 @@ def test_PLs( nb = 1, length = maxlength):
     l = Lsystem()
     l.derivationLength = length
     l.axiom = AxialTree('F(0)')
-    l.addProdRule('F(x) --> F(x+1)[+F(x)]F(x+1)[-F(x)]F(x+1)',0)
+    l.addProductionRule('F(x) --> F(x+1)[+F(x)]F(x+1)[-F(x)]F(x+1)',0)
     ln = lnLs(length)
     for i in range(nb):
         a = l.iterate()

@@ -1113,9 +1113,9 @@ Lsystem::__recursiveInterpretation(AxialTree& workingstring,
 */
 
 AxialTree 
-Lsystem::derive( size_t starting_iter , 
+Lsystem::derive(  const AxialTree& wstring, 
+                  size_t starting_iter , 
                   size_t nb_iter , 
-                  const AxialTree& wstring, 
                   bool previouslyinterpreted ){
   ACQUIRE_RESSOURCE
   enableEarlyReturn(false);
@@ -1251,7 +1251,9 @@ Lsystem::__apply_post_process(AxialTree& workstring, bool endeach)
 	}
 	// Check result of endeach function
 	if(PyTuple_Check(result.ptr()) && len(result) >= 2){
-		if (result[0] != object()) workstring = extract<AxialTree>(result[0])();
+		if (result[0] != object()) {
+            workstring = extract<AxialTree>(result[0])();
+        }
 		if (result[1] == object()) rep = ScenePtr();
 		else rep = extract<ScenePtr>(result[1])();
 	}

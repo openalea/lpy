@@ -87,8 +87,8 @@ def color_last_year_node(g):
           if len([j for j in g.children(i) if labels[j][0] in 'S']) == 0:
             assert labels[i][0] in 'SV'
             labels[i] = 'V'+labels[i][1:]
-        
-    
+
+
 def construct_lstring(g):
     idp = dict([(i,i) for i in g.property('TopPosition').iterkeys()])
     g.properties()['mtgid'] = idp

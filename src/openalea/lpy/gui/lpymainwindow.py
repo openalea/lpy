@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'd:\fred\mes documents\develop\vplants\trunk\lpy\src\openalea\lpy\gui\lpymainwindow.ui'
 #
-# Created: Wed Jul 27 16:46:15 2011
+# Created: Mon Jan 23 16:19:27 2012
 #      by: PyQt4 UI code generator 4.8.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -55,8 +55,10 @@ class Ui_MainWindow(object):
         brush.setStyle(QtCore.Qt.SolidPattern)
         palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.AlternateBase, brush)
         self.scalarEditor.setPalette(palette)
+        self.scalarEditor.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
+        self.scalarEditor.setDefaultDropAction(QtCore.Qt.MoveAction)
         self.scalarEditor.setAlternatingRowColors(True)
-        self.scalarEditor.setItemsExpandable(False)
+        self.scalarEditor.setItemsExpandable(True)
         self.scalarEditor.setAllColumnsShowFocus(True)
         self.scalarEditor.setObjectName(_fromUtf8("scalarEditor"))
         self.gridLayout_2.addWidget(self.scalarEditor, 0, 0, 1, 1)
@@ -758,6 +760,7 @@ class Ui_MainWindow(object):
         self.menuView.addAction(self.actionTabHightlight)
         self.menuView.addSeparator()
         self.menuView.addAction(self.actionView3D)
+        self.menuView.addSeparator()
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuL_systems.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
@@ -824,7 +827,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "L-Py", None, QtGui.QApplication.UnicodeUTF8))
-        self.scalarDock.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Scalars", None, QtGui.QApplication.UnicodeUTF8))
+        self.scalarDock.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Scalar Parameters", None, QtGui.QApplication.UnicodeUTF8))
         self.materialDock.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Color Map", None, QtGui.QApplication.UnicodeUTF8))
         self.parametersDock.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Configuration", None, QtGui.QApplication.UnicodeUTF8))
         self.groupBox.setTitle(QtGui.QApplication.translate("MainWindow", "Animation", None, QtGui.QApplication.UnicodeUTF8))
@@ -847,7 +850,7 @@ class Ui_MainWindow(object):
         self.label_9.setText(QtGui.QApplication.translate("MainWindow", "Replace", None, QtGui.QApplication.UnicodeUTF8))
         self.replaceButton.setText(QtGui.QApplication.translate("MainWindow", "Replace", None, QtGui.QApplication.UnicodeUTF8))
         self.replaceAllButton.setText(QtGui.QApplication.translate("MainWindow", "Rep. All", None, QtGui.QApplication.UnicodeUTF8))
-        self.helpDock.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Documentation", None, QtGui.QApplication.UnicodeUTF8))
+        self.helpDock.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Help Card", None, QtGui.QApplication.UnicodeUTF8))
         self.menuL_systems.setTitle(QtGui.QApplication.translate("MainWindow", "L-systems", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "File", None, QtGui.QApplication.UnicodeUTF8))
         self.menuRecents.setTitle(QtGui.QApplication.translate("MainWindow", "Recents", None, QtGui.QApplication.UnicodeUTF8))

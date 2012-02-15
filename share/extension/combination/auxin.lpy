@@ -7,13 +7,13 @@ internal_degradation_rate = 0.01
 
 class N_data:
   def __init__(self, aux):
-    self.auxine = aux
+    self.hormone = aux
     
-def update_hormon(d, di):
-   newhormon = d.hormon + (sum([i.auxin for i in di]) - len(di)*d.auxin)*transport_speed - d.auxin* internal_degradation_rate
+def update_hormone(d, di):
+   newhormone = d.hormone + (sum([i.hormone for i in di]) - len(di)*d.hormone)*transport_speed - d.hormone* internal_degradation_rate
    # need to copy all structure to avoid side effect
    d = deepcopy(d)
-   d.auxin = newauxin
+   d.hormon = newhormone
    # print 'auxin',d.auxin,'-->',newauxin
    nproduce N(d)
 
@@ -23,13 +23,13 @@ consider: N
 
 # Computation of auxin stuff
 N(d1) < N(d2) > N(d3) :
-   update_auxin(d2,[d1,d3])
+   update_hormone(d2,[d1,d3])
 
 N(d2) > N(d3) :
-   update_auxin(d2,[d3])   
+   update_hormone(d2,[d3])   
 
 N(d1) < N(d2) :
-   update_auxin(d2,[d1])   
+   update_hormone(d2,[d1])   
 
 endlsystem
 ###### INITIALISATION ######

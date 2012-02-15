@@ -83,7 +83,7 @@ boost::python::object py_LcGetPProductions(LsysContext * c) {
 void export_LsysContext(){
 
     class_<LsysContext,boost::noncopyable>
-	("LsysContext", no_init ) // <>("LsysContext()"))
+	("LsysContext", "Lsystem Execution Context", no_init ) // <>("LsysContext()"))
 	.def( "__init__", make_constructor( &create_a_context ), "LsysContext()" ) 
 	.add_property("turtle",make_getter(&LsysContext::turtle,return_value_policy<reference_existing_object>()))
 	.add_static_property("InitialisationFunctionName",&getInitialisationFunctionName)
@@ -173,12 +173,13 @@ void export_LsysContext(){
     .def("isAnimationEnabled",  &LsysContext::isAnimationEnabled)
 	.add_property("__production_buffer__",&LsysContext::get_nproduction,&LsysContext::set_nproduction)
 	.def("__reset_production_buffer",&LsysContext::reset_nproduction)
-	.add_property("__successor_patterns__",py_LcGetPProductions)
+	.add_property("__successor_patterns__",py_LcGetPProductions) 
 	;
 
 	def("consider",      &consider);
 	def("ignore",      &ignore);
-	def("context", &LsysContext::currentContext,return_value_policy<reference_existing_object>());
+	def("context", &LsysContext::currentContext,return_value_policy<reference_existing_object>(),"Return the current L-system context of execution. Rather use execContext.");
+	def("execContext", &LsysContext::currentContext,return_value_policy<reference_existing_object>(),"Return the current L-system context of execution.");
 	def("backward",      &py_backward);
 	def("forward",      &py_forward);
 	def("isForward",      &py_isForward);

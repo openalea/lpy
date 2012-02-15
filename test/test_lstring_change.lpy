@@ -1,0 +1,33 @@
+from openalea.lpy.__lpyfuture__ import *
+
+iterbackup = 1
+
+@enable_string_discard
+def EndEach(lstring):
+    if getIterationNb() == iterbackup:
+        DiscardNewString()
+
+
+
+def End(lstring):
+  print 'End', len(lstring),  lstring
+  assert len(lstring) == 1
+
+Axiom: A
+
+derivation length: 3
+production:
+
+A :
+  if getIterationNb() ==  iterbackup : produce FFA
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	context.options.setSelection('Early return when no matching',0)

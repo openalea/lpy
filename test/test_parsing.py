@@ -72,7 +72,9 @@ def test_format_reading(verbose = False):
     version = 2.5
     s = LpyParsing.VersionTag % version 
     s+='\n'
+    print s
     read_version = LpyParsing.getFormatVersion(s)
+    print read_version
     assert read_version == version
     supported_versions = LpyParsing.formats
     for v in supported_versions:
