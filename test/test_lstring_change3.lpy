@@ -2,12 +2,6 @@ from openalea.lpy.__lpyfuture__ import *
 
 iterbackup = 1
 
-@enable_string_discard
-def EndEach():
-    if getIterationNb() == iterbackup:
-        DiscardNewString()
-
-
 
 def End(lstring):
   print 'End', len(lstring),  lstring
@@ -20,7 +14,13 @@ production:
 
 A :
   if getIterationNb() ==  iterbackup : 
-      produce FFA
+      produce BA
+
+decomposition:
+
+B : 
+  DiscardNewString()
+  produce B
 
 interpretation:
 

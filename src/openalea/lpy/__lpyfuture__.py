@@ -46,3 +46,6 @@ def enable_string_discard(endeach):
         elif endeach_arg_nb == 2: return lambda lstring, lscene : wrapped(lstring, lscene)
         else:
             raise ValueError('EndEach should ne defined with maximum 2 arguments.')
+
+@enable_string_discard
+def EndEach(): pass
