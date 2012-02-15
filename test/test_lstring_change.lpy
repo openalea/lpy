@@ -3,7 +3,7 @@ from openalea.lpy.__lpyfuture__ import *
 iterbackup = 1
 
 @enable_string_discard
-def EndEach(lstring):
+def EndEach():
     if getIterationNb() == iterbackup:
         DiscardNewString()
 
