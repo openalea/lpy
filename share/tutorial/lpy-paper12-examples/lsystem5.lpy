@@ -1,0 +1,262 @@
+from openalea.plantgl.all import norm,Vector3, dot, angle, direction
+
+import mtgimport as mi
+from openalea.mtg.io import read_mtg_file, axialtree2mtg, mtg2axialtree
+
+
+from  random import randint, seed, uniform, random
+from math import degrees
+from numpy import mean
+
+
+dseg = 4.
+nbiter = 3
+avgnodelength = 10.64
+
+
+
+module Init, LeafSet
+
+
+module B(tipposition,bottomdiameter,topdiameter) : scale = 1 # abstract module
+module S,U,V : base = B # Segment, Segment of last year, Segment of the year
+
+module K(newdir,length,topdiam,botdiam) : scale = 1 # abstract module
+module W,Z : base = K # generated apical segments, generated lateral segment
+
+module Bud
+
+initialmtg = None
+resultmtg = None
+
+def Start():
+    # read initial mtg 
+    global initialmtg
+    initialmtg = read_mtg_file('walnut.mtg')
+    xx,yy,zz = initialmtg.property('XX'),initialmtg.property('YY'),initialmtg.property('ZZ')
+    # recompose the tipposition property from the 3 properties xx,yy,zz
+    tipposition = dict([(i,Vector3(x,yy[i],zz[i])) for i,x in xx.iteritems()])
+    initialmtg.properties()['tipposition'] = tipposition
+
+def End(lstring):
+      # compute resulting mtg
+      global resultmtg
+      resultmtg = export_to_mtg(lstring)
+      print len(initialmtg),len(resultmtg)
+
+def StartEach():
+    seed(SEED)
+
+
+def export_to_mtg(lstring):
+  # Retrieve parameter of modules to export
+  parameters = {}
+  scales = {}
+  for m in exported_symbols:
+    mod = ModuleClass.get(m)
+    scales[m] = mod.scale
+    parameters[m] = mod.parameterNames
+  # Convert lstring into mtg
+  return axialtree2mtg(lstring,scales,None,parameters)
+
+
+def mtg2lstring(mtg):
+    # define the parameter names
+    parameters = ['tipposition','bottomdiameter','topdiameter']
+    # define the name of modules to import and their parameters  
+    moduldef = { 'S': parameters, 'U' : parameters, 'V' : parameters }
+    lstring = mtg2axialtree(mtg, moduldef)
+    return lstring
+
+
+def directlength(n,originalpos):
+    nbsons = 1
+    while not n is None:
+      ln = n
+      n = n.direct_child()
+      nbsons += 1
+    dir = ln[0] - originalpos
+    return norm(dir),nbsons
+    
+def nbLateralSons(it):
+  latsons = it.lateral_children()
+  if latsons is None: 
+    return 0,0.0,0
+  nbsons = len(latsons)
+  lgts = [directlength(s,it[0]) for s in latsons]
+  avgl = mean([i[0] for i in lgts])
+  avgnb = mean([i[1] for i in lgts])
+  return nbsons, avgl, avgnb
+
+
+Axiom: Init
+
+derivation length: nbiter
+production:
+
+Init:
+  myaxiom = mtg2lstring(initialmtg)
+  
+  assert myaxiom.wellBracketed()
+  nsproduce(myaxiom)
+
+group 1: # pruning
+
+S(p0,d0) < $V(it): 
+  # Some analysis of the structure carried by an S followed by a V
+  p,d = it[0],it[1]
+  nbdsons = 1
+  latsons = []
+  while not it is None and it.name == 'V':
+    lit = it
+    latsons.append(nbLateralSons(it))
+    it = it.direct_child()
+    nbdsons += 1
+  vpos = lit[0]
+  vtdiam = lit[1]
+  dr = vpos - p0    
+  l = norm(dr)
+  if l > 0.001: 
+    dr = direction(dr)
+    avglatsons = [mean([i for i,j,k in latsons]),mean([j for i,j,k in latsons]),mean([k for i,j,k in latsons])]
+    vinfo = (dr,l,d,vtdiam,nbdsons,avglatsons) 
+    
+    nbdsons2 = 1
+    latsons = []
+    while not it is None and it.name == 'U':
+      lit = it
+      latsons.append(nbLateralSons(it))
+      it = it.directSon()
+      nbdsons2 += 1
+    upos = lit[0]
+    dr2 = upos - vpos
+    l2 = norm(dr2)
+    avglatsons = [mean([i for i,j,k in latsons]),mean([j for i,j,k in latsons]),mean([k for i,j,k in latsons])]
+    uinfo = (dr2,l2,vtdiam,lit[1],nbdsons2,avglatsons)
+   
+    # generate a Bud with analysis of the structure
+    produce Bud(vinfo,uinfo)
+
+# remove V modules
+V(p,d) --> %
+
+group 2: # growth
+
+[%] --> 
+% --> 
+
+Bud(vinfo,uinfo) :
+  ndir,l,d,tdiam,nbdsons,avglatsons = vinfo
+  avglats, avglatl, avglatnb = avglatsons
+  l = l / nbdsons
+  nproduce @Ge   _(d/2) PinpointRel(ndir[0],ndir[1],ndir[2])
+  bdiam = d
+  prob = RAMIF/100.
+  for i in xrange(nbdsons):
+    lgth = uniform(l*0.8,l*1.2)
+    tpdiam = d+i*(tdiam-d)/(nbdsons-1)
+    nproduce  W(ndir, lgth,tpdiam,bdiam)
+    bdiam = tpdiam
+    if random() < prob:
+       nb = round(avglatnb*.9)
+       nproduce  [ /(137.5*i) +(60) 
+       for i in xrange(nb):
+         nproduce Z(ndir, uniform(avglatl/(2*nb), 3*avglatl/(2*nb)) ,tdiam/2,bdiam/2)
+       nproduce ]
+  ndir,l,d,tdiam,nbdsons,avglatsons = uinfo
+  avglats, avglatl, avglatnb = avglatsons
+  l = l / nbdsons
+  bdiam = tpdiam
+  nproduce @Ge @Gc   PinpointRel(ndir[0],ndir[1],ndir[2])
+  for i in xrange(nbdsons*.9):
+    lgth = uniform(l*0.8,l*1.2)
+    tpdiam = d+i*(tdiam-d)/(nbdsons-1)
+    nproduce  Z(ndir, lgth,tpdiam,bdiam)
+    bdiam = tpdiam
+    if random() < avglats:
+       nb = round(avglatnb)
+       nproduce  [ /(137.5*i) +(60) 
+       for i in xrange(nb):
+         nproduce Z(ndir, uniform(avglatl/(2*nb), 3*avglatl/(2*nb)) ,tdiam/2,bdiam/2)
+       nproduce ]
+
+
+
+
+interpretation:
+maximum depth: 3
+
+group 0:
+
+
+S(position,bottomdiameter,topdiameter) --> ,(1) _(bottomdiameter/2) LineTo(position.x,position.y,position.z,topdiameter/2)
+U(position,bottomdiameter,topdiameter) --> ,(2) _(bottomdiameter/2) LineTo(position.x,position.y,position.z,topdiameter/2)
+V(position,bottomdiameter,topdiameter) --> ,(3) _(bottomdiameter/2) LineTo(position.x,position.y,position.z,topdiameter/2)
+
+
+Bud(dir,diam) --> ,(3) @O(3)
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	import openalea.plantgl.all as pgl
+	Color_4 = pgl.Material("Color_4" , ambient = (0,0,127) , diffuse = 1.09449 , )
+	Color_4.name = "Color_4"
+	context.turtle.setMaterial(4,Color_4)
+	Color_5 = pgl.Material("Color_5" , ambient = (60,60,15) , diffuse = 3 , )
+	Color_5.name = "Color_5"
+	context.turtle.setMaterial(5,Color_5)
+	Color_6 = pgl.Material("Color_6" , ambient = (78,0,117) , diffuse = 1.53846 , specular = (0,0,0) , )
+	Color_6.name = "Color_6"
+	context.turtle.setMaterial(6,Color_6)
+	Color_7 = pgl.Material("Color_7" , ambient = (65,45,15) , diffuse = 3 , )
+	Color_7.name = "Color_7"
+	context.turtle.setMaterial(7,Color_7)
+	Color_8 = pgl.Material("Color_8" , ambient = (0,0,0) , diffuse = 3 , specular = (0,0,0) , shininess = 0 , )
+	Color_8.name = "Color_8"
+	context.turtle.setMaterial(8,Color_8)
+	Color_10 = pgl.Material("Color_10" , ambient = (0,0,255) , diffuse = 0 , specular = (0,0,0) , shininess = 0 , )
+	Color_10.name = "Color_10"
+	context.turtle.setMaterial(10,Color_10)
+	Color_11 = pgl.Material("Color_11" , ambient = (63,63,207) , diffuse = 0 , specular = (0,0,0) , shininess = 0 , )
+	Color_11.name = "Color_11"
+	context.turtle.setMaterial(11,Color_11)
+	Color_12 = pgl.Material("Color_12" , ambient = (127,127,159) , diffuse = 0 , specular = (0,0,0) , shininess = 0 , )
+	Color_12.name = "Color_12"
+	context.turtle.setMaterial(12,Color_12)
+	Color_13 = pgl.Material("Color_13" , ambient = (191,191,111) , diffuse = 0 , specular = (0,0,0) , shininess = 0 , )
+	Color_13.name = "Color_13"
+	context.turtle.setMaterial(13,Color_13)
+	Color_14 = pgl.Material("Color_14" , ambient = (255,255,63) , diffuse = 0 , specular = (0,0,0) , shininess = 0 , )
+	Color_14.name = "Color_14"
+	context.turtle.setMaterial(14,Color_14)
+	Color_15 = pgl.Material("Color_15" , ambient = (255,212,52) , diffuse = 0 , specular = (0,0,0) , shininess = 0 , )
+	Color_15.name = "Color_15"
+	context.turtle.setMaterial(15,Color_15)
+	Color_16 = pgl.Material("Color_16" , ambient = (255,170,42) , diffuse = 0 , specular = (0,0,0) , shininess = 0 , )
+	Color_16.name = "Color_16"
+	context.turtle.setMaterial(16,Color_16)
+	Color_17 = pgl.Material("Color_17" , ambient = (255,127,31) , diffuse = 0 , specular = (0,0,0) , shininess = 0 , )
+	Color_17.name = "Color_17"
+	context.turtle.setMaterial(17,Color_17)
+	Color_18 = pgl.Material("Color_18" , ambient = (255,85,21) , diffuse = 0 , specular = (0,0,0) , shininess = 0 , )
+	Color_18.name = "Color_18"
+	context.turtle.setMaterial(18,Color_18)
+	Color_19 = pgl.Material("Color_19" , ambient = (255,42,10) , diffuse = 0 , specular = (0,0,0) , shininess = 0 , )
+	Color_19.name = "Color_19"
+	context.turtle.setMaterial(19,Color_19)
+	Color_20 = pgl.Material("Color_20" , ambient = (255,0,0) , diffuse = 0 , specular = (0,0,0) , shininess = 0 , )
+	Color_20.name = "Color_20"
+	context.turtle.setMaterial(20,Color_20)
+	Color_21 = pgl.Material("Color_21" , ambient = (127,255,42) , diffuse = 0 , specular = (0,0,0) , shininess = 0 , )
+	Color_21.name = "Color_21"
+	context.turtle.setMaterial(21,Color_21)
+	context.options.setSelection('Module inheritance',1)
+	scalars = [('WITHLEAF', False, False, True), ('SEED', 1, 0, 100), ('OLDSTRUCTURE', False, False, True), ('GENERATED_WITH_TROPISM', True, False, True), ('REGENERATE', True, False, True), ('COMPARE', True, False, True), ('FORCE_COMPARE', False, False, True), ('PROP_VIEW', True, False, True), ('RAMIF', 77, 0, 200), ('DETAILS', False, False, True)]
+	context["__scalars__"] = scalars
+	for n,v,mnv,mxv in scalars:
+		context[n] = v

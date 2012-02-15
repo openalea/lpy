@@ -1,0 +1,33 @@
+from math import degrees, atan2
+from openalea.plantgl.all import cross, dot
+length = 5 
+dl = 0.5 
+Axiom : FFF [ \(90) &(90) SetGuide(curve,length) M(0)] FF 
+production: 
+derivation length: length/dl
+
+M(l): 
+   if l < length:
+     produce f(0.02) F(dl) M(l+dl) 
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	import openalea.plantgl.all as pgl
+	Color_1 = pgl.Material("Color_1" , ambient = (65,45,15) , diffuse = 0.815385 , )
+	Color_1.name = "Color_1"
+	context.turtle.setMaterial(1,Color_1)
+	import openalea.plantgl.all as pgl
+	curve = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.0454546, 0.298701, 1),(-0.0108225, -0.281385, 1),(0.534632, -0.008658, 1)]) , 
+	    )
+	curve.name = "curve"
+	panel_0 = ({'active': True, 'visible': True, 'name': 'Panel 1'},[('Curve2D',curve)])
+	parameterset = [panel_0,]
+	context["__functions__"] = []
+	context["__curves__"] = [('curve',curve),]
+	context["__parameterset__"] = parameterset
+	context["curve"] = curve

@@ -1,0 +1,19 @@
+module Apex(age), Internode(length,radius) 
+MAX_AGE, dr = 10, 0.02 # constants 
+Axiom: Apex(0) 
+production:
+consider: Internode
+derivation length:4
+Internode(l,r) --> Internode(l,r+dr) 
+Apex(age) : 
+    if age < MAX_AGE: 
+        produce Internode(1,0.05)/(137.5)[+(40)Apex(age+1)] Apex(age+1) 
+interpretation:
+
+Internode(lp,rp) < Internode(l,r) --> F(l,r)
+Internode(l,r) --> _(r)F(l,r)
+Apex(age) --> ,(2)@O
+endlsystem
+
+def EndEach(lstring):
+   print lstring

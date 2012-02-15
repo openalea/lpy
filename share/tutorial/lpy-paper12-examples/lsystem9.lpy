@@ -1,0 +1,45 @@
+from openalea.plantgl.all import NurbsCurve
+
+internodelength = 2.2
+length = 14.9
+dl = 0.2
+phyllotaxy = 90
+
+def diameter(l):
+  return 0.01 + 0.2*(length-l)/length
+
+
+Axiom: M(0,0)
+
+derivation length: int(length/dl)+1
+production:
+
+M(l,order) :
+  if l >= length : produce 
+  nproduce _(diameter(l)) F(dl)
+  newl = l + dl
+  if newl % internodelength < dl:
+    nproduce iRollL(phyllotaxy) [ &(60) @v SetGuide(branchpath,length-newl) M(newl,order+1) ]
+  produce M(newl,order)
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	context.options.setSelection('Warning with Turtle inconsistency',0)
+	import openalea.plantgl.all as pgl
+	branchpath = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.558642, 0.0459491, 1),(-0.212121, 0.107955, 1),(-0.0719697, 0.0568182, 1),(0.301136, 0.0965909, 1),(0.333243, 0.243134, 1)]) , 
+	    )
+	branchpath.name = "branchpath"
+	panel_0 = ({'active': True, 'visible': True, 'name': 'Panel 1'},[('Curve2D',branchpath)])
+	parameterset = [panel_0,]
+	context["__functions__"] = []
+	context["__curves__"] = [('branchpath',branchpath),]
+	context["__parameterset__"] = parameterset
+	context["branchpath"] = branchpath

@@ -1,0 +1,132 @@
+from random import randint,seed
+from openalea.plantgl.all import *
+from math import degrees
+
+def retrieveCurves():
+  # Determine the set of curve representing axis at different time. 
+  # Look for object in global namespace name axisX 
+  curves = [(n,v) for n,v in globals().items() if 'axis' in n and type(v) == NurbsCurve2D ]
+  
+  # sort curves according to their names
+  for n,v in curves: v.name = n
+  curves = [v for n,v in curves]
+  curves.sort(lambda x,y : cmp(x.name,y.name))
+  return curves
+  
+def ProfileInterpolation(curves,knotlist = None,degree = 3):
+    nbcurves = len(curves)
+    if knotlist is None: knotlist = [i/float(nbcurves-1) for i in xrange(nbcurves)]
+    k = [knotlist[0] for i in xrange(degree-1)]+knotlist+[knotlist[-1] for i in xrange(degree-1)]
+    pts = [[(i.x,i.y,0,1) for i in c.ctrlPointList] for c in curves]
+    ppts = Point4Matrix(pts)
+    p = NurbsPatch(ctrlPointList=ppts,udegree=degree,vdegree=curves[0].degree)
+    def getSectionAt(t): 
+      section = p.getIsoUSectionAt(t)
+      return NurbsCurve2D([(i.x,i.y,i.w) for i in section.ctrlPointList], section.knotList,section.degree)
+    p.getAt = getSectionAt
+    return p
+
+curves = retrieveCurves()
+axisfunc = ProfileInterpolation(curves)
+
+#time between each curve
+curvedelay = 30
+#total time
+timerange = (len(curves)-1)*curvedelay
+
+#nb of step to do on the axis
+steps = timerange
+dt = 1/float(steps)
+
+
+Axiom:     /(-90) &(90)  _(0.01) F(0.1,0.005)  SetColor(2) _(leafwidth(0)) Leaf(0) 
+
+derivation length: timerange
+production:
+
+# Leaf growth for one time step each step
+Leaf(t) --> Leaf(t+dt)
+
+homomorphism:
+maximum depth:  steps 
+
+Leaf(t) :
+    #identify the axis to use
+    produce @Gc Sweep(axisfunc.getAt(t), profile, 1.0,dt,1.0,leafwidth) 
+
+endlsystem
+
+
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	context.animation_timestep = 0.01
+	import openalea.plantgl.all as pgl
+	profile = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.617641, 0.141492, 1),(-0.175383, -0.129256, 1),(0.00813704, 0.352579, 1),(0.122072, -0.121707, 1),(0.587932, 0.164599, 1)]) , 
+	    )
+	profile.name = "profile"
+	axis1 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.332603, 0.0127846, 1),(-0.158481, 0.00738711, 1),(-0.0521156, 0.0130974, 1),(0.0182068, 0.00957291, 1),(0.0741187, -0.00339689, 1)]) , 
+	    )
+	axis1.name = "axis1"
+	axis2 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.28362, 0.0159994, 1),(-0.17612, -0.0518123, 1),(-0.168036, -0.0814387, 1),(-0.100353, -0.130297, 1),(-0.154953, -0.240856, 1)]) , 
+	    )
+	axis2.name = "axis2"
+	axis3 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.270107, 0.0329435, 1),(-0.153669, -0.0629664, 1),(-0.166177, -0.1558, 1),(-0.208177, -0.174913, 1),(-0.303173, -0.147119, 1)]) , 
+	    )
+	axis3.name = "axis3"
+	axis4 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.273115, 0.0434201, 1),(-0.173188, -0.111014, 1),(-0.23975, -0.187331, 1),(-0.358312, -0.13139, 1),(-0.295666, -0.0885611, 1)]) , 
+	    )
+	axis4.name = "axis4"
+	axis5 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.280281, 0.0381676, 1),(-0.269238, -0.132025, 1),(-0.43052, -0.135627, 1),(-0.40177, -0.00840907, 1),(-0.321179, -0.076555, 1)]) , 
+	    )
+	axis5.name = "axis5"
+	import openalea.plantgl.all as pgl
+	leafwidth = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.00609611, 1),(0.219872, 0.279019, 1),(0.711105, 0.460335, 1),(1, 0.00849109, 1)]) , 
+	    )
+	leafwidth.name = "leafwidth"
+	panel_0 = ({'active': True, 'visible': True, 'name': 'Curve2D'},[('Curve2D',profile),('Curve2D',axis1),('Curve2D',axis2),('Curve2D',axis3),('Curve2D',axis4),('Curve2D',axis5),('Function',leafwidth)])
+	axis5_2 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.343628, 0.0908472, 1),(-0.17612, 0.0940398, 1),(-0.105034, 0.0750999, 1),(-0.0236869, 0.0720096, 1),(0.0498644, 0.0519054, 1)]) , 
+	    )
+	axis5_2.name = "axis5_2"
+	axis1 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.343628, 0.0908472, 1),(-0.294991, -0.0340806, 1),(-0.425858, -0.0642156, 1),(-0.44864, 0.0269131, 1),(-0.37165, 0.0115342, 1)]) , 
+	    )
+	axis1.name = "axis1"
+	axis2 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.343628, 0.0908472, 1),(-0.196405, 0.093203, 1),(-0.144755, -0.0349069, 1),(-0.244089, -0.114191, 1),(-0.369488, -0.0299906, 1)]) , 
+	    )
+	axis2.name = "axis2"
+	axis3 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.343628, 0.0908472, 1),(-0.199423, 0.0660391, 1),(-0.139163, 0.000244081, 1),(-0.201903, -0.0919733, 1),(-0.261797, -0.0726804, 1)]) , 
+	    )
+	axis3.name = "axis3"
+	axis4 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.343628, 0.0908472, 1),(-0.17612, 0.0940398, 1),(-0.0992922, 0.071272, 1),(-0.0294287, -0.00263411, 1),(-0.0359671, 0.00176892, 1)]) , 
+	    )
+	axis4.name = "axis4"
+	leafwidth_2 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.00609611, 1),(0.219872, 0.279019, 1),(0.711105, 0.460335, 1),(1, 0.00849109, 1)]) , 
+	    )
+	leafwidth_2.name = "leafwidth_2"
+	panel_1 = ({'active': False, 'visible': True, 'name': 'Panel 3'},[('Curve2D',axis5_2),('Curve2D',axis1),('Curve2D',axis2),('Curve2D',axis3),('Curve2D',axis4),('Function',leafwidth_2)])
+	parameterset = [panel_0,panel_1,]
+	context["__functions__"] = [('leafwidth',leafwidth),]
+	context["__curves__"] = [('profile',profile),('axis1',axis1),('axis2',axis2),('axis3',axis3),('axis4',axis4),('axis5',axis5),]
+	context["__parameterset__"] = parameterset
+	context["profile"] = profile
+	context["axis1"] = axis1
+	context["axis2"] = axis2
+	context["axis3"] = axis3
+	context["axis4"] = axis4
+	context["axis5"] = axis5
+	context["leafwidth"] = pgl.QuantisedFunction(leafwidth)

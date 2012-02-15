@@ -1,0 +1,62 @@
+init_hormone = 10
+
+derivation length: 1
+production:
+
+# Initialization of auxin stuff
+I(data): 
+    data.check('hormone',init_hormone)
+    produce N(data)
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	import openalea.plantgl.all as pgl
+	Color_10 = pgl.Material("Color_10" , ambient = (0,0,48) , diffuse = 3.33333 , )
+	Color_10.name = "Color_10"
+	context.turtle.setMaterial(10,Color_10)
+	Color_11 = pgl.Material("Color_11" , ambient = (6,0,43) , diffuse = 3.3 , )
+	Color_11.name = "Color_11"
+	context.turtle.setMaterial(11,Color_11)
+	Color_12 = pgl.Material("Color_12" , ambient = (12,0,38) , diffuse = 3.26667 , )
+	Color_12.name = "Color_12"
+	context.turtle.setMaterial(12,Color_12)
+	Color_13 = pgl.Material("Color_13" , ambient = (18,0,33) , diffuse = 3.23333 , )
+	Color_13.name = "Color_13"
+	context.turtle.setMaterial(13,Color_13)
+	Color_14 = pgl.Material("Color_14" , ambient = (24,0,28) , diffuse = 3.2 , )
+	Color_14.name = "Color_14"
+	context.turtle.setMaterial(14,Color_14)
+	Color_15 = pgl.Material("Color_15" , ambient = (30,0,24) , diffuse = 3.16667 , )
+	Color_15.name = "Color_15"
+	context.turtle.setMaterial(15,Color_15)
+	Color_16 = pgl.Material("Color_16" , ambient = (36,0,19) , diffuse = 3.13333 , )
+	Color_16.name = "Color_16"
+	context.turtle.setMaterial(16,Color_16)
+	Color_17 = pgl.Material("Color_17" , ambient = (42,0,14) , diffuse = 3.1 , )
+	Color_17.name = "Color_17"
+	context.turtle.setMaterial(17,Color_17)
+	Color_18 = pgl.Material("Color_18" , ambient = (47,0,9) , diffuse = 3.06667 , )
+	Color_18.name = "Color_18"
+	context.turtle.setMaterial(18,Color_18)
+	Color_19 = pgl.Material("Color_19" , ambient = (53,0,4) , diffuse = 3.03333 , )
+	Color_19.name = "Color_19"
+	context.turtle.setMaterial(19,Color_19)
+	Color_20 = pgl.Material("Color_20" , ambient = (60,0,0) , diffuse = 3 , )
+	Color_20.name = "Color_20"
+	context.turtle.setMaterial(20,Color_20)
+	import openalea.plantgl.all as pgl
+	diameter = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.246801, 1),(0.300168, 0.67595, 1),(0.874817, 0.683975, 1),(1, 0.999808, 1)]) , 
+	    )
+	diameter.name = "diameter"
+	panel_0 = ({'active': True, 'visible': True, 'name': 'Panel 1'},[('Function',diameter)])
+	parameterset = [panel_0,]
+	context["__functions__"] = [('diameter',diameter),]
+	context["__curves__"] = []
+	context["__parameterset__"] = parameterset
+	context["diameter"] = pgl.QuantisedFunction(diameter)

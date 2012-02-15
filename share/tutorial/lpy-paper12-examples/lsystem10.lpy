@@ -1,0 +1,230 @@
+from openalea.plantgl.all import *
+from math import degrees,pi
+from random import uniform, seed
+
+
+def ProfileInterpolation0(curves,knotlist,degree):
+    from openalea.plantgl.all import ProfileInterpolation
+    p = ProfileInterpolation(curves,knotlist,degree)
+    def getSectionAt(t): 
+       return Polyline2D(ProfileInterpolation.getSectionAt(p,t))
+    p.getSectionAt = getSectionAt
+    return p
+
+def ProfileInterpolation1(curves,knotlist,degree):
+    k = [knotlist[0] for i in xrange(degree-1)]+knotlist+[knotlist[-1] for i in xrange(degree-1)]
+    pts = [[(i.x,i.y,0,1) for i in c.ctrlPointList] for c in curves]
+    ppts = Point4Matrix(pts)
+    p = NurbsPatch(ctrlPointList=ppts,udegree=degree,vdegree=curves[0].degree)
+    def getSectionAt(t): 
+      section = p.getIsoUSectionAt(t)
+      return NurbsCurve2D([(i.x,i.y,i.w) for i in section.ctrlPointList], section.knotList,section.degree)
+    p.getSectionAt = getSectionAt
+    return p
+
+
+def ProfileInterpolation2(curves,knotlist,degree):
+    from openalea.plantgl.scenegraph.interpolated_profile import CrossSection,InterpolatedProfile,CSplineMethod
+    tc = InterpolatedProfile(CSplineMethod)
+    params = []
+    for knot,curve in zip(knotlist,curves):
+      params += [knot,CrossSection(*[(pt.x,pt.y) for pt in curve.ctrlPointList])]
+    tc.add_cross_sections(*params )
+    def getSectionAt(t): 
+      section = tc.get_interpolated_section(t,False)
+      return NurbsCurve2D([(i.x,i.y,1) for i in section],curves[0].degree)
+      return section
+    tc.getSectionAt = getSectionAt
+    return tc
+
+
+
+ProfileInterpolation = globals()['ProfileInterpolation'+str(METHOD)]
+
+seed(0)
+
+length = 50.
+dl = 1
+nbpt = int(length)
+phyllotaxy = 137
+
+curves = [(n,v) for n,v in globals().items() if 'branchpath' in n and type(v) == NurbsCurve2D ]
+for n,v in curves: v.name = n
+curves = [v for n,v in curves]
+curves.sort(lambda x,y : cmp(x.name,y.name))
+nbcurves = len(curves)
+print [n.name for n in curves],nbcurves
+
+def knotList(l) : 
+  return [i/float(l-1) for i in xrange(0,l)]
+
+
+print knotList(nbcurves)
+
+p = ProfileInterpolation(curves, knotList(nbcurves), 2)
+
+
+def interpolated_curve(t):
+    section = p.getSectionAt(t)
+    assert not section is None
+    return section
+
+
+module M
+
+Axiom:  _(diameter(0))  F(5) M(0,0)
+
+derivation length: nbpt
+production:
+
+
+
+M(l,order) :    
+    if order <= MAXORDER and l < length:
+        u = l/length
+        nproduce F(dl,diameter(u)) 
+        if order < MAXORDER:
+          upath = interpolated_curve(u)
+          
+          laterallength = (length - l) * lateral_length(u)
+          lateral_l = length - laterallength
+          print u, laterallength, lateral_l, lateral_l/length
+          nproduce RollR(phyllotaxy) [ &(90) SetGuide(upath,laterallength) _(diameter(lateral_l/length)) 
+          nproduce M(lateral_l,order+1)] 
+        produce M(l+dl,order)
+
+
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	import openalea.plantgl.all as pgl
+	Color_1 = pgl.Material("Color_1" , ambient = (88,60,20) , diffuse = 1.27273 , specular = (0,0,0) , )
+	Color_1.name = "Color_1"
+	context.turtle.setMaterial(1,Color_1)
+	scalars = [('MAXORDER', 1, 0, 3), ('METHOD', 2, 0, 2)]
+	context["__scalars__"] = scalars
+	for n,v,mnv,mxv in scalars:
+		context[n] = v
+	import openalea.plantgl.all as pgl
+	path = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0.00852268, -0.329545, 1),(-0.0501894, -0.0568182, 1),(0.0700758, 0.167614, 1),(0.0170455, 0.46875, 1)]) , 
+	    )
+	path.name = "path"
+	import openalea.plantgl.all as pgl
+	diameter = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.680178, 1),(0.555632, 0.504565, 1),(0.675733, 0.262932, 1),(1, 0.0232957, 1)]) , 
+	    )
+	diameter.name = "diameter"
+	branching_angle = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.83302, 1),(0.431782, 0.836569, 1),(0.752635, 0.804729, 1),(1, 0.797598, 1)]) , 
+	    )
+	branching_angle.name = "branching_angle"
+	panel_0 = ({'active': True, 'visible': True, 'name': 'Panel 1'},[('Curve2D',path),('Function',diameter),('Function',branching_angle)])
+	branchpath3 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.558642, 0.0909861, 1),(-0.233307, 0.199865, 1),(-0.141477, 0.212796, 1),(0.301136, 0.0665662, 1),(0.258239, 0.543359, 1)]) , 
+	    )
+	branchpath3.name = "branchpath3"
+	branchpath2 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.166667, 0, 1),(0.0757579, 0, 1),(0.296537, -0.0021645, 1),(0.5, 0, 1)]) , 
+	    )
+	branchpath2.name = "branchpath2"
+	branchpath1 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.542282, -0.101241, 1),(-0.296109, -0.0261283, 1),(-0.120826, -0.0212498, 1),(0.127525, -0.053778, 1),(0.294626, -0.524216, 1)]) , 
+	    )
+	branchpath1.name = "branchpath1"
+	lateral_length = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.374169, 1),(0.314397, 0.957006, 1),(0.628839, 0.983522, 1),(1, 0.991025, 1)]) , 
+	    )
+	lateral_length.name = "lateral_length"
+	node_length = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.99198, 1),(0.366937, 0.989282, 1),(0.700382, 0.999216, 1),(1, 0.993167, 1)]) , 
+	    )
+	node_length.name = "node_length"
+	panel_1 = ({'active': False, 'visible': True, 'name': 'Panel 3'},[('Curve2D',branchpath3),('Curve2D',branchpath2),('Curve2D',branchpath1),('Function',lateral_length),('Function',node_length)])
+	branchpath3 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.558642, 0.0909861, 1),(-0.525009, 0.256838, 1),(-0.435037, 0.318281, 1),(-0.33152, 0.35613, 1),(-0.247993, 0.346406, 1)]) , 
+	    )
+	branchpath3.name = "branchpath3"
+	branchpath2 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.384518, 0.0721063, 1),(-0.234078, 0.0913167, 1),(-0.220881, -0.0100678, 1),(-0.175969, -0.131627, 1)]) , 
+	    )
+	branchpath2.name = "branchpath2"
+	branchpath1 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.388625, 0.0609944, 1),(-0.267773, 0.0509674, 1),(-0.208529, 0.00990507, 1),(-0.111367, -0.0456414, 1),(-0.0433648, -0.183675, 1)]) , 
+	    )
+	branchpath1.name = "branchpath1"
+	lateral_length = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.100297, 1),(0.208643, 0.304176, 1),(0.257131, 0.876662, 1),(0.454036, 1.05959, 1),(1, 0.991025, 1)]) , 
+	    )
+	lateral_length.name = "lateral_length"
+	node_length = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.975232, 1),(0.399584, 1.4684, 1),(0.604253, 1.51648, 1),(1, 0.993167, 1)]) , 
+	    )
+	node_length.name = "node_length"
+	node_length_2 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.284022, 1),(0.362964, 0.465919, 1),(0.654606, 0.289696, 1),(1, 0.604076, 1)]) , 
+	    )
+	node_length_2.name = "node_length_2"
+	panel_2 = ({'active': True, 'visible': True, 'name': 'Panel 6'},[('Curve2D',branchpath3),('Curve2D',branchpath2),('Curve2D',branchpath1),('Function',lateral_length),('Function',node_length),('Function',node_length_2)])
+	branchpath3 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.558642, 0.0909861, 1),(-0.291499, 0.0842051, 1),(-0.292529, 0.203407, 1),(-0.296643, 0.338692, 1),(-0.302861, 0.67153, 1)]) , 
+	    )
+	branchpath3.name = "branchpath3"
+	branchpath2 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.30207, 0.0553922, 1),(-0.139656, 0.156945, 1),(-0.0565685, 0.285432, 1),(-0.0195374, 0.471448, 1)]) , 
+	    )
+	branchpath2.name = "branchpath2"
+	branchpath1 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.539263, -0.0891654, 1),(-0.293132, -0.0644657, 1),(-0.122655, -0.0169989, 1),(0.0128671, 0.056653, 1),(-0.00619176, 0.320815, 1)]) , 
+	    )
+	branchpath1.name = "branchpath1"
+	lateral_length = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.653919, 1),(0.346376, 0.650926, 1),(0.674523, 0.755104, 1),(1, 0.991025, 1)]) , 
+	    )
+	lateral_length.name = "lateral_length"
+	node_length = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.99198, 1),(0.366937, 0.989282, 1),(0.700382, 0.999216, 1),(1, 0.993167, 1)]) , 
+	    )
+	node_length.name = "node_length"
+	panel_3 = ({'active': False, 'visible': True, 'name': 'Panel 4'},[('Curve2D',branchpath3),('Curve2D',branchpath2),('Curve2D',branchpath1),('Function',lateral_length),('Function',node_length)])
+	branchpath3 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.558642, 0.0909861, 1),(-0.460902, 0.126556, 1),(-0.352319, 0.283126, 1),(-0.33152, 0.35613, 1),(-0.317808, 0.56939, 1)]) , 
+	    )
+	branchpath3.name = "branchpath3"
+	branchpath2 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.314858, 0.0564327, 1),(-0.232336, 0.138337, 1),(-0.18431, 0.193689, 1),(-0.158819, 0.295029, 1)]) , 
+	    )
+	branchpath2.name = "branchpath2"
+	branchpath1 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.388625, 0.0609944, 1),(-0.267773, 0.0509674, 1),(-0.208529, 0.00990507, 1),(-0.111367, -0.0456414, 1),(-0.0433648, -0.183675, 1)]) , 
+	    )
+	branchpath1.name = "branchpath1"
+	lateral_length = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.14637, 1),(0.346376, 0.650926, 1),(0.674523, 0.755104, 1),(1, 0.991025, 1)]) , 
+	    )
+	lateral_length.name = "lateral_length"
+	node_length = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 1.33686, 1),(0.436205, 1.17544, 1),(0.700382, 0.999216, 1),(1, 0.993167, 1)]) , 
+	    )
+	node_length.name = "node_length"
+	panel_4 = ({'active': False, 'visible': True, 'name': 'Panel 5'},[('Curve2D',branchpath3),('Curve2D',branchpath2),('Curve2D',branchpath1),('Function',lateral_length),('Function',node_length)])
+	parameterset = [panel_0,panel_1,panel_2,panel_3,panel_4,]
+	context["__functions__"] = [('diameter',diameter),('branching_angle',branching_angle),('lateral_length',lateral_length),('node_length',node_length),('node_length_2',node_length_2),]
+	context["__curves__"] = [('path',path),('branchpath3',branchpath3),('branchpath2',branchpath2),('branchpath1',branchpath1),]
+	context["__parameterset__"] = parameterset
+	context["path"] = path
+	context["diameter"] = pgl.QuantisedFunction(diameter)
+	context["branching_angle"] = pgl.QuantisedFunction(branching_angle)
+	context["branchpath3"] = branchpath3
+	context["branchpath2"] = branchpath2
+	context["branchpath1"] = branchpath1
+	context["lateral_length"] = pgl.QuantisedFunction(lateral_length)
+	context["node_length"] = pgl.QuantisedFunction(node_length)
+	context["node_length_2"] = pgl.QuantisedFunction(node_length_2)
