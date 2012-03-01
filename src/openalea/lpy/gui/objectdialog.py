@@ -27,7 +27,9 @@ class ObjectDialog(QDialog):
         self.verticalLayout.setMargin(2)
         self.verticalLayout.setObjectName("verticalLayout")
         self._menu = QMenuBar(self)
-        self._menu.setNativeMenuBar(False)
+        try:
+            self._menu.setNativeMenuBar(False)
+        except: pass
         self.verticalLayout.addWidget(self._menu)
         self.objectView = editor
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Expanding)
