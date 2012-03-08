@@ -49,3 +49,44 @@ def enable_string_discard(endeach):
 
 @enable_string_discard
 def EndEach(): pass
+
+__push_string =  None
+__pop_string  =  None
+__string_stack = { }
+
+def pushString( stringname ):
+    global __push_string
+    __push_string = stringname
+
+def popString( stringname ):
+    global __pop_string
+    if not __string_stack.has_key(stringname):
+        raise ValueError('Stack of string has not string named '+repr(stringname))
+    __pop_string = stringname
+    return __string_stack[stringname]
+    
+def enable_string_pushpop(endeach):
+    endeach_arg_nb = endeach.func_code.co_argcount
+    def check_push_pop(lstring, res):
+        global __push_string, __pop_string, __string_stack
+        if not __push_string is None:
+            __string_stack[__push_string] = lpy.Lstring(lstring)
+            __push_string = None
+        if not __pop_string is None:
+            oldlstring = __string_stack[__pop_string]
+            del __string_stack[__pop_string]
+            __pop_string = None
+            return oldlstring
+        return res
+    if endeach_arg_nb == 0:
+        def wrapped(lstring):
+            return check_push_pop(lstring,endeach())
+    elif endeach_arg_nb == 1: 
+        def wrapped(lstring):
+            return check_push_pop(lstring,endeach(lstring))
+    elif endeach_arg_nb == 2: 
+        def wrapped(lstring, lscene):
+            return check_push_pop(lstring,endeach(lstring,lscene))
+    else:
+        raise ValueError('EndEach should ne defined with maximum 2 arguments.')
+    return wrapped

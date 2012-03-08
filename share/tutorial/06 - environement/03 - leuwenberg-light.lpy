@@ -115,7 +115,6 @@ def EndEach(lstring,scene):
       Viewer.display(scene)
       pos,h,up = Viewer.camera.getPosition()
       res = diffuseInterception(scene)
-      leaves = {}
       for k,v in res.items():
          if lstring[k].name == 'L':
            lstring[k][2] = v

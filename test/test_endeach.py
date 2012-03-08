@@ -64,6 +64,7 @@ def EndEach(lstring):
     lstring += 'B'
     global ok
     ok = True
+    return lstring
 
 derivation length : 5
 """
