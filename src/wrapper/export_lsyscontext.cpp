@@ -120,9 +120,9 @@ void export_LsysContext(){
 	.def("updateNamespace",   
 	(void (LsysContext::*)(dict&) )&LsysContext::updateNamespace)
 	.def("clearNamespace", (void (LsysContext::*)() )&LsysContext::clearNamespace)
-	.def("start",          &LsysContext::start)
+	.def("start",          (boost::python::object(LsysContext::*)())&LsysContext::start)
 	.def("end",            (boost::python::object(LsysContext::*)())&LsysContext::end)
-	.def("startEach",      &LsysContext::startEach)
+	.def("startEach",      (boost::python::object(LsysContext::*)())&LsysContext::startEach)
 	.def("endEach",        (boost::python::object(LsysContext::*)())&LsysContext::endEach)
 	.def("postDraw",       &LsysContext::postDraw)
 	.def("initialise",     &LsysContext::initialise)

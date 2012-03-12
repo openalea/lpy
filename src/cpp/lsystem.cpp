@@ -1135,18 +1135,18 @@ Lsystem::__derive( size_t starting_iter ,
                     const AxialTree& wstring, 
                     bool previouslyinterpreted){
   __context.frameDisplay(true);
+  AxialTree workstring = wstring;
   if(starting_iter == 0) {
 	__context.setIterationNb(0);
-	__context.start();
+    __apply_pre_process(workstring,false);
   }
-  if ( (__rules.empty() || wstring.empty()) && __context.return_if_no_matching ){
+  if ( (__rules.empty() || workstring.empty()) && __context.return_if_no_matching ){
 	  if(starting_iter+nb_iter == __max_derivation) {
 		__context.setIterationNb(__max_derivation);
-		__context.end();
+        __apply_post_process(workstring,false);
 	  }
-	  return wstring;
+	  return workstring;
   }
-  AxialTree workstring = wstring;
   if (!workstring.empty() && nb_iter > 0){
 	bool matching = true;
 	bool no_match_no_return = !__context.return_if_no_matching;
@@ -1183,7 +1183,7 @@ Lsystem::__derive( size_t starting_iter ,
 		  __lastcomputedscene = ScenePtr();
 		  __context.frameDisplay(i == (nb_iter -1));
 		  __context.setIterationNb(starting_iter+i);
-		  __context.startEach();
+          __apply_pre_process(workstring,true);
 		  eDirection dir = getDirection();
 		  size_t group = __context.getGroup();
 		  if (group > __rules.size()) LsysError("Group not valid.");
@@ -1224,6 +1224,25 @@ Lsystem::__derive( size_t starting_iter ,
 	}
   }
   return workstring;
+}
+
+void 
+Lsystem::__apply_pre_process(AxialTree& workstring, bool starteach)
+{
+	// Call endeach function
+	object result;
+	switch (starteach?__context.getStartEachNbArgs():__context.getStartNbArgs()){
+		default:
+		case 0:
+			result = starteach ? __context.startEach() : __context.start();
+			break;
+		case 1:
+			result = starteach ? __context.startEach(workstring) : __context.start(workstring);
+			break;
+	}
+	// Check result of starteach function
+    if (result != object())
+	    workstring = extract<AxialTree>(result)();
 }
 
 ScenePtr

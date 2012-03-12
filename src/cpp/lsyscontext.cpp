@@ -219,6 +219,8 @@ __animation_enabled(false),
 __iteration_nb(0),
 __nbargs_of_endeach(0),
 __nbargs_of_end(0),
+__nbargs_of_starteach(0),
+__nbargs_of_start(0),
 __early_return(false),
 __early_return_mutex(),
 __paramproductions()
@@ -243,6 +245,8 @@ LsysContext::LsysContext(const LsysContext& lsys):
   __iteration_nb(0),
   __nbargs_of_endeach(0),
   __nbargs_of_end(0),
+  __nbargs_of_starteach(0),
+  __nbargs_of_start(0),
   __early_return(false),
   __early_return_mutex(),
   __paramproductions()
@@ -268,6 +272,8 @@ LsysContext::operator=(const LsysContext& lsys)
   __animation_enabled =lsys.__animation_enabled;
   __nbargs_of_endeach =lsys.__nbargs_of_endeach;
   __nbargs_of_end =lsys.__nbargs_of_end;
+  __nbargs_of_starteach =lsys.__nbargs_of_starteach;
+  __nbargs_of_start =lsys.__nbargs_of_start;
   __early_return = false;
   __paramproductions = lsys.__paramproductions;
   return *this;
@@ -359,6 +365,8 @@ LsysContext::clear(){
   __animation_enabled = false;
   __nbargs_of_endeach = 0;
   __nbargs_of_end = 0;
+  __nbargs_of_starteach = 0;
+  __nbargs_of_start = 0;
   __modules.clear();
   __modulesvtables.clear();
   __aliases.clear();
@@ -639,10 +647,15 @@ LsysContext::readReal(const std::string& code)  {
 }
 
 
-void
+boost::python::object 
 LsysContext::start(){
-  func("Start");
+  return func("Start");
 }
+
+boost::python::object
+LsysContext::start(AxialTree& lstring)
+{ return controlMethod("Start",lstring); }
+
 
 boost::python::object 
 LsysContext::end(){
@@ -658,9 +671,14 @@ LsysContext::end(AxialTree& lstring, const PGL::ScenePtr& scene)
 { return controlMethod("End",lstring,scene); }
 
 
-void 
+boost::python::object  
 LsysContext::startEach(){
-  func("StartEach");
+  return func("StartEach");
+}
+
+boost::python::object  
+LsysContext::startEach(AxialTree& lstring){
+  return controlMethod("StartEach", lstring);
 }
 
 void
@@ -699,10 +717,10 @@ LsysContext::controlMethod(const std::string& name, AxialTree& lstring, const PG
 {
   ContextMaintainer c(this);
   if (hasObject(name)){
-	reference_existing_object::apply<AxialTree*>::type converter;
-	PyObject* obj = converter( &lstring );
-	object real_obj = object( handle<>( obj ) );
-	return getObject(name)(real_obj, scene);
+	// reference_existing_object::apply<AxialTree*>::type converter;
+	// PyObject* obj = converter( &lstring );
+	// object real_obj = object( handle<>( obj ) );
+	return getObject(name)(lstring, scene); 
   }
   return object();
 }
@@ -777,6 +795,22 @@ LsysContext::func(const std::string& funcname){
 void 
 LsysContext::check_init_functions()
 {
+	if (hasObject("StartEach")) {
+		try {
+			__nbargs_of_starteach = extract<size_t>(getObject("StartEach").attr("func_code").attr("co_argcount"))();
+		}
+		catch (...) { PyErr_Clear(); __nbargs_of_starteach = 0; }
+	}
+	else __nbargs_of_starteach = 0;
+
+	if (hasObject("Start")) {
+		try {
+			__nbargs_of_start = extract<size_t>(getObject("Start").attr("func_code").attr("co_argcount"))();
+		}
+		catch (...) { PyErr_Clear(); __nbargs_of_start = 0; }
+	}
+	else __nbargs_of_start = 0;
+
 	if (hasObject("EndEach")) {
 		try {
 			__nbargs_of_endeach = extract<size_t>(getObject("EndEach").attr("func_code").attr("co_argcount"))();

@@ -39,10 +39,8 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
         keywordFormat = QTextCharFormat()
         keywordFormat.setForeground(Qt.blue)
         keywordFormat.setFontWeight(QFont.Bold)
-        self.pykeywords = ['class','if','else','elif','while','None','not','is', 'def','del',
-                            'for','range','xrange', 'True','False','from','import',
-                            'lambda','or','and','print','pass','in','return','global',
-                            'as','int','float','str','tuple','list','assert','try','except','raise']
+        import keyword
+        self.pykeywords = keyword.kwlist + ['None','range','xrange', 'True','False','int','float','str','tuple','list']
         for pattern in self.pykeywords:
             self.rules.append((QRegExp(pattern),keywordFormat))
         self.delimiterFormat = QTextCharFormat()

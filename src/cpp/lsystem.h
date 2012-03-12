@@ -376,6 +376,7 @@ protected:
 
  RulePtrMap __getRules(eRuleType type, size_t group, eDirection direction, bool * hasQuery = NULL);
 
+ void __apply_pre_process(AxialTree& workstring, bool starteach = true);
  PGL(ScenePtr) __apply_post_process(AxialTree& workstring, bool endeach = true);
 
   AxialTree __axiom;

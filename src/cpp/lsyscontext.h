@@ -80,8 +80,11 @@ public:
   std::string str() const ;
 
   /** The Start, End, StartEach, EndEach and PostDraw execution */
-  void start();
-  void startEach();
+  boost::python::object start();
+  boost::python::object start(AxialTree&);
+
+  boost::python::object startEach();
+  boost::python::object startEach(AxialTree&);
 
   boost::python::object end();
   boost::python::object end(AxialTree&);
@@ -109,6 +112,8 @@ public:
   void check_init_functions();
   inline size_t getEndEachNbArgs() const { return  __nbargs_of_endeach; }
   inline size_t getEndNbArgs() const { return  __nbargs_of_end; }
+  inline size_t getStartEachNbArgs() const { return  __nbargs_of_starteach; }
+  inline size_t getStartNbArgs() const { return  __nbargs_of_start; }
 
 
   /// initialise context using python function in namespace.
@@ -338,6 +343,8 @@ protected:
   size_t __iteration_nb;
   QReadWriteLock __iteration_nb_lock;
 
+  size_t __nbargs_of_starteach;
+  size_t __nbargs_of_start;
   size_t __nbargs_of_endeach;
   size_t __nbargs_of_end;
 
