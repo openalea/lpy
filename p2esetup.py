@@ -88,13 +88,13 @@ setup(
     create_namespaces = True,
     
     # pure python  packages
-    packages = [ pkg_name, pkg_name+'.gui', pkg_name+'.gui.plugins', 
+    packages = [ pkg_name, pkg_name+'.gui', pkg_name+'.gui.plugins', pkg_name+'.cpfg_compat', 
                  'openalea.plantgl'
                 ]+map(lambda x : '.'.join(['openalea.plantgl',x]),['math','scenegraph','algo','gui','codec']),
     py_modules = ['lpygui_postinstall'],
 
     # python packages directory
-    package_dir = { '' : 'src','openalea.plantgl' : '../PlantGL/src/plantgl'},
+    package_dir = { '' : 'src','openalea.plantgl' : '../PlantGL/src/plantgl', 'openalea.mtg' : '../newmtg/src/mtg'},
                    
     # Add package platform libraries if any
     include_package_data = True,

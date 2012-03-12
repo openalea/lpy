@@ -194,7 +194,9 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         QObject.connect(self.actionAboutQt, SIGNAL('triggered(bool)'),QApplication.aboutQt)
         self.aboutVPlants = lambda x : doc.aboutVPlants(self)
         QObject.connect(self.actionAboutVPlants, SIGNAL('triggered(bool)'),self.aboutVPlants)
-        self.helpDisplay.setText(doc.getSpecification())
+        self.helpDisplay.setText(doc.getSpecification())        
+        QObject.connect(self.actionOnlineHelp, SIGNAL('triggered(bool)'),self.onlinehelp)
+        QObject.connect(self.actionSubmitBug, SIGNAL('triggered(bool)'),self.submitBug)
         QObject.connect(self.actionUseThread,SIGNAL('triggered()'),self.toggleUseThread)
         QObject.connect(self.actionFitAnimationView,SIGNAL('triggered()'),self.toggleFitAnimationView)
         QObject.connect(self.menuRecents,SIGNAL("triggered(QAction *)"),self.recentMenuAction)
@@ -734,6 +736,12 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.cCompilerPath = str(p)
         if len(self.cCompilerPath) != 0 and not self.cCompilerPath in os.environ['PATH']:
             os.environ['PATH']+=';'+self.cCompilerPath
+    def submitBug(self):
+        import webbrowser
+        webbrowser.open("https://gforge.inria.fr/tracker/?func=add&group_id=79&atid=13767")
+    def onlinehelp(self):
+        import webbrowser
+        webbrowser.open("http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=packages:vplants:lpy:main")
 
 def main():
     import sys, os

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'd:\fred\mes documents\develop\vplants\trunk\lpy\src\openalea\lpy\gui\lpymainwindow.ui'
 #
-# Created: Mon Jan 23 16:19:27 2012
+# Created: Mon Mar 12 16:47:41 2012
 #      by: PyQt4 UI code generator 4.8.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -693,6 +693,10 @@ class Ui_MainWindow(object):
         self.actionImportCpfgProject.setObjectName(_fromUtf8("actionImportCpfgProject"))
         self.actionImportCpfgFile = QtGui.QAction(MainWindow)
         self.actionImportCpfgFile.setObjectName(_fromUtf8("actionImportCpfgFile"))
+        self.actionSubmitBug = QtGui.QAction(MainWindow)
+        self.actionSubmitBug.setObjectName(_fromUtf8("actionSubmitBug"))
+        self.actionOnlineHelp = QtGui.QAction(MainWindow)
+        self.actionOnlineHelp.setObjectName(_fromUtf8("actionOnlineHelp"))
         self.menuL_systems.addAction(self.actionRun)
         self.menuL_systems.addAction(self.actionAnimate)
         self.menuL_systems.addSeparator()
@@ -751,6 +755,9 @@ class Ui_MainWindow(object):
         self.menuHelp.addAction(self.actionAbout)
         self.menuHelp.addAction(self.actionAboutQt)
         self.menuHelp.addAction(self.actionAboutVPlants)
+        self.menuHelp.addSeparator()
+        self.menuHelp.addAction(self.actionOnlineHelp)
+        self.menuHelp.addAction(self.actionSubmitBug)
         self.menuHelp.addSeparator()
         self.menuView.addAction(self.actionZoomIn)
         self.menuView.addAction(self.actionZoomOut)
@@ -893,7 +900,7 @@ class Ui_MainWindow(object):
         self.actionFitAnimationView.setText(QtGui.QApplication.translate("MainWindow", "Fit Animate View", None, QtGui.QApplication.UnicodeUTF8))
         self.actionClose.setText(QtGui.QApplication.translate("MainWindow", "Close", None, QtGui.QApplication.UnicodeUTF8))
         self.actionClose.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+W", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionAbout.setText(QtGui.QApplication.translate("MainWindow", "About", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionAbout.setText(QtGui.QApplication.translate("MainWindow", "About L-Py", None, QtGui.QApplication.UnicodeUTF8))
         self.actionAboutQt.setText(QtGui.QApplication.translate("MainWindow", "About Qt", None, QtGui.QApplication.UnicodeUTF8))
         self.actionAboutVPlants.setText(QtGui.QApplication.translate("MainWindow", "About V. Plants", None, QtGui.QApplication.UnicodeUTF8))
         self.actionClearShell.setText(QtGui.QApplication.translate("MainWindow", "Clear Shell", None, QtGui.QApplication.UnicodeUTF8))
@@ -927,6 +934,8 @@ class Ui_MainWindow(object):
         self.actionView3D.setText(QtGui.QApplication.translate("MainWindow", "View 3D", None, QtGui.QApplication.UnicodeUTF8))
         self.actionImportCpfgProject.setText(QtGui.QApplication.translate("MainWindow", "Cpfg project", None, QtGui.QApplication.UnicodeUTF8))
         self.actionImportCpfgFile.setText(QtGui.QApplication.translate("MainWindow", "Cpfg file", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSubmitBug.setText(QtGui.QApplication.translate("MainWindow", "Submit a bug", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionOnlineHelp.setText(QtGui.QApplication.translate("MainWindow", "L-Py Website", None, QtGui.QApplication.UnicodeUTF8))
 
 from lpycodeeditor import LpyCodeEditor
 from materialeditor import MaterialEditor

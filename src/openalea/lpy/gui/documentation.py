@@ -3,14 +3,17 @@ from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QPixmap,QSplashScreen,QMessageBox
 import os
 
-logofilename = ':/logo/biglogo.png'
+vplogofilename = ':/logo/biglogo.png'
+lpylogofilename = ':/logo/flower.png'
 
-infoTxt = "Virtual Plants Team.\nCIRAD-INRIA-INRA\nSee:http://www-sop.inria.fr/virtualplants/"
+vpInfoTxt = "Virtual Plants Team.\nCIRAD-INRIA-INRA\nSee:http://www-sop.inria.fr/virtualplants/"
+lpyInfoTxt = "L-Py\nVersion:"+LPY_VERSION_STR+"\nF. Boudon\nhttp://openalea.gforge.inria.fr/dokuwiki/doku.php?id=packages:vplants:lpy:main"
 
-aboutTxt = """<b>L-Py</b><br> A Python version of <b>Lindenmayer Systems</b>.<br>
-Version :"""+LPY_VERSION_STR+"""<br>
-Based on P. Prusinkiewicz et al. Lstudio/cpfg-lpfg specifications.<br>
-Implemented by F. Boudon for Virtual Plants.<br>See:http://www-sop.inria.fr/virtualplants/
+aboutTxt = """<b>L-Py</b><br>
+<it>A <b>Lindenmayer Systems</b><br>&nbsp;&nbsp;framework in <b>Python</b></it>.<br><br>Version :"""+LPY_VERSION_STR+"""<br>
+Licence: CeCILL-C<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+Implemented by F. Boudon et al.<br>
+Virtual Plants/UMR AGAP/CIRAD-INRIA-INRA.<br>
 """
 
 specificationheadertxt = """<H1>L-Py</H1>
@@ -134,29 +137,44 @@ def getWikiSpecification():
     return spec
     
 def aboutLpy(parent):
-    QMessageBox.about(parent,"LPy",aboutTxt)
+    lpyDialog(parent)
+    #QMessageBox.about(parent,"LPy",aboutTxt)
         
 def aboutVPlants(parent): 
         #try:
-        vplantsDialog(infoTxt,parent)
+        vplantsDialog(parent)
         #except:
         #QMessageBox.about(parent,"Virtual Plants",infoTxt)
         
 def splashLPy(): 
     try:
-        return vplantsDialog("<b>L-Py - "+LPY_VERSION_STR+"</b>")
+        return lpyDialog()
     except Exception,e:
         print e
         pass
 
-def vplantsDialog(txt, parent = None):
+def vplantsDialog(parent = None):
+    if not parent or not hasattr(parent,'vpsplash'):
+        #if not os.path.exists(logofilename): raise Exception('No logo image')
+        pix = QPixmap(vplogofilename)
+        vpsplash = QSplashScreen(pix)
+    else:
+        vpsplash = parent.vpsplash
+    vpsplash.showMessage(vpInfoTxt,Qt.AlignBottom|Qt.AlignLeft)
+    vpsplash.show()
+    if parent:
+        parent.vpsplash = vpsplash
+    return vpsplash
+        
+def lpyDialog(parent = None):
     if not parent or not hasattr(parent,'splash'):
         #if not os.path.exists(logofilename): raise Exception('No logo image')
-        pix = QPixmap(logofilename)
+        pix = QPixmap(lpylogofilename)
         splash = QSplashScreen(pix)
     else:
         splash = parent.splash
-    splash.showMessage(infoTxt,Qt.AlignBottom|Qt.AlignLeft)
+    #splash.showMessage(lpyInfoTxt,Qt.AlignBottom|Qt.AlignLeft)
+    splash.showMessage(aboutTxt,Qt.AlignBottom|Qt.AlignLeft)
     splash.show()
     if parent:
         parent.splash = splash

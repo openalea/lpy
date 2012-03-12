@@ -44,6 +44,7 @@
     <file>icons/step.png</file>
   </qresource>
   <qresource prefix="/logo">
+    <file>flower.png</file>
     <file>logo.png</file>
     <file>biglogo.png</file>
   </qresource>

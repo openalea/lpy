@@ -1025,6 +1025,9 @@
     <addaction name="actionAboutQt"/>
     <addaction name="actionAboutVPlants"/>
     <addaction name="separator"/>
+    <addaction name="actionOnlineHelp"/>
+    <addaction name="actionSubmitBug"/>
+    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -1408,7 +1411,7 @@
   </action>
   <action name="actionAbout">
    <property name="text">
-    <string>About</string>
+    <string>About L-Py</string>
    </property>
   </action>
   <action name="actionAboutQt">
@@ -1649,6 +1652,16 @@
   <action name="actionImportCpfgFile">
    <property name="text">
     <string>Cpfg file</string>
+   </property>
+  </action>
+  <action name="actionSubmitBug">
+   <property name="text">
+    <string>Submit a bug</string>
+   </property>
+  </action>
+  <action name="actionOnlineHelp">
+   <property name="text">
+    <string>L-Py Website</string>
    </property>
   </action>
  </widget>
