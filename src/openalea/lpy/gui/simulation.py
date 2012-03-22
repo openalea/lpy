@@ -47,8 +47,6 @@ class LpySimulation:
             self.open(fname)
         else:
             self.setFname(None)
-            if self.lpywidget.isVisible():
-                self.setEdited(False)
     def getFname(self) : return self._fname
     def setFname(self,value) :
         self._fname = value
