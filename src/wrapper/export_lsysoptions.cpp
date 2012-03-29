@@ -27,9 +27,9 @@
  #
  # ---------------------------------------------------------------------------
  */
+#include <boost/python.hpp>
 
 #include "lsysoptions.h"
-#include <boost/python.hpp>
 using namespace boost::python;
 LPY_USING_NAMESPACE
 

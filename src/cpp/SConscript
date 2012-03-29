@@ -1,7 +1,7 @@
 # -*-python-*-
 Import( "env" )
 lib_env= env.Clone()
-lib_env.EnableQt4Modules( [ 'QtCore', 'QtGui', 'QtOpenGL', 'Qt3Support', 'QtNetwork', 'QtSql', 'QtXml'])
+lib_env.EnableQt4Modules( [ 'QtCore', 'QtGui', 'QtOpenGL', 'Qt3Support', 'QtNetwork',])# 'QtSql', 'QtXml'])
 lib_env.AppendUnique( CPPPATH = ['$QT4_CPPPATH/Qt'] )
 
 includes= lib_env.ALEAGlob('*.h')
