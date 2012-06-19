@@ -1,38 +1,43 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'd:\fred\mes documents\develop\vplants\trunk\lpy\src\openalea\lpy\gui\debugger_ui.ui'
+# Form implementation generated from reading ui file '/home/pradal/devlp/branch/release1.0/vplants/lpy/src/openalea/lpy/gui/debugger_ui.ui'
 #
-# Created: Fri Jul 24 23:20:09 2009
-#      by: PyQt4 UI code generator 4.4.2
+# Created: Tue May 22 17:58:02 2012
+#      by: PyQt4 UI code generator 4.8.3
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
 
+try:
+    _fromUtf8 = QtCore.QString.fromUtf8
+except AttributeError:
+    _fromUtf8 = lambda s: s
+
 class Ui_Form(object):
     def setupUi(self, Form):
-        Form.setObjectName("Form")
-        Form.resize(286,250)
+        Form.setObjectName(_fromUtf8("Form"))
+        Form.resize(286, 250)
         self.gridLayout_4 = QtGui.QGridLayout(Form)
-        self.gridLayout_4.setContentsMargins(0,2,0,0)
+        self.gridLayout_4.setContentsMargins(0, 2, 0, 0)
         self.gridLayout_4.setHorizontalSpacing(2)
-        self.gridLayout_4.setObjectName("gridLayout_4")
+        self.gridLayout_4.setObjectName(_fromUtf8("gridLayout_4"))
         self.tabWidget = QtGui.QTabWidget(Form)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.tabWidget.sizePolicy().hasHeightForWidth())
         self.tabWidget.setSizePolicy(sizePolicy)
-        self.tabWidget.setMaximumSize(QtCore.QSize(16777215,16777215))
-        self.tabWidget.setObjectName("tabWidget")
+        self.tabWidget.setMaximumSize(QtCore.QSize(16777215, 16777215))
+        self.tabWidget.setObjectName(_fromUtf8("tabWidget"))
         self.tabArgument = QtGui.QWidget()
-        self.tabArgument.setGeometry(QtCore.QRect(0,0,280,221))
-        self.tabArgument.setObjectName("tabArgument")
+        self.tabArgument.setGeometry(QtCore.QRect(0, 0, 280, 221))
+        self.tabArgument.setObjectName(_fromUtf8("tabArgument"))
         self.gridLayout = QtGui.QGridLayout(self.tabArgument)
         self.gridLayout.setMargin(4)
-        self.gridLayout.setObjectName("gridLayout")
+        self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
         self.argTable = QtGui.QTreeView(self.tabArgument)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding,QtGui.QSizePolicy.Expanding)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.argTable.sizePolicy().hasHeightForWidth())
@@ -44,17 +49,17 @@ class Ui_Form(object):
         self.argTable.setAnimated(True)
         self.argTable.setAllColumnsShowFocus(True)
         self.argTable.setExpandsOnDoubleClick(False)
-        self.argTable.setObjectName("argTable")
-        self.gridLayout.addWidget(self.argTable,0,0,1,1)
-        self.tabWidget.addTab(self.tabArgument,"")
+        self.argTable.setObjectName(_fromUtf8("argTable"))
+        self.gridLayout.addWidget(self.argTable, 0, 0, 1, 1)
+        self.tabWidget.addTab(self.tabArgument, _fromUtf8(""))
         self.tabGlobals = QtGui.QWidget()
-        self.tabGlobals.setGeometry(QtCore.QRect(0,0,280,223))
-        self.tabGlobals.setObjectName("tabGlobals")
+        self.tabGlobals.setGeometry(QtCore.QRect(0, 0, 280, 223))
+        self.tabGlobals.setObjectName(_fromUtf8("tabGlobals"))
         self.gridLayout_2 = QtGui.QGridLayout(self.tabGlobals)
         self.gridLayout_2.setMargin(4)
-        self.gridLayout_2.setObjectName("gridLayout_2")
+        self.gridLayout_2.setObjectName(_fromUtf8("gridLayout_2"))
         self.globalTable = QtGui.QTreeView(self.tabGlobals)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding,QtGui.QSizePolicy.Expanding)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.globalTable.sizePolicy().hasHeightForWidth())
@@ -66,10 +71,10 @@ class Ui_Form(object):
         self.globalTable.setAnimated(True)
         self.globalTable.setAllColumnsShowFocus(True)
         self.globalTable.setExpandsOnDoubleClick(False)
-        self.globalTable.setObjectName("globalTable")
-        self.gridLayout_2.addWidget(self.globalTable,0,0,1,1)
-        self.tabWidget.addTab(self.tabGlobals,"")
-        self.gridLayout_4.addWidget(self.tabWidget,1,1,1,1)
+        self.globalTable.setObjectName(_fromUtf8("globalTable"))
+        self.gridLayout_2.addWidget(self.globalTable, 0, 0, 1, 1)
+        self.tabWidget.addTab(self.tabGlobals, _fromUtf8(""))
+        self.gridLayout_4.addWidget(self.tabWidget, 1, 1, 1, 1)
 
         self.retranslateUi(Form)
         self.tabWidget.setCurrentIndex(0)

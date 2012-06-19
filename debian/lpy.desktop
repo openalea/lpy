@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=L-Py
+Comment=L-System in Python
+Exec=lpy
+Icon=lpy
+Terminal=false
+Type=Application
+Categories=Education;Science;Biology;
+StartupNotify=true

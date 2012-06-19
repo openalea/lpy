@@ -85,7 +85,7 @@ def run(lsystem, axiom = '', nbstep = -1, parameters = {}):
         lsystem.done()
     if len(parameters) > 0:
         lsystem.context().updateNamespace(parameters)
-    return lsystem.iterate(c_iter,nbstep,axiom), lsystem
+    return lsystem.iterate(axiom,c_iter,nbstep), lsystem
 
 def iterate(lsystem, axiom = '', nbstep = -1, parameters = {}, local = {}):
     if parameters and (not isinstance(parameters, dict)) and is_file(parameters):

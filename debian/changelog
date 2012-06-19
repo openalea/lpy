@@ -1,3 +1,33 @@
+vplants-lpy (2.1.0~ppa2) precise; urgency=low
+
+  * Fix build errors. 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 06 Apr 2012 10:31:10 +0200
+
+vplants-lpy (2.1.0~ppa1) precise; urgency=low
+
+  *  Release 1.0 on precise  
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Sun, 25 Mar 2012 16:34:06 +0200
+
+vplants-lpy (1.11.0b1~ppa3) oneiric; urgency=low
+
+  * Fix openalea and vplants namespace
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 06 Jan 2012 17:37:06 +0100
+
+vplants-lpy (1.11.0b1~ppa2) oneiric; urgency=low
+
+  *  libglut to freeglut
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Tue, 06 Dec 2011 12:23:01 +0100
+
+vplants-lpy (1.11.0b1~ppa1) oneiric; urgency=low
+
+  * Release 1.0
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Tue, 06 Dec 2011 10:55:21 +0100
+
 vplants-lpy (1.10.0-1~ppa1) lucid; urgency=low
 
   * source package automatically created by stdeb 0.6.0
