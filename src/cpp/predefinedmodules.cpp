@@ -368,7 +368,7 @@ DeclareModuleEnd
 
 DeclareModuleBegin(setColor,"Set the current material index. Params : color index (positive int).",eColor)
 {
-	if(m.empty())LsysWarning("Argument missing for module "+m.name());
+	if(m.empty()) t.setColor(t.getColor());
 	else t.setColor(m._getInt(0));
 }
 DeclareModuleEnd
@@ -412,8 +412,39 @@ DeclareModuleBegin(pglshape,"Draw a geometry at the turtle's current location an
 		PGL::PglTurtle * pg = dynamic_cast<PGL::PglTurtle *>(&t);
 		if (pg) {
 #if PGL_VERSION >= 0x020701
-			if (m.size() == 1)
-				pg->customGeometry(boost::python::extract<PGL::GeometryPtr>(m.getAt(0))());
+			if (m.size() == 1){
+                boost::python::extract<PGL::GeometryPtr>  geomextractor(m.getAt(0));
+				if(geomextractor.check())pg->customGeometry(geomextractor());
+                else {
+                    boost::python::extract<PGL::AppearancePtr>  appextractor(m.getAt(0));
+                    if (appextractor.check()) pg->setCustomAppearance(appextractor());
+                    else {
+                        boost::python::extract<PGL::ShapePtr>  shextractor(m.getAt(0));
+                        if (shextractor.check()) {
+                            PGL::ShapePtr sh = shextractor();
+                            pg->setCustomAppearance(sh->getAppearance());
+                            pg->customGeometry(sh->getGeometry());
+                            pg->removeCustomAppearance();
+                        }
+                        else {
+                            boost::python::extract<PGL::ScenePtr>  scextractor(m.getAt(0));
+                            if (scextractor.check()) {
+                                PGL::ScenePtr sc = scextractor();
+                                for(Scene::const_iterator it = sc->begin(); it != sc->end(); ++it){
+                                    PGL::ShapePtr sh = dynamic_pointer_cast<PGL::Shape>(*it);
+                                    if (sh) {
+                                        pg->setCustomAppearance(sh->getAppearance());
+                                        pg->customGeometry(sh->getGeometry());
+                                    }
+                                }
+                                pg->removeCustomAppearance();
+                            }
+                            else { LsysWarning("Cannot find geometry for module "+m.name()); }
+                        }
+
+                    }
+                }
+            }
 			else 
 				pg->customGeometry(boost::python::extract<PGL::GeometryPtr>(m.getAt(0))(),m._getReal(1));
 #else
