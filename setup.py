@@ -72,7 +72,7 @@ setup(
 
     # Specific options of openalea.deploy
     lib_dirs = {'lib' : pj(build_prefix, 'lib'),},
-    bin_dirs = {'bin':  pj(build_prefix, 'bin'),},
+    #bin_dirs = {'bin':  pj(build_prefix, 'bin'),},
     inc_dirs = {'include' : pj(build_prefix, 'src','cpp') },
     share_dirs = {'share' : 'share', },
 
