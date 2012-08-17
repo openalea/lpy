@@ -1,0 +1,84 @@
+from openalea.plantgl.all import *
+
+# from vplants.pointreconstruction.all import * 
+
+
+attractor_pts = Point3Array([[0,0,0],[0,0,1],[0,1,1],[0,1,2]])
+
+attractor_pts_grid = Point3Grid(Vector3(1,1,1),attractor_pts)
+
+query_radius = 1.5
+
+initial_node_pos = Vector3(0,0,-0.9)
+
+module Attractors
+module Node
+
+Axiom: Attractors(attractor_pts) SetInitialPos() Node(initial_node_pos)
+
+derivation length: 3
+
+production:
+
+Node(pt):
+  # find nearest attractor points in bounding sphere of certain radius
+  neighbour_indicies = attractor_pts_grid.query_ball_point(pt,query_radius)
+  
+  # skip this node if there are no attractor points near it
+  if neighbour_indicies == []:
+    produce Node(pt)
+  
+  # loop through nearest neighbouring attractor points, and compute mean direction towards them
+  mean_dir = Vector3(0,0,0)
+  for i in neighbour_indicies:
+    #print attractor_pts[i]
+    mean_dir = mean_dir + direction(attractor_pts[i] - pt)
+    # disable the attractor point
+    attractor_pts_grid.disable_point(i)
+  mean_dir = mean_dir / len(neighbour_indicies)
+  mean_dir.normalize()
+  
+  produce Node(pt) Node(pt + mean_dir) 
+
+
+interpretation:
+
+Node(pt) --> SetColor(2) LineTo(pt[0],pt[1],pt[2]) Sphere(0.25)  
+
+SetInitialPos() --> @M(initial_node_pos[0],initial_node_pos[1],initial_node_pos[2])
+
+Attractors(points):
+  for i,pt in enumerate(points):
+    nproduce @M(pt[0],pt[1],pt[2]) SetColor(3 if attractor_pts_grid.is_point_enabled(i) else 4) Sphere(0.1)
+  produce
+
+endlsystem
+
+#def EndEach(lstring):
+#  print lstring
+
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	import openalea.plantgl.all as pgl
+	Color_10 = pgl.Material("Color_10" , ambient = (60,0,0) , diffuse = 3 , transparency = 0.12 , )
+	Color_10.name = "Color_10"
+	context.turtle.setMaterial(10,Color_10)
+	import openalea.plantgl.all as pgl
+	profile = pgl.BezierCurve2D(	
+	    pgl.Point3Array([(0.00304516, 0.989158, 1),(0.919709, 0.988049, 1),(0.989333, 0.451245, 1),(0.942931, 0.0692266, 1),(0.432096, 0.0477193, 1),(-0.00755788, 0.0124374, 1)]) , 
+	    )
+	profile.name = "profile"
+	profile2 = pgl.BezierCurve2D(	
+	    pgl.Point3Array([(0.00030319, 0.144896, 1),(0.110857, 0.341659, 1),(0.279505, 0.157395, 1),(0.260455, 0.0381235, 1),(0.143832, -0.0595403, 1),(-0.00117527, 0.0996232, 1)]) , 
+	    )
+	profile2.name = "profile2"
+	panel_0 = ({'active': True, 'visible': True, 'name': 'Panel 1'},[('Curve2D',profile),('Curve2D',profile2)])
+	parameterset = [panel_0,]
+	context["__functions__"] = []
+	context["__curves__"] = [('profile',profile),('profile2',profile2),]
+	context["__parameterset__"] = parameterset
+	context["profile"] = profile
+	context["profile2"] = profile2
