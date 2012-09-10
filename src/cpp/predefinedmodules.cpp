@@ -82,7 +82,7 @@ DeclareSimpleModule(push,"Push the state in the stack.",eStructure)
 DeclareSimpleModule(pop,"Pop last state from turtle stack and make it the its current state.",eStructure)
 
 
-DeclareModuleBegin(F, "Move forward and draw. Params: length , topradius.",ePrimitive)
+DeclareModuleBegin(F, "Move forward and draw. Params: 'length , topradius'.",ePrimitive)
 {
 	size_t nbargs = m.size();
 	switch (nbargs) {
@@ -93,7 +93,7 @@ DeclareModuleBegin(F, "Move forward and draw. Params: length , topradius.",ePrim
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(f, "Move forward and without draw. Params: length.",ePrimitive)
+DeclareModuleBegin(f, "Move forward and without draw. Params: 'length'.",ePrimitive)
 {
 	size_t nbargs = m.size();
 	switch (nbargs) {
@@ -103,7 +103,7 @@ DeclareModuleBegin(f, "Move forward and without draw. Params: length.",ePrimitiv
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(nF,"Produce a n steps path of a given length and varying radius. Params : length, dlength [, radius = 1, radiusvariation = None].",ePrimitive)
+DeclareModuleBegin(nF,"Produce a n steps path of a given length and varying radius. Params : 'length, dlength [, radius = 1, radiusvariation = None]'.",ePrimitive)
 {
 #if PGL_VERSION >= 0x020F00
 	size_t nbargs = m.size();
@@ -124,27 +124,27 @@ DeclareModuleBegin(nF,"Produce a n steps path of a given length and varying radi
 DeclareModuleEnd
 
 
-DeclareModuleBegin(GetPos,"Request position vector information. Params : x,y,z or v (optional, default=Vector3, filled by Turtle).",eRequest)
+DeclareModuleBegin(GetPos,"Request position vector information. Params : 'x,y,z' or 'v' (optional, default=Vector3, filled by Turtle).",eRequest)
 { m._setValues(t.getPosition()); }
 DeclareModuleEnd
 
-DeclareModuleBegin(GetHead,"Request heading vector information. Params : x,y,z or v (optional, default=Vector3, filled by Turtle).",eRequest)
+DeclareModuleBegin(GetHead,"Request heading vector information. Params : 'x,y,z' or 'v' (optional, default=Vector3, filled by Turtle).",eRequest)
 { m._setValues(t.getHeading()); }
 DeclareModuleEnd
 
-DeclareModuleBegin(GetUp,"Request up vector information. Params : x,y,z or v (optional, default=Vector3, filled by Turtle).",eRequest)
+DeclareModuleBegin(GetUp,"Request up vector information. Params : 'x,y,z' or 'v' (optional, default=Vector3, filled by Turtle).",eRequest)
 { m._setValues(t.getUp()); }
 DeclareModuleEnd
 
-DeclareModuleBegin(GetLeft,"Request left vector information. Params : x,y,z or v (optional, default=Vector3, filled by Turtle).",eRequest)
+DeclareModuleBegin(GetLeft,"Request left vector information. Params : 'x,y,z' or 'v' (optional, default=Vector3, filled by Turtle).",eRequest)
 { m._setValues(t.getLeft()); }
 DeclareModuleEnd
 
-DeclareModuleBegin(GetRight,"Request right vector information. Params : x,y,z or v (optional, default=Vector3, filled by Turtle).",eRequest)
+DeclareModuleBegin(GetRight,"Request right vector information. Params : 'x,y,z' or 'v' (optional, default=Vector3, filled by Turtle).",eRequest)
 { m._setValues(-t.getLeft()); }
 DeclareModuleEnd
 
-DeclareModuleBegin(GetFrame,"Request turtle frame information. Params : p,h,u,l (optional, filled by Turtle).",eRequest)
+DeclareModuleBegin(GetFrame,"Request turtle frame information. Params : 'p,h,u,l' (optional, filled by Turtle).",eRequest)
 { m._setFrameValues(t.getPosition(),t.getHeading(),t.getUp(),t.getLeft()); }
 DeclareModuleEnd
 
@@ -163,12 +163,18 @@ DeclareModuleBegin(stopPolygon,"Pop a polygon from the stack and render it. Para
 DeclareModuleEnd
 
 
-DeclareModuleBegin(MoveTo,"Set the turtle position. Params : x, y, z (optionals, default = 0).",ePosition)
+DeclareModuleBegin(MoveTo,"Set the turtle position. Params : 'x, y, z' or 'v' (optionals, default = 0).",ePosition)
 {
 	size_t nbargs = m.size();
 	switch (nbargs) {
          case 0:  t.move(); break;
-         case 1:  t.move(m._getReal(0)); break;
+         case 1:  
+           {
+              bp::extract<Vector3> ex (m.getAt(0));
+              if (ex.check()) { t.move(ex());}
+              else t.move(m._getReal(0)); 
+              break;
+           }
          case 2:  t.move(m._getReal(0),m._getReal(1)); break;
          default: t.move(m._getReal(0),m._getReal(1),m._getReal(2)); break;
 	}
@@ -177,13 +183,19 @@ DeclareModuleEnd
 
 
 
-DeclareModuleBegin(moveRel,"Move relatively from current the turtle position. Params : x, y, z (optionals, default = 0).",ePosition)
+DeclareModuleBegin(moveRel,"Move relatively from current the turtle position. Params : 'x, y, z' or 'v'(optionals, default = 0).",ePosition)
 {
 #if PGL_VERSION >= 0x020B00
 	size_t nbargs = m.size();
 	switch (nbargs) {
          case 0:  break;
-         case 1:  t.shift(m._getReal(0)); break;
+         case 1: 
+           {
+              bp::extract<Vector3> ex (m.getAt(0));
+              if (ex.check()) { t.shift(ex());}
+              else t.shift(m._getReal(0)); 
+              break;
+           }
          case 2:  t.shift(m._getReal(0),m._getReal(1)); break;
          default: t.shift(m._getReal(0),m._getReal(1),m._getReal(2)); break;
 	}
@@ -191,14 +203,24 @@ DeclareModuleBegin(moveRel,"Move relatively from current the turtle position. Pa
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(lineTo,"Trace line to (x,y,z) without changing the orientation. Params : x, y, z, topdiameter (optionals, default = 0).",ePrimitive)
+DeclareModuleBegin(lineTo,"Trace line to (x,y,z) without changing the orientation. Params : 'x, y, z, topdiameter' or 'v, topdiameter' (optionals, default = 0).",ePrimitive)
 {
 #if PGL_VERSION >= 0x020B00
 	size_t nbargs = m.size();
 	switch (nbargs) {
          case 0:  break;
-         case 1:  t.lineTo(m._getReal(0),0,0); break;
-         case 2:  t.lineTo(m._getReal(0),m._getReal(1)); break;
+         case 1:  
+           {
+              bp::extract<Vector3> ex (m.getAt(0));
+              if (ex.check()) { t.lineTo(ex());}
+              else t.lineTo(m._getReal(0),0,0); break;
+           }
+         case 2:  
+           {
+                bp::extract<Vector3> ex (m.getAt(0));
+                if (ex.check()) { t.lineTo(ex(),m._getReal(1));}
+                else t.lineTo(m._getReal(0),m._getReal(1)); break;
+           }
          case 3:  t.lineTo(m._getReal(0),m._getReal(1),m._getReal(2)); break;
          default: t.lineTo(m._getReal(0),m._getReal(1),m._getReal(2),m._getReal(3)); break;
 	}
@@ -206,14 +228,26 @@ DeclareModuleBegin(lineTo,"Trace line to (x,y,z) without changing the orientatio
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(orientedLineTo,"Trace line toward (x,y,z) and change the orientation. Params : x, y, z, topdiameter (optionals, default = 0).",ePrimitive)
+DeclareModuleBegin(orientedLineTo,"Trace line toward (x,y,z) and change the orientation. Params : 'x, y, z, topdiameter' or 'v, topdiameter' (optionals, default = 0).",ePrimitive)
 {
 #if PGL_VERSION >= 0x020B00
 	size_t nbargs = m.size();
 	switch (nbargs) {
          case 0:  break;
-         case 1:  t.oLineTo(m._getReal(0)); break;
-         case 2:  t.oLineTo(m._getReal(0),m._getReal(1)); break;
+         case 1:  
+             {
+                 bp::extract<Vector3> ex (m.getAt(0));
+                if (ex.check()) { t.oLineTo(ex());}
+                else t.oLineTo(m._getReal(0)); 
+                break;
+             }
+         case 2: 
+             {
+                bp::extract<Vector3> ex (m.getAt(0));
+                if (ex.check()) { t.oLineTo(ex(),m._getReal(1));}
+                else t.oLineTo(m._getReal(0),m._getReal(1)); 
+                break;
+             }
          case 3:  t.oLineTo(m._getReal(0),m._getReal(1),m._getReal(2)); break;
          default: t.oLineTo(m._getReal(0),m._getReal(1),m._getReal(2),m._getReal(3)); break;
 	}
@@ -221,13 +255,19 @@ DeclareModuleBegin(orientedLineTo,"Trace line toward (x,y,z) and change the orie
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(pinPoint,"Orient turtle toward (x,y,z) . Params : x, y, z (optionals, default = 0).",eRotation)
+DeclareModuleBegin(pinPoint,"Orient turtle toward (x,y,z) . Params : 'x, y, z' or 'v' (optionals, default = 0).",eRotation)
 {
 #if PGL_VERSION >= 0x020B00
 	size_t nbargs = m.size();
 	switch (nbargs) {
          case 0:  break;
-         case 1:  t.pinpoint(m._getReal(0)); break;
+         case 1:  
+             {
+                bp::extract<Vector3> ex (m.getAt(0));
+                if (ex.check()) { t.pinpoint(ex());}
+                else t.pinpoint(m._getReal(0)); 
+                break;
+             }
          case 2:  t.pinpoint(m._getReal(0),m._getReal(1)); break;
          default: t.pinpoint(m._getReal(0),m._getReal(1),m._getReal(2)); break;
 	}
@@ -235,14 +275,25 @@ DeclareModuleBegin(pinPoint,"Orient turtle toward (x,y,z) . Params : x, y, z (op
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(lineRel,"Trace line to pos+(x,y,z) without changing the orientation. Params : x, y, z, topdiameter (optionals, default = 0).",ePrimitive)
+DeclareModuleBegin(lineRel,"Trace line to pos+(x,y,z) without changing the orientation. Params : 'x, y, z, topdiameter' or 'v, topdiameter'(optionals, default = 0).",ePrimitive)
 {
 #if PGL_VERSION >= 0x020B00
 	size_t nbargs = m.size();
 	switch (nbargs) {
          case 0:  break;
-         case 1:  t.lineRel(m._getReal(0),0,0); break;
-         case 2:  t.lineRel(m._getReal(0),m._getReal(1)); break;
+         case 1:  
+             {
+                bp::extract<Vector3> ex (m.getAt(0));
+                if (ex.check()) { t.lineRel(ex());}
+                else t.lineRel(m._getReal(0),0,0); 
+                break;
+             }
+         case 2: 
+             {
+                bp::extract<Vector3> ex (m.getAt(0));
+                if (ex.check()) { t.lineRel(ex(),m._getReal(1));}
+                else t.lineRel(m._getReal(0),m._getReal(1)); break;
+             }
          case 3:  t.lineRel(m._getReal(0),m._getReal(1),m._getReal(2)); break;
          default: t.lineRel(m._getReal(0),m._getReal(1),m._getReal(2),m._getReal(3)); break;
 	}
@@ -250,28 +301,40 @@ DeclareModuleBegin(lineRel,"Trace line to pos+(x,y,z) without changing the orien
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(oLineRel,"Trace line toward pos+(x,y,z) and change the orientation. Params : x, y, z, topdiameter (optionals, default = 0).",ePrimitive)
+DeclareModuleBegin(oLineRel,"Trace line toward pos+(x,y,z) and change the orientation. Params : 'x, y, z, topdiameter' or 'v, topdiameter' (optionals, default = 0).",ePrimitive)
 {
 #if PGL_VERSION >= 0x020B00
 	size_t nbargs = m.size();
 	switch (nbargs) {
          case 0:  break;
-         case 1:  t.oLineRel(m._getReal(0)); break;
+         case 1:
+             {
+                 bp::extract<Vector3> ex (m.getAt(0));
+                 if (ex.check()) { t.oLineRel(ex());}
+                 else t.oLineRel(m._getReal(0)); 
+                 break;
+             }
          case 2:  t.oLineRel(m._getReal(0),m._getReal(1)); break;
-         case 3: t.oLineRel(m._getReal(0),m._getReal(1),m._getReal(2)); break;
+         case 3:  t.oLineRel(m._getReal(0),m._getReal(1),m._getReal(2)); break;
          default: t.oLineRel(m._getReal(0),m._getReal(1),m._getReal(2),m._getReal(3)); break;
 	}
 #endif
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(pinPointRel,"Orient turtle toward pos+(x,y,z) . Params : x, y, z (optionals, default = 0).",eRotation)
+DeclareModuleBegin(pinPointRel,"Orient turtle toward pos+(x,y,z) . Params : 'x, y, z' or 'v' (optionals, default = 0).",eRotation)
 {
 #if PGL_VERSION >= 0x020B00
 	size_t nbargs = m.size();
 	switch (nbargs) {
          case 0:  break;
-         case 1:  t.pinpointRel(m._getReal(0)); break;
+         case 1:  
+            {
+                 bp::extract<Vector3> ex (m.getAt(0));
+                 if (ex.check()) { t.pinpointRel(ex());}
+                 else t.pinpointRel(m._getReal(0)); 
+                 break;
+            }
          case 2:  t.pinpointRel(m._getReal(0),m._getReal(1)); break;
          default: t.pinpointRel(m._getReal(0),m._getReal(1),m._getReal(2)); break;
 	}
@@ -279,32 +342,83 @@ DeclareModuleBegin(pinPointRel,"Orient turtle toward pos+(x,y,z) . Params : x, y
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(SetHead,"Set the turtle Heading and Up vector. Params: hx, hy, hz, ux, uy, uz (optionals, default=0,0,1, 1,0,0).",eRotation)
+DeclareModuleBegin(SetHead,"Set the turtle Heading and Up vector. Params: 'hx, hy, hz, ux, uy, uz' or 'h,v' (optionals, default=0,0,1, 1,0,0).",eRotation)
 {
 	size_t nbargs = m.size();
+    Vector3 h;
+    Vector3 u;
+    bool withu = false;
 	switch (nbargs) {
       case 0:  t.setHead(); break;
-      case 1:  t.setHead(m._getReal(0)); break;
-      case 2:  t.setHead(m._getReal(0),m._getReal(1)); break;
-      case 3:  t.setHead(m._getReal(0),m._getReal(1),m._getReal(2)); break;
-      case 4:  t.setHead(m._getReal(0),m._getReal(1),m._getReal(2),
-                             m._getReal(3)); break;
-      case 5:  t.setHead(m._getReal(0),m._getReal(1),m._getReal(2),
-                             m._getReal(3),m._getReal(4)); break;
-      default: t.setHead(m._getReal(0),m._getReal(1),m._getReal(2),
-                              m._getReal(3),m._getReal(4),m._getReal(5)); break;
-	}
+      case 1:  
+      {
+          bp::extract<Vector3> ex (m.getAt(0));
+          if (ex.check()) h = ex();
+          else h = Vector3(m._getReal(0),0,0); 
+          break;
+      }
+      case 2:  
+       {
+            bp::extract<Vector3> ex (m.getAt(0));
+		    if (ex.check()) {
+                  h = ex();
+                  u = m._get<Vector3>(1);
+                  withu = true;
+            }
+		    else h = Vector3(m._getReal(0),m._getReal(1)); 
+            break;
+       }
+      case 3:
+          {
+            h = Vector3(m._getReal(0),m._getReal(1),m._getReal(2));
+            break;
+          }
+      case 4: 
+          {
+            h = Vector3(m._getReal(0),m._getReal(1),m._getReal(2));
+            u = Vector3(m._getReal(3));
+            withu = true;
+            break;
+          }
+      case 5:  
+          {
+            h = Vector3(m._getReal(0),m._getReal(1),m._getReal(2));
+            u = Vector3(m._getReal(3),m._getReal(4));
+            withu = true;
+            break;
+          }
+      default: 
+          {
+            h = Vector3(m._getReal(0),m._getReal(1),m._getReal(2));
+            u = Vector3(m._getReal(3),m._getReal(4),m._getReal(5));
+            withu = true;
+            break;
+          }
+    }
+    real_t l = h.normalize();
+    if (l < GEOM_EPSILON) 
+        LsysError("SetHead should have a valid heading direction");
+    else if (!withu) t.pinpointRel(h);
+    else {
+        l = u.normalize();
+        if (l < GEOM_EPSILON) {
+            LsysWarning("SetHead should have a valid up direction");
+            t.pinpointRel(h);
+        }
+        else t.setHead(h,u); 
+    }
+
 }
 DeclareModuleEnd
 
-DeclareModuleReal1(left,  "Turn left  around Up vector. Params : angle (optional, in degrees).",eRotation)
-DeclareModuleReal1(right, "Turn right around Up vector. Params : angle (optional, in degrees).",eRotation)
-DeclareModuleReal1(up,    "Pitch up around Left vector. Params : angle (optional, in degrees).",eRotation)
-DeclareModuleReal1(down,  "Pitch down around Left vector. Params : angle (optional, in degrees).",eRotation)
-DeclareModuleReal1(rollL, "Roll left  around Heading vector. Params : angle (optional, in degrees).",eRotation)
-DeclareModuleReal1(rollR, "Roll right  around Heading vector. Params : angle (optional, in degrees).",eRotation)
-DeclareModuleReal1(iRollL, "Roll left intrinsically around Heading vector. Params : angle (optional, in degrees).",eRotation)
-DeclareModuleReal1(iRollR, "Roll right intrinsically around Heading vector. Params : angle (optional, in degrees).",eRotation)
+DeclareModuleReal1(left,  "Turn left  around Up vector. Params : 'angle' (optional, in degrees).",eRotation)
+DeclareModuleReal1(right, "Turn right around Up vector. Params : 'angle' (optional, in degrees).",eRotation)
+DeclareModuleReal1(up,    "Pitch up around Left vector. Params : 'angle' (optional, in degrees).",eRotation)
+DeclareModuleReal1(down,  "Pitch down around Left vector. Params : 'angle' (optional, in degrees).",eRotation)
+DeclareModuleReal1(rollL, "Roll left  around Heading vector. Params : 'angle' (optional, in degrees).",eRotation)
+DeclareModuleReal1(rollR, "Roll right  around Heading vector. Params : 'angle' (optional, in degrees).",eRotation)
+DeclareModuleReal1(iRollL, "Roll left intrinsically around Heading vector. Params : 'angle' (optional, in degrees).",eRotation)
+DeclareModuleReal1(iRollR, "Roll right intrinsically around Heading vector. Params : 'angle' (optional, in degrees).",eRotation)
 
 #if PGL_VERSION >= 0x020501
 DeclareSimpleModule(turnAround, "Turn around 180deg the Up vector.",eRotation)
@@ -321,80 +435,88 @@ DeclareModuleEnd
 #endif
 
 DeclareSimpleModule(rollToVert, "Roll to Vertical : Roll the turtle around the H axis so that H and U lie in a common vertical plane with U closest to up",eRotation)
-DeclareModuleReal1(sphere,"Draw a sphere. Params : radius (optional, should be positive, default = line width).",ePrimitive)
-DeclareModuleReal1(circle,"Draw a circle. Params : radius (optional, should be positive, default = line width).",ePrimitive)
+DeclareModuleReal1(sphere,"Draw a sphere. Params : 'radius' (optional, should be positive, default = line width).",ePrimitive)
+DeclareModuleReal1(circle,"Draw a circle. Params : 'radius' (optional, should be positive, default = line width).",ePrimitive)
 
-DeclareModuleBegin(label,"Draw a text label.",ePrimitive)
+DeclareModuleBegin(label,"Draw a text label. Params : 'text'.",ePrimitive)
 {
 	if(m.empty())LsysWarning("Argument missing for module "+m.name());
 	else t.label(m._getString(0));
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(incWidth,"Increase the current line width or set it if a parameter is given. Params : line width (optional).",eWidth)
+DeclareModuleBegin(incWidth,"Increase the current line width or set it if a parameter is given. Params : 'width' (optional).",eWidth)
 {
 	if (m.empty())t.incWidth();
 	else t.setWidth(m._getReal(0));
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(decWidth,"Decrease the current line width or set it if a parameter is given. Params : line width (optional).",eWidth)
+DeclareModuleBegin(decWidth,"Decrease the current line width or set it if a parameter is given. Params : 'width' (optional).",eWidth)
 {
 	if (m.empty())t.decWidth();
 	else t.setWidth(m._getReal(0));
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(setWidth,"Set current line width. Params : line width.",eWidth)
+DeclareModuleBegin(setWidth,"Set current line width. Params : 'width'.",eWidth)
 {
 	if(m.empty())LsysWarning("Argument missing for module "+m.name());
 	else t.setWidth(m._getReal(0));
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(incColor,"Increase the current material index or set it if a parameter is given. Params : color index (optional, positive int).",eColor)
+DeclareModuleBegin(incColor,"Increase the current material index or set it if a parameter is given. Params : 'index' (optional, positive int).",eColor)
 {
 	if (m.empty())t.incColor();
 	else t.setColor(m._getInt(0));
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(decColor,"Decrease the current material index or set it if a parameter is given. Params : color index (optional, positive int).",eColor)
+DeclareModuleBegin(decColor,"Decrease the current material index or set it if a parameter is given. Params : 'index' (optional, positive int).",eColor)
 {
 	if (m.empty())t.decColor();
 	else t.setColor(m._getInt(0));
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(setColor,"Set the current material index. Params : color index (positive int).",eColor)
+DeclareModuleBegin(setColor,"Set the current material. Params : 'index' (positive int) or 'r,g,b[,a]'.",eColor)
 {
 	if(m.empty()) t.setColor(t.getColor());
-	else t.setColor(m._getInt(0));
+	else {
+        int nbatt = m.size();
+        if (nbatt == 1) t.setColor(m._getInt(0));
+        else if (nbatt >= 3) {
+            Material * mat = new Material(Color3(m._get<uchar_t>(0),m._get<uchar_t>(1),m._get<uchar_t>(2)),1);
+            if (nbatt >= 4) mat->getTransparency() = m._get<uchar_t>(3) / 255.f;
+            t.setCustomAppearance(AppearancePtr(mat));
+        }
+    }
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(divScale,"Divides the current turtle scale by a scale factor, Params : scale factor (optional, default = 1.0).",eScale)
+DeclareModuleBegin(divScale,"Divides the current turtle scale by a scale factor, Params : 'scale_factor' (optional, default = 1.0).",eScale)
 {
 	if (m.empty())t.divScale();
 	else t.divScale(m._getReal(0));
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(multScale,"Multiplies the current turtle scale by a scale factor, Params : scale factor (optional, default = 1.0).",eScale)
+DeclareModuleBegin(multScale,"Multiplies the current turtle scale by a scale factor, Params : 'scale_factor' (optional, default = 1.0).",eScale)
 {
 	if (m.empty())t.multScale();
 	else t.multScale(m._getReal(0));
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(scale,"Set the current turtle scale, Params : scale (optional, default = 1.0).",eScale)
+DeclareModuleBegin(scale,"Set the current turtle scale, Params : 'scale' (optional, default = 1.0).",eScale)
 {
 	if (m.empty())t.scale();
 	else t.scale(m._getReal(0));
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(surface,"Draw the predefined surface at the turtle's current location and orientation. Params : surface name (by default, 'l' exists), scale factor (optional, default= 1.0, should be positive).",ePrimitive)
+DeclareModuleBegin(surface,"Draw the predefined surface at the turtle's current location and orientation. Params : 'surface_name' (by default, 'l' exists), 'scale_factor' (optional, default= 1.0, should be positive).",ePrimitive)
 {
 	size_t nbargs = m.size();
 	switch (nbargs) {
@@ -405,7 +527,7 @@ DeclareModuleBegin(surface,"Draw the predefined surface at the turtle's current 
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(pglshape,"Draw a geometry at the turtle's current location and orientation. Params : a geometric model, a scale factor (optional, should be positive).",ePrimitive)
+DeclareModuleBegin(pglshape,"Draw a geometry at the turtle's current location and orientation. Params : 'geometric_model', 'scale_factor' (optional, should be positive) or 'shape' or 'scene' or 'material'.",ePrimitive)
 {
 	if(m.empty())LsysWarning("Argument missing for module "+m.name());
 	else {
@@ -460,7 +582,7 @@ DeclareModuleBegin(pglshape,"Draw a geometry at the turtle's current location an
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(Frame,"Draw the current turtle frame as 3 arrows (red=heading,blue=up,green=left). Params : size (should be positive), cap_heigth_ratio (in [0,1]), cap_radius_ratio (should be positive).",ePrimitive)
+DeclareModuleBegin(Frame,"Draw the current turtle frame as 3 arrows (red=heading,blue=up,green=left). Params : 'size' (should be positive), 'cap_heigth_ratio' (in [0,1]), 'cap_radius_ratio' (should be positive).",ePrimitive)
 {
 #if PGL_VERSION >= 0x020A00
 	size_t nbargs = m.size();
@@ -482,7 +604,7 @@ DeclareModuleBegin(Frame,"Draw the current turtle frame as 3 arrows (red=heading
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(elasticity,"Set Branch Elasticity. Params : real value (optional, default= 0.0, should be between [0,1]).",eTropism)
+DeclareModuleBegin(elasticity,"Set Branch Elasticity. Params : 'elasticity' (optional, default= 0.0, should be between [0,1]).",eTropism)
 {
 	size_t nbargs = m.size();
 	switch (nbargs) {
@@ -497,7 +619,7 @@ DeclareModuleBegin(elasticity,"Set Branch Elasticity. Params : real value (optio
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(tropism,"Set Tropism. Params : Vector3 (optional, default= (1,0,0)).",eTropism)
+DeclareModuleBegin(tropism,"Set Tropism. Params : 'tropism' (optional, Vector3, default= (1,0,0)).",eTropism)
 {
 	size_t nbargs = m.size();
 	switch (nbargs) {
@@ -522,7 +644,7 @@ DeclareModuleBegin(tropism,"Set Tropism. Params : Vector3 (optional, default= (1
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(setcontour,"Set Cross Section of Generalized Cylinder. Params : Curve2D [, ccw].",ePrimitive)
+DeclareModuleBegin(setcontour,"Set Cross Section of Generalized Cylinder. Params : 'Curve2D [, ccw]'.",ePrimitive)
 {
 	size_t nbargs = m.size();
 	switch (nbargs) {
@@ -538,7 +660,7 @@ DeclareModuleBegin(setcontour,"Set Cross Section of Generalized Cylinder. Params
 DeclareModuleEnd
 
 
-DeclareModuleBegin(sectionResolution,"Set Resolution of Section of Cylinder. Params : int.",ePrimitive)
+DeclareModuleBegin(sectionResolution,"Set Resolution of Section of Cylinder. Params : 'resolution' (int).",ePrimitive)
 {
 	size_t nbargs = m.size();
 	switch (nbargs) {
@@ -550,7 +672,7 @@ DeclareModuleBegin(sectionResolution,"Set Resolution of Section of Cylinder. Par
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(setguide,"Set Guide for turtle tracing. Params : Curve[2D|3D], length [,yorientation, ccw].",ePrimitive)
+DeclareModuleBegin(setguide,"Set Guide for turtle tracing. Params : 'Curve[2D|3D], length [,yorientation, ccw]'.",ePrimitive)
 {
 #if PGL_VERSION >= 0x020B00
 	size_t nbargs = m.size();
@@ -596,7 +718,7 @@ DeclareModuleBegin(positiononguide,"Set position on Guide for turtle tracing.",e
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(sweep,"Produce a sweep surface. Params : path, section, length, dlength [, radius = 1, radiusvariation = None].",ePrimitive)
+DeclareModuleBegin(sweep,"Produce a sweep surface. Params : 'path, section, length, dlength [, radius = 1, radiusvariation = None]'.",ePrimitive)
 {
 #if PGL_VERSION >= 0x020F00
 	size_t nbargs = m.size();
@@ -632,13 +754,19 @@ DeclareModuleBegin(sweep,"Produce a sweep surface. Params : path, section, lengt
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(TextureScale,"Set the scale coefficient for texture application. Params : uscale, vscale (default = 1,1).",eTexture)
+DeclareModuleBegin(TextureScale,"Set the scale coefficient for texture application. Params : 'uscale, vscale' (default = 1,1) or 'scale'.",eTexture)
 {
 #if PGL_VERSION >= 0x020C00
 	size_t nbargs = m.size();
 	switch (nbargs) {
          case 0:  LsysWarning("missing argument to TextureScale");  break;
-         case 1:  LsysWarning("missing argument to TextureScale"); break;
+         case 1:  
+             {
+			 real_t valueU = m._getReal(0);
+			 if (fabs(valueU) < GEOM_EPSILON ) LsysWarning("invalid argument to TextureVCoeff. Should be non null.");
+			 else t.setTextureScale(valueU,valueU); 
+			 break;
+             }
          default:  
 			 real_t valueU = m._getReal(0);
 			 real_t valueV = m._getReal(1);
@@ -650,7 +778,7 @@ DeclareModuleBegin(TextureScale,"Set the scale coefficient for texture applicati
 #endif
 DeclareModuleEnd
 
-DeclareModuleBegin(TextureUScale,"Set the u-scale coefficient for texture application. Params : uscale (default = 1).",eTexture)
+DeclareModuleBegin(TextureUScale,"Set the u-scale coefficient for texture application. Params : 'uscale' (default = 1).",eTexture)
 {
 #if PGL_VERSION >= 0x020C00
 	size_t nbargs = m.size();
@@ -666,7 +794,7 @@ DeclareModuleBegin(TextureUScale,"Set the u-scale coefficient for texture applic
 #endif
 DeclareModuleEnd
 
-DeclareModuleBegin(TextureVScale,"Set the v-scale coefficient for texture application. Params : vscale (default = 1).",eTexture)
+DeclareModuleBegin(TextureVScale,"Set the v-scale coefficient for texture application. Params : 'vscale' (default = 1).",eTexture)
 {
 #if PGL_VERSION >= 0x020C00
 	size_t nbargs = m.size();
@@ -682,13 +810,13 @@ DeclareModuleBegin(TextureVScale,"Set the v-scale coefficient for texture applic
 #endif
 DeclareModuleEnd
 
-DeclareModuleBegin(TextureTranslation,"Set the translation for texture application. Params : utranslation, vtranslation (default = 0,0).",eTexture)
+DeclareModuleBegin(TextureTranslation,"Set the translation for texture application. Params : 'utranslation, vtranslation' (default = 0,0) or 'translation'.",eTexture)
 {
 #if PGL_VERSION >= 0x020C00
 	size_t nbargs = m.size();
 	switch (nbargs) {
          case 0:  LsysWarning("missing argument to TextureTranslation");  break;
-         case 1:  LsysWarning("missing argument to TextureTranslation"); break;
+         case 1:  t.setTextureTranslation(m._get<Vector2>(0)); break;
          default:  
 			 t.setTextureTranslation(m._getReal(0),m._getReal(1)); 
 			 break;
@@ -697,14 +825,20 @@ DeclareModuleBegin(TextureTranslation,"Set the translation for texture applicati
 #endif
 DeclareModuleEnd
 
-DeclareModuleBegin(TextureRotation,"Set the rotation for texture application. Params : angle, urotcenter, vrotcenter (default = 0,0.5,0.5).",eTexture)
+DeclareModuleBegin(TextureRotation,"Set the rotation for texture application. Params : 'angle, urotcenter, vrotcenter' (default = 0,0.5,0.5) or 'angle, rotcenter'.",eTexture)
 {
 #if PGL_VERSION >= 0x020C00
 	size_t nbargs = m.size();
 	switch (nbargs) {
          case 0:  LsysWarning("missing argument to TextureTranslation"); break;
          case 1:  t.setTextureRotation(m._getReal(0));  break;
-		 case 2:  t.setTextureRotation(m._getReal(0),m._getReal(1)); break;
+		 case 2:
+             {
+               bp::extract<Vector2> ex(m.getAt(1));
+               if (ex.check())t.setTextureRotation(m._getReal(0),ex()); 
+               else t.setTextureRotation(m._getReal(0),m._getReal(1)); 
+               break;
+             }
          default:  
 			 t.setTextureRotation(m._getReal(0),m._getReal(1),m._getReal(2)); 
 			 break;
@@ -713,23 +847,32 @@ DeclareModuleBegin(TextureRotation,"Set the rotation for texture application. Pa
 #endif
 DeclareModuleEnd
 
-DeclareModuleBegin(TextureTransformation,"Set the transformation for texture application. Params : uscale, vscale, utranslation, vtranslation, angle, urotcenter, vrotcenter (default = 1,1,0,0,0,0.5,0.5).",eTexture)
+DeclareModuleBegin(TextureTransformation,"Set the transformation for texture application. Params : 'uscale, vscale, utranslation, vtranslation, angle, urotcenter, vrotcenter' (default = 1,1,0,0,0,0.5,0.5) or 'scale, translation, angle, rotcenter'.",eTexture)
 {
 #if PGL_VERSION >= 0x020C00
 	size_t nbargs = m.size();
-	if (nbargs < 7)LsysWarning("missing argument to TextureCoeff"); 
-	else {
+	if (nbargs < 4)LsysWarning("missing argument to TextureCoeff"); 
+	if (nbargs == 4)
+    {
+        bp::extract<Vector2> ex(m.getAt(0));
+        if (ex.check()){
+            Vector2 s = ex();
+            if (fabs(s.x()) < GEOM_EPSILON || fabs(s.y()) < GEOM_EPSILON) LsysWarning("invalid argument to TextureTransformation. Should be non null.");
+            t.setTextureTransformation(s,m._get<Vector2>(1),m._getReal(2),m._get<Vector2>(3)); 
+        }
+    	else {
+             if (nbargs < 7)LsysWarning("missing argument to TextureCoeff"); 
 			 real_t valueU = m._getReal(0);
 			 real_t valueV = m._getReal(1);
 			 if (fabs(valueU) < GEOM_EPSILON || fabs(valueV) < GEOM_EPSILON) LsysWarning("invalid argument to TextureTransformation. Should be non null.");
 			 else t.setTextureTransformation(valueU,valueV,m._getReal(2),m._getReal(3),m._getReal(4),m._getReal(5),m._getReal(6)); 
+        }
 	}
 }
 #endif
 DeclareModuleEnd
 
 /*---------------------------------------------------------------------------*/
-
 std::vector<ModuleClassPtr> * ModuleClass::PredefinedClasses = NULL;
 
 #define CORE_DEC_PM(MName) ModuleClassPtr ModuleClass::MName;

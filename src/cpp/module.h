@@ -363,10 +363,17 @@ public:
 
   virtual ~ParamModule();
 
-  virtual int  _getInt(int)   const;
-  virtual real_t _getReal(int) const;
-  virtual bool _getBool(int) const;
-  virtual std::string _getString(int) const;
+  int  _getInt(int)   const;
+  real_t _getReal(int) const;
+  bool _getBool(int) const;
+  std::string _getString(int) const;
+
+  template<class T>
+  T _get(int i) const { return boost::python::extract<T>(getAt(i))(); }
+
+  template<class T>
+  bool _check(int i) const { return boost::python::extract<T>(getAt(i)).check(); }
+
 
   virtual void _setValues(real_t,real_t,real_t) ;
   inline void _setValues(const TOOLS(Vector3)& v) { _setValues(v.x(),v.y(),v.z()); }

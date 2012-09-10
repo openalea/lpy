@@ -33,60 +33,71 @@ del executable
 from openalea.plantgl.scenegraph import deprecated
 
 @deprecated
-def father(lstring,pos):
+def lstring_father(lstring,pos):
     """ deprecated function. See parent """
     return lstring.parent(pos)
 
 @deprecated
-def sons(lstring,pos):
+def lstring_sons(lstring,pos):
     """ deprecated function. See children """
     return lstring.children(pos)
 
 @deprecated
-def lateralSons(lstring,pos):
+def lstring_lateralSons(lstring,pos):
     """ deprecated function. See lateral_children """
     return lstring.lateral_children(pos)
 
 @deprecated
-def directSon(lstring,pos):
+def lstring_directSon(lstring,pos):
     """ deprecated function. See direct_child """
     return lstring.direct_child(pos)
 
-AxialTree.father = father
-PatternString.father = father
-AxialTree.sons = sons
-PatternString.sons = sons
-AxialTree.lateralSons = lateralSons
-PatternString.lateralSons = lateralSons
-AxialTree.directSon = directSon
-PatternString.directSon = directSon
+AxialTree.father = lstring_father
+PatternString.father = lstring_father
+AxialTree.sons = lstring_sons
+PatternString.sons = lstring_sons
+AxialTree.lateralSons = lstring_lateralSons
+PatternString.lateralSons = lstring_lateralSons
+AxialTree.directSon = lstring_directSon
+PatternString.directSon = lstring_directSon
 
+del lstring_father
+del lstring_sons
+del lstring_lateralSons
+del lstring_directSon
 
 @deprecated
-def father(node):
+def node_father(node):
     """ deprecated function. See parent """
     return node.parent()
 
 @deprecated
-def sons(node):
+def node_sons(node):
     """ deprecated function. See children """
-    return lstring.children()
+    return node.children()
 
 @deprecated
-def lateralSons(node):
+def node_lateralSons(node):
     """ deprecated function. See lateral_children """
     return node.lateral_children()
 
 @deprecated
-def directSon(node):
+def node_directSon(node):
     """ deprecated function. See direct_child """
     return node.direct_child()
 
 
-NodeModule.father = father
-NodeModule.sons = sons
-NodeModule.lateralSons = lateralSons
-NodeModule.directSon = directSon
+NodeModule.father = node_father
+NodeModule.sons = node_sons
+NodeModule.lateralSons = node_lateralSons
+NodeModule.directSon = node_directSon
+
+
+del node_father
+del node_sons
+del node_lateralSons
+del node_directSon
+
 
 Lsystem.iterate = Lsystem.derive
 Lsystem.homomorphism = Lsystem.interpret
