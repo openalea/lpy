@@ -26,8 +26,11 @@ from killsimulationdialog import KillSimulationDialog
 from openalea.plantgl.all import *
 from objectpanel import ObjectPanelManager
 
-import matplotlib
-matplotlib.use('Qt4Agg')
+try:
+    import matplotlib
+    matplotlib.use('Qt4Agg')
+except:
+    pass
 
 from openalea.lpy import *
 
