@@ -211,13 +211,15 @@ class LpySimulation:
             self.optionModel.setItem(indexitem, 1, si)
             indexitem += 1
         QObject.connect(self.optionModel,SIGNAL('itemChanged(QStandardItem*)'),self.textEdited)
-    def setTree(self,tree,nbiterations,timing=None):
+    def setTree(self,tree,nbiterations,timing=None, plottiming = None):
         self.tree = tree
         self.nbiterations = nbiterations
         msg = 'Nb Iterations : '+str(self.nbiterations)
         if not timing is None:
             msg += " in "+str(round(timing,3))+" sec."
-        self.lpywidget.statusBar().showMessage(msg,10000)
+        if not plottiming is None:
+            msg += " Plot in "+str(round(plottiming,3))+" sec."
+        self.lpywidget.statusBar().showMessage(msg)
         if not self.lpywidget.interpreter is None:
             self.lpywidget.interpreter.locals['lstring'] = self.tree
     def updateLsystemCode(self):
@@ -486,9 +488,11 @@ class LpySimulation:
         task.dl = self.lsystem.getLastIterationNb()+1
     def post_run(self,task):
         if hasattr(task,'result'):
-            self.setTree(task.result,task.dl,task.timing)
             self.firstView = False
+            plottiming = clock()
             self.lsystem.plot(task.result,True)
+            plottiming = clock() - plottiming
+            self.setTree(task.result,task.dl,task.timing,plottiming)
             if self.lpywidget.displayMetaInfo and not self.autorun and  self.lsystem.context().has_key('__description__'):
                 self.lpywidget.viewer.showMessage(self.lsystem.context()['__description__'],5000)
     def animate(self,task):

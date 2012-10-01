@@ -314,7 +314,12 @@ DeclareModuleBegin(oLineRel,"Trace line toward pos+(x,y,z) and change the orient
                  else t.oLineRel(m._getReal(0)); 
                  break;
              }
-         case 2:  t.oLineRel(m._getReal(0),m._getReal(1)); break;
+         case 2:  
+             {
+                 bp::extract<Vector3> ex (m.getAt(0));
+                 if (ex.check()) { t.oLineRel(ex(),m._getReal(1));}
+                 else t.oLineRel(m._getReal(0),m._getReal(1)); break;
+             }
          case 3:  t.oLineRel(m._getReal(0),m._getReal(1),m._getReal(2)); break;
          default: t.oLineRel(m._getReal(0),m._getReal(1),m._getReal(2),m._getReal(3)); break;
 	}
@@ -349,7 +354,7 @@ DeclareModuleBegin(SetHead,"Set the turtle Heading and Up vector. Params: 'hx, h
     Vector3 u;
     bool withu = false;
 	switch (nbargs) {
-      case 0:  t.setHead(); break;
+      case 0:  t.setHead(); return;
       case 1:  
       {
           bp::extract<Vector3> ex (m.getAt(0));
