@@ -485,14 +485,14 @@ DeclareModuleBegin(decColor,"Decrease the current material index or set it if a 
 }
 DeclareModuleEnd
 
-DeclareModuleBegin(setColor,"Set the current material. Params : 'index' (positive int) or 'r,g,b[,a]'.",eColor)
+DeclareModuleBegin(setColor,"Set the current material. Params : 'index' (positive int) or 'r,g,b[,a]' or 'material'.",eColor)
 {
 	if(m.empty()) t.setColor(t.getColor());
 	else {
         int nbatt = m.size();
         if (nbatt == 1) {
             boost::python::extract<PGL::AppearancePtr>  appextractor(m.getAt(0));
-            if (appextractor.check()) pg->setCustomAppearance(appextractor());
+            if (appextractor.check()) t.setCustomAppearance(appextractor());
             else t.setColor(m._getInt(0));
         }
         else if (nbatt >= 3) {
