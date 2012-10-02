@@ -490,7 +490,11 @@ DeclareModuleBegin(setColor,"Set the current material. Params : 'index' (positiv
 	if(m.empty()) t.setColor(t.getColor());
 	else {
         int nbatt = m.size();
-        if (nbatt == 1) t.setColor(m._getInt(0));
+        if (nbatt == 1) {
+            boost::python::extract<PGL::AppearancePtr>  appextractor(m.getAt(0));
+            if (appextractor.check()) pg->setCustomAppearance(appextractor());
+            else t.setColor(m._getInt(0));
+        }
         else if (nbatt >= 3) {
             Material * mat = new Material(Color3(m._get<uchar_t>(0),m._get<uchar_t>(1),m._get<uchar_t>(2)),1);
             if (nbatt >= 4) mat->getTransparency() = m._get<uchar_t>(3) / 255.f;
