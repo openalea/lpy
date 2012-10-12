@@ -6,7 +6,7 @@ from openalea.plantgl.all import norm,Vector3
 from numpy import mean
 
 def flatten(g):
-    microroot = g.component_roots_at_scale(g.root,g.max_scale()).next()
+    microroot = g.component_roots_at_scale_iter(g.root,g.max_scale()).next()
     
     g = g.sub_tree(microroot,True)
     g, props = colored_tree(g,colors={1:list(g.vertices(scale=g.max_scale()))})
