@@ -43,6 +43,7 @@ class LpySimulation:
         self.scalars = []
         self.scalarEditState = None
         self.keepCode_1_0_Compatibility = True
+        self.readonly = False
         if not fname is None:
             self.open(fname)
         else:
@@ -104,21 +105,20 @@ class LpySimulation:
         #if self._edited:
         #    t += '*'
         return t
-    def registerTab(self):
+    def generateIcon(self):
         icon = QIcon()
-        if self._edited:
+        if self.readonly is True:
+            icon.addPixmap(QPixmap(":/images/icons/lock.png"),QIcon.Normal,QIcon.Off)
+        elif self._edited:
             icon.addPixmap(QPixmap(":/images/icons/codefile-red.png"),QIcon.Normal,QIcon.Off)
         else:
             icon.addPixmap(QPixmap(":/images/icons/codefile.png"),QIcon.Normal,QIcon.Off)
-        self.lpywidget.documentNames.insertTab(self.index,icon,self.getTabName())
+        return icon
+    def registerTab(self):
+        self.lpywidget.documentNames.insertTab(self.index,self.generateIcon(),self.getTabName())
     def updateTabName(self):
         if self._oldedited != self._edited :
-            icon = QIcon()
-            if self._edited:
-                icon.addPixmap(QPixmap(":/images/icons/codefile-red.png"),QIcon.Normal,QIcon.Off)
-            else:
-                icon.addPixmap(QPixmap(":/images/icons/codefile.png"),QIcon.Normal,QIcon.Off)
-            self.lpywidget.documentNames.setTabIcon(self.index,icon)
+            self.lpywidget.documentNames.setTabIcon(self.index,self.generateIcon())
             self._oldedited = self._edited
         self.lpywidget.documentNames.setTabText(self.index,self.getTabName())
     def getTimeStep(self):
@@ -250,13 +250,13 @@ class LpySimulation:
                 if bckupname and os.path.exists(bckupname): os.remove(bckupname)
         return True
     def save(self):
-        if self.fname:
+        if self.fname and not self.readonly:
             if self.isCurrent():
                 self.saveState()
             bckupname = self.getBackupName()
             if bckupname and os.path.exists(bckupname):
                 os.remove(bckupname)
-            if os.path.exists(self.fname) and self.lpywidget.fileBackupEnabled:
+            if os.path.exists(self.fname) and  self.lpywidget.fileBackupEnabled and  os.access(self.fname+'~',os.W_OK):
                 shutil.copy(self.fname,self.fname+'~')
             self.saveToFile(self.fname)
             self.mtime = os.stat(self.fname).st_mtime
@@ -264,12 +264,16 @@ class LpySimulation:
             self.lpywidget.statusBar().showMessage("Save file '"+self.fname+"'",2000)
             self.lpywidget.appendInHistory(self.fname)
             self.lsystem.filename = self.fname
+            self.readonly = False
         else:
             self.saveas()
     def saveas(self):
         bckupname = self.getBackupName()
         fname = str(QFileDialog.getSaveFileName(self.lpywidget,"Open Py Lsystems file",self.fname if self.fname else '.',"Py Lsystems Files (*.lpy);;All Files (*.*)"))
         if fname:
+          if not os.access(fname,os.W_OK) : 
+            QMessageBox.error(self.lpywidget,self.getShortName(),"Cannot write file !")
+          else:
             self.fname = fname
             os.chdir(os.path.dirname(fname))
             if bckupname and os.path.exists(bckupname):
@@ -413,6 +417,7 @@ class LpySimulation:
                 os.remove(bckupname)     
         os.chdir(os.path.dirname(self.fname))        
         code = file(readname,'rU').read()
+        self.readonly = (not os.access(fname, os.W_OK))
         self.textedition = recovery
         self.setEdited(recovery)
         self.opencode(code)

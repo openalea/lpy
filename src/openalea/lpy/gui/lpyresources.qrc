@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/images">
+    <file>icons/lock.png</file>
     <file>icons/editraise.png</file>
     <file>icons/record.png</file>
     <file>icons/print.png</file>
