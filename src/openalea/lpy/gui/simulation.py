@@ -256,7 +256,7 @@ class LpySimulation:
             bckupname = self.getBackupName()
             if bckupname and os.path.exists(bckupname):
                 os.remove(bckupname)
-            if os.path.exists(self.fname) and  self.lpywidget.fileBackupEnabled and  os.access(self.fname+'~',os.W_OK):
+            if os.path.exists(self.fname) and  self.lpywidget.fileBackupEnabled :
                 shutil.copy(self.fname,self.fname+'~')
             self.saveToFile(self.fname)
             self.mtime = os.stat(self.fname).st_mtime
@@ -271,9 +271,6 @@ class LpySimulation:
         bckupname = self.getBackupName()
         fname = str(QFileDialog.getSaveFileName(self.lpywidget,"Open Py Lsystems file",self.fname if self.fname else '.',"Py Lsystems Files (*.lpy);;All Files (*.*)"))
         if fname:
-          if not os.access(fname,os.W_OK) : 
-            QMessageBox.error(self.lpywidget,self.getShortName(),"Cannot write file !")
-          else:
             self.fname = fname
             os.chdir(os.path.dirname(fname))
             if bckupname and os.path.exists(bckupname):
