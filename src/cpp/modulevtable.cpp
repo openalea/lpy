@@ -18,11 +18,11 @@ BaseModuleProperty::~BaseModuleProperty() { DecTracker(ModuleProperty) }
 /*---------------------------------------------------------------------------*/
 
 ModuleVTable::ModuleVTable(ModuleClassPtr owner, ModuleClassPtr base) : 
-__owner(owner.get()), __bases(is_null_ptr(base)?0:1,base.get()), scale(ModuleClass::DEFAULT_SCALE)  
+__owner(owner.get()), __modulebases(is_null_ptr(base)?0:1,base.get()), scale(ModuleClass::DEFAULT_SCALE)  
 { 
 	LsysContext::current()->__modulesvtables.push_back(ModuleVTablePtr(this));
 	IncTracker(ModuleVTable)
-	if(!__bases.empty()) updateInheritedParameters();
+	if(!__modulebases.empty()) updateInheritedParameters();
 }
 
 ModuleVTable::~ModuleVTable() { DecTracker(ModuleVTable) }
@@ -59,47 +59,47 @@ void ModuleVTable::desactivate()
 
 void ModuleVTable::setBase(ModuleClassPtr mclass) 
 { 
-	__bases.clear();
-	__bases.push_back(mclass.get()); 
+	__modulebases.clear();
+	__modulebases.push_back(mclass.get()); 
 	updateInheritedParameters();
 }
 
 
 void ModuleVTable::setBases(const ModuleClassList& mclass) 
 { 
-	__bases.clear();
+	__modulebases.clear();
 	for(ModuleClassList::const_iterator it = mclass.begin(); it != mclass.end(); ++it)
-		__bases.push_back(it->get());			
+		__modulebases.push_back(it->get());			
 	updateInheritedParameters();
 }
 
 bool ModuleVTable::issubclass(const ModuleClassPtr& mclass) const
-{  return __basescache.find(mclass->getId()) != __basescache.end(); }
+{  return __modulebasescache.find(mclass->getId()) != __modulebasescache.end(); }
 
 void ModuleVTable::updateInheritedParameters()
 {
-	if(!__bases.empty()){
-		std::vector<ModuleClass *> bases = __bases;
-		__basescache.clear();
+	if(!__modulebases.empty()){
+		std::vector<ModuleClass *> bases = __modulebases;
+		__modulebasescache.clear();
 		while(!bases.empty()){
 			ModuleClass * base = bases[0];
 			if (base == __owner){
-				__basescache.clear();
-				__bases.clear();
+				__modulebasescache.clear();
+				__modulebases.clear();
 				LsysError("Cyclic inheritance");
 			}
 			bases.erase(bases.begin());
-			__basescache.insert(base->getId());
+			__modulebasescache.insert(base->getId());
 			if (base != NULL){
 				ModuleVTable * basevtable = base->__vtable;
 				if( basevtable ) {
 					if(scale == ModuleClass::DEFAULT_SCALE) scale = basevtable->scale;
-					bases.insert(bases.begin(),basevtable->__bases.begin(),basevtable->__bases.end());
+					bases.insert(bases.begin(),basevtable->__modulebases.begin(),basevtable->__modulebases.end());
 				}
 			}
 		}
 		std::vector<std::string> params =  __owner->getParameterNames();
-		for(std::vector<ModuleClass *>::const_iterator it = __bases.begin(); it != __bases.end(); ++it){
+		for(std::vector<ModuleClass *>::const_iterator it = __modulebases.begin(); it != __modulebases.end(); ++it){
 			std::vector<std::string> iparams =  (*it)->getParameterNames();
 			params.insert(params.end(),iparams.begin(),iparams.end());
 		}

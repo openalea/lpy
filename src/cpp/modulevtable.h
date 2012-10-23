@@ -59,6 +59,7 @@ class LPY_API ModuleVTable : public TOOLS(RefCountObject) {
 public:
 	typedef pgl_hash_map_string<ModulePropertyPtr> PropertyMap;
 	friend class ModuleClass;
+	
 	ModuleVTable(ModuleClassPtr owner = ModuleClassPtr(), ModuleClassPtr base = ModuleClassPtr());
 	~ModuleVTable();
 
@@ -73,19 +74,19 @@ public:
 
 	inline ModuleClassList getBases() const { 
 		ModuleClassList bases;
-		for(std::vector<ModuleClass *>::const_iterator it = __bases.begin(); it != __bases.end(); ++it)
+		for(ModuleClassDirectPtrList::const_iterator it = __modulebases.begin(); it != __modulebases.end(); ++it)
 			bases.push_back(*it);
 		return bases; 
 	}
 
-	inline bool hasBaseClasses() const { return !__bases.empty(); }
+	inline bool hasBaseClasses() const { return !__modulebases.empty(); }
 
 	void setBase(ModuleClassPtr mclass) ;
 	void setBases(const ModuleClassList& mclasses) ;
 
 	inline std::vector<size_t> getAllBaseIds() const {
 		std::vector<size_t> basesid;
-		for(pgl_hash_set<size_t>::const_iterator it = __basescache.begin(); it != __basescache.end(); ++it)
+		for(pgl_hash_set<size_t>::const_iterator it = __modulebasescache.begin(); it != __modulebasescache.end(); ++it)
 			basesid.push_back(*it);
 		return basesid; 
 	}
@@ -100,8 +101,10 @@ protected:
 
 	PropertyMap __propertymap;
 	ModuleClass * __owner;
-	std::vector<ModuleClass *> __bases;
-	pgl_hash_set<size_t> __basescache;
+	typedef ModuleClass * ModuleClassDirectPtr;
+	typedef std::vector<ModuleClassDirectPtr> ModuleClassDirectPtrList;
+	ModuleClassDirectPtrList __modulebases;
+	pgl_hash_set<size_t> __modulebasescache;
 
 };
 
