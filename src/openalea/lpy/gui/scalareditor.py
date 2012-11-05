@@ -14,6 +14,7 @@ if not py2exe_release:
     import compile_ui as ui
     ldir    = os.path.dirname(__file__)
     ui.check_ui_generation(os.path.join(ldir, 'scalarmetaedit.ui'))
+    ui.check_ui_generation(os.path.join(ldir, 'scalarfloatmetaedit.ui'))
     del ldir
 
 import scalarmetaedit as sme
@@ -33,11 +34,39 @@ class ScalarDialog(QDialog,sme.Ui_ScalarDialog):
         self.maxValueEdit.setEnabled(not value.isBool())
         self.valueEdit.setRange(self.minValueEdit.value(),self.maxValueEdit.value())
     def getScalar(self):
-        return Scalar(str(self.nameEdit.text()),self.valueEdit.value(),self.minValueEdit.value(),self.maxValueEdit.value())
+        return IntegerScalar(str(self.nameEdit.text()),self.valueEdit.value(),self.minValueEdit.value(),self.maxValueEdit.value())
     def updateRange(self,v):
         if self.minValueEdit.value() >= self.maxValueEdit.value():
             self.maxValueEdit.setValue(self.minValueEdit.value()+1)
         self.valueEdit.setRange(self.minValueEdit.value(),self.maxValueEdit.value())
+
+import scalarfloatmetaedit as sfme
+
+class FloatScalarDialog(QDialog,sfme.Ui_FloatScalarDialog):
+    def __init__(self,*args):
+        QDialog.__init__(self,*args)
+        self.setupUi(self)
+        QObject.connect(self.minValueEdit,SIGNAL('valueChanged(double)'),self.updateRange)
+        QObject.connect(self.maxValueEdit,SIGNAL('valueChanged(double)'),self.updateRange)
+        QObject.connect(self.decimalEdit,SIGNAL('valueChanged(int)'),self.updateDecimal)
+    def setScalar(self,value):
+        self.nameEdit.setText(value.name)
+        self.valueEdit.setValue(value.value)
+        self.minValueEdit.setValue(value.minvalue)
+        self.maxValueEdit.setValue(value.maxvalue)
+        self.minValueEdit.setEnabled(not value.isBool())
+        self.maxValueEdit.setEnabled(not value.isBool())
+        self.valueEdit.setRange(self.minValueEdit.value(),self.maxValueEdit.value())
+    def getScalar(self):
+        return FloatScalar(str(self.nameEdit.text()),self.valueEdit.value(),self.minValueEdit.value(),self.maxValueEdit.value(),self.decimalEdit.value())
+    def updateRange(self,v):
+        if self.minValueEdit.value() >= self.maxValueEdit.value():
+            self.maxValueEdit.setValue(self.minValueEdit.value()+1)
+        self.valueEdit.setRange(self.minValueEdit.value(),self.maxValueEdit.value())
+    def updateDecimal(self, value):
+        self.valueEdit.setDecimals(value)
+        self.minValueEdit.setDecimals(value)
+        self.maxValueEdit.setDecimals(value)
 
 if not sys.platform == 'darwin':        
     class ItemSlider(QWidget):
@@ -49,36 +78,67 @@ if not sys.platform == 'darwin':
             horizontalLayout.addWidget(self.label)
             self.slider = QSlider(orientation,self)
             horizontalLayout.addWidget(self.slider)
-            self.spinBox = QSpinBox(self)
+            self.item = item
+            scalar = item.scalar
+            self.isfloat = scalar.isFloat()
+            if item.scalar.isFloat():
+                self.spinBox = QDoubleSpinBox(self)
+                self.spinBox.setSingleStep(0.1**scalar.decimals)
+            else:
+                self.spinBox = QSpinBox(self)                
             horizontalLayout.addWidget(self.spinBox)
             self.spinBox.hide()
             self.chgButton = QPushButton('O',self)
             self.chgButton.setMaximumWidth(15)
             self.chgButton.setMinimumWidth(15)
             horizontalLayout.addWidget(self.chgButton)
-            self.item = item
-            scalar = item.scalar
             self.setRange(scalar.minvalue,scalar.maxvalue)
+            self.label.setMinimumWidth(self.labelwidth)
             self.setValue(scalar.value)
-            QObject.connect(self.slider,SIGNAL('valueChanged(int)'),self.updateItem)
-            QObject.connect(self.spinBox,SIGNAL('valueChanged(int)'),self.updateItem)
+            
+            if self.isfloat:
+                QObject.connect(self.slider,SIGNAL('valueChanged(int)'),self.updateInt2FloatItem)
+                QObject.connect(self.spinBox,SIGNAL('valueChanged(double)'),self.updateItem)
+            else:
+                QObject.connect(self.slider,SIGNAL('valueChanged(int)'),self.updateItem)
+                QObject.connect(self.spinBox,SIGNAL('valueChanged(int)'),self.updateItem)
             QObject.connect(self.chgButton,SIGNAL('pressed()'),self.changeEditor)
-            if sys.platform == 'darwin':
-                self.changeEditor()
+
+        def updateInt2FloatItem(self,value):
+            a = 10.**self.item.scalar.decimals
+            self.updateItem(value/a)
+            
         def updateItem(self,value):
-            self.item.scalar.value = value
-            self.slider.setValue(value)
-            self.spinBox.setValue(value)
-            self.item.setText(str(value))
-            self.label.setText(' '*(2+len(str(self.item.scalar.maxvalue))))
-            self.emit(SIGNAL('valueChanged(PyQt_PyObject)'),self.item.scalar)
+            if self.item.scalar.value != value :
+                self.item.scalar.value = value
+                self.setValue(value)
+                self.item.setText(str(value))
+                self.label.setMinimumWidth(self.labelwidth)
+                self.emit(SIGNAL('valueChanged(PyQt_PyObject)'),self.item.scalar)
+            
         def setRange(self,minv,maxv):
-            self.slider.setRange(minv,maxv)
+            if self.isfloat:
+                a = 10**self.item.scalar.decimals
+                self.labelwidth = self.fontMetrics().width(' '+str(int(a*maxv))+'. ')
+                self.slider.setRange(int(minv*a),int(maxv*a))
+            else:
+                self.slider.setRange(minv,maxv)
+                self.labelwidth = self.fontMetrics().width(' '+str(maxv)+' ')
             self.spinBox.setRange(minv,maxv)
             self.label.setText(' '*(2+len(str(maxv))))
+            
         def setValue(self,value):
-            self.slider.setValue(value)
-            self.spinBox.setValue(value)
+            if self.isfloat:
+                a = 10**self.item.scalar.decimals
+                nv = int(value * a)
+                if self.slider.value() != nv:
+                    self.slider.setValue(value * a)
+            else:
+                if self.slider.value() != value:
+                    self.slider.setValue(value)
+            if self.spinBox.value() != value:
+                self.spinBox.setValue(value)
+            
         def changeEditor(self):
             if self.spinBox.isHidden():
                 self.slider.hide()
@@ -135,37 +195,56 @@ class ScalarEditorDelegate(QItemDelegate):
 
         
 class MyItemModel(QStandardItemModel):
-    def __init__(self,a,b):
+    def __init__(self,a,b,scalarmap):
         QStandardItemModel.__init__(self,a,b)
+        self.scalarmap = scalarmap
         
-    def dropMimeData(self,data,action,row,column,parent):
-        print data,action,row,column,parent
-        print parent.row(),parent.column()
-        return QStandardItemModel.dropMimeData(self,data,action,row,column,parent)
+    def dropMimeData(self,data,action,row,column,parent):        
+        encoded = data.data("application/x-qstandarditemmodeldatalist")
+        stream = QDataStream(encoded, QIODevice.ReadOnly)
+        r = stream.readInt()
+        self.emit(SIGNAL("moveRequest(int,int)"),r,parent.row())
+        return True
+        
+    def supportedDropActions(self):
+        return Qt.MoveAction
+
+#window.scalarEditor.scalarModel
 
 class ScalarEditor (QTreeView):
     def __init__(self,parent):
-        QTableView.__init__(self,parent)
-        self.initTable()
+        QTreeView.__init__(self,parent)
         self.scalars = []
+        self.scalarmap = {}
+        self.initTable()
         self.scalarDelegate = ScalarEditorDelegate(self)
         self.setItemDelegateForColumn(1,self.scalarDelegate)
         self.createContextMenu()
-        self.metaEdit = ScalarDialog(self)
+        self.metaIntEdit = ScalarDialog(self)
+        self.metaFloatEdit = FloatScalarDialog(self)
+        self.setItemsExpandable(False)
+        self.setIndentation(0)
+    # def setItemsExpandable(self, value) : pass
+    # def setAllColumnsShowFocus(self, value) : pass
     def initTable(self):
-        self.scalarModel = MyItemModel(0, 1)
+        self.scalarModel = MyItemModel(0, 1, self.scalarmap)
         QObject.connect(self.scalarModel,SIGNAL('itemChanged(QStandardItem*)'),self.internalItemChanged)
+        QObject.connect(self.scalarModel,SIGNAL('moveRequest(int,int)'),self.moveItem)
         self.scalarModel.setHorizontalHeaderLabels(["Parameter", "Value" ])
         self.setModel(self.scalarModel)
     def contextMenuEvent(self,event):
         items = self.selection()
         self.deleteAction.setEnabled(len(items) > 0)
-        self.editAction.setEnabled(len(items) == 1)
+        self.editAction.setEnabled(len(items) == 1 and not(self.scalars[items[0]].isCategory() or self.scalars[items[0]].isBool()))
         self.menu.exec_(event.globalPos())
     def createContextMenu(self):
         self.menu = QMenu("Scalar Edit",self)
-        self.menu.addAction("New",self.newScalar)
+        self.menu.addAction("New Integer",self.newScalar)
+        self.menu.addAction("New Float",self.newFloatScalar)
         self.menu.addAction("New Boolean",self.newBoolScalar)
+        self.menu.addSeparator()
+        self.menu.addAction("New Category",self.newCategoryScalar)
+        self.menu.addSeparator()
         self.deleteAction = self.menu.addAction("Delete",self.deleteScalars)
         self.editAction = self.menu.addAction("Edit",self.editMetaScalar)
     def selection(self):
@@ -188,15 +267,28 @@ class ScalarEditor (QTreeView):
             self.emit(SIGNAL('itemValueChanged(PyQt_PyObject)'),v)
             self.emit(SIGNAL('valueChanged()'))
     def visualEditMetaScalar(self,scalar):
-        self.metaEdit.setScalar(scalar)
-        res = self.metaEdit.exec_()
-        if res: return self.metaEdit.getScalar()
+        metaEdit = self.metaIntEdit
+        if scalar.isFloat():
+            metaEdit = self.metaFloatEdit
+        metaEdit.setScalar(scalar)
+        res = metaEdit.exec_()
+        if res: return metaEdit.getScalar()
     def getItems(self,scalar):
         si_name = QStandardItem(scalar.name)
         si_name.setEditable(True)
+        #si_name.setData(scalar)
         si_name.scalar = scalar
         si_name.nameEditor = True
-        if scalar.isBool():
+        if scalar.isCategory():
+            b = QBrush(QColor(255,255,255))
+            si_name.setForeground(b)
+            b = QBrush(QColor(0,0,0))
+            si_name.setBackground(b)
+            return [si_name]
+            si_value = QStandardItem()
+            si_value.setEditable(False)
+            si_value.setBackground(b)
+        elif scalar.isBool():
             si_value = QStandardItem()
             si_value.setCheckable(True)
             si_value.setCheckState(Qt.Checked if scalar.value else Qt.Unchecked)
@@ -206,17 +298,31 @@ class ScalarEditor (QTreeView):
         si_value.scalar = scalar
         scalar.si_name = si_name
         scalar.si_value = si_value
+        self.scalarmap[scalar.name] = (scalar, si_name, si_value)
         return [si_name,si_value]
     def newScalar(self):
-        s = self.visualEditMetaScalar(Scalar('default_scalar'))
+        s = self.visualEditMetaScalar(IntegerScalar('default_scalar'))
+        if s:
+            self.scalars.append(s)        
+            self.scalarModel.appendRow(self.getItems(s))
+            self.internalValueChanged(s)
+    def newFloatScalar(self):
+        s = self.visualEditMetaScalar(FloatScalar('default_scalar'))
         if s:
             self.scalars.append(s)        
             self.scalarModel.appendRow(self.getItems(s))
             self.internalValueChanged(s)
     def newBoolScalar(self):
-        s = Scalar('default_bool',True)
+        s = BoolScalar('default_bool',True)
         self.scalars.append(s)        
         self.scalarModel.appendRow(self.getItems(s))
+        self.internalValueChanged(s)
+    def newCategoryScalar(self):
+        s = CategoryScalar('new category')
+        self.scalars.append(s)
+        ri = self.scalarModel.indexFromItem(self.scalarModel.invisibleRootItem())        
+        self.scalarModel.appendRow(self.getItems(s))
+        self.setFirstColumnSpanned(len(self.scalars)-1,ri,True)
         self.internalValueChanged(s)
     def setScalars(self,values):
         self.scalars = values
@@ -225,13 +331,11 @@ class ScalarEditor (QTreeView):
         return self.scalars
     def replotScalars(self):
         self.initTable()
-        for sc in self.scalars:
+        ri = self.scalarModel.indexFromItem(self.scalarModel.invisibleRootItem())
+        for i, sc in enumerate(self.scalars):
             self.scalarModel.appendRow(self.getItems(sc))
-    def getState(self):
-        return self.scalars,self.scalarModel
-    def restoreState(self,scalars,state):
-        self.scalars,self.scalarModel = scalars,state
-        self.setModel(self.scalarModel)
+            if sc.isCategory():
+                self.setFirstColumnSpanned(i,ri,True)
     def internalValueChanged(self,scalar):
         self.emit(SIGNAL('itemValueChanged(PyQt_PyObject)'),scalar)
         self.emit(SIGNAL('valueChanged()'))
@@ -242,5 +346,11 @@ class ScalarEditor (QTreeView):
         elif hasattr(item,'stdEditor'):
             item.scalar.value = item.checkState() == Qt.Checked
             self.emit(SIGNAL('valueChanged()'))
-        
-        
+    def moveItem(self, r0, r1):
+        item = self.scalars.pop(r0)
+        if r1 == -1:
+            self.scalars.append(item)
+        else:
+            self.scalars.insert(r1,item)
+        self.replotScalars()
+        self.emit(SIGNAL('valueChanged()'))

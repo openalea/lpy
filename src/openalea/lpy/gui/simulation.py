@@ -148,10 +148,7 @@ class LpySimulation:
             panelinfo,objects = data
             panel.setInfo(panelinfo)
             panel.setObjects(objects)
-        if self.scalarEditState is None:
-            self.lpywidget.scalarEditor.setScalars(self.scalars)
-        else:
-            self.lpywidget.scalarEditor.restoreState(self.scalars,self.scalarEditState)
+        self.lpywidget.scalarEditor.setScalars(self.scalars)
         if not self.lpywidget.interpreter is None:
             self.lpywidget.interpreter.locals['lstring'] = self.tree
             self.lpywidget.interpreter.locals['lsystem'] = self.lsystem
@@ -175,7 +172,7 @@ class LpySimulation:
         #self.functions = self.lpywidget.functionpanel.getFunctions()
         #self.curves = self.lpywidget.curvepanel.getCurves()
         self.visualparameters = [(panel.getInfo(),panel.getObjects()) for panel in self.lpywidget.getObjectPanels()]
-        self.scalars,self.scalarEditState = self.lpywidget.scalarEditor.getState()
+        self.scalars = self.lpywidget.scalarEditor.getScalars()
     def initializeParametersTable(self):
         self.optionModel = QStandardItemModel(0, 1)
         self.optionModel.setHorizontalHeaderLabels(["Parameter", "Value" ])
@@ -331,9 +328,9 @@ class LpySimulation:
                 if not options[i].isToDefault():
                     init_txt += '\tcontext.options.setSelection('+repr(options[i].name)+','+str(options[i].selection)+')\n'
         if len(self.scalars):
-            init_txt += '\tscalars = '+str([(i.name,i.value,i.minvalue,i.maxvalue) for i in self.scalars])+'\n'
+            init_txt += '\tscalars = '+str([i.tostr() for i in self.scalars])+'\n'
             init_txt += '\tcontext["__scalars__"] = scalars\n'
-            init_txt += '\tfor n,v,mnv,mxv in scalars:\n\t\tcontext[n] = v\n'
+            init_txt += '\tfor s in scalars:\n\t\tif not s[1] is None : context[s[0]] = s[1]\n'
         def emptyparameterset(params):
             for panel,data in params:
                 if len(data) > 0: return False
@@ -459,7 +456,7 @@ class LpySimulation:
                 self.visualparameters += [ ({'name':'Curve2D'}, [(curvemanager,curve) for n,curve in curves]) ]
             if context.has_key('__scalars__'):
                 scalars = context['__scalars__']                
-                self.scalars = [ Scalar(*v) for v in scalars ]
+                self.scalars = [ ProduceScalar(v) for v in scalars ]
             if context.has_key('__parameterset__'):
                 def checkinfo(info):    
                     if type(info) == str:
