@@ -286,7 +286,8 @@ def translate_l_code(txt, vlpyinitconfig = None):
             result += '# ' + line + '\n'
         elif fword == 'Axiom:' : 
             result += 'Axiom: '
-            result += vafile.translate_view_init(vlpyinitconfig)
+            if vlpyinitconfig:
+                result += vafile.translate_view_init(vlpyinitconfig)
             result += convert_lstring(restofline) + '\n'
         elif fword == 'Seed:'  : 
             result += 'from random import seed\nseed(' + restofline + ')\n'
