@@ -116,8 +116,13 @@ void createDefaultContext()
 		LsysContext * global =  LsysContext::globalContext();
         DEFAULT_LSYSCONTEXT = new LocalContext(false);
         // copy __builtins__ for import and all.
+
 		DEFAULT_LSYSCONTEXT->copyObject("__builtins__",global);
-		DEFAULT_LSYSCONTEXT->copyObject("__doc__",global);
+
+		if (!DEFAULT_LSYSCONTEXT->hasObject("__builtins__"))
+			DEFAULT_LSYSCONTEXT->setObject("__builtins__", object(handle<>(borrowed( PyModule_GetDict(PyImport_AddModule("__builtin__"))))));
+
+		// DEFAULT_LSYSCONTEXT->copyObject("__doc__",global);
         // import pylsystems
         DEFAULT_LSYSCONTEXT->compile("from openalea.lpy import *");
    }
