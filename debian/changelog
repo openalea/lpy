@@ -1,3 +1,27 @@
+vplants-lpy (2.1.0~ppa6) quantal; urgency=low
+
+  * Port to quantal
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Tue, 11 Dec 2012 11:34:17 +0100
+
+vplants-lpy (2.1.0~ppa5) precise; urgency=low
+
+  * Merge trunk to this branch 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Tue, 04 Dec 2012 12:11:15 +0100
+
+vplants-lpy (2.1.0~ppa4) precise; urgency=low
+
+  * Fix gcc 4.7 errors 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Mon, 29 Oct 2012 15:40:46 +0100
+
+vplants-lpy (2.1.0~ppa3) precise; urgency=low
+
+  * Switch to dh_python2 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Wed, 12 Sep 2012 15:41:40 +0200
+
 vplants-lpy (2.1.0~ppa2) precise; urgency=low
 
   * Fix build errors. 
