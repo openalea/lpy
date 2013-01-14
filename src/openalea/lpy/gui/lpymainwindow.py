@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'd:\fred\mes documents\develop\vplants\trunk\lpy\src\openalea\lpy\gui\lpymainwindow.ui'
 #
-# Created: Mon Oct 22 14:41:55 2012
+# Created: Mon Jan 14 15:20:37 2013
 #      by: PyQt4 UI code generator 4.9.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -167,7 +167,7 @@ class Ui_MainWindow(object):
         self.lpytoolbox.setMidLineWidth(1)
         self.lpytoolbox.setObjectName(_fromUtf8("lpytoolbox"))
         self.page = QtGui.QWidget()
-        self.page.setGeometry(QtCore.QRect(0, 0, 148, 201))
+        self.page.setGeometry(QtCore.QRect(0, 0, 148, 204))
         self.page.setObjectName(_fromUtf8("page"))
         self.verticalLayout_2 = QtGui.QVBoxLayout(self.page)
         self.verticalLayout_2.setSpacing(2)
@@ -197,7 +197,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.referenceEdit)
         self.lpytoolbox.addItem(self.page, _fromUtf8(""))
         self.page_2 = QtGui.QWidget()
-        self.page_2.setGeometry(QtCore.QRect(0, 0, 131, 266))
+        self.page_2.setGeometry(QtCore.QRect(0, 0, 98, 266))
         self.page_2.setObjectName(_fromUtf8("page_2"))
         self.verticalLayout = QtGui.QVBoxLayout(self.page_2)
         self.verticalLayout.setSpacing(2)
@@ -697,6 +697,8 @@ class Ui_MainWindow(object):
         self.actionSubmitBug.setObjectName(_fromUtf8("actionSubmitBug"))
         self.actionOnlineHelp = QtGui.QAction(MainWindow)
         self.actionOnlineHelp.setObjectName(_fromUtf8("actionOnlineHelp"))
+        self.actionSubmitFeature = QtGui.QAction(MainWindow)
+        self.actionSubmitFeature.setObjectName(_fromUtf8("actionSubmitFeature"))
         self.menuL_systems.addAction(self.actionRun)
         self.menuL_systems.addAction(self.actionAnimate)
         self.menuL_systems.addSeparator()
@@ -758,6 +760,7 @@ class Ui_MainWindow(object):
         self.menuHelp.addSeparator()
         self.menuHelp.addAction(self.actionOnlineHelp)
         self.menuHelp.addAction(self.actionSubmitBug)
+        self.menuHelp.addAction(self.actionSubmitFeature)
         self.menuHelp.addSeparator()
         self.menuView.addAction(self.actionZoomIn)
         self.menuView.addAction(self.actionZoomOut)
@@ -934,8 +937,9 @@ class Ui_MainWindow(object):
         self.actionView3D.setText(QtGui.QApplication.translate("MainWindow", "View 3D", None, QtGui.QApplication.UnicodeUTF8))
         self.actionImportCpfgProject.setText(QtGui.QApplication.translate("MainWindow", "Cpfg project", None, QtGui.QApplication.UnicodeUTF8))
         self.actionImportCpfgFile.setText(QtGui.QApplication.translate("MainWindow", "Cpfg file", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionSubmitBug.setText(QtGui.QApplication.translate("MainWindow", "Submit a bug", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSubmitBug.setText(QtGui.QApplication.translate("MainWindow", "Submit a Bug", None, QtGui.QApplication.UnicodeUTF8))
         self.actionOnlineHelp.setText(QtGui.QApplication.translate("MainWindow", "L-Py Website", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSubmitFeature.setText(QtGui.QApplication.translate("MainWindow", "Submit a Feature", None, QtGui.QApplication.UnicodeUTF8))
 
 from lpycodeeditor import LpyCodeEditor
 from materialeditor import MaterialEditor

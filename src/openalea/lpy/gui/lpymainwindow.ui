@@ -374,7 +374,7 @@
              <x>0</x>
              <y>0</y>
              <width>148</width>
-             <height>201</height>
+             <height>204</height>
             </rect>
            </property>
            <attribute name="label">
@@ -442,7 +442,7 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>131</width>
+             <width>98</width>
              <height>266</height>
             </rect>
            </property>
@@ -1027,6 +1027,7 @@
     <addaction name="separator"/>
     <addaction name="actionOnlineHelp"/>
     <addaction name="actionSubmitBug"/>
+    <addaction name="actionSubmitFeature"/>
     <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuView">
@@ -1656,12 +1657,17 @@
   </action>
   <action name="actionSubmitBug">
    <property name="text">
-    <string>Submit a bug</string>
+    <string>Submit a Bug</string>
    </property>
   </action>
   <action name="actionOnlineHelp">
    <property name="text">
     <string>L-Py Website</string>
+   </property>
+  </action>
+  <action name="actionSubmitFeature">
+   <property name="text">
+    <string>Submit a Feature</string>
    </property>
   </action>
  </widget>

@@ -14,6 +14,7 @@ try:
 except:
     py2exe_release = False
 
+
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyQGLViewer import *
@@ -202,6 +203,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.helpDisplay.setText(doc.getSpecification())        
         QObject.connect(self.actionOnlineHelp, SIGNAL('triggered(bool)'),self.onlinehelp)
         QObject.connect(self.actionSubmitBug, SIGNAL('triggered(bool)'),self.submitBug)
+        QObject.connect(self.actionSubmitFeature, SIGNAL('triggered(bool)'),self.submitFeature)
         QObject.connect(self.actionUseThread,SIGNAL('triggered()'),self.toggleUseThread)
         QObject.connect(self.actionFitAnimationView,SIGNAL('triggered()'),self.toggleFitAnimationView)
         QObject.connect(self.menuRecents,SIGNAL("triggered(QAction *)"),self.recentMenuAction)
@@ -744,6 +746,9 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
     def submitBug(self):
         import webbrowser
         webbrowser.open("https://gforge.inria.fr/tracker/?func=add&group_id=79&atid=13767")
+    def submitFeature(self):
+        import webbrowser
+        webbrowser.open("https://gforge.inria.fr/tracker/?func=add&group_id=79&atid=13824")
     def onlinehelp(self):
         import webbrowser
         webbrowser.open("http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=packages:vplants:lpy:main")
