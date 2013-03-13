@@ -82,6 +82,7 @@ public:
 		       __mclass == ModuleClass::QueryRigth || 
 		       __mclass == ModuleClass::QueryFrame; }
   inline bool isCut() const { return __mclass == ModuleClass::Cut; }
+  inline bool isNone() const { return __mclass == ModuleClass::None; }
   inline bool isNull() const { return __mclass == ModuleClass::None || __mclass == ModuleClass::Star; }
   inline bool isStar() const { return __mclass == ModuleClass::Star; }
   inline bool isRepExp() const { return __mclass == ModuleClass::RepExp; }

@@ -881,6 +881,10 @@ DeclareModuleBegin(TextureTransformation,"Set the transformation for texture app
 #endif
 DeclareModuleEnd
 
+DeclareSimpleModule(leftReflection,"The turtle change the left vector to have a symmetric behavior.",eRotation)
+DeclareSimpleModule(upReflection,"The turtle change the up vector to have a symmetric behavior.",eRotation)
+DeclareSimpleModule(headingReflection,"The turtle change the heading vector to have a symmetric behavior.",eRotation)
+
 /*---------------------------------------------------------------------------*/
 std::vector<ModuleClassPtr> * ModuleClass::PredefinedClasses = NULL;
 
@@ -973,6 +977,9 @@ void ModuleClass::createPredefinedClasses() {
 	TextureTranslation = new DeclaredModule(TextureTranslation)("TextureTranslation");
 	TextureRotation = new DeclaredModule(TextureRotation)("TextureRotation");
 	TextureTransformation = new DeclaredModule(TextureTransformation)("TextureTransformation");
+	LeftReflection = new DeclaredModule(leftReflection)("LeftReflection");
+	UpReflection = new DeclaredModule(upReflection)("UpReflection");
+	HeadingReflection = new DeclaredModule(headingReflection)("HeadingReflection");
 
 	GetIterator = new PredefinedModuleClass("?I","GetIterator","Request an iterator over the current Lstring.",PredefinedModuleClass::ePatternMatching);
 	GetModule = new PredefinedModuleClass("$","GetModule","Request a module of the current Lstring.",PredefinedModuleClass::ePatternMatching);

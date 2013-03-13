@@ -170,7 +170,8 @@ public:
   inline void setInterpretationMaxDepth(size_t v) { __interpretation_max_depth = v; }
 
   /** context */
-  inline LsysContext * context() { return &__context; }
+  inline LsysContext * context() { return &__context; } 
+  inline const LsysContext * context() const { return &__context; } 
   /** make current or disable the context of self */
   inline void makeCurrent() { return __context.makeCurrent(); }
   inline bool isCurrent() const { return __context.isCurrent(); }
@@ -191,6 +192,9 @@ public:
    bool isRunning() const;
    /** force release of running state in case of violent ending **/
    void forceRelease();
+
+   void addSubLsystem(const std::string& lfile);
+   void addSubLsystem(const Lsystem& sublsystem);
 
    class LPY_API Debugger : public TOOLS::RefCountObject {
    public:
@@ -322,6 +326,7 @@ protected:
   };
 
   typedef std::vector<RuleGroup> RuleGroupList;
+
 
   LsysRule& __addRule( const std::string& rule, int type, size_t group,  int lineno = -1 );
   LsysRule& __addProductionRule( const std::string& rule, size_t group,  int lineno = -1 );

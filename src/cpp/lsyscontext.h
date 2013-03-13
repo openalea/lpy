@@ -61,7 +61,7 @@ public:
   /** Destructor */
   virtual ~LsysContext();
 
-  /** clear context. Set python namespace to default. Keep __builtin__, pylsystems and __filename__ object */
+  /** clear context. Set python namespace to default. Keep __builtin__, lpy and __filename__ object */
   void clear();
   /** Test whether namespace is empty */
   bool empty() const;
@@ -138,6 +138,7 @@ public:
   virtual void clearNamespace();
   virtual void updateNamespace(const boost::python::dict&);
   virtual void getNamespace(boost::python::dict&) const;
+  virtual void updateFromContextNamespace(const LsysContext&);
 
   /** access to python object of the namespace */
   virtual bool hasObject(const std::string& name) const;
@@ -186,23 +187,23 @@ public:
   inline void set_nproduction(const AxialTree& prod) { __nproduction = prod; }
 
   /** parametric production */
-  inline size_t add_pproduction(const ParametricProduction& pprod)
-  { size_t id = __paramproductions.size(); __paramproductions.push_back(pprod); return id; }
+  inline void add_pproduction(const ParametricProductionPtr pprod)
+  { __paramproductions.push_back(pprod); }
 
-  inline const ParametricProduction& get_pproduction(size_t id) const
-  { lpyassert(id <__paramproductions.size()); return __paramproductions[id]; }
+  inline void add_pproductions(const ParametricProductionList& pprod)
+  { __paramproductions.insert(__paramproductions.end(),pprod.begin(),pprod.end()); }
 
   inline const ParametricProductionList& get_pproductions() const 
   { return __paramproductions; }
+  
 
   inline AxialTree generate(size_t pprod_id, const bp::list& args)
-  { lpyassert(pprod_id<__paramproductions.size()); return __paramproductions[pprod_id].generate(args); }
+  {  return ParametricProduction::get(pprod_id)->generate(args); }
 
 
   inline AxialTree generate(const bp::tuple& args)
-  { size_t pprod_id = bp::extract<size_t>(args[0])();
-    lpyassert(pprod_id<__paramproductions.size()); 
-	return __paramproductions[pprod_id].generate(args); }
+  { size_t pprod_id = bp::extract<size_t>(args[0])();    
+	return ParametricProduction::get(pprod_id)->generate(args); }
 
   inline void pproduce(size_t pprod_id, const bp::list& args)
   { __nproduction.append(generate(pprod_id,args)); }
@@ -255,6 +256,8 @@ public:
   bool isDeclared(const std::string& module);
   bool isDeclared(ModuleClassPtr module);
   ModuleClassList declaredModules() const { return __modules; }
+  void declareModules(const ModuleClassList& other);
+
   void declareAlias(const std::string& aliasName, ModuleClassPtr module);
 
   void setModuleScale(const std::string& modules, int scale);
@@ -274,7 +277,8 @@ public:
   bool isEarlyReturnEnabled() ;
   inline void stop() { enableEarlyReturn(true); }
 
-  
+  void importContext(const LsysContext& other);
+
   /** Iteration number property. Only set by Lsystem. Access by all other. */
 public:
   size_t getIterationNb();

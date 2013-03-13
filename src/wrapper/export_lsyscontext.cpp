@@ -76,7 +76,7 @@ boost::python::object py_pproduce(bp::tuple args, bp::dict kw) {
 boost::python::object py_LcGetPProductions(LsysContext * c) {
 	std::vector<AxialTree> res;
 	for (ParametricProductionList::const_iterator it = c->get_pproductions().begin(); it != c->get_pproductions().end() ; ++it)
-		res.push_back(it->getCanvas());
+		res.push_back((*it)->getCanvas());
 	return make_list<std::vector<AxialTree> >(res)();
 }
 

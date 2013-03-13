@@ -572,6 +572,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
                 self.viewer.setAnimation(eAnimatedScene)
         simu.updateLsystemCode()
         simu.isTextEdited()
+        post_run = None if not hasattr(simu,'post_run') else simu.post_run
         task = ComputationTask(simu.run,simu.post_run,cleanupprocess=simu.cleanup)
         task.checkRerun = True
         self.registerTask(task)

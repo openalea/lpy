@@ -223,7 +223,7 @@ LsysRule::getCoreCode() {
 		definition += "pproduce";
 		definition += LpyParsing::lstring2pyparam(_it,__definition.end(),'\n',lineno==-1?lineno:lineno+llineno,&pprod_id);
 		_beg = _it;
-		if (LsysContext::current()->optimizationLevel >= 1 &&!LsysContext::current()->get_pproduction(pprod_id).hasArgs()) 
+		if (LsysContext::current()->optimizationLevel >= 1 &&!ParametricProduction::get(pprod_id)->hasArgs()) 
 			setStatic();
 	  }
 	  else _it++;
@@ -562,9 +562,12 @@ LsysRule::match(const AxialTree& src,
   ArgList args_pred;
   AxialTree::const_iterator endpos1;
   AxialTree::const_iterator last_match = pos;
+
+  // strict predecessor
   if (direction == eForward){
-   if(!MatchingEngine::match(pos,src.const_begin(),src.const_end(),__predecessor.const_begin(),__predecessor.const_end(),endpos1,last_match,args_pred))
+   if(!MatchingEngine::match(pos,src.const_begin(),src.const_end(),__predecessor.const_begin(),__predecessor.const_end(),endpos1,last_match,args_pred)){
 	 return false;
+   }
   }
   else{
     AxialTree::const_iterator tmp;
@@ -575,6 +578,8 @@ LsysRule::match(const AxialTree& src,
     endpos1 = (pos == src.end()?pos:pos+1);
     pos = tmp;
   }
+
+  // left context
   AxialTree::const_iterator endpos2;
   if(!__leftcontext.empty()){
       if(!MatchingEngine::left_match(direction == eForward?pos:pos+1,src.const_begin(),src.const_end(),
@@ -582,6 +587,8 @@ LsysRule::match(const AxialTree& src,
 									  endpos2,args))
 	  return false;
   }
+
+  // new left context
   if(direction == eForward && !__newleftcontext.empty()){
 	ArgList args_ncg;
     if(!MatchingEngine::left_match(dest.const_end(),dest.const_begin(),dest.const_end(),
@@ -589,7 +596,10 @@ LsysRule::match(const AxialTree& src,
 								  endpos2,args_ncg))return false;
 	ArgsCollector::append_args(args,args_ncg);
   }
+
   ArgsCollector::append_args(args,args_pred);
+
+  // new right context
   if(direction == eBackward && !__newrightcontext.empty()){
 	ArgList args_ncd;
     if(!MatchingEngine::right_match(dest.const_begin(),dest.const_begin(),dest.const_end(),
@@ -597,6 +607,8 @@ LsysRule::match(const AxialTree& src,
 								  last_match,endpos2,args_ncd))return false;
 	ArgsCollector::append_args(args,args_ncd);
   }
+
+  // right context
   if(!__rightcontext.empty()){
 	ArgList args_cd;
     if(!MatchingEngine::right_match(endpos1,src.const_begin(),src.const_end(),

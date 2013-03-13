@@ -284,6 +284,27 @@ LsysContext::operator=(const LsysContext& lsys)
   return *this;
 }
 
+void 
+LsysContext::importContext(const LsysContext& other)
+{
+	// declareModules(other.declaredModules());
+    size_t nb = __modules.size();
+
+	__modules.insert(__modules.end(),other.__modules.begin(),other.__modules.end()); 
+	__modulesvtables.insert(__modulesvtables.end(),other.__modulesvtables.begin(),other.__modulesvtables.end()); 
+
+	bool iscurrent = isCurrent();
+	for(ModuleClassList::iterator it = __modules.begin()+nb; it != __modules.end(); ++it)
+	{
+		(*it)->activate(iscurrent);
+	}
+
+	add_pproductions(other.get_pproductions());
+	updateFromContextNamespace(other);
+
+}
+
+
 LsysContext::~LsysContext()
 {
 	DecTracker(LsysContext)
@@ -412,17 +433,27 @@ LsysContext::ignore(const std::string& modules){
 bool
 LsysContext::isConsidered(const std::string& module) const{
   if(__keyword.empty())return true;
-  ModuleClassSet::const_iterator _it = __keyword.find(ModuleClassTable::get().getClass(module)->getId());
+  ModuleClassPtr mclass = ModuleClassTable::get().getClass(module);
+  ModuleClassSet::const_iterator _it = __keyword.find(mclass->getId());
   if(__ignore_method) return _it == __keyword.end();
-  else return _it != __keyword.end();
+  else {
+	  if (_it != __keyword.end()) return true;
+	  else return mclass->isBracket(); // by default we consider always bracket
+	  // return _it != __keyword.end();
+  }
 }
 
 bool
 LsysContext::isIgnored(const std::string& module) const{
   if(__keyword.empty())return false;
-  ModuleClassSet::const_iterator _it = __keyword.find(ModuleClassTable::get().getClass(module)->getId());
-  if(__ignore_method) return _it != __keyword.end();
-  else return _it == __keyword.end();
+  ModuleClassPtr mclass = ModuleClassTable::get().getClass(module);
+  ModuleClassSet::const_iterator _it = __keyword.find(mclass->getId());
+  if(__ignore_method)  return _it != __keyword.end();
+  else {
+	  if (_it != __keyword.end()) return false;
+	  else return !mclass->isBracket(); // by default we consider always bracket
+	  // return _it == __keyword.end();
+  }
 }
 
 bool
@@ -478,6 +509,15 @@ LsysContext::declare(const std::string& modules)
 	}
 }
 
+void LsysContext::declareModules(const ModuleClassList& other) { 
+	size_t nb = __modules.size();
+	__modules.insert(__modules.end(),other.begin(),other.end()); 
+	bool iscurrent = isCurrent();
+	for(ModuleClassList::iterator it = __modules.begin()+nb; it != __modules.end(); ++it)
+	{
+		(*it)->activate(iscurrent);
+	}
+}
 
 void 
 LsysContext::undeclare(const std::string& modules)
@@ -571,13 +611,23 @@ LsysContext::copyObject(const std::string& name, LsysContext * sourceContext)
 }
 
 
+
 void
 LsysContext::updateNamespace(const boost::python::dict& d){
+  PyDict_Update(Namespace(),d.ptr());
+}
+
+void 
+LsysContext::updateFromContextNamespace(const LsysContext& other)
+{
+  PyDict_Update(Namespace(),other.Namespace());
 }
 
 void
 LsysContext::getNamespace(boost::python::dict& d) const{
+	PyDict_Update(d.ptr(),Namespace());
 }
+
 
 void
 LsysContext::clearNamespace() {
@@ -1034,6 +1084,12 @@ GlobalContext::getObject(const std::string& name, const boost::python::object& d
   }
 }
 
+void
+GlobalContext::clearNamespace() {
+  // PyDict_Clear(__namespace.get());
+	__local_namespace.clear();
+}
+
 void 
 GlobalContext::setObject(const std::string& name, 
 			   const boost::python::object& o){
@@ -1045,11 +1101,6 @@ GlobalContext::delObject(const std::string& name) {
   PyDict_DelItemString(__namespace.get(),name.c_str());
 }
 
-void
-GlobalContext::clearNamespace() {
-  // PyDict_Clear(__namespace.get());
-	__local_namespace.clear();
-}
 
 void 
 GlobalContext::updateNamespace(const dict& d){
@@ -1058,7 +1109,7 @@ GlobalContext::updateNamespace(const dict& d){
 
 void 
 GlobalContext::getNamespace(dict& d) const{
-  PyDict_Merge(d.ptr(),__namespace.get(),true);
+  PyDict_Update(d.ptr(),__namespace.get());
 }
 
 

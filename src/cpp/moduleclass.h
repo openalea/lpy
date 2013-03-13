@@ -126,6 +126,9 @@ typedef pgl_hash_map_string<size_t> ParameterNameDict;
 	MACRO(GetIterator) \
 	MACRO(GetModule) \
 	MACRO(New) \
+	MACRO(LeftReflection) \
+	MACRO(UpReflection) \
+	MACRO(HeadingReflection) \
 
 #define DECLARE_PM(MName) static ModuleClassPtr MName;
 
@@ -158,6 +161,11 @@ public:
 	static void createPredefinedClasses();
 
     PREDEFINED_MODULE_APPLY(DECLARE_PM)
+
+	inline bool isLeftBracket() const {  return this == ModuleClass::LeftBracket; }
+	inline bool isRightBracket() const {  return this == ModuleClass::RightBracket; }
+	inline bool isExactRightBracket() const { return this == ModuleClass::ExactRightBracket; }
+	inline bool isBracket() const { return isLeftBracket() || isRightBracket() || isExactRightBracket(); }
 
 	inline int getScale() const 
 	{ if (__vtable) return __vtable->scale; 

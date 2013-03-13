@@ -101,7 +101,7 @@ def restoreState(lpywidget):
                 pass
   #except:
   #  print "cannot restore state from ini file"    
-    
+
 def saveState(lpywidget):
     settings = getSettings()
     settings.beginGroup('history')

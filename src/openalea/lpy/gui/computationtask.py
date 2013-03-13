@@ -11,7 +11,10 @@ class ThreadTransferException (Exception):
         self.exc_traceback = exc_traceback
 
 class ComputationTask(QThread):
-    def __init__(self, process = None, postprocess = None, preprocess = None, cleanupprocess = None):
+    def __init__(self, process = None, 
+                       postprocess = None, 
+                       preprocess = None, 
+                       cleanupprocess = None):
         QThread.__init__(self)
         self.process = process
         self.postprocess = postprocess

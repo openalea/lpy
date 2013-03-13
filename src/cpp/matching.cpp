@@ -651,6 +651,7 @@ bool MatchingImplementation::tree_right_match(AxialTree::const_iterator  matchin
 {
 	return TreeRightMatcher<>::
 		match(matching_start, string_beg, string_end, pattern_begin, pattern_end, last_matched, matching_end, params);
+
 }
 
 
@@ -664,8 +665,10 @@ bool MatchingImplementation::tree_left_match(AxialTree::const_iterator  matching
 								AxialTree::const_iterator& matching_end,
 								ArgList& params) 
 {
-	matching_start = GetFather<AxialTree::const_iterator,PatternString::const_reverse_iterator>::next(matching_start,pattern_rbegin,string_begin, string_end);
-	return StringReverseMatcher<GetFather>:: // TreeLeftMatcher<>::
+
+	// matching_start = GetFather<AxialTree::const_iterator,PatternString::const_reverse_iterator>::next(matching_start,pattern_rbegin,string_begin, string_end);
+	return // StringReverseMatcher<GetFather>:: // 
+		TreeLeftMatcher<>::
 		match(matching_start, string_begin, string_end, pattern_rbegin, pattern_rend, matching_end, params);
 }
 

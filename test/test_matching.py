@@ -61,7 +61,7 @@ A :
     matched = True
 """
 
-def match_mod_with_no_arg():
+def test_match_mod_with_no_arg():
     """ Test matching of module without argument """
     runmatch(lcodemodwithoutarg)
 

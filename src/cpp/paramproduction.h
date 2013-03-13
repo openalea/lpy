@@ -32,25 +32,36 @@
 #define __lpy_param_prod_h__
 
 #include "axialtree.h"
+#include <plantgl\tool\util_hashmap.h>
+#include <queue>
 
 /*---------------------------------------------------------------------------*/
 
 LPY_BEGIN_NAMESPACE
 
-class LPY_API ParametricProduction {
+class ParametricProduction;
+typedef RCPtr<ParametricProduction> ParametricProductionPtr;
+
+class LPY_API ParametricProduction : public TOOLS(RefCountObject) {
 public:
+	friend class ParamProductionManager;
+
 	struct ArgPos {
 		size_t moduleid;
 		size_t argid;
 		bool isStarArg;
 		bool isNewName;
-		ArgPos(size_t m, size_t a, bool sa = false, bool nn = false) : moduleid(m), argid(a), isStarArg(sa), isNewName(nn) { }
+		ArgPos(size_t m, 
+			   size_t a, 
+			   bool sa = false, 
+			   bool nn = false) : 
+		  moduleid(m), argid(a), isStarArg(sa), isNewName(nn) { }
 	};
 
 	typedef std::vector<ArgPos> ArgPosList;
 	static const size_t modulearg = 1000;
 
-	ParametricProduction() : next_arg_for_new(false) { }
+	~ParametricProduction();
 
 	inline void append_variable_module()
 	{ 
@@ -131,14 +142,47 @@ public:
 	inline bool hasArgs() const { return !__arguments.empty(); }
 
 	inline AxialTree getCanvas() const { return __canvas; }
+
+	static ParametricProductionPtr create();
+	static ParametricProductionPtr get(size_t pid);
+
+	size_t pid() const { return __pid; }
+
 protected:
+	ParametricProduction() : next_arg_for_new(false) { }
+
 	AxialTree __canvas;
 	ArgPosList __arguments;
 	bool next_arg_for_new;
+	size_t __pid;
 	
 };
 
-typedef std::vector<ParametricProduction> ParametricProductionList;
+typedef std::vector<ParametricProductionPtr> ParametricProductionList;
+
+class ParamProductionManager {
+	friend class ParametricProduction;
+public:
+
+	static ParamProductionManager& get(); 
+	~ParamProductionManager();
+
+	ParametricProductionPtr get_production(size_t pid);
+
+protected:
+	typedef std::vector<ParametricProduction *> ParametricProductionMap;
+
+	static ParamProductionManager * Instance;
+
+	void add_production(ParametricProduction&);
+	void remove_production(ParametricProduction&);
+
+	ParamProductionManager();
+
+	ParametricProductionMap __productions;
+	std::queue<size_t> __free_indices;
+
+};
 
 /*---------------------------------------------------------------------------*/
 

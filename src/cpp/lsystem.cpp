@@ -592,6 +592,29 @@ size_t Lsystem::nbGroups( ) const {
   return __rules.size();
 }
 
+void Lsystem::addSubLsystem(const std::string& lfile)
+{
+	addSubLsystem(Lsystem(lfile));
+}
+
+void Lsystem::addSubLsystem(const Lsystem& sublsystem)
+{
+	printf("Add info from sublsystem '%s'",sublsystem.getFilename().c_str());
+	context()->importContext(*sublsystem.context());
+	size_t groupid = 0;
+	for(std::vector<RuleGroup>::const_iterator itg = sublsystem.__rules.begin(); itg != sublsystem.__rules.end(); ++itg, ++groupid)
+	{
+		RuleGroup& rg = __group(groupid);
+		rg.production.insert(rg.production.end(), itg->production.begin(),itg->production.end());
+		rg.decomposition.insert(rg.decomposition.end(),itg->decomposition.begin(),itg->decomposition.end());
+		rg.interpretation.insert(rg.interpretation.end(), itg->interpretation.begin(),itg->interpretation.end());
+		rg.__prodhasquery = rg.__prodhasquery & itg->__prodhasquery;
+		rg.__dechasquery = rg.__dechasquery & itg->__dechasquery;
+		rg.__inthasquery = rg.__inthasquery & itg->__inthasquery;
+	}
+
+}
+
 
 void 
 Lsystem::setAxiom( const AxialTree& axiom ){
@@ -624,7 +647,11 @@ pgl_hash_map_string<std::string> Lsystem::get_rule_fonction_table() const
 RulePtrMap Lsystem::__getRules(eRuleType type, size_t groupid, eDirection direction, bool * hasQuery)
 {
     if(hasQuery)*hasQuery = false;
-    if (groupid >= __rules.size()) return RulePtrMap();
+ 	size_t nbgroups = __rules.size();
+    if (groupid >= nbgroups) {
+		if (nbgroups == 0) return RulePtrMap();
+		else return __getRules(type,0,direction,hasQuery);
+	}
     RulePtrSet result;
     const RuleSet& rules = __group(groupid).getGroup(type);
     for(RuleSet::const_iterator itr = rules.begin(); itr != rules.end(); ++itr)
@@ -1186,7 +1213,7 @@ Lsystem::__derive( size_t starting_iter ,
           __apply_pre_process(workstring,true);
 		  eDirection dir = getDirection();
 		  size_t group = __context.getGroup();
-		  if (group > __rules.size()) LsysError("Group not valid.");
+		  if (group > __rules.size()) LsysWarning("Group not valid.");
 		  if (i == 0 || dir != ndir || group != __currentGroup || __newrules){
 			  ndir = dir;
 			  __currentGroup = group;

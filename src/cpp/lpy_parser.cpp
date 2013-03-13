@@ -488,6 +488,30 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 		  }
 		  else toendlineA(_it,endpycode);
 		  break;
+		case 'l':
+		  _it2 = _it;
+		  if(has_keyword_pattern(_it,begcode,endpycode,"lpyimport")){
+            code+=std::string(beg,_it2);
+			beg = _it;
+			if(_it!=endpycode){
+			  _it++;
+			  beg = _it;
+			  toendline(_it,endpycode);
+			  if(beg != endpycode) {
+                if (notOnlySpace(beg,_it)){
+				  std::string modulename = LpyParsing::trim(std::string(beg,_it));
+				  addSubLsystem(modulename+".lpy");
+				}
+				else LsysParserSyntaxError("invalid module to import");
+			  }
+              else LsysParserSyntaxError("invalid module to import");
+			}
+            else LsysParserSyntaxError("invalid module to import");
+            code+="# "+std::string(_it2,_it);
+			beg = _it;
+		  }
+		  else toendlineA(_it,endpycode);
+		  break;
 		case 'c':
 		  _it2 = _it;
 		  if(has_keyword_pattern(_it,begcode,endpycode,"consider")){
@@ -971,7 +995,8 @@ void LsysRule::set( const std::string& rule ){
 
 /*---------------------------------------------------------------------------*/
 std::string::const_iterator next_token(std::string::const_iterator _it2,
-											 std::string::const_iterator end)
+									   std::string::const_iterator end,
+									   bool withbrackets = true)
 {
     if(_it2 != end){
 		  if(*_it2 == '"'){ // skip string
@@ -997,7 +1022,7 @@ std::string::const_iterator next_token(std::string::const_iterator _it2,
 			}
 			if(_it2 != end)_it2++;
 		  }
-		  else if(*_it2 == '['){ // skip array
+		 else if(withbrackets && *_it2 == '['){ // skip array
 			int nbOpenBracket = 1;
 			while(_it2 != end && (*_it2 != ']' || nbOpenBracket > 0)){
 				_it2++;
@@ -1010,7 +1035,7 @@ std::string::const_iterator next_token(std::string::const_iterator _it2,
 			}
 			if(_it2 != end)_it2++;
 		  }
-		  else if(*_it2 == '{'){ // skip dict
+		  else if(withbrackets && *_it2 == '{'){ // skip dict
 			int nbOpenBracket = 1;
 			while(_it2 != end && (*_it2 != '}' || nbOpenBracket > 0)){
 				_it2++;
@@ -1043,6 +1068,7 @@ LsysRule::parseHeader( const std::string& header){
   bool begncd = false;
   while(it != end){
 	if(*it == '<'){
+
 	  if(!pred.empty())LsysError("Ill-formed Rule Header : "+header,"",lineno);
 	  if(*(it+1) == '<'){
 		if(ncg.empty())ncg = std::string(beg,it);
@@ -1050,13 +1076,15 @@ LsysRule::parseHeader( const std::string& header){
 		it++;
 	  }
 	  else {
-		if(cg.empty())cg = std::string(beg,it);
+		if(cg.empty()) cg = std::string(beg,it);
 		else LsysError("Ill-formed Rule Header : "+header,"",lineno);
 	  }
 	  beg = it+1;
 	}
-	else if(*it == '>'){      
-      if(*(it+1) == '>') {
+
+	else if(*it == '>'){
+		
+		if(*(it+1) == '>') {
           if (begncd || !ncd.empty())LsysError("Ill-formed Rule Header : Two new left contexts found : "+header,"",lineno);
           else { 
               if(pred.empty()) pred = std::string(beg,it); 
@@ -1075,7 +1103,7 @@ LsysRule::parseHeader( const std::string& header){
       if(pred.empty())LsysError("Ill-formed Rule Header : No Predecessor found : "+header,"",lineno);
 	  beg = it+1;
     }
-	it = next_token(it,end);
+	it = next_token(it,end,false);
 	// it++;
   }
   if(pred.empty()){
@@ -1141,34 +1169,34 @@ std::string LpyParsing::lstring2pyparam( std::string::const_iterator& beg,
   std::string result;
   std::string::const_iterator initbeg = beg;
   std::vector<std::pair<size_t,std::string> > parsedstring = parselstring(beg, endpos, delim, lineno,true);
-  ParametricProduction pprod;
+  ParametricProductionPtr pprod = ParametricProduction::create();
   if(parsedstring.empty()){ 
-	  pprod.append_module_type("None");
+	  pprod->append_module_type("None");
   }
   else {
 	  for(std::vector<std::pair<size_t,std::string> >::const_iterator it = parsedstring.begin();
 		  it != parsedstring.end(); ++it){
 			  if (it->first == ModuleClass::GetModule->getId()){
 				  // in the case of production $ is only followed by a var name.
-				  pprod.append_variable_module();
+				  pprod->append_variable_module();
 				  result += "," + it->second;
 			  }
 			  else {
-				  pprod.append_module_type(it->first);
+				  pprod->append_module_type(it->first);
 				  if (!it->second.empty()) {
 					  std::vector<std::string> args = parse_arguments(it->second);
 					  for(std::vector<std::string>::const_iterator itArg = args.begin(); itArg != args.end(); ++itArg){
 						  if(isAConstant(*itArg)){
-							  pprod.append_module_value(LsysContext::current()->evaluate(*itArg));
+							  pprod->append_module_value(LsysContext::current()->evaluate(*itArg));
 						  }
 						  else {
 							  std::string m = "PackedArgs(";
 							  if(itArg->size() > m.size() && std::string(itArg->begin(),itArg->begin()+m.size()) == m) {
-								pprod.append_module_star_variable();
+								pprod->append_module_star_variable();
 								result += "," + std::string(itArg->begin()+m.size(),itArg->end()-1); 
 							  }
 							  else {
-								pprod.append_module_variable();
+								pprod->append_module_variable();
 								result += "," + *itArg;
 							  }
 						  }
@@ -1177,7 +1205,8 @@ std::string LpyParsing::lstring2pyparam( std::string::const_iterator& beg,
 			  }
 	  } // end for
   }
-  size_t id = LsysContext::current()->add_pproduction(pprod);
+  LsysContext::current()->add_pproduction(pprod);
+  size_t id = pprod->pid();
   if(pprod_id) *pprod_id = id;
   size_t nbInitialLine = std::count(initbeg,beg,'\n');
   size_t nbResultLine = std::count(result.begin(),result.end(),'\n');

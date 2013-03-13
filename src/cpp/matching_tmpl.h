@@ -326,12 +326,13 @@ struct StringMatcher
 		Iterator pit = it;
 		argtype lp;
 		for (PIterator it2 = pattern_begin; it2 != pattern_end; ++it2){
+			// printf("string[%i]='%s' matched with exp[%i]='%s'\n", distance(string_beg,it), it->str().c_str() , distance(pattern_begin,it2), it2->str().c_str() );
 			argtype lmp;
 			if( it == string_end) return false;
 			if(it2->isGetModule()){ if(!process_get_module(it2,it,string_beg,string_end,lp)) return false; }
 			else if( it2->isRE() ) { if(!RegExpMatcher<MType>::match(it,string_beg,string_end,it2,pit,it,lp))return false; }
 			else { 
-				if( !MatchingEngine::module_match(*it,*it2,lmp))return false;
+				if( !MatchingEngine::module_match(*it,*it2,lmp)) return false;
 			    else ArgsCollector::append_args(lp,lmp); 
 			}
 			pit = it;
@@ -396,9 +397,10 @@ struct StringReverseMatcher
 };
 
 /*---------------------------------------------------------------------------*/
-/*
+
 template<
 template < typename, typename > class FatherElement = GetFather, 
+template < typename, typename > class PreviousElement = GetPrevious, 
 class _Iterator = AxialTree::const_iterator, 
 class _PRIterator = PatternString::const_reverse_iterator,
 class _argtype = ArgList>
@@ -408,13 +410,63 @@ struct TreeLeftMatcher
 	typedef _Iterator Iterator;
 	typedef _PRIterator PIterator;
 	typedef FatherElement<Iterator,PIterator> Father;
-	typedef TreeLeftMatcher<FatherElement,Iterator,PIterator,argtype> MType;
+	typedef PreviousElement<Iterator,PIterator> Previous;
+	typedef TreeLeftMatcher<FatherElement,PreviousElement,Iterator,PIterator,argtype> MType;
+
 
 	static bool match(Iterator matching_start, Iterator  string_begin, Iterator  string_end,
 		PIterator pattern_rbegin, PIterator  pattern_rend, Iterator& matching_end,
 		argtype& params)
 	{
+		/* matching_start is supposed to be before the first element to test.
+		   matching_end will be on the last matched element */
 		Iterator it = matching_start;
+		PIterator it2 = pattern_rbegin;
+
+		// In case of no left context in the string
+		if (it == string_begin) {
+			// We test here if we can match nothing with 'None' or some regexp
+			size_t d = distance( pattern_rbegin, pattern_rend);
+			if (d == 0) return true;
+			if (d == 1 && pattern_rbegin->isNone()) return true;
+			argtype lp;
+			while (it2->isRE()){
+				argtype lmp;
+				if(!RegExpMatcher<MType>::reverse_match(string_end,string_begin,string_end,it2,it,lmp)) 
+					return false; 
+				ArgsCollector::prepend_args(lp,lmp);
+				++it2;
+			}
+			if (it2 != pattern_rend) return false;
+			params = lp;
+			return true;
+		}
+
+		argtype lp;
+		
+		for (PIterator it2 = pattern_rbegin; it2 != pattern_rend; ){
+			if( it2->isRE() ) { 
+				if(!RegExpMatcher<MType>::reverse_match(it,string_begin,string_end,it2,it,lp))return false; 
+				++it2;
+			}
+			else {
+				if (it2->isLeftBracket()) it = Previous::next(it,it2,string_begin,string_end);
+				else  it = Father::next(it,it2,string_begin,string_end);
+				
+				if (it == string_end) return false;
+
+				argtype lmp; 
+				if(it2->isGetModule()){ if(!process_get_module(it2,it,string_begin,string_end,lmp)) return false;  }
+				else if(!MatchingEngine::module_match(*it,*it2,lmp)) return false; 
+				ArgsCollector::prepend_args(lp,lmp);
+				++it2;
+			}
+		}
+		params = lp;
+		matching_end = it;
+		return true; 
+
+/*		Iterator it = matching_start;
 		if(it == string_begin)return false;
 		PIterator it2 = pattern_rbegin;
 		it = Father::next(it,it2,string_begin,string_end);
@@ -448,8 +500,9 @@ struct TreeLeftMatcher
 			return true;
 		}
 		else return false;
+*/
 	}
-};*/
+};
 /*---------------------------------------------------------------------------*/
 
 template<
@@ -470,8 +523,28 @@ struct TreeRightMatcher
 					  Iterator last_matched, Iterator& matching_end, 
 					  argtype& params)
 	{
+		// printf("start right  match [%i] %s\n", distance(string_beg,matching_start), matching_start->str().c_str() );
 		Iterator it = matching_start;
 		PIterator it2 = pattern_begin;
+		// In case of no right context in the string
+		if (it == string_end) {
+			// We test here if we can match nothing with 'None' or some regexp
+			size_t d = distance( pattern_begin, pattern_end);
+			if (d == 0) return true;
+			if (d == 1 && pattern_begin->isNone()) return true;
+			argtype lp;
+			while (it2->isRE()){
+				argtype lmp;
+				if(!RegExpMatcher<MType>::match(string_end,string_beg,string_end,it2,last_matched,it,lmp)) 
+					return false; 
+				ArgsCollector::prepend_args(lp,lmp);
+				++it2;
+			}
+			if (it2 != pattern_end) return false;
+			params = lp;
+			return true;
+		}
+
 		argtype lparams;
 		it = NextElement::initial_next(it,it2,last_matched,string_end);				
 		bool nextpattern = true;
@@ -488,6 +561,9 @@ struct TreeRightMatcher
 			}
 			else if(it2->isGetIterator()){
 				process_get_iterator(it2,it,string_end,lparams);
+				nextsrc = false;
+			}
+			else if(it2->isNone()){
 				nextsrc = false;
 			}
 			else if(it2->isGetModule()){
