@@ -1,0 +1,20 @@
+module A : scale = 3
+module B : scale = 2
+
+Axiom: A(0)B[B[BA(1)]]BA(2)
+
+derivation length: 1
+production:
+
+A(x) > [[A(y)]] :
+  print x,y
+
+
+homomorphism:
+
+
+endlsystem
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	context.options.setSelection('String matching',3)

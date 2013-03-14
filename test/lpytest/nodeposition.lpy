@@ -1,0 +1,56 @@
+dt = 0.2
+maxlilength = 2
+
+def EndEach(lstring,scene):
+   from openalea.plantgl.all import Translated
+   if scene:
+     # create a dictionnary that gives all shape for any id
+     shapedict = {}
+     for shape in scene:
+       shapedict[shape.id] = shapedict.get(shape.id,[])+[shape]
+     
+     # create a dictionnary that gives position for any id
+     positions = {}
+     for i,m in enumerate(lstring):
+         if m.name == 'I':      # look only for I module
+             firstshape = shapedict[i][0] # find geometric rep of i
+             if isinstance(firstshape.geometry,Translated) :
+                 positions[i] = firstshape.geometry.translation
+             else:
+                 positions[i] = (0,0,0)
+
+Axiom: A
+
+derivation length: 6
+production:
+
+A --> I(0)/(137.5)[+A][-A] A
+I(t) --> I(t+dt)
+
+interpretation:
+
+I(t) --> _(idiam(t)/10) F(maxlilength*ilength(t))
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	context.animation_timestep = 0.262
+	import openalea.plantgl.all as pgl
+	ilength = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.0769619, 1),(0.543139, 0.181159, 1),(0.800964, 0.707373, 1),(1, 1.02556, 1)]) , 
+	    )
+	ilength.name = "ilength"
+	idiam = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.0562771, 1),(0.324675, 0.298701, 1),(0.588745, 0.532467, 1),(1, 0.679654, 1)]) , 
+	    )
+	idiam.name = "idiam"
+	panel_0 = ({'active': True, 'visible': True, 'name': 'Panel 1'},[('Function',ilength),('Function',idiam)])
+	parameterset = [panel_0,]
+	context["__functions__"] = [('ilength',ilength),('idiam',idiam),]
+	context["__curves__"] = []
+	context["__parameterset__"] = parameterset
+	context["ilength"] = pgl.QuantisedFunction(ilength)
+	context["idiam"] = pgl.QuantisedFunction(idiam)

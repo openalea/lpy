@@ -1,0 +1,33 @@
+leaf_size = 2
+leaf_step = 0.2
+
+module Leaf
+
+Axiom: F(5)[+(80)/(90)_(0.02)F(0.5) Leaf ] F(5)
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+Leaf :
+    nproduce _(width(0)) SetContour(leaf_profile) ;(2) StartGC()  SetGuide(leaf_path,leaf_size)
+    nbstep = int(leaf_size/leaf_step)
+    ustep = 1. / nbstep
+    for i in xrange(nbstep+1):
+        nproduce _(width(ustep*i)*2) F(leaf_step)
+
+endlsystem
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	from openalea.plantgl.all import QuantisedFunction,NurbsCurve2D,Point3Array,Vector3,RealArray
+	functions = [('width', NurbsCurve2D(Point3Array([Vector3(0,0.0916335,1),Vector3(0.341301,0.298805,1),Vector3(0.61089,0.262948,1),Vector3(1,0.00796812,1)])))]
+	context["__functions__"] = functions
+	for n,c in functions:
+		context[n] = QuantisedFunction(c)
+	curves = [('leaf_path', NurbsCurve2D(Point3Array([Vector3(-0.5,0,1),Vector3(-0.186587,0.25498,1),Vector3(0.15073,-0.0358566,1),Vector3(0.555777,-0.135458,1)]))), ('leaf_profile', NurbsCurve2D(Point3Array([Vector3(-0.5,0,1),Vector3(-0.174635,0.163347,1),Vector3(0.214475,0.14741,1),Vector3(0.5,0,1)])))]
+	context["__curves__"] = curves
+	for n,c in curves:
+		context[n] = c

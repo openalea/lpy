@@ -1,0 +1,27 @@
+def End(lstring,lscene):
+  lsceneids = lscene.todict().keys()
+  lsceneids.sort()
+  assert len(lsceneids) == lstring.count('A') + lstring.count('B') + lstring.count('C')
+  assert lsceneids == [2,5,7,10,12,15]
+
+Axiom: @Tp(0,0,1) [ A [ + B ] C  [- B ] A [+ B ] ]
+
+derivation length: 1
+production:
+
+
+interpretation:
+maximum depth: 3
+A --> D
+D --> E
+E --> F @O(0.2) F
+B --> H
+H --> I
+I --> fFfF
+C --> J
+J --> K
+K --> f @O f @O
+
+
+
+endlsystem

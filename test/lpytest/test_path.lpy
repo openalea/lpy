@@ -1,0 +1,40 @@
+from openalea.plantgl.all import *
+from math import degrees
+
+path.c = path.getArcLengthToUMapping()
+
+l = 50.
+nbpt = int(l)
+
+Axiom:  Tp(0,0,1)Elasticity(0.05)A(0,Vector2(0,1))
+
+derivation length: nbpt
+production:
+
+A(x,lastdir) : 
+    u0 = x/l
+    u1 = (x+1)/l
+    print x, u0,u1
+    t = path.getPointAt(path.c(u1))-path.getPointAt(path.c(u0))
+    t.normalize()
+    print lastdir,t
+    a = angle(lastdir,t)
+    lastdir = t
+    print a
+    if x == nbpt/2:
+        nproduce [+(60)/(180)+(degrees(a))F(1)A(x+1,lastdir)]
+    produce +(degrees(a))F(1)A(x+1,lastdir)
+    
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	from openalea.plantgl.all import QuantisedFunction,NurbsCurve2D,Point3Array,Vector3,RealArray
+	curves = [('path', NurbsCurve2D(Point3Array([Vector3(0.00996011,-0.358566,1),Vector3(0.110341,-0.202419,1),Vector3(0.160837,0.0359083,1),Vector3(0.298676,0.0746751,1),Vector3(0.613396,0.127682,1)])))]
+	context["__curves__"] = curves
+	for n,c in curves:
+		context[n] = c

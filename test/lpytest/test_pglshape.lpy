@@ -1,0 +1,12 @@
+from openalea.plantgl.all import *
+b = Translated((0,2,0),Box(1,2,3))
+Axiom: @g(b)
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem

@@ -1,0 +1,40 @@
+def StartEach():
+    print '**',getIterationNb()
+
+def EndEach(lstring):
+   print '** -> "'+str(lstring)+'" -'
+   if getIterationNb() == 0:
+     print '+ ',getattr(__lsystem__.productionRule(0),'__static_production__')
+     
+     fname = 'test_inc1.lpy'
+     l = Lsystem(fname)
+     print l.iterate()
+     r = l.productionRule(0,0)
+     print repr(str(r)),r()
+     print __lsystem__.nbTotalRules()
+     __lsystem__.addRule(r,0,0)
+     print '+ ',getattr(__lsystem__.productionRule(0),'__static_production__')
+     print __lsystem__.nbTotalRules()
+
+
+def End(lstring):
+    print __lsystem__.nbTotalRules()
+    print 'end:',repr(lstring)
+
+Axiom: A
+
+derivation length: 5
+production:
+
+B --> J
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	context.options.setSelection('Early return when no matching',0)

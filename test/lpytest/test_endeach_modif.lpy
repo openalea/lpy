@@ -1,0 +1,19 @@
+def EndEach(lstring):
+    assert len(lstring) == getIterationNb()+1
+    lstring += 'B'
+    global ok
+    ok = True
+    return lstring
+
+derivation length : 5
+
+ok = False
+
+def End():
+    assert ok == True
+    
+Axiom: A
+production:
+A --> A
+
+endlsystem

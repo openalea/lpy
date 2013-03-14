@@ -1,0 +1,73 @@
+Axiom: Frame() Sweep(path,section,10,0.1,0.5,radius)
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	scalars = [('default_scalar', 1, 0, 100), ('default_scalar2', 1, 0, 100), ('default_scalar3', 1, 0, 100)]
+	context["__scalars__"] = scalars
+	for n,v,mnv,mxv in scalars:
+		context[n] = v
+	import openalea.plantgl.all as pgl
+	radius = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.98719, 1),(0.0357168, 0.407384, 1),(0.260088, 0.407384, 1),(0.260088, 0.949652, 1),(0.546428, 0.964524, 1),(0.555714, 0.249528, 1),(0.78476, 0.265004, 1),(0.828093, 0.942858, 1),(0.953572, 0.936943, 1),(1, 0.109243, 1)]) , 
+	    )
+	radius.name = "radius"
+	import openalea.plantgl.all as pgl
+	path = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.218615, 0.164502, 1),(0.0238095, -0.290043, 1),(0.517316, 0.246753, 1)]) , 
+	    )
+	path.name = "path"
+	section = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.331169, 0.333333, 1),(-0.166667, -0.155844, 1),(0.201299, 0.214286, 1),(0.5, 0, 1)]) , 
+	    )
+	section.name = "section"
+	import openalea.plantgl.all as pgl
+	parameter = pgl.NurbsPatch(	
+	    pgl.Point4Matrix([[(-0.0797013, -0.362725, -0.0718943, 1), (0.165875, -0.0593558, 0.0786184, 1), (-0.204907, 0.0787067, -0.105177, 1), (0.19717, 0.672553, 0.0853212, 1)], [(-0.0814571, -0.7365, 0.327935, 1), (0.284639, -0.469756, 0.556274, 1), (0, 0.166667, 0.333333, 1), (0.216553, 0.529145, 0.456017, 1)], [(0, -0.5, 0.666667, 1), (0, -0.166667, 0.666667, 1), (0, 0.166667, 0.666667, 1), (0, 0.5, 0.666667, 1)], [(-0.259848, -0.651558, 1.17402, 1), (-0.0401437, -0.224966, 1.32802, 1), (0, 0.166667, 1, 1), (0.340902, 0.64979, 1.19505, 1)]]) , 
+	    )
+	parameter.name = "parameter"
+	panel_0 = ({'active': False, 'visible': True, 'name': 'Panel 1'},[('Function',radius),('Curve2D',path),('Curve2D',section),('NurbsPatch',parameter)])
+	radius = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.98719, 1),(0.0357168, 0.407384, 1),(0.260088, 0.407384, 1),(0.260088, 0.949652, 1),(0.546428, 0.964524, 1),(0.555714, 0.249528, 1),(0.78476, 0.265004, 1),(0.828093, 0.942858, 1),(0.953572, 0.936943, 1),(1, 0.109243, 1)]) , 
+	    )
+	radius.name = "radius"
+	path = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.218615, 0.164502, 1),(0.0238095, -0.290043, 1),(0.517316, 0.246753, 1)]) , 
+	    )
+	path.name = "path"
+	section = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.331169, 0.333333, 1),(-0.166667, -0.155844, 1),(0.201299, 0.214286, 1),(0.5, 0, 1)]) , 
+	    )
+	section.name = "section"
+	parameter_2 = pgl.NurbsPatch(	
+	    pgl.Point4Matrix([[(-0.0797013, -0.362725, -0.0718943, 1), (0.165875, -0.0593558, 0.0786184, 1), (-0.204907, 0.0787067, -0.105177, 1), (0.19717, 0.672553, 0.0853212, 1)], [(-0.0814571, -0.7365, 0.327935, 1), (0.284639, -0.469756, 0.556274, 1), (0, 0.166667, 0.333333, 1), (0.216553, 0.529145, 0.456017, 1)], [(0, -0.5, 0.666667, 1), (0, -0.166667, 0.666667, 1), (0, 0.166667, 0.666667, 1), (0, 0.5, 0.666667, 1)], [(-0.259848, -0.651558, 1.17402, 1), (-0.0401437, -0.224966, 1.32802, 1), (0, 0.166667, 1, 1), (0.340902, 0.64979, 1.19505, 1)]]) , 
+	    )
+	parameter_2.name = "parameter_2"
+	import openalea.plantgl.scenegraph.interpolated_profile as ip
+	parameter_3 = ip.InterpolatedProfile(interpolator=ip.CSplineMethod)
+	parameter_3.name = 'parameter_3'
+	parameter_3.set_param_range(0.0, 1.0)
+	section0 = ip.CrossSection(*[(-0.5, 0.0), (-0.1590227484703064, 0.27564427256584167), (0.19117572903633118, -0.084947317838668823), (0.5, 0.0)])
+	parameter_3.add_cross_section(0.0, section0)
+	section1 = ip.CrossSection(*[(-0.5, 0.0), (-0.28442138433456421, 0.23209185898303986), (0.33333333333333331, 0.0), (0.5, 0.0)])
+	parameter_3.add_cross_section(1.0, section1)
+	panel_1 = ({'active': True, 'visible': True, 'name': 'Panel 1 2'},[('Function',radius),('Curve2D',path),('Curve2D',section),('NurbsPatch',parameter_2),('InterpolatedProfile',parameter_3)])
+	parameterset = [panel_0,panel_1,]
+	context["__functions__"] = [('radius',radius),]
+	context["__curves__"] = [('path',path),('section',section),]
+	context["__parameterset__"] = parameterset
+	context["radius"] = pgl.QuantisedFunction(radius)
+	context["path"] = path
+	context["section"] = section
+	context["parameter_2"] = parameter_2
+	context["parameter_3"] = parameter_3

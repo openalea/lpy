@@ -1,0 +1,47 @@
+from openalea.plantgl.all import *
+from math import degrees
+
+l = 50.
+nbpt = int(l)
+
+nbctrlpt = float(len(path.ctrlPointList))
+path = NurbsCurve([(p.x,heigth(i/nbctrlpt),p.y,1) 
+                   for i,p in enumerate(path.ctrlPointList)])
+
+Axiom:  G A(0)
+
+derivation length: nbpt+decal
+production:
+
+G :
+    if with_guide : produce SetGuide(path,l)
+    else : produce 
+
+A(x) :
+    if x > l : produce
+    if x == ramif:
+        nproduce [+(60)/(180)PositionOnGuide(x-decal)F(1)A(x-decal)]
+    produce F(1)A(x+1)
+    
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	from openalea.plantgl.all import QuantisedFunction,NurbsCurve2D,Point3Array,Vector3,RealArray
+	functions = [('heigth', NurbsCurve2D(Point3Array([Vector3(0,0,1),Vector3(0.333333,0.306773,1),Vector3(0.575033,-0.36255,1),Vector3(1,0,1)])))]
+	context["__functions__"] = functions
+	for n,c in functions:
+		context[n] = QuantisedFunction(c)
+	curves = [('path', NurbsCurve2D(Point3Array([Vector3(0.00996011,-0.358566,1),Vector3(0.110341,-0.202419,1),Vector3(-0.0698574,-0.0829381,1),Vector3(0.130681,0.0831143,1),Vector3(0.115254,0.273012,1)])))]
+	context["__curves__"] = curves
+	for n,c in curves:
+		context[n] = c
+	scalars = [('with_guide', True, False, True), ('decal', 4, 0, 100), ('ramif', 16, 1, 100)]
+	context["__scalars__"] = scalars
+	for n,v,mnv,mxv in scalars:
+		context[n] = v
+__description__ = 'Testing SetGuide module'

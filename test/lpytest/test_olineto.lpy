@@ -1,0 +1,32 @@
+nbpoint = 50
+scaling = 10
+
+Axiom: Letter(path_f)Letter(path_r)Letter(path_e)Letter(path_d)
+
+derivation length: nbpoint+1
+production:
+
+Letter(path):
+    path.c = path.getArcLengthToUMapping()
+    p0 = path.getPointAt(0)*scaling
+    produce [MoveTo(0,p0[0],p0[1]) StartGC() A(1.,path)]
+
+A(i,path) :
+    p = path.getPointAt(path.c(i/nbpoint))*scaling
+    produce OLineTo(0,p[0],p[1]) A(i+1,path)
+    
+interpretation:
+maximum depth: nbpoint+1
+
+
+endlsystem
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	context.animation_timestep = 0.001
+	from openalea.plantgl.all import QuantisedFunction,NurbsCurve2D,Point3Array,Vector3,RealArray
+	curves = [('path_f', NurbsCurve2D(Point3Array([Vector3(-0.480825,-0.485389,1),Vector3(-0.593425,0.0889068,1),Vector3(-0.183575,0.0349333,1),Vector3(-0.264376,0.0616584,1),Vector3(0.0488991,0.0400995,1),Vector3(-0.772592,0.0467249,1),Vector3(-0.296477,-0.267308,1),Vector3(-0.136089,-0.219171,1)]))), ('path_r', NurbsCurve2D(Point3Array([Vector3(0.065737,-0.38247,1),Vector3(0.000663995,0.0239044,1),Vector3(0.15073,0.171315,1),Vector3(0.368526,-0.0219124,1),Vector3(0.161355,0.00398407,1),Vector3(0.0338645,-0.24502,1),Vector3(0.380478,-0.384462,1)]))), ('path_e', NurbsCurve2D(Point3Array([Vector3(0.836714,-0.395475,1),Vector3(0.561618,-0.422985,1),Vector3(0.456164,-0.322116,1),Vector3(0.446994,-0.221247,1),Vector3(0.853506,-0.187924,1),Vector3(0.790865,-0.166227,1),Vector3(0.381137,-0.128463,1),Vector3(0.423056,0.0916335,1),Vector3(0.824759,0.0732937,1)]))), ('path_d', NurbsCurve2D(Point3Array([Vector3(1.00598,-0.398406,1),Vector3(1.17596,-0.434263,1),Vector3(1.47742,-0.14741,1),Vector3(1.01793,0.0796813,1),Vector3(0.974103,0.0458167,1),Vector3(0.990039,-0.396414,1)])))]
+	context["__curves__"] = curves
+	for n,c in curves:
+		context[n] = c
+__description__ = 'Testing OLineTo by writing a name'

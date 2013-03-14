@@ -94,9 +94,14 @@ has_keyword_pattern(std::string::const_iterator& pos,
 			        const std::string& pattern){
 
   size_t s = pattern.size();
-  if ( (std::distance(pos,end) >= s) && 
-	  (std::string(pos,pos+s) == pattern)  && ( (pos==beg) || !isalnum(*(pos-1)) )){
-	pos+=s;
+  std::string::const_iterator res = pos+s;
+  if (
+	  (std::distance(pos,end) >= s) && 
+	  (std::string(pos,pos+s) == pattern)  && 
+	  ( (pos==beg) || !isalnum(*(pos-1)) )  && 
+	  ( (res==end) || !isalnum(*(res)) )
+	 ){
+	pos=res;
 	return true;
   }
   else return false;
@@ -442,11 +447,18 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 		case 'p':
 		  _it2 = _it;
 		  if(has_keyword_pattern(_it,begcode,endpycode,"production")){
-            code+=std::string(beg,_it2);
-			toendlineC(_it,endpycode);
-            code+="# "+std::string(_it2,_it);
-			beg = _it;
-			mode = 0;
+			// printf("-'%c' '%c'\n",*(_it2-1),*_it);
+			/*if ((_it2 != begcode && *(_it2-1) != '\n') || (_it == *_it != ' ' && *_it != ':' && *_it != '\t')){
+				// We are not in the production statement
+				if(_it!=endpycode)++_it; toendlineA(_it,endpycode);
+			}
+			else {*/
+				code+=std::string(beg,_it2);
+				toendlineC(_it,endpycode);
+				code+="# "+std::string(_it2,_it);
+				beg = _it;
+				mode = 0;
+			// }
 		  }
 		  else if(has_keyword_pattern(_it,begcode,endpycode,"produce")){
 			  // LsysWarning("Cannot use 'produce' outside production body. Use 'nproduce' instead.",filename,lineno);
@@ -660,7 +672,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
               PROCESS_RULE(rule,code,addedcode,mode,group)
 		  }
 		  _it2 = _it;
-		  if(has_keyword_pattern(_it,begcode,endpycode,"group ")){
+		  if(has_keyword_pattern(_it,begcode,endpycode,"group")){
             beg = _it;
 			while( _it!=endpycode && (*_it)!=':' && (*_it)!='\n')
 			  _it++;

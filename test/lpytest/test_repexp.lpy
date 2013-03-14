@@ -1,0 +1,13 @@
+Axiom: I(0)I(1)A
+
+derivation length: 1
+production:
+
+x(I(t)) < A:
+    assert t == [0,1]
+    produce B
+
+interpretation:
+
+
+endlsystem

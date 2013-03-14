@@ -1,0 +1,29 @@
+module A 
+module B : base = A
+
+def End(lstring):
+   assert lstring == 'A[+B]B[+B[+A]A]B[+A]A[+B[+A]A[+A[+B]B]A[+B]B]B[+A]A[+A[+B]B]A[+B]B'
+
+
+Axiom: A[+B]B
+
+derivation length: 2
+production:
+
+$A(a)  :
+    assert a.name in 'AB'
+    print a.name,'sons[',a.position(),']=' , a.sons()
+    produce new('A' if a.name == 'B' else 'B')[+$a]$a 
+
+
+interpretation:
+A --> ,(3)F
+B --> ,(2)F
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	context.options.setSelection('Module inheritance',1)

@@ -1,0 +1,44 @@
+from openalea.plantgl.all import *
+from math import degrees
+
+l = 50.
+nbpt = int(l)
+
+
+Axiom:  G A(0)
+
+derivation length: nbpt+decal
+production:
+
+G :
+    if with_guide : produce SetGuide(path,l,True)
+    else : produce 
+
+A(x) :
+    if x > l : produce
+    if x == ramif:
+        nproduce [+(60)/(180)PositionOnGuide(x-decal)F(1)A(x-decal)]
+    produce F(1)A(x+1)
+    
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ =1.1
+def __initialiseContext__(context):
+	scalars = [('with_guide', True, False, True), ('decal', 4, 0, 100), ('ramif', 16, 1, 100)]
+	context["__scalars__"] = scalars
+	for n,v,mnv,mxv in scalars:
+		context[n] = v
+	import openalea.plantgl.all as pgl
+	path = pgl.NurbsCurve2D(
+	    ctrlPointList = pgl.Point3Array([(0.00996011, -0.358566, 1),(0.110341, -0.202419, 1),(-0.0698574, -0.0829381, 1),(0.130681, 0.0831143, 1),(0.115254, 0.273012, 1)]) , 
+)
+	path.name = "path"
+	
+	parameterset = [({'active': True, 'visible': True, 'name': 'Curve2D'},[('Curve2D',path)]),]
+	context["__parameterset__"] = parameterset
+	context["path"] = path

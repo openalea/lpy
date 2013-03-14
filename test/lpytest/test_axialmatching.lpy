@@ -1,0 +1,26 @@
+matched = False
+
+def StartEach():
+  global matched
+  matched = False
+
+def EndEach():
+  global matched
+  assert matched
+
+Axiom: I(0) [ I(1) [ I(2) I(3) ] I(4) ]
+
+
+derivation length: 1
+production:
+
+[ I(x) [ <  I(y) > I(z):
+   global matched
+   matched = True
+   assert (x,y,z) == (1,2,3)
+
+
+interpretation:
+
+
+endlsystem

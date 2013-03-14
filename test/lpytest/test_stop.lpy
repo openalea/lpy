@@ -1,0 +1,22 @@
+def EndEach():
+  assert getIterationNb() <= 101
+
+
+Axiom: A(0)
+
+derivation length: 500
+production:
+
+A(x) :
+    if x > 100:
+        Stop()
+    else: 
+        produce BA(x+1)
+
+
+
+interpretation:
+
+B --> F(0.1)
+
+endlsystem

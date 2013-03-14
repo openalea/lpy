@@ -1,0 +1,19 @@
+Axiom: I(0)I(1)A
+
+derivation length: 1
+production:
+
+I(t) < A :
+    print 'ok',t
+    assert t == 1
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	context.options.setSelection('String matching',0)

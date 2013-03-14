@@ -1,0 +1,12 @@
+from openalea.plantgl.all import *
+sc = Scene([Sphere(),Translated((0,0,2),Box())])
+Axiom: ff[-f F @g(Shape(Cone(),Material((255,0,0))))][+f @g(Material((0,255,0))) F @g(Cone()) ]  [^(90) @g(Material((0,0,255))) F SetColor() F ] [ &(90) F ]  f @g(sc)
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem

@@ -1,0 +1,19 @@
+Axiom: 
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	scalars = [('test', None), ('default_scalar', 42.85, 0.0, 99.99, 2), ('new category of balalala', None), ('default_bool', True), ('default_scalar', 19.64, 0.0, 99.99, 2), ('toto', None), ('default_scalar', 55.35, 0.0, 99.99, 2), ('default_bool', True)]
+	context["__scalars__"] = scalars
+	for s in scalars:
+		if not s[1] is None : context[s[0]] = s[1]

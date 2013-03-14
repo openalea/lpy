@@ -1,0 +1,20 @@
+Axiom: ^(-90) Frame _(5) SetContour(section,True) StartGC() SetGuide(guide,10,False,True) A(10)
+
+derivation length: 10
+production:
+
+A(0) -->
+A(x) --> F(1)A(x-1)
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	from openalea.plantgl.all import QuantisedFunction,NurbsCurve2D,Point3Array,Vector3,RealArray
+	curves = [('guide', NurbsCurve2D(Point3Array([Vector3(0.572361,-0.0289827,1),Vector3(-0.202523,0.282869,1),Vector3(0.187837,-0.197416,1),Vector3(-0.35292,-0.020702,1)]))), ('section', NurbsCurve2D(Point3Array([Vector3(-0.635458,-0.0697211,1),Vector3(-0.5,0.059761,1),Vector3(-0.166667,-0.199203,1),Vector3(0.0179283,0.13745,1),Vector3(0.166667,-0.167331,1),Vector3(0.5,0,1),Vector3(0.623506,-0.121514,1)])))]
+	context["__curves__"] = curves
+	for n,c in curves:
+		context[n] = c

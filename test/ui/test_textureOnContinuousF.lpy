@@ -1,0 +1,38 @@
+Axiom: ,(5)  _(0.5)  SectionResolution(60)  [TextureScale(USCALE/100.,VSCALE/100.) TextureRotation(ROTATION,0.0,0.0) TextureTranslation(UTRANSLATION/100.,VTRANSLATION/100.) A(STEP,ISIZE/100.,SSIZE/100.) ][-(90) f(1.1) +(90) @Gc TextureScale(USCALE/100.,VSCALE/100.) TextureRotation(ROTATION,0.0,0.0) TextureTranslation(UTRANSLATION/100.,VTRANSLATION/100.)   A(STEP,ISIZE/100.,SSIZE/100.) ][+(90) f(1.1) -(90) TextureRotation(ROTATION,0.0,0.0) F(1)]
+
+derivation length: 1
+production:
+
+A(nbstep,s,i):
+    for j in xrange(nbstep):
+        nproduce F(s) f(i)
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	import openalea.plantgl.all as pgl
+	PGL_63656856 = pgl.ImageTexture("PGL_63656856" , "D:/Fred/Mes Documents/Develop/vplants/trunk/lpy/share/image/bjunipc.png" , )
+	PGL_63656856.name = "PGL_63656856"
+	Color_5 = pgl.Texture2D(image = PGL_63656856 , )
+	Color_5.name = "Color_5"
+	context.turtle.setMaterial(5,Color_5)
+	PGL_70011120 = pgl.ImageTexture("PGL_70011120" , "../src/openalea/lpy/gui/biglogo.png" , )
+	PGL_70011120.name = "PGL_70011120"
+	Color_6 = pgl.Texture2D(image = PGL_70011120 , )
+	Color_6.name = "Color_6"
+	context.turtle.setMaterial(6,Color_6)
+	PGL_55899560 = pgl.ImageTexture("PGL_55899560" , "./image/bjunipc.png" , )
+	PGL_55899560.name = "PGL_55899560"
+	Color_7 = pgl.Texture2D(image = PGL_55899560 , )
+	Color_7.name = "Color_7"
+	context.turtle.setMaterial(7,Color_7)
+	scalars = [('USCALE', 100, 1, 200), ('VSCALE', 100, 1, 100), ('ROTATION', 0, 0, 359), ('UTRANSLATION', 0, 0, 100), ('VTRANSLATION', 0, 0, 100), ('STEP', 5, 0, 100), ('ISIZE', 40, 0, 100), ('SSIZE', 1, 0, 100)]
+	context["__scalars__"] = scalars
+	for n,v,mnv,mxv in scalars:
+		context[n] = v

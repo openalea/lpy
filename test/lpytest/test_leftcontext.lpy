@@ -1,0 +1,14 @@
+Axiom: AE[B[D]] C
+
+ignore: E
+
+derivation length: 1
+production:
+
+A < C :
+    print 'matched'
+
+interpretation:
+
+
+endlsystem

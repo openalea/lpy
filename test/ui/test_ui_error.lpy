@@ -1,0 +1,13 @@
+Axiom: A
+
+derivation length: 1
+production:
+
+A :
+    1/0
+    produce B
+
+homomorphism:
+
+
+endlsystem

@@ -1,0 +1,26 @@
+def f(x):
+    nproduce A(x)
+
+Axiom: B(1)
+derivation length: 2
+production:
+
+B :
+    f(2)
+
+
+
+B(x) :
+  try:
+    nproduce ( 
+               C(3) 
+               A(1,x) 
+               B(2/0) 
+              )
+  except Exception,e:
+     print e
+
+A(x): 
+    x /0
+
+endlsystem

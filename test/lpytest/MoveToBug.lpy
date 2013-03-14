@@ -1,0 +1,23 @@
+# with Pt2=0,1,0 the line is drawn from 0,0,10 to 0,1,0
+# with Pt2=0,0,1 the line is drawn from 0,0,10 to 0,0,11
+
+# following generates incorrect line, to fix save y component to something small in pt2!
+Axiom: Pt1(0,0,10) Pt2(0,0,0)
+# following generates correct line
+# Axiom: -(90) Frame  Pt1(0,10,0) Pt2(0,0,0)
+# following generates correct line
+#Axiom: Pt1(10,0,0) Pt2(0,0,0)
+
+derivation length: 1
+production:
+
+interpretation:
+
+# same thing happens if you use LineTo or MoveTo for the first pt
+Pt1(x,y,z):
+  produce MoveTo(x,y,z) Sphere(0.5) [@M(x,y,z) SetColor(2) Sphere(1.0)]
+  
+Pt2(x,y,z):
+  produce LineTo(x,y,z) Sphere(0.5) [@M(x,y,z) SetColor(3) Sphere(1.0)]
+
+endlsystem

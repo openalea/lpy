@@ -1,0 +1,26 @@
+Axiom:  _(1) @Tp(0,0,1)Elasticity(0.05) +(90) @Gc() nF(10,0.1,0.02)
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	import openalea.plantgl.all as pgl
+	radius = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.98719, 1),(0.0357168, 0.407384, 1),(0.260088, 0.407384, 1),(0.260088, 0.949652, 1),(0.546428, 0.964524, 1),(0.555714, 0.249528, 1),(0.78476, 0.265004, 1),(0.828093, 0.942858, 1),(0.953572, 0.936943, 1),(1, 0.109243, 1)]) , 
+	    )
+	radius.name = "radius"
+	panel_0 = ({'active': True, 'visible': True, 'name': 'Panel 1'},[('Function',radius)])
+	parameterset = [panel_0,]
+	context["__functions__"] = [('radius',radius),]
+	context["__curves__"] = []
+	context["__parameterset__"] = parameterset
+	context["radius"] = pgl.QuantisedFunction(radius)

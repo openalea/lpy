@@ -1,0 +1,35 @@
+result = {}
+
+def StartEach():
+  global result
+  result = {}
+
+def EndEach(lstring):
+  global result
+  print result
+  assert result == { 'A' : (0, '[B]'), 'B' : (1, 'None') }
+  assert lstring == 'AAAB'
+
+module A
+module B: base = A
+
+
+Axiom: AB
+
+derivation length: 1
+production:
+
+$A(a) :
+    global result
+    assert a.name in 'AB'
+    print a.name,'sons[',a.position(),']=',a.sons()
+    result[a.name] = (a.position(),str(a.sons()))
+    produce A $a 
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	context.options.setSelection('Module inheritance',1)

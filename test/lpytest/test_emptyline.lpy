@@ -1,0 +1,18 @@
+Axiom: A
+
+derivation length: 1
+production:
+
+A:
+    pass
+
+
+
+    produce A
+B : 
+    produce B
+    
+interpretation:
+
+
+endlsystem

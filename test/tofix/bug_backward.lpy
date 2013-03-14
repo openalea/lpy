@@ -1,0 +1,20 @@
+backward()
+
+Axiom: []
+
+derivation length: 1
+production:
+
+[] --> F
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	context.options.setSelection('Module matching',0)
+	context.options.setSelection('String matching',0)

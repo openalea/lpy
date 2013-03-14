@@ -1,0 +1,25 @@
+def toto(i):
+    range(i)
+
+def test(i):
+    toto(300*i)
+
+Axiom: AB
+
+derivation length: 1
+production:
+
+A:
+    test(1)
+
+B:
+    test(2)
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	context.animation_timestep = 0.05

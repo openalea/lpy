@@ -1,0 +1,32 @@
+Axiom: SetGuide(path,10) @Tp(0,0,1) @Ts(0.1) -(90) ,(5) A
+
+derivation length: 1
+production:
+
+A :
+    for i in xrange(10):
+          nproduce F(1)
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	from openalea.plantgl.scenegraph import Material,ImageTexture,Color3
+	context.turtle.setMaterial(5,ImageTexture('APPID_5_61178944','D:/Fred/Mes Documents/Develop/vplants/trunk/PlantGL/share/plantgl/pixmap/wood_texture.png'))
+	context.turtle.setMaterial(6,ImageTexture('APPID_5_61184744','D:/Fred/Mes Documents/Develop/vplants/trunk/PlantGL/share/plantgl/pixmap/geomviewer.png'))
+	import openalea.plantgl.all as pgl
+	path = pgl.NurbsCurve2D(
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.166667, 0, 1),(0.166667, 0, 1),(0.5, 0, 1)]) , 
+)
+	path.name = "path"
+	
+	parameterset = [({'active': True, 'visible': True, 'name': 'Panel 1'},[('Curve2D',path)]),]
+	context["__functions__"] = []
+	context["__curves__"] = [('path',path),]
+	context["__parameterset__"] = parameterset
+	context["path"] = path

@@ -1,0 +1,16 @@
+def EndEach(lstring):
+    print lstring
+
+Axiom: A
+
+derivation length: 5
+production:
+
+A :
+    print 'applied'
+    produce B
+
+interpretation:
+
+
+endlsystem

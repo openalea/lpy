@@ -1,0 +1,16 @@
+from matplotlib.pyplot import *
+from random import *
+
+plot(range(100),[uniform(0,10) for i in xrange(100)])
+show()
+
+Axiom: A
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem
