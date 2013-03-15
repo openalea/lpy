@@ -664,7 +664,7 @@ LsysRule::process( const AxialTree& src ) const {
 
 /*---------------------------------------------------------------------------*/
 
-RulePtrMap::RulePtrMap(const RulePtrSet& rules):
+RulePtrMap::RulePtrMap(const RulePtrSet& rules, eDirection direction):
 	__map(ModuleClass::getMaxId()), __nbrules(rules.size()), __maxsmb(0)
 {
 	/* all classes. Required for inheritance tests */
@@ -677,7 +677,7 @@ RulePtrMap::RulePtrMap(const RulePtrSet& rules):
 
     // Process all rules and get ids that match first pattern module
 	for(RulePtrSet::const_iterator it = rules.begin(); it != rules.end(); ++it){
-		std::vector<size_t> ids = (*it)->predecessor().getFirstClassId();
+		std::vector<size_t> ids = (direction == eForward?(*it)->predecessor().getFirstClassId():(*it)->predecessor().getLastClassId());
 		for(std::vector<size_t>::const_iterator itid = ids.begin(); itid != ids.end(); ++itid){
 			// star module match everythings.
 			if(*itid == ModuleClass::Star->getId()){

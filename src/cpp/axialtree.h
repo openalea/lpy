@@ -35,16 +35,12 @@
 #include "module.h"
 #include "patternmodule.h"
 #include "abstractlstring.h"
+#include "global.h"
 
 
 LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
-
-LPY_API enum eDirection {
-      eForward,
-      eBackward
-} ;
 
 class PatternString;
 

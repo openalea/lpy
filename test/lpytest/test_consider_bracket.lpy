@@ -5,7 +5,6 @@ def EndEach(lstring):
   assert lstring == Lstring("M(4) [ M(1) ] M(2) M(1)")
 
 backward()
-useGroup(1)
 consider: NM
 Axiom: N(0) [ N(0) ] N(0) N(0) 
 

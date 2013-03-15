@@ -28,41 +28,19 @@
  # ---------------------------------------------------------------------------
  */
 
-#ifndef __pattern_lstring_h__
-#define __pattern_lstring_h__
+#ifndef __lpy_global_h__
+#define __lpy_global_h__
 
-#include "abstractlstring.h"
-#include "patternmodule.h"
+#include "lpy_config.h"
 
 LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
-class LPY_API PatternString : public AbstractLString<PatternModule> {
-public:
-  typedef AbstractLString<PatternModule> BaseType;
-
-  PatternString();
-  // PatternString(const PatternString&);
-  PatternString(const PatternModule&);
-  PatternString(const_iterator beg, const_iterator end);
-  PatternString(const std::string&, int lineno = -1);
-
-  ~PatternString();
-  // PatternString& operator=(const PatternString&);
- 
-  // Get the list of all variables used
-  std::vector<std::string> getVarNames() const;
-  size_t getVarNb() const;
-  void setUnnamedVariables();
-  void setUnnamedVariable(size_t);
-  std::vector<size_t> getFirstClassId() const;
-  std::vector<size_t> getLastClassId() const;
-
-  std::string str() const;
-  std::string repr() const;
-
-};
+LPY_API enum eDirection {
+      eForward,
+      eBackward
+} ;
 
 /*---------------------------------------------------------------------------*/
 

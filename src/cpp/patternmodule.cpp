@@ -350,12 +350,19 @@ void PatternModule::setUnnamedVariable(size_t idvar)
 }
 
 std::vector<size_t> PatternModule::getFirstClassId() const
+{ return getBorderClassId(eForward); }
+
+
+std::vector<size_t> PatternModule::getLastClassId() const
+{ return getBorderClassId(eBackward); }
+
+std::vector<size_t> PatternModule::getBorderClassId(eDirection dir) const
 {
 	std::vector<size_t> res;
     if (isRepExp()) {
 	   extract<PatternString&> t(getAt(0).getPyValue());
 	   if(t.check()) {
-		   std::vector<size_t> lres = t().getFirstClassId();
+		   std::vector<size_t> lres = (dir == eForward?t().getFirstClassId():t().getLastClassId());
 		   res.insert(res.end(),lres.begin(),lres.end());
 	   }
   }
@@ -363,7 +370,7 @@ std::vector<size_t> PatternModule::getFirstClassId() const
 	  for(size_t i = 0; i < size(); i++){
 		  extract<PatternString&> v(getAt(i).getPyValue());
 		  if(v.check()) {
-		    std::vector<size_t> lres = v().getFirstClassId();
+		    std::vector<size_t> lres = (dir == eForward?v().getFirstClassId():v().getLastClassId());
 		    res.insert(res.end(),lres.begin(),lres.end());
 		  }
 	  }
@@ -380,6 +387,5 @@ std::vector<size_t> PatternModule::getFirstClassId() const
   }
   return res;
 }
-
 /*---------------------------------------------------------------------------*/
 

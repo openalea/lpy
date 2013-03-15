@@ -32,6 +32,7 @@
 #define __pattern_module_h__
 
 #include "module.h"
+#include "global.h"
 
 LPY_BEGIN_NAMESPACE
 
@@ -97,6 +98,8 @@ public:
   void setUnnamedVariables();
   void setUnnamedVariable(size_t);
   std::vector<size_t> getFirstClassId() const;
+  std::vector<size_t> getLastClassId() const;
+  std::vector<size_t> getBorderClassId(eDirection dir = eForward) const;
 
   /*bool match(const ParamModule&m) const;
   bool match(const ParamModule&m, ArgList&) const;

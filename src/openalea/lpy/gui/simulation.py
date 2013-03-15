@@ -44,10 +44,11 @@ class LpySimulation:
         self.scalarEditState = None
         self.keepCode_1_0_Compatibility = True
         self.readonly = False
+        self._oldreadonly = False
         if not fname is None:
             self.open(fname)
         else:
-            self.setFname(None)
+            self.setFname(None)         
     def getFname(self) : return self._fname
     def setFname(self,value) :
         self._fname = value
@@ -117,9 +118,10 @@ class LpySimulation:
     def registerTab(self):
         self.lpywidget.documentNames.insertTab(self.index,self.generateIcon(),self.getTabName())
     def updateTabName(self):
-        if self._oldedited != self._edited :
+        if self._oldedited != self._edited or self._oldreadonly != self.readonly:
             self.lpywidget.documentNames.setTabIcon(self.index,self.generateIcon())
             self._oldedited = self._edited
+            self._oldreadonly = self.readonly
         self.lpywidget.documentNames.setTabText(self.index,self.getTabName())
     def getTimeStep(self):
         return self.timestep*0.001
@@ -160,6 +162,7 @@ class LpySimulation:
         if not self.fname is None:
             os.chdir(os.path.dirname(self.fname))         
         self.lpywidget.actionAutoRun.setChecked(self.autorun)
+        self.updateReadOnly()
         #if not self.lsystem.isCurrent() : self.lsystem.makeCurrent()
     def saveState(self):
         #if self.lsystem.isCurrent() :self.lsystem.done()
@@ -254,25 +257,63 @@ class LpySimulation:
             if bckupname and os.path.exists(bckupname):
                 os.remove(bckupname)
             if os.path.exists(self.fname) and  self.lpywidget.fileBackupEnabled :
-                shutil.copy(self.fname,self.fname+'~')
+                try:
+                    shutil.copy(self.fname,self.fname+'~')
+                except Exception,e:
+                    print 'Cannot create backup file',repr(self.fname+'~')
+                    print e
             self.saveToFile(self.fname)
             self.mtime = os.stat(self.fname).st_mtime
-            self.setEdited(False)
             self.lpywidget.statusBar().showMessage("Save file '"+self.fname+"'",2000)
             self.lpywidget.appendInHistory(self.fname)
             self.lsystem.filename = self.fname
-            self.readonly = False
+            self.setEdited(False)
+            self.updateReadOnly()
         else:
             self.saveas()
     def saveas(self):
         bckupname = self.getBackupName()
         fname = str(QFileDialog.getSaveFileName(self.lpywidget,"Open Py Lsystems file",self.fname if self.fname else '.',"Py Lsystems Files (*.lpy);;All Files (*.*)"))
         if fname:
+            if not os.path.exists(fname):
+                self.readonly = False  
+            else : self.readonly = (not os.access(fname, os.W_OK))
             self.fname = fname
             os.chdir(os.path.dirname(fname))
-            if bckupname and os.path.exists(bckupname):
+            if not self.readonly and bckupname and os.path.exists(bckupname):
                 os.remove(bckupname)
             self.save()
+    def removeReadOnly(self):
+        if not os.access(self.fname, os.W_OK):
+            import stat
+            st = os.stat(self.fname)[0]
+            os.chmod(self.fname,st | stat.S_IWRITE)
+            self.readonly = not os.access(self.fname, os.W_OK)
+            self.updateTabName()
+            self.updateReadOnly()
+    def setReadOnly(self):
+        if os.access(self.fname, os.W_OK):
+            import stat
+            st = os.stat(self.fname)[0]
+            os.chmod(self.fname,st ^ stat.S_IWRITE)
+            self.readonly = not os.access(self.fname, os.W_OK)
+            self.updateTabName()
+            self.updateReadOnly()
+    def updateReadOnly(self):
+        self.lpywidget.codeeditor.setReadOnly(self.readonly)
+        self.lpywidget.materialed.setEnabled(not self.readonly)
+        self.lpywidget.parametersTable.setEnabled(not self.readonly)
+        self.lpywidget.scalarEditor.setEnabled(not self.readonly)
+        self.lpywidget.animtimeSpinBox.setEnabled(not self.readonly)
+        self.lpywidget.profileView.setEnabled(not self.readonly)
+        self.lpywidget.descriptionEdit.setEnabled(not self.readonly)
+        self.lpywidget.referenceEdit.setEnabled(not self.readonly)
+        self.lpywidget.authorsEdit.setEnabled(not self.readonly)
+        self.lpywidget.intitutesEdit.setEnabled(not self.readonly)
+        self.lpywidget.copyrightEdit.setEnabled(not self.readonly)
+        self.lpywidget.copyrightEdit.setEnabled(not self.readonly)
+        for panel in self.lpywidget.getObjectPanels():
+            panel.setEnabled(not self.readonly)
     def saveToFile(self,fname):
         f = file(fname,'w')
         f.write(self.code)
@@ -416,6 +457,7 @@ class LpySimulation:
         self.setEdited(recovery)
         self.opencode(code)
         self.mtime = os.stat(self.fname).st_mtime
+        self.updateReadOnly()
     def opencode(self,txt):
         txts = txt.split(LpyParsing.InitialisationBeginTag)            
         self.code = txts[0]

@@ -83,7 +83,31 @@ class FloatScalar (BaseScalar):
         
     def tostr(self):
         return (self.name,self.value,self.minvalue,self.maxvalue, self.decimals)
- 
+
+class EnumScalar (BaseScalar):
+    def __init__(self,name,value = 0,values = []):
+        BaseScalar.__init__(self,name)
+        self.value = value
+        self.values = values
+        
+    def importValue(self,other):
+        self.name = other.name
+        self.value = other.value
+        self.minvalue = other.minvalue
+        self.maxvalue = other.maxvalue
+        self.decimals = other.decimals
+        
+    def __eq__(self,other):
+        return (self.name == other.name and self.value == other.value and 
+                self.values == other.values )
+                
+    def __neq__(self,other):
+        return not self.__eq__(other)
+        
+        
+    def tostr(self):
+        return (self.name,self.value,self.values)
+        
 class CategoryScalar (BaseScalar):
     def __init__(self, name):
         BaseScalar.__init__(self,name)

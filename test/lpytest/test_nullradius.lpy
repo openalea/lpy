@@ -1,0 +1,16 @@
+from openalea.plantgl.all import *
+def End(lstring,lscene):
+    assert type(lscene[0].geometry) == Cone
+    assert type(lscene[2].geometry.geometry.geometry) == Cone
+    assert type(lscene[1].geometry) == Polyline
+
+Axiom: F(1,0);F(1);F(1,0.1)
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem

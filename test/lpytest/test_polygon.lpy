@@ -1,0 +1,25 @@
+from openalea.plantgl.all import *
+
+def get_primitive(obj):
+  res = obj
+  while hasattr(res,'geometry'):
+    res = res.geometry
+  return res
+
+def End(lstring,lscene):
+   assert len(lscene) == 4
+   assert isinstance(get_primitive(lscene[0]),Cylinder)
+   assert isinstance(get_primitive(lscene[1]),Cylinder)
+   assert isinstance(get_primitive(lscene[2]),Cylinder)
+   assert isinstance(get_primitive(lscene[3]),FaceSet)
+
+Axiom: {.f(1)[+(90)F][F][-(90)F]}
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem

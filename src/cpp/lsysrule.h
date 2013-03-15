@@ -203,7 +203,7 @@ public:
 	typedef std::vector<RulePtrSet> RulePtrSetMap;
 
 	RulePtrMap();
-	RulePtrMap(const RulePtrSet& rules);
+	RulePtrMap(const RulePtrSet& rules, eDirection direction = eForward);
 
 	inline const RulePtrSet& operator[](size_t id) const 
 	{ return (id < __maxsmb?__map[id]:__defaultset); }

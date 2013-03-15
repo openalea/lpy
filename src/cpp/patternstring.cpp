@@ -99,6 +99,12 @@ std::vector<size_t> PatternString::getFirstClassId() const
 	else return getAt(0).getFirstClassId();
 }
 
+std::vector<size_t> PatternString::getLastClassId() const
+{
+	if(empty())return std::vector<size_t>();
+	else return getAt(size()-1).getLastClassId();
+}
+
 
 std::string PatternString::str() const{
   std::string str;

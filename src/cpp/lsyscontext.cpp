@@ -461,7 +461,11 @@ LsysContext::isConsidered(const Module& module) const{
   if(__keyword.empty())return false;
   ModuleClassSet::const_iterator _it = __keyword.find(module.getClass()->getId());
   if(__ignore_method) return _it == __keyword.end();
-  else return _it != __keyword.end();
+  else {
+	  if (_it != __keyword.end()) return true;
+	  else return module.isBracket(); // by default we consider always bracket
+	  // return _it != __keyword.end();
+  }
 }
 
 bool
@@ -469,7 +473,11 @@ LsysContext::isIgnored(const Module& module) const{
   if(__keyword.empty())return false;
   ModuleClassSet::const_iterator _it = __keyword.find(module.getClass()->getId());
   if(__ignore_method) return _it != __keyword.end();
-  else return _it == __keyword.end();
+  else { 
+	  if (_it != __keyword.end()) return false;
+	  else return !module.isBracket(); // by default we consider always bracket
+	  // return _it == __keyword.end();
+  }
 }
 
 std::string

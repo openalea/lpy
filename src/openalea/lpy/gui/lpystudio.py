@@ -297,6 +297,18 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
                 self.newfile()
             else:
                 self.currentSimulation().restoreState()
+            return True
+        else: return False
+    def closeAllExcept(self,id):
+            if id != self.currentSimulationId:
+                self.changeDocument(id)
+            for simu in range(len(self.simulations)-1,id,-1):
+                if not self.closeDocument(simu):
+                    return
+            for simu in range(id-1,-1,-1):
+                if not self.closeDocument(simu):
+                    return
+            
     def end(self,force = False):
         if force:
             self.exitWithoutPrompt = force

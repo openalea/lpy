@@ -668,7 +668,7 @@ RulePtrMap Lsystem::__getRules(eRuleType type, size_t groupid, eDirection direct
                 if(hasQuery && itr->hasQuery())*hasQuery = true;
             }
     }
-    return RulePtrMap(result);
+    return RulePtrMap(result,direction);
 }
 
 AxialTree Lsystem::__debugStep(AxialTree& workingstring,
