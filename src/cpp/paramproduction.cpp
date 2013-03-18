@@ -64,7 +64,7 @@ ParamProductionManager::ParamProductionManager():
 {
 }
 
-#include <plantgl\tool\util_string.h>
+#include <plantgl/tool/util_string.h>
 
 ParametricProductionPtr ParamProductionManager::get_production(size_t pid)
 {

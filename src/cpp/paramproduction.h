@@ -32,7 +32,7 @@
 #define __lpy_param_prod_h__
 
 #include "axialtree.h"
-#include <plantgl\tool\util_hashmap.h>
+#include <plantgl/tool/util_hashmap.h>
 #include <queue>
 
 /*---------------------------------------------------------------------------*/
