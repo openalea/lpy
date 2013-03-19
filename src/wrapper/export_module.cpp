@@ -117,6 +117,8 @@ void export_Module(){
 	.add_property("mclass", &Module::getClass)
 	.def("scale", &Module::scale)
 	.def("isinstance", &Module::isinstance)
+	.def("isIgnored", &Module::isIgnored)
+	.def("isConsidered", &Module::isConsidered)
 	;
 
   {

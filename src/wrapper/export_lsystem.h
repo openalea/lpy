@@ -46,5 +46,6 @@ void export_plot();
 void export_parser();
 void export_StringMatching();
 void export_Debugger();
+void export_Consider();
 
 #endif

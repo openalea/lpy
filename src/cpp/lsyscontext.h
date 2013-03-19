@@ -28,8 +28,8 @@
 # ---------------------------------------------------------------------------
 */
 
-#ifndef __PGL_LSYSCONTEXT_H__
-#define __PGL_LSYSCONTEXT_H__
+#ifndef __LSYSCONTEXT_H__
+#define __LSYSCONTEXT_H__
 
 #include "axialtree.h"
 #include "lsysoptions.h"
@@ -67,14 +67,14 @@ public:
   bool empty() const;
 
   /** consider and ignore of symbol*/
-  void consider(const std::string& modules);
+/*  void consider(const std::string& modules);
   void ignore(const std::string& modules);
   bool isConsidered(const std::string& module) const;
   bool isIgnored(const std::string& module) const;
   bool isConsidered(const Module& module) const;
   bool isIgnored(const Module& module) const;
   bool ignoring() const { return __ignore_method; }
-  std::string keyword() const;
+  std::string keyword() const; */
 
   /** string representation */
   std::string str() const ;
@@ -310,9 +310,9 @@ protected:
   void init_options();
 
   /// attributes for ignore and consider
-  typedef pgl_hash_map<size_t,ModuleClassPtr> ModuleClassSet;
+  /* typedef pgl_hash_map<size_t,ModuleClassPtr> ModuleClassSet;
   ModuleClassSet __keyword;
-  bool __ignore_method;
+  bool __ignore_method; */
 
   /// attributes for module declaration
   ModuleClassList __modules;
@@ -417,12 +417,13 @@ protected:
 };
 
 /*---------------------------------------------------------------------------*/
-
+/*
 inline void LPY_API consider(const std::string& modules)
 { LsysContext::currentContext()->consider(modules); }
 
 inline void LPY_API ignore(const std::string& modules)
 { LsysContext::currentContext()->ignore(modules); }
+*/
 
 inline void LPY_API nproduce(const AxialTree& prod)
 { LsysContext::currentContext()->nproduce(prod); }

@@ -42,6 +42,11 @@ LPY_API enum eDirection {
       eBackward
 } ;
 
+LPY_API enum eConsiderMethod {
+	eConsider,
+	eIgnore
+};
+
 /*---------------------------------------------------------------------------*/
 
 LPY_END_NAMESPACE

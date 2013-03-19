@@ -92,10 +92,22 @@ public:
 
   /** set rules */
   void addRule( const LsysRule& rule, int type, size_t group );
-  void addRule( const std::string& rule, int type, size_t group );
-  void addProductionRule( const std::string& rule, size_t group );
-  void addDecompositionRule( const std::string& rule, size_t group );
-  void addInterpretationRule( const std::string& rule, size_t group );
+
+  inline void addRule( const std::string& rule, int type, size_t group)
+  { addRule(rule, type, group,  ConsiderFilterPtr()); }
+  void addRule( const std::string& rule, int type, size_t group, const ConsiderFilterPtr filter);
+
+  inline void addProductionRule( const std::string& rule, size_t group)
+  { addProductionRule( rule, group, ConsiderFilterPtr() ); }
+  void addProductionRule( const std::string& rule, size_t group, const ConsiderFilterPtr filter);
+
+  inline void addDecompositionRule( const std::string& rule, size_t group )
+  {  addDecompositionRule( rule, group, ConsiderFilterPtr() ); }
+  void addDecompositionRule( const std::string& rule, size_t group, const ConsiderFilterPtr filter);
+
+  inline void addInterpretationRule( const std::string& rule, size_t group )
+  { addInterpretationRule( rule, group, ConsiderFilterPtr() ); }
+  void addInterpretationRule( const std::string& rule, size_t group, const ConsiderFilterPtr filter);
 
   /** get rules */
   inline const LsysRule& productionRule( size_t i, size_t group) const
@@ -328,10 +340,10 @@ protected:
   typedef std::vector<RuleGroup> RuleGroupList;
 
 
-  LsysRule& __addRule( const std::string& rule, int type, size_t group,  int lineno = -1 );
-  LsysRule& __addProductionRule( const std::string& rule, size_t group,  int lineno = -1 );
-  LsysRule& __addDecompositionRule( const std::string& rule, size_t group,  int lineno = -1 );
-  LsysRule& __addInterpretationRule( const std::string& rule, size_t group,  int lineno = -1 );
+  LsysRule& __addRule( const std::string& rule, int type, size_t group,  int lineno = -1, const ConsiderFilterPtr filter = ConsiderFilterPtr() );
+  LsysRule& __addProductionRule( const std::string& rule, size_t group,  int lineno = -1, const ConsiderFilterPtr filter = ConsiderFilterPtr() );
+  LsysRule& __addDecompositionRule( const std::string& rule, size_t group,  int lineno = -1, const ConsiderFilterPtr filter = ConsiderFilterPtr() );
+  LsysRule& __addInterpretationRule( const std::string& rule, size_t group,  int lineno = -1, const ConsiderFilterPtr filter = ConsiderFilterPtr() );
 
  void __clear();
  void __importPyFunctions();

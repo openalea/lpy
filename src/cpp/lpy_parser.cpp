@@ -184,8 +184,8 @@ float LpyParsing::getFormatVersion(std::string::const_iterator& it, std::string:
 /*---------------------------------------------------------------------------*/
 
 
-#define PROCESS_RULE(rulecode,code,addedcode,mode,group) \
-	LsysRule& r = __addRule(rulecode,mode,group,lineno - std::count(rule.begin(),rule.end(),'\n')); \
+#define PROCESS_RULE(rulecode,code,addedcode,mode,group,consider) \
+	LsysRule& r = __addRule(rulecode,mode,group,lineno - std::count(rule.begin(),rule.end(),'\n'),consider); \
     code += r.getCoreCode(); \
     addedcode += r.getCallerCode(); \
 	rule.clear(); \
@@ -246,6 +246,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
   int mode = -1;
   int lineno = 1;
   int group = 0;
+  ConsiderFilterPtr currentConsider;
   // Retrieve of lpy format version
   float lpyversion = LpyParsing::getFormatVersion(_it2,begcode,endpycode);
   if (!LpyParsing::isSupportedFormat(lpyversion)){
@@ -536,7 +537,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 			  beg = _it;
 			  toendline(_it,endpycode);
 			  if(beg != endpycode)
-				__context.consider(std::string(beg,_it));
+				  currentConsider = ConsiderFilter::consider(std::string(beg,_it));
               else LsysParserSyntaxError("Cannot find value for consider");
 			}
             else LsysParserSyntaxError("Cannot find ':' after consider");
@@ -564,7 +565,8 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 			  beg = _it;
 			  toendline(_it,endpycode);
 			  if(beg != endpycode)
-				__context.ignore(std::string(beg,_it));
+				  currentConsider = ConsiderFilter::ignore(std::string(beg,_it));
+				// __context.ignore(std::string(beg,_it));
               else LsysParserSyntaxError("Cannot find value for ignore");
 			}
             else LsysParserSyntaxError("Cannot find ':' after ignore");
@@ -587,7 +589,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
           _it2 = _it;
 		  if(has_keyword_pattern(_it,begcode,endpycode,"endlsystem")){
 			if(!rule.empty()){
-              PROCESS_RULE(rule,code,addedcode,mode,group)
+              PROCESS_RULE(rule,code,addedcode,mode,group,currentConsider)
 			}
 			toendline(_it,endpycode);
             code+="# "+std::string(_it2,_it);
@@ -596,7 +598,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 		  }
 		  else if(has_keyword_pattern(_it,begcode,endpycode,"endgroup")){
 			if(!rule.empty()){
-              PROCESS_RULE(rule,code,addedcode,mode,group)
+              PROCESS_RULE(rule,code,addedcode,mode,group,currentConsider)
 			}
 			toendline(_it,endpycode);
             code+="# "+std::string(_it2,_it);
@@ -605,7 +607,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 		  }
 		  else {
 			if(!rule.empty()){
-              PROCESS_RULE(rule,code,addedcode,mode,group)
+              PROCESS_RULE(rule,code,addedcode,mode,group,currentConsider)
 			}
 			beg = _it;
 			toendline(_it,endpycode);
@@ -614,7 +616,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 		  break;
 		case 'd':
 		  if(!rule.empty()){
-              PROCESS_RULE(rule,code,addedcode,mode,group)
+              PROCESS_RULE(rule,code,addedcode,mode,group,currentConsider)
 		  }
 		  _it2 = _it;
 		  if(mode == 0 && has_keyword_pattern(_it,begcode,endpycode,"derivation length")){
@@ -652,7 +654,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 		  break;
 		case 'h':
 		  if(!rule.empty()){
-            PROCESS_RULE(rule,code,addedcode,mode,group)
+            PROCESS_RULE(rule,code,addedcode,mode,group,currentConsider)
 		  }
 		  _it2 = _it;
           if(has_keyword_pattern(_it,begcode,endpycode,"homomorphism")){
@@ -669,7 +671,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 		  break;
 		case 'g':
 		  if(!rule.empty()){
-              PROCESS_RULE(rule,code,addedcode,mode,group)
+              PROCESS_RULE(rule,code,addedcode,mode,group,currentConsider)
 		  }
 		  _it2 = _it;
 		  if(has_keyword_pattern(_it,begcode,endpycode,"group")){
@@ -701,7 +703,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 		  break;
 		case 'p':
 		  if(!rule.empty()){
-            PROCESS_RULE(rule,code,addedcode,mode,group)
+            PROCESS_RULE(rule,code,addedcode,mode,group,currentConsider)
 		  }
 		  _it2 = _it;
 		  if(has_keyword_pattern(_it,begcode,endpycode,"production")){
@@ -718,7 +720,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 		  break;
 		case 'm':
 		  if(!rule.empty()){
-            PROCESS_RULE(rule,code,addedcode,mode,group)
+            PROCESS_RULE(rule,code,addedcode,mode,group,currentConsider)
 		  }
 		  _it2 = _it;
 		  if((mode == 1||mode == 2) && has_keyword_pattern(_it,begcode,endpycode,"maximum depth")){
@@ -760,7 +762,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 		  break;
 		case 'c':
 		  if(!rule.empty()){
-            PROCESS_RULE(rule,code,addedcode,mode,group)
+            PROCESS_RULE(rule,code,addedcode,mode,group,currentConsider)
 		  }
 		  _it2 = _it;
 		  if(has_keyword_pattern(_it,begcode,endpycode,"consider")){
@@ -771,8 +773,10 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 			  toendline(_it,endpycode);
               code+="# "+std::string(_it2,_it);
 			  if(beg != endpycode)
-				__context.consider(std::string(beg,_it));
-              else LsysParserSyntaxError("Cannot find value for consider");
+				  currentConsider = ConsiderFilter::consider(std::string(beg,_it));
+			  else currentConsider = ConsiderFilterPtr();
+				  //__context.consider(std::string(beg,_it));
+              // else LsysParserSyntaxError("Cannot find value for consider");
 			}
             else LsysParserSyntaxError("Cannot find ':' after consider");
 		  }
@@ -784,7 +788,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 		  break;
 		case 'i':
 		  if(!rule.empty()){
-            PROCESS_RULE(rule,code,addedcode,mode,group)
+            PROCESS_RULE(rule,code,addedcode,mode,group,currentConsider)
 		  }
 		  _it2 = _it;
 		  if(has_keyword_pattern(_it,begcode,endpycode,"ignore")){
@@ -794,9 +798,14 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 			  beg = _it;
 			  toendline(_it,endpycode);
               code+="# "+std::string(_it2,_it);
-			  if(beg != endpycode)
-				__context.ignore(std::string(beg,_it));
-              else LsysParserSyntaxError("Cannot find value for ignore");
+			  if(beg != endpycode) {
+				 // printf("find ignore at line %i : %s\n",lineno,std::string(beg,_it).c_str());
+ 			  	 currentConsider = ConsiderFilter::ignore(std::string(beg,_it-1));
+				 // printf("Current consider %i at line %i : %s \n",lineno,currentConsider.get(),(currentConsider?currentConsider->str().c_str():""));
+			  }
+			  else currentConsider = ConsiderFilterPtr();
+				  // __context.ignore(std::string(beg,_it));
+			  // else LsysParserSyntaxError("Cannot find value for ignore");
 			}
             else LsysParserSyntaxError("Cannot find ':' after ignore");
 		  }
@@ -814,7 +823,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 		  break;
 		case '#': // python comments before rules
 		  if(!rule.empty()){
-            PROCESS_RULE(rule,code,addedcode,mode,group)
+            PROCESS_RULE(rule,code,addedcode,mode,group,currentConsider)
 		  }
 		  beg = _it;
 		  toendline(_it,endpycode);
@@ -841,7 +850,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 				  rule +=  std::string(beg,_it); 
 			  }
 			  else { 
-				PROCESS_RULE(rule,code,addedcode,mode,group)
+				PROCESS_RULE(rule,code,addedcode,mode,group,currentConsider)
 				code += std::string(beg,_it);
 			  }
 			  lineno = newlineno;
@@ -851,7 +860,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
           break;
 		default:
 		  if(!rule.empty()){
-            PROCESS_RULE(rule,code,addedcode,mode,group)
+            PROCESS_RULE(rule,code,addedcode,mode,group,currentConsider)
 		  }
 		  beg = _it;
 		  toendline(_it,endpycode);
@@ -867,7 +876,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 	}
   }
   if(!rule.empty()){
-    PROCESS_RULE(rule,code,addedcode,mode,group)
+    PROCESS_RULE(rule,code,addedcode,mode,group,currentConsider)
   }
   if (mode == -1)
    code.append(beg,_it);

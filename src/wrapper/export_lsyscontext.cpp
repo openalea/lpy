@@ -94,7 +94,7 @@ void export_LsysContext(){
 	.def("__repr__",        &LsysContext::str)
 	.def("clear",          &LsysContext::clear)
 	.def("empty",          &LsysContext::empty)
-	.def("consider",       &LsysContext::consider)
+	/*.def("consider",       &LsysContext::consider)
 	.def("ignore",         &LsysContext::ignore)
 	.def("isConsidered",   
 	(bool (LsysContext::*)(const std::string& module) const)
@@ -109,7 +109,7 @@ void export_LsysContext(){
 	(bool (LsysContext::*)(const Module& module) const)
 						   &LsysContext::isIgnored)
 	.def("ignoring",       &LsysContext::ignoring)
-	.def("keyword",        &LsysContext::keyword)
+	.def("keyword",        &LsysContext::keyword)*/
 	.def("declare",        (void(LsysContext::*)(const std::string&))&LsysContext::declare)
 	.def("undeclare",      (void(LsysContext::*)(const std::string&))&LsysContext::undeclare)
 	.def("isDeclared",     (bool(LsysContext::*)(const std::string&))&LsysContext::isDeclared)
@@ -176,8 +176,8 @@ void export_LsysContext(){
 	.add_property("__successor_patterns__",py_LcGetPProductions) 
 	;
 
-	def("consider",      &consider);
-	def("ignore",      &ignore);
+	// def("consider",      &consider);
+	// def("ignore",      &ignore);
 	def("context", &LsysContext::currentContext,return_value_policy<reference_existing_object>(),"Return the current L-system context of execution. Rather use execContext.");
 	def("execContext", &LsysContext::currentContext,return_value_policy<reference_existing_object>(),"Return the current L-system context of execution.");
 	def("backward",      &py_backward);

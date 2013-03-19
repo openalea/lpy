@@ -35,6 +35,7 @@
 #include "patternstring.h"
 #include "argcollector.h"
 #include "paramproduction.h"
+#include "consider.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -50,7 +51,12 @@ public:
 	~LsysRule();
 
 	void set( const std::string& code );
-	
+
+	void consider(const ConsiderFilterPtr consider);
+	void consider(const std::string& modules);
+	void ignore(const std::string& modules);
+	ConsiderFilterPtr getConsiderFilter() const { return __consider; }
+
 	inline size_t getId() const { return __id; }
 	inline void setId(size_t id) { __id = id; }
 
@@ -183,6 +189,8 @@ protected:
 	bool __isStatic;
 	AxialTree __staticResult;
 	uint32_t __codelength;
+	ConsiderFilterPtr __consider;
+
 private:
     void __precall_function( size_t nbargs = 0 ) const;
     void __precall_function( size_t nbargs,  const ArgList& obj ) const;

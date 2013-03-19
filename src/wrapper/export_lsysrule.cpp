@@ -193,6 +193,9 @@ void export_LsysRule(){
 	.def("applyTo", &applyTo)
 	.def("forwardCompatible", &LsysRule::forwardCompatible)
 	.def("backwardCompatible", &LsysRule::backwardCompatible)
-	;
+	.def("consider", (void(LsysRule::*)(const std::string&))&LsysRule::consider)
+	.def("consider", (void(LsysRule::*)(const ConsiderFilterPtr))&LsysRule::consider)
+	.def("ignore", &LsysRule::ignore)
+	.add_property("considerFilter",&LsysRule::getConsiderFilter,(void(LsysRule::*)(const ConsiderFilterPtr))&LsysRule::consider)	;
 }
 

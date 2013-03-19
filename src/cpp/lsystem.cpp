@@ -268,8 +268,6 @@ Lsystem::str() const {
 	s << '\n';
   }
 
-  if(!__context.empty())
-	s << (__context.ignoring()?"ignore":"consider") << ": " << __context.keyword() << '\n';
   s << "derivation length: " << __max_derivation << '\n';
   s << "production:\n";
   size_t gid = 0;
@@ -313,8 +311,6 @@ Lsystem::code()  {
   std::stringstream s;
   s << "Lsystem:\n";
   s << "Axiom: " << __axiom.str() << '\n';
-  if(!__context.empty())
-	s << (__context.ignoring()?"ignore":"consider") << ": " << __context.keyword() << '\n';
   s << "derivation length: " << __max_derivation << '\n';
   s << "production:\n";
   size_t gid = 0;
@@ -457,10 +453,11 @@ std::string Lsystem::getShortFilename( ) const
 }
 
 LsysRule& 
-Lsystem::__addProductionRule( const std::string& code, size_t groupid, int lineno ){
+Lsystem::__addProductionRule( const std::string& code, size_t groupid, int lineno, const ConsiderFilterPtr filter ){
   RuleGroup& group = __group(groupid);
   LsysRule r(group.production.size(),groupid,'p',lineno);
   r.set(code);
+  r.consider(filter);
   group.production.push_back(r);
   if (r.hasQuery())group.__prodhasquery = true;
   __newrules = true;
@@ -468,10 +465,11 @@ Lsystem::__addProductionRule( const std::string& code, size_t groupid, int linen
 }
 
 LsysRule& 
-Lsystem::__addDecompositionRule( const std::string& code, size_t groupid , int lineno ){
+Lsystem::__addDecompositionRule( const std::string& code, size_t groupid , int lineno, const ConsiderFilterPtr filter ){
   RuleGroup& group = __group(groupid);
   LsysRule r(group.decomposition.size(),groupid,'d',lineno);
   r.set(code);
+  r.consider(filter);
   group.decomposition.push_back(r);
   if (r.hasQuery())group.__dechasquery = true;
   __newrules = true;
@@ -479,10 +477,11 @@ Lsystem::__addDecompositionRule( const std::string& code, size_t groupid , int l
 }
 
 LsysRule&
-Lsystem::__addInterpretationRule( const std::string& code, size_t groupid, int lineno ){
+Lsystem::__addInterpretationRule( const std::string& code, size_t groupid, int lineno, const ConsiderFilterPtr filter ){
   RuleGroup& group = __group(groupid);
   LsysRule r(group.interpretation.size(),groupid,'h',lineno);
   r.set(code);
+  r.consider(filter);
   if (!r.isContextFree())LsysWarning("Interpretation rules should be context free. Contexts not supported for multiple iterations.");
   group.interpretation.push_back(r);
   if (r.hasQuery())group.__inthasquery = true;
@@ -491,43 +490,43 @@ Lsystem::__addInterpretationRule( const std::string& code, size_t groupid, int l
 }
 
 LsysRule&
-Lsystem::__addRule( const std::string& rule, int type, size_t group, int lineno ){
+Lsystem::__addRule( const std::string& rule, int type, size_t group, int lineno, const ConsiderFilterPtr filter ){
   switch(type){
   case 1:
-	return __addDecompositionRule(rule,group,lineno);
+	return __addDecompositionRule(rule,group,lineno,filter);
 	break;
   case 2:
-	return __addInterpretationRule(rule,group,lineno);
+	return __addInterpretationRule(rule,group,lineno,filter);
 	break;
   default:
-	return __addProductionRule(rule,group,lineno);
+	return __addProductionRule(rule,group,lineno,filter);
 	break;
-  }
+  } 
 }
 
 void 
-Lsystem::addProductionRule( const std::string& code, size_t group ){
+Lsystem::addProductionRule( const std::string& code, size_t group, const ConsiderFilterPtr filter ){
   // ACQUIRE_RESSOURCE
   ContextMaintainer m(&__context);
-  LsysRule& r = __addProductionRule(code,group);
+  LsysRule& r = __addProductionRule(code,group,-1,filter);
   r.compile();
   // RELEASE_RESSOURCE
 }
 
 void 
-Lsystem::addDecompositionRule( const std::string& code, size_t group ){
+Lsystem::addDecompositionRule( const std::string& code, size_t group, const ConsiderFilterPtr filter ){
   // ACQUIRE_RESSOURCE
   ContextMaintainer m(&__context);
-  LsysRule& r = __addDecompositionRule(code,group);
+  LsysRule& r = __addDecompositionRule(code,group,-1,filter);
   r.compile();
   // RELEASE_RESSOURCE
 }
 
 void 
-Lsystem::addInterpretationRule( const std::string& code, size_t group ){
+Lsystem::addInterpretationRule( const std::string& code, size_t group, const ConsiderFilterPtr filter ){
   // ACQUIRE_RESSOURCE
   ContextMaintainer m(&__context);
-  LsysRule& r = __addInterpretationRule(code,group);
+  LsysRule& r = __addInterpretationRule(code,group,-1,filter);
   r.compile();
   // RELEASE_RESSOURCE
 }
@@ -552,10 +551,10 @@ Lsystem::addRule(  const LsysRule& rule, int type, size_t groupid){
   __newrules = true;
 }
 
-void Lsystem::addRule( const std::string& rule, int type, size_t group ){
+void Lsystem::addRule( const std::string& rule, int type, size_t group, const ConsiderFilterPtr filter ){
 	__newrules = true;
     ContextMaintainer m(&__context);
-    LsysRule& r = __addRule(rule,type,group);
+    LsysRule& r = __addRule(rule,type,group,-1,filter);
 	r.compile();
 }
 

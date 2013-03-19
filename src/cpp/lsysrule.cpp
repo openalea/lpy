@@ -68,7 +68,8 @@ __isStatic(other.__isStatic),
 __staticResult(other.__staticResult),
 __function(other.__function),
 lineno(other.lineno),
-__codelength(other.__codelength){
+__codelength(other.__codelength),
+__consider(other.__consider){
   IncTracker(LsysRule)
 }
 
@@ -114,6 +115,7 @@ void LsysRule::clear(){
   __staticResult.clear();
   lineno = -1;
   __codelength = 0;
+  __consider = ConsiderFilterPtr();
 }
 
 std::string LsysRule::str() const {
@@ -416,6 +418,7 @@ AxialTree LsysRule::__postcall_function( boost::python::object res, bool * isApp
 
 boost::python::object LsysRule::__call_function( size_t nbargs, const ArgList& args ) const
 {
+	ConsiderFilterMaintainer cm(__consider);
 	switch(nbargs){
 		case 0: return __function(); break;
 #if MAX_LRULE_DIRECT_ARITY > 0
@@ -558,6 +561,7 @@ LsysRule::match(const AxialTree& src,
                ArgList& args,
                eDirection direction) const 
 {
+  ConsiderFilterMaintainer cm(__consider);
   args.reserve(__nbParams);
   ArgList args_pred;
   AxialTree::const_iterator endpos1;
@@ -660,6 +664,25 @@ LsysRule::process( const AxialTree& src ) const {
 	else { applyTo(dest,args); }
   }
   return dest;
+}
+/*---------------------------------------------------------------------------*/
+
+void 
+LsysRule::consider(const ConsiderFilterPtr consider)
+{
+	__consider = consider;
+}
+
+void 
+LsysRule::consider(const std::string& modules)
+{
+	__consider = ConsiderFilterPtr(new ConsiderFilter(modules));
+}
+
+void 
+LsysRule::ignore(const std::string& modules)
+{
+	__consider = ConsiderFilterPtr(new ConsiderFilter(modules,eIgnore));
 }
 
 /*---------------------------------------------------------------------------*/

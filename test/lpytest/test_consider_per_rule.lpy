@@ -1,0 +1,21 @@
+def EndEach(lstring,lscene):
+   assert len(lscene) == 4
+
+Axiom: F[+A][A]-A
+
+derivation length: 1
+production:
+
+ignore:+
+F [ < A --> [;f@O]
+
+ignore:-
+F < A --> [;;f@O]
+
+ignore:
+T --> T
+
+interpretation:
+
+
+endlsystem

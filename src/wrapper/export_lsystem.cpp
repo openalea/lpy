@@ -97,6 +97,7 @@ object py_get_rule_fonction_table(const Lsystem * lsys)
 	return make_dict(lsys->get_rule_fonction_table())();
 }
 
+
 void export_Lsystem(){
   enum_<eDirection>("eDirection")
 	  .value("eForward",eForward)
@@ -162,15 +163,25 @@ void export_Lsystem(){
 	.def("record",  (void(Lsystem::*)(const std::string&,size_t,size_t))&Lsystem::record)
 	.def("record",  (void(Lsystem::*)(const std::string&,const AxialTree&,size_t,size_t))&Lsystem::record)
 
+	.def("addRule",      (void(Lsystem::*)(const std::string&, int, size_t, const ConsiderFilterPtr))&Lsystem::addRule, "Add a rule", 
+						 (bp::arg("code"),bp::arg("ruletype")=Lsystem::eProduction,bp::arg("group")=0,bp::arg("filter")=ConsiderFilterPtr()))
 	.def("addRule",      (void(Lsystem::*)(const std::string&, int, size_t))&Lsystem::addRule, "Add a rule", 
 						 (bp::arg("code"),bp::arg("ruletype")=Lsystem::eProduction,bp::arg("group")=0))
 	.def("addRule",      (void(Lsystem::*)(const LsysRule&, int, size_t))&Lsystem::addRule,"Add a rule", 
 						 (bp::arg("rule"),bp::arg("ruletype")=Lsystem::eProduction,bp::arg("group")=0))
-	.def("addProductionRule",  &Lsystem::addProductionRule, "Add Production rule", 
+	.def("addProductionRule",  (void(Lsystem::*)(const std::string&, size_t, const ConsiderFilterPtr))&Lsystem::addProductionRule, "Add Production rule", 
+						 (bp::arg("code"),bp::arg("group")=0,bp::arg("filter")=ConsiderFilterPtr()))
+	.def("addProductionRule",  (void(Lsystem::*)(const std::string&, size_t))&Lsystem::addProductionRule, "Add Production rule", 
 						 (bp::arg("code"),bp::arg("group")=0))
-	.def("addDecompositionRule",   &Lsystem::addDecompositionRule, "Add Decomposition rule", 
+
+	.def("addDecompositionRule",   (void(Lsystem::*)(const std::string&, size_t, const ConsiderFilterPtr))&Lsystem::addDecompositionRule, "Add Decomposition rule", 
+						 (bp::arg("code"),bp::arg("group")=0,bp::arg("filter")=ConsiderFilterPtr()))
+	.def("addDecompositionRule",   (void(Lsystem::*)(const std::string&, size_t))&Lsystem::addDecompositionRule, "Add Decomposition rule", 
 						 (bp::arg("code"),bp::arg("group")=0))
-	.def("addInterpretationRule",   &Lsystem::addInterpretationRule, "Add Interpretation rule", 
+
+	.def("addInterpretationRule",   (void(Lsystem::*)(const std::string&, size_t, const ConsiderFilterPtr))&Lsystem::addInterpretationRule, "Add Interpretation rule", 
+						 (bp::arg("code"),bp::arg("group")=0,bp::arg("filter")=ConsiderFilterPtr()))
+	.def("addInterpretationRule",   (void(Lsystem::*)(const std::string&, size_t))&Lsystem::addInterpretationRule, "Add Interpretation rule", 
 						 (bp::arg("code"),bp::arg("group")=0))
     // .def("enableEarlyReturn", &Lsystem::enableEarlyReturn, "Allow an early return (for threaded application).")
     // .def("isEarlyReturnEnabled", &Lsystem::isEarlyReturnEnabled, "Tell if an early return is required (for threaded application).")

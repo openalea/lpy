@@ -50,19 +50,6 @@ const std::string LsysContext::HomomorphismMaxDepthVariable("__homomorphism_max_
 
 double LsysContext::DefaultAnimationTimeStep(0.05);
 const int LsysContext::DEFAULT_OPTIMIZATION_LEVEL(1);
-/*---------------------------------------------------------------------------*/
-
-bool Module::isConsidered() const
-{ 
-	// return LsysContext::currentContext()->isConsidered(__name); 
-	return LsysContext::currentContext()->isConsidered(*this); 
-}
-
-bool Module::isIgnored() const
-{ 
-	// return LsysContext::currentContext()->isIgnored(__name); 
-	return LsysContext::currentContext()->isIgnored(*this); 
-}
 
 /*---------------------------------------------------------------------------*/
 
@@ -211,7 +198,7 @@ void LsysContext::restoreEvent(LsysContext * previousEvent)
 /*---------------------------------------------------------------------------*/
 
 LsysContext::LsysContext():
-__ignore_method(true),
+// __ignore_method(true),
 __direction(eForward),
 __group(0),
 __selection_always_required(false),
@@ -235,8 +222,8 @@ __paramproductions()
 }
 
 LsysContext::LsysContext(const LsysContext& lsys):
-  __keyword(lsys.__keyword),
-  __ignore_method(lsys.__ignore_method),
+//  __keyword(lsys.__keyword),
+//  __ignore_method(lsys.__ignore_method),
   __direction(lsys.__direction),
   __group(lsys.__group),
   __nproduction(lsys.__nproduction),
@@ -263,8 +250,8 @@ LsysContext::LsysContext(const LsysContext& lsys):
 LsysContext& 
 LsysContext::operator=(const LsysContext& lsys)
 {
-  __keyword = lsys.__keyword;
-  __ignore_method =lsys.__ignore_method;
+//  __keyword = lsys.__keyword;
+//  __ignore_method =lsys.__ignore_method;
   __direction = lsys.__direction;
   __group = lsys.__group;
   __nproduction = lsys.__nproduction;
@@ -381,8 +368,8 @@ void LsysContext::init_options()
 
 void 
 LsysContext::clear(){
-  __keyword.clear();
-  __ignore_method = true;
+//  __keyword.clear();
+//  __ignore_method = true;
   __direction = eForward;
   __group = 0;
   __selection_always_required = false;
@@ -403,11 +390,11 @@ LsysContext::clear(){
 
 bool
 LsysContext::empty( ) const {
-  return __keyword.empty();
+  return __modules.empty(); // __keyword.empty();
 }
 
 /*---------------------------------------------------------------------------*/
-
+/*
 void
 LsysContext::consider(const std::string& modules){
   __ignore_method = false;
@@ -489,7 +476,7 @@ LsysContext::keyword() const{
 	  res += _it->second->name;
   return res;
 }	
-
+*/
 /*---------------------------------------------------------------------------*/
 
 void 
@@ -644,11 +631,7 @@ LsysContext::clearNamespace() {
 std::string 
 LsysContext::str() const {
   std::stringstream s;
-  s << "<LsysContext instance at " << this;
-  if(__ignore_method)
-	s << " ignoring " << __keyword.size() << " modules>";
-  else
-	s << " considering " << __keyword.size() << " modules>";
+  s << "<LsysContext instance at " << this << " with " << __modules.size() << " declared modules>";
   return s.str();
 }
 void 
