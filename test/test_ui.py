@@ -1,11 +1,12 @@
 from openalea.lpy.gui.lpystudio import *
+from openalea.vpltk.qt import qt
 import sys,os
 
 class TLPyWindow (LPyWindow):
     def __init__(self,*args):
         LPyWindow.__init__(self,*args)
         self.exitWithoutPrompt = True
-        QTimer.singleShot(5000,QCoreApplication.quit)
+        qt.QtCore.QTimer.singleShot(5000,qt.QtCore.QCoreApplication.quit)
 
 if sys.platform == 'win32':
     qapp = None
@@ -15,7 +16,7 @@ if sys.platform == 'win32':
     def init_app():
         global qapp, widget
         if qapp is None:
-            qapp = QApplication([])
+            qapp = qt.QtGui.QApplication([])
         if widget is None:
             widget = TLPyWindow()
 

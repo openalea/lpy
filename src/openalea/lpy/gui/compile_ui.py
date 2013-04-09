@@ -1,4 +1,4 @@
-from PyQt4 import uic
+from openalea.vpltk.qt import qt
 import os
 import sys
 
@@ -16,7 +16,7 @@ def compile_ui(uifname):
     """ compile a Ui """
     pyfname = get_uifnames_from(uifname)
     fstream = file(pyfname,'w')
-    uic.compileUi(uifname,fstream)
+    qt.uic.compileUi(uifname,fstream)
     fstream.close()
 
 def compile_rc (rcfname) :

@@ -39,7 +39,6 @@
 using namespace boost::python;
 LPY_USING_NAMESPACE
 PGL_USING(PglTurtle)
-
 /*---------------------------------------------------------------------------*/
 
 const std::string LsysContext::InitialisationFunctionName("__initialiseContext__");
@@ -110,8 +109,17 @@ void createDefaultContext()
 			DEFAULT_LSYSCONTEXT->setObject("__builtins__", object(handle<>(borrowed( PyModule_GetDict(PyImport_AddModule("__builtin__"))))));
 
 		// DEFAULT_LSYSCONTEXT->copyObject("__doc__",global);
+        
         // import pylsystems
         DEFAULT_LSYSCONTEXT->compile("from openalea.lpy import *");
+        
+        // ---------------------------------------------------------------------
+        // Try to import module in the global namespace with the python/c api
+        // ---------------------------------------------------------------------
+        // PyObject * lpy = PyImport_ImportModule("openalea.lpy");
+        // PyObject * lpy_dict = PyDict_New();
+        // lpy_dict = PyModule_GetDict(lpy);
+        // DEFAULT_LSYSCONTEXT->updateNamespace(lpy_dict);
    }
 }
 
@@ -1121,10 +1129,17 @@ GlobalContext::compile(const std::string& name, const std::string& code) {
 
 boost::python::object GlobalContext::__reprFunc;
 
+boost::python::object bprepr(boost::python::object obj)
+{
+    return boost::python::object(boost::python::handle<>(PyObject_Repr(obj.ptr())));
+}
+
 boost::python::object 
 GlobalContext::getFunctionRepr() {
-	if(__reprFunc == boost::python::object())
-		__reprFunc = globalContext()->getObject("__builtins__").attr("__dict__")["repr"];
+	if(__reprFunc == boost::python::object()){
+		__reprFunc =  boost::python::make_function(bprepr);
+        // defaultContext()->getObject("__builtins__").attr("__dict__")["repr"];
+    }
 	return __reprFunc;
 }
 

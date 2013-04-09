@@ -7,7 +7,7 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt4 import QtCore
+from openalea.vpltk.qt import qt
 
 qt_resource_data = "\
 \x00\x00\x0a\x66\
@@ -20546,9 +20546,9 @@ qt_resource_struct = "\
 "
 
 def qInitResources():
-    QtCore.qRegisterResourceData(0x01, qt_resource_struct, qt_resource_name, qt_resource_data)
+    qt.QtCore.qRegisterResourceData(0x01, qt_resource_struct, qt_resource_name, qt_resource_data)
 
 def qCleanupResources():
-    QtCore.qUnregisterResourceData(0x01, qt_resource_struct, qt_resource_name, qt_resource_data)
+    qt.QtCore.qUnregisterResourceData(0x01, qt_resource_struct, qt_resource_name, qt_resource_data)
 
 qInitResources()

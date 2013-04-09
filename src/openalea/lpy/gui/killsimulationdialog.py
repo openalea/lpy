@@ -12,22 +12,21 @@ if not py2exe_release:
     ui.check_ui_generation(os.path.join(ldir, 'killsimulationwidget.ui'))
     del ldir
 
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from openalea.vpltk.qt import qt    
 from killsimulationwidget import Ui_KillSimulationDialog
 
 
-class KillSimulationDialog (QDialog,Ui_KillSimulationDialog):
+class KillSimulationDialog (qt.QtGui.QDialog,Ui_KillSimulationDialog):
     def __init__(self,parent):
-        QDialog.__init__(self,parent)
+        qt.QtGui.QDialog.__init__(self,parent)
         self.setupUi(self)
         self.setModal(True)
-        self.timer = QTimer(self)
+        self.timer = qt.QtCore.QTimer(self)
         self.timer.setInterval(1000)
         self.timer.setSingleShot(True)
-        QObject.connect(self.timer,SIGNAL('timeout()'),self.step)
-        QObject.connect(self, SIGNAL("accepted()"), self.finishProcess)
-        QObject.connect(self, SIGNAL("rejected()"), self.timer.stop)
+        qt.QtCore.QObject.connect(self.timer,qt.QtCore.SIGNAL('timeout()'),self.step)
+        qt.QtCore.QObject.connect(self, qt.QtCore.SIGNAL("accepted()"), self.finishProcess)
+        qt.QtCore.QObject.connect(self, qt.QtCore.SIGNAL("rejected()"), self.timer.stop)
         self.timeout = 5
         self.condition = None
         self.killer = None
@@ -36,7 +35,7 @@ class KillSimulationDialog (QDialog,Ui_KillSimulationDialog):
         self.killer = killer
         self.timeout = timeout
         if self.condition():
-            QTimer.singleShot(1000*initialtimeout,self.initTiming)
+            qt.QtCore.QTimer.singleShot(1000*initialtimeout,self.initTiming)
     def initTiming(self):
         if self.condition():
             self.step()

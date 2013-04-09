@@ -1,12 +1,12 @@
-from PyQt4.QtCore import QObject, SIGNAL
+from openalea.vpltk.qt import qt
 
 MouseFocus, Selection, Actived = 1,2,4
 
-class AbstractObjectManager(QObject):
+class AbstractObjectManager(qt.QtCore.QObject):
     """ Manage a type of data. Make it possible to name it, display it as thumbnail and edit it"""
     def __init__(self, typename = None):
         """We need the name of the object managed by the editor to link the manager with the right Editor"""
-        QObject.__init__(self)
+        qt.QtCore.QObject.__init__(self)
         self.typename =  typename
         
     def setName(self,obj,name):

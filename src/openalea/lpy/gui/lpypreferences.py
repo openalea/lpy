@@ -1,5 +1,4 @@
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from openalea.vpltk.qt import qt
 import os
 from lpyprofiling import AnimatedProfiling, ProfilingWithFinalPlot, ProfilingWithNoPlot
 
@@ -21,55 +20,55 @@ class LpyPreferences:
         self.dialog = None
     def show(self):
         if True:
-            self.dialog = QDialog(self.editor)
+            self.dialog = qt.QtGui.QDialog(self.editor)
             self.widget = lpyprefwidget.Ui_PreferenceDialog()
             self.widget.setupUi(self.dialog)
             self.widget.toolbarAppEdit.setCurrentIndex(self.editor.getToolBarApp()[0])
-            QObject.connect(self.widget.toolbarAppEdit,SIGNAL('activated(const QString&)'),self.editor.setToolBarApp)
+            qt.QtCore.QObject.connect(self.widget.toolbarAppEdit,qt.QtCore.SIGNAL('activated(const QString&)'),self.editor.setToolBarApp)
             self.widget.fontFamilyEdit.setCurrentFont(self.editor.codeeditor.currentFont())
             self.widget.fontSizeEdit.setValue(self.editor.codeeditor.currentFont().pointSize())
-            QObject.connect(self.widget.fontFamilyEdit,SIGNAL('currentFontChanged(const QFont&)'),
+            qt.QtCore.QObject.connect(self.widget.fontFamilyEdit,qt.QtCore.SIGNAL('currentFontChanged(const QFont&)'),
                             self.editor.codeeditor.setEditionFontFamily)
-            QObject.connect(self.widget.fontSizeEdit,SIGNAL('valueChanged(int)'),
+            qt.QtCore.QObject.connect(self.widget.fontSizeEdit,qt.QtCore.SIGNAL('valueChanged(int)'),
                             self.editor.codeeditor.setEditionFontSize)
             self.widget.spaceForTabEdit.setChecked(self.editor.codeeditor.replaceTab)
-            QObject.connect(self.widget.spaceForTabEdit,SIGNAL('clicked(bool)'),self.editor.codeeditor.setReplaceTab)
+            qt.QtCore.QObject.connect(self.widget.spaceForTabEdit,qt.QtCore.SIGNAL('clicked(bool)'),self.editor.codeeditor.setReplaceTab)
             self.widget.tabSizeEdit.setValue(self.editor.codeeditor.tabSize())
-            QObject.connect(self.widget.tabSizeEdit,SIGNAL('valueChanged(int)'),self.editor.codeeditor.setTabSize)
+            qt.QtCore.QObject.connect(self.widget.tabSizeEdit,qt.QtCore.SIGNAL('valueChanged(int)'),self.editor.codeeditor.setTabSize)
             self.widget.startupReloadEdit.setChecked(self.editor.reloadAtStartup)
-            QObject.connect(self.widget.startupReloadEdit,SIGNAL('clicked(bool)'),lambda x : setattr(self.editor,'reloadAtStartup',x))
+            qt.QtCore.QObject.connect(self.widget.startupReloadEdit,qt.QtCore.SIGNAL('clicked(bool)'),lambda x : setattr(self.editor,'reloadAtStartup',x))
             self.widget.fileMonitoringEdit.setChecked(self.editor.fileMonitoring)
-            QObject.connect(self.widget.fileMonitoringEdit,SIGNAL('clicked(bool)'),lambda x : setattr(self.editor,'fileMonitoring',x))
+            qt.QtCore.QObject.connect(self.widget.fileMonitoringEdit,qt.QtCore.SIGNAL('clicked(bool)'),lambda x : setattr(self.editor,'fileMonitoring',x))
             self.widget.fileBackupEdit.setChecked(self.editor.fileBackupEnabled)
-            QObject.connect(self.widget.fileBackupEdit,SIGNAL('clicked(bool)'),lambda x : setattr(self.editor,'fileBackupEnabled',x))
+            qt.QtCore.QObject.connect(self.widget.fileBackupEdit,qt.QtCore.SIGNAL('clicked(bool)'),lambda x : setattr(self.editor,'fileBackupEnabled',x))
             self.widget.codeBackupEdit.setChecked(self.editor.codeBackupEnabled)
-            QObject.connect(self.widget.codeBackupEdit,SIGNAL('clicked(bool)'),lambda x : setattr(self.editor,'codeBackupEnabled',x))
+            qt.QtCore.QObject.connect(self.widget.codeBackupEdit,qt.QtCore.SIGNAL('clicked(bool)'),lambda x : setattr(self.editor,'codeBackupEnabled',x))
             self.widget.historySizeEdit.setValue(self.editor.historymaxsize)
-            QObject.connect(self.widget.historySizeEdit,SIGNAL('valueChanged(int)'),lambda x : setattr(self.editor,'historymaxsize',x))
+            qt.QtCore.QObject.connect(self.widget.historySizeEdit,qt.QtCore.SIGNAL('valueChanged(int)'),lambda x : setattr(self.editor,'historymaxsize',x))
             self.widget.pycodeDebugEdit.setChecked(self.editor.showPyCode)
-            QObject.connect(self.widget.pycodeDebugEdit,SIGNAL('clicked(bool)'),lambda x : setattr(self.editor,'showPyCode',x))
+            qt.QtCore.QObject.connect(self.widget.pycodeDebugEdit,qt.QtCore.SIGNAL('clicked(bool)'),lambda x : setattr(self.editor,'showPyCode',x))
             self.widget.useThreadEdit.setChecked(self.editor.with_thread)
-            QObject.connect(self.widget.useThreadEdit,SIGNAL('clicked(bool)'),lambda x : setattr(self.editor,'with_thread',x))
+            qt.QtCore.QObject.connect(self.widget.useThreadEdit,qt.QtCore.SIGNAL('clicked(bool)'),lambda x : setattr(self.editor,'with_thread',x))
             self.widget.fitViewEdit.setChecked(self.editor.fitAnimationView)
-            QObject.connect(self.widget.fitViewEdit,SIGNAL('clicked(bool)'),lambda x : setattr(self.editor,'fitAnimationView',x))
+            qt.QtCore.QObject.connect(self.widget.fitViewEdit,qt.QtCore.SIGNAL('clicked(bool)'),lambda x : setattr(self.editor,'fitAnimationView',x))
             self.widget.visuInfoEdit.setChecked(self.editor.displayMetaInfo)
-            QObject.connect(self.widget.visuInfoEdit,SIGNAL('clicked(bool)'),lambda x : setattr(self.editor,'displayMetaInfo',x))
-            QObject.connect(self.widget.gccPathButton,SIGNAL('clicked(bool)'),self.chooseCCompilerPath)
+            qt.QtCore.QObject.connect(self.widget.visuInfoEdit,qt.QtCore.SIGNAL('clicked(bool)'),lambda x : setattr(self.editor,'displayMetaInfo',x))
+            qt.QtCore.QObject.connect(self.widget.gccPathButton,qt.QtCore.SIGNAL('clicked(bool)'),self.chooseCCompilerPath)
             self.widget.gccPathEdit.setText(self.editor.cCompilerPath)
-            QObject.connect(self.widget.gccPathEdit,SIGNAL('returnPressed()'),self.editor.setCCompilerPath)
+            qt.QtCore.QObject.connect(self.widget.gccPathEdit,qt.QtCore.SIGNAL('returnPressed()'),self.editor.setCCompilerPath)
             self.setPofilingButton(self.editor.profilingMode)
-            QObject.connect(self.widget.profilingAnimatedButton,SIGNAL('clicked(bool)'),self.setProfilingAnimMode)
-            QObject.connect(self.widget.profilingFinalPlotButton,SIGNAL('clicked(bool)'),self.setProfilingFinalPlotMode)
-            QObject.connect(self.widget.profilingNoPlotButton,SIGNAL('clicked(bool)'),self.setProfilingNoPlotMode)
+            qt.QtCore.QObject.connect(self.widget.profilingAnimatedButton,qt.QtCore.SIGNAL('clicked(bool)'),self.setProfilingAnimMode)
+            qt.QtCore.QObject.connect(self.widget.profilingFinalPlotButton,qt.QtCore.SIGNAL('clicked(bool)'),self.setProfilingFinalPlotMode)
+            qt.QtCore.QObject.connect(self.widget.profilingNoPlotButton,qt.QtCore.SIGNAL('clicked(bool)'),self.setProfilingNoPlotMode)
             self.widget.integratedViewEdit.setChecked(self.editor.use_own_view3D)
-            QObject.connect(self.widget.integratedViewEdit,SIGNAL('clicked(bool)'),self.editor.setIntegratedView3D)
+            qt.QtCore.QObject.connect(self.widget.integratedViewEdit,qt.QtCore.SIGNAL('clicked(bool)'),self.editor.setIntegratedView3D)
             if not self.editor.withinterpreter:
                 self.widget.textOutputBox.setEnabled(False)
             else:
                 self.widget.LPyConsoleButton.setChecked(self.editor.shell.isSelfStdOutRedirection() or  self.editor.shell.hasMultipleStdOutRedirection())
-                QObject.connect(self.widget.LPyConsoleButton,SIGNAL('clicked(bool)'),self.setOutputRedirection)
+                qt.QtCore.QObject.connect(self.widget.LPyConsoleButton,qt.QtCore.SIGNAL('clicked(bool)'),self.setOutputRedirection)
                 self.widget.systemConsoleButton.setChecked(self.editor.shell.isSysStdOutRedirection() or  self.editor.shell.hasMultipleStdOutRedirection())
-                QObject.connect(self.widget.systemConsoleButton,SIGNAL('clicked(bool)'),self.setOutputRedirection)
+                qt.QtCore.QObject.connect(self.widget.systemConsoleButton,qt.QtCore.SIGNAL('clicked(bool)'),self.setOutputRedirection)
         self.dialog.show()
     def chooseCCompilerPath(self):
         p = QFileDialog.getExistingDirectory(self.editor, "Choose Compiler Path", self.editor.cCompilerPath )
