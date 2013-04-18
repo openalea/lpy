@@ -1,5 +1,13 @@
 from openalea.vpltk.qt import qt
 
+QRegExp = qt.QtCore.QRegExp
+QTextCharFormat = qt.QtGui.QTextCharFormat
+Qt = qt.QtCore.Qt
+QFont = qt.QtGui.QFont
+QTextCursor = qt.QtGui.QTextCursor
+QObject = qt.QtCore.QObject
+SIGNAL = qt.QtCore.SIGNAL
+
 class LineData:
     def __init__(self,i = None,p = None):
         self.imbricatedParanthesis = i
@@ -23,9 +31,9 @@ class LpySyntaxHighlighter(qt.QtGui.QSyntaxHighlighter):
     def __init__(self,editor):
         qt.QtGui.QSyntaxHighlighter.__init__(self,editor)
         self.rules = []
-        keywordFormat = qt.QtGui.QTextCharFormat()
-        keywordFormat.setForeground(qt.QtCore.Qt.darkMagenta)
-        keywordFormat.setFontWeight(qt.QtGui.QFont.Bold)
+        keywordFormat = QTextCharFormat()
+        keywordFormat.setForeground(Qt.darkMagenta)
+        keywordFormat.setFontWeight(QFont.Bold)
         self.lpykeywords = ['Axiom:','production','homomorphism','interpretation',
                             'decomposition','endlsystem','group','endgroup',
                             'derivation length','maximum depth','produce','nproduce','nsproduce','makestring','-->',
@@ -33,46 +41,46 @@ class LpySyntaxHighlighter(qt.QtGui.QSyntaxHighlighter):
                             'Start','End','StartEach','EndEach','getGroup','useGroup','getIterationNb',
                             'module','-static->','@static','lpyimport']
         for pattern in self.lpykeywords:
-            self.rules.append((qt.QtCore.QRegExp(pattern),keywordFormat))
-        keywordFormat = qt.QtGui.QTextCharFormat()
-        keywordFormat.setForeground(qt.QtCore.Qt.blue)
-        keywordFormat.setFontWeight(qt.QtGui.QFont.Bold)
+            self.rules.append((QRegExp(pattern),keywordFormat))
+        keywordFormat = QTextCharFormat()
+        keywordFormat.setForeground(Qt.blue)
+        keywordFormat.setFontWeight(QFont.Bold)
         import keyword
         self.pykeywords = keyword.kwlist + ['None','range','xrange', 'True','False','int','float','str','tuple','list']
         for pattern in self.pykeywords:
-            self.rules.append((qt.QtCore.QRegExp(pattern),keywordFormat))
-        self.delimiterFormat = qt.QtGui.QTextCharFormat()
-        self.delimiterFormat.setForeground(qt.QtCore.Qt.darkBlue)
-        self.delimiterFormat.setFontWeight(qt.QtGui.QFont.Bold)
+            self.rules.append((QRegExp(pattern),keywordFormat))
+        self.delimiterFormat = QTextCharFormat()
+        self.delimiterFormat.setForeground(Qt.darkBlue)
+        self.delimiterFormat.setFontWeight(QFont.Bold)
         self.delimiterkeywords = '[](){}+-*/:<>='
         self.exprules = []
-        self.prodFormat = qt.QtGui.QTextCharFormat()
-        self.prodFormat.setForeground(qt.QtCore.Qt.black)
-        self.prodFormat.setFontWeight(qt.QtGui.QFont.Bold)
+        self.prodFormat = QTextCharFormat()
+        self.prodFormat.setForeground(Qt.black)
+        self.prodFormat.setFontWeight(QFont.Bold)
         self.prodkeywords = ['Axiom:','module','produce','nproduce','nsproduce','makestring','-->','-static->','ignore:','consider:']
         for pattern in self.prodkeywords:
-            self.exprules.append((qt.QtCore.QRegExp(pattern+'.*$'),len(pattern),self.prodFormat,0))
-        self.funcFormat = qt.QtGui.QTextCharFormat()
-        self.funcFormat.setForeground(qt.QtCore.Qt.magenta)
-        self.exprules.append((qt.QtCore.QRegExp('def[ \t]+.*\('),3,self.funcFormat,1))
-        self.stringFormat = qt.QtGui.QTextCharFormat()
-        self.stringFormat.setForeground(qt.QtCore.Qt.darkGray)
-        self.exprules.append((qt.QtCore.QRegExp('\"[^\"]*\"'),0,self.stringFormat,0))
-        self.exprules.append((qt.QtCore.QRegExp("\'[^\']*\'"),0,self.stringFormat,0))
-        self.tabFormat = qt.QtGui.QTextCharFormat()
+            self.exprules.append((QRegExp(pattern+'.*$'),len(pattern),self.prodFormat,0))
+        self.funcFormat = QTextCharFormat()
+        self.funcFormat.setForeground(Qt.magenta)
+        self.exprules.append((QRegExp('def[ \t]+.*\('),3,self.funcFormat,1))
+        self.stringFormat = QTextCharFormat()
+        self.stringFormat.setForeground(Qt.darkGray)
+        self.exprules.append((QRegExp('\"[^\"]*\"'),0,self.stringFormat,0))
+        self.exprules.append((QRegExp("\'[^\']*\'"),0,self.stringFormat,0))
+        self.tabFormat = QTextCharFormat()
         self.tabFormat.setBackground(qt.QtGui.QColor(220,220,220))
-        self.spaceFormat = qt.QtGui.QTextCharFormat()
+        self.spaceFormat = QTextCharFormat()
         self.spaceFormat.setBackground(qt.QtGui.QColor(240,240,240))
-        self.tabRule = qt.QtCore.QRegExp("^[ \t]+")
-        self.numberFormat = qt.QtGui.QTextCharFormat()
-        self.numberFormat.setForeground(qt.QtCore.Qt.red)
-        self.exprules.append((qt.QtCore.QRegExp('\d+(\.\d+)?(e[\+\-]?\d+)?'),0,self.numberFormat,0))        
-        self.commentFormat = qt.QtGui.QTextCharFormat()
-        self.commentFormat.setForeground(qt.QtCore.Qt.darkGreen)
-        self.lsysruleExp = [qt.QtCore.QRegExp('.+:'),qt.QtCore.QRegExp('.+\-\->'), qt.QtCore.QRegExp('.+\-static\->')]
-        self.commentExp = qt.QtCore.QRegExp('#.+$')
-        self.ruleCommentExp = qt.QtCore.QRegExp('[ \t]+#.+$')
-        self.prodbegExp =  qt.QtCore.QRegExp('[n]produce[ \t]*.')
+        self.tabRule = QRegExp("^[ \t]+")
+        self.numberFormat = QTextCharFormat()
+        self.numberFormat.setForeground(Qt.red)
+        self.exprules.append((QRegExp('\d+(\.\d+)?(e[\+\-]?\d+)?'),0,self.numberFormat,0))        
+        self.commentFormat = QTextCharFormat()
+        self.commentFormat.setForeground(Qt.darkGreen)
+        self.lsysruleExp = [QRegExp('.+:'),QRegExp('.+\-\->'), QRegExp('.+\-static\->')]
+        self.commentExp = QRegExp('#.+$')
+        self.ruleCommentExp = QRegExp('[ \t]+#.+$')
+        self.prodbegExp =  QRegExp('[n]produce[ \t]*.')
         self.setCurrentBlockState(0)
         self.activated = True
         self.tabviewactivated = True
@@ -149,9 +157,9 @@ class LpySyntaxHighlighter(qt.QtGui.QSyntaxHighlighter):
             while index >= 0:
                 length = expression.matchedLength()
                 if ((index == 0 or not text[index-1].isalnum()) and 
-                   (index == lentxt or not text[index+length-1].isalnum())):
+                   (index+length == lentxt or not text[index+length].isalnum())):
                     self.setFormat(index, length, rule[1])
-                index = expression.indexIn(text, index + length-1)
+                index = expression.indexIn(text, index + length)
         for rule in self.exprules:
             expression = rule[0]
             index = expression.indexIn(text)
@@ -214,7 +222,7 @@ class Margin(qt.QtGui.QWidget):
                 rect = self.editor.cursorRect(cursor)
                 if nline > line:
                     line = nline
-                    painter.drawText(0,rect.top()+2,40,rect.height()+2, qt.QtCore.Qt.AlignHCenter|qt.QtCore.Qt.AlignTop,str(line))
+                    painter.drawText(0,rect.top()+2,40,rect.height()+2, Qt.AlignHCenter|Qt.AlignTop,str(line))
                     m = self.markers.get(line,None)
                     if not m is None:
                         lm = self.markerStack.get(line,None)
@@ -226,7 +234,7 @@ class Margin(qt.QtGui.QWidget):
             painter.end()
     def mousePressEvent( self, event ):
         line = self.editor.cursorForPosition(event.pos()).blockNumber() 
-        self.emit(qt.QtCore.SIGNAL("lineClicked(int)"),line+1)
+        self.emit(SIGNAL("lineClicked(int)"),line+1)
     def clear( self ):
         self.removeAllMarkers()
         self.markerType = {}
@@ -372,20 +380,20 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
         self.statusBar = lpyeditor.statusBar()
         self.positionLabel = qt.QtGui.QLabel(self.statusBar)
         self.statusBar.addPermanentWidget(self.positionLabel)
-        qt.QtCore.QObject.connect(self.findEdit, qt.QtCore.SIGNAL('textEdited(const QString&)'),self.findText)
-        qt.QtCore.QObject.connect(lpyeditor.actionFind, qt.QtCore.SIGNAL('triggered()'),self.focusFind)
-        qt.QtCore.QObject.connect(self.findEdit, qt.QtCore.SIGNAL('returnPressed()'),self.setFocus)
-        qt.QtCore.QObject.connect(self.gotoEdit, qt.QtCore.SIGNAL('returnPressed()'),self.gotoLineFromEdit)
-        qt.QtCore.QObject.connect(self.gotoEdit, qt.QtCore.SIGNAL('returnPressed()'),self.setFocus)
-        qt.QtCore.QObject.connect(self.previousButton, qt.QtCore.SIGNAL('pressed()'),self.findPreviousText)
-        qt.QtCore.QObject.connect(self.nextButton, qt.QtCore.SIGNAL('pressed()'),self.findNextText)
-        qt.QtCore.QObject.connect(self.replaceButton, qt.QtCore.SIGNAL('pressed()'),self.replaceText)
-        qt.QtCore.QObject.connect(self.replaceAllButton, qt.QtCore.SIGNAL('pressed()'),self.replaceAllText)
-        qt.QtCore.QObject.connect(self, qt.QtCore.SIGNAL('cursorPositionChanged()'),self.printCursorPosition)
-        qt.QtCore.QObject.connect(lpyeditor.actionZoomIn, qt.QtCore.SIGNAL('triggered()'),self.zoomInEvent)
-        qt.QtCore.QObject.connect(lpyeditor.actionZoomOut, qt.QtCore.SIGNAL('triggered()'),self.zoomOutEvent)
-        qt.QtCore.QObject.connect(lpyeditor.actionNoZoom, qt.QtCore.SIGNAL('triggered()'),self.resetZoom)
-        qt.QtCore.QObject.connect(lpyeditor.actionGoto, qt.QtCore.SIGNAL('triggered()'),self.setLineInEdit)
+        QObject.connect(self.findEdit, SIGNAL('textEdited(const QString&)'),self.findText)
+        QObject.connect(lpyeditor.actionFind, SIGNAL('triggered()'),self.focusFind)
+        QObject.connect(self.findEdit, SIGNAL('returnPressed()'),self.setFocus)
+        QObject.connect(self.gotoEdit, SIGNAL('returnPressed()'),self.gotoLineFromEdit)
+        QObject.connect(self.gotoEdit, SIGNAL('returnPressed()'),self.setFocus)
+        QObject.connect(self.previousButton, SIGNAL('pressed()'),self.findPreviousText)
+        QObject.connect(self.nextButton, SIGNAL('pressed()'),self.findNextText)
+        QObject.connect(self.replaceButton, SIGNAL('pressed()'),self.replaceText)
+        QObject.connect(self.replaceAllButton, SIGNAL('pressed()'),self.replaceAllText)
+        QObject.connect(self, SIGNAL('cursorPositionChanged()'),self.printCursorPosition)
+        QObject.connect(lpyeditor.actionZoomIn, SIGNAL('triggered()'),self.zoomInEvent)
+        QObject.connect(lpyeditor.actionZoomOut, SIGNAL('triggered()'),self.zoomOutEvent)
+        QObject.connect(lpyeditor.actionNoZoom, SIGNAL('triggered()'),self.resetZoom)
+        QObject.connect(lpyeditor.actionGoto, SIGNAL('triggered()'),self.setLineInEdit)
         self.defaultEditionFont = self.currentFont()
         self.defaultPointSize = self.currentFont().pointSize()
         self.setViewportMargins(50,0,0,0)
@@ -395,7 +403,7 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
         self.sidebar.defineMarker(BreakPointMarker,qt.QtGui.QPixmap(':/images/icons/BreakPoint.png'))
         self.sidebar.defineMarker(CodePointMarker,qt.QtGui.QPixmap(':/images/icons/greenarrow16.png'))
         self.sidebar.show() 
-        qt.QtCore.QObject.connect(self.sidebar, qt.QtCore.SIGNAL('lineClicked(int)'),self.checkLine)
+        QObject.connect(self.sidebar, SIGNAL('lineClicked(int)'),self.checkLine)
     def checkLine(self,line):
         self.editor.statusBar().showMessage("Line "+str(line)+" clicked",2000)
         if self.sidebar.hasMarkerAt(line):
@@ -412,7 +420,7 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
         qt.QtGui.QTextEdit.resizeEvent(self,event)
     def scrollContentsBy(self,dx,dy):
         self.sidebar.update()
-        self.sidebar.setFont(qt.QtGui.QFont(self.currentFont()))
+        self.sidebar.setFont(QFont(self.currentFont()))
         qt.QtGui.QTextEdit.scrollContentsBy(self,dx,dy)
     def focusInEvent ( self, event ):
         self.editor.currentSimulation().monitorfile()
@@ -455,13 +463,13 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
             self.clearErrorHightlight()
         lcursor = self.textCursor()
         bbn = lcursor.blockNumber()
-        if lcursor.selectionStart() == lcursor.selectionEnd() and (event.key() == qt.QtCore.Qt.Key_Delete or event.key() == qt.QtCore.Qt.Key_Backspace):
-            if event.key() == qt.QtCore.Qt.Key_Backspace:
-                lcursor.movePosition(qt.QtGui.QTextCursor.PreviousCharacter,qt.QtGui.QTextCursor.KeepAnchor)
+        if lcursor.selectionStart() == lcursor.selectionEnd() and (event.key() == Qt.Key_Delete or event.key() == Qt.Key_Backspace):
+            if event.key() == Qt.Key_Backspace:
+                lcursor.movePosition(QTextCursor.PreviousCharacter,QTextCursor.KeepAnchor)
             else:
-                lcursor.movePosition(qt.QtGui.QTextCursor.NextCharacter,qt.QtGui.QTextCursor.KeepAnchor)
-        if event.key() == qt.QtCore.Qt.Key_Tab and lcursor.hasSelection():
-            if event.modifiers() == qt.QtCore.Qt.NoModifier:
+                lcursor.movePosition(QTextCursor.NextCharacter,QTextCursor.KeepAnchor)
+        if event.key() == Qt.Key_Tab and lcursor.hasSelection():
+            if event.modifiers() == Qt.NoModifier:
                 self.tab()
             else:
                 self.untab()
@@ -470,10 +478,10 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
             sbn = seltxt.count('\n')
             rev = self.document().revision()
             qt.QtGui.QTextEdit.keyPressEvent(self,event)
-            if event.key() == qt.QtCore.Qt.Key_Return or event.key() == qt.QtCore.Qt.Key_Enter:
+            if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter:
                 self.returnEvent()
                 sbn -=1
-            elif event.key() == qt.QtCore.Qt.Key_Tab :
+            elif event.key() == Qt.Key_Tab :
                 self.tabEvent()
             if rev != self.document().revision():
                 self.sidebar.decalMarkers(bbn+sbn,-sbn)        
@@ -483,25 +491,25 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
         end = cursor.selectionEnd()
         if beg == end:
             pos = cursor.position()
-            ok = cursor.movePosition(qt.QtGui.QTextCursor.PreviousBlock,qt.QtGui.QTextCursor.MoveAnchor)
+            ok = cursor.movePosition(QTextCursor.PreviousBlock,QTextCursor.MoveAnchor)
             if not ok: return
             txtok = True
             txt = ''
             while txtok:
-                ok = cursor.movePosition(qt.QtGui.QTextCursor.NextCharacter,qt.QtGui.QTextCursor.KeepAnchor)
+                ok = cursor.movePosition(QTextCursor.NextCharacter,QTextCursor.KeepAnchor)
                 if not ok: break
                 txt2 = str(cursor.selection().toPlainText())
                 txtok = (txt2[-1] in ' \t')
                 if txtok:
                     txt = txt2
             cursor.setPosition(pos)
-            ok = cursor.movePosition(qt.QtGui.QTextCursor.PreviousBlock,qt.QtGui.QTextCursor.MoveAnchor)
+            ok = cursor.movePosition(QTextCursor.PreviousBlock,QTextCursor.MoveAnchor)
             if ok:
-                ok = cursor.movePosition(qt.QtGui.QTextCursor.EndOfBlock,qt.QtGui.QTextCursor.MoveAnchor)
+                ok = cursor.movePosition(QTextCursor.EndOfBlock,QTextCursor.MoveAnchor)
                 if ok:
                     txtok = True
                     while txtok:
-                        ok = cursor.movePosition(qt.QtGui.QTextCursor.PreviousCharacter,qt.QtGui.QTextCursor.KeepAnchor)
+                        ok = cursor.movePosition(QTextCursor.PreviousCharacter,QTextCursor.KeepAnchor)
                         if not ok: break
                         txt2 = str(cursor.selection().toPlainText())
                         txtok = (txt2[0] in ' \t')
@@ -534,7 +542,7 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
         return options
     def cursorAtStart(self):
         cursor = self.textCursor()
-        cursor.setPosition(0,qt.QtGui.QTextCursor.MoveAnchor)
+        cursor.setPosition(0,QTextCursor.MoveAnchor)
         self.setTextCursor(cursor)            
     def focusFind(self):
         if not self.frameFind.isVisible():
@@ -586,7 +594,7 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
             self.cursorAtStart()
     def findText(self,txt):
         cursor = self.textCursor()
-        cursor.setPosition(0,qt.QtGui.QTextCursor.MoveAnchor)
+        cursor.setPosition(0,QTextCursor.MoveAnchor)
         self.setTextCursor(cursor)
         self.find(txt,self.getFindOptions())
     def replaceText(self):
@@ -645,35 +653,35 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
         end = cursor.selectionEnd()
         pos = cursor.position()
         cursor.beginEditBlock() 
-        cursor.setPosition(beg,qt.QtGui.QTextCursor.MoveAnchor)
-        cursor.movePosition(qt.QtGui.QTextCursor.StartOfBlock,qt.QtGui.QTextCursor.MoveAnchor)
+        cursor.setPosition(beg,QTextCursor.MoveAnchor)
+        cursor.movePosition(QTextCursor.StartOfBlock,QTextCursor.MoveAnchor)
         while cursor.position() <= end:
             cursor.insertText('#')
             oldpos = cursor.position()
-            cursor.movePosition(qt.QtGui.QTextCursor.NextBlock,qt.QtGui.QTextCursor.MoveAnchor)
+            cursor.movePosition(QTextCursor.NextBlock,QTextCursor.MoveAnchor)
             if cursor.position() == oldpos:
                 break
             end+=1
         cursor.endEditBlock()
-        cursor.setPosition(pos,qt.QtGui.QTextCursor.MoveAnchor)
+        cursor.setPosition(pos,QTextCursor.MoveAnchor)
     def uncomment(self):
         cursor = self.textCursor()
         beg = cursor.selectionStart()
         end = cursor.selectionEnd()
         pos = cursor.position()
         cursor.beginEditBlock()
-        cursor.setPosition(beg,qt.QtGui.QTextCursor.MoveAnchor)
-        cursor.movePosition(qt.QtGui.QTextCursor.StartOfBlock,qt.QtGui.QTextCursor.MoveAnchor)
+        cursor.setPosition(beg,QTextCursor.MoveAnchor)
+        cursor.movePosition(QTextCursor.StartOfBlock,QTextCursor.MoveAnchor)
         while cursor.position() <= end:
-            m = cursor.movePosition(qt.QtGui.QTextCursor.NextCharacter,qt.QtGui.QTextCursor.KeepAnchor)
+            m = cursor.movePosition(QTextCursor.NextCharacter,QTextCursor.KeepAnchor)
             if True:
                 if cursor.selectedText() == '#':
                         cursor.deleteChar()
                 end-=1
-            cursor.movePosition(qt.QtGui.QTextCursor.Down,qt.QtGui.QTextCursor.MoveAnchor)
-            cursor.movePosition(qt.QtGui.QTextCursor.Left,qt.QtGui.QTextCursor.MoveAnchor)
+            cursor.movePosition(QTextCursor.Down,QTextCursor.MoveAnchor)
+            cursor.movePosition(QTextCursor.Left,QTextCursor.MoveAnchor)
         cursor.endEditBlock()
-        cursor.setPosition(pos,qt.QtGui.QTextCursor.MoveAnchor)
+        cursor.setPosition(pos,QTextCursor.MoveAnchor)
     def tab(self, initcursor = None):
         if initcursor == False:
             initcursor = None
@@ -682,8 +690,8 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
         end = cursor.selectionEnd()
         pos = cursor.position()
         if not initcursor : cursor.beginEditBlock()
-        cursor.setPosition(beg,qt.QtGui.QTextCursor.MoveAnchor)
-        cursor.movePosition(qt.QtGui.QTextCursor.StartOfBlock,qt.QtGui.QTextCursor.MoveAnchor)
+        cursor.setPosition(beg,QTextCursor.MoveAnchor)
+        cursor.movePosition(QTextCursor.StartOfBlock,QTextCursor.MoveAnchor)
         while cursor.position() <= end :
             if self.replaceTab:
                 cursor.insertText(self.indentation)
@@ -692,34 +700,34 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
                 cursor.insertText('\t')
                 end+=1
             oldpos = cursor.position()
-            cursor.movePosition(qt.QtGui.QTextCursor.NextBlock,qt.QtGui.QTextCursor.MoveAnchor)
+            cursor.movePosition(QTextCursor.NextBlock,QTextCursor.MoveAnchor)
             if cursor.position() == oldpos:
                 break
         if not initcursor : cursor.endEditBlock()
-        cursor.setPosition(pos,qt.QtGui.QTextCursor.MoveAnchor)
+        cursor.setPosition(pos,QTextCursor.MoveAnchor)
     def untab(self):
         cursor = self.textCursor()
         beg = cursor.selectionStart()
         end = cursor.selectionEnd()
         pos = cursor.position()
         cursor.beginEditBlock()
-        cursor.setPosition(beg,qt.QtGui.QTextCursor.MoveAnchor)
-        cursor.movePosition(qt.QtGui.QTextCursor.StartOfBlock,qt.QtGui.QTextCursor.MoveAnchor)
+        cursor.setPosition(beg,QTextCursor.MoveAnchor)
+        cursor.movePosition(QTextCursor.StartOfBlock,QTextCursor.MoveAnchor)
         while cursor.position() <= end:
-            m = cursor.movePosition(qt.QtGui.QTextCursor.NextCharacter,qt.QtGui.QTextCursor.KeepAnchor)
+            m = cursor.movePosition(QTextCursor.NextCharacter,QTextCursor.KeepAnchor)
             if cursor.selectedText() == '\t':
                 cursor.deleteChar()
             else:
                 for i in xrange(len(self.indentation)-1):
-                    b = cursor.movePosition(qt.QtGui.QTextCursor.NextCharacter,qt.QtGui.QTextCursor.KeepAnchor)
+                    b = cursor.movePosition(QTextCursor.NextCharacter,QTextCursor.KeepAnchor)
                     if not b : break
                 if cursor.selectedText() == self.indentation:
                     cursor.removeSelectedText()                    
             end-=1
-            cursor.movePosition(qt.QtGui.QTextCursor.Down,qt.QtGui.QTextCursor.MoveAnchor)
-            cursor.movePosition(qt.QtGui.QTextCursor.StartOfBlock,qt.QtGui.QTextCursor.MoveAnchor)
+            cursor.movePosition(QTextCursor.Down,QTextCursor.MoveAnchor)
+            cursor.movePosition(QTextCursor.StartOfBlock,QTextCursor.MoveAnchor)
         cursor.endEditBlock()
-        cursor.setPosition(pos,qt.QtGui.QTextCursor.MoveAnchor)
+        cursor.setPosition(pos,QTextCursor.MoveAnchor)
     def hightlightError(self,lineno):
         self.editor.textEditionWatch = False
         if self.hasError:
@@ -728,10 +736,10 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
         self.errorLine = lineno
         cursor = self.textCursor()
         cursor.setPosition(0)
-        cursor.movePosition(qt.QtGui.QTextCursor.NextBlock,qt.QtGui.QTextCursor.MoveAnchor,lineno-1)
-        cursor.movePosition(qt.QtGui.QTextCursor.EndOfBlock,qt.QtGui.QTextCursor.KeepAnchor)
-        errorformat = qt.QtGui.QTextCharFormat() 
-        errorformat.setBackground(qt.QtCore.Qt.yellow)
+        cursor.movePosition(QTextCursor.NextBlock,QTextCursor.MoveAnchor,lineno-1)
+        cursor.movePosition(QTextCursor.EndOfBlock,QTextCursor.KeepAnchor)
+        errorformat = QTextCharFormat() 
+        errorformat.setBackground(Qt.yellow)
         cursor.setCharFormat(errorformat)
         self.gotoLine(lineno)
         self.hasError = True
@@ -748,7 +756,7 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
     def setEditionFontSize(self,p):
         f = self.editionFont
         if self.editionFont is None:
-            f = qt.QtGui.QFont(self.defaultEditionFont)
+            f = QFont(self.defaultEditionFont)
         f.setPointSize( p )
         self.setEditionFont(f)
     def setEditionFont(self,font):
@@ -760,7 +768,7 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
     def gotoLine(self,lineno):
         cursor = self.textCursor()
         cursor.setPosition(0)
-        cursor.movePosition(qt.QtGui.QTextCursor.NextBlock,qt.QtGui.QTextCursor.MoveAnchor,lineno-1)
+        cursor.movePosition(QTextCursor.NextBlock,QTextCursor.MoveAnchor,lineno-1)
         self.setTextCursor(cursor)
         self.ensureCursorVisible()
     def gotoLineFromEdit(self):
