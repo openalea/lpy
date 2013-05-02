@@ -1,4 +1,8 @@
 from openalea.vpltk.qt import qt
+try:
+    from PyQt4.uic import compileUi
+except ImportError:
+    from pysideuic import compileUi
 import os
 import sys
 
@@ -16,7 +20,7 @@ def compile_ui(uifname):
     """ compile a Ui """
     pyfname = get_uifnames_from(uifname)
     fstream = file(pyfname,'w')
-    qt.uic.compileUi(uifname,fstream)
+    compileUi(uifname,fstream)
     fstream.close()
 
 def compile_rc (rcfname) :
