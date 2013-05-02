@@ -1,0 +1,40 @@
+def Start():
+  print
+  print 
+  print
+  print 
+
+module B : scale = 1
+module I : scale = 3
+module S : scale = 2
+
+Axiom: BISSSISSS 
+
+derivation length: 1
+production:
+
+# Works
+#I<I:
+#  print "I<I matched"
+
+# Don't work
+I<<I:
+  print "I<<I matched"
+
+S<S:
+  print "S<S matched"
+
+I<S:
+  print "I<S matched"
+
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	context.options.setSelection('String matching',3)

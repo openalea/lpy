@@ -45,7 +45,8 @@ AxialTree::const_iterator int_to_iter(AxialTree * tree, int pos)
   if(pos < 0)pos += tree->size();
   AxialTree::const_iterator beg = tree->begin();
   if(pos > 0 && pos <= tree->size())beg += pos;
-  else if(pos != 0){
+  else if (pos == INT_MAX) return tree->end();
+  else if(pos != 0){	
 	PyErr_SetString(PyExc_IndexError, "index out of range");
     throw_error_already_set();
   }
@@ -72,12 +73,17 @@ boost::python::object veciter_to_list(AxialTree * tree, std::vector<AxialTree::c
   }
 }
 
+object py_find_mod2(AxialTree * tree, const PatternModule& mod, int start, int stop){
+	return iter_to_int(tree,tree->find(mod,int_to_iter(tree,start),int_to_iter(tree,stop)));
+}
+
 object py_find_mod(AxialTree * tree, const PatternModule& mod, int start, int stop){
 	return iter_to_int(tree,tree->find(mod,int_to_iter(tree,start),int_to_iter(tree,stop)));
 }
 
 object py_find_str(AxialTree * tree,const std::string& name, int start, int stop)
 { return py_find_mod(tree,PatternModule(name),start,stop); }
+
 
 /*
 object py_roots(AxialTree * tree)
@@ -264,8 +270,8 @@ void export_AxialTree() {
     .def( "count", (size_t(AxialTree::*)(const std::string& name)const)&AxialTree::count ) 
     .def( "count", (size_t(AxialTree::*)(const std::string& name, size_t nbparam)const)&AxialTree::count ) 
     .def( "count", (size_t(AxialTree::*)(const ParamModule&)const)&AxialTree::count ) 
-    .def( "find", &py_find_mod, (bp::arg("pattern"),bp::arg("start")=0,bp::arg("end")=-1) ) 
-    .def( "find", &py_find_str, (bp::arg("pattern"),bp::arg("start")=0,bp::arg("end")=-1)) 
+    .def( "find", &py_find_mod, (bp::arg("pattern"),bp::arg("start")=0,bp::arg("end")=INT_MAX) ) 
+    .def( "find", &py_find_str, (bp::arg("pattern"),bp::arg("start")=0,bp::arg("end")=INT_MAX)) 
     .def( "replace",&replace ) 
 	.PY_MATCH_WRAPPER_DEC(match)
 	.PY_MATCH_WRAPPER_DEC(reverse_match)
