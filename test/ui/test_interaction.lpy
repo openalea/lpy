@@ -8,7 +8,7 @@ derivation length:5
 production:
 
 A --> F[-A]FA
-X --> ,(3)@O %
+X --> ,(3)@O(0.2) %
 
 interpretation:
 

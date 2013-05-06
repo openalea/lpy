@@ -5,8 +5,8 @@ def Start():
   print 
 
 module B : scale = 1
-module I : scale = 3
-module S : scale = 2
+module I : scale = 2
+module S : scale = 3
 
 Axiom: BISSSISSS 
 

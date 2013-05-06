@@ -5,7 +5,11 @@ def StartEach():
    ok = 0
 
 def EndEach():
+  print ok
   assert ok == 2
+
+module D : scale = 1
+module I : scale = 1
 
 Axiom: D I I D I I I
 
@@ -13,7 +17,7 @@ derivation length: 1
 production:
 
 
-D > x(I,2):
+D > x(I,1) :
   global ok
   ok += 1
 
