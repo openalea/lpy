@@ -1,0 +1,29 @@
+ok = 0
+
+def StartEach():
+   global ok
+   ok = 0
+
+def EndEach():
+  assert ok == 2
+
+Axiom: D I I D I I I
+
+derivation length: 1
+production:
+
+
+D > x(I,2):
+  global ok
+  ok += 1
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	context.options.setSelection('String matching',3)
