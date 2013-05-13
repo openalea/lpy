@@ -50,9 +50,13 @@ class LpyTabBar(qt.QtGui.QTabBar):
             menu.exec_(event.globalPos())
     def openFolder(self):
         import os, sys
-        mdir = os.path.dirname(self.lpystudio.simulations[self.selection].fname)
+        fname = os.path.abspath(self.lpystudio.simulations[self.selection].fname)
+        mdir = os.path.dirname(fname)
         if sys.platform == 'win32':
-                os.startfile(mdir)
+                import subprocess
+                #os.startfile(mdir)
+                #os.system('explorer /select,"'+fname+'"')
+                subprocess.call('explorer /select,"'+fname+'"')
         elif sys.platform == 'linux2':
                 os.system('xdg-open "'+mdir+'"')
         else:
