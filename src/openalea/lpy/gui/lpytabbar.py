@@ -1,4 +1,6 @@
 from openalea.vpltk.qt import qt
+QObject = qt.QtCore.QObject
+SIGNAL = qt.QtCore.SIGNAL
 
 class LpyTabBar(qt.QtGui.QTabBar):
     def __init__(self,parent):
@@ -9,28 +11,28 @@ class LpyTabBar(qt.QtGui.QTabBar):
     
     def connectTo(self,lpystudio):
         self.lpystudio = lpystudio
-        qt.QtCore.QObject.connect(self,qt.QtCore.SIGNAL('switchDocument'),lpystudio.switchDocuments)
-        qt.QtCore.QObject.connect(self,qt.QtCore.SIGNAL('currentChanged(int)'),lpystudio.changeDocument)
-        qt.QtCore.QObject.connect(self,qt.QtCore.SIGNAL('newDocumentRequest'),lpystudio.newfile)
+        QObject.connect(self,SIGNAL('switchDocument'),lpystudio.switchDocuments)
+        QObject.connect(self,SIGNAL('currentChanged(int)'),lpystudio.changeDocument)
+        QObject.connect(self,SIGNAL('newDocumentRequest'),lpystudio.newfile)
         
     def mouseMoveEvent(self,event):
         tabselect = self.tabAt(event.pos())
         if tabselect != -1 :
             originaltab = self.currentIndex()
             if tabselect != originaltab:
-                self.emit(qt.QtCore.SIGNAL("switchDocument"),tabselect,originaltab)
+                self.emit(SIGNAL("switchDocument"),tabselect,originaltab)
         qt.QtGui.QTabBar.mouseMoveEvent(self,event)
     def mouseDoubleClickEvent(self,event):
         tabselect = self.tabAt(event.pos())
         if tabselect != -1 :
-            self.emit(qt.QtCore.SIGNAL("newDocumentRequest"))
+            self.emit(SIGNAL("newDocumentRequest"))
         qt.QtGui.QTabBar.mouseDoubleClickEvent(self,event)
     def contextMenuEvent(self,event):
         self.selection = self.tabAt(event.pos())
         if self.selection != -1:
             menu = qt.QtGui.QMenu(self)
             action = menu.addAction('Close')
-            qt.QtCore.QObject.connect(action,qt.QtCore.SIGNAL('triggered(bool)'),self.close)
+            QObject.connect(action,SIGNAL('triggered(bool)'),self.close)
             action = menu.addAction('Close all except this ')
             QObject.connect(action,SIGNAL('triggered(bool)'),self.closeAllExcept)
             menu.addSeparator()
@@ -44,7 +46,7 @@ class LpyTabBar(qt.QtGui.QTabBar):
             action = menu.addAction('Copy filename ')
             QObject.connect(action,SIGNAL('triggered(bool)'),self.copyFilename)
             action = menu.addAction('Open folder')
-            qt.QtCore.QObject.connect(action,qt.QtCore.SIGNAL('triggered(bool)'),self.openFolder)
+            QObject.connect(action,SIGNAL('triggered(bool)'),self.openFolder)
             menu.exec_(event.globalPos())
     def openFolder(self):
         import os, sys
@@ -71,5 +73,5 @@ class LpyTabBarNeighbor(qt.QtGui.QWidget):
         qt.QtGui.QWidget.__init__(self,parent)
         
     def mouseDoubleClickEvent(self,event):
-        self.emit(qt.QtCore.SIGNAL("newDocumentRequest"))
+        self.emit(SIGNAL("newDocumentRequest"))
         qt.QtGui.QWidget.mouseDoubleClickEvent(self,event)
