@@ -46,6 +46,7 @@ if not py2exe_release:
     ui.check_ui_generation(os.path.join(ldir, 'lpymainwindow.ui'))
     ui.check_ui_generation(os.path.join(ldir, 'debugger_ui.ui'))
     ui.check_ui_generation(os.path.join(ldir, 'debugger_right_ui.ui'))
+    ui.check_ui_generation(os.path.join(ldir, 'logindialog.ui'))
     ui.check_rc_generation(os.path.join(ldir, 'lpyresources.qrc'))
     del ldir
     pass

@@ -1,6 +1,10 @@
 from openalea.vpltk.qt import qt
+import svnmanip
+
 QObject = qt.QtCore.QObject
 SIGNAL = qt.QtCore.SIGNAL
+QMessageBox = qt.QtGui.QMessageBox
+
 
 class LpyTabBar(qt.QtGui.QTabBar):
     def __init__(self,parent):
@@ -8,7 +12,13 @@ class LpyTabBar(qt.QtGui.QTabBar):
         self.setDrawBase(False)
         self.selection = None
         self.lpystudio = None
-    
+        self.svnclient = None
+        
+    def get_svn_client(self):
+        if not self.svnclient : 
+            self.svnclient = svnmanip.get_svn_client(self)
+        return self.svnclient
+        
     def connectTo(self,lpystudio):
         self.lpystudio = lpystudio
         QObject.connect(self,SIGNAL('switchDocument'),lpystudio.switchDocuments)
@@ -47,6 +57,13 @@ class LpyTabBar(qt.QtGui.QTabBar):
             QObject.connect(action,SIGNAL('triggered(bool)'),self.copyFilename)
             action = menu.addAction('Open folder')
             QObject.connect(action,SIGNAL('triggered(bool)'),self.openFolder)
+            fname = self.lpystudio.simulations[self.selection].fname
+            if fname and svnmanip.has_svn and svnmanip.isSvnFile(fname,self.get_svn_client()):
+                menu.addSeparator()
+                action = menu.addAction('SVN Update')
+                QObject.connect(action,SIGNAL('triggered(bool)'),self.svnUpdate)
+                action = menu.addAction('Is Up-to-date ?')
+                QObject.connect(action,SIGNAL('triggered(bool)'),self.svnIsUpToDate)
             menu.exec_(event.globalPos())
     def openFolder(self):
         import os, sys
@@ -71,7 +88,14 @@ class LpyTabBar(qt.QtGui.QTabBar):
         self.lpystudio.simulations[self.selection].removeReadOnly()
     def setReadOnly(self):
         self.lpystudio.simulations[self.selection].setReadOnly()
-
+        
+    def svnUpdate(self):
+        svnmanip.svnUpdate(self,self.lpystudio.simulations[self.selection].fname,self.get_svn_client())
+        
+    def svnIsUpToDate(self):
+        svnmanip.svnIsUpToDate(self,self.lpystudio.simulations[self.selection].fname,self.get_svn_client())
+        
+        
 class LpyTabBarNeighbor(qt.QtGui.QWidget):
     def __init__(self,parent):
         qt.QtGui.QWidget.__init__(self,parent)
