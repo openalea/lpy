@@ -90,7 +90,8 @@ class LpyTabBar(qt.QtGui.QTabBar):
         self.lpystudio.simulations[self.selection].setReadOnly()
         
     def svnUpdate(self):
-        svnmanip.svnUpdate(self,self.lpystudio.simulations[self.selection].fname,self.get_svn_client())
+        hasupdated = svnmanip.svnUpdate(self,self.lpystudio.simulations[self.selection].fname,self.get_svn_client())
+        if hasupdated: self.lpystudio.simulations[self.selection].reload()
         
     def svnIsUpToDate(self):
         svnmanip.svnIsUpToDate(self,self.lpystudio.simulations[self.selection].fname,self.get_svn_client())

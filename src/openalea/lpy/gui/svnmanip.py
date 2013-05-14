@@ -73,10 +73,13 @@ if has_svn:
             if type(rev) is list: rev = rev[0]
             if local_rev.number == rev.number:
                 QMessageBox.question(parent,'Update', 'Your version is already up-to-date : %s' % rev.number)
+                return False
             else:
                 QMessageBox.question(parent,'Update', 'Updated at revision %s' % rev.number)
+                return True
         except pysvn.ClientError, ce:
             QMessageBox.warning(parent,'Update', ce.message)
+            return False
         
     def svnIsUpToDate(parent, fname, client):
         import os
@@ -92,10 +95,13 @@ if has_svn:
                 for log in changelogs:
                     msg += " - [%s][%s] %s\n" % (log.revision.number,log.author,log.message)
                 QMessageBox.question(parent,'Up-to-date',msg )
+                return False
             else:
                 QMessageBox.question(parent,'Up-to-date', 'Your version is up-to-date (current=%s).' % (current_rev.number))
+                return True
         except pysvn.ClientError, ce:
             QMessageBox.warning(parent,'Up-to-date', ce.message)
+            return True
 
     def isSvnFile(fname, client):
         import os
