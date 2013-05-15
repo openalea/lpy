@@ -471,7 +471,6 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
         import lpytmpfile as tf
         import os
         torecover = tf.getPreviousTmpLpyFiles()
-        print torecover
         nbrecoverfile = len(torecover)
         if  nbrecoverfile > 0:
             answer = qt.QtGui.QMessageBox.warning(self,"Recovery mode","Backup files exist (%s). Do you want to recover ?" % nbrecoverfile ,qt.QtGui.QMessageBox.Ok,qt.QtGui.QMessageBox.Discard)

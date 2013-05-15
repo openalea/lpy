@@ -109,13 +109,29 @@ class LpySimulation:
         #    t += '*'
         return t
     def generateIcon(self):
-        icon = qt.QtGui.QIcon()
+        import svnmanip
         if self.readonly is True:
-            icon.addPixmap(qt.QtGui.QPixmap(":/images/icons/lock.png"),qt.QtGui.QIcon.Normal,qt.QtGui.QIcon.Off)
+            pixmap = qt.QtGui.QPixmap(":/images/icons/lock.png")
         elif self._edited:
-            icon.addPixmap(qt.QtGui.QPixmap(":/images/icons/codefile-red.png"),qt.QtGui.QIcon.Normal,qt.QtGui.QIcon.Off)
+            pixmap = qt.QtGui.QPixmap(":/images/icons/codefile-red.png")
         else:
-            icon.addPixmap(qt.QtGui.QPixmap(":/images/icons/codefile.png"),qt.QtGui.QIcon.Normal,qt.QtGui.QIcon.Off)
+            pixmap = qt.QtGui.QPixmap(":/images/icons/codefile.png")
+        if self.fname and svnmanip.hasSvnSupport() and svnmanip.isSvnFile(self.fname) :
+            status = svnmanip.svnFileTextStatus(self.fname)
+            if  status == svnmanip.modified:
+                pixmap2 = qt.QtGui.QPixmap(":/images/icons/svn-modified.png")
+            elif status == svnmanip.normal:
+                pixmap2 = qt.QtGui.QPixmap(":/images/icons/svn-normal.png")
+            elif status == svnmanip.conflict:
+                pixmap2 = qt.QtGui.QPixmap(":/images/icons/svn-conflict.png")
+            else:
+                pixmap2 = None
+            if not pixmap2 is None:
+                painter = qt.QtGui.QPainter(pixmap);
+                painter.drawPixmap(pixmap.width()-pixmap2.width(),pixmap.height()-pixmap2.height(),pixmap2)
+                painter.end()
+        icon = qt.QtGui.QIcon()
+        icon.addPixmap(pixmap,qt.QtGui.QIcon.Normal,qt.QtGui.QIcon.Off)
         return icon
     def registerTab(self):
         self.lpywidget.documentNames.insertTab(self.index,self.generateIcon(),self.getTabName())

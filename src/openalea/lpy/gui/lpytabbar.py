@@ -12,12 +12,6 @@ class LpyTabBar(qt.QtGui.QTabBar):
         self.setDrawBase(False)
         self.selection = None
         self.lpystudio = None
-        self.svnclient = None
-        
-    def get_svn_client(self):
-        if not self.svnclient : 
-            self.svnclient = svnmanip.get_svn_client(self)
-        return self.svnclient
         
     def connectTo(self,lpystudio):
         self.lpystudio = lpystudio
@@ -58,7 +52,7 @@ class LpyTabBar(qt.QtGui.QTabBar):
             action = menu.addAction('Open folder')
             QObject.connect(action,SIGNAL('triggered(bool)'),self.openFolder)
             fname = self.lpystudio.simulations[self.selection].fname
-            if fname and svnmanip.has_svn and svnmanip.isSvnFile(fname,self.get_svn_client()):
+            if fname and svnmanip.hasSvnSupport() and svnmanip.isSvnFile(fname):
                 menu.addSeparator()
                 action = menu.addAction('SVN Update')
                 QObject.connect(action,SIGNAL('triggered(bool)'),self.svnUpdate)
@@ -83,18 +77,18 @@ class LpyTabBar(qt.QtGui.QTabBar):
     def closeAllExcept(self):
         self.lpystudio.closeAllExcept(self.selection)
     def copyFilename(self):
-        QApplication.clipboard().setText(self.lpystudio.simulations[self.selection].fname)
+        qt.QtGui.QApplication.clipboard().setText(self.lpystudio.simulations[self.selection].fname)
     def removeReadOnly(self):
         self.lpystudio.simulations[self.selection].removeReadOnly()
     def setReadOnly(self):
         self.lpystudio.simulations[self.selection].setReadOnly()
         
     def svnUpdate(self):
-        hasupdated = svnmanip.svnUpdate(self,self.lpystudio.simulations[self.selection].fname,self.get_svn_client())
+        hasupdated = svnmanip.svnUpdate(self,self.lpystudio.simulations[self.selection].fname)
         if hasupdated: self.lpystudio.simulations[self.selection].reload()
         
     def svnIsUpToDate(self):
-        svnmanip.svnIsUpToDate(self,self.lpystudio.simulations[self.selection].fname,self.get_svn_client())
+        svnmanip.svnIsUpToDate(self,self.lpystudio.simulations[self.selection].fname)
         
         
 class LpyTabBarNeighbor(qt.QtGui.QWidget):

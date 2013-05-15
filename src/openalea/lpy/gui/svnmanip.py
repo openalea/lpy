@@ -9,12 +9,32 @@ except ImportError, e:
 
 QMessageBox = qt.QtGui.QMessageBox
 
+def hasSvnSupport():
+    return has_svn
+
 if has_svn:
-    def get_svn_client(parent):
+    svn_client = None
+    svn_client_gui_parent = None
+    def get_svn_client():
+        global svn_client
+        if not svn_client : 
+            svn_client = create_svn_client()
+        return svn_client
+    
+    def create_svn_client():
+        qpath = getSettings().fileName()
+        import os
+        settingpath = os.path.dirname(qpath)
+        svnsettingpath = os.path.join(settingpath,'svn')
+        if not os.path.exists(svnsettingpath):
+            os.mkdir(svnsettingpath)
+        client = pysvn.Client(svnsettingpath)
+        client.set_store_passwords(True)
+        client.set_auth_cache(True)
         
         def get_login( realm, username, may_save ):
             import logindialog
-            dialog = qt.QtGui.QDialog(parent)
+            dialog = qt.QtGui.QDialog(svn_client_gui_parent)
             widget = logindialog.Ui_LoginDialog()
             widget.setupUi(dialog)
             dialog.setWindowTitle(realm)
@@ -26,7 +46,7 @@ if has_svn:
             
         def ssl_client_cert_password_prompt( realm, may_save ):
             import logindialog
-            dialog = qt.QtGui.QDialog(parent)
+            dialog = qt.QtGui.QDialog(svn_client_gui_parent)
             widget = logindialog.Ui_LoginDialog()
             widget.setupUi(dialog)
             dialog.setWindowTitle(realm)
@@ -37,24 +57,15 @@ if has_svn:
             else:
                 return True,  str(widget.passEdit.text()), True
             
-        def callback_notify(event_dict):
-            parent.lpystudio.statusBar().showMessage(str(event_dict))
+        #def callback_notify(event_dict):
+        #    client.parent.lpystudio.statusBar().showMessage(str(event_dict))
          
         def ssl_server_trust_prompt(trust_dict ):
             msg = 'The authenticity of host "%s" can\' t be established.\nRSA key fingerprint is %s.\nValid from %s to %s.\nCertified by %s.\nAccept ?'
             msg = msg % (trust_dict['hostname'], trust_dict['finger_print'],trust_dict['valid_from'],trust_dict['valid_until'],trust_dict['issuer_dname'])
-            ok = QMessageBox.question(parent,'RSA Authentification of '+trust_dict['realm'], msg, QMessageBox.Ok,QMessageBox.Cancel )
+            ok = QMessageBox.question(svn_client_gui_parent,'RSA Authentification of '+trust_dict['realm'], msg, QMessageBox.Ok,QMessageBox.Cancel )
             return ok == QMessageBox.Ok, True, True
         
-        qpath = getSettings().fileName()
-        import os
-        settingpath = os.path.dirname(qpath)
-        svnsettingpath = os.path.join(settingpath,'svn')
-        if not os.path.exists(svnsettingpath):
-            os.mkdir(svnsettingpath)
-        client = pysvn.Client(svnsettingpath)
-        client.set_store_passwords(True)
-        client.set_auth_cache(True)
         # client.callback_cancel
         # client.callback_get_log_message
         client.callback_get_login = get_login
@@ -64,7 +75,9 @@ if has_svn:
         client.callback_ssl_server_trust_prompt = ssl_server_trust_prompt        
         return client
 
-    def svnUpdate(parent, fname, client):
+    def svnUpdate(parent, fname ):
+        client = get_svn_client()
+        svn_client_gui_parent = parent
         import os
         fname = os.path.abspath(fname)
         local_rev = client.info2(fname)[0][1]['rev']
@@ -81,7 +94,9 @@ if has_svn:
             QMessageBox.warning(parent,'Update', ce.message)
             return False
         
-    def svnIsUpToDate(parent, fname, client):
+    def svnIsUpToDate(parent, fname):
+        client = get_svn_client()
+        svn_client_gui_parent = parent
         import os
         fname = os.path.abspath(fname)
         local_entry_list = client.info2(fname)[0]
@@ -94,13 +109,13 @@ if has_svn:
                 msg = 'A new version of the model exists : %s (current=%s).\n' % (server_rev.number,current_rev.number)
                 for log in changelogs:
                     msg += " - [%s][%s] '%s'\n" % (log.revision.number,log.author,log.message)
-                if isSvnModifiedFile(fname, client):
+                if isSvnModifiedFile(fname):
                     msg += "Warning : You also modified the file."
                 QMessageBox.question(parent,'Up-to-date',msg )
                 return False
             else:
                 msg = 'Your version is up-to-date (current=%s).\n' % (current_rev.number)
-                if isSvnModifiedFile(fname, client):
+                if isSvnModifiedFile(fname):
                     msg += "You modified the file."
                 QMessageBox.question(parent,'Up-to-date', msg)
                 
@@ -109,21 +124,32 @@ if has_svn:
             QMessageBox.warning(parent,'Up-to-date', ce.message)
             return True
 
-    def isSvnFile(fname, client):
+    def svnFileStatus(fname):
         import os
         fname = os.path.abspath(fname)
+        client = get_svn_client()
+        cwd = os.getcwd()
+        os.chdir(os.path.dirname(fname))
+        res = client.status(fname)[0]
+        os.chdir(cwd)
+        return res
+
+    def svnFileTextStatus(fname):
+        return svnFileStatus(fname).text_status
+
+    def isSvnFile(fname):
         try:
-            client.status(fname)[0].text_status ==  pysvn.wc_status_kind.unversioned
-            return True
-        except:
+            res = svnFileTextStatus(fname)
+            return (res !=  pysvn.wc_status_kind.unversioned and res !=  pysvn.wc_status_kind.none)
+        except pysvn.ClientError,e:
             return False
         
-    def isSvnModifiedFile(fname, client):
-        import os
-        fname = os.path.abspath(fname)
+    def isSvnModifiedFile(fname):
         try:
-            client.status(fname)[0].text_status ==  pysvn.wc_status_kind.modified
-            return True
-        except:
+            res = svnFileTextStatus(fname)
+            return (res ==  pysvn.wc_status_kind.modified)
+        except pysvn.ClientError,e:
             return False
-            
+    
+    for d in dir(pysvn.wc_status_kind):
+        globals()[d] = getattr(pysvn.wc_status_kind,d)
