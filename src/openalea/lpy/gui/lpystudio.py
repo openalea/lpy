@@ -242,7 +242,7 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
             if svnmanip.isSvnFile(testfile):
                 # we are dealing with a develop version of lpy
                 current_rev = svnmanip.svnFileInfo(testfile).revision.number
-                if not silent or current_rev < self.svnLastRevisionChecked:
+                if not silent or current_rev > self.svnLastRevisionChecked:
                     if svnmanip.isSSHRepository(testfile): # in case of svn+ssh protocol, we do not even try to not block the process.
                         self.svnLastRevisionChecked = current_rev
                         if not silent:
