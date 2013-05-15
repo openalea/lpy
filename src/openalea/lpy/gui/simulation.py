@@ -8,15 +8,18 @@ from lpystudiodebugger import AbortDebugger
 from scalar import *
 import cProfile as profiling
 from lpyprofiling import *
+from lpytmpfile import *
 
 defaultcode = "Axiom: \n\nderivation length: 1\nproduction:\n\n\ninterpretation:\n\n\nendlsystem\n"
 
+   
 class LpySimulation:
     def __init__(self,lpywidget,index = 0, fname = None):
         self.lpywidget = lpywidget
         self.index = index
         self.lsystem = Lsystem()
         self._fname = fname
+        self._tmpfname = None
         self.tree = None
         self.nbiterations = 0
         self.timestep = 50
@@ -129,6 +132,10 @@ class LpySimulation:
     def getBackupName(self):
         if self.fname:
             return os.path.join(os.path.dirname(self.fname),'#'+os.path.basename(self.fname)+'#')
+        else:
+            if not self._tmpfname:
+                self._tmpfname = getNewTmpLpyFile()
+            return self._tmpfname
     def restoreState(self):        
         self.lpywidget.textEditionWatch = False
         te, tf = self.textedition, self._edited
@@ -223,7 +230,7 @@ class LpySimulation:
             self.lpywidget.interpreter.locals['lstring'] = self.tree
     def updateLsystemCode(self):
         if self.lpywidget.codeBackupEnabled:
-            if self.fname and self._edited:
+            if  self._edited:
                 bckupname = self.getBackupName()
                 if self.isCurrent():
                     self.saveState()
@@ -457,6 +464,19 @@ class LpySimulation:
         self.opencode(code)
         self.mtime = os.stat(self.fname).st_mtime
         self.updateReadOnly()
+    
+    def importtmpfile(self,fname):
+        self.textedition = True
+        self.setEdited(True)
+        try:
+            lpycode = file(fname,'rU').read()
+            self.opencode(lpycode)
+            self._tmpfname = fname
+        except:
+            exc_info = sys.exc_info()
+            traceback.print_exception(*exc_info)
+        
+        
     def opencode(self,txt):
         txts = txt.split(LpyParsing.InitialisationBeginTag)            
         self.code = txts[0]

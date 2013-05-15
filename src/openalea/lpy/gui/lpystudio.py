@@ -210,6 +210,7 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
         self.stackedWidget.setCurrentIndex(0)
         settings.restoreState(self)
         self.createRecentMenu()
+        self.recoverPreviousFiles()
         self.textEditionWatch = True
     def switchCentralView(self):
         if not self.centralViewIsGL:
@@ -466,6 +467,31 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
         self.createNewLsystem()
         self.releaseCR()
         self.currentSimulation().restoreState()
+    def recoverPreviousFiles(self):
+        import lpytmpfile as tf
+        import os
+        torecover = tf.getPreviousTmpLpyFiles()
+        print torecover
+        nbrecoverfile = len(torecover)
+        if  nbrecoverfile > 0:
+            answer = qt.QtGui.QMessageBox.warning(self,"Recovery mode","Backup files exist (%s). Do you want to recover ?" % nbrecoverfile ,qt.QtGui.QMessageBox.Ok,qt.QtGui.QMessageBox.Discard)
+            recover = (answer == qt.QtGui.QMessageBox.Ok)
+            for f in torecover:
+                if recover:
+                    self.acquireCR()
+                    try:
+                        self.currentSimulation().saveState()
+                        self.createNewLsystem()
+                        self.currentSimulation().importtmpfile(f)
+                        self.currentSimulation().restoreState()
+                        self.statusBar().showMessage("Load file '"+f+"'",2000)
+                        if len(self.simulations) == 2 and self.simulations[0].isDefault():
+                            self.closeDocument(0)
+                    except:
+                        self.graberror()
+                    self.releaseCR()
+                else:
+                    os.remove(f)
     def getSimuIndex(self,fname):
         for sim in self.simulations:
             if sim.fname == fname:

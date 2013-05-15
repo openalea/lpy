@@ -93,11 +93,17 @@ if has_svn:
                 changelogs = client.log(fname,revision_start = server_rev, revision_end = current_rev)
                 msg = 'A new version of the model exists : %s (current=%s).\n' % (server_rev.number,current_rev.number)
                 for log in changelogs:
-                    msg += " - [%s][%s] %s\n" % (log.revision.number,log.author,log.message)
+                    msg += " - [%s][%s] '%s'\n" % (log.revision.number,log.author,log.message)
+                if isSvnModifiedFile(fname, client):
+                    msg += "Warning : You also modified the file."
                 QMessageBox.question(parent,'Up-to-date',msg )
                 return False
             else:
-                QMessageBox.question(parent,'Up-to-date', 'Your version is up-to-date (current=%s).' % (current_rev.number))
+                msg = 'Your version is up-to-date (current=%s).\n' % (current_rev.number)
+                if isSvnModifiedFile(fname, client):
+                    msg += "You modified the file."
+                QMessageBox.question(parent,'Up-to-date', msg)
+                
                 return True
         except pysvn.ClientError, ce:
             QMessageBox.warning(parent,'Up-to-date', ce.message)
@@ -107,9 +113,17 @@ if has_svn:
         import os
         fname = os.path.abspath(fname)
         try:
-            client.info2(fname)[0]
+            client.status(fname)[0].text_status ==  pysvn.wc_status_kind.unversioned
             return True
         except:
             return False
         
+    def isSvnModifiedFile(fname, client):
+        import os
+        fname = os.path.abspath(fname)
+        try:
+            client.status(fname)[0].text_status ==  pysvn.wc_status_kind.modified
+            return True
+        except:
+            return False
             

@@ -112,7 +112,7 @@ def restoreState(lpywidget):
         for f in openedfiles:
             if os.path.exists(f):
                 lpywidget.openfile(f)
-        if lastfocus != -1:
+        if lastfocus != -1 and os.path.exists(openedfiles[lastfocus]):
             try:
                 lpywidget.openfile(openedfiles[lastfocus])
             except:
