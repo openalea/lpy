@@ -100,10 +100,12 @@ if has_svn:
         import os
         fname = os.path.abspath(fname)
         local_entry_list = client.info2(fname)[0]
-        current_rev = local_entry_list[1]['rev']
+        current_entry = local_entry_list[1]
+        current_rev = current_entry['rev']
         try:
             server_entry_list = client.info2(fname,revision = pysvn.Revision( pysvn.opt_revision_kind.head ))[0]
-            server_rev = server_entry_list[1]['last_changed_rev']
+            server_entry = server_entry_list[1]
+            server_rev = server_entry['last_changed_rev']
             if current_rev.number < server_rev.number:
                 changelogs = client.log(fname,revision_start = server_rev, revision_end = current_rev)
                 msg = 'A new version of the model exists : %s (current=%s).\n' % (server_rev.number,current_rev.number)
@@ -114,7 +116,12 @@ if has_svn:
                 QMessageBox.question(parent,'Up-to-date',msg )
                 return False
             else:
-                msg = 'Your version is up-to-date (current=%s).\n' % (current_rev.number)
+                msg = 'Your version is up-to-date.\nRevision: %s.\n' % (current_rev.number)
+                if server_entry['last_changed_date']:
+                    import time
+                    msg += 'Last changed date : %s\n' % time.asctime(time.gmtime(server_entry['last_changed_date']))
+                if server_entry['last_changed_author']:
+                    msg += 'Last changed author : %s\n' % server_entry['last_changed_author']
                 if isSvnModifiedFile(fname):
                     msg += "You modified the file."
                 QMessageBox.question(parent,'Up-to-date', msg)
