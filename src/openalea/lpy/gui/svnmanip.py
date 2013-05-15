@@ -164,7 +164,7 @@ if has_svn:
     def isSvnFile(fname):
         try:
             res = svnFileTextStatus(fname)
-            return (res !=  pysvn.wc_status_kind.unversioned and res !=  pysvn.wc_status_kind.none)
+            return (res !=  pysvn.wc_status_kind.unversioned and res !=  pysvn.wc_status_kind.none and res !=  pysvn.wc_status_kind.ignored)
         except pysvn.ClientError,e:
             return False
         

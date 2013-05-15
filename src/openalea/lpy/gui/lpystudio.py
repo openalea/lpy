@@ -213,30 +213,31 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
         self.createRecentMenu()        
         self.textEditionWatch = True
         self._initialized = False
-        self.check_lpy_update_available()
+        self.lpy_update_enabled = self.check_lpy_update_available()
         
     def init(self):
         self.textEditionWatch = False
         self.recoverPreviousFiles()
         self.textEditionWatch = True
-        self.check_lpy_update(True)
+        if self.lpy_update_enabled: 
+                self.check_lpy_update(True)
     def check_lpy_update_available(self):
-        import svnmanip
+        import svnmanip, os
         available = False
         if svnmanip.hasSvnSupport() :
             import openalea.lpy.__version__ as lv
-            testfile = lv.__file__
+            testfile = os.path.dirname(lv.__file__)
             if svnmanip.isSvnFile(testfile):
                 available = True            
         if not available:
-            self.actionCheckUpdate.hide()
+            self.actionCheckUpdate.setEnabled(False)
         return available
         
     def check_lpy_update(self, silent = False):
-        import svnmanip
+        import svnmanip, os
         if svnmanip.hasSvnSupport():
             import openalea.lpy.__version__ as lv
-            testfile = lv.__file__
+            testfile = os.path.dirname(lv.__file__)
             if svnmanip.isSvnFile(testfile):
                 # we are dealing with a develop version of lpy
                 if svnmanip.isSSHRepository(testfile): # in case of svn+ssh protocol, we do not even try to not block the process.
