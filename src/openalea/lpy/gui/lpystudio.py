@@ -227,7 +227,7 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
         if svnmanip.hasSvnSupport() :
             import openalea.lpy.__version__ as lv
             testfile = os.path.dirname(lv.__file__)
-            print testfile, svnmanip.isSvnFile(testfile)
+            #print testfile, svnmanip.isSvnFile(testfile)
             if svnmanip.isSvnFile(testfile):
                 available = not svnmanip.isSSHRepository(testfile)
         if not available:
