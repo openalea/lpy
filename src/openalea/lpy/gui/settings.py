@@ -104,6 +104,10 @@ def restoreState(lpywidget):
     except:
         pass
     settings.endGroup()
+    settings.beginGroup('editor')
+    lpywidget.svnLastRevisionChecked = int(settings.value('svnLastRevisionChecked',lpywidget.svnLastRevisionChecked))
+    settings.endGroup()
+    
     if settings.status() != qt.QtCore.QSettings.NoError:
         raise 'settings error'
     del settings
@@ -151,6 +155,9 @@ def saveState(lpywidget):
     settings.beginGroup('edition')
     settings.setValue('replaceTab',to_qvariant(lpywidget.codeeditor.replaceTab)) 
     settings.setValue('tabSize',to_qvariant(lpywidget.codeeditor.tabSize())) 
+    settings.endGroup()
+    settings.beginGroup('editor')
+    settings.setValue('svnLastRevisionChecked',to_qvariant(lpywidget.svnLastRevisionChecked))
     settings.endGroup()
     settings.beginGroup('appearance')
     settings.setValue('nbMaxDocks',to_qvariant(lpywidget.getMaxObjectPanelNb()))    

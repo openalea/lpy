@@ -208,13 +208,13 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
         qt.QtCore.QObject.connect(self.menuRecents,qt.QtCore.SIGNAL("triggered(QAction *)"),self.recentMenuAction)
         self.printTitle()
         self.centralViewIsGL = False
+        self.svnLastRevisionChecked = 0
         self.stackedWidget.setCurrentIndex(0)
         settings.restoreState(self)
         self.createRecentMenu()        
         self.textEditionWatch = True
-        self._initialized = False
+        self._initialized = False        
         self.lpy_update_enabled = self.check_lpy_update_available()
-        
     def init(self):
         self.textEditionWatch = False
         self.recoverPreviousFiles()
@@ -227,6 +227,7 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
         if svnmanip.hasSvnSupport() :
             import openalea.lpy.__version__ as lv
             testfile = os.path.dirname(lv.__file__)
+            print testfile, svnmanip.isSvnFile(testfile)
             if svnmanip.isSvnFile(testfile):
                 available = not svnmanip.isSSHRepository(testfile)
         if not available:
@@ -240,18 +241,22 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
             testfile = os.path.dirname(lv.__file__)
             if svnmanip.isSvnFile(testfile):
                 # we are dealing with a develop version of lpy
-                if svnmanip.isSSHRepository(testfile): # in case of svn+ssh protocol, we do not even try to not block the process.
-                    if not silent:
-                        qt.QtGui.QMessageBox.information(self,"Lpy Update","You have a develop version of lpy.\nCannot check svn repository.\nProtocol 'SVN+SSH' not supported correctly by PySvn.")
-                else:
-                    try:
-                        if not svnmanip.svnIsUpToDate(testfile):
-                            qt.QtGui.QMessageBox.information(self,"Lpy Update","A new develop version of lpy seems available !\nPlease update sources of lpy, plantgl, vpltk and recompile.")
-                        elif not silent:
-                            qt.QtGui.QMessageBox.information(self,"Lpy Update","You have a develop version of lpy.\nYou are up-to-date.")
-                    except:
+                current_rev = svnmanip.svnFileInfo(testfile).revision.number
+                if not silent or current_rev < self.svnLastRevisionChecked:
+                    if svnmanip.isSSHRepository(testfile): # in case of svn+ssh protocol, we do not even try to not block the process.
+                        self.svnLastRevisionChecked = current_rev
                         if not silent:
-                            qt.QtGui.QMessageBox.information(self,"Lpy Update","You have a develop version of lpy.\nCannot check svn repository.")
+                            qt.QtGui.QMessageBox.information(self,"Lpy Update","You have a develop version of lpy.\nCannot check svn repository.\nProtocol 'SVN+SSH' not supported correctly by PySvn.")
+                    else:
+                        try:
+                            if not svnmanip.svnIsUpToDate(testfile):
+                                qt.QtGui.QMessageBox.information(self,"Lpy Update","A new develop version of lpy seems available !\nPlease update sources of lpy, plantgl, vpltk and recompile.")
+                                self.svnLastRevisionChecked = current_rev
+                            elif not silent:
+                                qt.QtGui.QMessageBox.information(self,"Lpy Update","You have a develop version of lpy.\nYou are up-to-date.")
+                        except:
+                            if not silent:
+                                qt.QtGui.QMessageBox.information(self,"Lpy Update","You have a develop version of lpy.\nCannot check svn repository.")
     def switchCentralView(self):
         if not self.centralViewIsGL:
             self.stackedWidget.setCurrentIndex(1)

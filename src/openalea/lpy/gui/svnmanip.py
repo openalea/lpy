@@ -144,7 +144,7 @@ if has_svn:
         client = get_svn_client()
         cwd = os.getcwd()
         os.chdir(os.path.dirname(fname))
-        res = client.status(fname)[0]
+        res = client.status(fname,recurse=False)[-1]
         os.chdir(cwd)
         return res
 
@@ -155,6 +155,16 @@ if has_svn:
         cwd = os.getcwd()
         os.chdir(os.path.dirname(fname))
         res = client.info(fname)
+        os.chdir(cwd)
+        return res
+
+    def svnFileServerInfo(fname):
+        import os
+        fname = os.path.abspath(fname)
+        client = get_svn_client()
+        cwd = os.getcwd()
+        os.chdir(os.path.dirname(fname))
+        res = client.info(fname,revision = pysvn.Revision( pysvn.opt_revision_kind.head ))
         os.chdir(cwd)
         return res
 
