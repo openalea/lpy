@@ -116,7 +116,7 @@ class LpySimulation:
             pixmap = qt.QtGui.QPixmap(":/images/icons/codefile-red.png")
         else:
             pixmap = qt.QtGui.QPixmap(":/images/icons/codefile.png")
-        if self.fname and svnmanip.hasSvnSupport() and svnmanip.isSvnFile(self.fname) :
+        if not self.readonly and not self.fname is None and svnmanip.hasSvnSupport() and svnmanip.isSvnFile(self.fname) :
             status = svnmanip.svnFileTextStatus(self.fname)
             if  status == svnmanip.modified:
                 pixmap2 = qt.QtGui.QPixmap(":/images/icons/svn-modified.png")

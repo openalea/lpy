@@ -86,8 +86,10 @@ def initDocks(lpywidget):
         lpywidget.interpreter.locals['window'] = lpywidget
         lpywidget.interpreter.locals['clear'] = lpywidget.shell.clear
         try:
-            lpywidget.interpreter.runcode('from openalea.plantgl.all import *',hidden=True)
-            lpywidget.interpreter.runcode('from openalea.lpy import *',hidden=True)
+            lpywidget.interpreter.loadcode('from openalea.plantgl.all import *' )
+            lpywidget.interpreter.loadcode('from openalea.lpy import *')
+            # lpywidget.interpreter.runcode('from openalea.plantgl.all import *', hidden=True)
+            # lpywidget.interpreter.runcode('from openalea.lpy import *', hidden=True)
         except:
             lpywidget.interpreter.runcode('from openalea.plantgl.all import *')
             lpywidget.interpreter.runcode('from openalea.lpy import *')

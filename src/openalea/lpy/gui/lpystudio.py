@@ -202,6 +202,7 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
         self.helpDisplay.setText(doc.getSpecification())        
         qt.QtCore.QObject.connect(self.actionOnlineHelp, qt.QtCore.SIGNAL('triggered(bool)'),self.onlinehelp)
         qt.QtCore.QObject.connect(self.actionSubmitBug, qt.QtCore.SIGNAL('triggered(bool)'),self.submitBug)
+        qt.QtCore.QObject.connect(self.actionCheckUpdate, qt.QtCore.SIGNAL('triggered(bool)'),self.check_lpy_update)        
         qt.QtCore.QObject.connect(self.actionUseThread,qt.QtCore.SIGNAL('triggered()'),self.toggleUseThread)
         qt.QtCore.QObject.connect(self.actionFitAnimationView,qt.QtCore.SIGNAL('triggered()'),self.toggleFitAnimationView)
         qt.QtCore.QObject.connect(self.menuRecents,qt.QtCore.SIGNAL("triggered(QAction *)"),self.recentMenuAction)
@@ -209,9 +210,47 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
         self.centralViewIsGL = False
         self.stackedWidget.setCurrentIndex(0)
         settings.restoreState(self)
-        self.createRecentMenu()
+        self.createRecentMenu()        
+        self.textEditionWatch = True
+        self._initialized = False
+        self.check_lpy_update_available()
+        
+    def init(self):
+        self.textEditionWatch = False
         self.recoverPreviousFiles()
         self.textEditionWatch = True
+        self.check_lpy_update(True)
+    def check_lpy_update_available(self):
+        import svnmanip
+        available = False
+        if svnmanip.hasSvnSupport() :
+            import openalea.lpy.__version__ as lv
+            testfile = lv.__file__
+            if svnmanip.isSvnFile(testfile):
+                available = True            
+        if not available:
+            self.actionCheckUpdate.hide()
+        return available
+        
+    def check_lpy_update(self, silent = False):
+        import svnmanip
+        if svnmanip.hasSvnSupport():
+            import openalea.lpy.__version__ as lv
+            testfile = lv.__file__
+            if svnmanip.isSvnFile(testfile):
+                # we are dealing with a develop version of lpy
+                if svnmanip.isSSHRepository(testfile): # in case of svn+ssh protocol, we do not even try to not block the process.
+                    if not silent:
+                        qt.QtGui.QMessageBox.information(self,"Lpy Update","You have a develop version of lpy.\nCannot check svn repository.\nProtocol 'SVN+SSH' not supported correctly by PySvn.")
+                else:
+                    try:
+                        if not svnmanip.svnIsUpToDate(testfile):
+                            qt.QtGui.QMessageBox.information(self,"Lpy Update","A new develop version of lpy seems available !\nPlease update sources of lpy, plantgl, vpltk and recompile.")
+                        elif not silent:
+                            qt.QtGui.QMessageBox.information(self,"Lpy Update","You have a develop version of lpy.\nYou are up-to-date.")
+                    except:
+                        if not silent:
+                            qt.QtGui.QMessageBox.information(self,"Lpy Update","You have a develop version of lpy.\nCannot check svn repository.")
     def switchCentralView(self):
         if not self.centralViewIsGL:
             self.stackedWidget.setCurrentIndex(1)
@@ -323,6 +362,10 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
             e.accept()            
         if e.isAccepted():
             self.interpreter.locals.clear()
+    def showEvent(self,event):
+        if not self._initialized:
+            self.init()
+            self._initialized = True
     def taskRunningEvent(self):
         self.statusBar().showMessage('A task is already running !',5000)
         raise Exception('A task is already running')

@@ -33,6 +33,7 @@ if has_svn:
         client.set_auth_cache(True)
         
         def get_login( realm, username, may_save ):
+            if svn_client_gui_parent is None : return False, '', '', False
             import logindialog
             dialog = qt.QtGui.QDialog(svn_client_gui_parent)
             widget = logindialog.Ui_LoginDialog()
@@ -45,6 +46,7 @@ if has_svn:
                 return True, str(widget.loginEdit.text()), str(widget.passEdit.text()), True
             
         def ssl_client_cert_password_prompt( realm, may_save ):
+            if svn_client_gui_parent is None : return False, '', False
             import logindialog
             dialog = qt.QtGui.QDialog(svn_client_gui_parent)
             widget = logindialog.Ui_LoginDialog()
@@ -61,6 +63,7 @@ if has_svn:
         #    client.parent.lpystudio.statusBar().showMessage(str(event_dict))
          
         def ssl_server_trust_prompt(trust_dict ):
+            if svn_client_gui_parent is None: return True, True, True
             msg = 'The authenticity of host "%s" can\' t be established.\nRSA key fingerprint is %s.\nValid from %s to %s.\nCertified by %s.\nAccept ?'
             msg = msg % (trust_dict['hostname'], trust_dict['finger_print'],trust_dict['valid_from'],trust_dict['valid_until'],trust_dict['issuer_dname'])
             ok = QMessageBox.question(svn_client_gui_parent,'RSA Authentification of '+trust_dict['realm'], msg, QMessageBox.Ok,QMessageBox.Cancel )
@@ -75,7 +78,7 @@ if has_svn:
         client.callback_ssl_server_trust_prompt = ssl_server_trust_prompt        
         return client
 
-    def svnUpdate(parent, fname ):
+    def svnUpdate(fname, parent = None):
         client = get_svn_client()
         svn_client_gui_parent = parent
         import os
@@ -85,16 +88,16 @@ if has_svn:
             rev = client.update(fname)
             if type(rev) is list: rev = rev[0]
             if local_rev.number == rev.number:
-                QMessageBox.question(parent,'Update', 'Your version is already up-to-date : %s' % rev.number)
+                if parent : QMessageBox.question(parent,'Update', 'Your version is already up-to-date : %s' % rev.number)
                 return False
             else:
-                QMessageBox.question(parent,'Update', 'Updated at revision %s' % rev.number)
+                if parent : QMessageBox.question(parent,'Update', 'Updated at revision %s' % rev.number)
                 return True
         except pysvn.ClientError, ce:
             QMessageBox.warning(parent,'Update', ce.message)
             return False
         
-    def svnIsUpToDate(parent, fname):
+    def svnIsUpToDate( fname, parent = None):
         client = get_svn_client()
         svn_client_gui_parent = parent
         import os
@@ -107,29 +110,33 @@ if has_svn:
             server_entry = server_entry_list[1]
             server_rev = server_entry['last_changed_rev']
             if current_rev.number < server_rev.number:
-                changelogs = client.log(fname,revision_start = server_rev, revision_end = current_rev)
-                msg = 'A new version of the model exists : %s (current=%s).\n' % (server_rev.number,current_rev.number)
-                for log in changelogs:
-                    msg += " - [%s][%s] '%s'\n" % (log.revision.number,log.author,log.message)
-                if isSvnModifiedFile(fname):
-                    msg += "Warning : You also modified the file."
-                QMessageBox.question(parent,'Up-to-date',msg )
+                if parent:
+                    changelogs = client.log(fname,revision_start = server_rev, revision_end = current_rev)
+                    msg = 'A new version of the model exists : %s (current=%s).\n' % (server_rev.number,current_rev.number)
+                    for log in changelogs:
+                        msg += " - [%s][%s] '%s'\n" % (log.revision.number,log.author,log.message)
+                    if isSvnModifiedFile(fname):
+                        msg += "Warning : You also modified the file."
+                    QMessageBox.question(parent,'Up-to-date',msg )
                 return False
             else:
-                msg = 'Your version is up-to-date.\nRevision: %s.\n' % (current_rev.number)
-                if server_entry['last_changed_date']:
-                    import time
-                    msg += 'Last changed date : %s\n' % time.asctime(time.gmtime(server_entry['last_changed_date']))
-                if server_entry['last_changed_author']:
-                    msg += 'Last changed author : %s\n' % server_entry['last_changed_author']
-                if isSvnModifiedFile(fname):
-                    msg += "You modified the file."
-                QMessageBox.question(parent,'Up-to-date', msg)
-                
+                if parent:
+                    msg = 'Your version is up-to-date.\nRevision: %s.\n' % (current_rev.number)
+                    if server_entry['last_changed_date']:
+                        import time
+                        msg += 'Last changed date : %s\n' % time.asctime(time.gmtime(server_entry['last_changed_date']))
+                    if server_entry['last_changed_author']:
+                        msg += 'Last changed author : %s\n' % server_entry['last_changed_author']
+                    if isSvnModifiedFile(fname):
+                        msg += "You modified the file."
+                    QMessageBox.question(parent,'Up-to-date', msg)                
                 return True
         except pysvn.ClientError, ce:
-            QMessageBox.warning(parent,'Up-to-date', ce.message)
-            return True
+            if parent : 
+                QMessageBox.warning(parent,'Up-to-date', ce.message)
+                return True
+            else:
+                raise ce
 
     def svnFileStatus(fname):
         import os
@@ -138,6 +145,16 @@ if has_svn:
         cwd = os.getcwd()
         os.chdir(os.path.dirname(fname))
         res = client.status(fname)[0]
+        os.chdir(cwd)
+        return res
+
+    def svnFileInfo(fname):
+        import os
+        fname = os.path.abspath(fname)
+        client = get_svn_client()
+        cwd = os.getcwd()
+        os.chdir(os.path.dirname(fname))
+        res = client.info(fname)
         os.chdir(cwd)
         return res
 
@@ -155,6 +172,13 @@ if has_svn:
         try:
             res = svnFileTextStatus(fname)
             return (res ==  pysvn.wc_status_kind.modified)
+        except pysvn.ClientError,e:
+            return False
+    
+    def isSSHRepository(fname):
+        try:
+            res = svnFileInfo(fname)
+            return ('+ssh' in res.url)
         except pysvn.ClientError,e:
             return False
     
