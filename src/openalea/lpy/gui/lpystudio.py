@@ -209,6 +209,7 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
         self.printTitle()
         self.centralViewIsGL = False
         self.svnLastRevisionChecked = 0
+        self.svnLastDateChecked = 0.0
         self.stackedWidget.setCurrentIndex(0)
         settings.restoreState(self)
         self.createRecentMenu()        
@@ -219,14 +220,14 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
         self.textEditionWatch = False
         self.recoverPreviousFiles()
         self.textEditionWatch = True
-        if self.lpy_update_enabled: 
-                self.check_lpy_update(True)
+        if True : #self.lpy_update_enabled: 
+            self.check_lpy_update(True)
     def check_lpy_update_available(self):
         import svnmanip, os
         available = False
         if svnmanip.hasSvnSupport() :
             import openalea.lpy.__version__ as lv
-            testfile = os.path.dirname(lv.__file__)
+            testfile = os.path.dirname(lv.__file__)+'/__version__.py'
             #print testfile, svnmanip.isSvnFile(testfile)
             if svnmanip.isSvnFile(testfile):
                 available = not svnmanip.isSSHRepository(testfile)
@@ -235,18 +236,21 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
         return available
         
     def check_lpy_update(self, silent = False):
-        import svnmanip, os
+        import svnmanip, os, time
         if svnmanip.hasSvnSupport():
             import openalea.lpy.__version__ as lv
-            testfile = os.path.dirname(lv.__file__)
+            testfile = os.path.dirname(lv.__file__)+'/__version__.py'            
             if svnmanip.isSvnFile(testfile):
                 # we are dealing with a develop version of lpy
                 current_rev = svnmanip.svnFileInfo(testfile).revision.number
-                if not silent or current_rev > self.svnLastRevisionChecked:
+                if not silent or ((current_rev > self.svnLastRevisionChecked) and ((self.svnLastDateChecked + 24*60*60) < time.time())):
+                    self.svnLastDateChecked = time.time()
                     if svnmanip.isSSHRepository(testfile): # in case of svn+ssh protocol, we do not even try to not block the process.
                         self.svnLastRevisionChecked = current_rev
                         if not silent:
                             qt.QtGui.QMessageBox.information(self,"Lpy Update","You have a develop version of lpy.\nCannot check svn repository.\nProtocol 'SVN+SSH' not supported correctly by PySvn.")
+                        else:
+                            self.statusBar().showMessage("Cannot check version of svn repository of lpy. Protocol 'SVN+SSH' not supported correctly by PySvn.")                        
                     else:
                         try:
                             if not svnmanip.svnIsUpToDate(testfile):
@@ -254,9 +258,19 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
                                 self.svnLastRevisionChecked = current_rev
                             elif not silent:
                                 qt.QtGui.QMessageBox.information(self,"Lpy Update","You have a develop version of lpy.\nYou are up-to-date.")
+                            else:
+                                self.statusBar().showMessage("L-Py is up-to-date.")                        
                         except:
                             if not silent:
                                 qt.QtGui.QMessageBox.information(self,"Lpy Update","You have a develop version of lpy.\nCannot check svn repository.")
+                            else:
+                                self.statusBar().showMessage('Cannot check version of svn repository of lpy.')
+            else: # release version
+                if silent:
+                    self.statusBar().showMessage("Cannot check update with release version of lpy for now.")
+                else:
+                    qt.QtGui.QMessageBox.information(self,"Lpy Update","Cannot check update with release version of lpy for now.")
+
     def switchCentralView(self):
         if not self.centralViewIsGL:
             self.stackedWidget.setCurrentIndex(1)

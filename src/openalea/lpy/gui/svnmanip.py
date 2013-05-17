@@ -144,7 +144,10 @@ if has_svn:
         client = get_svn_client()
         cwd = os.getcwd()
         os.chdir(os.path.dirname(fname))
-        res = client.status(fname,recurse=False)[-1]
+        res = client.status(fname,recurse=False)
+        if not res is None and res != []: 
+            res = res[-1]
+        if res == [] : res = None
         os.chdir(cwd)
         return res
 
@@ -169,7 +172,9 @@ if has_svn:
         return res
 
     def svnFileTextStatus(fname):
-        return svnFileStatus(fname).text_status
+        st = svnFileStatus(fname)
+        if not st: return pysvn.wc_status_kind.none
+        return st.text_status
 
     def isSvnFile(fname):
         try:
