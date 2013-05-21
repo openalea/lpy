@@ -131,7 +131,7 @@ void export_Lsystem(){
 	.def("empty", &Lsystem::empty)
 	.def("code", &Lsystem::code)
 	.def("read", &Lsystem::read,"Read the content of a file and execute it",(boost::python::arg("filename"),boost::python::arg("parameters")=boost::python::dict()))
-	.def("set", &lsys_setCode,"Set Lsystem code. If debug parameter is set to True, the translated Python code is returned.",(boost::python::arg("filename"),boost::python::arg("parameters")=boost::python::dict(),boost::python::arg("debug")=false))
+	.def("setCode", &lsys_setCode,"Set Lsystem code. If debug parameter is set to True, the translated Python code is returned.",(boost::python::arg("code"),boost::python::arg("parameters")=boost::python::dict(),boost::python::arg("debug")=false))
 	.def("derive", (AxialTree(Lsystem::*)())&Lsystem::derive)
 	.def("derive", (AxialTree(Lsystem::*)(size_t))&Lsystem::derive)
 	.def("derive", (AxialTree(Lsystem::*)(const AxialTree&))&Lsystem::derive)

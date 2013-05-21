@@ -134,6 +134,13 @@ def __make_iter(lsystem): return LsystemIterator(lsystem)
 Lsystem.__iter__ = __make_iter
 del __make_iter
 
+@deprecated
+def lsystem_set(self,code,parameters={},debug=False):
+    """ deprecated function. See setCode """
+    return self.setCode(code,parameters,debug)
+Lsystem.set =  lsystem_set
+del lsystem_set
+
 def Lsystem__call__(self,lstring,nbsteps=None):
     if nbsteps is None: nbsteps = self.derivationLength
     return self.derive(0,nbsteps,lstring)
