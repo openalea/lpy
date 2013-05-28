@@ -15,11 +15,19 @@ def hasSvnSupport():
 if has_svn:
     svn_client = None
     svn_client_gui_parent = None
+    svn_silent_client = None
+
     def get_svn_client():
         global svn_client
         if not svn_client : 
             svn_client = create_svn_client()
         return svn_client
+    
+    def get_svn_silent_client():
+        global svn_silent_client
+        if not svn_silent_client : 
+            svn_silent_client = create_svn_silent_client()
+        return svn_silent_client
     
     def create_svn_client():
         qpath = getSettings().fileName()
@@ -33,7 +41,9 @@ if has_svn:
         client.set_auth_cache(True)
         
         def get_login( realm, username, may_save ):
-            if svn_client_gui_parent is None : return False, '', '', False
+            if svn_client_gui_parent is None : 
+                print 'Login is None'
+                return False, '', '', False
             import logindialog
             dialog = qt.QtGui.QDialog(svn_client_gui_parent)
             widget = logindialog.Ui_LoginDialog()
@@ -78,7 +88,36 @@ if has_svn:
         client.callback_ssl_server_trust_prompt = ssl_server_trust_prompt        
         return client
 
+    def create_svn_silent_client():
+        qpath = getSettings().fileName()
+        import os
+        settingpath = os.path.dirname(qpath)
+        svnsettingpath = os.path.join(settingpath,'svn')
+        if not os.path.exists(svnsettingpath):
+            os.mkdir(svnsettingpath)
+        client = pysvn.Client(svnsettingpath)
+        client.set_store_passwords(False)
+        client.set_auth_cache(True)
+        client.set_interactive(False)
+        
+        def get_login( realm, username, may_save ):
+            return False, '', '', False
+
+        
+        def ssl_server_trust_prompt(trust_dict ):
+            return True, True, True
+        
+        # client.callback_cancel
+        # client.callback_get_log_message
+        client.callback_get_login = get_login
+        # client.callback_notify = callback_notify
+        # client.callback_ssl_client_cert_prompt 
+        client# .callback_ssl_client_cert_password_prompt = ssl_client_cert_password_prompt
+        client.callback_ssl_server_trust_prompt = ssl_server_trust_prompt        
+        return client
+
     def svnUpdate(fname, parent = None):
+        global svn_client_gui_parent
         client = get_svn_client()
         svn_client_gui_parent = parent
         import os
@@ -97,7 +136,8 @@ if has_svn:
             QMessageBox.warning(parent,'Update', ce.message)
             return False
         
-    def svnIsUpToDate( fname, parent = None):
+    def svnIsUpToDate( fname, parent = None, silent = False):
+        global svn_client_gui_parent
         client = get_svn_client()
         svn_client_gui_parent = parent
         import os
@@ -110,7 +150,7 @@ if has_svn:
             server_entry = server_entry_list[1]
             server_rev = server_entry['last_changed_rev']
             if current_rev.number < server_rev.number:
-                if parent:
+                if not silent and parent:
                     changelogs = client.log(fname,revision_start = server_rev, revision_end = current_rev)
                     msg = 'A new version of the model exists : %s (current=%s).\n' % (server_rev.number,current_rev.number)
                     for log in changelogs:
@@ -120,7 +160,7 @@ if has_svn:
                     QMessageBox.question(parent,'Up-to-date',msg )
                 return False
             else:
-                if parent:
+                if not silent and parent:
                     msg = 'Your version is up-to-date.\nRevision: %s.\n' % (current_rev.number)
                     if server_entry['last_changed_date']:
                         import time
@@ -132,7 +172,7 @@ if has_svn:
                     QMessageBox.question(parent,'Up-to-date', msg)                
                 return True
         except pysvn.ClientError, ce:
-            if parent : 
+            if not silent and parent: 
                 QMessageBox.warning(parent,'Up-to-date', ce.message)
                 return True
             else:

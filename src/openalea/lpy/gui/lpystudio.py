@@ -253,7 +253,7 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
                             self.statusBar().showMessage("Cannot check version of svn repository of lpy. Protocol 'SVN+SSH' not supported correctly by PySvn.")                        
                     else:
                         try:
-                            if not svnmanip.svnIsUpToDate(testfile):
+                            if not svnmanip.svnIsUpToDate(testfile,self if not silent else None,True):
                                 qt.QtGui.QMessageBox.information(self,"Lpy Update","A new develop version of lpy seems available !\nPlease update sources of lpy, plantgl, vpltk and recompile.")
                                 self.svnLastRevisionChecked = current_rev
                             elif not silent:
