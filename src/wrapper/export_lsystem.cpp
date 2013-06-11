@@ -80,10 +80,10 @@ AxialTree lsys_axiom(Lsystem * lsys) { return lsys->getAxiom(); }
 object lsys_setCode(Lsystem * lsys, const std::string& code, 
 									 const boost::python::dict& parameters = boost::python::dict(), 
 									 bool debug = false) { 
-	if (!debug) { lsys->set(code); return object(); }
+	if (!debug) { lsys->set(code, NULL, parameters); return object(); }
 	else {
 		std::string pycode;
-		lsys->set(code,&pycode); 
+		lsys->set(code, &pycode, parameters); 
 		return object(pycode);
 	}
 }
