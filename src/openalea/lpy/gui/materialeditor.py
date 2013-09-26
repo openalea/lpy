@@ -59,6 +59,8 @@ class MaterialPanelView (QtOpenGL.QGLWidget):
         self.cutaction = False
         self.computeSize()
         if self.isVisible(): self.updateGL()
+    def getTurtle(self):
+        return self.turtle
     def getMaterial(self,index):
         return self.turtle.getMaterial(index)
     def setMaterial(self,index,value):
