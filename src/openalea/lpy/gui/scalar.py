@@ -1,5 +1,6 @@
-class BaseScalar:
+class BaseScalar(object):
     def __init__(self, name):
+        super(BaseScalar, self).__init__()
         self.name = name
         
     def isBool(self):
@@ -13,7 +14,9 @@ class BaseScalar:
         
     def tostr(self):
         raise 
-
+        
+    def __reduce__(self):
+        return (BaseScalar, (self.name,))
 
 class BoolScalar (BaseScalar):
     def __init__(self,name,value = True):
@@ -32,6 +35,9 @@ class BoolScalar (BaseScalar):
         
     def tostr(self):
         return (self.name,self.value)
+        
+    def __reduce__(self):
+        return (BoolScalar, self.tostr(),)
 
 class IntegerScalar (BaseScalar):
     def __init__(self,name,value = 1,minvalue = 0, maxvalue = 100):
@@ -54,6 +60,9 @@ class IntegerScalar (BaseScalar):
                 
     def tostr(self):
         return (self.name,self.value,self.minvalue,self.maxvalue)
+        
+    def __reduce__(self):
+        return (IntegerScalar,  self.tostr(),)
        
 class FloatScalar (BaseScalar):
     def __init__(self,name,value = 1.,minvalue = 0., maxvalue = 100., decimals = 2):
@@ -83,6 +92,9 @@ class FloatScalar (BaseScalar):
         
     def tostr(self):
         return (self.name,self.value,self.minvalue,self.maxvalue, self.decimals)
+        
+    def __reduce__(self):
+        return (FloatScalar, self.tostr(),)
 
 class EnumScalar (BaseScalar):
     def __init__(self,name,value = 0,values = []):
@@ -108,6 +120,9 @@ class EnumScalar (BaseScalar):
     def tostr(self):
         return (self.name,self.value,self.values)
         
+    def __reduce__(self):
+        return (EnumScalar,self.tostr(),)
+        
 class CategoryScalar (BaseScalar):
     def __init__(self, name):
         BaseScalar.__init__(self,name)
@@ -117,6 +132,9 @@ class CategoryScalar (BaseScalar):
         
     def tostr(self):
         return (self.name,None)
+
+    def __reduce__(self):
+        return (CategoryScalar, self.tostr(),)    
     
 def ProduceScalar(v):
     if type(v[1]) == bool : return BoolScalar(v[0],v[1])
