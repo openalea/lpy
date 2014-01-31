@@ -28,10 +28,10 @@
  # ---------------------------------------------------------------------------
  */
 
-#include "lpy_parser.h"
-
 #include <boost/python.hpp>
 #include <plantgl/python/export_list.h>
+
+#include "lpy_parser.h"
 
 using namespace boost::python;
 LPY_USING_NAMESPACE
