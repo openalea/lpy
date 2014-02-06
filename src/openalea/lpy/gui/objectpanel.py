@@ -1,10 +1,10 @@
 from openalea.plantgl.all import *
 #from objectdialog import *
+from openalea.vpltk.qt import qt
 try:
     from PyQt4 import QtOpenGL
 except:
     from PySide import QtOpenGL    
-from openalea.vpltk.qt import qt
 from OpenGL.GL import *
 from OpenGL.GLU import *
 import sys, traceback, os
@@ -567,6 +567,7 @@ class ObjectListDisplay(QtOpenGL.QGLWidget):
             First it traces the edges of the thumbnail outlines and the name of the object, 
             It also call the function 'displayThumbnail' to draw the thumbnail of the object 
             take into account the orientation of the panel (vertical or horizontal)"""
+        if not self.isVisible(): return
         w = self.width()
         h = self.height()
         if w == 0 or h == 0: return
@@ -788,9 +789,10 @@ class ObjectListDisplay(QtOpenGL.QGLWidget):
                     sendToMenu.addSeparator()
                     sendToMenu.addAction(sendToNewAction)                
         contextmenu.addSeparator()
-        panelmenu = self.panelmanager.completeMenu(contextmenu,self.dock)
-        panelmenu.addSeparator()
-        panelmenu.addAction(self.savePanelImageAction)
+        if self.panelmanager:
+            panelmenu = self.panelmanager.completeMenu(contextmenu,self.dock)
+            panelmenu.addSeparator()
+            panelmenu.addAction(self.savePanelImageAction)
         #contextmenu.addAction(self.newPanelAction)
         return contextmenu
             
@@ -803,7 +805,7 @@ class ObjectListDisplay(QtOpenGL.QGLWidget):
         self.editAction.setEnabled(selcond)
         self.copyAction.setEnabled(selcond)
         self.cutAction.setEnabled(selcond)
-        self.pasteAction.setEnabled(self.panelmanager.hasClipboard() and self.active)
+        self.pasteAction.setEnabled((not self.panelmanager is None) and self.panelmanager.hasClipboard() and self.active)
         self.renameAction.setEnabled(selcond)
         self.copyNameAction.setEnabled(selcond)
         self.deleteAction.setEnabled(selcond)
@@ -1146,4 +1148,9 @@ class ObjectPanelManager(qt.QtCore.QObject):
         if not mid is None:
             return bn+' '+str(mid+1)
         return bn
-        
+
+if __name__ == '__main__':
+    qapp = qt.QtGui.QApplication([])
+    m = LpyObjectPanelDock(None,'TestPanel')
+    m.show()
+    qapp.exec_()

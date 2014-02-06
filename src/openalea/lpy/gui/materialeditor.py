@@ -187,8 +187,8 @@ class MaterialPanelView (QtOpenGL.QGLWidget):
 
     def paintGL(self):
         w,h = self.width(), self.height()
-        if w == 0 or h == 0: return
         cursorselection = -1
+        if w == 0 or h == 0: return
         if self.mousepos != None and self.geometry().contains(self.mousepos):            
             cursorselection = self.selectedColor(self.mousepos.x(),self.mousepos.y())
         glViewport(0,0,w,h);
@@ -240,7 +240,13 @@ class MaterialPanelView (QtOpenGL.QGLWidget):
                         glScalef(1.2,1.2,1.2)
                     glCallList(self.spherelist)
                 glPopMatrix()
+                glColor3f(0,0,0)
+                self.renderText(2*self.unitsize*i,2*self.unitsize*(j+1),4*self.unitsize,str(colindex))
                 colindex += 1
+            glPushMatrix()
+            glTranslate(self.unitsize+2*self.unitsize*i,self.unitsize+2*self.unitsize*nbritem,0)
+            glCallList(self.checklist)
+            glPopMatrix()
     def getNbColRow(self,w,h):
         nbcol = (w / (2*self.unitsize)) +1
         nbrow, rest = divmod(h ,2*self.unitsize)
@@ -284,7 +290,7 @@ class MaterialPanelView (QtOpenGL.QGLWidget):
     def mouseDoubleClickEvent(self,event):     
         x,y = event.pos().x(),event.pos().y()
         self.edition(self.selectedColor(x,y))
-    def mousePressEvent(self,event):        
+    def mousePressEvent(self,event):
       if self.preview and self.preview.isVisible():
            self.preview.hide()
       if event.button()  == qt.QtCore.Qt.LeftButton:
@@ -322,7 +328,7 @@ class MaterialPanelView (QtOpenGL.QGLWidget):
             if event.modifiers() & qt.QtCore.Qt.ShiftModifier :
                 self.selectionend = self.cursorselection
             else:
-                if self.cursorselection != lastcursorselection :
+                if self.cursorselection != lastcursorselection and not lastcursorselection is None:
                     self.swapMaterial(lastcursorselection,self.cursorselection)
                     self.emit(qt.QtCore.SIGNAL('valueChanged()'))
                     p1 = qt.QtCore.QPoint(*self.positionColor(lastcursorselection))
