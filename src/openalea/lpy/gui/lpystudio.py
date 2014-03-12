@@ -212,7 +212,8 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
         self.svnLastDateChecked = 0.0
         self.stackedWidget.setCurrentIndex(0)
         settings.restoreState(self)
-        self.createRecentMenu()        
+        self.createRecentMenu()
+        self.createTutorialMenu()
         self.textEditionWatch = True
         self._initialized = False        
         self.lpy_update_enabled = self.check_lpy_update_available()
@@ -812,6 +813,33 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
                 self.menuRecents.addAction(action)
             self.menuRecents.addSeparator()
         self.menuRecents.addAction(self.actionClear)
+    def createTutorialMenu(self):
+        self.menuTutorials.clear()
+        iconfile = qt.QtGui.QIcon()
+        iconfile.addPixmap(qt.QtGui.QPixmap(":/images/icons/codefile.png"),qt.QtGui.QIcon.Normal,qt.QtGui.QIcon.Off)
+        iconfolder = qt.QtGui.QIcon()
+        iconfolder.addPixmap(qt.QtGui.QPixmap(":/images/icons/fileopen.png"),qt.QtGui.QIcon.Normal,qt.QtGui.QIcon.Off)
+        from openalea.deploy.shared_data import shared_data
+        import openalea.lpy
+        shared_data_path = shared_data(openalea.lpy.__path__, share_path='share/tutorial')
+        if not shared_data_path is None:
+            import os
+            cpath = os.path.abspath(shared_data_path)
+            cmenu = self.menuTutorials
+            toprocess = [(cpath,cmenu)]
+            while len(toprocess) > 0:
+               cpath,cmenu = toprocess.pop(0)
+               for fname in os.listdir(cpath):
+                    absfname =  os.path.join(cpath,fname)
+                    if os.path.isdir(absfname):
+                        childmenu = cmenu.addMenu(iconfolder,os.path.basename(str(fname)))
+                        toprocess.append( (absfname,childmenu) )
+                        qt.QtCore.QObject.connect(childmenu,qt.QtCore.SIGNAL("triggered(QAction *)"),self.recentMenuAction)
+                    else:
+                        action = qt.QtGui.QAction(os.path.basename(str(fname)),cmenu)
+                        action.setData(to_qvariant(absfname))
+                        action.setIcon(iconfile)
+                        cmenu.addAction(action)
     def recentMenuAction(self,action):
         self.openfile(str(action.data()))
     def clearHistory(self):
