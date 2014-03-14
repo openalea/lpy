@@ -164,7 +164,7 @@ def saveState(lpywidget):
     settings.beginGroup('application')
     settings.setValue('svnLastRevisionChecked',to_qvariant(lpywidget.svnLastRevisionChecked))
     settings.setValue('svnLastDateChecked',to_qvariant(lpywidget.svnLastDateChecked))
-    settings.setValue('safeLaunch',to_qvariant(lpywidget.safeLaunch))
+    if hasattr(lpywidget,'safeLaunch') : settings.setValue('safeLaunch',to_qvariant(lpywidget.safeLaunch))
     settings.endGroup()
     settings.beginGroup('appearance')
     settings.setValue('nbMaxDocks',to_qvariant(lpywidget.getMaxObjectPanelNb()))    
