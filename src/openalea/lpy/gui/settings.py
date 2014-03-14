@@ -59,6 +59,7 @@ def restoreState(lpywidget):
     import sys
     if '--safe' in sys.argv:    lpywidget.safeLaunch = True
     if '--no-safe' in sys.argv:    lpywidget.safeLaunch = False
+    settings.endGroup()
     settings.beginGroup('syntax')
     syntaxhlght = settings.value('highlighted',True) == 'true'
     lpywidget.codeeditor.setSyntaxHighLightActivation(syntaxhlght)
