@@ -173,6 +173,7 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
         qt.QtCore.QObject.connect(self.actionRecord, qt.QtCore.SIGNAL('triggered(bool)'),self.record)
         qt.QtCore.QObject.connect(self.actionStop, qt.QtCore.SIGNAL('triggered(bool)'),self.cancelTask)
         qt.QtCore.QObject.connect(self.actionStop, qt.QtCore.SIGNAL('triggered(bool)'),self.abortViewer)
+        qt.QtCore.QObject.connect(self.actionExecute, qt.QtCore.SIGNAL('triggered(bool)'),self.executeCode)
         qt.QtCore.QObject.connect(self.actionComment, qt.QtCore.SIGNAL('triggered(bool)'),self.codeeditor.comment)
         qt.QtCore.QObject.connect(self.actionUncomment, qt.QtCore.SIGNAL('triggered(bool)'),self.codeeditor.uncomment)
         qt.QtCore.QObject.connect(self.actionInsertTab, qt.QtCore.SIGNAL('triggered(bool)'),self.codeeditor.tab)
@@ -857,6 +858,9 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
         self.cCompilerPath = str(p)
         if len(self.cCompilerPath) != 0 and not self.cCompilerPath in os.environ['PATH']:
             os.environ['PATH']+=';'+self.cCompilerPath
+    def executeCode(self):
+        print 'executeCode'
+        self.interpreter.runcode(self.codeeditor.textCursor().selectedText())
     def submitBug(self):
         import webbrowser
         webbrowser.open("https://gforge.inria.fr/tracker/?func=add&group_id=79&atid=13767")
@@ -875,7 +879,7 @@ def help():
     print 
     print 'lpy [OPTIONS] [FILES]'
     print 'OPTIONS:'
-    print '--help : this help'
+    print '--help    : print this help'
     print '--version : print version of the software.'
     print '--safe | --no-safe: load settings in a safe or no safe mode'
     print

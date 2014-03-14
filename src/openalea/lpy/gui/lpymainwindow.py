@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/Users/fboudon/Develop/vplants/trunk/lpy/src/openalea/lpy/gui/lpymainwindow.ui'
 #
-# Created: Wed Mar 12 17:11:58 2014
+# Created: Fri Mar 14 14:13:03 2014
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
-        MainWindow.resize(1024, 622)
+        MainWindow.resize(1063, 622)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/logo/logo.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
@@ -174,7 +174,7 @@ class Ui_MainWindow(object):
         self.lpytoolbox.setMidLineWidth(1)
         self.lpytoolbox.setObjectName(_fromUtf8("lpytoolbox"))
         self.page = QtGui.QWidget()
-        self.page.setGeometry(QtCore.QRect(0, 0, 110, 177))
+        self.page.setGeometry(QtCore.QRect(0, 0, 119, 177))
         self.page.setObjectName(_fromUtf8("page"))
         self.verticalLayout_2 = QtGui.QVBoxLayout(self.page)
         self.verticalLayout_2.setSpacing(2)
@@ -204,7 +204,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.referenceEdit)
         self.lpytoolbox.addItem(self.page, _fromUtf8(""))
         self.page_2 = QtGui.QWidget()
-        self.page_2.setGeometry(QtCore.QRect(0, 0, 110, 287))
+        self.page_2.setGeometry(QtCore.QRect(0, 0, 119, 287))
         self.page_2.setObjectName(_fromUtf8("page_2"))
         self.verticalLayout = QtGui.QVBoxLayout(self.page_2)
         self.verticalLayout.setSpacing(2)
@@ -429,7 +429,7 @@ class Ui_MainWindow(object):
         self.gridLayout_3.addWidget(self.helpDock, 0, 4, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1024, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1063, 22))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         self.menuL_systems = QtGui.QMenu(self.menubar)
         self.menuL_systems.setObjectName(_fromUtf8("menuL_systems"))
@@ -713,6 +713,9 @@ class Ui_MainWindow(object):
         self.actionCheckUpdate.setObjectName(_fromUtf8("actionCheckUpdate"))
         self.actionTutorialTest1 = QtGui.QAction(MainWindow)
         self.actionTutorialTest1.setObjectName(_fromUtf8("actionTutorialTest1"))
+        self.actionExecute = QtGui.QAction(MainWindow)
+        self.actionExecute.setIcon(icon30)
+        self.actionExecute.setObjectName(_fromUtf8("actionExecute"))
         self.menuL_systems.addAction(self.actionRun)
         self.menuL_systems.addAction(self.actionAnimate)
         self.menuL_systems.addSeparator()
@@ -758,6 +761,8 @@ class Ui_MainWindow(object):
         self.menuEdit.addAction(self.actionCut)
         self.menuEdit.addAction(self.actionPaste)
         self.menuEdit.addAction(self.actionSelect_All)
+        self.menuEdit.addSeparator()
+        self.menuEdit.addAction(self.actionExecute)
         self.menuEdit.addSeparator()
         self.menuEdit.addAction(self.actionComment)
         self.menuEdit.addAction(self.actionUncomment)
@@ -962,6 +967,8 @@ class Ui_MainWindow(object):
         self.actionSubmitFeature.setText(_translate("MainWindow", "Submit a Feature", None))
         self.actionCheckUpdate.setText(_translate("MainWindow", "Check for Update", None))
         self.actionTutorialTest1.setText(_translate("MainWindow", "Test 1", None))
+        self.actionExecute.setText(_translate("MainWindow", "Execute ...", None))
+        self.actionExecute.setShortcut(_translate("MainWindow", "Ctrl+E", None))
 
 from lpycodeeditor import LpyCodeEditor
 from materialeditor import MaterialEditor
