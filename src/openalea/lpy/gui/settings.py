@@ -74,10 +74,9 @@ def restoreState(lpywidget):
         lpywidget.setObjectPanelNb(nbDock,True)
     except:
         pass  
-    if settings.contains('state'):
+    if not lpywidget.safeLaunch and settings.contains('state'):
         ba = bytearray(settings.value('state'))
-        if ba and not lpywidget.safeLaunch:
-                lpywidget.restoreState(ba,0);
+        if ba : lpywidget.restoreState(ba,0);
     if settings.contains('geometry'):
         rect = settings.value('geometry')
         if rect:
