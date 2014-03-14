@@ -864,17 +864,43 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
         import webbrowser
         webbrowser.open("http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=packages:vplants:lpy:main")
 
+
+def versionmessage():
+    import openalea.lpy.__version__ as lpyversion
+    print 'L-Py, version '+lpyversion.LPY_VERSION_STR
+
+def help():
+    versionmessage()
+    print 'Frederic Boudon et al., Virtual Plants, CIRAD/INRIA/INRA'
+    print 
+    print 'lpy [OPTIONS] [FILES]'
+    print 'OPTIONS:'
+    print '--help : this help'
+    print '--version : print version of the software.'
+    print '--safe | --no-safe: load settings in a safe or no safe mode'
+    print
+    print 'See http://openalea.gforge.inria.fr/wiki/doku.php?id=packages:vplants:lpy:main for more documentation' 
+
+
 def main():
     import sys, os
     args = sys.argv
+    if '--help' in args or '-h' in args:
+        help()
+        return
+    elif '--version' in args or '-v' in args:
+        versiomessage()
+        return
+
     qapp = qt.QtGui.QApplication([])
     splash = doc.splashLPy()
     qapp.processEvents()
     w = LPyWindow()
     w.show()
     if len(args) > 1:
-        for f in args[1:]:            
-            w.openfile(f)
+        for f in args[1:]:
+            if f[0] != '-':            
+                w.openfile(f)
     if splash:
         splash.finish(w)
         w.splash = splash

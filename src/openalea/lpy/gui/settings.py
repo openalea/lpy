@@ -52,6 +52,13 @@ def restoreState(lpywidget):
     except:
         pass
     settings.endGroup()
+    settings.beginGroup('application')
+    lpywidget.svnLastRevisionChecked = int(settings.value('svnLastRevisionChecked',lpywidget.svnLastRevisionChecked))
+    lpywidget.svnLastDateChecked = float(settings.value('svnLastDateChecked',lpywidget.svnLastDateChecked))
+    lpywidget.safeLaunch = settings.value('safeLaunch',False)=='true'
+    import sys
+    if '--safe' in sys.argv:    lpywidget.safeLaunch = True
+    if '--no-safe' in sys.argv:    lpywidget.safeLaunch = False
     settings.beginGroup('syntax')
     syntaxhlght = settings.value('highlighted',True) == 'true'
     lpywidget.codeeditor.setSyntaxHighLightActivation(syntaxhlght)
@@ -68,7 +75,8 @@ def restoreState(lpywidget):
         pass  
     if settings.contains('state'):
         ba = bytearray(settings.value('state'))
-        if ba: lpywidget.restoreState(ba,0);
+        if ba and not lpywidget.safeLaunch:
+                lpywidget.restoreState(ba,0);
     if settings.contains('geometry'):
         rect = settings.value('geometry')
         if rect:
@@ -104,11 +112,7 @@ def restoreState(lpywidget):
     except:
         pass
     settings.endGroup()
-    settings.beginGroup('application')
-    lpywidget.svnLastRevisionChecked = int(settings.value('svnLastRevisionChecked',lpywidget.svnLastRevisionChecked))
-    lpywidget.svnLastDateChecked = float(settings.value('svnLastDateChecked',lpywidget.svnLastDateChecked))
-    settings.endGroup()
-    
+
     if settings.status() != qt.QtCore.QSettings.NoError:
         raise 'settings error'
     del settings
@@ -122,8 +126,8 @@ def restoreState(lpywidget):
                 lpywidget.openfile(openedfiles[lastfocus])
             except:
                 pass
-  except:
-    print "cannot restore state from ini file"    
+  except Exception, e:
+    print "cannot restore correctly state from ini file:", e
 
 def saveState(lpywidget):
     settings = getSettings()
@@ -160,6 +164,7 @@ def saveState(lpywidget):
     settings.beginGroup('application')
     settings.setValue('svnLastRevisionChecked',to_qvariant(lpywidget.svnLastRevisionChecked))
     settings.setValue('svnLastDateChecked',to_qvariant(lpywidget.svnLastDateChecked))
+    settings.setValue('safeLaunch',to_qvariant(lpywidget.safeLaunch))
     settings.endGroup()
     settings.beginGroup('appearance')
     settings.setValue('nbMaxDocks',to_qvariant(lpywidget.getMaxObjectPanelNb()))    
