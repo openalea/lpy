@@ -82,7 +82,6 @@ setup(
         "wralea": ["lpy = openalea.lpy_wralea",],
         'gui_scripts': ['lpy = openalea.lpy.gui.lpystudio:main',],
         'console_scripts': ['cpfg2lpy = openalea.lpy.cpfg_compat.cpfg2lpy:main',],
-        'oalab.paradigm_applet': ['LPyApplet = openalea.oalab.plugins.lpy:LPyApplet'],
         },
     
     postinstall_scripts = ['lpygui_postinstall'],
