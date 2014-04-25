@@ -13,7 +13,7 @@ try:
     py2exe_release = True
 except:
     py2exe_release = False
-from openalea.vpltk.qt import qt
+from openalea.vpltk import qt
 from openalea.vpltk.qt.compat import *
 from PyQGLViewer import *
 import traceback as tb
@@ -144,6 +144,8 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
         st = self.statusBar()
         self.materialed.statusBar = st
         self.panelmanager = ObjectPanelManager(self)
+        self.documentNames.setShape(qt.QtGui.QTabBar.TriangularNorth)
+        #self.documentNames.setTabsClosable(True)
         self.newfile()
         self.textEditionWatch = False
         self.documentNames.connectTo(self)
@@ -214,7 +216,8 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
         self.stackedWidget.setCurrentIndex(0)
         settings.restoreState(self)
         self.createRecentMenu()
-        self.createTutorialMenu()
+        if not py2exe_release:
+            self.createTutorialMenu()
         self.textEditionWatch = True
         self._initialized = False        
         self.lpy_update_enabled = self.check_lpy_update_available()
@@ -836,7 +839,7 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
                         childmenu = cmenu.addMenu(iconfolder,os.path.basename(str(fname)))
                         toprocess.append( (absfname,childmenu) )
                         qt.QtCore.QObject.connect(childmenu,qt.QtCore.SIGNAL("triggered(QAction *)"),self.recentMenuAction)
-                    else:
+                    elif fname[-4:] == '.lpy':
                         action = qt.QtGui.QAction(os.path.basename(str(fname)),cmenu)
                         action.setData(to_qvariant(absfname))
                         action.setIcon(iconfile)

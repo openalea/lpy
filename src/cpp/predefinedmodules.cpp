@@ -443,10 +443,19 @@ DeclareSimpleModule(rollToVert, "Roll to Vertical : Roll the turtle around the H
 DeclareModuleReal1(sphere,"Draw a sphere. Params : 'radius' (optional, should be positive, default = line width).",ePrimitive)
 DeclareModuleReal1(circle,"Draw a circle. Params : 'radius' (optional, should be positive, default = line width).",ePrimitive)
 
-DeclareModuleBegin(label,"Draw a text label. Params : 'text'.",ePrimitive)
+DeclareModuleBegin(label,"Draw a text label. Params : 'text','size'.",ePrimitive)
 {
 	if(m.empty())LsysWarning("Argument missing for module "+m.name());
-	else t.label(m._getString(0));
+	else 
+  {
+ #if PGL_VERSION >= 0x021200
+   int size = -1;
+    if (m.size() >= 2) size = m._getInt(1);
+    t.label(m._getString(0),size);
+#else
+    t.label(m._getString(0));
+#endif
+  }
 }
 DeclareModuleEnd
 
@@ -885,6 +894,23 @@ DeclareSimpleModule(leftReflection,"The turtle change the left vector to have a 
 DeclareSimpleModule(upReflection,"The turtle change the up vector to have a symmetric behavior.",eRotation)
 DeclareSimpleModule(headingReflection,"The turtle change the heading vector to have a symmetric behavior.",eRotation)
 
+DeclareModuleBegin(startScreenProjection,"The turtle will create geometry in the screen coordinates system.",ePosition)
+{
+#if PGL_VERSION >= 0x021200
+  t.setScreenCoordinatesEnabled(true);
+  t.move(0,0,0);
+#endif
+}
+DeclareModuleEnd
+
+DeclareModuleBegin(endScreenProjection,"The turtle will create geometry in the world system (default behaviour).",ePosition)
+{
+#if PGL_VERSION >= 0x021200
+  t.setScreenCoordinatesEnabled(false);
+#endif
+}
+DeclareModuleEnd
+
 /*---------------------------------------------------------------------------*/
 std::vector<ModuleClassPtr> * ModuleClass::PredefinedClasses = NULL;
 
@@ -978,8 +1004,10 @@ void ModuleClass::createPredefinedClasses() {
 	TextureRotation = new DeclaredModule(TextureRotation)("TextureRotation");
 	TextureTransformation = new DeclaredModule(TextureTransformation)("TextureTransformation");
 	LeftReflection = new DeclaredModule(leftReflection)("LeftReflection");
-	UpReflection = new DeclaredModule(upReflection)("UpReflection");
-	HeadingReflection = new DeclaredModule(headingReflection)("HeadingReflection");
+  UpReflection = new DeclaredModule(upReflection)("UpReflection");
+  HeadingReflection = new DeclaredModule(headingReflection)("HeadingReflection");
+  StartScreenProjection = new DeclaredModule(startScreenProjection)("@2D","StartScreenProjection");
+  EndScreenProjection = new DeclaredModule(endScreenProjection)("@3D","EndScreenProjection");
 
 	GetIterator = new PredefinedModuleClass("?I","GetIterator","Request an iterator over the current Lstring.",PredefinedModuleClass::ePatternMatching);
 	GetModule = new PredefinedModuleClass("$","GetModule","Request a module of the current Lstring.",PredefinedModuleClass::ePatternMatching);

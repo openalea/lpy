@@ -576,7 +576,10 @@ class ObjectListDisplay(QtOpenGL.QGLWidget):
         else:
             bgcol = self.theme.inactiveBackGroundColor
         glClearColor(*bgcol)
-        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
+        try:
+            glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
+        except: # the visible attribute is not correctly set on mac. The widget is not really visible and the initialization failed.
+            return
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA)
         glViewport(0,0,w,h)

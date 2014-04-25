@@ -129,6 +129,8 @@ typedef pgl_hash_map_string<size_t> ParameterNameDict;
 	MACRO(LeftReflection) \
 	MACRO(UpReflection) \
 	MACRO(HeadingReflection) \
+	MACRO(StartScreenProjection) \
+	MACRO(EndScreenProjection) \
 
 #define DECLARE_PM(MName) static ModuleClassPtr MName;
 

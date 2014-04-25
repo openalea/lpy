@@ -49,16 +49,26 @@ print libdirs
 
 from setuptools import setup
 
+MainScript = 'src/openalea/lpy/gui/lpy.pyw'
+
 import sys
 if sys.platform =='darwin':
   import py2app
   option_name = 'py2app'
-  extra_options = { 'argv_emulation':True, 'excludes' : [] }
+  extra_options = { 'argv_emulation' : True, 
+                    'compressed'     : False,
+                    'optimize'       : 0,
+                    # 'iconfile'       : 'lpy.icns',
+                    'excludes' : [],
+                    }
+  builderoptions = {'app' : [MainScript]}
   build_prefix = 'build-scons'
 else:
   import py2exe
   option_name = 'py2exe'
-  extra_options = { "dll_excludes" : ['MSVCP80.dll','MSVCR80.dll'] }
+  extra_options =  { "dll_excludes" : ['MSVCP80.dll','MSVCR80.dll'] }
+  builderoptions = {'windows' : [{'script' : MainScript, 
+                                 'icon_resources' : [(1, "src/openalea/lpy/gui/logo.ico")] }] }
   build_prefix = ''
 
 import glob
@@ -66,7 +76,20 @@ from os.path import splitext,basename
 plugins = [splitext(basename(i))[0] for i in glob.glob('src/openalea/lpy/gui/plugins/[a-zA-Z0-9]*.py')]
 print plugins
 
-goptions = { option_name : {"includes" : ["sip","OpenGL","stat","PyQt4.QtXml","distutils.util","ctypes", "ctypes.util","random"]+map(lambda x : '.'.join(['openalea.lpy.gui.plugins',x]), plugins) } }
+#"sip","stat","PyQt4.QtXml","distutils.util","ctypes", 
+                                           #"ctypes.util","random",'IPython','IPython.frontend.qt','IPython.frontend.qt.console',
+                                           #'IPython.kernel','IPython.kernel.inprocess','IPython.core','IPython.kernel.zmq','IPython.utils'
+                                           #'IPython.external','IPython.qt','pygments.styles']+
+                                          
+
+goptions = { option_name : 
+                {
+                    'includes' : map(lambda x : '.'.join(['openalea.lpy.gui.plugins',x]), plugins) ,
+                    #'packages' : ['sip','stat','PyQt4', 'distutils', 'ctypes', 'random', 'IPython', 'pygments', 'PIL','PyOpenGL']
+                    'packages' : ['IPython','PyQt4','pygments','PIL','OpenGL']
+
+                }
+            }
 goptions[option_name].update(extra_options)
 print goptions
 
@@ -89,12 +112,13 @@ setup(
     
     # pure python  packages
     packages = [ pkg_name, pkg_name+'.gui', pkg_name+'.gui.plugins', pkg_name+'.cpfg_compat', 
-                 'openalea.plantgl'
+                 'openalea.plantgl', 'openalea.vpltk', 'openalea.vpltk.qt', 'openalea.vpltk.shell', 'openalea.vpltk.check'
                 ]+map(lambda x : '.'.join(['openalea.plantgl',x]),['math','scenegraph','algo','gui','codec']),
     py_modules = ['lpygui_postinstall'],
 
     # python packages directory
-    package_dir = { '' : 'src','openalea.plantgl' : '../PlantGL/src/plantgl', 'openalea.mtg' : '../newmtg/src/mtg'},
+    package_dir = { '' : 'src','openalea.plantgl' : '../PlantGL/src/plantgl', 'openalea.mtg' : '../newmtg/src/mtg', 
+    				     'openalea.vpltk' : '../../../openalea/vpltk/src/openalea/vpltk'},
                    
     # Add package platform libraries if any
     include_package_data = True,
@@ -120,12 +144,12 @@ setup(
     # Dependencies
     setup_requires = ['openalea.deploy'],
     dependency_links = ['http://openalea.gforge.inria.fr/pi'],
-    install_requires = [],
-    #app = ['src/openalea/lpy/gui/lpy.pyw'],
-    windows = [{'script' : 'src/openalea/lpy/gui/lpy.pyw', 
-                'icon_resources' : [(1, "src/openalea/lpy/gui/logo.ico")] }],
 
-    options=goptions
+    # py2exe or py2app options
+    options=goptions,
+
+    **builderoptions
+
     )
 
 

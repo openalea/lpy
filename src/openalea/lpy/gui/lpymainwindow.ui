@@ -110,6 +110,12 @@
             </disabled>
            </palette>
           </property>
+          <property name="autoScrollMargin">
+           <number>7</number>
+          </property>
+          <property name="editTriggers">
+           <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+          </property>
           <property name="dragDropMode">
            <enum>QAbstractItemView::InternalMove</enum>
           </property>
@@ -120,9 +126,6 @@
            <bool>true</bool>
           </property>
           <property name="itemsExpandable">
-           <bool>true</bool>
-          </property>
-          <property name="allColumnsShowFocus">
            <bool>true</bool>
           </property>
          </widget>
@@ -367,7 +370,7 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>119</width>
+             <width>105</width>
              <height>177</height>
             </rect>
            </property>
@@ -436,7 +439,7 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>119</width>
+             <width>105</width>
              <height>287</height>
             </rect>
            </property>
@@ -1060,7 +1063,13 @@
    </property>
    <property name="windowIcon">
     <iconset>
-     <normaloff>logo.png</normaloff>logo.png</iconset>
+     <normaloff>../../../../../../../../.designer/backup/logo.png</normaloff>../../../../../../../../.designer/backup/logo.png</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>32</width>
+     <height>32</height>
+    </size>
    </property>
    <property name="toolButtonStyle">
     <enum>Qt::ToolButtonTextBesideIcon</enum>
@@ -1080,6 +1089,12 @@
   <widget class="QToolBar" name="LsytemBar">
    <property name="windowTitle">
     <string>Lsystem Bar</string>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>32</width>
+     <height>32</height>
+    </size>
    </property>
    <property name="toolButtonStyle">
     <enum>Qt::ToolButtonTextBesideIcon</enum>
@@ -1194,6 +1209,12 @@
   <widget class="QToolBar" name="editToolBar">
    <property name="windowTitle">
     <string>Edit Bar</string>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>32</width>
+     <height>32</height>
+    </size>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>

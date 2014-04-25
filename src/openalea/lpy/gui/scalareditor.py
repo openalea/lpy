@@ -68,10 +68,12 @@ class FloatScalarDialog(qt.QtGui.QDialog,sfme.Ui_FloatScalarDialog):
         self.minValueEdit.setDecimals(value)
         self.maxValueEdit.setDecimals(value)
 
-if not sys.platform == 'darwin':        
+if True : #not sys.platform == 'darwin':        
     class ItemSlider(qt.QtGui.QWidget):
         def __init__(self,orientation,parent,item):
             qt.QtGui.QWidget.__init__(self,parent)
+            self.setFocusPolicy(qt.QtCore.Qt.StrongFocus)            
+            self.setMinimumHeight(20) 
             horizontalLayout = qt.QtGui.QHBoxLayout(self)
             horizontalLayout.setContentsMargins(0, 0, 0, 0)
             self.label = qt.QtGui.QLabel(self)
@@ -85,9 +87,11 @@ if not sys.platform == 'darwin':
                 self.spinBox = qt.QtGui.QDoubleSpinBox(self)
                 self.spinBox.setSingleStep(0.1**scalar.decimals)
             else:
-                self.spinBox = qt.QtGui.QSpinBox(self)                
+                self.spinBox = qt.QtGui.QSpinBox(self)
+            self.spinBox.setMinimumHeight(20)                
             horizontalLayout.addWidget(self.spinBox)
             self.spinBox.hide()
+            #self.slider.hide()
             self.chgButton = qt.QtGui.QPushButton('O',self)
             self.chgButton.setMaximumWidth(15)
             self.chgButton.setMinimumWidth(15)
@@ -95,7 +99,8 @@ if not sys.platform == 'darwin':
             self.setRange(scalar.minvalue,scalar.maxvalue)
             self.label.setMinimumWidth(self.labelwidth)
             self.setValue(scalar.value)
-            
+            self.locked = False
+
             if self.isfloat:
                 qt.QtCore.QObject.connect(self.slider,qt.QtCore.SIGNAL('valueChanged(int)'),self.updateInt2FloatItem)
                 qt.QtCore.QObject.connect(self.spinBox,qt.QtCore.SIGNAL('valueChanged(double)'),self.updateItem)
@@ -109,12 +114,14 @@ if not sys.platform == 'darwin':
             self.updateItem(value/a)
             
         def updateItem(self,value):
-            if self.item.scalar.value != value :
+            if self.item.scalar.value != value and not self.locked:
+                self.locked = True
                 self.item.scalar.value = value
                 self.setValue(value)
                 self.item.setText(str(value))
                 self.label.setMinimumWidth(self.labelwidth)
                 self.emit(qt.QtCore.SIGNAL('valueChanged(Pyqt.Qt_PyObject)'),self.item.scalar)
+                self.locked = False
             
         def setRange(self,minv,maxv):
             if self.isfloat:
@@ -144,6 +151,7 @@ if not sys.platform == 'darwin':
                 self.slider.hide()
                 self.label.hide()
                 self.spinBox.show()
+                self.spinBox.move(0,0)
             else:
                 self.slider.show()
                 self.label.show()

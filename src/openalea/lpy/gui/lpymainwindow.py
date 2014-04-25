@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/Users/fboudon/Develop/vplants/trunk/lpy/src/openalea/lpy/gui/lpymainwindow.ui'
 #
-# Created: Fri Mar 14 14:13:03 2014
+# Created: Thu Apr 24 16:07:47 2014
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -64,11 +64,12 @@ class Ui_MainWindow(object):
         brush.setStyle(QtCore.Qt.SolidPattern)
         palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.AlternateBase, brush)
         self.scalarEditor.setPalette(palette)
+        self.scalarEditor.setAutoScrollMargin(7)
+        self.scalarEditor.setEditTriggers(QtGui.QAbstractItemView.AnyKeyPressed|QtGui.QAbstractItemView.DoubleClicked|QtGui.QAbstractItemView.EditKeyPressed|QtGui.QAbstractItemView.SelectedClicked)
         self.scalarEditor.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
         self.scalarEditor.setDefaultDropAction(QtCore.Qt.MoveAction)
         self.scalarEditor.setAlternatingRowColors(True)
         self.scalarEditor.setItemsExpandable(True)
-        self.scalarEditor.setAllColumnsShowFocus(True)
         self.scalarEditor.setObjectName(_fromUtf8("scalarEditor"))
         self.gridLayout_2.addWidget(self.scalarEditor, 0, 0, 1, 1)
         self.scalarDock.setWidget(self.dockWidgetContents_8)
@@ -174,7 +175,7 @@ class Ui_MainWindow(object):
         self.lpytoolbox.setMidLineWidth(1)
         self.lpytoolbox.setObjectName(_fromUtf8("lpytoolbox"))
         self.page = QtGui.QWidget()
-        self.page.setGeometry(QtCore.QRect(0, 0, 119, 177))
+        self.page.setGeometry(QtCore.QRect(0, 0, 105, 177))
         self.page.setObjectName(_fromUtf8("page"))
         self.verticalLayout_2 = QtGui.QVBoxLayout(self.page)
         self.verticalLayout_2.setSpacing(2)
@@ -204,7 +205,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.referenceEdit)
         self.lpytoolbox.addItem(self.page, _fromUtf8(""))
         self.page_2 = QtGui.QWidget()
-        self.page_2.setGeometry(QtCore.QRect(0, 0, 119, 287))
+        self.page_2.setGeometry(QtCore.QRect(0, 0, 105, 287))
         self.page_2.setObjectName(_fromUtf8("page_2"))
         self.verticalLayout = QtGui.QVBoxLayout(self.page_2)
         self.verticalLayout.setSpacing(2)
@@ -456,12 +457,14 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
         self.FileBar = QtGui.QToolBar(MainWindow)
         icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap(_fromUtf8("logo.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon5.addPixmap(QtGui.QPixmap(_fromUtf8("../../../../../../../../.designer/backup/logo.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.FileBar.setWindowIcon(icon5)
+        self.FileBar.setIconSize(QtCore.QSize(32, 32))
         self.FileBar.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
         self.FileBar.setObjectName(_fromUtf8("FileBar"))
         MainWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.FileBar)
         self.LsytemBar = QtGui.QToolBar(MainWindow)
+        self.LsytemBar.setIconSize(QtCore.QSize(32, 32))
         self.LsytemBar.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
         self.LsytemBar.setObjectName(_fromUtf8("LsytemBar"))
         MainWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.LsytemBar)
@@ -501,6 +504,7 @@ class Ui_MainWindow(object):
         self.profilerDock.setWidget(self.dockWidgetContents_9)
         MainWindow.addDockWidget(QtCore.Qt.DockWidgetArea(8), self.profilerDock)
         self.editToolBar = QtGui.QToolBar(MainWindow)
+        self.editToolBar.setIconSize(QtCore.QSize(32, 32))
         self.editToolBar.setObjectName(_fromUtf8("editToolBar"))
         MainWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.editToolBar)
         self.actionOpen = QtGui.QAction(MainWindow)

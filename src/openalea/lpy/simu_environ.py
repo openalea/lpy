@@ -124,7 +124,7 @@ def scalarCode(scalars = None, indentation = '\t'):
     if not scalars is None and len(scalars) > 0:
         init_txt += indentation+'scalars = '+str([str(i) for i in scalars])+'\n'
         init_txt += indentation+'context["__scalars__"] = scalars\n'
-        init_txt += indentation+'for s in scalars:\n'+indentation+'\tif not s[1] is None : context[s[0]] = s[1]\n'
+        init_txt += indentation+'for s in scalars:\n'+indentation+'\tif not s[1] is "Category" : context[s[0]] = s[2]\n'
     return init_txt
     
 def creditsCode(desc_items):

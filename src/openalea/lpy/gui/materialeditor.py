@@ -186,9 +186,10 @@ class MaterialPanelView (QtOpenGL.QGLWidget):
         glEndList()
 
     def paintGL(self):
-        w,h = self.width(), self.height()
         cursorselection = -1
-        if w == 0 or h == 0: return
+        if not self.isVisible(): return
+        w,h = self.width(), self.height()
+        if w == 0 or h == 0 : return
         if self.mousepos != None and self.geometry().contains(self.mousepos):            
             cursorselection = self.selectedColor(self.mousepos.x(),self.mousepos.y())
         glViewport(0,0,w,h);
@@ -197,7 +198,10 @@ class MaterialPanelView (QtOpenGL.QGLWidget):
         glOrtho(0,w,h,0,-3000,1000);
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
-        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
+        try:
+            glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
+        except: # the visible attribute is not correctly set on mac. The widget is not really visible and the initialization failed.
+            return
         glShadeModel(GL_SMOOTH)
         nbcitem, nbritem = self.getNbColRow(w,h)
         colindex = 0

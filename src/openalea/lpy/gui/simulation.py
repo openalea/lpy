@@ -131,7 +131,7 @@ class LpySimulation:
                 painter.drawPixmap(pixmap.width()-pixmap2.width(),pixmap.height()-pixmap2.height(),pixmap2)
                 painter.end()
         icon = qt.QtGui.QIcon()
-        icon.addPixmap(pixmap,qt.QtGui.QIcon.Normal,qt.QtGui.QIcon.Off)
+        icon.addPixmap(pixmap.scaledToHeight(32),qt.QtGui.QIcon.Normal,qt.QtGui.QIcon.Off)
         return icon
     def registerTab(self):
         self.lpywidget.documentNames.insertTab(self.index,self.generateIcon(),self.getTabName())
@@ -393,7 +393,7 @@ class LpySimulation:
         if len(self.scalars):
             init_txt += '\tscalars = '+str([i.tostr() for i in self.scalars])+'\n'
             init_txt += '\tcontext["__scalars__"] = scalars\n'
-            init_txt += '\tfor s in scalars:\n\t\tif not s[1] is None : context[s[0]] = s[1]\n'
+            init_txt += '\tfor s in scalars:\n\t\tif not s[1] is "Category" : context[s[0]] = s[2]\n'
         def emptyparameterset(params):
             for panel,data in params:
                 if len(data) > 0: return False
