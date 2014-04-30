@@ -451,7 +451,9 @@ struct TreeLeftMatcher
 			}
 			else {
 				if (it2->isLeftBracket()) it = Previous::next(it,it2,string_begin,string_end);
-				else  it = Father::next(it,it2,string_begin,string_end);
+				else { 
+					it = Father::next(it,it2,string_begin,string_end);
+				}
 				
 				if (it == string_end) return false;
 

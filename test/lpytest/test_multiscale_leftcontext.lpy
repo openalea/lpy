@@ -1,0 +1,39 @@
+nbMsLeftMatch = 0
+nbMsNewLeftMatch = 0
+
+def Start():
+  global nbMsLeftMatch,nbMsNewLeftMatch
+  nbMsLeftMatch = 0
+  nbMsNewLeftMatch = 0
+
+def End():
+  assert nbMsLeftMatch == 6
+  assert nbMsNewLeftMatch == 6
+
+module U: scale = 1
+module I : scale = 2
+
+Axiom: U I I I U I I I
+
+derivation length: 1
+production:
+
+U < I:
+  global nbMsLeftMatch
+  nbMsLeftMatch += 1
+
+U << I:
+  global nbMsNewLeftMatch
+  nbMsNewLeftMatch += 1
+  
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	context.options.setSelection('String matching',3)

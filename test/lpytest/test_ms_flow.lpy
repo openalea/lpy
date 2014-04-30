@@ -1,5 +1,5 @@
-module I,L : scale = 1
-module U,E : scale = 2
+module I,L : scale = 2
+module U,E : scale = 1
 
 nbUnit = 8
 nbINode   = 3
@@ -55,8 +55,12 @@ I(x) --> f(nodesize/2.);(1 if x ==0 else 2)F(internodesize)f(nodesize/2.)
 endlsystem
 ###### INITIALISATION ######
 
+__lpy_code_version__ = 1.1
+
 def __initialiseContext__(context):
-	from openalea.plantgl.all import Material,Color3
-	context.turtle.setMaterial(1,Material('Brown',Color3(6,4,1),13.8333,Color3(40,40,40),Color3(0,0,0),1,0))
+	import openalea.plantgl.all as pgl
+	Color_1 = pgl.Material("Color_1" , ambient = (6,4,1) , diffuse = 13.8333 , )
+	Color_1.name = "Color_1"
+	context.turtle.setMaterial(1,Color_1)
 	context.options.setSelection('Optimization',2)
 	context.options.setSelection('String matching',3)

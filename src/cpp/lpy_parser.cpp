@@ -295,6 +295,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
               std::string axiomcode = LsysContext::AxiomVariable + " = ";
               int axiomsize = 0;
               axiomcode += LpyParsing::lstring2py(_it,endpycode,'\n',lineno,&axiomsize);
+              ++lineno;
               ++_it;
               if (axiomsize == 0 && (*_it == '\t' || *_it == ' ')){
                   code += "def "+LsysContext::AxiomVariable+"() :\n";
@@ -307,13 +308,13 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 			}
             else LsysParserSyntaxError("Cannot find ':' after Axiom");
 			beg = _it;
-		  }
+ 		  }
           else {if(_it!=endpycode)++_it; toendlineA(_it,endpycode); }
 		  break;
 		case 'n':
 		  _it2 = _it;
           if(has_keyword_pattern(_it,begcode,endpycode,"nproduce")){
-			code += std::string(beg,_it2);
+    		code += std::string(beg,_it2);
 			code += "pproduce";
 		    while(_it != endpycode && (*_it == ' ' || *_it == '\t') )++_it;
 		    char endproduction = '\n';
@@ -454,7 +455,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 				if(_it!=endpycode)++_it; toendlineA(_it,endpycode);
 			}
 			else {*/
-				code+=std::string(beg,_it2);
+ 				code+=std::string(beg,_it2);
 				toendlineC(_it,endpycode);
 				code+="# "+std::string(_it2,_it);
 				beg = _it;

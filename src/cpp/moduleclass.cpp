@@ -77,7 +77,7 @@ void ModuleClassTable::clearModuleClasses()
 /*---------------------------------------------------------------------------*/
 
 size_t ModuleClass::MAXID(0);
-int ModuleClass::DEFAULT_SCALE = -1;
+int ModuleClass::DEFAULT_SCALE = INT_MAX;
 size_t ModuleClass::NOPOS = std::string::npos;
 
 /*---------------------------------------------------------------------------*/

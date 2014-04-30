@@ -589,15 +589,22 @@ LsysRule::match(const AxialTree& src,
       if(!MatchingEngine::left_match(direction == eForward?pos:pos+1,src.const_begin(),src.const_end(),
 		                              __leftcontext.const_rbegin(),__leftcontext.const_rend(),
 									  endpos2,args))
-	  return false;
+	       return false;
   }
 
   // new left context
   if(direction == eForward && !__newleftcontext.empty()){
 	ArgList args_ncg;
-    if(!MatchingEngine::left_match(dest.const_end(),dest.const_begin(),dest.const_end(),
+    // Here we do a hack to add the current element to the new string to have scale information.
+    AxialTree *dest2 = const_cast<AxialTree *>(&dest);
+    dest2->push_back(pos);
+    if(!MatchingEngine::left_match(dest2->const_end()-1,dest2->const_begin(),dest2->const_end(),
 		                          __newleftcontext.const_rbegin(),__newleftcontext.const_rend(),
-								  endpos2,args_ncg))return false;
+								  endpos2,args_ncg)){
+        return false;
+        dest2->erase(dest2->end()-1);
+    }
+    dest2->erase(dest2->end()-1);
 	ArgsCollector::append_args(args,args_ncg);
   }
 
@@ -608,7 +615,8 @@ LsysRule::match(const AxialTree& src,
 	ArgList args_ncd;
     if(!MatchingEngine::right_match(dest.const_begin(),dest.const_begin(),dest.const_end(),
 		                          __newrightcontext.const_begin(),__newrightcontext.const_end(),
-								  last_match,endpos2,args_ncd))return false;
+								  last_match,endpos2,args_ncd))
+        return false;
 	ArgsCollector::append_args(args,args_ncd);
   }
 

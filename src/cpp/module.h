@@ -410,6 +410,7 @@ inline bool is_neq_scale(int scale1, int scale2)    { return scale1 != scale2; }
 inline bool is_upper_scale(int scale1, int scale2) { return scale1 > scale2; }
 inline int up_scale(int scale1) { return scale1 + 1; }
 inline int down_scale(int scale1) { return scale1 - 1; }
+// See Also ModuleClass::DEFAULT_SCALE
 
 /*---------------------------------------------------------------------------*/
 
