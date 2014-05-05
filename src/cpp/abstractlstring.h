@@ -270,7 +270,7 @@ public:
   inline void push_front(const_iterator pos)
   {  __string().insert(begin(),pos,pos+1);  }
 
-  inline void erase(const_iterator pos)
+  inline void erase(iterator pos)
   {  __string().erase(pos);  }
 
   inline void removeItemAt(int i)
