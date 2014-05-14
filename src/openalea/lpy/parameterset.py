@@ -14,3 +14,9 @@ class ParameterSet:
         """ Check if an attribute exists. If not create it with default value """
         if not hasattr(self,attname):
             setattr(self,attname,defaultvalue)
+    
+    def copy(self, deep = True):
+        """ Return a deep copy of self """
+        from copy import copy, deepcopy
+        if deep : return deepcopy(self)
+        else: return copy(self)
