@@ -393,7 +393,7 @@ class LpySimulation:
         if len(self.scalars):
             init_txt += '\tscalars = '+str([i.tostr() for i in self.scalars])+'\n'
             init_txt += '\tcontext["__scalars__"] = scalars\n'
-            init_txt += '\tfor s in scalars:\n\t\tif not s[1] is "Category" : context[s[0]] = s[2]\n'
+            init_txt += '\tfor s in scalars:\n\t\tif not s[1] == "Category" : context[s[0]] = s[2]\n'
         def emptyparameterset(params):
             for panel,data in params:
                 if len(data) > 0: return False

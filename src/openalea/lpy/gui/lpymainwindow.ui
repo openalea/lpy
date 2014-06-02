@@ -1721,7 +1721,7 @@
   <customwidget>
    <class>MaterialEditor</class>
    <extends>QWidget</extends>
-   <header>materialeditor.h</header>
+   <header>openalea/plantgl/gui/materialeditor.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>

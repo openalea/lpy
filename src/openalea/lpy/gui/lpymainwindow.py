@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/Users/fboudon/Develop/vplants/trunk/lpy/src/openalea/lpy/gui/lpymainwindow.ui'
 #
-# Created: Thu Apr 24 16:07:47 2014
+# Created: Mon Jun  2 16:03:21 2014
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -975,8 +975,8 @@ class Ui_MainWindow(object):
         self.actionExecute.setShortcut(_translate("MainWindow", "Ctrl+E", None))
 
 from lpycodeeditor import LpyCodeEditor
-from materialeditor import MaterialEditor
 from scalareditor import ScalarEditor
 from lpytabbar import LpyTabBar, LpyTabBarNeighbor
 from lpyview3d import LpyView3D
+from openalea.plantgl.gui.materialeditor import MaterialEditor
 import lpyresources_rc
