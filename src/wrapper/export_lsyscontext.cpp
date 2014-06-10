@@ -30,6 +30,7 @@
 
 #include "lsyscontext.h"
 #include "compilation.h"
+#include "patternstring.h"
 #include <boost/python/make_constructor.hpp>
 #include <plantgl/python/export_list.h>
 #include <boost/python/raw_function.hpp>
@@ -80,6 +81,34 @@ boost::python::object py_LcGetPProductions(LsysContext * c) {
 	return make_list<std::vector<AxialTree> >(res)();
 }
 
+boost::python::object py_get_globals(LsysContext * c) {
+	return boost::python::object(handle<>(borrowed(c->globals())));
+}
+
+bool py_p_in_left_context(size_t pid, boost::python::dict& param = boost::python::dict()) {
+	return LsysContext::currentContext()->pInLeftContext(pid,param);
+}
+
+bool py_in_left_context1(const PatternString& pattern, boost::python::dict& param = boost::python::dict()) {
+	return LsysContext::currentContext()->inLeftContext(pattern,param);
+}
+
+bool py_in_left_context2(const std::string& pattern, boost::python::dict& param = boost::python::dict()) {
+	return LsysContext::currentContext()->inLeftContext(PatternString(pattern),param);
+}
+
+bool py_p_in_right_context(size_t pid, boost::python::dict& param = boost::python::dict()) {
+	return LsysContext::currentContext()->pInRightContext(pid,param);
+}
+
+bool py_in_right_context1(const PatternString& pattern, boost::python::dict& param = boost::python::dict()) {
+	return LsysContext::currentContext()->inRightContext(pattern,param);
+}
+
+bool py_in_right_context2(const std::string& pattern, boost::python::dict& param = boost::python::dict()) {
+	return LsysContext::currentContext()->inRightContext(PatternString(pattern),param);
+}
+
 void export_LsysContext(){
 
     class_<LsysContext,boost::noncopyable>
@@ -94,6 +123,8 @@ void export_LsysContext(){
 	.def("__repr__",        &LsysContext::str)
 	.def("clear",          &LsysContext::clear)
 	.def("empty",          &LsysContext::empty)
+	.def("locals",          &LsysContext::locals)
+	.def("globals",          &py_get_globals)
 	/*.def("consider",       &LsysContext::consider)
 	.def("ignore",         &LsysContext::ignore)
 	.def("isConsidered",   
@@ -154,8 +185,6 @@ void export_LsysContext(){
 	.staticmethod("default")
 	.def("globalContext", &LsysContext::globalContext,return_value_policy<reference_existing_object>())
 	.staticmethod("globalContext")
-	.def("global", &LsysContext::global,return_value_policy<reference_existing_object>())
-	.staticmethod("global")
 	.def("backward",      &LsysContext::backward)
 	.def("forward",      &LsysContext::forward)
 	.def("isForward",      &LsysContext::isForward)
@@ -200,6 +229,12 @@ void export_LsysContext(){
 	def("undeclare", &undeclare);
 	def("isDeclared", &isDeclared);
 	def("Stop", &Stop);
+	def("pInLeftContext", &py_p_in_left_context,(bp::arg("patternid"),bp::arg("parameters")=bp::dict()));
+	def("inLeftContext", &py_in_left_context1,(bp::arg("pattern"),bp::arg("parameters")=bp::dict()));
+	def("inLeftContext", &py_in_left_context2,(bp::arg("pattern"),bp::arg("parameters")=bp::dict()));
+	def("pInRightContext", &py_p_in_right_context,(bp::arg("patternid"),bp::arg("parameters")=bp::dict()));
+	def("inRightContext", &py_in_right_context1,(bp::arg("pattern"),bp::arg("parameters")=bp::dict()));
+	def("inRightContext", &py_in_right_context2,(bp::arg("pattern"),bp::arg("parameters")=bp::dict()));
 
 	def("__setCythonAvailable",&Compilation::setCythonAvailable);
 	def("__setPythonExec",&Compilation::setPythonExec);

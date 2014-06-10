@@ -42,6 +42,13 @@ LPY_USING_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
+LPY_BEGIN_NAMESPACE
+
+
+LPY_END_NAMESPACE
+
+/*---------------------------------------------------------------------------*/
+
 /*LsysRule::LsysRule():
 __id(0),
 __gid(0),
@@ -69,7 +76,8 @@ __staticResult(other.__staticResult),
 __function(other.__function),
 lineno(other.lineno),
 __codelength(other.__codelength),
-__consider(other.__consider){
+__consider(other.__consider),
+__lstringmatcher(){
   IncTracker(LsysRule)
 }
 
@@ -81,11 +89,14 @@ __nbParams(0),
 __hasquery(false),
 __isStatic(false),
 lineno(_lineno),
-__codelength(0){
+__codelength(0),
+__lstringmatcher(){
   IncTracker(LsysRule)
 }
 
-LsysRule::~LsysRule() { DecTracker(LsysRule) }
+LsysRule::~LsysRule() { 
+	DecTracker(LsysRule) 
+}
 
 
 
@@ -116,6 +127,7 @@ void LsysRule::clear(){
   lineno = -1;
   __codelength = 0;
   __consider = ConsiderFilterPtr();
+  __lstringmatcher = LstringMatcherPtr();
 }
 
 std::string LsysRule::str() const {
@@ -194,106 +206,6 @@ LsysRule::getCode() {
     return getCoreCode() +getCallerCode();
 }
 
-std::string 
-LsysRule::getCoreCode() {
-  std::stringstream res;
-  int llineno = 0;
-  std::string definition;
-  std::string::const_iterator _beg = __definition.begin();
-  std::string::const_iterator _it = _beg;
-  while( _it != __definition.end()){
-	if (*_it == '\n') { ++llineno; _it++;}
-	else if (*_it == '#') { while(_it != __definition.end() && *_it != '\n') _it++; }
-	else if (*_it == '\'') 
-	{ 
-	  _it++;  
-	  while(_it != __definition.end() && *_it != '\'') { if (*_it == '\n') { ++llineno; } _it++; } 
-	  if (_it != __definition.end()) _it++;  
-	}
-	else if (*_it == '"') 
-	{ 
-		_it++;  
-		while(_it != __definition.end() && *_it != '"') { if (*_it == '\n') { ++llineno; } _it++; } 
-	    if (_it != __definition.end()) _it++;  
-	}
-	else if (*_it == '-' && std::distance<std::string::const_iterator>(_it,__definition.end())> 3){
-	  if(std::string(_it,_it+3) == "-->"){
-		definition.insert(definition.end(),_beg,_it);
-		_it += 3;
-		size_t pprod_id;
-		definition += "return ";
-		definition += "pproduce";
-		definition += LpyParsing::lstring2pyparam(_it,__definition.end(),'\n',lineno==-1?lineno:lineno+llineno,&pprod_id);
-		_beg = _it;
-		if (LsysContext::current()->optimizationLevel >= 1 &&!ParametricProduction::get(pprod_id)->hasArgs()) 
-			setStatic();
-	  }
-	  else _it++;
-	}
-	else if (*_it == 'p' && std::distance<std::string::const_iterator>(_it,__definition.end())> 7 && (_it == _beg || !isalnum(*(_it-1)) && *(_it-1) != '_')){
-	  if(std::string(_it,_it+7) == "produce"){
-		definition.insert(definition.end(),_beg,_it);
-		_it += 7;
-		while(_it != __definition.end() && (*_it == ' ' || *_it == '\t') )++_it;
-		char endproduction = '\n';
-		if(*_it == '(') { endproduction = ')'; ++_it; }
-		definition += "return ";
-		definition += "pproduce";
-		definition += LpyParsing::lstring2pyparam(_it,__definition.end(),endproduction,lineno==-1?lineno:lineno+llineno);
-		if (endproduction == ')') ++_it;
-		_beg = _it;
-	  }
-	  else _it++;
-	}
-	else if(*_it == 'm' && std::distance<std::string::const_iterator>(_it,__definition.end())> 10){
-	  if(std::string(_it,_it+10) == "makestring"){
-		 definition.insert(definition.end(),_beg,_it);
-		 _it += 10;
-		 while(_it != __definition.end() && (*_it == ' ' || *_it == '\t') )++_it;
-		 char endproduction = '\n';
-		 if(*_it == '(') { endproduction = ')'; ++_it; }
-		 definition += "AxialTree(";
-         definition += LpyParsing::lstring2py(_it,__definition.end(),endproduction,lineno==-1?lineno:lineno+llineno);
-         definition += ')';
- 		 if (endproduction == ')') ++_it;
-		 _beg = _it;
-      }
-      else _it++;
-    }
-	else if(*_it == 'n' && std::distance<std::string::const_iterator>(_it,__definition.end())> 8){
-	  if(std::string(_it,_it+8) == "nproduce"){
-		definition.insert(definition.end(),_beg,_it);
-		_it += 8;
-		while(_it != __definition.end() && (*_it == ' ' || *_it == '\t') )++_it;
-		char endproduction = '\n';
-		if(*_it == '(') { endproduction = ')'; ++_it; }
-		definition += "pproduce";
-		definition += LpyParsing::lstring2pyparam(_it,__definition.end(),endproduction,lineno==-1?lineno:lineno+llineno);
-		if (endproduction == ')') ++_it;
-		_beg = _it;
-	  }
-	  else _it++;
-	}
-	else _it++;
-  }
-  if(_beg!=_it)definition += std::string(_beg,_it);
-  if(definition.empty()) res << "\t\tpass\n";
-  else {
-	res << definition;
-	if (*(__definition.end()-1) != '\t' && *(__definition.end()-1) != '\n') res << "\n";
-  }
-  std::stringstream head;
-  head << "def " << functionName() << "(";
-  if(!__formalparameters.empty())
-    for(std::vector<std::string>::const_iterator _it = __formalparameters.begin();
-    _it != __formalparameters.end(); ++_it){
-	     if(_it != __formalparameters.begin()) 
-            head << ',';
-	    head << *_it;
-  }
-  head << ") :"; //  #" << name() << "\n";
-  return head.str() + res.str();
-}
 
 void LsysRule::setStatic()
 {
@@ -450,6 +362,8 @@ LsysRule::apply( const ArgList& args, bool * isApplied ) const
 	return __staticResult;
   }
   if (!isCompiled()) LsysError("Python code of rule not compiled");
+
+  LstringMatcherMaintainer m(__lstringmatcher);
   size_t argsize = len(args);
   __precall_function(argsize,args);
   return __postcall_function(__call_function(argsize,args),isApplied); 
@@ -465,6 +379,8 @@ LsysRule::apply( bool * isApplied ) const
 	return __staticResult;
   }
   if (!isCompiled()) LsysError("Python code of rule not compiled");
+
+  LstringMatcherMaintainer m(__lstringmatcher);
   __precall_function();
   return __postcall_function(__function(),isApplied); 
 }
@@ -553,6 +469,7 @@ void LsysRule::keepOnlyRelevantVariables()
 
 /*---------------------------------------------------------------------------*/
 
+
 bool
 LsysRule::match(const AxialTree& src,
 			   AxialTree::const_iterator pos,
@@ -584,15 +501,16 @@ LsysRule::match(const AxialTree& src,
   }
 
   // left context
-  AxialTree::const_iterator endpos2;
+  AxialTree::const_iterator endposLeft = (direction == eForward?pos:pos+1);
   if(!__leftcontext.empty()){
-      if(!MatchingEngine::left_match(direction == eForward?pos:pos+1,src.const_begin(),src.const_end(),
+      if(!MatchingEngine::left_match(endposLeft,src.const_begin(),src.const_end(),
 		                              __leftcontext.const_rbegin(),__leftcontext.const_rend(),
-									  endpos2,args))
+									  endposLeft,args))
 	       return false;
   }
 
   // new left context
+  AxialTree::const_iterator endposNewLeft;
   if(direction == eForward && !__newleftcontext.empty()){
 	ArgList args_ncg;
     // Here we do a hack to add the current element to the new string to have scale information.
@@ -600,7 +518,7 @@ LsysRule::match(const AxialTree& src,
     dest2->push_back(pos);
     if(!MatchingEngine::left_match(dest2->const_end()-1,dest2->const_begin(),dest2->const_end(),
 		                          __newleftcontext.const_rbegin(),__newleftcontext.const_rend(),
-								  endpos2,args_ncg)){
+								  endposNewLeft,args_ncg)){
         return false;
         dest2->erase(dest2->end()-1);
     }
@@ -611,23 +529,39 @@ LsysRule::match(const AxialTree& src,
   ArgsCollector::append_args(args,args_pred);
 
   // new right context
+  AxialTree::const_iterator endposNewRight;
+  AxialTree::const_iterator endposNewRightLastMatch = last_match;
   if(direction == eBackward && !__newrightcontext.empty()){
 	ArgList args_ncd;
     if(!MatchingEngine::right_match(dest.const_begin(),dest.const_begin(),dest.const_end(),
 		                          __newrightcontext.const_begin(),__newrightcontext.const_end(),
-								  last_match,endpos2,args_ncd))
+<<<<<<< .mine								  endposNewRightLastMatch,endposNewRight,args_ncd))return false;
+=======								  last_match,endpos2,args_ncd))
         return false;
-	ArgsCollector::append_args(args,args_ncd);
+>>>>>>> .theirs	ArgsCollector::append_args(args,args_ncd);
   }
 
   // right context
+  AxialTree::const_iterator endposRight = endpos1;
+  AxialTree::const_iterator endposRightLastMatch = last_match;
   if(!__rightcontext.empty()){
 	ArgList args_cd;
     if(!MatchingEngine::right_match(endpos1,src.const_begin(),src.const_end(),
 		                          __rightcontext.const_begin(),__rightcontext.const_end(),
-								  last_match,endpos2,args_cd))return false;
+								  endposRightLastMatch,endposRight,args_cd))return false;
 	ArgsCollector::append_args(args,args_cd);
   }
+  const_cast<LsysRule *>(this)->__lstringmatcher = LstringMatcherPtr(new LstringMatcher(src.const_begin(),	
+					   src.const_end(),
+					   endposLeft,
+					   // endposNewLeft,
+					   endposRight,
+					   endposRightLastMatch //,
+					   // endposNewRight,
+					   // endposRightLastMatch
+					   ));
+
+
   if (direction == eForward) endpos = endpos1;
   else                       endpos = pos;
   return true;

@@ -1,0 +1,23 @@
+NBB = 10
+
+Axiom: 
+  nproduce C
+  for i in xrange(NBB):
+    nproduce B
+  produce A
+
+derivation length: 1
+production:
+
+A :
+  nbB = 0
+  while InLeftContext(B):
+    nbB += 1
+  print 'Found',nbB,'B'
+  assert nbB == NBB
+  produce C
+
+interpretation:
+
+
+endlsystem

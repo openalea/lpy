@@ -33,6 +33,7 @@
 
 #include "abstractlstring.h"
 #include "patternmodule.h"
+#include <queue>
 
 LPY_BEGIN_NAMESPACE
 
@@ -61,6 +62,33 @@ public:
 
   std::string str() const;
   std::string repr() const;
+
+};
+
+/*---------------------------------------------------------------------------*/
+
+
+class PatternStringManager {
+	friend class PatternString;
+public:
+
+	static PatternStringManager& get(); 
+	~PatternStringManager();
+
+	const PatternString& get_pattern(size_t pid);
+	size_t register_pattern(const PatternString& pattern);
+	void remove_pattern(size_t pid);
+
+protected:
+	typedef std::vector<PatternString> PatternStringMap;
+
+	static PatternStringManager * Instance;
+
+	PatternStringManager();
+
+	PatternStringMap __patterns;
+	std::queue<size_t> __free_indices;
+	PatternString __nullpattern;
 
 };
 

@@ -125,3 +125,65 @@ std::string PatternString::repr() const{
 
 
 /*---------------------------------------------------------------------------*/
+
+
+PatternStringManager * PatternStringManager::Instance(0);
+
+PatternStringManager& PatternStringManager::get()
+{
+	if (PatternStringManager::Instance == NULL)
+		PatternStringManager::Instance = new PatternStringManager();
+	return *PatternStringManager::Instance;
+}
+
+PatternStringManager::~PatternStringManager()
+{
+}
+
+PatternStringManager::PatternStringManager():
+	__patterns(), __free_indices()
+{
+}
+
+#include <plantgl/tool/util_string.h>
+
+const PatternString& PatternStringManager::get_pattern(size_t pid)
+{
+	if (pid < __patterns.size())
+	{
+		return __patterns[pid];
+	}
+	else 
+	{
+		std::string msg("Cannot find parametric production ");
+		msg += TOOLS(number(pid));
+		LsysError(msg);
+		return __nullpattern;
+	}
+}
+
+size_t PatternStringManager::register_pattern(const PatternString& pattern)
+{
+	size_t pid;
+	if (__free_indices.empty()){
+		pid = __patterns.size();
+		__patterns.push_back(pattern);
+	}
+	else {
+		pid = __free_indices.front();
+		__free_indices.pop();
+		__patterns[pid] = pattern;
+	}
+	return pid;
+}
+
+void PatternStringManager::remove_pattern(size_t pid)
+{
+	if (pid == __patterns.size())
+		__patterns.pop_back();
+	else {
+		__free_indices.push(pid);
+		__patterns[pid] = PatternString();
+	}
+}
+

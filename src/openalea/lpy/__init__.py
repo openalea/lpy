@@ -162,3 +162,6 @@ def __lsystem_setattribute__(self,name,value):
 
 Lsystem.__getattr__ =  __lsystem_getattribute__
 Lsystem.__setattr__ =  __lsystem_setattribute__
+
+
+

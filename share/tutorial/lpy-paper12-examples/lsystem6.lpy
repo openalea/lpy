@@ -126,7 +126,7 @@ N(x,t) :
     nproduce _(maxwidth*w1)
     nb,reminder = divmod(x,0.2)
     if nb > 0:
-      for i in xrange(nb):
+      for i in xrange(int(nb)):
         lr = maxwidth*(w1+(w2-w1)*((i+1)/nb))
         #print lr
         nproduce F(0.2,lr)

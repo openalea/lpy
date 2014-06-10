@@ -92,12 +92,10 @@ has_keyword_pattern(std::string::const_iterator& pos,
 	                std::string::const_iterator beg,
 	                std::string::const_iterator end,
 			        const std::string& pattern){
-
   size_t s = pattern.size();
+  if (std::distance(pos,end) < s) return false;
   std::string::const_iterator res = pos+s;
-  if (
-	  (std::distance(pos,end) >= s) && 
-	  (std::string(pos,pos+s) == pattern)  && 
+  if ((std::string(pos,pos+s) == pattern)  && 
 	  ( (pos==beg) || !isalnum(*(pos-1)) )  && 
 	  ( (res==end) || !isalnum(*(res)) )
 	 ){
@@ -135,7 +133,7 @@ void ToEndline(std::string::const_iterator& _it, std::string::const_iterator _en
 
 inline 
 void ToEndlineA(std::string::const_iterator& _it,std::string::const_iterator _end, int& lineno){
-	while( _it!=_end && (*_it)!='\n' && (*_it)!='A' && (*_it)!='a' && (*_it)!='m' && (*_it)!='n' && (*_it)!='p' && (*_it)!='#' && (*_it)!='\'' && (*_it)!='"' ) ++_it;
+	while( _it!=_end && (*_it)!='\n' && (*_it)!='A' && (*_it)!='I' && (*_it)!='a' && (*_it)!='m' && (*_it)!='n' && (*_it)!='p' && (*_it)!='#' && (*_it)!='\'' && (*_it)!='"' ) ++_it;
     if(_it!=_end && (*_it)=='\n') 
     { 
         ++lineno; ++_it;
@@ -155,6 +153,69 @@ bool notOnlySpace(std::string::const_iterator beg, std::string::const_iterator e
         else ++beg;
 	return false;
 }
+
+/*---------------------------------------------------------------------------*/
+std::string::const_iterator next_token(std::string::const_iterator _it2,
+									   std::string::const_iterator end,
+									   bool withbrackets = true)
+{
+    if(_it2 != end){
+		  if(*_it2 == '"'){ // skip string
+			_it2++;
+			while(_it2 != end && *_it2 != '"')_it2++;
+			if(_it2 != end)_it2++;
+		  }
+		  else if(*_it2 == '\''){ // skip string
+			_it2++;
+			while(_it2 != end && *_it2 != '\'')_it2++;
+			if(_it2 != end)_it2++;
+		  }
+		  else if(*_it2 == '('){ // skip expression
+			int nbOpenParenthesis = 1;
+			while(_it2 != end && (*_it2 != ')' || nbOpenParenthesis > 0)){
+				_it2++;
+				if(_it2 != end)
+					if(*_it2 == '(') ++nbOpenParenthesis;
+					else if (*_it2 == ')') --nbOpenParenthesis;
+					// skip strings
+					else if(*_it2 == '"') { _it2++; while(_it2 != end && *_it2 != '"')_it2++; }
+					else if(*_it2 == '\''){ _it2++; while(_it2 != end && *_it2 != '\'')_it2++; }
+			}
+			if(_it2 != end)_it2++;
+		  }
+		 else if(withbrackets && *_it2 == '['){ // skip array
+			int nbOpenBracket = 1;
+			while(_it2 != end && (*_it2 != ']' || nbOpenBracket > 0)){
+				_it2++;
+				if(_it2 != end)
+					if(*_it2 == '[') ++nbOpenBracket;
+					else if (*_it2 == ']') --nbOpenBracket;
+					// skip strings
+					else if(*_it2 == '"') { _it2++; while(_it2 != end && *_it2 != '"')_it2++; }
+					else if(*_it2 == '\''){ _it2++; while(_it2 != end && *_it2 != '\'')_it2++; }
+			}
+			if(_it2 != end)_it2++;
+		  }
+		  else if(withbrackets && *_it2 == '{'){ // skip dict
+			int nbOpenBracket = 1;
+			while(_it2 != end && (*_it2 != '}' || nbOpenBracket > 0)){
+				_it2++;
+				if(_it2 != end)
+					if(*_it2 == '{') ++nbOpenBracket;
+					else if (*_it2 == '}') --nbOpenBracket;
+					// skip strings
+					else if(*_it2 == '"') { _it2++; while(_it2 != end && *_it2 != '"')_it2++; }
+					else if(*_it2 == '\''){ _it2++; while(_it2 != end && *_it2 != '\'')_it2++; }
+			}
+			if(_it2 != end)_it2++;
+		  }
+		  else _it2++;
+	}
+	return _it2;
+}
+
+/*---------------------------------------------------------------------------*/
+
 
 /*---------------------------------------------------------------------------*/
 
@@ -217,6 +278,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
   __clear();
   if(!filename.empty())setFilename(filename);
   filename = getShortFilename();
+//  printf("A\n");
   ContextMaintainer m(&__context);
 #ifndef _WIN32
   std::string _rules_ = _rules;
@@ -259,11 +321,14 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
   
   //  context initialisation
   size_t initpos = __context.__initialiseFrom(rules);
-  __context.updateNamespace(parameters);
+  if (len(parameters) > 0){
+	  __context.updateNamespace(parameters);
+  }
 
   if (initpos != std::string::npos) endpycode = rules.begin()+initpos;
 
   while(_it!=endpycode){
+	printf("******'%c' %i\n",*_it,std::distance(begcode,_it));
 	switch(mode){
 	case -1:
 	  {
@@ -575,6 +640,32 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 			beg = _it;
 		  }
 		  else toendlineA(_it,endpycode);
+		  break;
+		case 'I': // python comments before rules
+		  _it2 = _it;
+			if (has_keyword_pattern(_it,begcode,endpycode,"InLeftContext") || has_keyword_pattern(_it,begcode,endpycode,"InRightContext")){
+				code+=std::string(beg,_it2);
+				while(_it != endpycode && (*_it == ' ' || *_it == '\t') )++_it;
+		
+				if(*_it != '(') LsysParserSyntaxError("Cannot find opening bracket of InContext");
+				std::string::const_iterator eit = next_token(_it,endpycode);
+				std::string::const_iterator epit = eit-1;
+				while (epit != _it && *epit != ',') {
+					--epit;
+					if (epit != _it && *epit == ')') 
+						while (epit != _it && *epit != '(') --epit;
+				}
+				if (epit == _it){
+					LsysParserWarning("No parameter dictionnay found in arguments. ");
+					epit = eit-1;
+				}
+
+				PatternString q(std::string(_it+1,epit),lineno);
+				size_t pid = PatternStringManager::get().register_pattern(q);
+				code += std::string("p")+std::string(_it2,_it+1)+TOOLS(number)(pid)+std::string(epit,eit);
+				beg = eit;
+			}
+			else { if(_it!=endpycode)++_it; toendlineA(_it,endpycode); }
 		  break;
 		default:
 		  toendlineA(_it,endpycode);
@@ -1016,64 +1107,133 @@ void LsysRule::set( const std::string& rule ){
 }
 
 /*---------------------------------------------------------------------------*/
-std::string::const_iterator next_token(std::string::const_iterator _it2,
-									   std::string::const_iterator end,
-									   bool withbrackets = true)
-{
-    if(_it2 != end){
-		  if(*_it2 == '"'){ // skip string
-			_it2++;
-			while(_it2 != end && *_it2 != '"')_it2++;
-			if(_it2 != end)_it2++;
-		  }
-		  else if(*_it2 == '\''){ // skip string
-			_it2++;
-			while(_it2 != end && *_it2 != '\'')_it2++;
-			if(_it2 != end)_it2++;
-		  }
-		  else if(*_it2 == '('){ // skip expression
-			int nbOpenParenthesis = 1;
-			while(_it2 != end && (*_it2 != ')' || nbOpenParenthesis > 0)){
-				_it2++;
-				if(_it2 != end)
-					if(*_it2 == '(') ++nbOpenParenthesis;
-					else if (*_it2 == ')') --nbOpenParenthesis;
-					// skip strings
-					else if(*_it2 == '"') { _it2++; while(_it2 != end && *_it2 != '"')_it2++; }
-					else if(*_it2 == '\''){ _it2++; while(_it2 != end && *_it2 != '\'')_it2++; }
-			}
-			if(_it2 != end)_it2++;
-		  }
-		 else if(withbrackets && *_it2 == '['){ // skip array
-			int nbOpenBracket = 1;
-			while(_it2 != end && (*_it2 != ']' || nbOpenBracket > 0)){
-				_it2++;
-				if(_it2 != end)
-					if(*_it2 == '[') ++nbOpenBracket;
-					else if (*_it2 == ']') --nbOpenBracket;
-					// skip strings
-					else if(*_it2 == '"') { _it2++; while(_it2 != end && *_it2 != '"')_it2++; }
-					else if(*_it2 == '\''){ _it2++; while(_it2 != end && *_it2 != '\'')_it2++; }
-			}
-			if(_it2 != end)_it2++;
-		  }
-		  else if(withbrackets && *_it2 == '{'){ // skip dict
-			int nbOpenBracket = 1;
-			while(_it2 != end && (*_it2 != '}' || nbOpenBracket > 0)){
-				_it2++;
-				if(_it2 != end)
-					if(*_it2 == '{') ++nbOpenBracket;
-					else if (*_it2 == '}') --nbOpenBracket;
-					// skip strings
-					else if(*_it2 == '"') { _it2++; while(_it2 != end && *_it2 != '"')_it2++; }
-					else if(*_it2 == '\''){ _it2++; while(_it2 != end && *_it2 != '\'')_it2++; }
-			}
-			if(_it2 != end)_it2++;
-		  }
-		  else _it2++;
+
+std::string 
+LsysRule::getCoreCode() {
+  std::stringstream res;
+  int llineno = 0;
+  std::string definition;
+  std::string::const_iterator _beg = __definition.begin();
+  std::string::const_iterator _end = __definition.end();
+  std::string::const_iterator _lastit = __definition.begin();
+  std::string::const_iterator _it = _lastit;
+  while( _it != _end){
+	std::string::const_iterator _cit = _it;
+	if (*_it == '\n') { ++llineno; _it++;}
+	else if (*_it == '#') { while(_it != _end && *_it != '\n') _it++; }
+	else if (*_it == '\'') 
+	{ 
+	  _it++;  
+	  while(_it != _end && *_it != '\'') { if (*_it == '\n') { ++llineno; } _it++; } 
+	  if (_it != _end) _it++;  
 	}
-	return _it2;
+	else if (*_it == '"') 
+	{ 
+		_it++;  
+		while(_it != _end && *_it != '"') { if (*_it == '\n') { ++llineno; } _it++; } 
+	    if (_it != _end) _it++;  
+	}
+	else if (*_it == '-' && std::distance<std::string::const_iterator>(_it,_end)> 3){
+	  if(std::string(_it,_it+3) == "-->"){
+		definition.insert(definition.end(),_lastit,_it);
+		_it += 3;
+		size_t pprod_id;
+		definition += "return ";
+		definition += "pproduce";
+		definition += LpyParsing::lstring2pyparam(_it,_end,'\n',lineno==-1?lineno:lineno+llineno,&pprod_id);
+		_lastit = _it;
+		if (LsysContext::current()->optimizationLevel >= 1 &&!ParametricProduction::get(pprod_id)->hasArgs()) 
+			setStatic();
+	  }
+	  else _it++;
+	}
+	else if (has_keyword_pattern(_it,_beg,_end,"produce") ) {
+		// if (*_it == 'p' && std::distance<std::string::const_iterator>(_it,_end)> 7 && (_it == _beg || !isalnum(*(_it-1)) && *(_it-1) != '_')){
+	    // if(std::string(_it,_it+7) == "produce"){
+		definition.insert(definition.end(),_lastit,_cit);
+		while(_it != _end && (*_it == ' ' || *_it == '\t') )++_it;
+		char endproduction = '\n';
+		if(*_it == '(') { endproduction = ')'; ++_it; }
+		definition += "return ";
+		definition += "pproduce";
+		definition += LpyParsing::lstring2pyparam(_it,_end,endproduction,lineno==-1?lineno:lineno+llineno);
+		if (endproduction == ')') ++_it;
+		_lastit = _it;
+	  // }
+	  // else _it++;
+	}
+	else if(*_it == 'm' && std::distance<std::string::const_iterator>(_it,_end)> 10){
+	  if(std::string(_it,_it+10) == "makestring"){
+		 definition.insert(definition.end(),_lastit,_it);
+		 _it += 10;
+		 while(_it != _end && (*_it == ' ' || *_it == '\t') )++_it;
+		 char endproduction = '\n';
+		 if(*_it == '(') { endproduction = ')'; ++_it; }
+		 definition += "AxialTree(";
+         definition += LpyParsing::lstring2py(_it,_end,endproduction,lineno==-1?lineno:lineno+llineno);
+         definition += ')';
+ 		 if (endproduction == ')') ++_it;
+		 _lastit = _it;
+      }
+      else _it++;
+    }
+	else if(*_it == 'n' && std::distance<std::string::const_iterator>(_it,_end)> 8){
+	  if(std::string(_it,_it+8) == "nproduce"){
+		definition.insert(definition.end(),_lastit,_it);
+		_it += 8;
+		while(_it != _end && (*_it == ' ' || *_it == '\t') )++_it;
+		char endproduction = '\n';
+		if(*_it == '(') { endproduction = ')'; ++_it; }
+		definition += "pproduce";
+		definition += LpyParsing::lstring2pyparam(_it,_end,endproduction,lineno==-1?lineno:lineno+llineno);
+		if (endproduction == ')') ++_it;
+		_lastit = _it;
+	  }
+	  else _it++;
+	}
+    else if (has_keyword_pattern(_it,_beg,_end,"InLeftContext") || has_keyword_pattern(_it,_beg,_end,"InRightContext")){
+		definition.insert(definition.end(),_lastit,_cit);
+		while(_it != _end && (*_it == ' ' || *_it == '\t') )++_it;
+		
+		if(*_it != '(') LsysError("Cannot find opening bracket of InContext","",lineno==-1?lineno:lineno+llineno);
+		std::string::const_iterator eit = next_token(_it,_end);
+		std::string::const_iterator epit = eit-1;
+		while (epit != _it && *epit != ',') {
+			--epit;
+			if (epit != _it && *epit == ')') 
+				while (epit != _it && *epit != '(') --epit;
+		}
+		if (epit == _it){
+			LsysWarning("No parameter dictionnay found in arguments. ","",lineno==-1?lineno:lineno+llineno);
+			epit = eit-1;
+		}
+
+		PatternString q(std::string(_it+1,epit),lineno==-1?lineno:lineno+llineno);
+		size_t pid = PatternStringManager::get().register_pattern(q);
+		definition += std::string("p")+std::string(_cit,_it+1)+TOOLS(number)(pid)+std::string(epit,eit);
+		_lastit = eit;
+    }
+	else _it++;
+  }
+  if(_lastit!=_it)definition += std::string(_lastit,_it);
+  if(definition.empty()) res << "\t\tpass\n";
+  else {
+	res << definition;
+	if (*(_end-1) != '\t' && *(_end-1) != '\n') res << "\n";
+  }
+  std::stringstream head;
+  head << "def " << functionName() << "(";
+  if(!__formalparameters.empty())
+    for(std::vector<std::string>::const_iterator _it = __formalparameters.begin();
+    _it != __formalparameters.end(); ++_it){
+	     if(_it != __formalparameters.begin()) 
+            head << ',';
+	    head << *_it;
+  }
+  head << ") :"; //  #" << name() << "\n";
+  return head.str() + res.str();
 }
+
 /*---------------------------------------------------------------------------*/
 	
 // cg < ncg << pred >> ncd > cd

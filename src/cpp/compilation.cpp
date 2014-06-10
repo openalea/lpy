@@ -58,13 +58,13 @@ void Compilation::setPythonExec(const std::string& path)
 }
 
 
-void Compilation::compile(const std::string& code, PyObject * locals, PyObject * globals, const std::string& fname){
+void Compilation::compile(const std::string& code, PyObject * globals, PyObject * locals, const std::string& fname){
 	if(!code.empty()){
 		switch(Compiler){
-			case eCython: pyx_file_compile(code,fname,locals,globals); break;
-			case ePythonFile : py_file_compile(code,fname,locals,globals); break;
+			case eCython:      pyx_file_compile (code, fname, globals, locals); break;
+			case ePythonFile : py_file_compile  (code, fname, globals, locals); break;
 			default:
-			case ePythonStr : py_string_compile(code,locals,globals); break;
+			case ePythonStr :  py_string_compile(code, globals, locals); break;
 		}
 	}
 }
@@ -78,7 +78,8 @@ std::string Compilation::python_exec = "python";
 
 void Compilation::py_string_compile(const std::string& code, PyObject * globals, PyObject * locals)
 {
-	bp::handle<>( PyRun_String(code.c_str(),Py_file_input,globals,locals) );
+	bp::exec(bp::str(code.c_str()),bp::object(bp::handle<>(bp::borrowed(globals))),bp::object(bp::handle<>(bp::borrowed(locals))));
+	// bp::handle<>( PyRun_String(code.c_str(),Py_file_input,globals,locals) );
 }
 
 std::string Compilation::generate_fname(const std::string& fname)

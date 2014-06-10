@@ -1,0 +1,17 @@
+Axiom: D D A(1) B
+
+derivation length: 1
+production:
+
+B :
+  params = {}
+  if inLeftContext('A(x)', params) :
+    assert InLeftContext(G) == False
+    assert InLeftContext(D) == True
+    produce C
+  else: raise ValueError('inLeftContext')
+
+interpretation:
+
+
+endlsystem

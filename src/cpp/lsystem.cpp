@@ -34,6 +34,7 @@
 #include "tracker.h"
 #include <QtCore/QThread>
 #include <QtCore/QFileInfo>
+#include <QtCore/QDir>
 #include <plantgl/tool/sequencer.h>
 
 using namespace boost::python;
@@ -225,6 +226,7 @@ Lsystem::~Lsystem()
 #ifdef MULTI_THREADED_LSYSTEM
  delete __ressource;
 #endif
+ if(isCurrent())done();
  PRINT_RESSOURCE("delete")
 }
 
@@ -436,6 +438,8 @@ void Lsystem::setFilename( const std::string& filename )
     __context.setObject("__file__",boost::python::object(filename));
     std::string name =  QFileInfo(filename.c_str()).baseName().toStdString();
     __context.setObject("__name__",boost::python::object(name));
+	// std::string path =  QFileInfo(filename.c_str()).absoluteDir().path().toStdString();
+    // __context.setObject("__path__",boost::python::object(path));
 }
 
 std::string Lsystem::getFilename( ) const

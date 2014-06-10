@@ -93,10 +93,12 @@ Axiom: Init
 
 derivation length: nbiter
 production:
+consider: S, U, V, [, ]
 
-Init:
+Init:  
+  nproduce   SectionResolution(8)
   myaxiom = mtg2lstring(initialmtg)
-  
+  myaxiom.insertAt(8252,'%')
   assert myaxiom.wellBracketed()
   nsproduce(myaxiom)
 
@@ -189,9 +191,16 @@ maximum depth: 3
 group 0:
 
 
-S(position,bottomdiameter,topdiameter) --> ,(1) _(bottomdiameter/2) LineTo(position.x,position.y,position.z,topdiameter/2)
-U(position,bottomdiameter,topdiameter) --> ,(2) _(bottomdiameter/2) LineTo(position.x,position.y,position.z,topdiameter/2)
-V(position,bottomdiameter,topdiameter) --> ,(3) _(bottomdiameter/2) LineTo(position.x,position.y,position.z,topdiameter/2)
+*(name0 in 'SUV', position0,bottomdiameter0,topdiameter0) < *(name in 'SUV', position,bottomdiameter,topdiameter) >  [] *(name1 in 'SUV', position1,bottomdiameter1,topdiameter1):
+  pos = position # (position0+position+position1)/3
+  nproduce ,(2)_(bottomdiameter/2) LineTo(pos,topdiameter/2)
+  
+  
+*(name in 'SUV', position,bottomdiameter,topdiameter) :
+  nproduce ,(1)_(bottomdiameter/2) LineTo(position.x,position.y,position.z,topdiameter/2)
+
+# U(position,bottomdiameter,topdiameter) --> ,(2) _(bottomdiameter/2) LineTo(position.x,position.y,position.z,topdiameter/2)
+# V(position,bottomdiameter,topdiameter) --> ,(3) _(bottomdiameter/2) LineTo(position.x,position.y,position.z,topdiameter/2)
 
 
 Bud(dir,diam) --> ,(3) @O(3)
@@ -256,7 +265,7 @@ def __initialiseContext__(context):
 	Color_21.name = "Color_21"
 	context.turtle.setMaterial(21,Color_21)
 	context.options.setSelection('Module inheritance',1)
-	scalars = [('WITHLEAF', False, False, True), ('SEED', 1, 0, 100), ('OLDSTRUCTURE', False, False, True), ('GENERATED_WITH_TROPISM', True, False, True), ('REGENERATE', True, False, True), ('COMPARE', True, False, True), ('FORCE_COMPARE', False, False, True), ('PROP_VIEW', True, False, True), ('RAMIF', 77, 0, 200), ('DETAILS', False, False, True)]
+	scalars = [('WITHLEAF', False), ('SEED', 1, 0, 100), ('OLDSTRUCTURE', False), ('GENERATED_WITH_TROPISM', True), ('REGENERATE', True), ('COMPARE', True), ('FORCE_COMPARE', False), ('PROP_VIEW', True), ('RAMIF', 77, 0, 200), ('DETAILS', False)]
 	context["__scalars__"] = scalars
-	for n,v,mnv,mxv in scalars:
-		context[n] = v
+	for s in scalars:
+		if not s[1] is None : context[s[0]] = s[1]

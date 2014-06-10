@@ -405,7 +405,7 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
         self.sidebar.show() 
         QObject.connect(self.sidebar, SIGNAL('lineClicked(int)'),self.checkLine)
     def checkLine(self,line):
-        self.editor.statusBar().showMessage("Line "+str(line)+" clicked",2000)
+        self.statusBar.showMessage("Line "+str(line)+" clicked",2000)
         if self.sidebar.hasMarkerAt(line):
             if self.hasError and self.errorLine == line:
                 self.clearErrorHightlight()
@@ -423,7 +423,7 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
         self.sidebar.setFont(QFont(self.currentFont()))
         qt.QtGui.QTextEdit.scrollContentsBy(self,dx,dy)
     def focusInEvent ( self, event ):
-        self.editor.currentSimulation().monitorfile()
+        if self.editor : self.editor.currentSimulation().monitorfile()
         return qt.QtGui.QTextEdit.focusInEvent ( self, event )
     def setReplaceTab(self,value):
         self.replaceTab = value
@@ -729,7 +729,7 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
         cursor.endEditBlock()
         cursor.setPosition(pos,QTextCursor.MoveAnchor)
     def hightlightError(self,lineno):
-        self.editor.textEditionWatch = False
+        if self.editor : self.editor.textEditionWatch = False
         if self.hasError:
             self.clearErrorHightlight()
         self.sidebar.addMarkerAt(lineno,ErrorMarker)
@@ -743,7 +743,7 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
         cursor.setCharFormat(errorformat)
         self.gotoLine(lineno)
         self.hasError = True
-        self.editor.textEditionWatch = True
+        if self.editor : self.editor.textEditionWatch = True
     def clearErrorHightlight(self):
         cursor = self.textCursor()
         self.undo()

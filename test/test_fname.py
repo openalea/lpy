@@ -1,5 +1,9 @@
 from openalea.lpy import *
 
-l = Lsystem()
-l.fname = 'toto.lpy'
+def test_fname():
+    l = Lsystem()
+    l.fname = 'toto.lpy'
 
+
+# l = Lsystem()
+# l = LsysContext()

@@ -35,11 +35,13 @@
 #include "patternstring.h"
 #include "argcollector.h"
 #include "paramproduction.h"
+#include "lstringmatcher.h"
 #include "consider.h"
 
 /*---------------------------------------------------------------------------*/
 
 LPY_BEGIN_NAMESPACE
+
 
 class LPY_API LsysRule {
 
@@ -190,6 +192,7 @@ protected:
 	AxialTree __staticResult;
 	uint32_t __codelength;
 	ConsiderFilterPtr __consider;
+	LstringMatcherPtr __lstringmatcher;
 
 private:
     void __precall_function( size_t nbargs = 0 ) const;

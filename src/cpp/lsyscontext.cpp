@@ -75,7 +75,6 @@ protected:
 };
 
 void LsysContext::cleanContexts(){
-    // std::cerr  << "contexts deletion" << std::endl;
 	if (DEFAULT_LSYSCONTEXT){
 		delete DEFAULT_LSYSCONTEXT;
 		DEFAULT_LSYSCONTEXT = NULL;
@@ -88,38 +87,28 @@ void LsysContext::cleanContexts(){
 }
 
 LsysContext *
-LsysContext::global()
+LsysContext::globalContext()
 { 
     if(!GLOBAL_LSYSCONTEXT)  GLOBAL_LSYSCONTEXT = new GlobalContext();
- 	// if(!GLOBAL_LSYSCONTEXT->hasObject("pproduce"))
-	//	GLOBAL_LSYSCONTEXT->LsysContext::compile("from openalea.lpy import *");
 	return GLOBAL_LSYSCONTEXT; 
 }
 
 void createDefaultContext()
 { 
     if(!DEFAULT_LSYSCONTEXT){
-		LsysContext * global =  LsysContext::globalContext();
-        DEFAULT_LSYSCONTEXT = new LocalContext(false);
-        // copy __builtins__ for import and all.
+        DEFAULT_LSYSCONTEXT = new LocalContext();
 
-		DEFAULT_LSYSCONTEXT->copyObject("__builtins__",global);
+		/*
+        // copy __builtins__ for import and all.
+		DEFAULT_LSYSCONTEXT->copyObjectToGlobal("__builtins__",global);
 
 		if (!DEFAULT_LSYSCONTEXT->hasObject("__builtins__"))
-			DEFAULT_LSYSCONTEXT->setObject("__builtins__", object(handle<>(borrowed( PyModule_GetDict(PyImport_AddModule("__builtin__"))))));
+			DEFAULT_LSYSCONTEXT->setObjectToGlobal("__builtins__", object(handle<>(borrowed( PyModule_GetDict(PyImport_AddModule("__builtin__"))))));
 
-		// DEFAULT_LSYSCONTEXT->copyObject("__doc__",global);
         
-        // import pylsystems
-        DEFAULT_LSYSCONTEXT->compile("from openalea.lpy import *");
-        
-        // ---------------------------------------------------------------------
-        // Try to import module in the global namespace with the python/c api
-        // ---------------------------------------------------------------------
-        // PyObject * lpy = PyImport_ImportModule("openalea.lpy");
-        // PyObject * lpy_dict = PyDict_New();
-        // lpy_dict = PyModule_GetDict(lpy);
-        // DEFAULT_LSYSCONTEXT->updateNamespace(lpy_dict);
+        // import lpy
+        DEFAULT_LSYSCONTEXT->compileInGlobal("from openalea.lpy import *");
+        */
    }
 }
 
@@ -131,10 +120,11 @@ LsysContext::defaultContext()
     return DEFAULT_LSYSCONTEXT; 
 }
 
+
 LsysContext *
 LsysContext::current()
 { 
-    if(!CURRENT_LSYSCONTEXT) CURRENT_LSYSCONTEXT = global(); // defaultContext();
+    if(!CURRENT_LSYSCONTEXT) CURRENT_LSYSCONTEXT = globalContext(); // defaultContext();
 	return CURRENT_LSYSCONTEXT; 
 }
 
@@ -206,7 +196,6 @@ void LsysContext::restoreEvent(LsysContext * previousEvent)
 /*---------------------------------------------------------------------------*/
 
 LsysContext::LsysContext():
-// __ignore_method(true),
 __direction(eForward),
 __group(0),
 __selection_always_required(false),
@@ -230,8 +219,6 @@ __paramproductions()
 }
 
 LsysContext::LsysContext(const LsysContext& lsys):
-//  __keyword(lsys.__keyword),
-//  __ignore_method(lsys.__ignore_method),
   __direction(lsys.__direction),
   __group(lsys.__group),
   __nproduction(lsys.__nproduction),
@@ -255,11 +242,32 @@ LsysContext::LsysContext(const LsysContext& lsys):
 	init_options();
 }
 
+LsysContext::LsysContext(const boost::python::dict& locals):
+__direction(eForward),
+__group(0),
+__selection_always_required(false),
+__selection_requested(false),
+__warn_with_sharp_module(true),
+return_if_no_matching(true),
+optimizationLevel(DEFAULT_OPTIMIZATION_LEVEL),
+__animation_step(DefaultAnimationTimeStep),
+__animation_enabled(false),
+__iteration_nb(0),
+__nbargs_of_endeach(0),
+__nbargs_of_end(0),
+__nbargs_of_starteach(0),
+__nbargs_of_start(0),
+__early_return(false),
+__early_return_mutex(),
+__paramproductions(),
+__locals(locals)
+{
+	IncTracker(LsysContext)
+	init_options();
+}
 LsysContext& 
 LsysContext::operator=(const LsysContext& lsys)
 {
-//  __keyword = lsys.__keyword;
-//  __ignore_method =lsys.__ignore_method;
   __direction = lsys.__direction;
   __group = lsys.__group;
   __nproduction = lsys.__nproduction;
@@ -376,8 +384,6 @@ void LsysContext::init_options()
 
 void 
 LsysContext::clear(){
-//  __keyword.clear();
-//  __ignore_method = true;
   __direction = eForward;
   __group = 0;
   __selection_always_required = false;
@@ -398,93 +404,8 @@ LsysContext::clear(){
 
 bool
 LsysContext::empty( ) const {
-  return __modules.empty(); // __keyword.empty();
+  return __modules.empty(); 
 }
-
-/*---------------------------------------------------------------------------*/
-/*
-void
-LsysContext::consider(const std::string& modules){
-  __ignore_method = false;
-  __keyword.clear();
-  if(!modules.empty()){
-	AxialTree t(modules);
-	for(AxialTree::const_iterator _it = t.begin(); _it != t.end(); ++_it)
-	  __keyword[_it->getClass()->getId()] = _it->getClass();
-  }
-}
-
-void
-LsysContext::ignore(const std::string& modules){
-  __ignore_method = true;
-  __keyword.clear();
-  if(!modules.empty()){
-	AxialTree t(modules);
-	for(AxialTree::const_iterator _it = t.begin(); _it != t.end(); ++_it)
-	  __keyword[_it->getClass()->getId()] = _it->getClass();
-  }
-}
-
-bool
-LsysContext::isConsidered(const std::string& module) const{
-  if(__keyword.empty())return true;
-  ModuleClassPtr mclass = ModuleClassTable::get().getClass(module);
-  ModuleClassSet::const_iterator _it = __keyword.find(mclass->getId());
-  if(__ignore_method) return _it == __keyword.end();
-  else {
-	  if (_it != __keyword.end()) return true;
-	  else return mclass->isBracket(); // by default we consider always bracket
-	  // return _it != __keyword.end();
-  }
-}
-
-bool
-LsysContext::isIgnored(const std::string& module) const{
-  if(__keyword.empty())return false;
-  ModuleClassPtr mclass = ModuleClassTable::get().getClass(module);
-  ModuleClassSet::const_iterator _it = __keyword.find(mclass->getId());
-  if(__ignore_method)  return _it != __keyword.end();
-  else {
-	  if (_it != __keyword.end()) return false;
-	  else return !mclass->isBracket(); // by default we consider always bracket
-	  // return _it == __keyword.end();
-  }
-}
-
-bool
-LsysContext::isConsidered(const Module& module) const{
-  if(__keyword.empty())return false;
-  ModuleClassSet::const_iterator _it = __keyword.find(module.getClass()->getId());
-  if(__ignore_method) return _it == __keyword.end();
-  else {
-	  if (_it != __keyword.end()) return true;
-	  else return module.isBracket(); // by default we consider always bracket
-	  // return _it != __keyword.end();
-  }
-}
-
-bool
-LsysContext::isIgnored(const Module& module) const{
-  if(__keyword.empty())return false;
-  ModuleClassSet::const_iterator _it = __keyword.find(module.getClass()->getId());
-  if(__ignore_method) return _it != __keyword.end();
-  else { 
-	  if (_it != __keyword.end()) return false;
-	  else return !module.isBracket(); // by default we consider always bracket
-	  // return _it == __keyword.end();
-  }
-}
-
-std::string
-LsysContext::keyword() const{
-  if(__keyword.empty())return std::string("");
-  std::string res;
-  for(ModuleClassSet::const_iterator _it = __keyword.begin();
-	  _it != __keyword.end(); ++_it)
-	  res += _it->second->name;
-  return res;
-}	
-*/
 /*---------------------------------------------------------------------------*/
 
 void 
@@ -586,30 +507,61 @@ void LsysContext::setModuleScale(const std::string& modules, int scale)
 
 bool 
 LsysContext::hasObject(const std::string& name) const{
-  return false;
+  if (__locals.has_key(name)) return true;  
+  return PyDict_Contains(globals(),object(name).ptr());
 }
 
 object
-LsysContext::getObject(const std::string& name, const boost::python::object& defaultvalue) const{
+LsysContext::getObject(const std::string& name, const boost::python::object& defaultvalue) const
+{
+  if (__locals.has_key(name)) return __locals.get(name,defaultvalue);
+  handle<> res(allow_null(PyDict_GetItemString(globals(),name.c_str())));
+  if(res) return object(handle<>(borrowed(res.get())));
   return defaultvalue;
 }
 
 void 
 LsysContext::setObject(const std::string& name, 
-			   const boost::python::object& o){
+					   const boost::python::object& o)
+{
+  __locals[name] = o;
+}
+
+void 
+LsysContext::setObjectToGlobals(const std::string& name, 
+							   const boost::python::object& o)
+{
+  PyObject * _globals = globals();
+  assert(_globals != NULL);
+  PyDict_SetItemString(_globals,name.c_str(),o.ptr());
 }
 
 void 
 LsysContext::delObject(const std::string& name) {
+  if (__locals.has_key(name)) __locals[name].del();
+  else PyDict_DelItemString(globals(),name.c_str());
 }
 
 bool 
 LsysContext::copyObject(const std::string& name, LsysContext * sourceContext)
 {
 	if (!sourceContext) return false;
-	PyObject * obj = PyDict_GetItemString(sourceContext->Namespace(),name.c_str());
+	boost::python::object obj = sourceContext->getObject(name);
+	if (obj == object()) return false;
+	__locals[name] = obj;
+	return true;
+	// PyObject * obj = PyDict_GetItemString(sourceContext->Namespace(),name.c_str());
+}
+
+
+bool 
+LsysContext::copyObjectToGlobals(const std::string& name, LsysContext * sourceContext)
+{
+	if (!sourceContext) return false;
+	PyObject * obj = PyDict_GetItemString(sourceContext->locals().ptr(),name.c_str());
+	if (obj == NULL) obj = PyDict_GetItemString(sourceContext->globals(),name.c_str());
 	if (obj == NULL) return false;
-	PyDict_SetItemString(Namespace(),name.c_str(),obj);
+	PyDict_SetItemString(globals(),name.c_str(),obj);
 	return true;
 }
 
@@ -617,24 +569,47 @@ LsysContext::copyObject(const std::string& name, LsysContext * sourceContext)
 
 void
 LsysContext::updateNamespace(const boost::python::dict& d){
-  PyDict_Update(Namespace(),d.ptr());
+  PyDict_Update(locals().ptr(),d.ptr());
 }
 
 void 
 LsysContext::updateFromContextNamespace(const LsysContext& other)
 {
-  PyDict_Update(Namespace(),other.Namespace());
+  PyDict_Update(locals().ptr(),other.locals().ptr());
+  PyDict_Update(globals(),other.globals());
 }
 
 void
 LsysContext::getNamespace(boost::python::dict& d) const{
-	PyDict_Update(d.ptr(),Namespace());
+	PyDict_Update(d.ptr(),locals().ptr());
 }
 
 
 void
 LsysContext::clearNamespace() {
+	__locals.clear();
+	// PyDict_Clear(globals());
+	namespaceInitialisation();
 }
+
+void 
+LsysContext::namespaceInitialisation()
+{
+   if (!hasObject("__builtins__"))
+		setObjectToGlobals("__builtins__", object(handle<>(borrowed( PyModule_GetDict(PyImport_AddModule("__builtin__"))))));
+
+   if (!hasObject("nproduce")){
+	   Compilation::compile("from openalea.lpy import *",globals(),globals());
+
+	   /* handle<>  lpymodule (borrowed( PyModule_GetDict(PyImport_AddModule("openalea.lpy"))));
+		PyDict_Update(globals(),lpymodule.get());
+		PyDict_DelItemString(globals(),"__file__");
+		PyDict_DelItemString(globals(),"__doc__");
+		PyDict_DelItemString(globals(),"__path__"); */
+
+   }
+}
+
 
 std::string 
 LsysContext::str() const {
@@ -642,16 +617,17 @@ LsysContext::str() const {
   s << "<LsysContext instance at " << this << " with " << __modules.size() << " declared modules>";
   return s.str();
 }
+
 void 
 LsysContext::compile(const std::string& code) {
   ContextMaintainer c(this);
-  Compilation::compile(code,Namespace(),Namespace());
+  Compilation::compile(code,globals(),locals().ptr());
 }
 
 object 
 LsysContext::compile(const std::string& name, const std::string& code) {
   if(!code.empty()){
-	  Compilation::compile(code,Namespace(),Namespace());
+	  Compilation::compile(code,globals(),locals().ptr());
 	return getObject(name);
   }
   return object();
@@ -662,7 +638,7 @@ LsysContext::evaluate(const std::string& code) {
   if(!code.empty()){
 	dict local_namespace;
 	handle<> result(allow_null( 
-	  PyRun_String(code.c_str(),Py_eval_input,Namespace(),local_namespace.ptr())));
+	  PyRun_String(code.c_str(),Py_eval_input,globals(),local_namespace.ptr())));
 	return object(result);
   }
   return object();
@@ -674,7 +650,7 @@ LsysContext::try_evaluate(const std::string& code) {
   if(!code.empty()){
 	dict local_namespace;
 	handle<> result(allow_null( 
-	  PyRun_String(code.c_str(),Py_eval_input,Namespace(),local_namespace.ptr())));
+	  PyRun_String(code.c_str(),Py_eval_input,globals(),local_namespace.ptr())));
 	if(result)return object(result);
 	else {
 	  PyErr_Clear();
@@ -961,10 +937,46 @@ bool LsysContext::isEarlyReturnEnabled()
 
 /*---------------------------------------------------------------------------*/
 
-LocalContext::LocalContext(bool with_initialisation):
-  LsysContext()
+bool LsysContext::pInLeftContext(size_t pid, boost::python::dict& res)
 { 
-   if(with_initialisation)initialisation();
+	if (is_null_ptr(__lstringmatcher)) LsysError("Cannot call InLeftContext");
+	return __lstringmatcher->pInLeftContext(pid, res);
+}
+
+bool LsysContext::inLeftContext(const PatternString& pattern, boost::python::dict& res)
+{ 
+	if (is_null_ptr(__lstringmatcher)) LsysError("Cannot call inLeftContext");
+	return __lstringmatcher->inLeftContext(pattern, res);
+}
+
+
+bool LsysContext::pInRightContext(size_t pid, boost::python::dict& res)
+{ 
+	if (is_null_ptr(__lstringmatcher)) LsysError("Cannot call InRightContext");
+	return __lstringmatcher->pInRightContext(pid, res);
+}
+
+bool LsysContext::inRightContext(const PatternString& pattern, boost::python::dict& res)
+{ 
+	if (is_null_ptr(__lstringmatcher)) LsysError("Cannot call inRightContext");
+	return __lstringmatcher->inRightContext(pattern, res);
+}
+
+
+/*---------------------------------------------------------------------------*/
+
+LocalContext::LocalContext(const boost::python::dict& globals):
+  LsysContext(globals),
+  __globals(globals)
+{ 
+   namespaceInitialisation();
+}
+
+LocalContext::LocalContext(const boost::python::dict& locals, const boost::python::dict& globals):
+  LsysContext(locals),
+  __globals(globals)
+{ 
+   namespaceInitialisation();
 }
 
 LocalContext::~LocalContext()
@@ -988,144 +1000,38 @@ LocalContext::~LocalContext()
 	}
 }
 
-bool 
-LocalContext::hasObject(const std::string& name) const{
-  return __namespace.has_key(name);
-}
-
-object 
-LocalContext::getObject(const std::string& name, const boost::python::object& defaultvalue) const{
-  return __namespace.get(name,defaultvalue);
-}
-
-void 
-LocalContext::setObject(const std::string& name, 
-			   const boost::python::object& o){
-  __namespace[name] = o;
-}
-
-void 
-LocalContext::delObject(const std::string& name) {
-  __namespace[name].del();
-}
 
 void
 LocalContext::clearNamespace() {
-  __namespace.clear();
-  initialisation();
+  __locals.clear();
+  namespaceInitialisation();
 }
 
-void 
-LocalContext::updateNamespace(const dict& d){
-  __namespace.update(d);
-}
-
-void 
-LocalContext::getNamespace(dict& d) const{
-  d.update(__namespace);
-}
 
 PyObject * 
-LocalContext::Namespace() const 
-{ return __namespace.ptr(); }
-
-void 
-LocalContext::initialisation()
-{
-   if(!DEFAULT_LSYSCONTEXT) createDefaultContext();
-   defaultContext()->getNamespace(__namespace);
-}
+LocalContext::globals() const 
+{ return __globals.ptr(); }
 
 /*---------------------------------------------------------------------------*/
 
 GlobalContext::GlobalContext():
   LsysContext(){
-	// handle<> main_module(borrowed(  ));
-    // __namespace = handle<>(borrowed( PyModule_GetDict(main_module.get())));
-    __namespace = handle<>(borrowed( PyModule_GetDict(PyImport_AddModule("__main__"))));
+    __globals = handle<>(borrowed( PyModule_GetDict(PyImport_AddModule("__main__"))));
 }
 
 GlobalContext::~GlobalContext()
 {
-	// std::cerr << "global context deleted" << std::endl;
 
 	if(!(LSYSCONTEXT_STACK.empty() && isCurrent()))
 		while(!isCurrent()) currentContext()->done();
 	assert(LSYSCONTEXT_STACK.empty() && isCurrent() && "LsysContext not all done!");
-	// assert(LSYSCONTEXT_STACK.empty());
-}
-
-bool 
-GlobalContext::hasObject(const std::string& name) const{
-#if PY_MAJOR_VERSION > 2 
-  return PyDict_Contains(__namespace.get(),object(name).ptr());
-#elif PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION > 3
-  return PyDict_Contains(__namespace.get(),object(name).ptr());
-#else
-  try {
-	object t = getObject(name);
-	return t != object();
-  }
-  catch( error_already_set ){ PyErr_Clear(); return false; }
-#endif
-}
-
-object 
-GlobalContext::getObject(const std::string& name, const boost::python::object& defaultvalue) const{
-  handle<> res(allow_null(PyDict_GetItemString(__namespace.get(),name.c_str())));
-  if(res) {
-	return object(handle<>(borrowed(res.get())));
-  }
-  else {
-	// PyErr_SetString(PyExc_KeyError, name.c_str());
-    // throw_error_already_set();
-	return defaultvalue;
-  }
-}
-
-void
-GlobalContext::clearNamespace() {
-  // PyDict_Clear(__namespace.get());
-	__local_namespace.clear();
-}
-
-void 
-GlobalContext::setObject(const std::string& name, 
-			   const boost::python::object& o){
-  PyDict_SetItemString(__namespace.get(),name.c_str(),o.ptr());
-}
-
-void 
-GlobalContext::delObject(const std::string& name) {
-  PyDict_DelItemString(__namespace.get(),name.c_str());
-}
-
-
-void 
-GlobalContext::updateNamespace(const dict& d){
-  PyDict_Update(__namespace.get(),d.ptr());
-}
-
-void 
-GlobalContext::getNamespace(dict& d) const{
-  PyDict_Update(d.ptr(),__namespace.get());
 }
 
 
 PyObject * 
-GlobalContext::Namespace()  const 
-{ return __namespace.get(); }
+GlobalContext::globals()  const 
+{ return __globals.get(); }
 
-
-
-object 
-GlobalContext::compile(const std::string& name, const std::string& code) {
-  if(!code.empty()){
-	Compilation::compile(code,__namespace.get(),__local_namespace.ptr());
-	return __local_namespace[name];
-  }
-  return object();
-}
 
 boost::python::object GlobalContext::__reprFunc;
 
@@ -1138,7 +1044,6 @@ boost::python::object
 GlobalContext::getFunctionRepr() {
 	if(__reprFunc == boost::python::object()){
 		__reprFunc =  boost::python::make_function(bprepr);
-        // defaultContext()->getObject("__builtins__").attr("__dict__")["repr"];
     }
 	return __reprFunc;
 }

@@ -1,0 +1,17 @@
+Axiom: A(2) B
+
+derivation length: 1
+production:
+
+B :
+  args = {}
+  if InLeftContext(A(x), args) :
+    print args['x']
+    
+
+
+
+interpretation:
+
+
+endlsystem

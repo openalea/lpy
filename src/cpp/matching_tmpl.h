@@ -548,6 +548,8 @@ struct TreeRightMatcher
 		}
 
 		argtype lparams;
+
+
 		it = NextElement::initial_next(it,it2,last_matched,string_end);				
 		bool nextpattern = true;
 		bool nextsrc = true;
@@ -555,6 +557,7 @@ struct TreeRightMatcher
 			nextpattern = true;
 			nextsrc = true;
 			if(it2->isStar()){
+				/// We should take into account when scale is asked
 				argtype lp;
 				if(MatchingEngine::module_match(*it,*it2,lp)){ 
 					ArgsCollector::append_args(lparams,lp);
@@ -562,6 +565,7 @@ struct TreeRightMatcher
 				else return false;
 			}
 			else if(it2->isGetIterator()){
+				/// We should take into account when scale is asked
 				process_get_iterator(it2,it,string_end,lparams);
 				nextsrc = false;
 			}
@@ -569,12 +573,17 @@ struct TreeRightMatcher
 				nextsrc = false;
 			}
 			else if(it2->isGetModule()){
-				if(!process_get_module(it2,it,string_beg,string_end,lparams)) return false;
+				/// We should take into account when scale is asked
+				if(!process_get_module(it2,it,string_beg,string_end,lparams))
+					return false;
 			}
 			else if(it2->isRE()) {
-				if(!RegExpMatcher<MType>::match(it,string_beg,string_end,it2,last_matched,it,lparams)) return false;
+				// We do not ask for next elem, it will be made after.
+				if(!RegExpMatcher<MType>::match(it,string_beg,string_end,it2,last_matched,it,lparams)) 
+					return false;
 			}
 			else if(!it2->isBracket()){ // matching a pattern module
+				/// We should take into account when scale is asked
 				if(!it->isBracket()) {
 					argtype lp; // if not a bracket, try to match
 					if(MatchingEngine::module_match(*it,*it2,lp)){
@@ -592,6 +601,7 @@ struct TreeRightMatcher
 				}
 			}
 			else { // it2->isBracket()
+				/// We should take into account when scale is asked
 				if(it2->isRightBracket()){
 					if(!it->isRightBracket()) {
 						if(it2->isExactRightBracket())return false;

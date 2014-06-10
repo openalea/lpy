@@ -122,7 +122,7 @@ class LpySimulation:
                 pixmap2 = qt.QtGui.QPixmap(":/images/icons/svn-modified.png")
             elif status == svnmanip.normal:
                 pixmap2 = qt.QtGui.QPixmap(":/images/icons/svn-normal.png")
-            elif status == svnmanip.conflict:
+            elif status == svnmanip.conflicted:
                 pixmap2 = qt.QtGui.QPixmap(":/images/icons/svn-conflict.png")
             else:
                 pixmap2 = None

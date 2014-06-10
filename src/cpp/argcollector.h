@@ -55,6 +55,18 @@ inline boost::python::object toPyList( const StdArgListType& obj ) {
 	return boost::python::object(obj);
 }
 
+inline boost::python::dict toPyDict( const StdArgListType& obj, const std::vector<std::string> names ) {
+	StdArgListType::const_iterator itobj = obj.begin();
+	
+	boost::python::dict result;
+	for(std::vector<std::string>::const_iterator itname = names.begin(); itname != names.end() && itobj != obj.end(); ++itobj, ++itname)
+		result[*itname] = *itobj;
+
+	return result;
+}
+
+
+
 class LPY_API PyObjRef {
 public:
 	PyObjRef(): __toDelete(false), __object(NULL) {}

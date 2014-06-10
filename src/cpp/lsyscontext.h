@@ -34,6 +34,7 @@
 #include "axialtree.h"
 #include "lsysoptions.h"
 #include "paramproduction.h"
+#include "lstringmatcher.h"
 #include <plantgl/algo/modelling/pglturtle.h>
 #include <plantgl/tool/util_hashset.h>
 #include <QtCore/QReadWriteLock>
@@ -57,6 +58,7 @@ public:
 
   /** Constructor */
   LsysContext();
+  LsysContext(const boost::python::dict& locals);
 
   /** Destructor */
   virtual ~LsysContext();
@@ -65,16 +67,6 @@ public:
   void clear();
   /** Test whether namespace is empty */
   bool empty() const;
-
-  /** consider and ignore of symbol*/
-/*  void consider(const std::string& modules);
-  void ignore(const std::string& modules);
-  bool isConsidered(const std::string& module) const;
-  bool isIgnored(const std::string& module) const;
-  bool isConsidered(const Module& module) const;
-  bool isIgnored(const Module& module) const;
-  bool ignoring() const { return __ignore_method; }
-  std::string keyword() const; */
 
   /** string representation */
   std::string str() const ;
@@ -122,6 +114,7 @@ public:
 
   /** compilation of code into the python namespace */
   void compile(const std::string&)  ;
+
   boost::python::object  evaluate(const std::string&)  ;
   boost::python::object  try_evaluate(const std::string&)  ;
 
@@ -142,11 +135,19 @@ public:
 
   /** access to python object of the namespace */
   virtual bool hasObject(const std::string& name) const;
+
   virtual boost::python::object getObject(const std::string& name, const boost::python::object& defaultvalue = boost::python::object()) const;
-  virtual void setObject(const std::string& name, 
-				 const boost::python::object&);
   virtual void delObject(const std::string& name) ;
+
+  virtual void setObject(const std::string& name, const boost::python::object&);
+  virtual void setObjectToGlobals(const std::string& name, const boost::python::object&);
+
   bool copyObject(const std::string& name, LsysContext * sourceContext) ;
+  bool copyObjectToGlobals(const std::string& name, LsysContext * sourceContext) ;
+
+  /// protected access to python namespace. To be redefined.
+  virtual boost::python::dict locals()  const { return __locals; };
+  virtual PyObject * globals()  const { return NULL; };
   
   /** make current or disable a context */
   void makeCurrent();
@@ -156,8 +157,11 @@ public:
   /** static functions to access context */
   static inline LsysContext * currentContext() { return current(); }
   static LsysContext * current();
-  static inline LsysContext * globalContext() { return global(); }
-  static LsysContext * global();
+  static inline LsysContext * globalContext(); 
+
+  // { return global(); }
+  // static LsysContext * global();
+
   static LsysContext * defaultContext() ;
   static void cleanContexts();
 
@@ -279,6 +283,15 @@ public:
 
   void importContext(const LsysContext& other);
 
+  void registerLstringMatcher(const LstringMatcherPtr lstringmatcher = LstringMatcherPtr())
+  { __lstringmatcher = lstringmatcher; }
+
+  bool pInLeftContext(size_t, boost::python::dict& res);
+  bool inLeftContext(const PatternString& pattern, boost::python::dict& res);
+
+  bool pInRightContext(size_t, boost::python::dict& res);
+  bool inRightContext(const PatternString& pattern, boost::python::dict& res);
+
   /** Iteration number property. Only set by Lsystem. Access by all other. */
 public:
   size_t getIterationNb();
@@ -286,12 +299,16 @@ protected:
   void setIterationNb(size_t) ;
 
 protected:
+  boost::python::dict __locals;
+
   boost::python::object controlMethod(const std::string&, AxialTree&);
   boost::python::object controlMethod(const std::string&, AxialTree&, const PGL::ScenePtr&);
 
   /// initialise context using python function in namespace.
   bool __initialise();
   size_t __initialiseFrom(const std::string& lcode);
+
+  void namespaceInitialisation();
 
   /** Event when context is made current, release, pushed or restore */
   virtual void currentEvent();
@@ -303,16 +320,9 @@ protected:
   LsysContext(const LsysContext& lsys);
   LsysContext& operator=(const LsysContext& lsys);
 
-  /// protected access to python namespace. To be redefined.
-  virtual PyObject * Namespace()  const { return NULL; };
 
   /// init options
   void init_options();
-
-  /// attributes for ignore and consider
-  /* typedef pgl_hash_map<size_t,ModuleClassPtr> ModuleClassSet;
-  ModuleClassSet __keyword;
-  bool __ignore_method; */
 
   /// attributes for module declaration
   ModuleClassList __modules;
@@ -328,6 +338,7 @@ protected:
 
   /// iterative production
   AxialTree __nproduction;
+
 
   /// selection required property
   bool __selection_always_required;
@@ -355,6 +366,11 @@ protected:
   // list of parametric production
   ParametricProductionList __paramproductions;
 
+  // list of pattern to find
+//  PatternStringList __patternstrings;
+  LstringMatcherPtr __lstringmatcher;
+
+
   // For multithreaded appli, allow to set an early_return
   bool __early_return;
   QReadWriteLock __early_return_mutex;
@@ -364,27 +380,16 @@ protected:
 
 class LPY_API LocalContext : public LsysContext {
 public:
-  LocalContext(bool with_initialisation = true);
+  // LocalContext();
+  LocalContext(const boost::python::dict& globals = boost::python::dict());
+  LocalContext(const boost::python::dict& locals, const boost::python::dict& globals);
   ~LocalContext();
 
-  boost::python::dict& getNamespace() { return __namespace; }
-  const boost::python::dict& getNamespace() const { return __namespace; }
-
+  virtual PyObject * globals() const ;
   virtual void clearNamespace();
-  virtual void updateNamespace(const boost::python::dict&);
-  virtual void getNamespace(boost::python::dict&) const;
-
-  virtual bool hasObject(const std::string& name) const;
-  virtual boost::python::object getObject(const std::string& name, const boost::python::object& defaultvalue = boost::python::object()) const;
-  virtual void setObject(const std::string& name, 
-				 const boost::python::object&);
-  virtual void delObject(const std::string& name) ;
 
 protected:
-  void initialisation();
-  virtual PyObject * Namespace() const ;
-
-  boost::python::dict __namespace;
+  boost::python::dict __globals;
 };
 
 /*---------------------------------------------------------------------------*/
@@ -394,36 +399,17 @@ public:
   GlobalContext();
   ~GlobalContext();
 
-  virtual void clearNamespace();
-  virtual void updateNamespace(const boost::python::dict&);
-  virtual void getNamespace(boost::python::dict&) const;
-
-  virtual bool hasObject(const std::string& name) const;
-  virtual boost::python::object getObject(const std::string& name, const boost::python::object& defaultvalue = boost::python::object()) const;
-  virtual void setObject(const std::string& name, 
-				 const boost::python::object&);
-  virtual void delObject(const std::string& name) ;
-
-  virtual boost::python::object compile(const std::string& name, const std::string& code)  ;
-
+  virtual PyObject * globals() const ;
   static boost::python::object getFunctionRepr();
-protected:
-  virtual PyObject * Namespace() const ;
 
-  boost::python::handle<> __namespace;
-  boost::python::dict __local_namespace;
+protected:
+
+  boost::python::handle<> __globals;
   static boost::python::object __reprFunc;
 
 };
 
 /*---------------------------------------------------------------------------*/
-/*
-inline void LPY_API consider(const std::string& modules)
-{ LsysContext::currentContext()->consider(modules); }
-
-inline void LPY_API ignore(const std::string& modules)
-{ LsysContext::currentContext()->ignore(modules); }
-*/
 
 inline void LPY_API nproduce(const AxialTree& prod)
 { LsysContext::currentContext()->nproduce(prod); }
@@ -478,6 +464,18 @@ inline bool LPY_API isAnimationEnabled()
 
 inline void LPY_API Stop()
 { return LsysContext::currentContext()->stop(); }
+
+inline bool LPY_API pInLeftContext(size_t pid, boost::python::dict& res)
+{ return LsysContext::currentContext()-> pInLeftContext(pid,res); }
+
+inline bool inLeftContext(const PatternString& pattern, boost::python::dict& res)
+{ return LsysContext::currentContext()-> inLeftContext(pattern,res); }
+
+inline bool LPY_API pInRightContext(size_t pid, boost::python::dict& res)
+{ return LsysContext::currentContext()-> pInRightContext(pid,res); }
+
+inline bool inRightContext(const PatternString& pattern, boost::python::dict& res)
+{ return LsysContext::currentContext()-> inRightContext(pattern,res); }
 
 /*---------------------------------------------------------------------------*/
 
