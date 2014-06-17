@@ -157,7 +157,7 @@ public:
   /** static functions to access context */
   static inline LsysContext * currentContext() { return current(); }
   static LsysContext * current();
-  static inline LsysContext * globalContext(); 
+  static LsysContext * globalContext(); 
 
   // { return global(); }
   // static LsysContext * global();

@@ -29,6 +29,7 @@
  */
 
 #include "moduleclass.h"
+#include "lpy_parser.h"
 #include <plantgl/tool/util_string.h>
 #include <plantgl/scenegraph/pgl_version.h>
 #include <plantgl/python/export_list.h>
@@ -99,7 +100,6 @@ void py_setBases(ModuleClass * mod, boost::python::object bases) {
 }
 
 
-
 void export_ModuleClass(){
 
 
@@ -122,6 +122,8 @@ void export_ModuleClass(){
 	.def("get",&py_getMClass,args("name"),"Get a module class from the name of the module")
 	.staticmethod("get")
 	.def("issubclass",&ModuleClass::issubclass)
+    .def("getNamedParameterNb",&ModuleClass::getNamedParameterNb)
+    .add_static_property("DEFAULT_SCALE",make_getter(&ModuleClass::DEFAULT_SCALE))
 	;
 
 	enum_<PredefinedModuleClass::eCategory>("ModuleCategory")
@@ -159,4 +161,13 @@ void export_ModuleClass(){
 	.def("declare",(bool (ModuleClassTable::*)(ModuleClass *))&ModuleClassTable::declare)
 
 	;
+    ModuleClassList modulelist = ModuleClassTable::get().getClasses();
+    for (ModuleClassList::const_iterator itmod = modulelist.begin(); itmod != modulelist.end(); ++itmod){
+        if (LpyParsing::isValidVariableName((*itmod)->name))
+            scope().attr((*itmod)->name.c_str()) = object(*itmod);
+        for (std::vector<std::string>::const_iterator italias = (*itmod)->aliases.begin(); italias != (*itmod)->aliases.end(); ++italias){
+            if (LpyParsing::isValidVariableName(*italias))
+                scope().attr(italias->c_str()) = object(*itmod);
+        }
+    }
 }

@@ -52,6 +52,7 @@ public:
   Module();
   Module(const std::string& c);
   Module(size_t classid);
+  Module(const ModuleClassPtr m);
   Module(const Module&);
 
   virtual ~Module();
@@ -117,7 +118,8 @@ public:
 
 	AbstractParamModule() : __argholder(new  ParamModuleInternal()) { }
 	AbstractParamModule(const std::string& name) : Module(name), __argholder(new  ParamModuleInternal()) {}
-	AbstractParamModule(size_t classid) : Module(classid), __argholder(new  ParamModuleInternal()) {}
+    AbstractParamModule(size_t classid) : Module(classid), __argholder(new  ParamModuleInternal()) {}
+    AbstractParamModule(const ModuleClassPtr mclass) : Module(mclass), __argholder(new  ParamModuleInternal()) {}
 
 	~AbstractParamModule() { }
 
@@ -224,7 +226,10 @@ public:
     { return getClass()->getNamedParameterNb(); }
 
     inline size_t getParameterPosition(const std::string& pname) const  
-    { return getClass()->getParameterPosition(pname); }
+    { 
+        int firstnamedparameter = std::max<int>(0,size() - getNamedParameterNb());
+        return firstnamedparameter + getClass()->getParameterPosition(pname); 
+    }
 
     inline bool hasParameter(const std::string& pname) const  
     { return getClass()->hasParameter(pname); }
@@ -239,10 +244,11 @@ public:
 
 	void getNamedParameters(boost::python::dict& parameters, size_t fromIndex = 0) const
 	{
+        int firstnamedparameter = std::max<int>(0,size() - getNamedParameterNb());
 		const ParameterNameDict& pnames = getClass()->getParameterNameDict();
 		for(ParameterNameDict::const_iterator itp = pnames.begin(); itp != pnames.end(); ++itp){
 			if(itp->second >= fromIndex) {
-				parameters[boost::python::object(itp->first)] = getAt(itp->second);
+				parameters[boost::python::object(itp->first)] = getAt(firstnamedparameter+itp->second);
 			}
 		}
 	}
@@ -330,13 +336,17 @@ public:
   ParamModule(const ParamModule& name);
   ParamModule(size_t classid);
   ParamModule(size_t classid, const std::string& args);
+
   ParamModule(boost::python::tuple t);
   ParamModule(boost::python::list t);
 
   ParamModule(const std::string& name, 
 			  const boost::python::list& args);
   ParamModule(size_t classid, 
-			  const boost::python::list& args);
+              const boost::python::list& args);
+
+  ParamModule(const ModuleClassPtr m, 
+              const boost::python::tuple& args);
 
   ParamModule(const std::string& name, 
 			  const boost::python::object& args);

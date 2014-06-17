@@ -11,9 +11,10 @@ def End(lstring,lscene):
    assert isinstance(get_primitive(lscene[0]),Cylinder)
    assert isinstance(get_primitive(lscene[1]),Cylinder)
    assert isinstance(get_primitive(lscene[2]),Cylinder)
-   assert isinstance(get_primitive(lscene[3]),FaceSet)
 
-Axiom: {.f(1)[+(90)F][F][-(90)F]}
+   assert isinstance(get_primitive(lscene[3]),Mesh)
+
+Axiom: {.f(1)[+(90)F][F][-(90)F] }
 
 derivation length: 1
 production:

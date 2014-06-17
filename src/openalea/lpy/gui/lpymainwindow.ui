@@ -370,8 +370,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>105</width>
-             <height>177</height>
+             <width>112</width>
+             <height>180</height>
             </rect>
            </property>
            <attribute name="label">
@@ -439,8 +439,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>105</width>
-             <height>287</height>
+             <width>98</width>
+             <height>296</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1471,7 +1471,7 @@
     <string>Comment Block</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Q</string>
+    <string>Ctrl+K</string>
    </property>
   </action>
   <action name="actionUncomment">

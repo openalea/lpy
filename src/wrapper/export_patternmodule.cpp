@@ -42,6 +42,7 @@ std::string var_getname(LsysVar * m){
 }
 
 object qm_varnames(PatternModule * mod) { return make_list(mod->getVarNames())(); }
+object var_value(LsysVar * var) { return var->getPyValue(); }
 
 void export_PatternModule(){
 
@@ -52,7 +53,8 @@ void export_PatternModule(){
 	.def("__repr__", &LsysVar::str)
 	.def("varname", &LsysVar::varname)
 	.def("isArgs",  &LsysVar::isArgs)
-	.def("isKwds",  &LsysVar::isKwds)
+    .def("isKwds",  &LsysVar::isKwds)
+    .def("value",  &var_value)
 	.add_property("name",var_getname,&LsysVar::setName)
 	;
 

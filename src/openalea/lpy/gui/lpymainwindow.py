@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file '/Users/fboudon/Develop/vplants/trunk/lpy/src/openalea/lpy/gui/lpymainwindow.ui'
 #
-# Created: Mon Jun  2 16:03:21 2014
-#      by: PyQt4 UI code generator 4.10.3
+# Created: Fri Jun 13 12:22:30 2014
+#      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -175,7 +175,7 @@ class Ui_MainWindow(object):
         self.lpytoolbox.setMidLineWidth(1)
         self.lpytoolbox.setObjectName(_fromUtf8("lpytoolbox"))
         self.page = QtGui.QWidget()
-        self.page.setGeometry(QtCore.QRect(0, 0, 105, 177))
+        self.page.setGeometry(QtCore.QRect(0, 0, 112, 180))
         self.page.setObjectName(_fromUtf8("page"))
         self.verticalLayout_2 = QtGui.QVBoxLayout(self.page)
         self.verticalLayout_2.setSpacing(2)
@@ -205,7 +205,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.referenceEdit)
         self.lpytoolbox.addItem(self.page, _fromUtf8(""))
         self.page_2 = QtGui.QWidget()
-        self.page_2.setGeometry(QtCore.QRect(0, 0, 105, 287))
+        self.page_2.setGeometry(QtCore.QRect(0, 0, 98, 296))
         self.page_2.setObjectName(_fromUtf8("page_2"))
         self.verticalLayout = QtGui.QVBoxLayout(self.page_2)
         self.verticalLayout.setSpacing(2)
@@ -938,7 +938,7 @@ class Ui_MainWindow(object):
         self.actionClearShell.setText(_translate("MainWindow", "Clear Shell", None))
         self.actionSyntax.setText(_translate("MainWindow", "Syntax Hightlight", None))
         self.actionComment.setText(_translate("MainWindow", "Comment Block", None))
-        self.actionComment.setShortcut(_translate("MainWindow", "Ctrl+Q", None))
+        self.actionComment.setShortcut(_translate("MainWindow", "Ctrl+K", None))
         self.actionUncomment.setText(_translate("MainWindow", "Uncomment Block", None))
         self.actionInsertTab.setText(_translate("MainWindow", "Insert Tab", None))
         self.actionRemoveTab.setText(_translate("MainWindow", "Remove Tab", None))

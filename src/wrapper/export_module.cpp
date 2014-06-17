@@ -102,7 +102,8 @@ void export_Module(){
 
   class_<Module>
 	("Module", init<const std::string&>("Module(name)"))
-	.def(init<const Module &>("Module(Module)"))
+    .def(init<const Module &>("Module(Module)"))
+    .def(init<const ModuleClassPtr>("Module(Module)"))
 	.def("__str__", &Module::str)
 	.def("__repr__",&Module::repr)
 	.add_property("name",getname,&Module::setName)
@@ -125,7 +126,8 @@ void export_Module(){
   scope in_mod = class_<ParamModule,  bases<Module> >
 	("ParamModule", init<const std::string&>("ParamModule(name[,args])"))
 	.def(init<const ParamModule &>("ParamModule(ParamModule)"))
-	.def(init<boost::python::tuple>("ParamModule(tuple)"))
+    .def(init<boost::python::tuple>("ParamModule(tuple)"))
+    .def(init<const ModuleClassPtr,boost::python::tuple>("ParamModule(mclass,tuple)"))
 	.def(init<boost::python::list>("ParamModule(list)"))
 	.def(init<const std::string&,
 	          const boost::python::object &>("ParamModule(name[,args])"))

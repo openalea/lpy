@@ -94,7 +94,7 @@ bool LstringMatcher::inLeftContext(const PatternString& pattern, boost::python::
 bool LstringMatcher::pInRightContext(size_t patternid, boost::python::dict& args)
 {
    PatternString pattern = PatternStringManager::get().get_pattern(patternid);
-   return inLeftContext(pattern,args);
+   return inRightContext(pattern,args);
 }
 
 bool LstringMatcher::inRightContext(const PatternString& pattern, boost::python::dict& args)

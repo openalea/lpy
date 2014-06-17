@@ -7,9 +7,9 @@ def Start():
 def EndEach(lstring):
   assert matched == True
   
-module P : scale = 3
+module P : scale = 1
 module B : scale = 2
-module N : scale = 1
+module N : scale = 3
 
 Axiom: PBN(0)BN(1)
 
@@ -28,6 +28,8 @@ homomorphism:
 
 endlsystem
 ###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
 
 def __initialiseContext__(context):
 	context.options.setSelection('String matching',3)

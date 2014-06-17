@@ -191,7 +191,7 @@ class lstring_func : public boost::python::def_visitor<lstring_func<LString> >
 		 .def("__getitem__",&LString::getItemAt, boost::python::return_internal_reference<1>())
 		 .def("__setitem__",&LString::setItemAt)
 		 .def("__delitem__",&LString::removeItemAt)
-		 .def("__getslice__",(LString (LString::*)(int,int)const)&LString::getRange)
+		 .def("__getslice__",(LString (LString::*)(size_t,size_t)const)&LString::getRange)
 		 .def("__delslice__",&LString::removeRange)
 		 .def("append",(void(LString::*)(const Module&))&LString::append)
 		 .def("append",(void(LString::*)(const LString&))&LString::append)

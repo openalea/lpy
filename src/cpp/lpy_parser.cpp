@@ -328,7 +328,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
   if (initpos != std::string::npos) endpycode = rules.begin()+initpos;
 
   while(_it!=endpycode){
-	printf("******'%c' %i\n",*_it,std::distance(begcode,_it));
+	// printf("******'%c' %i\n",*_it,std::distance(begcode,_it));
 	switch(mode){
 	case -1:
 	  {
@@ -398,7 +398,6 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
           if(has_keyword_pattern(_it,begcode,endpycode,"module")){
             code+=std::string(beg,_it2);
 			LpyParsing::ModLineDeclaration modules = LpyParsing::parse_moddeclaration_line(_it,endpycode);
-			code+="# "+std::string(_it2,_it);
 			int scale = ModuleClass::DEFAULT_SCALE;
 			ModuleClassList inheritance;
 			pgl_hash_map_string<boost::python::object> properties;
@@ -475,6 +474,12 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 				if(scale != ModuleClass::DEFAULT_SCALE)mod->setScale(scale);
 				if(!inheritance.empty())mod->setBases(inheritance);
 			}
+            for(LpyParsing::ModDeclarationList::const_iterator itmod = modules.first.begin(); 
+                 itmod != modules.first.end(); ++itmod){
+                if (itmod != modules.first.begin()) code += " ; ";
+                code += itmod->name+" = ModuleClass.get('"+itmod->name+"')";
+            }
+            code+="# "+std::string(_it2,_it);
 			beg = _it;
 			toendlineA(_it,endpycode);
 		  }

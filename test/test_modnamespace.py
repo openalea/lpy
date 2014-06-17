@@ -107,14 +107,15 @@ def test_alias_declared():
 
 def test_scale_declaration():
     """ Test if we had a scale property declaration to a class """
+    defaultscale = ModuleClass.DEFAULT_SCALE
     a = AxialTree('T')
-    assert a[0].mclass.scale == -1
+    assert a[0].mclass.scale == defaultscale
     a[0].mclass.scale = 5
     assert a[0].mclass.scale == 5
     l = LsysContext()
     l.makeCurrent()
     b = AxialTree('T')
-    assert b[0].mclass.scale == -1
+    assert b[0].mclass.scale == defaultscale
     l.done()
     assert b[0].mclass.scale == 5
  

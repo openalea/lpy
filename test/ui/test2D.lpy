@@ -1,0 +1,19 @@
+Axiom: @2D @M(X-1,Y-1) -(90)  F(0.9) +(90) F(0.5) +(60) F(2)
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	scalars = [('X', 'Float', 0.0, 0.0, 2.0, 2), ('Y', 'Float', 0.0, 0.0, 2.0, 2)]
+	context["__scalars__"] = scalars
+	for s in scalars:
+		if not s[1] is None : context[s[0]] = s[1]

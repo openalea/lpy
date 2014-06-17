@@ -1,0 +1,26 @@
+import os
+fname = 'a_module2.py'
+f = file(fname,'w')
+f.write('def test(): pass')
+f.close()
+
+try:
+  from a_module2 import test
+except Exception,e:
+  os.remove(fname)
+  os.remove(fname+'c')
+  raise e 
+
+os.remove(fname)
+os.remove(fname+'c')
+
+Axiom: 
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem

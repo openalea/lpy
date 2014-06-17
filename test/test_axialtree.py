@@ -19,6 +19,15 @@ def test_well_bracketed():
     a = AxialTree('F[F[F][G]][[F][[[G]G]FF]')
     assert a.wellBracketed() == False
 
+def test_substring():
+    l = LsysContext()
+    l.makeCurrent()
+    a = AxialTree('F[F[F][G]][F][[[G]G]FF]')
+    assert a[0].name == 'F'
+    assert a[-2].name == 'F'
+    assert a[-3:-1] == AxialTree('FF')
+    assert a[-3:] == AxialTree('FF]')
+
 def test_sons():
     l = LsysContext()
     l.makeCurrent()
@@ -65,50 +74,42 @@ def test_successor_at_level():
     l = LsysContext()
     l.makeCurrent()
     a = AxialTree('BA[A[A][CA]][A]B[[[CA]CA]AA]')
-    l.setModuleScale('A',1)
-    l.setModuleScale('B,C',2)
-    print a.successor_at_level(0,2)
-    assert a.successor_at_level(0,2) == 15
+    l.setModuleScale('B,C',1)
+    l.setModuleScale('A',2)
+    print a.successor_at_level(0,1)
+    assert a.successor_at_level(0,1) == 15
     
-def test_successor_at_level():
-    l = LsysContext()
-    l.makeCurrent()
-    a = AxialTree('BA[A[A][CA]][A]B[[[CA]CA]AA]')
-    l.setModuleScale('A',1)
-    l.setModuleScale('B,C',2)
-    print a.successor_at_level(0,2)
-    assert a.successor_at_level(0,2) == 15
 
 def test_successor_at_scale():
     l = LsysContext()
     l.makeCurrent()
     a = AxialTree('BA[A[A][CA]][A]B[[[CA]CA]AA]ABA')
-    l.setModuleScale('A',1)
-    l.setModuleScale('B,C',2)
-    assert a.successor_at_scale(0,2) == 15
-    assert a.successor_at_scale(15,2) == 29
+    l.setModuleScale('B,C',1)
+    l.setModuleScale('A',2)
+    assert a.successor_at_scale(0,1) == 15
+    assert a.successor_at_scale(15,1) == 29
     a = AxialTree('BA[[A][CA][A]A]BA[[[CA]CA]AA]')
-    print a.directSon(1),a.directSon(15),a.successor_at_scale(1,1)
-    assert a.successor_at_scale(1,1) == 16
+    print a.directSon(1),a.directSon(15),a.successor_at_scale(1,2)
+    assert a.successor_at_scale(1,2) == 16
 
 def test_successor_at_scale2():
     l = LsysContext()
     l.makeCurrent()
     a = AxialTree('ELU(0,0)I(0,0)I(1,1)I(0,2)U(1,1)I(0,3)I(0,4)I(0,5)U(0,2)I(0,6)I(0,7)I(0,8)EL')
-    l.setModuleScale('I,L',1)
-    l.setModuleScale('U,E',2)
-    assert a.successor_at_scale(2,2) == 6
-    assert a.successor_at_scale(10,2) == 14
+    l.setModuleScale('U,E',1)
+    l.setModuleScale('I,L',2)
+    assert a.successor_at_scale(2,1) == 6
+    assert a.successor_at_scale(10,1) == 14
     
 def test_predecessor_at_scale():
     l = LsysContext()
     l.makeCurrent()
     a = AxialTree('BA[A[A][CA]][A]B[[[CA]CA]AA]')
-    l.setModuleScale('A',1)
-    l.setModuleScale('B,C',2)
-    assert a.predecessor_at_scale(15,2) == 0
-    print a.predecessor_at_scale(25,1)
-    assert a.predecessor_at_scale(25,1) == 1
+    l.setModuleScale('B,C',1)
+    l.setModuleScale('A',2)
+    assert a.predecessor_at_scale(15,1) == 0
+    print a.predecessor_at_scale(25,2)
+    assert a.predecessor_at_scale(25,2) == 1
   
 
 if __name__ == '__main__':

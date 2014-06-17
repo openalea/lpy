@@ -535,10 +535,9 @@ LsysRule::match(const AxialTree& src,
 	ArgList args_ncd;
     if(!MatchingEngine::right_match(dest.const_begin(),dest.const_begin(),dest.const_end(),
 		                          __newrightcontext.const_begin(),__newrightcontext.const_end(),
-<<<<<<< .mine								  endposNewRightLastMatch,endposNewRight,args_ncd))return false;
-=======								  last_match,endpos2,args_ncd))
-        return false;
->>>>>>> .theirs	ArgsCollector::append_args(args,args_ncd);
+								  endposNewRightLastMatch,endposNewRight,args_ncd)) return false;
+    							  // last_match,endpos2,args_ncd)) return false;
+	ArgsCollector::append_args(args,args_ncd);
   }
 
   // right context
@@ -546,7 +545,7 @@ LsysRule::match(const AxialTree& src,
   AxialTree::const_iterator endposRightLastMatch = last_match;
   if(!__rightcontext.empty()){
 	ArgList args_cd;
-    if(!MatchingEngine::right_match(endpos1,src.const_begin(),src.const_end(),
+    if(!MatchingEngine::right_match(endposRight,src.const_begin(),src.const_end(),
 		                          __rightcontext.const_begin(),__rightcontext.const_end(),
 								  endposRightLastMatch,endposRight,args_cd))return false;
 	ArgsCollector::append_args(args,args_cd);

@@ -899,15 +899,17 @@ def main():
         versiomessage()
         return
 
+    toopen = []
+    if len(args) > 1: toopen = map(os.path.abspath,args[1:])
+
     qapp = qt.QtGui.QApplication([])
     splash = doc.splashLPy()
     qapp.processEvents()
     w = LPyWindow()
-    w.show()
-    if len(args) > 1:
-        for f in args[1:]:
-            if f[0] != '-':            
-                w.openfile(f)
+    w.show()    
+    for f in toopen:
+        if f[0] != '-':            
+            w.openfile(f)
     if splash:
         splash.finish(w)
         w.splash = splash

@@ -74,7 +74,7 @@ private:
 
   typedef bool (*RightMatchingFuncType)(AxialTree::const_iterator, AxialTree::const_iterator, AxialTree::const_iterator,
 										PatternString::const_iterator, PatternString::const_iterator,
-										AxialTree::const_iterator, AxialTree::const_iterator&, ArgList&);
+										AxialTree::const_iterator&, AxialTree::const_iterator&, ArgList&);
 
   static RightMatchingFuncType RightMatchingFunc;
 
@@ -116,7 +116,7 @@ public:
 		AxialTree::const_iterator  string_end,
 		PatternString::const_iterator  pattern_begin,
 		PatternString::const_iterator  pattern_end,
-		AxialTree::const_iterator  last_matched,
+		AxialTree::const_iterator&  last_matched,
 		AxialTree::const_iterator& matching_end,
 		ArgList& params);
 
@@ -167,7 +167,7 @@ public:
 		                         AxialTree::const_iterator  string_end,
 								 PatternString::const_iterator  pattern_begin,
 								 PatternString::const_iterator  pattern_end,
-							     AxialTree::const_iterator  last_matched,
+							     AxialTree::const_iterator&  last_matched,
 								 AxialTree::const_iterator& matching_end,
 								 ArgList& params);
 
@@ -184,7 +184,7 @@ public:
 		                         AxialTree::const_iterator  string_end,
 								 PatternString::const_iterator  pattern_begin,
 								 PatternString::const_iterator  pattern_end,
-							     AxialTree::const_iterator  last_matched,
+							     AxialTree::const_iterator&  last_matched,
 								 AxialTree::const_iterator& matching_end,
 								 ArgList& params);
 
@@ -217,7 +217,7 @@ public:
 		                         AxialTree::const_iterator  string_end,
 								 PatternString::const_iterator  pattern_begin,
 								 PatternString::const_iterator  pattern_end,
-								 AxialTree::const_iterator  last_matched,
+								 AxialTree::const_iterator&  last_matched,
 								 AxialTree::const_iterator& matching_end,
 								 ArgList& params);
 
@@ -226,7 +226,7 @@ public:
 		                         AxialTree::const_iterator  string_end,
 								 PatternString::const_iterator  pattern_begin,
 								 PatternString::const_iterator  pattern_end,
-								 AxialTree::const_iterator  last_matched,
+								 AxialTree::const_iterator&  last_matched,
 								 AxialTree::const_iterator& matching_end,
 								 ArgList& params);
 };

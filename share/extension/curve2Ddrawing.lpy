@@ -1,0 +1,104 @@
+from openalea.plantgl.all import *
+
+NbSteps = 20
+dt = 1./NbSteps
+print dt
+totlength = []
+
+def Start():
+  global totlength
+  totlength = [(0,length(0))]
+
+def plotCurve(data, xextend = None, yextend = None, pos = (0.1,-0.8), dim = (0.8,0.8), xtick = None, ytick = None ):
+  from math import ceil, floor
+  if len(data) > 1:
+    print data
+    if xextend:
+      minx, maxx = xextend
+    else :
+      minx = floor(min([x for x,y in data]))
+      maxx = ceil(max([x for x,y in data]))
+    if yextend:
+      miny, maxy = yextend
+    else :
+      miny = floor(min([y for x,y in data]))
+      maxy = ceil(max([y for x,y in data]))
+    xext = maxx - minx
+    yext = maxy - miny
+    x2Dlength, y2Dlength = dim
+    projx = lambda x: (x2Dlength*(x-minx)/xext)
+    projy = lambda y: (y2Dlength*(y-miny)/yext)
+    if xtick is None:
+      xtick = yext*0.1
+    if ytick is None:
+      ytick = xext*0.1
+    
+    data = [(projx(x),projy(y)) for x,y in data]
+    ticklength = 0.02
+    
+    nproduce [ @2D ,(3) @M(pos[0],pos[1]) @g(Polyline2D(data,width=2))
+    if miny <= 0 <= maxy:
+      nproduce ,(5) @g(Polyline2D([(projx(minx),projy(0)),(projx(maxx),projy(0))]))
+      cxtick = minx + xtick
+      while cxtick < maxx:
+        nproduce ,(5) @g(Polyline2D([(projx(cxtick),projy(-ticklength)),(projx(cxtick),projy(ticklength))]))
+        cxtick += xtick
+    if minx <= 0 <= maxx:
+      nproduce ,(2) @g(Polyline2D([(projx(0),projy(miny)),(projx(0),projy(maxy))]))
+      cytick = miny + ytick
+      while cytick < maxy:
+        nproduce ,(2) @g(Polyline2D([(projx(-ticklength),projy(cytick)),(projx(ticklength),projy(cytick))]))
+        cytick += ytick
+    nproduce ]
+
+#import matplotlib.pyplot as plt
+import pylab as plt
+
+def StartEach():
+  plt.close()
+
+def plotCurve2(data):
+  if len(data) > 1:
+    plt.plot([x for x in data], [y for y in data], '-', linewidth=2)
+    plt.show()
+    plt.draw()
+
+Axiom: I(0,length(0))
+
+derivation length: NbSteps
+production:
+
+I(t,l) :
+  nt = t+dt
+  if nt >= 1.0: nt = 1.0
+  l = length(nt)
+  totlength.append((nt,l))
+  produce I(nt,l)
+
+
+
+interpretation:
+
+I(t,l) :
+  plotCurve2(totlength)
+  plotCurve(totlength)
+  nproduce F(l) 
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	import openalea.plantgl.all as pgl
+	length = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0, 1),(0.175114, 0.0522138, 1),(0.369245, 0.047519, 1),(0.369245, 0.619904, 1),(0.558015, 0.67878, 1),(1, 0.69864, 1)]) , 
+	    )
+	length.name = "length"
+	panel_0 = ({'active': True, 'visible': True, 'name': 'Panel 1'},[('Function',length)])
+	parameterset = [panel_0,]
+	context["__functions__"] = [('length',length),]
+	context["__curves__"] = []
+	context["__parameterset__"] = parameterset
+	context["length"] = pgl.QuantisedFunction(length)

@@ -85,27 +85,27 @@ boost::python::object py_get_globals(LsysContext * c) {
 	return boost::python::object(handle<>(borrowed(c->globals())));
 }
 
-bool py_p_in_left_context(size_t pid, boost::python::dict& param = boost::python::dict()) {
+bool py_p_in_left_context(size_t pid, boost::python::dict& param) {
 	return LsysContext::currentContext()->pInLeftContext(pid,param);
 }
 
-bool py_in_left_context1(const PatternString& pattern, boost::python::dict& param = boost::python::dict()) {
+bool py_in_left_context1(const PatternString& pattern, boost::python::dict& param) {
 	return LsysContext::currentContext()->inLeftContext(pattern,param);
 }
 
-bool py_in_left_context2(const std::string& pattern, boost::python::dict& param = boost::python::dict()) {
+bool py_in_left_context2(const std::string& pattern, boost::python::dict& param) {
 	return LsysContext::currentContext()->inLeftContext(PatternString(pattern),param);
 }
 
-bool py_p_in_right_context(size_t pid, boost::python::dict& param = boost::python::dict()) {
+bool py_p_in_right_context(size_t pid, boost::python::dict& param ) {
 	return LsysContext::currentContext()->pInRightContext(pid,param);
 }
 
-bool py_in_right_context1(const PatternString& pattern, boost::python::dict& param = boost::python::dict()) {
+bool py_in_right_context1(const PatternString& pattern, boost::python::dict& param ) {
 	return LsysContext::currentContext()->inRightContext(pattern,param);
 }
 
-bool py_in_right_context2(const std::string& pattern, boost::python::dict& param = boost::python::dict()) {
+bool py_in_right_context2(const std::string& pattern, boost::python::dict& param ) {
 	return LsysContext::currentContext()->inRightContext(PatternString(pattern),param);
 }
 

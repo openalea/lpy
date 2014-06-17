@@ -1,0 +1,25 @@
+lcode = """
+Axiom: A
+production:
+A --> BCD
+"""
+
+def End(lstring):
+  assert lstring == Lstring("GHJ")
+
+Axiom: E 
+
+derivation length: 1
+production:
+
+E:
+  nproduce G
+  l = Lsystem()
+  l.set(lcode)
+  plstring = l.iterate()
+  produce HJ
+
+interpretation:
+
+
+endlsystem

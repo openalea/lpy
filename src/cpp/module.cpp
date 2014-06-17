@@ -55,7 +55,11 @@ Module::Module(const Module& m) :
 { IncTracker(Module) }
 
 Module::Module(size_t classid):
-	__mclass(ModuleClassTable::get().find(classid))
+    __mclass(ModuleClassTable::get().find(classid))
+{ IncTracker(Module) }
+
+Module::Module(const ModuleClassPtr m):
+    __mclass(m)
 { IncTracker(Module) }
 
 Module::~Module()
@@ -111,9 +115,14 @@ void processConstruction(ParamModule& module,
 	  start += 1;
   }
   size_t l = len(arg);
-  args.reserve(l);
-  for(size_t i = start; i < l-1; ++i){ appendParam(args,arg[i]); }
-  if(l > start){processLastArg(args,arg[l-1]);}
+  if (l > 0) {
+      args.reserve(l);
+
+      for(size_t i = start; i < l-1; ++i){
+        appendParam(args,arg[i]); 
+      }
+      if(l > start){processLastArg(args,arg[l-1]);}
+  }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -169,6 +178,10 @@ BaseType(classid)
 
 
 
+ParamModule::ParamModule(const ModuleClassPtr m, 
+              const boost::python::tuple& args):
+    BaseType(m) 
+{ processConstruction(*this,__args(),args); }
 
 
 ParamModule::ParamModule(boost::python::tuple t):

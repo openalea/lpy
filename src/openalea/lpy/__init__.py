@@ -163,5 +163,8 @@ def __lsystem_setattribute__(self,name,value):
 Lsystem.__getattr__ =  __lsystem_getattribute__
 Lsystem.__setattr__ =  __lsystem_setattribute__
 
+def generate_module(mclass, *params):
+    return ParamModule(mclass, tuple(params))
 
-
+ModuleClass.__call__ = generate_module
+del generate_module

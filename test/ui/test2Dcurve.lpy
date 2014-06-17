@@ -1,0 +1,28 @@
+mycurve.width = 5
+Axiom: @2D @g(mycurve,1.5)
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	panel_0 = ({'active': True, 'visible': False, 'name': 'Panel 1'},[])
+	import openalea.plantgl.all as pgl
+	mycurve = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.321212, 0.4, 1),(-0.00606059, -0.240909, 1),(0.5, 0.177273, 1)]) , 
+	    )
+	mycurve.name = "mycurve"
+	panel_1 = ({'active': True, 'visible': True, 'name': 'Panel 2'},[('Curve2D',mycurve)])
+	parameterset = [panel_0,panel_1,]
+	context["__functions__"] = []
+	context["__curves__"] = [('mycurve',mycurve),]
+	context["__parameterset__"] = parameterset
+	context["mycurve"] = mycurve

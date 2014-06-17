@@ -10,8 +10,11 @@ class MDebugger(LpyDebugger):
     def end(self,result):
         print 'Result:',result
     def total_match(self,pos_beg,pos_end,dest,prod_length,rule,args):
+        print pos_beg,pos_end,dest,prod_length,rule,args
         assert self.src[pos_beg].name == 'B'
         if self.direction == eForward:
+            print '*', prod_length
+            print dest
             print self.src[pos_beg:pos_end],'--',rule.lineno-1,'-->',dest[-prod_length:]
         else:
             print self.src[pos_beg:pos_end],'--',rule.lineno-1,'-->',dest[:prod_length]

@@ -1,5 +1,5 @@
-module A,C : scale = 1
-module T,B : scale = 2
+module A,C : scale = 2
+module T,B : scale = 1
 
 Axiom: TA(1)[BA(4)]A(2)[BA(3)C]
 

@@ -218,14 +218,16 @@ public:
 			else { ArgsCollector::append_args(lparams,ArgsCollector::fusion_args(llp)); }
 		}
 		else if(it2->isOr()){
-			int matched = -1;			
+ 			int matched = -1;			
 			argtype lp;
 			std::vector<size_t> nbargs;
 			for(int ip = 0;ip < it2->argSize(); ++ip){
 				const PatternString& lpattern = bp::extract<const PatternString&>(it2->getAt(ip).getPyValue())();
 				nbargs.push_back(lpattern.getVarNb());
 				if(matched == -1) { 
-					if(Matcher::match(it,string_beg,string_end,lpattern.begin(),lpattern.end(),last_matched,it,lp)) matched = ip;
+					if(Matcher::match(it,string_beg,string_end,lpattern.begin(),lpattern.end(),last_matched,it,lp)) {
+                        matched = ip;
+                    }
 				}
 			}
 			if (matched == -1) return false;
@@ -282,7 +284,9 @@ public:
 				const PatternString& lpattern = bp::extract<const PatternString&>(it2->getAt(ip).getPyValue())();
 				nbargs.push_back(lpattern.getVarNb());
 				if(matched == -1) { 
-					if(Matcher::match(it,string_begin,string_end,lpattern.rbegin(),lpattern.rend(),it,lp)) matched = ip;
+					if(Matcher::match(it,string_begin,string_end,lpattern.rbegin(),lpattern.rend(),it,lp))  {
+                        matched = ip;
+                    }
 				}
 			}
 			if (matched == -1) return false;
@@ -428,11 +432,13 @@ struct TreeLeftMatcher
 			// We test here if we can match nothing with 'None' or some regexp
 			size_t d = distance( pattern_rbegin, pattern_rend);
 			if (d == 0) return true;
-			if (d == 1 && pattern_rbegin->isNone()) return true;
+			if (d == 1 && pattern_rbegin->isNone()) {
+                return true;
+            }
 			argtype lp;
 			while (it2->isRE()){
 				argtype lmp;
-				if(!RegExpMatcher<MType>::reverse_match(string_end,string_begin,string_end,it2,it,lmp)) 
+				if(!RegExpMatcher<MType>::reverse_match(it,string_begin,string_end,it2,it,lmp)) 
 					return false; 
 				ArgsCollector::prepend_args(lp,lmp);
 				++it2;
@@ -522,12 +528,13 @@ struct TreeRightMatcher
 
 	static bool match(Iterator matching_start, Iterator  string_beg, Iterator  string_end,
 					  PIterator pattern_begin, PIterator  pattern_end, 
-					  Iterator last_matched, Iterator& matching_end, 
+					  Iterator& last_matched, Iterator& matching_end, 
 					  argtype& params)
 	{
 		// printf("start right  match [%i] %s\n", distance(string_beg,matching_start), matching_start->str().c_str() );
 		Iterator it = matching_start;
 		PIterator it2 = pattern_begin;
+        Iterator& _last_matched = last_matched;
 		// In case of no right context in the string
 		if (it == string_end) {
 			// We test here if we can match nothing with 'None' or some regexp
@@ -537,7 +544,7 @@ struct TreeRightMatcher
 			argtype lp;
 			while (it2->isRE()){
 				argtype lmp;
-				if(!RegExpMatcher<MType>::match(string_end,string_beg,string_end,it2,last_matched,it,lmp)) 
+				if(!RegExpMatcher<MType>::match(string_end,string_beg,string_end,it2,_last_matched,it,lmp)) 
 					return false; 
 				ArgsCollector::prepend_args(lp,lmp);
 				++it2;
@@ -550,7 +557,13 @@ struct TreeRightMatcher
 		argtype lparams;
 
 
-		it = NextElement::initial_next(it,it2,last_matched,string_end);				
+        if (it == _last_matched) {
+            it = NextElement::next(it,it2,string_end);
+        }
+		else { 
+            it = NextElement::initial_next(it,it2,_last_matched,string_end);	
+        }		
+        
 		bool nextpattern = true;
 		bool nextsrc = true;
 		while(it != string_end && it2 != pattern_end){
@@ -579,7 +592,7 @@ struct TreeRightMatcher
 			}
 			else if(it2->isRE()) {
 				// We do not ask for next elem, it will be made after.
-				if(!RegExpMatcher<MType>::match(it,string_beg,string_end,it2,last_matched,it,lparams)) 
+				if(!RegExpMatcher<MType>::match(it,string_beg,string_end,it2,_last_matched,it,lparams)) 
 					return false;
 			}
 			else if(!it2->isBracket()){ // matching a pattern module
@@ -616,9 +629,10 @@ struct TreeRightMatcher
 				}
 			}
 			if (nextpattern) ++it2;
-			if (nextsrc && it!=string_end && it2 != pattern_end) {
-				last_matched = it;
-				it = NextElement::next(it,it2,string_end);				
+			if (nextsrc) { 
+				_last_matched = it;
+                if(it!=string_end && it2 != pattern_end)
+    				it = NextElement::next(it,it2,string_end);				
 			}
 		}
 		if(it2 != pattern_end && it2->isGetIterator()){
@@ -628,6 +642,7 @@ struct TreeRightMatcher
 		if(it2 == pattern_end){
 			matching_end = it;
 			params = lparams;
+            last_matched = _last_matched;
 			return true;
 		}
 		else return false;

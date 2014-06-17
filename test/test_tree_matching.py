@@ -51,8 +51,8 @@ def test_ms_match() :
 def test_ms_match2() : 
     """ Test matching with multiscale axial tree context modification 2"""
     code = lcodebeg+"""
-module L,I : scale = 1
-module E,U : scale = 2
+module L,I : scale = 2
+module E,U : scale = 1
 Axiom: ELU(0)I(1)I(2)U(3)I(4)I(5)I(6)EL
 production:
 U(x) > E:

@@ -190,11 +190,11 @@ size_t PatternModule::getVarNb() const
 #define check_var_order(var,itarg,endarg,shouldBeArgs) \
 	if(var.isKwds()) { \
 		if (itarg == endarg-1) ; \
-		else if (itarg == args.end()-2) shouldBeArgs = true; \
 		else { LsysError("Invalid syntax : invalid variable name '"+*itarg+"'","",lineno); } \
 	} \
 	else if(var.isArgs()) { \
 		if (itarg == endarg-1) ; \
+        else if (itarg == args.end()-2) shouldBeArgs = true; \
 		else { LsysError("Invalid syntax : invalid variable name '"+*itarg+"'","",lineno); } \
 	} \
 	else if (shouldBeArgs) { \

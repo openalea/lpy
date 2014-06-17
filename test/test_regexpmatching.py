@@ -78,13 +78,27 @@ def test_match_nones():
 lcode = """
 Axiom : A B
 production:
-A > or(C,None) :
+B > or(C,None) :
     global matched
     matched = True
 """
 
 def test_match_or_none():
-    """ Test matching with or and None """
+    """ Test matching with or and None on rigth"""
+    runmatch(lcode)
+
+########################################################
+
+lcode = """
+Axiom : A B
+production:
+or(C,None) < A  :
+    global matched
+    matched = True
+"""
+
+def test_match_or_none2():
+    """ Test matching with or and None on left"""
     runmatch(lcode)
 
 ########################################################

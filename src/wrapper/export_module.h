@@ -59,6 +59,8 @@ class module_func : public boost::python::def_visitor<module_func<ParamModule> >
 		 .def("hasParameter",&ParamModule::hasParameter)
 		 .def("getParameter",&ParamModule::getParameter)
 		 .def("setParameter",&ParamModule::setParameter)
+         .def("getNamedParameterNb",&ParamModule::getNamedParameterNb)
+         .def("getNamedParameters",&ParamModule::getNamedParameters,(boost::python::arg("receiver"),boost::python::arg("fromIndex")=0))
         ;
     }
 };

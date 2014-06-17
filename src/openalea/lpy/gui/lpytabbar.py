@@ -24,7 +24,8 @@ class LpyTabBar(qt.QtGui.QTabBar):
         if tabselect != -1 :
             originaltab = self.currentIndex()
             if tabselect != originaltab:
-                self.emit(SIGNAL("switchDocument"),tabselect,originaltab)
+                pass
+                #self.emit(SIGNAL("switchDocument"),tabselect,originaltab)
         qt.QtGui.QTabBar.mouseMoveEvent(self,event)
     def mouseDoubleClickEvent(self,event):
         tabselect = self.tabAt(event.pos())

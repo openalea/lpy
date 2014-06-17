@@ -367,7 +367,7 @@ void LsysContext::init_options()
 	option = options.add("Early return when no matching","Set whether the L-systems end prematurely if no matching has occured in the last iteration.","Processing");
 	option->addValue("Disabled",this,&LsysContext::setReturnIfNoMatching,false,"Disable early return.");
 	option->addValue("Enabled",this,&LsysContext::setReturnIfNoMatching,true,"Enable early return.");
-	option->setDefault(1);	
+	option->setDefault(0);	
 #if (PGL_VERSION >= 0x020B00)
 	/** warn if turtle has invalid value option */
 	option = options.add("Warning with Turtle inconsistency","Set whether a warning/error is raised when an invalid value is found during turtle processing.","Processing");

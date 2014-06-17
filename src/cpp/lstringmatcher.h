@@ -73,6 +73,8 @@ private:
 
 typedef RCPtr<LstringMatcher> LstringMatcherPtr;
 
+class LsysContext;
+
 struct LstringMatcherMaintainer {
     LsysContext * context;
 

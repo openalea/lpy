@@ -218,10 +218,13 @@ public:
   { return __conststring()[getValidIndex(i)]; }
 
   template<class StringType>
-  inline StringType getRange(int i, int j) const
+  inline StringType getRange(size_t ri, size_t rj) const
   {
-	size_t ri, rj; getValidIndices(i,j,ri,rj) ; 
-	return StringType(const_begin()+ri,const_begin()+rj);
+    const_iterator beg, end;
+    getValidIterators(ri, rj, beg, end);
+	//size_t ri, rj; getValidIndices(i,j,ri,rj) ; 
+    // printf("%i %i\n",ri,rj);
+	return StringType(beg,end);
   }
 
   inline void setAt(size_t i, const Module& m)
@@ -402,15 +405,20 @@ protected:
 		return (size_t)i;
 	 }
 
-	 inline void getValidIndices(int i, int j, size_t& resi, size_t& resj) const {
-		size_t s = size();
-		if( i < 0 ) i += s;
-		if( j < 0 ) j += s;
-	    if( j > s ) j = s;
-		if (i < 0  || i >= s || j < i) throw PythonExc_IndexError("index out of range");
-		resi =(size_t)i;
-		resj =(size_t)j;
-	 }
+     inline void getValidIndices(int i, int j, size_t& resi, size_t& resj) const {
+        size_t s = size();
+        printf("%i, %i\n",i,j);
+        if( i < 0 ) i += s;
+        if( j < 0 ) j += s;
+        if( j > s ) j = s;
+        if (i < 0  || i >= s || j < i) throw PythonExc_IndexError("index out of range");
+        resi =(size_t)i;
+        resj =(size_t)j;
+     }
+
+     inline void getValidIndices(size_t& resi, size_t& resj) const {
+        if (resj == std::string::npos) resj = size();
+     }
 
 	 inline void getValidIterators(int i, int j, const_iterator& resi, const_iterator& resj) const {
 		size_t s = size();
@@ -421,6 +429,16 @@ protected:
 		resi =const_begin()+i;
 		resj =const_begin()+j;
 	 }
+
+     inline void getValidIterators(size_t i, size_t j, const_iterator& resi, const_iterator& resj) const {
+        resi =const_begin()+i;
+        if (j == LONG_MAX) {
+            resj = const_end();
+        }
+        else {
+            resj =const_begin()+j;
+        }
+     }
 };
 
 /*---------------------------------------------------------------------------*/
