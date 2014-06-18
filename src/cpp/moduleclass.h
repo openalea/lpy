@@ -102,7 +102,8 @@ typedef pgl_hash_map_string<size_t> ParameterNameDict;
 	MACRO(SetWidth) \
 	MACRO(IncColor) \
 	MACRO(DecColor) \
-	MACRO(SetColor) \
+    MACRO(SetColor) \
+    MACRO(InterpolateColors) \
 	MACRO(DivScale) \
 	MACRO(MultScale) \
 	MACRO(SetScale) \

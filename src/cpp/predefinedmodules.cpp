@@ -513,6 +513,32 @@ DeclareModuleBegin(setColor,"Set the current material. Params : 'index' (positiv
 }
 DeclareModuleEnd
 
+DeclareModuleBegin(interpolateColors,"Set the current material. Params : 'index1', 'index2', 'alpha' .",eColor)
+{
+#if PGL_VERSION >= 0x021300
+    size_t nbargs = m.size();
+    switch (nbargs) {
+         case 0: 
+         case 1:  
+           {
+            LsysWarning("Argument missing for module "+m.name());
+              break;
+           }
+         case 2:  
+            t.interpolateColors(m._getInt(0),m._getInt(1)); break;
+         default: 
+            t.interpolateColors(m._getInt(0),m._getInt(1),m._getReal(2)); break;
+    }
+#else
+#ifdef _MSC_VER
+#pragma message("InterpolateColors module will be disabled. Upgrade PlantGL.")
+#else
+#warning InterpolateColors module will be disabled. Upgrade PlantGL.
+#endif
+#endif
+}
+DeclareModuleEnd
+
 DeclareModuleBegin(divScale,"Divides the current turtle scale by a scale factor, Params : 'scale_factor' (optional, default = 1.0).",eScale)
 {
 	if (m.empty())t.divScale();
@@ -981,7 +1007,8 @@ void ModuleClass::createPredefinedClasses() {
 	SetWidth = new DeclaredModule(setWidth)("SetWidth");
 	IncColor = new DeclaredModule(incColor)(";","IncColor");
 	DecColor = new DeclaredModule(decColor)(",","DecColor");
-	SetColor = new DeclaredModule(setColor)("SetColor");
+    SetColor = new DeclaredModule(setColor)("SetColor");
+    InterpolateColors = new DeclaredModule(interpolateColors)("InterpolateColors");
 	DivScale = new DeclaredModule(divScale)("@Dd","DivScale");
 	MultScale = new DeclaredModule(multScale)("@Di","MultScale");
 	SetScale = new DeclaredModule(scale)("@D","SetScale");

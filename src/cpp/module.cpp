@@ -91,17 +91,71 @@ boost::python::object LPY::getFunctionRepr() { return GlobalContext::getFunction
 
 /*---------------------------------------------------------------------------*/
 
-void processArgList(ParamModule::ParameterList& args, boost::python::object arg, size_t start = 0){
-    object iter_obj = object( handle<>( PyObject_GetIter( arg.ptr() ) ) );
-    for(size_t i = 0; i < start; ++i) iter_obj.attr( "next" )();
-    try { while( true ) appendParam(args,iter_obj.attr( "next" )()); }
-    catch( error_already_set ){ PyErr_Clear(); }
+void processArgList(ModuleClassPtr mclass, ParamModule::ParameterList& args, boost::python::object arg, size_t start = 0){
+    extract<boost::python::dict> isdict(arg);
+    if (!isdict.check()){
+        object iter_obj = object( handle<>( PyObject_GetIter( arg.ptr() ) ) );
+        for(size_t i = 0; i < start; ++i) iter_obj.attr( "next" )();
+        try { while( true ) appendParam(args,iter_obj.attr( "next" )()); }
+        catch( error_already_set ){ PyErr_Clear(); }
+    }
+    else {
+        boost::python::object iter_obj =  isdict().iteritems();
+        size_t nbstdparam = args.size();
+        if (nbstdparam + len(arg) < mclass->getNamedParameterNb()){
+                std::stringstream str;
+                str << mclass->name << " takes exactly " << mclass->getNamedParameterNb()<< " (" << nbstdparam + len(arg) << " given)";
+                LsysError(str.str());                
+        }
+        pgl_hash_set<size_t> missingargs;
+
+        while( true )
+        {
+            boost::python::object obj; 
+            try {  obj = iter_obj.attr( "next" )(); }
+            catch( boost::python::error_already_set ){ PyErr_Clear(); break; }
+
+            std::string pname = extract<std::string>( obj[0] )();
+            size_t pposition = mclass->getParameterPosition(pname);
+            if (pposition == ModuleClass::NOPOS) {
+                std::stringstream str;
+                str << "Invalid parameter name '" << pname << "' for module '" << mclass->name << "'.";
+                LsysError(str.str());                
+            }
+            else if (pposition < nbstdparam) {
+                std::stringstream str;
+                str << mclass->name << " got multiple values for parameter '" << pname << "'.";
+                LsysError(str.str());                
+            }
+            else {
+                size_t nbactualparam = args.size();
+                if(nbactualparam > pposition) {
+                    args[pposition] = obj[1];
+                    pgl_hash_set<size_t>::const_iterator itmarg = missingargs.find(pposition);
+                    if (itmarg != missingargs.end())
+                        missingargs.erase(itmarg);
+                }
+                else {
+                    for (size_t i = nbactualparam ; i < pposition; ++i ){
+                        appendParam(args,object());
+                        missingargs.insert(i);
+                    }
+                    appendParam(args,obj[1]);
+                }
+            }
+        }
+        if (missingargs.size() > 0) {
+                std::stringstream str;
+                str << mclass->name << " takes exactly " << mclass->getNamedParameterNb()<< " (" << missingargs.size() << " missing)";
+                LsysError(str.str());                
+        }
+    }
 }
 
-void processLastArg(ParamModule::ParameterList& args, boost::python::object arg){
+void processLastArg(ModuleClassPtr mclass, ParamModule::ParameterList& args, boost::python::object arg){
 	extract<PackedArgs> pka(arg);
 	if(pka.check()){ 
-		processArgList(args,pka().args);
+		processArgList(mclass,args,pka().args);
 	}
 	else { appendParam(args,arg); }
 }
@@ -121,9 +175,10 @@ void processConstruction(ParamModule& module,
       for(size_t i = start; i < l-1; ++i){
         appendParam(args,arg[i]); 
       }
-      if(l > start){processLastArg(args,arg[l-1]);}
+      if(l > start){processLastArg(module.getClass(), args,arg[l-1]);}
   }
 }
+
 
 /*---------------------------------------------------------------------------*/
 
@@ -205,19 +260,19 @@ ParamModule::ParamModule(boost::python::list t):
 
 ParamModule::ParamModule(const std::string& name, 
 						 const boost::python::object& a):
-BaseType(name) { processLastArg(__args(),a); }
+BaseType(name) { processLastArg(getClass(),__args(),a); }
 
 ParamModule::ParamModule(const std::string& name, 
 						 const boost::python::object& a,
 						 const boost::python::object& b):
-BaseType(name) { appendParam(__args(),a); processLastArg(__args(),b); }
+BaseType(name) { appendParam(__args(),a); processLastArg(getClass(), __args(),b); }
 
 ParamModule::ParamModule(const std::string& name, 
 						 const boost::python::object& a,
 						 const boost::python::object& b,
 						 const boost::python::object& c):
 BaseType(name) 
-{ appendParam(__args(),a); appendParam(__args(),b); processLastArg(__args(),c); }
+{ appendParam(__args(),a); appendParam(__args(),b); processLastArg(getClass(),__args(),c); }
 
 ParamModule::ParamModule(const std::string& name, 
 						 const boost::python::object& a,
@@ -226,7 +281,7 @@ ParamModule::ParamModule(const std::string& name,
 						 const boost::python::object& d):
 BaseType(name) 
  { appendParam(__args(),a); appendParam(__args(),b); 
-			  appendParam(__args(),c); processLastArg(__args(),d); }
+			  appendParam(__args(),c); processLastArg(getClass(), __args(),d); }
 
 ParamModule::ParamModule(const std::string& name, 
 						 const boost::python::object& a,
@@ -237,7 +292,7 @@ ParamModule::ParamModule(const std::string& name,
 BaseType(name)
 { appendParam(__args(),a); appendParam(__args(),b); 
   appendParam(__args(),c); appendParam(__args(),d);
-  processLastArg(__args(),e); }
+  processLastArg(getClass(), __args(),e); }
 
 
 
@@ -245,6 +300,10 @@ ParamModule::~ParamModule()
 { 
 }
 
+void ParamModule::appendArgumentList(const boost::python::object& arglist) 
+{
+    processArgList(getClass(),__args(),arglist);
+}
 
 
 

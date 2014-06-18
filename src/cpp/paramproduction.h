@@ -123,11 +123,12 @@ public:
 				if(itArg->isStarArg) {
 					ParamModule& m = res[itArg->moduleid];
 					bp::object argi  = bp::object(args[i]);
-					if(itArg->isNewName)m.setName(bp::extract<std::string>(argi[0])());
-					bp::object iter_obj( bp::handle<>( PyObject_GetIter( argi.ptr() ) ) );
-					if(itArg->isNewName)iter_obj.attr( "next" )();
-					try { while( true ) m.append(iter_obj.attr( "next" )()); }
-					catch( bp::error_already_set ){ PyErr_Clear(); }
+					if(itArg->isNewName){
+                        bp::extract<bp::dict> pdict(argi);
+                        if (pdict.check()) m.setName(bp::extract<std::string>(argi["name"])());
+                        else m.setName(bp::extract<std::string>(argi[0])());
+                    }
+                    m.appendArgumentList(argi);
 				}
 				else {
 					if(itArg->isNewName)res[itArg->moduleid].setName(bp::extract<std::string>(args[i])());

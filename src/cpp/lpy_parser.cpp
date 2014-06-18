@@ -1377,7 +1377,7 @@ std::string LpyParsing::lstring2pyparam( std::string::const_iterator& beg,
 							  pprod->append_module_value(LsysContext::current()->evaluate(*itArg));
 						  }
 						  else {
-							  std::string m = "PackedArgs(";
+							  std::string m = "PackedArgs(";                                
 							  if(itArg->size() > m.size() && std::string(itArg->begin(),itArg->begin()+m.size()) == m) {
 								pprod->append_module_star_variable();
 								result += "," + std::string(itArg->begin()+m.size(),itArg->end()-1); 
@@ -1487,10 +1487,11 @@ parseAModule( std::string::const_iterator& _it,
 				while(lastcoma != endpos && (*lastcoma == ' ' || *lastcoma == '\t') )++lastcoma;
 				if(*lastcoma == '*'){
 					std::string::const_iterator lit = lastcoma+1;
-					if (LpyParsing::isValidVariableName(lastcoma+1,_it-1)){
+                    if(*lit == '*') ++lit;
+					if (LpyParsing::isValidVariableName(lit,_it-1)){
 						mod_args += std::string(_it2,lastcoma);
 						mod_args += "PackedArgs(";
-						mod_args += std::string(lastcoma+1,_it);
+						mod_args += std::string(lit,_it);
 						without_unpacking = false;
 					}
 				}

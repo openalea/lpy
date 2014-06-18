@@ -1,0 +1,22 @@
+def End(lstring):
+  print lstring, type(lstring[0][0])
+  assert lstring == Lstring('A(0,1)')
+
+module A(x,y)
+
+Axiom: A(0,0)
+
+derivation length: 1
+production:
+
+A(**p) :
+  print p
+  p['y'] += 1
+  #del p['x']
+  #p['z'] = 0
+  produce A(**p)
+
+interpretation:
+
+
+endlsystem

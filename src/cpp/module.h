@@ -405,6 +405,7 @@ public:
   inline bool operator!=(const std::string& other) const 
   { return other != name();}
 
+  void appendArgumentList(const boost::python::object& arglist) ;
 
 
 protected:

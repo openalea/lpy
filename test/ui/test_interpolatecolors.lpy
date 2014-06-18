@@ -1,0 +1,15 @@
+from openalea.plantgl.all import *
+
+dt = 0.05
+
+Axiom: [ I(2,3) ] [ @M(0,2,0) I(2,5) ] [ @M(0,4,0) I(3,5) ]
+
+derivation length: 1
+production:
+
+I(c1,c2):
+  for t in xrange(int(1/dt)):
+    nproduce InterpolateColors(c1,c2,t*dt) @g(Box(0.5))f(1)
+
+
+endlsystem
