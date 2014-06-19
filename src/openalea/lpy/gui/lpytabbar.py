@@ -27,13 +27,11 @@ class LpyTabBar(qt.QtGui.QTabBar):
             qt.QtGui.QTabBar.mousePressEvent(self,event)
     
     def mouseReleaseEvent(self,event):
-        print self.initialtab
         if event.button() == qt.QtCore.Qt.LeftButton:
             tabselect = self.tabAt(event.pos())
             if tabselect != -1 and not self.initialtab is None:
                 if tabselect != self.initialtab:
                     self.emit(SIGNAL("switchDocument"),tabselect,self.initialtab)
-                    print 'switchDocument',tabselect,self.initialtab
             self.initialtab = None
         qt.QtGui.QTabBar.mousePressEvent(self,event)
 
