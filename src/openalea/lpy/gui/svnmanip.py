@@ -135,8 +135,59 @@ if has_svn:
         except pysvn.ClientError, ce:
             QMessageBox.warning(parent,'Update', ce.message)
             return False
+
+    def svnFileAdd(fname):
+        import os
+        fname = os.path.abspath(fname)
+        client = get_svn_client()
+        cwd = os.getcwd()
+        os.chdir(os.path.dirname(fname))
+        res = client.add(fname,False,False,False)
+        os.chdir(cwd)
+        return res
+    
+    def get_log( parent , title = 'SVN Commit'):
+            import logdialog
+            dialog = qt.QtGui.QDialog(parent)
+            widget = logdialog.Ui_LogDialog()
+            widget.setupUi(dialog)
+            dialog.setWindowTitle(title)
+            if dialog.exec_() != qt.QtGui.QDialog.Accepted:
+                return False, ''
+            else:
+                return True,  str(widget.logEdit.toPlainText())
+    
+    def svnFileCommit(fname, msg = None, parent = None):
+        import os
+        fname = os.path.abspath(fname)
+        if not isSvnAddedFile(fname) and not svnIsUpToDate(fname, parent, True):
+            QMessageBox.question(parent,'Update first', repr(os.path.basename(fname))+' is not up to date.\nUpdate first.')
+            return
+        if msg is None :
+            if parent is None:
+                msg = ''
+            else:
+                ok, msg = get_log(parent, 'SVN Commit - '+os.path.basename(fname))
+                if not ok: return
+        client = get_svn_client()
+        cwd = os.getcwd()
+        os.chdir(os.path.dirname(fname))
+        res = client.checkin(fname,msg)
+        os.chdir(cwd)
+        return res
+        
+    def svnFileRevert(fname):
+        import os
+        fname = os.path.abspath(fname)
+        client = get_svn_client()
+        cwd = os.getcwd()
+        os.chdir(os.path.dirname(fname))
+        res = client.revert(fname)
+        os.chdir(cwd)
+        return res
         
     def svnIsUpToDate( fname, parent = None, silent = False):
+        import os
         global svn_client_gui_parent
         client = get_svn_client()
         svn_client_gui_parent = parent
@@ -152,23 +203,21 @@ if has_svn:
             if current_rev.number < server_rev.number:
                 if not silent and parent:
                     changelogs = client.log(fname,revision_start = server_rev, revision_end = current_rev)
-                    msg = 'A new version of the model exists : %s (current=%s).\n' % (server_rev.number,current_rev.number)
+                    msg = os.path.basename(fname) +'\nA new version of the model exists : %s (current=%s).\n' % (server_rev.number,current_rev.number)
                     for log in changelogs:
                         msg += " - [%s][%s] '%s'\n" % (log.revision.number,log.author,log.message)
-                    if isSvnModifiedFile(fname):
-                        msg += "Warning : You also modified the file."
+                    msg += "Status : "+str(svnFileTextStatus(fname))
                     QMessageBox.question(parent,'Up-to-date',msg )
                 return False
             else:
                 if not silent and parent:
-                    msg = 'Your version is up-to-date.\nRevision: %s.\n' % (current_rev.number)
+                    msg = os.path.basename(fname) +'\nYour version is up-to-date.\nRevision: %s.\n' % (current_rev.number)
                     if server_entry['last_changed_date']:
                         import time
                         msg += 'Last changed date : %s\n' % time.asctime(time.gmtime(server_entry['last_changed_date']))
                     if server_entry['last_changed_author']:
                         msg += 'Last changed author : %s\n' % server_entry['last_changed_author']
-                    if isSvnModifiedFile(fname):
-                        msg += "You modified the file."
+                    msg += "Status : "+str(svnFileTextStatus(fname))
                     QMessageBox.question(parent,'Up-to-date', msg)                
                 return True
         except pysvn.ClientError, ce:
@@ -201,6 +250,7 @@ if has_svn:
         os.chdir(cwd)
         return res
 
+
     def svnFileServerInfo(fname):
         import os
         fname = os.path.abspath(fname)
@@ -227,6 +277,13 @@ if has_svn:
         try:
             res = svnFileTextStatus(fname)
             return (res ==  pysvn.wc_status_kind.modified)
+        except pysvn.ClientError,e:
+            return False
+    
+    def isSvnAddedFile(fname):
+        try:
+            res = svnFileTextStatus(fname)
+            return (res ==  pysvn.wc_status_kind.added)
         except pysvn.ClientError,e:
             return False
     

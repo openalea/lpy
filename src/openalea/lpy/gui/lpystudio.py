@@ -47,6 +47,7 @@ if not py2exe_release:
     ui.check_ui_generation(os.path.join(ldir, 'debugger_ui.ui'))
     ui.check_ui_generation(os.path.join(ldir, 'debugger_right_ui.ui'))
     ui.check_ui_generation(os.path.join(ldir, 'logindialog.ui'))
+    ui.check_ui_generation(os.path.join(ldir, 'logdialog.ui'))
     ui.check_rc_generation(os.path.join(ldir, 'lpyresources.qrc'))
     del ldir
     pass
@@ -333,8 +334,8 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
         self.simulations[id1],self.simulations[id2] = self.simulations[id2],self.simulations[id1]
         self.simulations[id1].index = id1
         self.simulations[id2].index = id2
-        self.simulations[id1].updateTabName()
-        self.simulations[id2].updateTabName()
+        self.simulations[id1].updateTabName(True)
+        self.simulations[id2].updateTabName(True)
         qt.QtCore.QObject.disconnect(self.documentNames,qt.QtCore.SIGNAL('currentChanged(int)'),self.changeDocument)
         self.documentNames.setCurrentIndex(id1)
         qt.QtCore.QObject.connect(self.documentNames,qt.QtCore.SIGNAL('currentChanged(int)'),self.changeDocument)

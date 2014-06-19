@@ -1,5 +1,6 @@
 from openalea.vpltk.qt import qt
 import svnmanip
+import os
 
 QObject = qt.QtCore.QObject
 SIGNAL = qt.QtCore.SIGNAL
@@ -19,19 +20,36 @@ class LpyTabBar(qt.QtGui.QTabBar):
         QObject.connect(self,SIGNAL('currentChanged(int)'),lpystudio.changeDocument)
         QObject.connect(self,SIGNAL('newDocumentRequest'),lpystudio.newfile)
         
-    def mouseMoveEvent(self,event):
-        tabselect = self.tabAt(event.pos())
-        if tabselect != -1 :
-            originaltab = self.currentIndex()
-            if tabselect != originaltab:
-                pass
-                #self.emit(SIGNAL("switchDocument"),tabselect,originaltab)
-        qt.QtGui.QTabBar.mouseMoveEvent(self,event)
-    def mouseDoubleClickEvent(self,event):
-        tabselect = self.tabAt(event.pos())
-        if tabselect != -1 :
-            self.emit(SIGNAL("newDocumentRequest"))
-        qt.QtGui.QTabBar.mouseDoubleClickEvent(self,event)
+    def mousePressEvent(self,event):
+        if event.button() == qt.QtCore.Qt.LeftButton:
+            self.initialtab = self.tabAt(event.pos())
+        else:
+            qt.QtGui.QTabBar.mousePressEvent(self,event)
+    
+    def mouseReleaseEvent(self,event):
+        print self.initialtab
+        if event.button() == qt.QtCore.Qt.LeftButton:
+            tabselect = self.tabAt(event.pos())
+            if tabselect != -1 and not self.initialtab is None:
+                if tabselect != self.initialtab:
+                    self.emit(SIGNAL("switchDocument"),tabselect,self.initialtab)
+                    print 'switchDocument',tabselect,self.initialtab
+            self.initialtab = None
+        qt.QtGui.QTabBar.mousePressEvent(self,event)
+
+    # def mouseMoveEvent(self,event):
+    #     tabselect = self.tabAt(event.pos())
+    #     if tabselect != -1 and self.initialtab != None:
+    #         if tabselect != originaltab:
+    #             pass
+    #             #self.emit(SIGNAL("switchDocument"),tabselect,originaltab)
+    #     qt.QtGui.QTabBar.mouseMoveEvent(self,event)
+    # def mouseDoubleClickEvent(self,event):
+    #     tabselect = self.tabAt(event.pos())
+    #     if tabselect != -1 :
+    #         self.emit(SIGNAL("newDocumentRequest"))
+    #     qt.QtGui.QTabBar.mouseDoubleClickEvent(self,event)
+
     def contextMenuEvent(self,event):
         self.selection = self.tabAt(event.pos())
         if self.selection != -1:
@@ -52,13 +70,28 @@ class LpyTabBar(qt.QtGui.QTabBar):
             QObject.connect(action,SIGNAL('triggered(bool)'),self.copyFilename)
             action = menu.addAction('Open folder')
             QObject.connect(action,SIGNAL('triggered(bool)'),self.openFolder)
+            action = menu.addAction('Open terminal')
+            QObject.connect(action,SIGNAL('triggered(bool)'),self.openTerminalAtFolder)
             fname = self.lpystudio.simulations[self.selection].fname
-            if fname and svnmanip.hasSvnSupport() and svnmanip.isSvnFile(fname):
-                menu.addSeparator()
-                action = menu.addAction('SVN Update')
-                QObject.connect(action,SIGNAL('triggered(bool)'),self.svnUpdate)
-                action = menu.addAction('Is Up-to-date ?')
-                QObject.connect(action,SIGNAL('triggered(bool)'),self.svnIsUpToDate)
+            if fname and svnmanip.hasSvnSupport() :
+                if svnmanip.isSvnFile(fname):
+                    menu.addSeparator()
+                    status = svnFileTextStatus(fname)
+                    if status != svnmanip.added:
+                        action = menu.addAction('SVN Update')
+                        QObject.connect(action,SIGNAL('triggered(bool)'),self.svnUpdate)
+                        action = menu.addAction('Is Up-to-date ?')
+                        QObject.connect(action,SIGNAL('triggered(bool)'),self.svnIsUpToDate)
+                    if status in  [svnmanip.added,svnmanip.modified]:
+                        action = menu.addAction('SVN Commit')
+                        QObject.connect(action,SIGNAL('triggered(bool)'),self.svnCommit)
+                    if status != svnmanip.normal:
+                        action = menu.addAction('SVN Revert')
+                        QObject.connect(action,SIGNAL('triggered(bool)'),self.svnRevert)
+                elif svnmanip.isSvnFile(os.path.dirname(fname)):
+                    menu.addSeparator()
+                    action = menu.addAction('SVN Add')
+                    QObject.connect(action,SIGNAL('triggered(bool)'),self.svnAdd)
             menu.exec_(event.globalPos())
     def openFolder(self):
         import os, sys
@@ -68,11 +101,24 @@ class LpyTabBar(qt.QtGui.QTabBar):
                 import subprocess
                 #os.startfile(mdir)
                 #os.system('explorer /select,"'+fname+'"')
-                subprocess.call('explorer /select,"'+fname+'"')
+                subprocess.call('CMD /K CD "'+mdir+'"')
         elif sys.platform == 'linux2':
                 os.system('xdg-open "'+mdir+'"')
         else:
                 os.system('open "'+mdir+'"')
+    def openTerminalAtFolder(self):
+        import os, sys
+        fname = os.path.abspath(self.lpystudio.simulations[self.selection].fname)
+        mdir = os.path.dirname(fname)
+        if sys.platform == 'win32':
+                import subprocess
+                #os.startfile(mdir)
+                #os.system('explorer /select,"'+fname+'"')
+                subprocess.call('explorer /select,"'+fname+'"')
+        elif sys.platform == 'linux2':
+                os.system('gnome-terminal --working-directory "'+mdir+'"')
+        elif sys.platform == 'darwin':
+                os.system('open -a"Terminal" "'+mdir+'"')
     def close(self):
         self.lpystudio.closeDocument(self.selection)
     def closeAllExcept(self):
@@ -87,9 +133,24 @@ class LpyTabBar(qt.QtGui.QTabBar):
     def svnUpdate(self):
         hasupdated = svnmanip.svnUpdate(self.lpystudio.simulations[self.selection].fname,self)
         if hasupdated: self.lpystudio.simulations[self.selection].reload()
+        self.lpystudio.simulations[self.selection].updateSvnStatus()
         
     def svnIsUpToDate(self):
         svnmanip.svnIsUpToDate(self.lpystudio.simulations[self.selection].fname,self)
+        self.lpystudio.simulations[self.selection].updateSvnStatus()
+        
+    def svnAdd(self):
+        svnmanip.svnFileAdd(self.lpystudio.simulations[self.selection].fname)
+        self.lpystudio.simulations[self.selection].updateSvnStatus()
+        
+    def svnRevert(self):
+        svnmanip.svnFileRevert(self.lpystudio.simulations[self.selection].fname)
+        self.lpystudio.simulations[self.selection].reload()
+        self.lpystudio.simulations[self.selection].updateSvnStatus()
+        
+    def svnCommit(self):
+        svnmanip.svnFileCommit(self.lpystudio.simulations[self.selection].fname, None, self)
+        self.lpystudio.simulations[self.selection].updateSvnStatus()
         
         
 class LpyTabBarNeighbor(qt.QtGui.QWidget):

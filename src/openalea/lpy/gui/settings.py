@@ -89,7 +89,7 @@ def restoreState(lpywidget):
         f = qt.QtGui.QFont()
         fstr = str(from_qvariant(settings.value('editionfont')))
         if fstr != 'default' and f.fromString(fstr):
-            # print 'read font'
+            #print 'read font',fstr
             lpywidget.codeeditor.setEditionFont(f)
     settings.endGroup()
     settings.beginGroup('stdout')
@@ -172,7 +172,7 @@ def saveState(lpywidget):
     settings.setValue('geometry',to_qvariant(lpywidget.geometry())) 
     settings.setValue('toolbarStyle',to_qvariant(lpywidget.getToolBarApp()[1]))
     if not lpywidget.codeeditor.isFontToDefault():
-        settings.setValue('editionfont',to_qvariant(lpywidget.codeeditor.editionFont))
+        settings.setValue('editionfont',to_qvariant(lpywidget.codeeditor.editionFont.toString()))
     else:
         settings.setValue('editionfont','default')
     settings.endGroup()

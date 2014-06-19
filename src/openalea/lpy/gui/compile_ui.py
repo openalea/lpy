@@ -26,7 +26,9 @@ def compile_ui(uifname):
 def compile_rc (rcfname) :
     """ compile a Ressource file """
     pyfname = get_rcfnames_from(rcfname)
-    if sys.platform == 'posix':
+    if sys.platform == 'darwin':
+        exe = 'pyrcc4-2.7'
+    elif sys.platform == 'posix':
         exe = 'pyrcc4'
     else:
         exe = os.path.join(sys.prefix,'pyrcc4.bat')

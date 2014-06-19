@@ -116,14 +116,17 @@ class LpySimulation:
             pixmap = qt.QtGui.QPixmap(":/images/icons/codefile-red.png")
         else:
             pixmap = qt.QtGui.QPixmap(":/images/icons/codefile.png")
-        if not self.readonly and not self.fname is None and svnmanip.hasSvnSupport() and svnmanip.isSvnFile(self.fname) :
+        if not self.readonly and not self.fname is None and svnmanip.hasSvnSupport() :
             status = svnmanip.svnFileTextStatus(self.fname)
+            self.svnstatus = status
             if  status == svnmanip.modified:
                 pixmap2 = qt.QtGui.QPixmap(":/images/icons/svn-modified.png")
             elif status == svnmanip.normal:
                 pixmap2 = qt.QtGui.QPixmap(":/images/icons/svn-normal.png")
             elif status == svnmanip.conflicted:
                 pixmap2 = qt.QtGui.QPixmap(":/images/icons/svn-conflict.png")
+            elif status == svnmanip.added:
+                pixmap2 = qt.QtGui.QPixmap(":/images/icons/svn-add.png")
             else:
                 pixmap2 = None
             if not pixmap2 is None:
@@ -135,11 +138,11 @@ class LpySimulation:
         return icon
     def registerTab(self):
         self.lpywidget.documentNames.insertTab(self.index,self.generateIcon(),self.getTabName())
-    def updateTabName(self):
+    def updateTabName(self, force = False):
         if self._oldedited != self._edited or self._oldreadonly != self.readonly:
-            self.lpywidget.documentNames.setTabIcon(self.index,self.generateIcon())
             self._oldedited = self._edited
             self._oldreadonly = self.readonly
+        self.lpywidget.documentNames.setTabIcon(self.index,self.generateIcon())
         self.lpywidget.documentNames.setTabText(self.index,self.getTabName())
     def getTimeStep(self):
         return self.timestep*0.001
@@ -712,6 +715,12 @@ class LpySimulation:
     def cleanup(self):
         self.lsystem.forceRelease()
         self.lsystem.clear()
+    def updateSvnStatus(self):
+        import svnmanip
+        if svnmanip.hasSvnSupport():
+            if (not hasattr(self,'svnstatus') and svnmanip.isSvnFile(self.fname)) or (svnmanip.svnFileTextStatus(self.fname) != self.svnstatus):
+                self.updateTabName(force=True)
+
     def monitorfile(self):
         if not hasattr(self,'monitoring'):
           self.monitoring = True
@@ -726,4 +735,6 @@ class LpySimulation:
                     self.reload()
                 else:
                     self.mtime = os.stat(self.fname).st_mtime +1
+            self.updateSvnStatus()
+
           del self.monitoring
