@@ -13,6 +13,7 @@ class LpyTabBar(qt.QtGui.QTabBar):
         self.setDrawBase(False)
         self.selection = None
         self.lpystudio = None
+        self.initialtab = None
         
     def connectTo(self,lpystudio):
         self.lpystudio = lpystudio
@@ -74,18 +75,20 @@ class LpyTabBar(qt.QtGui.QTabBar):
             if fname and svnmanip.hasSvnSupport() :
                 if svnmanip.isSvnFile(fname):
                     menu.addSeparator()
-                    status = svnFileTextStatus(fname)
+                    status = svnmanip.svnFileTextStatus(fname)
                     if status != svnmanip.added:
                         action = menu.addAction('SVN Update')
                         QObject.connect(action,SIGNAL('triggered(bool)'),self.svnUpdate)
-                        action = menu.addAction('Is Up-to-date ?')
-                        QObject.connect(action,SIGNAL('triggered(bool)'),self.svnIsUpToDate)
                     if status in  [svnmanip.added,svnmanip.modified]:
                         action = menu.addAction('SVN Commit')
                         QObject.connect(action,SIGNAL('triggered(bool)'),self.svnCommit)
                     if status != svnmanip.normal:
                         action = menu.addAction('SVN Revert')
                         QObject.connect(action,SIGNAL('triggered(bool)'),self.svnRevert)
+                    if status != svnmanip.added:
+                        menu.addSeparator()
+                        action = menu.addAction('Is Up-to-date ?')
+                        QObject.connect(action,SIGNAL('triggered(bool)'),self.svnIsUpToDate)
                 elif svnmanip.isSvnFile(os.path.dirname(fname)):
                     menu.addSeparator()
                     action = menu.addAction('SVN Add')
@@ -117,38 +120,36 @@ class LpyTabBar(qt.QtGui.QTabBar):
                 os.system('gnome-terminal --working-directory "'+mdir+'"')
         elif sys.platform == 'darwin':
                 os.system('open -a"Terminal" "'+mdir+'"')
+
     def close(self):
         self.lpystudio.closeDocument(self.selection)
+
     def closeAllExcept(self):
         self.lpystudio.closeAllExcept(self.selection)
+
     def copyFilename(self):
         qt.QtGui.QApplication.clipboard().setText(self.lpystudio.simulations[self.selection].fname)
+
     def removeReadOnly(self):
         self.lpystudio.simulations[self.selection].removeReadOnly()
+
     def setReadOnly(self):
         self.lpystudio.simulations[self.selection].setReadOnly()
         
     def svnUpdate(self):
-        hasupdated = svnmanip.svnUpdate(self.lpystudio.simulations[self.selection].fname,self)
-        if hasupdated: self.lpystudio.simulations[self.selection].reload()
-        self.lpystudio.simulations[self.selection].updateSvnStatus()
+        self.lpystudio.simulations[self.selection].svnUpdate()
         
     def svnIsUpToDate(self):
-        svnmanip.svnIsUpToDate(self.lpystudio.simulations[self.selection].fname,self)
-        self.lpystudio.simulations[self.selection].updateSvnStatus()
+        self.lpystudio.simulations[self.selection].svnIsUpToDate()
         
     def svnAdd(self):
-        svnmanip.svnFileAdd(self.lpystudio.simulations[self.selection].fname)
-        self.lpystudio.simulations[self.selection].updateSvnStatus()
+        self.lpystudio.simulations[self.selection].svnAdd()
         
     def svnRevert(self):
-        svnmanip.svnFileRevert(self.lpystudio.simulations[self.selection].fname)
-        self.lpystudio.simulations[self.selection].reload()
-        self.lpystudio.simulations[self.selection].updateSvnStatus()
+        self.lpystudio.simulations[self.selection].svnRevert()
         
     def svnCommit(self):
-        svnmanip.svnFileCommit(self.lpystudio.simulations[self.selection].fname, None, self)
-        self.lpystudio.simulations[self.selection].updateSvnStatus()
+        self.lpystudio.simulations[self.selection].svnCommit()
         
         
 class LpyTabBarNeighbor(qt.QtGui.QWidget):

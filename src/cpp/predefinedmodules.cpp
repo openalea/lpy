@@ -443,6 +443,33 @@ DeclareSimpleModule(rollToVert, "Roll to Vertical : Roll the turtle around the H
 DeclareModuleReal1(sphere,"Draw a sphere. Params : 'radius' (optional, should be positive, default = line width).",ePrimitive)
 DeclareModuleReal1(circle,"Draw a circle. Params : 'radius' (optional, should be positive, default = line width).",ePrimitive)
 
+DeclareModuleBegin(box,"Draw a box. Params : 'length','topradius'.",ePrimitive)
+{
+ #if PGL_VERSION >= 0x021300
+    switch(m.size()){
+        case 0: t.box(); break;
+        case 1: t.box(m._getReal(0)); break;
+        default:
+           t.box(m._getReal(0),m._getReal(1)); break;
+    }
+#endif
+}
+DeclareModuleEnd
+
+DeclareModuleBegin(quad,"Draw a quad. Params : 'length','topradius'.",ePrimitive)
+{
+ #if PGL_VERSION >= 0x021300
+    switch(m.size()){
+        case 0: t.quad(); break;
+        case 1: t.quad(m._getReal(0)); break;
+        default:
+           t.quad(m._getReal(0),m._getReal(1)); break;
+    }
+#endif
+}
+DeclareModuleEnd
+
+
 DeclareModuleBegin(label,"Draw a text label. Params : 'text','size'.",ePrimitive)
 {
 	if(m.empty())LsysWarning("Argument missing for module "+m.name());
@@ -999,7 +1026,9 @@ void ModuleClass::createPredefinedClasses() {
 	iRollR = new DeclaredModule(iRollR)("iRollR");
 	TurnAround = new DeclaredModule(turnAround)("|","TurnAround");
 	RollToVert = new DeclaredModule(rollToVert)("@v","RollToVert");
-	Sphere = new DeclaredModule(sphere)("@O","Sphere");
+    Sphere = new DeclaredModule(sphere)("@O","Sphere");
+    Box = new DeclaredModule(box)("@B","Box");
+    Quad = new DeclaredModule(quad)("@b","Quad");
 	Circle = new DeclaredModule(circle)("@o","Circle");
 	Label = new DeclaredModule(label)("@L","Label");
 	IncWidth = new DeclaredModule(incWidth)("_","IncWidth");

@@ -93,7 +93,9 @@ typedef pgl_hash_map_string<size_t> ParameterNameDict;
 	MACRO(iRollR) \
 	MACRO(TurnAround) \
 	MACRO(RollToVert) \
-	MACRO(Sphere) \
+    MACRO(Sphere) \
+    MACRO(Box) \
+    MACRO(Quad) \
 	MACRO(Circle) \
 	MACRO(Label) \
 	MACRO(Frame) \

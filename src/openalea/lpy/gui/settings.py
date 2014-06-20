@@ -12,9 +12,9 @@ def restoreState(lpywidget):
     settings = getSettings()
     settings.beginGroup('history')
 
-    lpywidget.history = [ str(i) for i in list(settings.value('RecentFiles')) if not i is None and len(i) > 0]
+    lpywidget.history = [ unicode(i) for i in list(settings.value('RecentFiles')) if not i is None and len(i) > 0]
     try:
-        openedfiles = [ str(i) for i in list(settings.value('OpenedFiles')) if not i is None and len(i) > 0]
+        openedfiles = [ unicode(i) for i in list(settings.value('OpenedFiles')) if not i is None and len(i) > 0]
     except:
         openedfiles = ''
     try:

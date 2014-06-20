@@ -101,7 +101,7 @@ class LpySyntaxHighlighter(qt.QtGui.QSyntaxHighlighter):
         self.tabviewactivated = value
         self.rehighlight()
     def highlightBlock(self,text):
-      text = str(text)
+      text = unicode(text)
       if self.activated:
         lentxt = len(text)
         prevst = self.currentBlockState() 
@@ -141,10 +141,10 @@ class LpySyntaxHighlighter(qt.QtGui.QSyntaxHighlighter):
         if prevst > 0 and (prevst & 2) and self.currentBlockState() < 2:
             self.releaselinedata(prevst)
         for i,c in enumerate(text):
-            if str(c) in self.delimiterkeywords:
+            if c in self.delimiterkeywords:
                 self.setFormat(i, 1, self.delimiterFormat)
         if self.currentBlockState() == 1:
-            if lentxt > 0 and not str(text[0]) in " \t":
+            if lentxt > 0 and not text[0] in " \t":
                 for ruleExp in self.lsysruleExp:
                     index = ruleExp.indexIn(text)
                     if index >= 0:
@@ -498,7 +498,7 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
             while txtok:
                 ok = cursor.movePosition(QTextCursor.NextCharacter,QTextCursor.KeepAnchor)
                 if not ok: break
-                txt2 = str(cursor.selection().toPlainText())
+                txt2 = unicode(cursor.selection().toPlainText())
                 txtok = (txt2[-1] in ' \t')
                 if txtok:
                     txt = txt2
@@ -511,7 +511,7 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
                     while txtok:
                         ok = cursor.movePosition(QTextCursor.PreviousCharacter,QTextCursor.KeepAnchor)
                         if not ok: break
-                        txt2 = str(cursor.selection().toPlainText())
+                        txt2 = unicode(cursor.selection().toPlainText())
                         txtok = (txt2[0] in ' \t')
                         if not txtok:
                             if txt2[0] == ':':
@@ -639,14 +639,16 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
     def canInsertFromMimeData(self,source):
         if source.hasUrls():
             return True
-        else:
-            return qt.QtGui.QTextEdit.canInsertFromMimeData(self,source)
+        else: return source.hasText()
+            # return qt.QtGui.QTextEdit.canInsertFromMimeData(self,source)
     def insertFromMimeData(self,source):
         if source.hasUrls():
             if not self.editor is None:
                 self.editor.openfile(str(source.urls()[0].toLocalFile()))
-        else:
-            qt.QtGui.QTextEdit.insertFromMimeData(self,source)
+        else : 
+            nsource = qt.QtCore.QMimeData()
+            nsource.setText(source.text())
+            qt.QtGui.QTextEdit.insertFromMimeData(self,nsource)
     def comment(self):
         cursor = self.textCursor()
         beg = cursor.selectionStart()
@@ -774,9 +776,11 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
     def gotoLineFromEdit(self):
         self.gotoLine(int(self.gotoEdit.text()))
     def setLineInEdit(self):
-        self.gotoEdit.setText(str(str(self.textCursor().blockNumber()+1)))
+        self.gotoEdit.setText(unicode(self.textCursor().blockNumber()+1))
         self.gotoEdit.selectAll()
     def restoreSimuState(self,simu):
+        if self.hasError:
+            self.clearErrorHightlight()
         firstinit = simu.textdocument is None
         if firstinit:            
             simu.textdocument = self.document().clone()
@@ -790,7 +794,7 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
             self.verticalScrollBar().setValue(simu.vvalue)
         self.sidebar.restoreState(simu)
     def saveSimuState(self,simu):
-        simu.code = str(self.toPlainText())
+        simu.code = self.getCode()
         if simu.textdocument is None:
             print 'custom document clone'
             simu.textdocument = self.document().clone()
@@ -798,3 +802,6 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
         simu.hvalue = self.horizontalScrollBar().value()
         simu.vvalue = self.verticalScrollBar().value()
         self.sidebar.saveState(simu)
+
+    def getCode(self):
+        return unicode(self.toPlainText()).encode('iso-8859-1','replace')

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/Users/fboudon/Develop/vplants/trunk/lpy/src/openalea/lpy/gui/lpymainwindow.ui'
 #
-# Created: Wed Jun 18 18:49:08 2014
+# Created: Fri Jun 20 17:30:14 2014
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -205,7 +205,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.referenceEdit)
         self.lpytoolbox.addItem(self.page, _fromUtf8(""))
         self.page_2 = QtGui.QWidget()
-        self.page_2.setGeometry(QtCore.QRect(0, 0, 112, 296))
+        self.page_2.setGeometry(QtCore.QRect(0, 0, 98, 296))
         self.page_2.setObjectName(_fromUtf8("page_2"))
         self.verticalLayout = QtGui.QVBoxLayout(self.page_2)
         self.verticalLayout.setSpacing(2)
@@ -445,6 +445,8 @@ class Ui_MainWindow(object):
         icon4.addPixmap(QtGui.QPixmap(_fromUtf8(":/images/icons/book.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.menuTutorials.setIcon(icon4)
         self.menuTutorials.setObjectName(_fromUtf8("menuTutorials"))
+        self.menuSVN = QtGui.QMenu(self.menuFile)
+        self.menuSVN.setObjectName(_fromUtf8("menuSVN"))
         self.menuEdit = QtGui.QMenu(self.menubar)
         self.menuEdit.setObjectName(_fromUtf8("menuEdit"))
         self.menuHelp = QtGui.QMenu(self.menubar)
@@ -457,7 +459,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
         self.FileBar = QtGui.QToolBar(MainWindow)
         icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap(_fromUtf8("../../../../../../../../.designer/backup/logo.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon5.addPixmap(QtGui.QPixmap(_fromUtf8("../../../../../../../../../../../../../../.designer/backup/logo.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.FileBar.setWindowIcon(icon5)
         self.FileBar.setIconSize(QtCore.QSize(32, 32))
         self.FileBar.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
@@ -720,6 +722,16 @@ class Ui_MainWindow(object):
         self.actionExecute = QtGui.QAction(MainWindow)
         self.actionExecute.setIcon(icon30)
         self.actionExecute.setObjectName(_fromUtf8("actionExecute"))
+        self.actionSVNUpdate = QtGui.QAction(MainWindow)
+        self.actionSVNUpdate.setObjectName(_fromUtf8("actionSVNUpdate"))
+        self.actionSVNIsUpToDate = QtGui.QAction(MainWindow)
+        self.actionSVNIsUpToDate.setObjectName(_fromUtf8("actionSVNIsUpToDate"))
+        self.actionSVNCommit = QtGui.QAction(MainWindow)
+        self.actionSVNCommit.setObjectName(_fromUtf8("actionSVNCommit"))
+        self.actionSVNRevert = QtGui.QAction(MainWindow)
+        self.actionSVNRevert.setObjectName(_fromUtf8("actionSVNRevert"))
+        self.actionSVNAdd = QtGui.QAction(MainWindow)
+        self.actionSVNAdd.setObjectName(_fromUtf8("actionSVNAdd"))
         self.menuL_systems.addAction(self.actionRun)
         self.menuL_systems.addAction(self.actionAnimate)
         self.menuL_systems.addSeparator()
@@ -741,6 +753,13 @@ class Ui_MainWindow(object):
         self.menuImport.addAction(self.actionImportCpfgProject)
         self.menuImport.addAction(self.actionImportCpfgFile)
         self.menuTutorials.addAction(self.actionTutorialTest1)
+        self.menuSVN.addAction(self.actionSVNUpdate)
+        self.menuSVN.addAction(self.actionSVNCommit)
+        self.menuSVN.addAction(self.actionSVNRevert)
+        self.menuSVN.addSeparator()
+        self.menuSVN.addAction(self.actionSVNAdd)
+        self.menuSVN.addSeparator()
+        self.menuSVN.addAction(self.actionSVNIsUpToDate)
         self.menuFile.addAction(self.actionNew)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionOpen)
@@ -748,6 +767,7 @@ class Ui_MainWindow(object):
         self.menuFile.addAction(self.actionSaveAs)
         self.menuFile.addAction(self.actionSaveAll)
         self.menuFile.addAction(self.actionClose)
+        self.menuFile.addAction(self.menuSVN.menuAction())
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.menuImport.menuAction())
         self.menuFile.addSeparator()
@@ -894,6 +914,7 @@ class Ui_MainWindow(object):
         self.menuRecents.setTitle(_translate("MainWindow", "Recents", None))
         self.menuImport.setTitle(_translate("MainWindow", "Import", None))
         self.menuTutorials.setTitle(_translate("MainWindow", "Tutorials", None))
+        self.menuSVN.setTitle(_translate("MainWindow", "SVN", None))
         self.menuEdit.setTitle(_translate("MainWindow", "Edit", None))
         self.menuHelp.setTitle(_translate("MainWindow", "Help", None))
         self.menuView.setTitle(_translate("MainWindow", "View", None))
@@ -973,6 +994,11 @@ class Ui_MainWindow(object):
         self.actionTutorialTest1.setText(_translate("MainWindow", "Test 1", None))
         self.actionExecute.setText(_translate("MainWindow", "Execute ...", None))
         self.actionExecute.setShortcut(_translate("MainWindow", "Ctrl+E", None))
+        self.actionSVNUpdate.setText(_translate("MainWindow", "Update", None))
+        self.actionSVNIsUpToDate.setText(_translate("MainWindow", "Is Up-to-Date ?", None))
+        self.actionSVNCommit.setText(_translate("MainWindow", "Commit", None))
+        self.actionSVNRevert.setText(_translate("MainWindow", "Revert", None))
+        self.actionSVNAdd.setText(_translate("MainWindow", "Add", None))
 
 from lpycodeeditor import LpyCodeEditor
 from scalareditor import ScalarEditor

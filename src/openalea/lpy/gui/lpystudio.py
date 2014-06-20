@@ -210,6 +210,7 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
         qt.QtCore.QObject.connect(self.actionUseThread,qt.QtCore.SIGNAL('triggered()'),self.toggleUseThread)
         qt.QtCore.QObject.connect(self.actionFitAnimationView,qt.QtCore.SIGNAL('triggered()'),self.toggleFitAnimationView)
         qt.QtCore.QObject.connect(self.menuRecents,qt.QtCore.SIGNAL("triggered(QAction *)"),self.recentMenuAction)
+        self.initSVNMenu()
         self.printTitle()
         self.centralViewIsGL = False
         self.svnLastRevisionChecked = 0
@@ -572,7 +573,7 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
                                                     initialname,
                                                     "L-Py Files (*.lpy);;All Files (*.*)")
             if not fname: return
-            fname = str(fname)
+            # fname = str(fname)
             self.appendInHistory(fname)
         else :
          if not os.path.exists(fname):
@@ -792,7 +793,7 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
     def appendInHistory(self,fname):
         if fname is None:
             print 'Wrong added file in history'
-        fname = str(fname)
+        fname = unicode(fname)
         if not fname in self.history:
             self.history.insert(0,fname)
         elif fname == self.history[0]:
@@ -802,7 +803,7 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
             del self.history[self.historymaxsize:]
         self.createRecentMenu()        
     def removeInHistory(self,fname):
-        fname = str(fname)
+        fname = unicode(fname)
         if fname in self.history:
             self.history.remove(fname)
             self.createRecentMenu()
@@ -812,7 +813,7 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
         icon.addPixmap(qt.QtGui.QPixmap(":/images/icons/codefile.png"),qt.QtGui.QIcon.Normal,qt.QtGui.QIcon.Off)
         if len(self.history) > 0:
             for f in self.history:
-                action = qt.QtGui.QAction(os.path.basename(str(f)),self.menuRecents)
+                action = qt.QtGui.QAction(os.path.basename(f),self.menuRecents)
                 action.setData(to_qvariant(f))
                 action.setIcon(icon)
                 self.menuRecents.addAction(action)
@@ -846,7 +847,7 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
                         action.setIcon(iconfile)
                         cmenu.addAction(action)
     def recentMenuAction(self,action):
-        self.openfile(str(action.data()))
+        self.openfile(unicode(action.data()))
     def clearHistory(self):
         self.history = []
         self.createRecentMenu()
@@ -863,7 +864,6 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
         if len(self.cCompilerPath) != 0 and not self.cCompilerPath in os.environ['PATH']:
             os.environ['PATH']+=';'+self.cCompilerPath
     def executeCode(self):
-        print 'executeCode'
         self.interpreter.runcode(self.codeeditor.textCursor().selectedText())
     def submitBug(self):
         import webbrowser
@@ -871,8 +871,57 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
     def onlinehelp(self):
         import webbrowser
         webbrowser.open("http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=packages:vplants:lpy:main")
+    def initSVNMenu(self):
+        import svnmanip
+        if not svnmanip.hasSvnSupport() :
+            menuSVN.setEnabled(False)
+        else:
+            qt.QtCore.QObject.connect(self.menuSVN, qt.QtCore.SIGNAL('aboutToShow()'),self.updateSVNMenu)            
+
+            qt.QtCore.QObject.connect(self.actionSVNUpdate, qt.QtCore.SIGNAL('triggered(bool)'),self.svnUpdate)            
+            qt.QtCore.QObject.connect(self.actionSVNCommit, qt.QtCore.SIGNAL('triggered(bool)'),self.svnCommit)            
+            qt.QtCore.QObject.connect(self.actionSVNRevert, qt.QtCore.SIGNAL('triggered(bool)'),self.svnRevert)            
+            qt.QtCore.QObject.connect(self.actionSVNAdd, qt.QtCore.SIGNAL('triggered(bool)'),self.svnAdd)            
+            qt.QtCore.QObject.connect(self.actionSVNIsUpToDate, qt.QtCore.SIGNAL('triggered(bool)'),self.svnIsUpToDate)
+
+    def updateSVNMenu(self):
+        import svnmanip, os
+        if svnmanip.hasSvnSupport() :
+            fname = self.currentSimulation().fname
+
+            if not fname or not svnmanip.isSvnFile(fname):
+                for action in  [self.actionSVNUpdate, self.actionSVNCommit, self.actionSVNRevert, self.actionSVNIsUpToDate]:
+                    action.setEnabled(False)
+
+                self.actionSVNAdd.setEnabled(not fname is None and svnmanip.isSvnFile(os.path.dirname(fname)))
+            else :
+                    status = svnmanip.svnFileTextStatus(fname)
+                    isadded = (status == svnmanip.added)
+                    ismodified = (status == svnmanip.modified)
+                    isnormal = (status == svnmanip.normal)
+
+                    self.actionSVNUpdate.setEnabled(not isadded)
+                    self.actionSVNIsUpToDate.setEnabled(not isadded)
+                    self.actionSVNCommit.setEnabled(ismodified or isadded)
+                    self.actionSVNRevert.setEnabled(not isnormal)
+                    self.actionSVNAdd.setEnabled(False)
 
 
+    def svnUpdate(self):
+        self.currentSimulation().svnUpdate()
+        
+    def svnIsUpToDate(self):
+        self.currentSimulation().svnIsUpToDate()
+        
+    def svnAdd(self):
+        self.currentSimulation().svnAdd()
+        
+    def svnRevert(self):
+        self.currentSimulation().svnRevert()
+        
+    def svnCommit(self):
+        self.currentSimulation().svnCommit()
+        
 def versionmessage():
     import openalea.lpy.__version__ as lpyversion
     print 'L-Py, version '+lpyversion.LPY_VERSION_STR

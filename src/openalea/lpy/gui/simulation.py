@@ -117,22 +117,23 @@ class LpySimulation:
         else:
             pixmap = qt.QtGui.QPixmap(":/images/icons/codefile.png")
         if not self.readonly and not self.fname is None and svnmanip.hasSvnSupport() :
-            status = svnmanip.svnFileTextStatus(self.fname)
-            self.svnstatus = status
-            if  status == svnmanip.modified:
-                pixmap2 = qt.QtGui.QPixmap(":/images/icons/svn-modified.png")
-            elif status == svnmanip.normal:
-                pixmap2 = qt.QtGui.QPixmap(":/images/icons/svn-normal.png")
-            elif status == svnmanip.conflicted:
-                pixmap2 = qt.QtGui.QPixmap(":/images/icons/svn-conflict.png")
-            elif status == svnmanip.added:
-                pixmap2 = qt.QtGui.QPixmap(":/images/icons/svn-add.png")
-            else:
-                pixmap2 = None
-            if not pixmap2 is None:
-                painter = qt.QtGui.QPainter(pixmap);
-                painter.drawPixmap(pixmap.width()-pixmap2.width(),pixmap.height()-pixmap2.height(),pixmap2)
-                painter.end()
+            if svnmanip.isSvnFile(self.fname):
+                status = svnmanip.svnFileTextStatus(self.fname)
+                self.svnstatus = status
+                if  status == svnmanip.modified:
+                    pixmap2 = qt.QtGui.QPixmap(":/images/icons/svn-modified.png")
+                elif status == svnmanip.normal:
+                    pixmap2 = qt.QtGui.QPixmap(":/images/icons/svn-normal.png")
+                elif status == svnmanip.conflicted:
+                    pixmap2 = qt.QtGui.QPixmap(":/images/icons/svn-conflict.png")
+                elif status == svnmanip.added:
+                    pixmap2 = qt.QtGui.QPixmap(":/images/icons/svn-add.png")
+                else:
+                    pixmap2 = None
+                if not pixmap2 is None:
+                    painter = qt.QtGui.QPainter(pixmap);
+                    painter.drawPixmap(pixmap.width()-pixmap2.width(),pixmap.height()-pixmap2.height(),pixmap2)
+                    painter.end()
         icon = qt.QtGui.QIcon()
         icon.addPixmap(pixmap.scaledToHeight(32),qt.QtGui.QIcon.Normal,qt.QtGui.QIcon.Off)
         return icon
@@ -196,7 +197,7 @@ class LpySimulation:
             if type(editor) == qt.QtGui.QLineEdit:
                 self.desc_items[key] = editor.text()
             else:
-                self.desc_items[key] = editor.toPlainText()
+                self.desc_items[key] = editor.toPlainText().encode('iso-8859-1','replace')
         #self.functions = self.lpywidget.functionpanel.getFunctions()
         #self.curves = self.lpywidget.curvepanel.getCurves()
         self.visualparameters = [(panel.getInfo(),panel.getObjects()) for panel in self.lpywidget.getObjectPanels()]
@@ -256,8 +257,8 @@ class LpySimulation:
                 self.saveToFile(bckupname)
         self.lsystem.clear()
         if self.fname:
-            self.lsystem.filename = self.fname
-        self.code = str(self.lpywidget.codeeditor.toPlainText())
+            self.lsystem.filename = self.getStrFname()
+        self.code = self.lpywidget.codeeditor.getCode()
         lpycode = self.code
         lpycode += '\n'+self.getInitialisationCode(False)
         res = self.lsystem.set(lpycode,{},self.lpywidget.showPyCode)
@@ -291,7 +292,7 @@ class LpySimulation:
             self.mtime = os.stat(self.fname).st_mtime
             self.lpywidget.statusBar().showMessage("Save file '"+self.fname+"'",2000)
             self.lpywidget.appendInHistory(self.fname)
-            self.lsystem.filename = self.fname
+            self.lsystem.filename = self.getStrFname()
             self.setEdited(False)
             self.updateReadOnly()
         else:
@@ -354,6 +355,8 @@ class LpySimulation:
         if len(code) > 0:
             code = LpyParsing.InitialisationBeginTag+'\n\n'+'__lpy_code_version__ = '+str(1.1)+'\n\n'+code
         return code
+    def getStrFname(self):
+        return self.fname.encode('iso-8859-1','replace')
     def initialisationFunction(self,withall=True):
         header = "def "+LsysContext.InitialisationFunctionName+"(context):\n"
         init_txt = ''
@@ -370,7 +373,7 @@ class LpySimulation:
             printer.indentation_increment = '\t'
             printer.line_between_object = 0
             if self.fname and len(self.fname) > 0:
-                printer.reference_dir = os.path.abspath(os.path.dirname(self.fname))
+                printer.reference_dir = os.path.abspath(os.path.dirname(self.getStrFname()))
                 #print printer.reference_dir
             for i in xrange(nbcurrent):
                 cmat = currentlist[i]
@@ -715,11 +718,6 @@ class LpySimulation:
     def cleanup(self):
         self.lsystem.forceRelease()
         self.lsystem.clear()
-    def updateSvnStatus(self):
-        import svnmanip
-        if svnmanip.hasSvnSupport():
-            if (not hasattr(self,'svnstatus') and svnmanip.isSvnFile(self.fname)) or (svnmanip.svnFileTextStatus(self.fname) != self.svnstatus):
-                self.updateTabName(force=True)
 
     def monitorfile(self):
         if not hasattr(self,'monitoring'):
@@ -738,3 +736,36 @@ class LpySimulation:
             self.updateSvnStatus()
 
           del self.monitoring
+
+    def updateSvnStatus(self):
+        import svnmanip
+        if svnmanip.hasSvnSupport():
+            if (not hasattr(self,'svnstatus') and svnmanip.isSvnFile(self.fname)) or (hasattr(self,'svnstatus') and svnmanip.svnFileTextStatus(self.fname) != self.svnstatus):
+                self.updateTabName(force=True)
+
+    def svnUpdate(self):
+        import svnmanip
+        hasupdated = svnmanip.svnUpdate(self.fname,self.lpywidget)
+        if hasupdated: self.reload()
+        self.updateSvnStatus()
+        
+    def svnIsUpToDate(self):
+        import svnmanip
+        svnmanip.svnIsUpToDate(self.fname,self.lpywidget)
+        self.updateSvnStatus()
+        
+    def svnAdd(self):
+        import svnmanip
+        svnmanip.svnFileAdd(self.fname)
+        self.updateSvnStatus()
+        
+    def svnRevert(self):
+        import svnmanip
+        svnmanip.svnFileRevert(self.fname)
+        self.reload()
+        self.updateSvnStatus()
+        
+    def svnCommit(self):
+        import svnmanip
+        svnmanip.svnFileCommit(self.fname, None, self.lpywidget)
+        self.updateSvnStatus()

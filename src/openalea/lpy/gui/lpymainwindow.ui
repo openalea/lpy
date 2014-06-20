@@ -439,7 +439,7 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>112</width>
+             <width>98</width>
              <height>296</height>
             </rect>
            </property>
@@ -976,6 +976,18 @@
      </property>
      <addaction name="actionTutorialTest1"/>
     </widget>
+    <widget class="QMenu" name="menuSVN">
+     <property name="title">
+      <string>SVN</string>
+     </property>
+     <addaction name="actionSVNUpdate"/>
+     <addaction name="actionSVNCommit"/>
+     <addaction name="actionSVNRevert"/>
+     <addaction name="separator"/>
+     <addaction name="actionSVNAdd"/>
+     <addaction name="separator"/>
+     <addaction name="actionSVNIsUpToDate"/>
+    </widget>
     <addaction name="actionNew"/>
     <addaction name="separator"/>
     <addaction name="actionOpen"/>
@@ -983,6 +995,7 @@
     <addaction name="actionSaveAs"/>
     <addaction name="actionSaveAll"/>
     <addaction name="actionClose"/>
+    <addaction name="menuSVN"/>
     <addaction name="separator"/>
     <addaction name="menuImport"/>
     <addaction name="separator"/>
@@ -1063,7 +1076,7 @@
    </property>
    <property name="windowIcon">
     <iconset>
-     <normaloff>../../../../../../../../.designer/backup/logo.png</normaloff>../../../../../../../../.designer/backup/logo.png</iconset>
+     <normaloff>../../../../../../../../../../../../../../.designer/backup/logo.png</normaloff>../../../../../../../../../../../../../../.designer/backup/logo.png</iconset>
    </property>
    <property name="iconSize">
     <size>
@@ -1714,6 +1727,31 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+E</string>
+   </property>
+  </action>
+  <action name="actionSVNUpdate">
+   <property name="text">
+    <string>Update</string>
+   </property>
+  </action>
+  <action name="actionSVNIsUpToDate">
+   <property name="text">
+    <string>Is Up-to-Date ?</string>
+   </property>
+  </action>
+  <action name="actionSVNCommit">
+   <property name="text">
+    <string>Commit</string>
+   </property>
+  </action>
+  <action name="actionSVNRevert">
+   <property name="text">
+    <string>Revert</string>
+   </property>
+  </action>
+  <action name="actionSVNAdd">
+   <property name="text">
+    <string>Add</string>
    </property>
   </action>
  </widget>
