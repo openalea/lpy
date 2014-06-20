@@ -14,9 +14,9 @@ __lpy_code_version__ = 1.1
 
 def __initialiseContext__(context):
 	import openalea.plantgl.all as pgl
-	PGL_301614096 = pgl.ImageTexture("PGL_301614096" , "D:/Fred/Mes Documents/Develop/vplants/trunk/lpy/share/image/leaf2.jpg" , )
-	PGL_301614096.name = "PGL_301614096"
-	Color_5 = pgl.Texture2D(image = PGL_301614096 , )
+	PGL_140711731611152 = pgl.ImageTexture("PGL_140711731611152" , "../../image/leaf2.jpg" , )
+	PGL_140711731611152.name = "PGL_140711731611152"
+	Color_5 = pgl.Texture2D(image = PGL_140711731611152 , )
 	Color_5.name = "Color_5"
 	context.turtle.setMaterial(5,Color_5)
 	import openalea.plantgl.all as pgl
