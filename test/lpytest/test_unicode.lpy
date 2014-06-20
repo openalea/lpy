@@ -1,0 +1,13 @@
+# test special character: é è §
+Axiom: A('é') é
+
+derivation length: 1
+production:
+
+é --> é
+
+interpretation:
+
+A(t) --> Label(t)
+
+endlsystem
