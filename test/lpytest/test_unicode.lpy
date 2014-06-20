@@ -11,3 +11,8 @@ interpretation:
 A(t) --> Label(t)
 
 endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+__description__ = 'test special character such as \xe9'
