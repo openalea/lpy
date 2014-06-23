@@ -24,8 +24,7 @@ class LpyTabBar(qt.QtGui.QTabBar):
     def mousePressEvent(self,event):
         if event.button() == qt.QtCore.Qt.LeftButton:
             self.initialtab = self.tabAt(event.pos())
-        else:
-            qt.QtGui.QTabBar.mousePressEvent(self,event)
+        qt.QtGui.QTabBar.mousePressEvent(self,event)
     
     def mouseReleaseEvent(self,event):
         if event.button() == qt.QtCore.Qt.LeftButton:
