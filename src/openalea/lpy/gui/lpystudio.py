@@ -874,7 +874,7 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
     def initSVNMenu(self):
         import svnmanip
         if not svnmanip.hasSvnSupport() :
-            menuSVN.setEnabled(False)
+            self.menuSVN.setEnabled(False)
         else:
             qt.QtCore.QObject.connect(self.menuSVN, qt.QtCore.SIGNAL('aboutToShow()'),self.updateSVNMenu)            
 

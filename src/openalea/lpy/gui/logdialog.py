@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/Users/fboudon/Develop/vplants/trunk/lpy/src/openalea/lpy/gui/logdialog.ui'
+# Form implementation generated from reading ui file '/home/fred/Develop/vplants/lpy/src/openalea/lpy/gui/logdialog.ui'
 #
-# Created: Thu Jun 19 14:18:10 2014
-#      by: PyQt4 UI code generator 4.10.4
+# Created: Mon Jun 23 16:12:14 2014
+#      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
 
