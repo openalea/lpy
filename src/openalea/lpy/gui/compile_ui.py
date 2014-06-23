@@ -1,10 +1,20 @@
 from openalea.vpltk.qt import qt
-try:
-    from PyQt4.uic import compileUi
-except ImportError:
-    from pysideuic import compileUi
+
 import os
 import sys
+
+try :
+    if os.environ['QT_API'] == 'pyqt' :
+        from PyQt4.uic import compileUi
+        compile_args = dict(execute=False, indent=4)
+    elif os.environ['QT_API'] == 'pyside' :
+        from pysideuic import compileUi
+        compile_args = dict(execute=False, indent=4, from_imports=False)
+    else :
+        raise NotImplementedError
+except ImportError :
+    print 'You must install %s-tools' % os.environ['QT_API']
+
 
 def get_uifnames_from(fname):
     uiprefix = os.path.splitext(fname)[0]
@@ -20,7 +30,7 @@ def compile_ui(uifname):
     """ compile a Ui """
     pyfname = get_uifnames_from(uifname)
     fstream = file(pyfname,'w')
-    compileUi(uifname,fstream)
+    compileUi(uifname, fstream, **compile_args)
     fstream.close()
 
 def compile_rc (rcfname) :
@@ -44,8 +54,8 @@ def check_ui_generation(uifname):
          not os.path.exists(pyfname) or
          (os.access(pyfname,os.F_OK|os.W_OK) and
          os.stat(pyfname).st_mtime < os.stat(uifname).st_mtime )) :
-         print 'Generate Ui'
-         compile_ui(uifname)
+        print 'Generate Ui'
+        compile_ui(uifname)
 
 def check_rc_generation(rcfname):
     """ check if a py file should regenerated from a ui """

@@ -20,7 +20,7 @@ class Ui_Form(object):
         Form.resize(526, 197)
         Form.setWindowTitle(qt.QtGui.QApplication.translate("Form", "Form", None, qt.QtGui.QApplication.UnicodeUTF8))
         self.gridLayout = qt.QtGui.QGridLayout(Form)
-        self.gridLayout.setMargin(2)
+        self.gridLayout.setContentsMargins(2, 2, 2, 2)
         self.gridLayout.setSpacing(2)
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
         self.srcView = qt.QtGui.QTextEdit(Form)

@@ -1,6 +1,6 @@
 from openalea.plantgl.all import *
 #from objectdialog import *
-from openalea.vpltk.qt import qt
+from openalea.vpltk import qt
 try:
     from PyQt4 import QtOpenGL
 except:
@@ -906,7 +906,7 @@ class LpyObjectPanelDock (qt.QtGui.QDockWidget):
         self.dockWidgetContents.setObjectName(name+"DockWidgetContents")
         self.verticalLayout = qt.QtGui.QVBoxLayout(self.dockWidgetContents)
         self.verticalLayout.setSpacing(0)
-        self.verticalLayout.setMargin(0)
+        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout.setObjectName(name+"verticalLayout")
         
         self.objectpanel = qt.QtGui.QScrollArea(self.dockWidgetContents)

@@ -20,7 +20,7 @@ class ObjectDialog(qt.QtGui.QDialog):
         self.resize(389, 282)
         self.verticalLayout = qt.QtGui.QVBoxLayout(self)
         self.verticalLayout.setSpacing(2)
-        self.verticalLayout.setMargin(2)
+        self.verticalLayout.setContentsMargins(2, 2, 2, 2)
         self.verticalLayout.setObjectName("verticalLayout")
         self._menu = qt.QtGui.QMenuBar(self)
         try:
