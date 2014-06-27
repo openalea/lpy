@@ -35,7 +35,7 @@ if has_svn:
         settingpath = os.path.dirname(qpath)
         svnsettingpath = os.path.join(settingpath,'svn')
         if not os.path.exists(svnsettingpath):
-            os.mkdir(svnsettingpath)
+            os.makedirs(svnsettingpath)
         client = pysvn.Client(svnsettingpath)
         client.set_store_passwords(True)
         client.set_auth_cache(True)
