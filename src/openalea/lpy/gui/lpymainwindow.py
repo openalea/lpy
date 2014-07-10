@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/Users/fboudon/Develop/vplants/trunk/lpy/src/openalea/lpy/gui/lpymainwindow.ui'
 #
-# Created: Fri Jun 20 17:30:14 2014
+# Created: Thu Jul 10 14:45:03 2014
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -933,7 +933,7 @@ class Ui_MainWindow(object):
         self.actionRun.setShortcut(_translate("MainWindow", "Ctrl+R", None))
         self.actionAnimate.setText(_translate("MainWindow", "Animate", None))
         self.actionStep.setText(_translate("MainWindow", "Step", None))
-        self.actionStep.setShortcut(_translate("MainWindow", "Ctrl+E", None))
+        self.actionStep.setShortcut(_translate("MainWindow", "Ctrl+T", None))
         self.actionRewind.setText(_translate("MainWindow", "Rewind", None))
         self.actionNew.setText(_translate("MainWindow", "New", None))
         self.actionNew.setShortcut(_translate("MainWindow", "Ctrl+N", None))
