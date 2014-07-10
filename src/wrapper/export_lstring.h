@@ -133,6 +133,14 @@ boost::python::object py_complex(LString * tree, int pos)
 { return iter_to_int(tree,tree->complex(int_to_iter(tree,pos))); }
 
 template<class LString>
+boost::python::object py_components(LString * tree, int pos)
+{ return veciter_to_list(tree,tree->components(int_to_iter(tree,pos)) ); }
+
+template<class LString>
+boost::python::object py_components_at_scale(LString * tree, int pos, int scale)
+{ return veciter_to_list(tree,tree->components_at_scale(int_to_iter(tree,pos),scale)); }
+
+template<class LString>
 boost::python::object py_successor_at_scale(LString * tree, int pos, int scale)
 { return iter_to_int(tree,successor_at_scale(int_to_iter(tree,pos),scale,tree->const_end())); }
 
@@ -225,8 +233,10 @@ class lstring_func : public boost::python::def_visitor<lstring_func<LString> >
 		 .def( "direct_child", &py_direct_child<LString>, boost::python::args("pos") ) 
 		 .def( "endBracket", &py_endBracket<LString>, (bp::arg("startingBeforePos")=false) ) 
 		 .def( "beginBracket", &py_beginBracket<LString>, (bp::arg("startingAfterPos")=false) ) 
-		 .def( "complex", &py_complex1<LString>, boost::python::args("pos") ) 
-		 .def( "complex", &py_complex<LString>, boost::python::args("pos","scale") ) 
+         .def( "complex", &py_complex1<LString>, boost::python::args("pos") ) 
+         .def( "complex", &py_complex<LString>, boost::python::args("pos","scale") ) 
+         .def( "components", &py_components<LString>, boost::python::args("pos") ) 
+         .def( "components_at_scale", &py_components_at_scale<LString>, boost::python::args("pos","scale") ) 
 		 .def( "successor_at_scale", &py_successor_at_scale<LString>, boost::python::args("pos","scale") ) 
 		 .def( "successor_at_level", &py_successor_at_level<LString>, boost::python::args("pos","level") ) 
 		 .def( "predecessor_at_scale", &py_predecessor_at_scale<LString>, boost::python::args("pos","scale") ) 

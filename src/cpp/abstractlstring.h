@@ -343,6 +343,12 @@ public:
   inline const_iterator complex(const_iterator pos) const
   { return LPY::complex(pos,up_scale(pos->scale()),const_begin(),const_end()); }
 
+  inline std::vector<const_iterator> components(const_iterator pos) const
+  { return LPY::components(pos,const_end()); }
+
+  inline std::vector<const_iterator> components_at_scale(const_iterator pos, int scale) const
+  { return LPY::components_at_scale(pos,scale,const_end()); }
+
   //!  Return iterator on endBracket ']' or end of string. If pos is on a '[', startingBeforePos allows to say if search should start from just before the '[' or after.
   inline const_iterator endBracket(const_iterator pos, bool startingBeforePos = false) const
   { return LPY::endBracket(pos,const_end(),startingBeforePos); }

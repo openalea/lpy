@@ -64,6 +64,12 @@ public:
   inline NodeModule complex() const
   { return complex(scale()+1); }
 
+  inline std::vector<NodeModule> components() const
+  {  return make_nodes(LPY::components(__pos,__end)); }
+
+  inline std::vector<NodeModule> components_at_scale(int scale) const
+  {  return make_nodes(LPY::components_at_scale(__pos, scale, __end)); }
+
   inline bool isRoot() const
   { return __pos == __beg; }
 

@@ -52,6 +52,8 @@ bp::object py_children(const NodeModule* obj) { return translate_nodes(obj->chil
 bp::object py_lateral_children(const NodeModule* obj) { return translate_nodes(obj->lateral_children()); }
 bp::object py_complex(const NodeModule* obj) { return translate_node(obj->complex()); }
 bp::object py_complex1(const NodeModule* obj, int s) { return translate_node(obj->complex(s)); }
+bp::object py_components(const NodeModule* obj) { return translate_nodes(obj->components()); }
+bp::object py_components_at_scale(const NodeModule* obj, int s) { return translate_nodes(obj->components_at_scale(s)); }
 
 void export_NodeModule(){
 
@@ -62,6 +64,8 @@ void export_NodeModule(){
 	.def("direct_child", &py_direct_child)
 	.def("complex", &py_complex)
 	.def("complex", &py_complex1)
+    .def("components", &py_components)
+    .def("components_at_scale", &py_components_at_scale)
 	.def("isValid", &NodeModule::isValid)
 	.def("isRoot", &NodeModule::isRoot)
 	.def("position", &NodeModule::position)

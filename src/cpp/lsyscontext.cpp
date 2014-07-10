@@ -732,11 +732,9 @@ LsysContext::endEach(AxialTree& lstring, const PGL::ScenePtr& scene)
 AxialTree
 LsysContext::startInterpretation(){
     if(hasStartInterpretationFunction()){
-        printf("call StartInterpretation\n");
           func("StartInterpretation");
           AxialTree nprod = LsysContext::currentContext()->get_nproduction(); 
           if (nprod.empty())  {
-                    printf("no prod\n");
             return AxialTree();
           }
           else { 
@@ -744,7 +742,6 @@ LsysContext::startInterpretation(){
               return nprod;
           }
     }
-            printf("no StartInterpretation\n");
     return AxialTree();
 }
 

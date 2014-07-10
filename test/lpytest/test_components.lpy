@@ -1,0 +1,17 @@
+module A(nbcomponents) : scale = 1
+module B : scale = 2
+
+Axiom: A(3) B [ B A(1) B ] B A(2) B B
+
+derivation length: 1
+production:
+$A(a):
+  print a.components_at_scale(2)
+  assert len(a.components()) == a.nbcomponents
+  assert len(a.components_at_scale(2)) == a.nbcomponents
+
+
+interpretation:
+
+
+endlsystem

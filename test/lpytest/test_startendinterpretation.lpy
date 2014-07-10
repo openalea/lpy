@@ -1,0 +1,22 @@
+def StartInterpretation():
+  print 'StartInterpretation'
+  produce @O(0.2)+(90)
+
+
+def EndInterpretation():
+  produce @O(0.2)
+
+def End(lstring,lscene):
+  assert len(lscene) == 3
+  pass
+
+Axiom: F
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem

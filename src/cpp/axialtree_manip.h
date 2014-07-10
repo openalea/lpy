@@ -33,6 +33,7 @@
 
 #include "lpy_config.h"
 #include "module.h"
+#include <list>
 
 LPY_BEGIN_NAMESPACE
 
@@ -225,6 +226,53 @@ Iterator complex(Iterator pos, int scale, Iterator string_begin, Iterator string
   if (pos == string_end) return string_end;
   if (is_eq_scale(pos->scale(),scale))  return pos;
   else return string_end;
+}
+
+
+template<class Iterator>
+std::vector<Iterator>  components(Iterator pos, Iterator string_end)
+{ 
+  std::vector<Iterator> result; 
+  // current pos is the end of a branch
+  if( (pos == string_end) || pos->isRightBracket()) return result;
+  int currentscale = pos->scale();
+  std::list<Iterator> toconsider;
+  std::vector<Iterator> cchildren = children(pos,string_end);
+  toconsider.insert(toconsider.end(),cchildren.begin(),cchildren.end());
+  while(!toconsider.empty()){
+    Iterator child = toconsider.front();
+    toconsider.pop_front();
+    int cscale = child->scale();
+    if (is_upper_scale(cscale,currentscale)){
+        result.push_back(child);
+        cchildren = children(child,string_end);
+        toconsider.insert(toconsider.end(),cchildren.begin(),cchildren.end());
+    } 
+  }
+  return result;
+}
+
+template<class Iterator>
+std::vector<Iterator>  components_at_scale(Iterator pos, int scale, Iterator string_end)
+{ 
+  std::vector<Iterator> result; 
+  // current pos is the end of a branch
+  if( (pos == string_end) || pos->isRightBracket()) return result;
+  int currentscale = pos->scale();
+  std::list<Iterator> toconsider;
+  std::vector<Iterator> cchildren = children(pos,string_end);
+  toconsider.insert(toconsider.end(),cchildren.begin(),cchildren.end());
+  while(!toconsider.empty()){
+    Iterator child = toconsider.front();
+    toconsider.pop_front();
+    int cscale = child->scale();
+    if (is_upper_scale(cscale,currentscale)){
+        if (is_eq_scale(cscale,scale)) result.push_back(child);
+        cchildren = children(child,string_end);
+        toconsider.insert(toconsider.end(),cchildren.begin(),cchildren.end());
+    } 
+  }
+  return result;
 }
 
 /*
