@@ -729,6 +729,41 @@ boost::python::object
 LsysContext::endEach(AxialTree& lstring, const PGL::ScenePtr& scene)
 { return controlMethod("EndEach",lstring,scene); }
 
+AxialTree
+LsysContext::startInterpretation(){
+    if(hasStartInterpretationFunction()){
+        printf("call StartInterpretation\n");
+          func("StartInterpretation");
+          AxialTree nprod = LsysContext::currentContext()->get_nproduction(); 
+          if (nprod.empty())  {
+                    printf("no prod\n");
+            return AxialTree();
+          }
+          else { 
+              LsysContext::currentContext()->reset_nproduction(); // to avoid deep copy
+              return nprod;
+          }
+    }
+            printf("no StartInterpretation\n");
+    return AxialTree();
+}
+
+
+AxialTree
+LsysContext::endInterpretation(){
+    if(hasEndInterpretationFunction()){
+          func("EndInterpretation");
+          AxialTree nprod = LsysContext::currentContext()->get_nproduction(); 
+          if (nprod.empty())  return AxialTree();
+          else { 
+              LsysContext::currentContext()->reset_nproduction(); // to avoid deep copy
+              return nprod;
+          }
+    }
+    return AxialTree();
+}
+
+
 
 boost::python::object
 LsysContext::controlMethod(const std::string& name, AxialTree& lstring){
@@ -813,6 +848,16 @@ LsysContext::setEndEach(object func){
 void 
 LsysContext::setPostDraw(object func){
   setObject("PostDraw",func);
+}
+
+void 
+LsysContext::setStartInterpretation(object func){
+  setObject("StartInterpretation",func);
+}
+
+void 
+LsysContext::setEndInterpretation(object func){
+  setObject("EndInterpretation",func);
 }
 
 boost::python::object 

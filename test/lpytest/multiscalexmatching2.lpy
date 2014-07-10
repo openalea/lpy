@@ -1,0 +1,45 @@
+resinf = None
+ressup = None
+multiscalemode = None
+
+def StartEach():
+    global resinf, ressup, multiscalemode
+    context().options.setSelection('String matching', getIterationNb())
+    multiscalemode = context().options.find('String matching').currentValue() in ['As Multiscale AxialTree','As Multi-level AxialTree']
+    resinf = [0,3]
+    ressup = [5 if multiscalemode else 3,2]
+    print context().options.find('String matching').currentValue()
+    context().options.find('String matching').activateSelection()
+
+def End():
+  assert len(resinf) == len(ressup) == 0
+
+module A: scale = 1
+module B, C: scale = 2
+
+Axiom: A BBB A BB
+
+derivation length: 4
+production:
+
+A :
+  global ressup, resinf
+  nbleftB, nbrightB = 0,0 
+  while InRightContext(B) : nbrightB += 1
+  print '>', nbrightB
+  assert nbrightB == ressup.pop(0)
+  while InLeftContext(B) : nbleftB += 1
+  print '<', nbleftB
+  assert nbleftB == resinf.pop(0)
+
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	context.options.setSelection('String matching',3)

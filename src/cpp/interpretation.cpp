@@ -109,6 +109,10 @@ std::string LPY::helpTurtle() {
 void LPY::turtle_interpretation(AxialTree& tree, Turtle& turtle){
   turtle.start();
   turtle.setId(0);
+  LPY::turtle_do_interpretation(tree, turtle);
+}
+
+void LPY::turtle_do_interpretation(AxialTree& tree, Turtle& turtle){
   for(AxialTree::iterator _it = tree.begin();
       _it != tree.end(); ++_it) {
         _it->interpret(turtle);
@@ -117,7 +121,7 @@ void LPY::turtle_interpretation(AxialTree& tree, Turtle& turtle){
   turtle.stop();
   if (!turtle.emptyStack()){
       printf("Turtle stack size : %i\n",turtle.getStack().size());
-	  LsysError("Ill-formed string: unmatched brackets");
+      LsysError("Ill-formed string: unmatched brackets");
   }
 }
 

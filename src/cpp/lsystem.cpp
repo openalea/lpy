@@ -934,7 +934,13 @@ void Lsystem::__gRecursiveInterpretation(AxialTree& workingstring,
   AxialTree::const_iterator _it3 = _it;
   AxialTree::const_iterator _endit = workingstring.end();
   size_t dist = 0;
-  if (withid) interpreter.start();
+  if (withid)  {
+      interpreter.init();
+      AxialTree initturtle = __context.startInterpretation();
+      for(AxialTree::iterator _itl = initturtle.begin(); _itl != initturtle.end(); ++_itl)
+            interpreter.interpret(_itl);  
+      interpreter.start();
+  }
   while ( _it != _endit && !interpreter.earlyReturn() ) {
       if ( _it->isCut() ){
 	  _it3 = _it;
@@ -975,7 +981,13 @@ void Lsystem::__gRecursiveInterpretation(AxialTree& workingstring,
           }
       }
   }
-  if(withid) interpreter.stop();
+  if (withid)  {
+      interpreter.finalize();
+      AxialTree finishturtle = __context.endInterpretation();
+      for(AxialTree::iterator _itl = finishturtle.begin(); _itl != finishturtle.end(); ++_itl)
+            interpreter.interpret(_itl);  
+      interpreter.stop();
+  }
 }
 
 	
@@ -985,8 +997,17 @@ void Lsystem::__gRecursiveInterpretation(AxialTree& workingstring,
 		Turtle& turtle;
 
 		static inline bool earlyReturn() { return false; }
-		inline void start() 
-		{ turtle.start(); turtle.setId(0); }
+
+        inline void init() 
+        { turtle.start(); turtle.setNoId(); }
+
+        inline void finalize() 
+        { turtle.setNoId(); }
+        
+        
+        inline void start() 
+        { turtle.setId(0); }
+        
 		inline void stop()  
 		{ turtle.stop();
 		  if (!turtle.emptyStack()){
@@ -1024,8 +1045,14 @@ Lsystem::__recursiveInterpretation(AxialTree& workingstring,
 
 		inline bool earlyReturn() { return context.isEarlyReturnEnabled(); }
 
+        inline void init() 
+        { turtle.start(); turtle.setNoId(); }
+
+        inline void finalize() 
+        { turtle.setNoId(); }
+
 		inline void start() 
-		{ turtle.start(); turtle.setId(0); context.enableEarlyReturn(false); }
+		{ turtle.setId(0); context.enableEarlyReturn(false); }
 
 		inline void stop()  
 		{ 
@@ -1383,7 +1410,19 @@ Lsystem::__turtle_interpretation(AxialTree& wstring, PGL::Turtle& t){
       __recursiveInterpretation(wstring,interpretation,t,__interpretation_max_depth);
     }
     else {
-		LPY::turtle_interpretation(wstring,t);
+        t.start();
+        t.setNoId();
+        AxialTree initturtle = __context.startInterpretation();
+        for(AxialTree::iterator _itl = initturtle.begin(); _itl != initturtle.end(); ++_itl)
+            _itl->interpret(t);  
+
+        t.setId(0);
+  		LPY::turtle_do_interpretation(wstring,t);
+
+        t.setNoId();
+        AxialTree finalizeturtle = __context.endInterpretation();
+        for(AxialTree::iterator _itl = finalizeturtle.begin(); _itl != finalizeturtle.end(); ++_itl)
+            _itl->interpret(t);  
     }
 }
 

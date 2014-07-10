@@ -88,11 +88,16 @@ public:
 
   void postDraw();
 
+  AxialTree startInterpretation();
+  AxialTree endInterpretation();
+
   inline bool hasStartFunction() const { return hasObject("Start"); }
   inline bool hasStartEachFunction() const { return hasObject("StartEach"); }
   inline bool hasEndFunction() const { return hasObject("End"); }
   inline bool hasEndEachFunction() const { return hasObject("EndEach"); }
   inline bool hasPostDrawFunction() const { return hasObject("PostDraw"); }
+  inline bool hasStartInterpretationFunction() const { return hasObject("StartInterpretation"); }
+  inline bool hasEndInterpretationFunction() const { return hasObject("EndInterpretation"); }
 
   /** The Start, End, StartEach, EndEach and PostDraw initialisation */
   void setStart(boost::python::object func);
@@ -100,6 +105,8 @@ public:
   void setStartEach(boost::python::object func);
   void setEndEach(boost::python::object func);
   void setPostDraw(boost::python::object func);
+  void setStartInterpretation(boost::python::object func);
+  void setEndInterpretation(boost::python::object func);
 
   void check_init_functions();
   inline size_t getEndEachNbArgs() const { return  __nbargs_of_endeach; }

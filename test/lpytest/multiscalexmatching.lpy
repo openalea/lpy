@@ -1,0 +1,60 @@
+import warnings
+
+resinf = None
+ressup = None
+multiscalemode = None
+
+
+def StartEach():
+    global resinf, ressup, multiscalemode
+    context().options.setSelection('String matching', getIterationNb())
+    multiscalemode = context().options.find('String matching').currentValue() in ['As Multiscale AxialTree','As Multi-level AxialTree']
+    resinf = [0,3]
+    ressup = [5 if multiscalemode else 3,2]
+    print context().options.find('String matching').currentValue()
+    context().options.find('String matching').activateSelection()
+
+
+
+def End():
+  if multiscalemode:
+      warnings.warn('Multiscale context and Regular Expression not compatible')
+  else:
+      assert len(resinf) == len(ressup) == 0
+
+module A: scale = 1
+module B: scale = 2
+
+Axiom: A BBB A BB
+
+derivation length: 4
+production:
+
+A > x($B(b)):
+  global ressup
+  print '>', len(b)
+  if multiscalemode:
+    if (len(b) == ressup.pop(0)): 
+      warnings.warn('Multiscale context and Regular Expression not compatible')
+  else:
+    assert len(b) == ressup.pop(0)
+
+x($B(b)) < A:
+  global resinf
+  print '<', len(b)
+  if multiscalemode:
+    if (len(b) == resinf.pop(0)): 
+      warnings.warn('Multiscale context and Regular Expression not compatible')
+  else:
+    assert len(b) == resinf.pop(0)
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	context.options.setSelection('String matching',0)

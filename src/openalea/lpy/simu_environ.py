@@ -1,10 +1,10 @@
 from openalea.plantgl.all import PglTurtle, PyStrPrinter, Material
 from __lpy_kernel__ import LpyParsing, LsysContext
 
-def getInitialisationCode(context = None, scalars = None, visualparameters = None, credits = None, simplified = False,
+def getInitialisationCode(context = None, scalars = None, visualparameters = None, credits = None, colorlist = None, simplified = False,
                            keepCode_1_0_Compatibility = False, referencedir = None):
     code = initialisationFunction(context,scalars,visualparameters, simplified)
-    code += creditsCode(credits)
+    if credits : code += creditsCode(credits)
     if len(code) > 0:
         code = LpyParsing.InitialisationBeginTag+'\n\n'+'__lpy_code_version__ = '+str(1.1)+'\n\n'+code
     return code
@@ -12,16 +12,18 @@ def getInitialisationCode(context = None, scalars = None, visualparameters = Non
 def initialisationFunction(context = None, 
                            scalars = None, 
                            visualparameters = None,
+                           colorlist = None, 
                            simplified = False,
                            keepCode_1_0_Compatibility = False, 
                            referencedir = None):
     header = "def "+LsysContext.InitialisationFunctionName+"(context):\n"
     init_txt = ''
     if not simplified:
-        init_txt += colorListCode(context.turtle.getColorList(),referencedir)
-        init_txt += contextOptionCode(context)    
-    init_txt += scalarCode(scalars)
-    init_txt += visualParametersCode(visualparameters,keepCode_1_0_Compatibility,simplified)
+        if not colorlist and context: colorlist = context.turtle.getColorList()
+        if colorlist: init_txt += colorListCode(colorlist,referencedir)
+        if context: init_txt += contextOptionCode(context)    
+    if scalars: init_txt += scalarCode(scalars)
+    if visualparameters: init_txt += visualParametersCode(visualparameters,keepCode_1_0_Compatibility,simplified)
     # we return code only if necessary
     if len(init_txt) > 0:  return header+init_txt
     else:                  return '' 
