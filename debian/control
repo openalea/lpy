@@ -6,7 +6,7 @@ Build-Depends: python-all (>= 2.6.6-3~), python-setuptools (>= 0.6b3), python-de
 
 Package: python-vplants.lpy
 Architecture: any
-Depends: ${misc:Depends}, ${python:Depends}, ${shlibs:Depends}, python-vplants.plantgl, python-opengl, pyqglviewer
+Depends: ${misc:Depends}, ${python:Depends}, ${shlibs:Depends}, python-vplants.plantgl, python-opengl, pyqglviewer, python-openalea.vpltk
 Provides: ${python:Provides}
 Description: Lindenmayer Systems in Python package for OpenAlea.
  A Python version of Lindenmayer Systems. Based on Dr. Prusinkiewicz et al. cpfg-lpfg specifications. Implemented by the Virtual Plants team.

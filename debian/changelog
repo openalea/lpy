@@ -1,3 +1,15 @@
+vplants-lpy (2.4.0~ppa2) trusty; urgency=medium
+
+  * Add a dependency to openalea.vpltk 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Mon, 13 Oct 2014 17:32:24 +0200
+
+vplants-lpy (2.4.0~ppa1) trusty; urgency=medium
+
+  * Port to Trusty 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Thu, 02 Oct 2014 01:33:03 +0200
+
 vplants-lpy (2.1.0~ppa6) quantal; urgency=low
 
   * Port to quantal
