@@ -32,21 +32,25 @@ production:
 
 A > x($B(b)):
   global ressup
-  print '>', len(b)
+  res = ressup.pop(0)
   if multiscalemode:
-    if (len(b) == ressup.pop(0)): 
+    if (len(b) == res): 
       warnings.warn('Multiscale context and Regular Expression not compatible')
   else:
-    assert len(b) == ressup.pop(0)
+    print 'Expect : A >', 'B'*res
+    print 'Found  : A >', 'B'*len(b)
+    assert len(b) == res
 
 x($B(b)) < A:
   global resinf
-  print '<', len(b)
+  res = resinf.pop(0)
   if multiscalemode:
-    if (len(b) == resinf.pop(0)): 
+    if (len(b) == res): 
       warnings.warn('Multiscale context and Regular Expression not compatible')
   else:
-    assert len(b) == resinf.pop(0)
+    print 'Expect : ', 'B'*res ,' < A'
+    print 'Found  : ', 'B'*len(b) ,' < A'
+    assert len(b) == res
 
 interpretation:
 

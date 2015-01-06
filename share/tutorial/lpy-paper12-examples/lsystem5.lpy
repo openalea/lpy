@@ -265,7 +265,7 @@ def __initialiseContext__(context):
 	Color_21.name = "Color_21"
 	context.turtle.setMaterial(21,Color_21)
 	context.options.setSelection('Module inheritance',1)
-	scalars = [('WITHLEAF', False), ('SEED', 1, 0, 100), ('OLDSTRUCTURE', False), ('GENERATED_WITH_TROPISM', True), ('REGENERATE', True), ('COMPARE', True), ('FORCE_COMPARE', False), ('PROP_VIEW', True), ('RAMIF', 77, 0, 200), ('DETAILS', False)]
+	scalars = [('WITHLEAF', 'Bool', False), ('SEED', 'Integer', 1, 0, 100), ('OLDSTRUCTURE', 'Bool', False), ('GENERATED_WITH_TROPISM', 'Bool', True), ('REGENERATE', 'Bool', True), ('COMPARE', 'Bool', True), ('FORCE_COMPARE', 'Bool', False), ('PROP_VIEW', 'Bool', True), ('RAMIF', 'Integer', 77, 0, 200), ('DETAILS', 'Bool', False)]
 	context["__scalars__"] = scalars
 	for s in scalars:
-		if not s[1] is None : context[s[0]] = s[1]
+		if not s[1] == "Category" : context[s[0]] = s[2]

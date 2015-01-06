@@ -1,0 +1,16 @@
+def EndEach(lstring, lscene):
+  assert len(lscene) == 1
+
+Axiom: A
+
+derivation length: 1
+production:
+
+
+interpretation:
+maximum depth: 2
+
+A --> B
+B --> F
+
+endlsystem

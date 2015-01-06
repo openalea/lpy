@@ -45,8 +45,8 @@ def EndEach(lstring,scene):
       res = diffuseInterception(scene)   # compute light from turtle dome
       for id,light in res.items(): # res contains pair of id, light level
          if lstring[id].name in 'Crownlet': # check for module A and B
-           v /= surface(shapes[id])   # normalized 
-           lstring[k].light = light         # set ligth level into param 4 
+           light /= surface(shapes[id])   # normalized 
+           lstring[id].light = light         # set ligth level into param 4 
       
       Viewer.camera.lookAt(pos,pos+h)      # restore camera
       Viewer.redrawPolicy = True # redraw normaly

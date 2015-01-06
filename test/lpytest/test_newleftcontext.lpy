@@ -1,0 +1,17 @@
+def EndEach(lstring):
+  print lstring
+  assert lstring == 'BSABSA'
+
+Axiom: B A B A
+
+derivation length: 1
+production:
+
+S << A --> A
+
+A --> SA
+
+interpretation:
+
+
+endlsystem

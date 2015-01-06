@@ -519,8 +519,8 @@ LsysRule::match(const AxialTree& src,
     if(!MatchingEngine::left_match(dest2->const_end()-1,dest2->const_begin(),dest2->const_end(),
 		                          __newleftcontext.const_rbegin(),__newleftcontext.const_rend(),
 								  endposNewLeft,args_ncg)){
-        return false;
         dest2->erase(dest2->end()-1);
+        return false;
     }
     dest2->erase(dest2->end()-1);
 	ArgsCollector::append_args(args,args_ncg);
