@@ -71,7 +71,7 @@ class LpyPlotter:
     def save(self,fname,format):
         if self.parent.use_own_view3D:
             #self.parent.view3D.setSnapshotFormat(format)
-            self.parent.view3D.saveTSnapshot(fname)
+            self.parent.view3D.saveToSnapshot(fname)
         else:
             Viewer.frameGL.saveImage(fname,format)
         
@@ -700,7 +700,7 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
       val,ok = qt.QtGui.QInputDialog.getInteger(self,"Number of Iterations","Choose number of iterations",initval,1)
       if ok:        
         simu.iterateStep = val
-      self.nextIterate()
+        self.nextIterate()
     def nextIterate(self):
       simu = self.currentSimulation()
       if simu.iterateStep is None:

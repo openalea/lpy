@@ -52,19 +52,19 @@ void export_Options(){
 	// ("LsysOptionValue", init<const std::string&, optional<const std::string&> >
 	// ("LsysOptionValue(name[,comment])",args("name","comment")))
 	("LsysOptionValue", no_init)
-	.add_property("name", make_getter(&LsysOptionValue::name),make_setter(&LsysOptionValue::name))
-	.add_property("comment", make_getter(&LsysOptionValue::comment),make_setter(&LsysOptionValue::comment))
+	.def_readwrite("name", &LsysOptionValue::name)
+	.def_readwrite("comment", &LsysOptionValue::comment)
 	.def("activate",&LsysOptionValue::activate)
 	;
 	class_<LsysOption,boost::noncopyable>
 	("LsysOption", init<const std::string&, optional<const std::string&,const std::string&> >
 	("LsysOption(name[,comment,category])",args("name","comment","category")))
-	.add_property("name", make_getter(&LsysOption::name),make_setter(&LsysOption::name))
-	.add_property("comment", make_getter(&LsysOption::comment),make_setter(&LsysOption::comment))
-	.add_property("category", make_getter(&LsysOption::category),make_setter(&LsysOption::category))
-	.add_property("selection", &LsysOption::getCurrentValueId,&LsysOption::setCurrentValueId)
-	.add_property("default_value_id", make_getter(&LsysOption::default_value_id),make_setter(&LsysOption::default_value_id))
-	.add_property("global", make_getter(&LsysOption::global),make_setter(&LsysOption::global))
+	.def_readwrite("name", &LsysOption::name)
+	.def_readwrite("comment", &LsysOption::comment)
+	.def_readwrite("category", &LsysOption::category)
+	.def_readwrite("default_value_id", &LsysOption::default_value_id)
+	.def_readwrite("global", &LsysOption::global)
+    .add_property("selection", &LsysOption::getCurrentValueId,&LsysOption::setCurrentValueId)
 	.def("activate",&LsysOption::activate,args("value"))
 	.def("activateSelection",&LsysOption::activateSelection)
 	.def("setSelection",(bool(LsysOption::*)(const std::string&))&LsysOption::setSelection)

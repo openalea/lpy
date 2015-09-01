@@ -57,7 +57,7 @@ if sys.platform =='darwin':
   option_name = 'py2app'
   extra_options = { 'argv_emulation' : True, 
                     'compressed'     : False,
-                    'optimize'       : 0,
+                    #'optimize'       : 0,
                     # 'iconfile'       : 'lpy.icns',
                     'excludes' : [],
                     }

@@ -416,6 +416,44 @@ DeclareModuleBegin(SetHead,"Set the turtle Heading and Up vector. Params: 'hx, h
 }
 DeclareModuleEnd
 
+DeclareModuleBegin(eulerAngles,"Set the orientation of the turtle from the absolute euler angles. Params: 'azimuth, elevation, roll' (optionals, default=180,90,0).",eRotation)
+{
+    size_t nbargs = m.size();
+    real_t azimuth = 180;
+    real_t elevation = 90;
+    real_t roll = 0;
+    switch (nbargs) {
+      case 0:  t.eulerAngles(); return;
+      case 1:  
+      {
+        azimuth = m._getReal(0);
+        break;
+      }
+      case 2:  
+       {
+        azimuth = m._getReal(0);
+        elevation = m._getReal(1);
+        break;
+       }
+      default: 
+       {
+        azimuth = m._getReal(0);
+        elevation = m._getReal(1);
+        roll = m._getReal(2);
+        break;
+       }
+    }
+#if PGL_VERSION >= 0x021400
+    t.eulerAngles(azimuth,elevation,roll);
+#else
+    t.setHead(1,0,0,0,0,1);
+    t.left(azimuth);
+    t.up(elevation);
+    t.rollL(roll);
+#endif
+}
+DeclareModuleEnd
+
 DeclareModuleReal1(left,  "Turn left  around Up vector. Params : 'angle' (optional, in degrees).",eRotation)
 DeclareModuleReal1(right, "Turn right around Up vector. Params : 'angle' (optional, in degrees).",eRotation)
 DeclareModuleReal1(up,    "Pitch up around Left vector. Params : 'angle' (optional, in degrees).",eRotation)
@@ -1015,7 +1053,8 @@ void ModuleClass::createPredefinedClasses() {
 	LineRel= new DeclaredModule(lineRel)("LineRel");
 	LineOrientedRel = new DeclaredModule( oLineRel )("OLineRel");
 	PinPointRel= new DeclaredModule(pinPointRel)("PinpointRel");
-	SetHeading = new DeclaredModule(SetHead)("@R","SetHead");
+    SetHeading = new DeclaredModule(SetHead)("@R","SetHead");
+    EulerAngles = new DeclaredModule(eulerAngles)("EulerAngles");
 	Left = new DeclaredModule(left)("+","Left");
 	Right = new DeclaredModule(right)("-","Right");
 	Up = new DeclaredModule(up)("^","Up");

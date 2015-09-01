@@ -82,7 +82,8 @@ typedef pgl_hash_map_string<size_t> ParameterNameDict;
 	MACRO(LineRel) \
 	MACRO(LineOrientedRel) \
 	MACRO(PinPointRel) \
-	MACRO(SetHeading) \
+    MACRO(SetHeading) \
+    MACRO(EulerAngles) \
 	MACRO(Left) \
 	MACRO(Right) \
 	MACRO(Up) \

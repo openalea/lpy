@@ -299,7 +299,7 @@ class LpySimulation:
             self.saveas()
     def saveas(self):
         bckupname = self.getBackupName()
-        fname = str(qt.QtGui.QFileDialog.getSaveFileName(self.lpywidget,"Open Py Lsystems file",self.fname if self.fname else '.',"Py Lsystems Files (*.lpy);;All Files (*.*)"))
+        fname = str(qt.QtGui.QFileDialog.getSaveFileName(self.lpywidget,"Save Py Lsystems file",self.fname if self.fname else '.',"Py Lsystems Files (*.lpy);;All Files (*.*)"))
         if fname:
             if not os.path.exists(fname):
                 self.readonly = False  
@@ -635,7 +635,7 @@ class LpySimulation:
             self.firstView = False
     def iterate(self,task,n = None):    
         timing = clock()
-        task.result = self.lsystem.self.tree(self.tree,self.nbiterations,self.iterateStep)        
+        task.result = self.lsystem.derive(self.tree,self.nbiterations,self.iterateStep)        
         task.timing = clock() - timing
         task.dl = self.lsystem.getLastIterationNb()+1
     def debug(self):

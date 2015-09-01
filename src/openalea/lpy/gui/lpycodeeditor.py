@@ -648,7 +648,7 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
         else : 
             nsource = qt.QtCore.QMimeData()
             nsource.setText(source.text())
-            qt.QtGui.QTextEdit.insertFromMimeData(self,nsource)
+            return qt.QtGui.QTextEdit.insertFromMimeData(self,nsource)
     def comment(self):
         cursor = self.textCursor()
         beg = cursor.selectionStart()

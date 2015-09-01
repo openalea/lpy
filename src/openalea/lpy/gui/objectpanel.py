@@ -588,6 +588,8 @@ class ObjectListDisplay(QtOpenGL.QGLWidget):
         glOrtho(0,w,h,0,-1000,1000);
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity()
+        hscroll = self.scroll.horizontalScrollBar().value()
+        glTranslatef(-hscroll,0,0)
         glCallList(self.backGroundList)
         self.drawBackGround(w,h)
         i=0
@@ -625,13 +627,13 @@ class ObjectListDisplay(QtOpenGL.QGLWidget):
                 tx,ty, ty2 = b1,(i*self.thumbwidth)+b2,((i-1)*self.thumbwidth)+b2+3
             else:
                 tx,ty, ty2 = (i*self.thumbwidth)+b2,b1, b1-self.thumbwidth+3
-            self.drawTextIn(manager.getName(obj),tx+decal.x(),ty+decal.y(),self.thumbwidth)
+            self.drawTextIn(manager.getName(obj),tx+decal.x()-hscroll,ty+decal.y(),self.thumbwidth)
             if self.active:
                 if self.cursorselection == i:
                     glColor4fv(self.theme.selectedTopText)
                 else:
                     glColor4fv(self.theme.topText)
-            self.drawTextIn(manager.typename,tx+decal.x(),ty2+decal.y(),self.thumbwidth,below = True)
+            self.drawTextIn(manager.typename,tx+decal.x()-hscroll,ty2+decal.y(),self.thumbwidth,below = True)
             i+=1            
 
 
@@ -912,6 +914,7 @@ class LpyObjectPanelDock (qt.QtGui.QDockWidget):
         self.objectpanel = qt.QtGui.QScrollArea(self.dockWidgetContents)
         self.view = ObjectListDisplay(self,panelmanager)
         self.view.dock = self
+        self.view.scroll = self.objectpanel
         self.objectpanel.setWidget(self.view)
         self.objectpanel.setWidgetResizable(True)
         self.objectpanel.setObjectName(name+"panelarea")

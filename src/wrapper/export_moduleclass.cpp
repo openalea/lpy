@@ -147,8 +147,7 @@ void export_ModuleClass(){
 	// .def("__repr__",&mc_repr)
 	.def("get",&ModuleClassTable::get,return_value_policy<reference_existing_object>())
 	.staticmethod("get")
-	.add_property("mandatory_declaration",make_getter(&ModuleClassTable::mandatory_declaration),
-									      make_setter(&ModuleClassTable::mandatory_declaration))
+	.def_readwrite("mandatory_declaration",&ModuleClassTable::mandatory_declaration)
 	.def("size",&ModuleClassTable::size)
 	.def("empty",&ModuleClassTable::empty)
 	.def("getClasses",&py_modclasses)

@@ -120,7 +120,7 @@ if True : #not sys.platform == 'darwin':
                 self.setValue(value)
                 self.item.setText(str(value))
                 self.label.setMinimumWidth(self.labelwidth)
-                self.emit(qt.QtCore.SIGNAL('valueChanged(Pyqt.Qt_PyObject)'),self.item.scalar)
+                self.emit(qt.QtCore.SIGNAL('valueChanged(PyQt_PyObject)'),self.item.scalar)
                 self.locked = False
             
         def setRange(self,minv,maxv):
@@ -169,7 +169,7 @@ else:
         def updateItem(self,value):
             self.item.scalar.value = value
             self.item.setText(str(value))
-            self.emit(qt.QtCore.SIGNAL('valueChanged(Pyqt.Qt_PyObject)'),self.item.scalar)
+            self.emit(qt.QtCore.SIGNAL('valueChanged(PyQt_PyObject)'),self.item.scalar)
 
 class ScalarEditorDelegate(qt.QtGui.QItemDelegate):
     """ 
