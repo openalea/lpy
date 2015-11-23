@@ -1,0 +1,27 @@
+module Ls
+
+previousString = None
+def StartEach(lstring):
+  global previousString
+  previousString = lstring
+  return Lstring('F')
+
+
+Axiom: F
+
+derivation length: 4
+
+production:
+decomposition:
+maximum depth: 1
+Ls : 
+  nsproduce(previousString)
+
+production:
+
+F --> Ls + Ls -- Ls + Ls
+
+interpretation:
+
+
+endlsystem

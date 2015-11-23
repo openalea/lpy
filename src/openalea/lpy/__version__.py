@@ -1,4 +1,4 @@
-__version_number__ = 0x020500
+__version_number__ = 0x020501
 __revision_str__="$Revision$"
 __revision__ = __revision_str__.split(':')[1][1:-1]
 

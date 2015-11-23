@@ -943,9 +943,11 @@ void Lsystem::__gRecursiveInterpretation(AxialTree& workingstring,
   }
   while ( _it != _endit && !interpreter.earlyReturn() ) {
       if ( _it->isCut() ){
-	  _it3 = _it;
+	      _it3 = _it;
           _it = workingstring.endBracket(_it3);
-          _itn += distance(_it3,_it);
+          dist = distance(_it3,_it);
+          _itn += dist;
+          if(withid)interpreter.incId(dist);
       }
       else{
           AxialTree ltargetstring;

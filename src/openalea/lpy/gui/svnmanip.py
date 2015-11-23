@@ -30,7 +30,7 @@ if has_svn:
         return svn_silent_client
     
     def create_svn_client():
-        qpath = getSettings().fileName()
+        qpath = str(getSettings().fileName())
         import os
         settingpath = os.path.dirname(qpath)
         svnsettingpath = os.path.join(settingpath,'svn')
