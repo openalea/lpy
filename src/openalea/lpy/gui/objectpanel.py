@@ -84,7 +84,7 @@ class ManagerDialogContainer (qt.QtCore.QObject):
         if not self.editor:
             self.init()
             if not self.editor:
-                qt.QtGui.QMessageBox.warning(self,"Cannot edit","Cannot edit curve ! Python module (PyQGLViewer) is missing!")
+                qt.QtGui.QMessageBox.warning(self.panel,"Cannot edit","Cannot edit object ! Python module (PyQGLViewer) is certainly missing!")
                 return
         self.manager.setObjectToEditor(self.editor,obj)
         try:
