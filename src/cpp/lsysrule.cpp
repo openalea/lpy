@@ -263,7 +263,6 @@ void LsysRule::importPyFunction(){
 
 void LsysRule::initStaticProduction(){
   if(__isStatic){
-      QMutexLocker m(mutex);
 	  __isStatic = false;
 	  if(__nbParams==0) __staticResult = apply();
 	  else {
@@ -363,7 +362,7 @@ boost::python::object LsysRule::__call_function( size_t nbargs, const ArgList& a
 AxialTree 
 LsysRule::apply( const ArgList& args, bool * isApplied ) const
 { 
-  PyExecutionLocker pyexec;
+  // PyExecutionLocker pyexec;
   if(__isStatic) { 
     if(isApplied) *isApplied = true;
 	return __staticResult;
@@ -373,8 +372,7 @@ LsysRule::apply( const ArgList& args, bool * isApplied ) const
   LstringMatcherMaintainer m(__lstringmatcher);
   size_t argsize = len(args);
   __precall_function(argsize,args);
-  AxialTree result = __postcall_function(__call_function(argsize,args),isApplied); 
-  return result;
+  return __postcall_function(__call_function(argsize,args),isApplied); 
 }
 
 
@@ -382,6 +380,7 @@ LsysRule::apply( const ArgList& args, bool * isApplied ) const
 AxialTree 
 LsysRule::apply( bool * isApplied ) const
 { 
+  // PyExecutionLocker pyexec;
   if(__isStatic) { 
     if(isApplied) *isApplied = true;
 	return __staticResult;
@@ -389,7 +388,6 @@ LsysRule::apply( bool * isApplied ) const
   if (!isCompiled()) LsysError("Python code of rule not compiled");
 
   LstringMatcherMaintainer m(__lstringmatcher);
-  PyExecutionLocker pyexec;
   __precall_function();
   AxialTree result = __postcall_function(__function(),isApplied); 
   return result;
@@ -489,7 +487,7 @@ LsysRule::match(const AxialTree& src,
                eDirection direction) const 
 {
 
-  QMutexLocker m(mutex);    
+  // QMutexLocker m(mutex);    
   
   args.reserve(__nbParams);
   ArgList args_pred;
