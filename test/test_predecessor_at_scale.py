@@ -33,19 +33,19 @@ def test_predecessor_at_scale(assertion = True):
     l.setCode(lsysbasecode)
     l.makeCurrent()
     lstring = l.axiom
+    print lstring
     for i,m in enumerate(lstring):
         pred = lstring.predecessor_at_scale(i,1)
         pred2 = lstring.predecessor_at_scale(i,2)
+        print i,m,
+        print '\t',pred,
+        if not pred is None: print lstring[pred],
+        print '\t',pred == res_1[i],
+        print '\t',pred2,
+        if not pred2 is None: print lstring[pred2],
+        print '\t',pred2 == res_2[i]
         if assertion:
             assert pred == res_1[i] and pred2 == res_2[i]
-        else :
-          print i,m,
-          print '\t',pred,
-          if not pred is None: print lstring[pred],
-          print '\t',pred == res_1[i],
-          print '\t',pred2,
-          if not pred2 is None: print lstring[pred2],
-          print '\t',pred2 == res_2[i]
 
 if __name__ == '__main__':
     test_predecessor_at_scale(False)

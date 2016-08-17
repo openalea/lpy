@@ -348,12 +348,15 @@ protected:
   bool __frameDisplay;
 
   /// iterative production
+#ifdef PRODUCTION_PER_THREAD
   typedef QThreadStorage<AxialTree *> ProductionHolderType;
-  ProductionHolderType __nproduction;
+#else
+  typedef AxialTree ProductionHolderType;
+#endif
 
+  ProductionHolderType __nproduction;
   // QReadWriteLock __nproduction_lock;
 
-  AxialTree& currentProduction();
 
   /// selection required property
   bool __selection_always_required;

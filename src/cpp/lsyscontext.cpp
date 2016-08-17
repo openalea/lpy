@@ -919,31 +919,42 @@ LsysContext::check_init_functions()
 /*---------------------------------------------------------------------------*/
 
 
-AxialTree& LsysContext::currentProduction()
-{
-    if (!__nproduction.hasLocalData())  __nproduction.setLocalData(new AxialTree());
-    return *__nproduction.localData();
-}
 
 void LsysContext::nproduce(const AxialTree& prod)
 {  
+#ifdef PRODUCTION_PER_THREAD
     if (!__nproduction.hasLocalData()) __nproduction.setLocalData(new AxialTree(prod));
     else __nproduction.localData()->append(prod); 
+#else
+    __nproduction.append(prod);
+#endif
 }
 
 void LsysContext::reset_nproduction() { 
+#ifdef PRODUCTION_PER_THREAD
     if (!__nproduction.hasLocalData())  __nproduction.setLocalData(new AxialTree());
     else __nproduction.localData()->clear();
+#else
+    __nproduction.clear();
+#endif
 }
 
 AxialTree LsysContext::get_nproduction() { 
+#ifdef PRODUCTION_PER_THREAD
     if (!__nproduction.hasLocalData()) return AxialTree();
     return *__nproduction.localData();
+#else
+    return __nproduction;
+#endif
 }
 
 void LsysContext::set_nproduction(const AxialTree& prod) { 
+#ifdef PRODUCTION_PER_THREAD
     if (!__nproduction.hasLocalData()) __nproduction.setLocalData(new AxialTree(prod));
     else *__nproduction.localData() = prod; 
+#else
+     __nproduction = prod;
+#endif
 }
 
 /*---------------------------------------------------------------------------*/
