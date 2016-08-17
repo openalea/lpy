@@ -23,4 +23,7 @@ def test_dynrule():
     ''' Test dynamicall addition of rule in the lsystem '''
     l = Lsystem()
     l.set(code)
-    l.iterate()
+    #l.iterate()
+
+if __name__ == '__main__':
+   test_dynrule() 

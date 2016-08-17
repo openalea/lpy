@@ -74,13 +74,13 @@ private:
 
   typedef bool (*RightMatchingFuncType)(AxialTree::const_iterator, AxialTree::const_iterator, AxialTree::const_iterator,
 										PatternString::const_iterator, PatternString::const_iterator,
-										AxialTree::const_iterator&, AxialTree::const_iterator&, ArgList&);
+										AxialTree::const_iterator&, AxialTree::const_iterator&, const ConsiderFilterPtr, ArgList&);
 
   static RightMatchingFuncType RightMatchingFunc;
 
   typedef bool (*LeftMatchingFuncType)(AxialTree::const_iterator, AxialTree::const_iterator,
 									   AxialTree::const_iterator, PatternString::const_reverse_iterator,
-									   PatternString::const_reverse_iterator, AxialTree::const_iterator&, ArgList&);
+									   PatternString::const_reverse_iterator, AxialTree::const_iterator&, const ConsiderFilterPtr, ArgList&);
 
   static LeftMatchingFuncType LeftMatchingFunc;
 
@@ -100,6 +100,7 @@ public:
 			   PatternString::const_iterator  pattern_end,
 			   AxialTree::const_iterator& matching_end,
 			   AxialTree::const_iterator& last_matched,
+               const ConsiderFilterPtr filter,
 			   ArgList& params) ;
 
 	static bool reverse_match(AxialTree::const_iterator matching_start,
@@ -108,6 +109,7 @@ public:
 					 PatternString::const_reverse_iterator  pattern_rbegin,
 					 PatternString::const_reverse_iterator  pattern_rend,
 					 AxialTree::const_iterator& matching_end,
+                     const ConsiderFilterPtr filter,
 					 ArgList& params);
 
 
@@ -117,7 +119,8 @@ public:
 		PatternString::const_iterator  pattern_begin,
 		PatternString::const_iterator  pattern_end,
 		AxialTree::const_iterator&  last_matched,
-		AxialTree::const_iterator& matching_end,
+		AxialTree::const_iterator&  matching_end,
+        const ConsiderFilterPtr filter,
 		ArgList& params);
 
 	static bool left_match(AxialTree::const_iterator  matching_start,
@@ -126,6 +129,7 @@ public:
 					PatternString::const_reverse_iterator  pattern_rbegin,
 					PatternString::const_reverse_iterator  pattern_rend,
 					AxialTree::const_iterator& matching_end,
+                    const ConsiderFilterPtr filter,
 					ArgList& params);
 };
 
@@ -152,6 +156,7 @@ public:
 							 PatternString::const_iterator  pattern_end,
 							 AxialTree::const_iterator& matching_end,
 						     AxialTree::const_iterator& last_matched,
+                             const ConsiderFilterPtr filter,
 							 ArgList& params) ;
 
 	static bool string_exact_reverse_match(AxialTree::const_iterator matching_start,
@@ -160,6 +165,7 @@ public:
 					                 PatternString::const_reverse_iterator  pattern_rbegin,
 									 PatternString::const_reverse_iterator  pattern_rend,
 									 AxialTree::const_iterator& matching_end,
+                                     const ConsiderFilterPtr filter,
 									 ArgList& params);
 
 	static bool string_right_match(AxialTree::const_iterator  matching_start,
@@ -169,6 +175,7 @@ public:
 								 PatternString::const_iterator  pattern_end,
 							     AxialTree::const_iterator&  last_matched,
 								 AxialTree::const_iterator& matching_end,
+                                 const ConsiderFilterPtr filter,
 								 ArgList& params);
 
 	static bool string_left_match(AxialTree::const_iterator matching_start,
@@ -177,6 +184,7 @@ public:
 					                 PatternString::const_reverse_iterator  pattern_rbegin,
 									 PatternString::const_reverse_iterator  pattern_rend,
 									 AxialTree::const_iterator& matching_end,
+                                     const ConsiderFilterPtr filter,
 									 ArgList& params);
 
 	static bool tree_right_match(AxialTree::const_iterator  matching_start,
@@ -186,6 +194,7 @@ public:
 								 PatternString::const_iterator  pattern_end,
 							     AxialTree::const_iterator&  last_matched,
 								 AxialTree::const_iterator& matching_end,
+                                 const ConsiderFilterPtr filter,
 								 ArgList& params);
 
 	static bool tree_left_match(AxialTree::const_iterator  matching_start,
@@ -194,6 +203,7 @@ public:
 								PatternString::const_reverse_iterator  pattern_rbegin,
 								PatternString::const_reverse_iterator  pattern_rend,
 								AxialTree::const_iterator& matching_end,
+                                 const ConsiderFilterPtr filter,
 								ArgList& params);
 
 	static bool mstree_left_match(AxialTree::const_iterator  matching_start,
@@ -202,6 +212,7 @@ public:
 								PatternString::const_reverse_iterator  pattern_rbegin,
 								PatternString::const_reverse_iterator  pattern_rend,
 								AxialTree::const_iterator& matching_end,
+                                 const ConsiderFilterPtr filter,
 								ArgList& params);
 
 	static bool mltree_left_match(AxialTree::const_iterator  matching_start,
@@ -210,6 +221,7 @@ public:
 								PatternString::const_reverse_iterator  pattern_rbegin,
 								PatternString::const_reverse_iterator  pattern_rend,
 								AxialTree::const_iterator& matching_end,
+                                 const ConsiderFilterPtr filter,
 								ArgList& params);
 
 	static bool mstree_right_match(AxialTree::const_iterator  matching_start,
@@ -219,6 +231,7 @@ public:
 								 PatternString::const_iterator  pattern_end,
 								 AxialTree::const_iterator&  last_matched,
 								 AxialTree::const_iterator& matching_end,
+                                 const ConsiderFilterPtr filter,
 								 ArgList& params);
 
 	static bool mltree_right_match(AxialTree::const_iterator  matching_start,
@@ -228,6 +241,7 @@ public:
 								 PatternString::const_iterator  pattern_end,
 								 AxialTree::const_iterator&  last_matched,
 								 AxialTree::const_iterator& matching_end,
+                                 const ConsiderFilterPtr filter,
 								 ArgList& params);
 };
 

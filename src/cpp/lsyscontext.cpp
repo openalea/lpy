@@ -36,6 +36,10 @@
 #include "tracker.h"
 #include <plantgl/version.h>
 #include <stack>
+#include <QtCore/QThread>
+#include <QtCore/QMutex>
+#include <QtCore/QMutexLocker>
+
 using namespace boost::python;
 LPY_USING_NAMESPACE
 PGL_USING(PglTurtle)
@@ -59,6 +63,8 @@ static std::vector<LsysContext *> LSYSCONTEXT_STACK;
 static LsysContext * DEFAULT_LSYSCONTEXT = NULL;
 // static LsysContext * CURRENT_LSYSCONTEXT = LsysContext::globalContext();
 static LsysContext * CURRENT_LSYSCONTEXT = NULL;
+static QMutex CURRENT_LSYSCONTEXT_MUTEX;
+
 
 class ContextGarbageCollector
 {
@@ -124,6 +130,7 @@ LsysContext::defaultContext()
 LsysContext *
 LsysContext::current()
 { 
+    QMutexLocker locker(&CURRENT_LSYSCONTEXT_MUTEX);
     if(!CURRENT_LSYSCONTEXT) CURRENT_LSYSCONTEXT = globalContext(); // defaultContext();
 	return CURRENT_LSYSCONTEXT; 
 }
@@ -132,6 +139,7 @@ void
 LsysContext::makeCurrent() 
 { 
   LsysContext * previous = currentContext();
+  QMutexLocker locker(&CURRENT_LSYSCONTEXT_MUTEX);
   if (previous == this) {
 	  LsysWarning("Multiple activation of same context!");
   }
@@ -145,6 +153,7 @@ void
 LsysContext::done() 
 { 
   if(isCurrent() && !LSYSCONTEXT_STACK.empty()){
+    QMutexLocker locker(&CURRENT_LSYSCONTEXT_MUTEX);
 	CURRENT_LSYSCONTEXT = LSYSCONTEXT_STACK.back();
 	LSYSCONTEXT_STACK.pop_back();
 	doneEvent();
@@ -214,6 +223,7 @@ __early_return(false),
 __early_return_mutex(),
 __paramproductions()
 {
+    registerLstringMatcher();
 	IncTracker(LsysContext)
 	init_options();
 }
@@ -221,7 +231,7 @@ __paramproductions()
 LsysContext::LsysContext(const LsysContext& lsys):
   __direction(lsys.__direction),
   __group(lsys.__group),
-  __nproduction(lsys.__nproduction),
+  // __nproduction(lsys.__nproduction),
   __selection_always_required(lsys.__selection_always_required),
   __selection_requested(false),
   __warn_with_sharp_module(lsys.__warn_with_sharp_module),
@@ -238,6 +248,7 @@ LsysContext::LsysContext(const LsysContext& lsys):
   __early_return_mutex(),
   __paramproductions()
 {
+    // __nproduction.setLocalData(new AxialTree(*lsys.__nproduction.localData()));
 	IncTracker(LsysContext)
 	init_options();
 }
@@ -270,7 +281,8 @@ LsysContext::operator=(const LsysContext& lsys)
 {
   __direction = lsys.__direction;
   __group = lsys.__group;
-  __nproduction = lsys.__nproduction;
+  // __nproduction.setLocalData(lsys.__nproduction.localData());
+  // __nproduction = lsys.__nproduction;
   __selection_always_required = lsys.__selection_always_required;
   __selection_requested = false;
   __warn_with_sharp_module = lsys.__warn_with_sharp_module;
@@ -375,6 +387,11 @@ void LsysContext::init_options()
 	option->addValue<PglTurtle,bool>("Enabled",&turtle,&PglTurtle::setWarnOnError,true,"Enable warnings/errors.");
 	option->setDefault(turtle.warnOnError());	
 #endif
+    option = options.add("Multicore parallel rewriting","Set whether the string rewriting should be made on multiple cores.","Processing");
+    option->addValue("Disabled",this,&LsysContext::setMulticoreProcessing,false,"Disable multicore rewriting.");
+    option->addValue("Enabled",this,&LsysContext::setMulticoreProcessing,true,"Enable multicore rewriting.");
+    option->setDefault(0);
+
 	/** selection required option */
 	option = options.add("Selection Always Required","Set whether selection check in GUI is required or not. Selection is then transform in X module in the Lstring.","Interaction");
 	option->addValue("Disabled",this,&LsysContext::setSelectionAlwaysRequired,false,"Disable Selection Check.");
@@ -902,6 +919,36 @@ LsysContext::check_init_functions()
 /*---------------------------------------------------------------------------*/
 
 
+AxialTree& LsysContext::currentProduction()
+{
+    if (!__nproduction.hasLocalData())  __nproduction.setLocalData(new AxialTree());
+    return *__nproduction.localData();
+}
+
+void LsysContext::nproduce(const AxialTree& prod)
+{  
+    if (!__nproduction.hasLocalData()) __nproduction.setLocalData(new AxialTree(prod));
+    else __nproduction.localData()->append(prod); 
+}
+
+void LsysContext::reset_nproduction() { 
+    if (!__nproduction.hasLocalData())  __nproduction.setLocalData(new AxialTree());
+    else __nproduction.localData()->clear();
+}
+
+AxialTree LsysContext::get_nproduction() { 
+    if (!__nproduction.hasLocalData()) return AxialTree();
+    return *__nproduction.localData();
+}
+
+void LsysContext::set_nproduction(const AxialTree& prod) { 
+    if (!__nproduction.hasLocalData()) __nproduction.setLocalData(new AxialTree(prod));
+    else *__nproduction.localData() = prod; 
+}
+
+/*---------------------------------------------------------------------------*/
+
+
 size_t LsysContext::getIterationNb()
 {
     QReadLocker ml(&__iteration_nb_lock);
@@ -979,29 +1026,44 @@ bool LsysContext::isEarlyReturnEnabled()
 
 /*---------------------------------------------------------------------------*/
 
+void LsysContext::registerLstringMatcher(const LstringMatcherPtr& lstringmatcher)
+{ 
+    // size_t threadid = (size_t)QThread::currentThread();
+    
+    if(!__lstringmatcher.hasLocalData()) {
+        LstringMatcher ** val = new LstringMatcher *(lstringmatcher.get());
+        __lstringmatcher.setLocalData(val); 
+    }
+    else {
+        *__lstringmatcher.localData() = lstringmatcher.get();
+    }
+}
+
+inline bool is_a_null_ptr(LstringMatcher * lm) { return lm == NULL;}
+
 bool LsysContext::pInLeftContext(size_t pid, boost::python::dict& res)
 { 
-	if (is_null_ptr(__lstringmatcher)) LsysError("Cannot call InLeftContext");
-	return __lstringmatcher->pInLeftContext(pid, res);
+	if (!__lstringmatcher.hasLocalData() || is_a_null_ptr(*(__lstringmatcher.localData()))) LsysError("Cannot call InLeftContext");
+	return (*__lstringmatcher.localData())->pInLeftContext(pid, res);
 }
 
 bool LsysContext::inLeftContext(const PatternString& pattern, boost::python::dict& res)
 { 
-	if (is_null_ptr(__lstringmatcher)) LsysError("Cannot call inLeftContext");
-	return __lstringmatcher->inLeftContext(pattern, res);
+	if (!__lstringmatcher.hasLocalData() || is_a_null_ptr(*(__lstringmatcher.localData()))) LsysError("Cannot call inLeftContext");
+	return (*__lstringmatcher.localData())->inLeftContext(pattern, res);
 }
 
 
 bool LsysContext::pInRightContext(size_t pid, boost::python::dict& res)
 { 
-	if (is_null_ptr(__lstringmatcher)) LsysError("Cannot call InRightContext");
-	return __lstringmatcher->pInRightContext(pid, res);
+	if (!__lstringmatcher.hasLocalData() || is_a_null_ptr(*(__lstringmatcher.localData()))) LsysError("Cannot call InRightContext");
+	return (*__lstringmatcher.localData())->pInRightContext(pid, res);
 }
 
 bool LsysContext::inRightContext(const PatternString& pattern, boost::python::dict& res)
 { 
-	if (is_null_ptr(__lstringmatcher)) LsysError("Cannot call inRightContext");
-	return __lstringmatcher->inRightContext(pattern, res);
+	if (!__lstringmatcher.hasLocalData() || is_a_null_ptr(*(__lstringmatcher.localData()))) LsysError("Cannot call inRightContext");
+	return (*__lstringmatcher.localData())->inRightContext(pattern, res);
 }
 
 

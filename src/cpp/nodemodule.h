@@ -42,33 +42,34 @@ public:
 
   NodeModule(AxialTree::const_iterator pos, 
 			 AxialTree::const_iterator beg, 
-			 AxialTree::const_iterator end);
+			 AxialTree::const_iterator end,
+             const ConsiderFilterPtr filter = ConsiderFilterPtr());
 
   virtual ~NodeModule();
 
   inline NodeModule parent() const
-  { return make_node(LPY::parent(__pos,__beg,__end));}
+  { return make_node(LPY::parent(__pos,__beg,__end, __filter));}
 
   inline std::vector<NodeModule> children() const
-  { return make_nodes(LPY::children(__pos,__end)); }
+  { return make_nodes(LPY::children(__pos,__end, __filter)); }
 
   inline std::vector<NodeModule> lateral_children() const
-  { return make_nodes(LPY::lateral_children(__pos,__end)); }
+  { return make_nodes(LPY::lateral_children(__pos,__end, __filter)); }
 
   inline NodeModule direct_child() const
-  { return make_node(LPY::direct_child(__pos,__end)); }
+  { return make_node(LPY::direct_child(__pos,__end, __filter)); }
 
   inline NodeModule complex(int scale) const
-  {  return make_node(LPY::complex(__pos,scale,__beg,__end)); }
+  {  return make_node(LPY::complex(__pos,scale,__beg,__end, __filter)); }
 
   inline NodeModule complex() const
   { return complex(scale()+1); }
 
   inline std::vector<NodeModule> components() const
-  {  return make_nodes(LPY::components(__pos,__end)); }
+  {  return make_nodes(LPY::components(__pos,__end, __filter)); }
 
   inline std::vector<NodeModule> components_at_scale(int scale) const
-  {  return make_nodes(LPY::components_at_scale(__pos, scale, __end)); }
+  {  return make_nodes(LPY::components_at_scale(__pos, scale, __end, __filter)); }
 
   inline bool isRoot() const
   { return __pos == __beg; }
@@ -85,13 +86,12 @@ protected:
   { 
 	  std::vector<NodeModule> res;
 	  for(std::vector<AxialTree::const_iterator>::const_iterator itpos = pos.begin(); itpos != pos.end(); ++itpos)
-		  res.push_back(NodeModule(*itpos,__beg,__end));
+		  res.push_back(NodeModule(*itpos,__beg,__end, __filter));
 	  return res;
   }
   inline NodeModule make_node(const AxialTree::const_iterator& pos) const
   { 
-	  if (pos == __end) return NodeModule(__beg,__end);
-	  return NodeModule(pos,__beg,__end);
+	  return NodeModule(pos,__beg,__end, __filter);
   }
 
   NodeModule();
@@ -102,6 +102,7 @@ protected:
   AxialTree::const_iterator __pos;
   AxialTree::const_iterator __beg; 
   AxialTree::const_iterator __end;
+  ConsiderFilterPtr         __filter;
 
 };
 

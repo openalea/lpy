@@ -36,21 +36,22 @@ LPY_USING_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
-bool Module::isConsidered() const
+bool Module::isConsidered(const ConsiderFilterPtr filter) const
 { 
-	if(is_null_ptr(ConsiderFilter::current())) return true;
-	return ConsiderFilter::current()->isConsidered(*this); 
+	if(is_null_ptr(filter)) return true;
+	return filter->isConsidered(*this); 
 }
 
-bool Module::isIgnored() const
+bool Module::isIgnored(const ConsiderFilterPtr filter) const
 { 
-	if(is_null_ptr(ConsiderFilter::current())) return false;
-	return ConsiderFilter::current()->isIgnored(*this); 
+	if(is_null_ptr(filter)) return false;
+	return filter->isIgnored(*this); 
 }
 
 
 /*---------------------------------------------------------------------------*/
 
+/*
 static std::stack<ConsiderFilterPtr> CONSIDERFILTER_STACK;
 static ConsiderFilterPtr CURRENT_CONSIDERFILTER = NULL;
 
@@ -110,7 +111,7 @@ bool ConsiderFilter::isNoneCurrent()
 {
 	return !is_null_ptr(CURRENT_CONSIDERFILTER);
 }
-
+*/
 /*---------------------------------------------------------------------------*/
 
 ConsiderFilter::ConsiderFilter(const std::string& modules, eConsiderMethod method):
@@ -156,7 +157,7 @@ ConsiderFilter::str() const{
 }	
 
 /*---------------------------------------------------------------------------*/
-
+/*
 ConsiderFilterMaintainer::ConsiderFilterMaintainer(ConsiderFilterPtr _filter) : 
     to_set(!(is_valid_ptr(_filter)?_filter->isCurrent():ConsiderFilter::isNoneCurrent())), filter(_filter)
 { 
@@ -172,3 +173,4 @@ ConsiderFilterMaintainer::~ConsiderFilterMaintainer() {
 		else ConsiderFilter::doneNone();
 	}
 }
+*/

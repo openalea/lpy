@@ -38,17 +38,13 @@
 
 LPY_BEGIN_NAMESPACE
 
-/*---------------------------------------------------------------------------*/
-/*
-LPY_API enum eDirection {
-      eForward,
-      eBackward
-} ;*/
+#define LSTRING_SHARED_DATA
 
 /*---------------------------------------------------------------------------*/
 
 template<class Module>
 class AbstractLString {
+
 public:
   /// The type of element contained in the axialtree.
   typedef Module element_type;
@@ -73,6 +69,8 @@ public:
   typedef AbstractLString<Module> AbstractLStringType;
 
 private:
+
+#ifdef LSTRING_SHARED_DATA
 
  template<class AbstractLString>
  struct LSInternal  : public QSharedData 
@@ -106,20 +104,48 @@ protected:
  const ModuleList& __string() const { return __data->__string; }
  ModuleList& __string()  { return __data->__string; }
  void resetString()  { __data = AbstractLStringInternalPtr(new AbstractLStringInternal()); }
+
+#else
+
+ ModuleList __data;
+
+protected:
+ const ModuleList& __conststring() const { return __data; }
+ const ModuleList& __string() const { return __data; }
+ ModuleList& __string()  { return __data; }
+ void resetString()  { __data = ModuleList(); }
+
+#endif
  
 public:
 
+#ifdef LSTRING_SHARED_DATA
+
   AbstractLString() : 
 	__data(new AbstractLStringInternal()) {}
-
-  AbstractLString(const AbstractLStringType& other) : 
-	__data(other.__data) {}
 
   AbstractLString(const Module& mod) : 
 	__data(new AbstractLStringInternal(mod)) {}
 
   AbstractLString(const_iterator beg, const_iterator end) : 
 	__data(new AbstractLStringInternal(beg,end)) {}
+
+#else
+
+  AbstractLString() : 
+    __data() {}
+
+  AbstractLString(const Module& mod) : 
+    __data(1,mod) {}
+
+  AbstractLString(const_iterator beg, const_iterator end) : 
+    __data(beg,end) {}
+
+#endif
+
+  AbstractLString(const AbstractLStringType& other) : 
+
+    __data(other.__data) {}
 
   ~AbstractLString() { }
  
@@ -322,43 +348,43 @@ public:
 
   // AbstractLStringType replace(const AbstractLStringType&, const AbstractLStringType&) const;
 
-  inline std::vector<const_iterator> roots() const
-  {  return LPY::roots(const_begin(),const_end()); }
+  inline std::vector<const_iterator> roots(const ConsiderFilterPtr filter = ConsiderFilterPtr()) const
+  {  return LPY::roots(const_begin(), const_end(), filter); }
 
-  inline const_iterator parent(const_iterator pos) const
-  { return LPY::parent(pos,const_begin(),const_end());}
+  inline const_iterator parent(const_iterator pos, const ConsiderFilterPtr filter = ConsiderFilterPtr()) const
+  { return LPY::parent(pos, const_begin(), const_end(), filter);}
 
-  inline std::vector<const_iterator> children(const_iterator pos) const
-  { return LPY::children(pos,const_end()); }
+  inline std::vector<const_iterator> children(const_iterator pos, const ConsiderFilterPtr filter = ConsiderFilterPtr()) const
+  { return LPY::children(pos, const_end(), filter); }
 
-  inline std::vector<const_iterator> lateral_children(const_iterator pos) const
-  { return LPY::lateral_children(pos,const_end()); }
+  inline std::vector<const_iterator> lateral_children(const_iterator pos, const ConsiderFilterPtr filter = ConsiderFilterPtr()) const
+  { return LPY::lateral_children(pos, const_end(), filter); }
 
-  inline const_iterator direct_child(const_iterator pos) const
-  { return LPY::direct_child(pos,const_end()); }
+  inline const_iterator direct_child(const_iterator pos, const ConsiderFilterPtr filter = ConsiderFilterPtr()) const
+  { return LPY::direct_child(pos, const_end(), filter); }
 
-  inline const_iterator complex(const_iterator pos, int scale) const
-  {  return LPY::complex(pos,scale,const_begin(),const_end()); }
+  inline const_iterator complex(const_iterator pos, int scale, const ConsiderFilterPtr filter = ConsiderFilterPtr()) const
+  {  return LPY::complex(pos, scale, const_begin(), const_end(), filter); }
 
-  inline const_iterator complex(const_iterator pos) const
-  { return LPY::complex(pos,up_scale(pos->scale()),const_begin(),const_end()); }
+  inline const_iterator complex(const_iterator pos, const ConsiderFilterPtr filter = ConsiderFilterPtr()) const
+  { return LPY::complex(pos, up_scale(pos->scale()), const_begin(), const_end(), filter); }
 
-  inline std::vector<const_iterator> components(const_iterator pos) const
-  { return LPY::components(pos,const_end()); }
+  inline std::vector<const_iterator> components(const_iterator pos, const ConsiderFilterPtr filter = ConsiderFilterPtr()) const
+  { return LPY::components(pos, const_end(), filter); }
 
-  inline std::vector<const_iterator> components_at_scale(const_iterator pos, int scale) const
-  { return LPY::components_at_scale(pos,scale,const_end()); }
+  inline std::vector<const_iterator> components_at_scale(const_iterator pos, int scale, const ConsiderFilterPtr filter = ConsiderFilterPtr()) const
+  { return LPY::components_at_scale(pos, scale, const_end(), filter); }
 
   //!  Return iterator on endBracket ']' or end of string. If pos is on a '[', startingBeforePos allows to say if search should start from just before the '[' or after.
   inline const_iterator endBracket(const_iterator pos, bool startingBeforePos = false) const
-  { return LPY::endBracket(pos,const_end(),startingBeforePos); }
+  { return LPY::endBracket(pos, const_end(), startingBeforePos); }
 
   //!  Return iterator on beginBracket '[' or begin of string. If pos is on a ']', startingAfterPos allows to say if search should start from just after the ']' or after.
   inline const_iterator beginBracket(const_iterator pos, bool startingAfterPos = false) const
-  { return LPY::beginBracket(pos,const_begin(),const_end(),startingAfterPos); }
+  { return LPY::beginBracket(pos, const_begin(), const_end(), startingAfterPos); }
 
   inline bool wellBracketed() const
-  { return LPY::wellBracketed(const_begin(),const_end()); }
+  { return LPY::wellBracketed(const_begin(), const_end()); }
 
   bool isAPath() const
   { 

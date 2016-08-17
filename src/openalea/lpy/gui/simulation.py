@@ -3,7 +3,7 @@ from openalea.lpy import *
 from openalea.plantgl.all import PglTurtle, Viewer, Material, PyStrPrinter, eStatic, eAnimatedPrimitives, eAnimatedScene
 import optioneditordelegate as oed
 import os, shutil, sys, traceback
-from time import clock
+from time import clock, time
 from lpystudiodebugger import AbortDebugger
 from scalar import *
 import cProfile as profiling
@@ -564,16 +564,16 @@ class LpySimulation:
             self.open(self.fname)
     def run(self,task):
         dl = self.lsystem.derivationLength
-        timing = clock()
+        timing = time()
         task.result = self.lsystem.derive(dl)
-        task.timing = clock() - timing
+        task.timing = time() - timing
         task.dl = self.lsystem.getLastIterationNb()+1
     def post_run(self,task):
         if hasattr(task,'result'):
             self.firstView = False
-            plottiming = clock()
+            plottiming = time()
             self.lsystem.plot(task.result,True)
-            plottiming = clock() - plottiming
+            plottiming = time() - plottiming
             self.setTree(task.result,task.dl,task.timing,plottiming)
             if self.lpywidget.displayMetaInfo and not self.autorun and  self.lsystem.context().has_key('__description__'):
                 self.lpywidget.viewer.showMessage(self.lsystem.context()['__description__'],5000)
@@ -587,7 +587,7 @@ class LpySimulation:
             self.lsystem.plot(self.lsystem.derive(nbiter),True)
             self.firstView = False
             self.lpywidget.viewer.setAnimation(eAnimatedPrimitives)
-        timing = clock()
+        timing = time()
         make_animation = self.lsystem.animate 
         if hasattr(task,'recording') :
             def record(*args):
@@ -595,13 +595,14 @@ class LpySimulation:
                 args = list(args)
                 if len(args) == 4: args.pop(1)
                 else: args.pop(0)
+                args.append(task.recording_suffix)
                 self.lsystem.record(task.recording,*args)
             make_animation = record
         if (not edition) and (not self.tree is None) and (0 < nbiter < dl):
             task.result = make_animation(self.tree,dt,nbiter,dl-nbiter)
         else:
             task.result = make_animation(dt,dl)
-        task.timing = clock() - timing
+        task.timing = time() - timing
         task.dl = self.lsystem.getLastIterationNb()+1
     def pre_animate(self,task):
         if self.isTextEdited() or self.lsystem.empty() or self.nbiterations == 0 or self.nbiterations >= self.lsystem.derivationLength:
@@ -620,9 +621,9 @@ class LpySimulation:
         else: task.done = False
     def step(self,task):
         if not task.done and self.nbiterations < self.lsystem.derivationLength:
-            timing = clock()
+            timing = time()
             task.result = self.lsystem.derive(self.tree,self.nbiterations,1)
-            task.timing = clock() - timing
+            task.timing = time() - timing
             task.dl = self.lsystem.getLastIterationNb()+1
         else:
             task.dl = 0
@@ -634,9 +635,9 @@ class LpySimulation:
             self.lsystem.plot(self.tree,True)
             self.firstView = False
     def iterate(self,task,n = None):    
-        timing = clock()
+        timing = time()
         task.result = self.lsystem.derive(self.tree,self.nbiterations,self.iterateStep)        
-        task.timing = clock() - timing
+        task.timing = time() - timing
         task.dl = self.lsystem.getLastIterationNb()+1
     def debug(self):
         self.lsystem.setDebugger(self.lpywidget.debugger)
@@ -685,7 +686,7 @@ class LpySimulation:
         edition = self.isTextEdited()
         nbiter = self.nbiterations
         dl = self.lsystem.derivationLength
-        timing = clock()
+        timing = time()
         profile = profiling.Profile()
         def run():
             if task.mode == AnimatedProfiling:
@@ -698,7 +699,7 @@ class LpySimulation:
         run()
         profile.disable()
         task.profile_stats = profile.getstats()
-        task.timing = clock() - timing
+        task.timing = time() - timing
         task.dl = self.lsystem.getLastIterationNb()+1
     def pre_profile(self,task):
         if self.isTextEdited() or self.lsystem.empty() :

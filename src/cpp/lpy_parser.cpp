@@ -349,7 +349,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 		case 'a':
 		case 'A':
 		  _it2 = _it;
-		  if(has_keyword_pattern(_it,begcode,endpycode,"Axiom") || has_keyword_pattern(_it,begcode,endpycode,"axiom") && 
+		  if((has_keyword_pattern(_it,begcode,endpycode,"Axiom") || has_keyword_pattern(_it,begcode,endpycode,"axiom")) && 
 			 (_it2 == rules.begin() || *(_it2-1) == '\n')){
             code += std::string(beg,_it2);
 			beg = _it;
