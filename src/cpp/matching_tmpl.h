@@ -158,7 +158,7 @@ struct GetPrevious {
 public:
 	static inline Iterator next(Iterator pos, PIterator pattern, Iterator string_begin, Iterator string_end, 
                                 const ConsiderFilterPtr& filter) { 
-		return previous_module(pos,string_begin,string_end,filter);
+		return previous_module(pos,string_begin,string_end,false,filter);
 	}
 };
 
