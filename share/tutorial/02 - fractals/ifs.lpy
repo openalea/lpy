@@ -1,11 +1,13 @@
-module Ls
+module @Ls
 
 previousString = None
 def StartEach(lstring):
+  # retrieve previous structure
   global previousString
   previousString = lstring
-  return Lstring('F')
-
+  
+  # generate global symbol to represent the previous structure
+  return Lstring('@Ls(1)')
 
 Axiom: F
 
@@ -14,12 +16,16 @@ derivation length: 4
 production:
 decomposition:
 maximum depth: 1
-Ls : 
+
+@Ls(s) :
+  # generate previous structure with a scaling factor
+  nproduce  @Di(s)
   nsproduce(previousString)
+  nproduce @Di(1./s)
 
 production:
 
-F --> Ls + Ls -- Ls + Ls
+@Ls(x) --> @Ls(x/3.) + @Ls(x/3.) -- @Ls(x/3.) + @Ls(x/3.)
 
 interpretation:
 
