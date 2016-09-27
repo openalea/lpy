@@ -1,9 +1,12 @@
 from openalea.plantgl.all import NurbsPatch
-from openalea.plantgl.gui.nurbspatcheditor import NurbsPatchEditor
 from openalea.lpy.gui.abstractobjectmanager import *
+try:
+    from openalea.plantgl.gui.nurbspatcheditor import NurbsPatchEditor
+    from PyQGLViewer import Vec
+except ImportError, e:
+    NurbsPatchEditor = None
 from OpenGL.GL import *
 from math import pi
-from PyQGLViewer import Vec
 
 class NurbsPatchManager(AbstractPglObjectManager):
     """see the doc of the objectmanager abtsract class to undesrtand the implementation of the functions"""
@@ -47,6 +50,7 @@ class NurbsPatchManager(AbstractPglObjectManager):
         return NurbsPatch([[(0,-0.5+j/3.,i/3.,1) for j in range(4)] for i in range(4)])
 
     def getEditor(self,parent):
+        if not NurbsPatchEditor: return None
         editor = NurbsPatchEditor(parent)
         editor.camera().setPosition(Vec(1,0,0.5))
         editor.camera().setUpVector(Vec(0,0,1))

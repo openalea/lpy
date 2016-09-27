@@ -1,18 +1,26 @@
-from PyQGLViewer import QGLViewer, Vec
 from openalea.plantgl.all import *
-from openalea.plantgl.gui.pglnqgl import *
 from openalea.vpltk.qt import qt
+try:
+    from PyQGLViewer import QGLViewer, Vec
+    from openalea.plantgl.gui.pglnqgl import *
+    ParentClass = QGLViewer
+    hasPyQGLViewer = True
+except ImportError, e:
+    ParentClass = qt.QtOpenGL.QGLWidget
+    print 'Missing PyQGLViewer !!!!!! Unstable Lpy !!!!!!!!!'
+    hasPyQGLViewer = False
 
-class LpyView3D (QGLViewer):
+class LpyView3D (ParentClass):
     def __init__(self,parent):
-        QGLViewer.__init__(self,parent)
+        ParentClass.__init__(self,parent)
         self.scene = None
         self.discretizer = Discretizer()
         self.glrenderer = GLRenderer(self.discretizer)
         self.bboxcomputer = BBoxComputer(self.discretizer)
         self.animationMode = eStatic
-        self.camera().setViewDirection(Vec(-1,0,0))
-        self.camera().setUpVector(Vec(0,0,1))
+        if hasPyQGLViewer:
+            self.camera().setViewDirection(Vec(-1,0,0))
+            self.camera().setUpVector(Vec(0,0,1))
     def display(self,scene = None):
         self.scene = scene
         if self.animationMode != eAnimatedScene:
@@ -24,7 +32,7 @@ class LpyView3D (QGLViewer):
                 self.bboxcomputer.process(self.scene)
                 bbx = self.bboxcomputer.result                
                 #bbx = BoundingBox(self.scene)
-                if bbx: 
+                if bbx and hasPyQGLViewer: 
                     self.camera().setSceneBoundingBox(*bbx2qgl(bbx))
                     self.showEntireScene()
                     self.updateGL()
@@ -58,3 +66,8 @@ class LpyView3D (QGLViewer):
             # self.saveSnapshot(e.fname)
             # return True
         # else: return QGLViewer.event(self,e)
+
+if not hasPyQGLViewer:
+    def paintGL(self):
+        self.draw()
+    LpyView3D.paintGL = paintGL

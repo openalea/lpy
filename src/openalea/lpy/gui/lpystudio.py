@@ -15,7 +15,10 @@ except:
     py2exe_release = False
 from openalea.vpltk import qt
 from openalea.vpltk.qt.compat import *
-from PyQGLViewer import *
+try:
+   import PyQGLViewer
+except ImportError, e:
+    PyQGLViewer = None
 import traceback as tb
 import documentation as doc
 import settings
@@ -290,14 +293,15 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
             self.switchCentralView()
     def setIntegratedView3D(self,enabled):
         if self.use_own_view3D != enabled:
-            self.use_own_view3D = enabled
-            if not enabled and self.centralViewIsGL:
-                self.switchCentralView()
-            if not enabled:
-                self.viewer = Viewer
-            else:
-                self.viewer = self.view3D
-            self.actionView3D.setEnabled(enabled)
+            if PyQGLViewer:
+                self.use_own_view3D = enabled
+                if not enabled and self.centralViewIsGL:
+                    self.switchCentralView()
+                if not enabled:
+                    self.viewer = Viewer
+                else:
+                    self.viewer = self.view3D
+                self.actionView3D.setEnabled(enabled)            
     def getObjectPanels(self):
         return self.panelmanager.getObjectPanels()
     def getMaxObjectPanelNb(self):
