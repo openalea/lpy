@@ -43,6 +43,10 @@
 
 LPY_BEGIN_NAMESPACE
 
+#ifdef MULTICORE_ENABLED
+#define PRODUCTION_PER_THREAD
+#endif
+
 /*---------------------------------------------------------------------------*/
 
 class LPY_API LsysContext {

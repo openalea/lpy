@@ -221,7 +221,8 @@ __nbargs_of_starteach(0),
 __nbargs_of_start(0),
 __early_return(false),
 __early_return_mutex(),
-__paramproductions()
+__paramproductions(),
+__multicore(false)
 {
     registerLstringMatcher();
 	IncTracker(LsysContext)
@@ -246,7 +247,8 @@ LsysContext::LsysContext(const LsysContext& lsys):
   __nbargs_of_start(0),
   __early_return(false),
   __early_return_mutex(),
-  __paramproductions()
+  __paramproductions(),
+  __multicore(false)
 {
     // __nproduction.setLocalData(new AxialTree(*lsys.__nproduction.localData()));
 	IncTracker(LsysContext)
@@ -271,7 +273,8 @@ __nbargs_of_start(0),
 __early_return(false),
 __early_return_mutex(),
 __paramproductions(),
-__locals(locals)
+__locals(locals),
+__multicore(false)
 {
 	IncTracker(LsysContext)
 	init_options();
@@ -387,10 +390,14 @@ void LsysContext::init_options()
 	option->addValue<PglTurtle,bool>("Enabled",&turtle,&PglTurtle::setWarnOnError,true,"Enable warnings/errors.");
 	option->setDefault(turtle.warnOnError());	
 #endif
+
+
+#ifdef MULTICORE_ENABLED    
     option = options.add("Multicore parallel rewriting","Set whether the string rewriting should be made on multiple cores.","Processing");
     option->addValue("Disabled",this,&LsysContext::setMulticoreProcessing,false,"Disable multicore rewriting.");
     option->addValue("Enabled",this,&LsysContext::setMulticoreProcessing,true,"Enable multicore rewriting.");
     option->setDefault(0);
+#endif
 
 	/** selection required option */
 	option = options.add("Selection Always Required","Set whether selection check in GUI is required or not. Selection is then transform in X module in the Lstring.","Interaction");

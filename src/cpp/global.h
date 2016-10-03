@@ -47,6 +47,8 @@ LPY_API enum eConsiderMethod {
 	eIgnore
 };
 
+// #define MULTICORE_ENABLED
+
 /*---------------------------------------------------------------------------*/
 
 LPY_END_NAMESPACE

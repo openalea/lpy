@@ -860,10 +860,6 @@ AxialTree partialForwardStep(size_t beg,
 
       while ( _it != itend ) {
           // printf("process module %lu %lu\n", beg, std::distance(workingstring.const_begin(), _it));
-          if ( _it->isCut() ) { 
-            _it = workingstring.endBracket(_it);
-          }
-          else {
               bool match = false;
               const RulePtrSet& mruleset = ruleset[_it->getClassId()];
               for(RulePtrSet::const_iterator _it2 = mruleset.begin();
@@ -877,11 +873,52 @@ AxialTree partialForwardStep(size_t beg,
               if (!match){
                  targetstring.push_back(_it); ++_it;
               }
-          }
       }
       return targetstring;
 
 }
+
+AxialTree partialBackwardStep(size_t beg, 
+                             size_t size,
+                             AxialTree& workingstring,
+                             const RulePtrMap& ruleset)
+{
+      AxialTree targetstring;
+      targetstring.reserve(size);
+
+      AxialTree::const_iterator itbeg = workingstring.const_begin() + beg;
+      AxialTree::const_iterator itend = itbeg;
+      if (workingstring.size() >= beg + size) itend += size;
+      else itend = workingstring.const_end();
+
+      AxialTree::const_iterator _it = itend -1;
+      AxialTree::const_iterator _lastit = itbeg;
+      AxialTree::const_iterator _it3 = _it;
+
+
+      while ( _it != itend ) {
+          // printf("process module %lu %lu\n", beg, std::distance(workingstring.const_begin(), _it));
+              bool match = false;
+              const RulePtrSet& mruleset = ruleset[_it->getClassId()];
+              for(RulePtrSet::const_iterator _it2 = mruleset.begin();
+                  _it2 != mruleset.end(); _it2++){
+                      ArgList args;
+                      if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args)){
+                          match = (*_it2)->reverseApplyTo(targetstring,args);
+                          if(match) { _it = _it3; break; }
+                      }
+              }
+              if (!match){
+                  targetstring.push_front(_it);
+                  if(_it != _lastit) --_it;
+                  else _it = itend;
+              }
+      }
+      return targetstring;
+
+}
+
+
 
 void assemble(AxialTree& result, const AxialTree& second)
 {  
@@ -918,44 +955,24 @@ Lsystem::__parallelStep(AxialTree& workingstring,
     for(int threadid = 0; threadid < maxnbthread; ++threadid) 
         startmoduleid.push_back(threadid * nbsymbolperthread);        
 
-    printf("map reduced\n");
     QFuture<AxialTree> result = QtConcurrent::mappedReduced(startmoduleid, 
         boost::bind(partialForwardStep, _1, nbsymbolperthread, workingstring, ruleset),
         assemble, QtConcurrent::OrderedReduce|QtConcurrent::SequentialReduce);
 
-    printf("wait\n");
     result.waitForFinished();
-    printf("finished\n");
     return result.result();
   }
   else {
-      AxialTree targetstring;
-      targetstring.reserve(workingstring.size());
-     
-      AxialTree::const_iterator _it = workingstring.end()-1;
-      AxialTree::const_iterator _it3 = _it;
-      AxialTree::const_iterator _lastit = workingstring.begin();
-      AxialTree::const_iterator _beg = workingstring.begin();
-      AxialTree::const_iterator _end = workingstring.end();
-      while ( _it !=  _end) {
-          bool match = false;
-          const RulePtrSet& mruleset = ruleset[_it->getClassId()];
-          for(RulePtrSet::const_iterator _it2 = mruleset.begin();
-              _it2 != mruleset.end();  _it2++){
-                  ArgList args;
-                  if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args)){
-                      match = (*_it2)->reverseApplyTo(targetstring,args);
-                      if(match) { _it = _it3; break; }
-                  }
-          }
-          if (!match){
-              targetstring.push_front(_it);
-              if(_it != _lastit) --_it;
-              else _it = _end;
-          }
-          else matching = true;
-      }
-      return targetstring;
+    QList<int> startmoduleid;
+    for(int threadid = 0; threadid < maxnbthread; ++threadid) 
+        startmoduleid.push_back(threadid * nbsymbolperthread);        
+
+    QFuture<AxialTree> result = QtConcurrent::mappedReduced(startmoduleid, 
+        boost::bind(partialBackwardStep, _1, nbsymbolperthread, workingstring, ruleset),
+        assemble, QtConcurrent::OrderedReduce|QtConcurrent::SequentialReduce);
+
+    result.waitForFinished();
+    return result.result();
   }
 }
 AxialTree 

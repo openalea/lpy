@@ -362,7 +362,9 @@ boost::python::object LsysRule::__call_function( size_t nbargs, const ArgList& a
 AxialTree 
 LsysRule::apply( const ArgList& args, bool * isApplied ) const
 { 
-  // PyExecutionLocker pyexec;
+#ifdef MULTICORE_ENABLED    
+  PyExecutionLocker pyexec;
+#endif
   if(__isStatic) { 
     if(isApplied) *isApplied = true;
 	return __staticResult;
@@ -380,7 +382,9 @@ LsysRule::apply( const ArgList& args, bool * isApplied ) const
 AxialTree 
 LsysRule::apply( bool * isApplied ) const
 { 
-  // PyExecutionLocker pyexec;
+#ifdef MULTICORE_ENABLED    
+  PyExecutionLocker pyexec;
+#endif
   if(__isStatic) { 
     if(isApplied) *isApplied = true;
 	return __staticResult;
@@ -487,7 +491,9 @@ LsysRule::match(const AxialTree& src,
                eDirection direction) const 
 {
 
-  // QMutexLocker m(mutex);    
+#ifdef MULTICORE_ENABLED    
+  QMutexLocker m(mutex);    
+#endif
   
   args.reserve(__nbParams);
   ArgList args_pred;
