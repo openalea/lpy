@@ -72,6 +72,7 @@ public:
 
   std::string str() const;
 
+/*  
   void makeCurrent();
   void done();
   bool isCurrent();
@@ -81,6 +82,7 @@ public:
   static bool isNoneCurrent();
 
   static ConsiderFilterPtr current();
+*/
 
   static ConsiderFilterPtr consider(const std::string& modules)
   {   
@@ -102,7 +104,7 @@ protected:
 };
 
 
-
+/*
 struct ConsiderFilterMaintainer {
     bool to_set;
     ConsiderFilterPtr filter;
@@ -111,6 +113,7 @@ struct ConsiderFilterMaintainer {
     ~ConsiderFilterMaintainer() ;
 
 };
+*/
 
 /*---------------------------------------------------------------------------*/
 

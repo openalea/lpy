@@ -783,6 +783,7 @@ class LPyWindow(qt.QtGui.QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager)
                 task = ComputationTask(simu.animate,simu.post_animate,simu.pre_animate,cleanupprocess=simu.cleanup)
                 task.fitAnimationView = self.fitAnimationView
                 task.recording = os.path.splitext(fname)[0]+'-'
+                task.recording_suffix = os.path.splitext(fname)[1][1:]
                 self.registerTask(task)
               except:
                 self.graberror()

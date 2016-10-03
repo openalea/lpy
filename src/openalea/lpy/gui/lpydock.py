@@ -1,9 +1,9 @@
 from openalea.vpltk.qt import qt
 try:
-    from openalea.vpltk.shell.shell import get_shell_class, get_interpreter_class
-except :
     from openalea.oalab.shell import get_shell_class
     from openalea.core.interpreter import get_interpreter_class
+except :
+    from openalea.vpltk.shell.shell import get_shell_class, get_interpreter_class
 
 import debugger_ui
 import debugger_right_ui

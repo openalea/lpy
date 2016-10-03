@@ -246,59 +246,67 @@ bool AxialTree::match(const PatternString& pattern,
 					  AxialTree::const_iterator it,
 					  AxialTree::const_iterator& resultingpos,
 					  AxialTree::const_iterator& last_matched,
-					  ArgList& params) const
+					  ArgList& params,
+                      const ConsiderFilterPtr filter) const
 { 
-	return MatchingEngine::match(it,const_begin(),const_end(),pattern.const_begin(),pattern.const_end(),resultingpos,last_matched,params);
+	return MatchingEngine::match(it,const_begin(),const_end(),pattern.const_begin(),pattern.const_end(),resultingpos,last_matched,filter, params);
 }
 
 bool AxialTree::reverse_match(const PatternString& pattern, 
-					  AxialTree::const_iterator it) const
-{ AxialTree::const_iterator res; return reverse_match(pattern,it,res); }
+					          AxialTree::const_iterator it,
+                              const ConsiderFilterPtr filter) const
+{ AxialTree::const_iterator res; return reverse_match(pattern,it,res, filter); }
 
 bool AxialTree::reverse_match(const PatternString& pattern, 
-					  AxialTree::const_iterator it,
-					  AxialTree::const_iterator& resultingpos) const
+					          AxialTree::const_iterator it,
+					          AxialTree::const_iterator& resultingpos,
+                              const ConsiderFilterPtr filter) const
 { 
   ArgList params;
   if (isEnd(it)) return false;
-  return MatchingEngine::reverse_match(it,begin(),end(),pattern.const_rbegin(),pattern.const_rend(),resultingpos,params);
+  return MatchingEngine::reverse_match(it,begin(),end(),pattern.const_rbegin(),pattern.const_rend(),resultingpos,filter,params);
 }
 
 
 bool AxialTree::reverse_match(const PatternString& pattern, 
 					  AxialTree::const_iterator it,
 					  AxialTree::const_iterator& resultingpos,
-					  ArgList& params) const
+					  ArgList& params,
+                      const ConsiderFilterPtr filter) const
 { 
   if (isEnd(it)) return false;
-  return MatchingEngine::reverse_match(it,begin(),end(),pattern.const_rbegin(),pattern.const_rend(),resultingpos,params);
+  return MatchingEngine::reverse_match(it,begin(),end(),pattern.const_rbegin(),pattern.const_rend(),resultingpos,filter,params);
 }
  
 bool AxialTree::rightmatch(const PatternString& pattern, 
-						   AxialTree::const_iterator it) const
-{ AxialTree::const_iterator res; return rightmatch(pattern,it,res); }
+						   AxialTree::const_iterator it,
+                           const ConsiderFilterPtr filter) const
+{ AxialTree::const_iterator res; return rightmatch(pattern,it,res,filter); }
 
 bool AxialTree::rightmatch(const PatternString& pattern, 
 						   AxialTree::const_iterator it,
-						   AxialTree::const_iterator& resultingpos) const{
+						   AxialTree::const_iterator& resultingpos,
+                           const ConsiderFilterPtr filter) const{
   ArgList params;
-  return rightmatch(pattern,it,resultingpos,params);
+  return rightmatch(pattern,it,resultingpos,params,filter);
 }
 
 bool AxialTree::rightmatch(const PatternString& pattern, 
 						   AxialTree::const_iterator it,
 						   AxialTree::const_iterator& resultingpos,
-						   ArgList& params) const{
-  return rightmatch(pattern,it,it,resultingpos,params);
+						   ArgList& params,
+                           const ConsiderFilterPtr filter) const{
+  return rightmatch(pattern,it,it,resultingpos,params,filter);
 }
 
 bool AxialTree::rightmatch(const PatternString& pattern, 
 						   AxialTree::const_iterator it,
 						   AxialTree::const_iterator last_matched,
 						   AxialTree::const_iterator& resultingpos,
-						   ArgList& params) const{
+						   ArgList& params,
+                           const ConsiderFilterPtr filter) const{
   if(pattern.empty())return true;
-  return MatchingEngine::right_match(it,const_begin(),const_end(),pattern.const_begin(),pattern.const_end(),last_matched, resultingpos,params);
+  return MatchingEngine::right_match(it,const_begin(),const_end(),pattern.const_begin(),pattern.const_end(),last_matched, resultingpos, filter, params);
 }
 
 AxialTree::const_iterator
@@ -315,22 +323,25 @@ AxialTree::rightfind(const PatternString& a,
 bool AxialTree::leftmatch(const PatternString& pattern, 
 						  AxialTree::const_iterator it,
 						  AxialTree::const_iterator& resultingpos,
-						  ArgList& params) const{
+						  ArgList& params,
+                          const ConsiderFilterPtr filter) const{
   if(pattern.empty())return true;
-  return MatchingEngine::left_match(it,const_begin(),const_end(),pattern.const_rbegin(),pattern.const_rend(),resultingpos,params);
+  return MatchingEngine::left_match(it,const_begin(),const_end(),pattern.const_rbegin(),pattern.const_rend(),resultingpos,filter,params);
 }
 
 bool AxialTree::leftmatch(const PatternString& pattern, 
 						  AxialTree::const_iterator it,
-						  AxialTree::const_iterator& resultingpos) const{
+						  AxialTree::const_iterator& resultingpos,
+                          const ConsiderFilterPtr filter) const{
 
   if(pattern.empty())return true;
   ArgList params;
-  return MatchingEngine::left_match(it,const_begin(),const_end(),pattern.const_rbegin(),pattern.const_rend(),resultingpos,params);
+  return MatchingEngine::left_match(it,const_begin(),const_end(),pattern.const_rbegin(),pattern.const_rend(),resultingpos,filter,params);
 }
 
-bool AxialTree::leftmatch(const PatternString& a, AxialTree::const_iterator it) const
-{ AxialTree::const_iterator res; return leftmatch(a,it,res); }
+bool AxialTree::leftmatch(const PatternString& a, AxialTree::const_iterator it,
+                           const ConsiderFilterPtr filter) const
+{ AxialTree::const_iterator res; return leftmatch(a,it,res,filter); }
 
 AxialTree::const_iterator
 AxialTree::leftfind(const PatternString& a,

@@ -77,7 +77,7 @@ if __name__ == '__main__':
     test_func = [ (n,v) for n,v in globals().items() if 'test' in n]
     test_func.sort(lambda x,y : cmp(x[1].func_code.co_firstlineno,y[1].func_code.co_firstlineno))
     for tfn,tf in test_func:
-        print tfn
+        print 'testing func:', tfn
         try:
             tf()
         except:

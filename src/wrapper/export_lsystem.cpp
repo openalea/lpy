@@ -157,11 +157,10 @@ void export_Lsystem(){
 	.def("animate", (AxialTree(Lsystem::*)(double,size_t))&Lsystem::animate)
 	.def("animate", (AxialTree(Lsystem::*)(double,size_t,size_t))&Lsystem::animate)
 	.def("animate", (AxialTree(Lsystem::*)(const AxialTree&,double,size_t,size_t))&Lsystem::animate)
-	.def("record",  (void(Lsystem::*)(const std::string&))&Lsystem::record)
-	.def("record",  (void(Lsystem::*)(const std::string&,size_t))&Lsystem::record)
-	.def("record",  (void(Lsystem::*)(const std::string&,size_t,size_t))&Lsystem::record)
-	.def("record",  (void(Lsystem::*)(const std::string&,size_t,size_t))&Lsystem::record)
-	.def("record",  (void(Lsystem::*)(const std::string&,const AxialTree&,size_t,size_t))&Lsystem::record)
+	.def("record",  (void(Lsystem::*)(const std::string&,const std::string&))&Lsystem::record,(bp::arg("prefix"),bp::arg("suffix")="png"))
+	.def("record",  (void(Lsystem::*)(const std::string&,size_t, const std::string&))&Lsystem::record,(bp::arg("prefix"),bp::arg("nbiteration"),bp::arg("suffix")="png"))
+	.def("record",  (void(Lsystem::*)(const std::string&,size_t, size_t, const std::string&))&Lsystem::record,(bp::arg("prefix"),bp::arg("begin"),bp::arg("nbiteration"),bp::arg("suffix")="png"))
+	.def("record",  (void(Lsystem::*)(const std::string&,const AxialTree&,size_t,size_t,const std::string&))&Lsystem::record,(bp::arg("prefix"),bp::arg("workstring"),bp::arg("begin"),bp::arg("nbiteration"),bp::arg("suffix")="png"))
 
 	.def("addRule",      (void(Lsystem::*)(const std::string&, int, size_t, const ConsiderFilterPtr))&Lsystem::addRule, "Add a rule", 
 						 (bp::arg("code"),bp::arg("ruletype")=Lsystem::eProduction,bp::arg("group")=0,bp::arg("filter")=ConsiderFilterPtr()))

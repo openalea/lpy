@@ -777,6 +777,7 @@ Lsystem::__step(AxialTree& workingstring,
 				bool query,
 				bool& matching,
                 eDirection direction){
+  if (__context.multicoreProcessing()) { return __parallelStep(workingstring, ruleset, query, matching, direction);  }
   ContextMaintainer c(&__context);
   matching = false;
   if( workingstring.empty()) return workingstring;
@@ -837,6 +838,143 @@ Lsystem::__step(AxialTree& workingstring,
   return targetstring;
 }
 
+#include <QtCore/QtConcurrentRun>
+#include <QtCore/QtConcurrentMap>
+
+AxialTree partialForwardStep(size_t beg, 
+                             size_t size,
+                             AxialTree& workingstring,
+                             const RulePtrMap& ruleset)
+{
+      AxialTree targetstring;
+      targetstring.reserve(size);
+
+      AxialTree::const_iterator itbeg = workingstring.const_begin() + beg;
+      AxialTree::const_iterator itend = itbeg;
+      if (workingstring.size() >= beg + size) itend += size;
+      else itend = workingstring.const_end();
+
+      AxialTree::const_iterator _it = itbeg;
+      AxialTree::const_iterator _it3 = _it;
+
+
+      while ( _it != itend ) {
+          // printf("process module %lu %lu\n", beg, std::distance(workingstring.const_begin(), _it));
+              bool match = false;
+              const RulePtrSet& mruleset = ruleset[_it->getClassId()];
+              for(RulePtrSet::const_iterator _it2 = mruleset.begin();
+                  _it2 != mruleset.end(); _it2++){
+                      ArgList args;
+                      if((*_it2)->match(workingstring,_it,targetstring,_it3,args)){
+                          match = (*_it2)->applyTo(targetstring,args);
+                          if(match) { _it = _it3; break; }
+                      }
+              }
+              if (!match){
+                 targetstring.push_back(_it); ++_it;
+              }
+      }
+      return targetstring;
+
+}
+
+AxialTree partialBackwardStep(size_t beg, 
+                             size_t size,
+                             AxialTree& workingstring,
+                             const RulePtrMap& ruleset)
+{
+      AxialTree targetstring;
+      targetstring.reserve(size);
+
+      AxialTree::const_iterator itbeg = workingstring.const_begin() + beg;
+      AxialTree::const_iterator itend = itbeg;
+      if (workingstring.size() >= beg + size) itend += size;
+      else itend = workingstring.const_end();
+
+      AxialTree::const_iterator _it = itend -1;
+      AxialTree::const_iterator _lastit = itbeg;
+      AxialTree::const_iterator _it3 = _it;
+
+
+      while ( _it != itend ) {
+          // printf("process module %lu %lu\n", beg, std::distance(workingstring.const_begin(), _it));
+              bool match = false;
+              const RulePtrSet& mruleset = ruleset[_it->getClassId()];
+              for(RulePtrSet::const_iterator _it2 = mruleset.begin();
+                  _it2 != mruleset.end(); _it2++){
+                      ArgList args;
+                      if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args)){
+                          match = (*_it2)->reverseApplyTo(targetstring,args);
+                          if(match) { _it = _it3; break; }
+                      }
+              }
+              if (!match){
+                  targetstring.push_front(_it);
+                  if(_it != _lastit) --_it;
+                  else _it = itend;
+              }
+      }
+      return targetstring;
+
+}
+
+
+
+void assemble(AxialTree& result, const AxialTree& second)
+{  
+    result += second; 
+}
+
+AxialTree 
+Lsystem::__parallelStep(AxialTree& workingstring,
+                        const RulePtrMap& ruleset,
+                        bool query,
+                        bool& matching,
+                        eDirection direction){
+  ContextMaintainer c(&__context);
+  matching = false;
+  if( workingstring.empty()) return workingstring;
+
+  // check no pseudo lsystem
+
+  // process cut symbol
+
+  if ( query ) __turtle_interpretation(workingstring,__context.envturtle);
+  
+  int maxnbthread = QThreadPool::globalInstance()->maxThreadCount()-1;
+  size_t lstringsize = workingstring.size();
+  int nbsymbolperthread = lstringsize / maxnbthread;
+  printf("Thread nb:%i elements:%i lstring size:%lu\n", maxnbthread, nbsymbolperthread, lstringsize);
+
+  if (nbsymbolperthread * maxnbthread < lstringsize) ++nbsymbolperthread;
+
+
+  if ( direction == eForward){
+
+    QList<int> startmoduleid;
+    for(int threadid = 0; threadid < maxnbthread; ++threadid) 
+        startmoduleid.push_back(threadid * nbsymbolperthread);        
+
+    QFuture<AxialTree> result = QtConcurrent::mappedReduced(startmoduleid, 
+        boost::bind(partialForwardStep, _1, nbsymbolperthread, workingstring, ruleset),
+        assemble, QtConcurrent::OrderedReduce|QtConcurrent::SequentialReduce);
+
+    result.waitForFinished();
+    return result.result();
+  }
+  else {
+    QList<int> startmoduleid;
+    for(int threadid = 0; threadid < maxnbthread; ++threadid) 
+        startmoduleid.push_back(threadid * nbsymbolperthread);        
+
+    QFuture<AxialTree> result = QtConcurrent::mappedReduced(startmoduleid, 
+        boost::bind(partialBackwardStep, _1, nbsymbolperthread, workingstring, ruleset),
+        assemble, QtConcurrent::OrderedReduce|QtConcurrent::SequentialReduce);
+
+    result.waitForFinished();
+    return result.result();
+  }
+}
 AxialTree 
 Lsystem::__stepWithMatching(AxialTree& workingstring,
 				const RulePtrMap& ruleset,
@@ -1013,7 +1151,7 @@ void Lsystem::__gRecursiveInterpretation(AxialTree& workingstring,
 		inline void stop()  
 		{ turtle.stop();
 		  if (!turtle.emptyStack()){
-			printf("Turtle stack size : %i\n",turtle.getStack().size());
+			printf("Turtle stack size : %lu\n",turtle.getStack().size());
 			LsysError("Ill-formed string in interpretation: unmatched brackets");
 			}
 		}
@@ -1061,7 +1199,7 @@ Lsystem::__recursiveInterpretation(AxialTree& workingstring,
 			if(!context.isEarlyReturnEnabled()){
 				turtle.stop();
 				if (!turtle.emptyStack()){
-					printf("Turtle stack size : %i\n",turtle.getStack().size());
+					printf("Turtle stack size : %lu\n",turtle.getStack().size());
 					LsysError("Ill-formed string in interpretation: unmatched brackets");
 				}
 				else {
@@ -1485,7 +1623,8 @@ std::string conv_number(size_t num, size_t fill){
 void
 Lsystem::record(const std::string& prefix,
 				const AxialTree& workstring,
-				size_t beg, size_t nb_iter){
+				size_t beg, size_t nb_iter,
+                const std::string& suffix){
     ACQUIRE_RESSOURCE
     enableEarlyReturn(false);
     AxialTree tree = workstring;
@@ -1493,14 +1632,14 @@ Lsystem::record(const std::string& prefix,
 	__context.setAnimationEnabled(true);
     __plot(tree);
 	int fill = (int)ceil(log10((float)beg+nb_iter+1));
-	LPY::saveImage(prefix+conv_number(beg,fill)+".png");
+	LPY::saveImage(prefix+conv_number(beg,fill)+"."+suffix,suffix);
     if (nb_iter > 0){
 	  for (size_t i = beg+1; i <= beg+nb_iter; i++){
 		tree = __derive(i-1,1,tree,true);
 		if(__context.isFrameDisplayed()) {
 			__plot(tree,true);
 		}
-		LPY::saveImage(prefix+conv_number(i,fill)+".png");
+		LPY::saveImage(prefix+conv_number(i,fill)+"."+suffix,suffix);
         if(isEarlyReturnEnabled()) break;
 	  }
 	}

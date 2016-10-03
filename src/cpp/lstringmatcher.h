@@ -50,17 +50,21 @@ public:
 	AxialTree::const_iterator rightpos;
 	AxialTree::const_iterator rightlastmatch;
 
+    ConsiderFilterPtr filter;
+
 	LstringMatcher(AxialTree::const_iterator _begin,
 				   AxialTree::const_iterator _end,
 				   AxialTree::const_iterator _leftpos,
 				   AxialTree::const_iterator _rightpos,
-				   AxialTree::const_iterator _rightlastmatch);
+				   AxialTree::const_iterator _rightlastmatch,
+                   const ConsiderFilterPtr filter);
 
 	void set(AxialTree::const_iterator _begin,
 			 AxialTree::const_iterator _end,
 			 AxialTree::const_iterator _leftpos,
 			 AxialTree::const_iterator _rightpos,
-			 AxialTree::const_iterator _rightlastmatch);
+			 AxialTree::const_iterator _rightlastmatch,
+             const ConsiderFilterPtr filter);
 
 	bool pInLeftContext(size_t patternid, boost::python::dict& args);
 	bool inLeftContext(const PatternString& pattern, boost::python::dict& args);
@@ -78,7 +82,7 @@ class LsysContext;
 struct LstringMatcherMaintainer {
     LsysContext * context;
 
-    LstringMatcherMaintainer(LstringMatcherPtr lmatcher, LsysContext * _context = NULL  ) ;
+    LstringMatcherMaintainer(const LstringMatcherPtr& lmatcher, LsysContext * _context = NULL  ) ;
 
     ~LstringMatcherMaintainer();
 };

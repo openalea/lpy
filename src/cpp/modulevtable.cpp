@@ -11,7 +11,7 @@ LPY_BEGIN_NAMESPACE
 
 
 BaseModuleProperty::BaseModuleProperty(const std::string& _name): 
-	  TOOLS(RefCountObject)(), name(name) { IncTracker(ModuleProperty) }
+	  TOOLS(RefCountObject)(), name(_name) { IncTracker(ModuleProperty) }
 
 BaseModuleProperty::~BaseModuleProperty() { DecTracker(ModuleProperty) }
 

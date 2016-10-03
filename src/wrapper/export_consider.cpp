@@ -28,8 +28,8 @@
  # ---------------------------------------------------------------------------
  */
 
-#include "consider.h"
 #include <plantgl/python/export_refcountptr.h>
+#include "consider.h"
 
 using namespace boost::python;
 #define bp boost::python
@@ -73,7 +73,7 @@ void export_Consider(){
 	.def("keyword",        &ConsiderFilter::keyword)
 
 	.def("str",            &ConsiderFilter::str)
-
+/*
 	.def("makeCurrent",    &ConsiderFilter::makeCurrent)
 	.def("done",		   &ConsiderFilter::done)
 	.def("isCurrent",	   &ConsiderFilter::isCurrent)
@@ -87,7 +87,7 @@ void export_Consider(){
 
 	.def("current",	   &ConsiderFilter::current)
 	.staticmethod("current")
-
+*/
 	.def("consider",       &ConsiderFilter::consider)
 	.staticmethod("consider")
 

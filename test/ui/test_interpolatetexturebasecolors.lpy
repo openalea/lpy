@@ -1,0 +1,25 @@
+Axiom: InterpolateTextureBaseColors(5,6,0.0) ,(20) @b(1)
+
+nbsteps = 10
+
+dt = 1./nbsteps
+
+derivation length: nbsteps
+production:
+
+InterpolateTextureBaseColors(a,b,t) --> InterpolateTextureBaseColors(a,b,t+dt)
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	import openalea.plantgl.all as pgl
+	PGL_140591750434928 = pgl.ImageTexture("PGL_140591750434928" , "/Users/fboudon/Develop/vplants/branches/mangosim/share/textures/leaf.png" , )
+	PGL_140591750434928.name = "PGL_140591750434928"
+	Color_20 = pgl.Texture2D(image = PGL_140591750434928 , )
+	Color_20.name = "Color_20"
+	context.turtle.setMaterial(20,Color_20)

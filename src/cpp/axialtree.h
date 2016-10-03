@@ -141,49 +141,60 @@ public:
 			   const_iterator  pos,
 			   const_iterator& resultingpos,
 			   const_iterator& last_matched,
-			   ArgList& params) const;
+			   ArgList& params,
+               const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
 
 	bool reverse_match(const PatternString& pattern, 
-			   const_iterator  pos) const;
+			   const_iterator  pos,
+               const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
 
 	bool reverse_match(const PatternString& pattern, 
 			   const_iterator  pos,
 			   const_iterator& resultingpos,
-			   ArgList& params) const;
+			   ArgList& params,
+               const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
 
 	bool reverse_match(const PatternString& pattern, 
 			   const_iterator  pos,
-			   const_iterator& resultingpos) const;
-
-	bool rightmatch(const PatternString& pattern, 
-					const_iterator pos) const;
+			   const_iterator& resultingpos,
+                const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
 
 	bool rightmatch(const PatternString& pattern, 
 					const_iterator pos,
-					const_iterator& resultingpos) const;
+                    const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
 
 	bool rightmatch(const PatternString& pattern, 
 					const_iterator pos,
 					const_iterator& resultingpos,
-					ArgList& params) const;
+                    const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
+
+	bool rightmatch(const PatternString& pattern, 
+					const_iterator pos,
+					const_iterator& resultingpos,
+					ArgList& params,
+                    const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
 
 	bool rightmatch(const PatternString& pattern, 
 					const_iterator pos,
 					const_iterator last_matched,
 					const_iterator& resultingpos,
-					ArgList& params) const;
+                    ArgList& params,
+                    const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
 
 	bool leftmatch(const PatternString& pattern,  
 					const_iterator pos,
 					const_iterator& resultingpos,
-					ArgList& params) const;
+					ArgList& params,
+                    const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
 
 	bool leftmatch(const PatternString& pattern,  
 					const_iterator pos,
-					const_iterator& resultingpos) const;
+					const_iterator& resultingpos,
+                    const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
 
 	bool leftmatch(const PatternString& pattern,  
-					const_iterator pos) const;
+					const_iterator pos,
+                    const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
 
 	const_iterator rightfind(const PatternString& pattern,
 							 const_iterator start,
