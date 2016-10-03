@@ -67,6 +67,7 @@ boost::python::object py_lsys_getitem(LsysContext * lc, std::string name) {
 	else {
 		PyErr_SetString(PyExc_KeyError, name.c_str());
 		boost::python::throw_error_already_set();
+        return object();
 	}
 }
 

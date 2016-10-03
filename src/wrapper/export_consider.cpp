@@ -28,8 +28,8 @@
  # ---------------------------------------------------------------------------
  */
 
-#include "consider.h"
 #include <plantgl/python/export_refcountptr.h>
+#include "consider.h"
 
 using namespace boost::python;
 #define bp boost::python

@@ -113,6 +113,7 @@ boost::python::object py_typed_children(LString * tree, int pos, char edge_type)
   else {
     PyErr_SetString(PyExc_ValueError, "invalid edge type");
     boost::python::throw_error_already_set();
+    return boost::python::object();
   }
 }
 
