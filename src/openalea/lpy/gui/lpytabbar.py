@@ -99,9 +99,7 @@ class LpyTabBar(qt.QtGui.QTabBar):
         mdir = os.path.dirname(fname)
         if sys.platform == 'win32':
                 import subprocess
-                #os.startfile(mdir)
-                #os.system('explorer /select,"'+fname+'"')
-                subprocess.call('CMD /K CD "'+mdir+'"')
+                subprocess.call('explorer /select,"'+fname+'"')
         elif sys.platform == 'linux2':
                 os.system('xdg-open "'+mdir+'"')
         else:
@@ -112,9 +110,7 @@ class LpyTabBar(qt.QtGui.QTabBar):
         mdir = os.path.dirname(fname)
         if sys.platform == 'win32':
                 import subprocess
-                #os.startfile(mdir)
-                #os.system('explorer /select,"'+fname+'"')
-                subprocess.call('explorer /select,"'+fname+'"')
+                subprocess.call('CMD /K CD "'+mdir+'"')
         elif sys.platform == 'linux2':
                 os.system('gnome-terminal --working-directory "'+mdir+'"')
         elif sys.platform == 'darwin':
