@@ -477,7 +477,43 @@ DeclareModuleEnd
 #endif
 #endif
 
-DeclareSimpleModule(rollToVert, "Roll to Vertical : Roll the turtle around the H axis so that H and U lie in a common vertical plane with U closest to up",eRotation)
+DeclareModuleBegin(rollToVert, "Roll to Vertical : Roll the turtle around the H axis so that H and U lie in a common vertical plane with U closest to up",eRotation)
+{
+ #if PGL_VERSION >= 0x021500
+    switch(m.size()){
+        case 0: t.rollToVert(); break;
+        default: t.rollToVert(m._getReal(0)); break;
+    }
+#else
+    t.rollToVert();
+#ifdef _MSC_VER
+#pragma message("RollToVert module with parameter will be disabled. Upgrade PlantGL.")
+#else
+#warning RollToVert module with parameter will be disabled. Upgrade PlantGL.
+#endif
+
+#endif
+}
+DeclareModuleEnd
+
+DeclareModuleBegin(rollToHorizontal, "Roll to Horizontal : Roll the turtle so that H lie in the horizontal plane",eRotation)
+{
+#if PGL_VERSION >= 0x021500
+    switch(m.size()){
+        case 0: t.rollToHorizontal(); break;
+        default: t.rollToHorizontal(m._getReal(0)); break;
+    }
+#else
+
+#ifdef _MSC_VER
+#pragma message("RollToHorizontal module will be disabled. Upgrade PlantGL.")
+#else
+#warning RollToHorizontal module will be disabled. Upgrade PlantGL.
+#endif
+#endif
+}
+DeclareModuleEnd
+
 DeclareModuleReal1(sphere,"Draw a sphere. Params : 'radius' (optional, should be positive, default = line width).",ePrimitive)
 DeclareModuleReal1(circle,"Draw a circle. Params : 'radius' (optional, should be positive, default = line width).",ePrimitive)
 
@@ -561,8 +597,8 @@ DeclareModuleEnd
 
 DeclareModuleBegin(setColor,"Set the current material. Params : 'index' (positive int) or 'r,g,b[,a]' or 'material'.",eColor)
 {
-	if(m.empty()) t.setColor(t.getColor());
-	else {
+    if(m.empty()) t.setColor(t.getColor());
+    else {
         int nbatt = m.size();
         if (nbatt == 1) {
             boost::python::extract<PGL::AppearancePtr>  appextractor(m.getAt(0));
@@ -577,6 +613,7 @@ DeclareModuleBegin(setColor,"Set the current material. Params : 'index' (positiv
     }
 }
 DeclareModuleEnd
+
 
 DeclareModuleBegin(interpolateColors,"Set the current material. Params : 'index1', 'index2', 'alpha' .",eColor)
 {
@@ -604,6 +641,59 @@ DeclareModuleBegin(interpolateColors,"Set the current material. Params : 'index1
 }
 DeclareModuleEnd
 
+
+DeclareModuleBegin(textureBaseColor,"Set the base color of the texture. Params : 'index' (positive int) or 'r,g,b[,a]' or 'material'.",eTexture)
+{
+#if PGL_VERSION >= 0x021500
+    if(!m.empty()) {
+        int nbatt = m.size();
+        if (nbatt == 1) {
+            boost::python::extract<PGL::MaterialPtr>  appextractor(m.getAt(0));
+            if (appextractor.check()) t.setTextureBaseColor(Color4(appextractor()->getDiffuseColor(), appextractor()->getTransparency()));
+            else t.setTextureBaseColor(m._getInt(0));
+        }
+        else if (nbatt >= 3) {
+            Color4 c(m._get<uchar_t>(0),m._get<uchar_t>(1),m._get<uchar_t>(2),0);
+            if (nbatt >= 4) c.getAlpha() = m._get<uchar_t>(3) / 255.f;
+            t.setTextureBaseColor(c);
+        }
+    } 
+#else
+#ifdef _MSC_VER
+#pragma message("TextureBaseColor module will be disabled. Upgrade PlantGL.")
+#else
+#warning TextureBaseColor module will be disabled. Upgrade PlantGL.
+#endif
+#endif
+}
+DeclareModuleEnd
+
+DeclareModuleBegin(interpolateTextureBaseColors,"Set the base color of the texture from interpolation of 2 predefined material. Params : 'index1', 'index2', 'alpha' .",eTexture)
+{
+#if PGL_VERSION >= 0x021500
+    size_t nbargs = m.size();
+    switch (nbargs) {
+         case 0: 
+         case 1:  
+           {
+            LsysWarning("Argument missing for module "+m.name());
+              break;
+           }
+         case 2:  
+            t.interpolateTextureBaseColors(m._getInt(0),m._getInt(1)); break;
+         default: 
+            t.interpolateTextureBaseColors(m._getInt(0),m._getInt(1),m._getReal(2)); break;
+    }
+#else
+#ifdef _MSC_VER
+#pragma message("InterpolateTextureBaseColors module will be disabled. Upgrade PlantGL.")
+#else
+#warning InterpolateColors module will be disabled. Upgrade PlantGL.
+#endif
+#endif
+}
+
+DeclareModuleEnd
 DeclareModuleBegin(divScale,"Divides the current turtle scale by a scale factor, Params : 'scale_factor' (optional, default = 1.0).",eScale)
 {
 	if (m.empty())t.divScale();
@@ -1064,7 +1154,8 @@ void ModuleClass::createPredefinedClasses() {
 	iRollL = new DeclaredModule(iRollL)("iRollL");
 	iRollR = new DeclaredModule(iRollR)("iRollR");
 	TurnAround = new DeclaredModule(turnAround)("|","TurnAround");
-	RollToVert = new DeclaredModule(rollToVert)("@v","RollToVert");
+    RollToVert = new DeclaredModule(rollToVert)("@v","RollToVert");
+    RollToHorizontal = new DeclaredModule(rollToHorizontal)("@h","RollToHorizontal");
     Sphere = new DeclaredModule(sphere)("@O","Sphere");
     Box = new DeclaredModule(box)("@B","Box");
     Quad = new DeclaredModule(quad)("@b","Quad");
@@ -1077,6 +1168,8 @@ void ModuleClass::createPredefinedClasses() {
 	DecColor = new DeclaredModule(decColor)(",","DecColor");
     SetColor = new DeclaredModule(setColor)("SetColor");
     InterpolateColors = new DeclaredModule(interpolateColors)("InterpolateColors");
+    TextureBaseColor = new DeclaredModule(textureBaseColor)("TextureBaseColor");
+    InterpolateTextureBaseColors = new DeclaredModule(interpolateTextureBaseColors)("InterpolateTextureBaseColors");
 	DivScale = new DeclaredModule(divScale)("@Dd","DivScale");
 	MultScale = new DeclaredModule(multScale)("@Di","MultScale");
 	SetScale = new DeclaredModule(scale)("@D","SetScale");
