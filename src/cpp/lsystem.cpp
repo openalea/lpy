@@ -1326,6 +1326,7 @@ Lsystem::derive(  const AxialTree& wstring,
 
 
 
+
 AxialTree 
 Lsystem::__derive( size_t starting_iter , 
                     size_t nb_iter , 
@@ -1419,6 +1420,44 @@ Lsystem::__derive( size_t starting_iter ,
 			__lastcomputedscene = __apply_post_process(workstring,false);
 	  }
 	}
+  }
+  return workstring;
+}
+
+AxialTree 
+Lsystem::decompose( const AxialTree& workstring  )
+{
+  ACQUIRE_RESSOURCE
+  enableEarlyReturn(false);
+  ContextMaintainer c(&__context);
+  AxialTree res = __decompose(workstring);
+  enableEarlyReturn(false);
+  return res;
+  RELEASE_RESSOURCE
+
+}
+
+AxialTree 
+Lsystem::__decompose( const AxialTree& wstring){
+  AxialTree workstring = wstring;
+  if (!workstring.empty()){
+    if(!__rules.empty()){
+
+      eDirection dir = getDirection();
+      size_t group = __context.getGroup();
+
+      if (group > __rules.size()) LsysWarning("Group not valid.");
+
+      bool decompositionHasQuery;
+      RulePtrMap decomposition = __getRules(eDecomposition,group,dir,&decompositionHasQuery);
+
+      if(!decomposition.empty()){
+          bool decmatching = true;
+          for(size_t i = 0; decmatching && i < __decomposition_max_depth; i++){
+              workstring = __step(workstring,decomposition,decompositionHasQuery,decmatching,dir);
+          }
+      }
+    }
   }
   return workstring;
 }

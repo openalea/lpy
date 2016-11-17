@@ -151,6 +151,9 @@ public:
                      size_t nb_iter , 
                      bool previouslyinterpreted = false  );
 
+
+  AxialTree decompose( const AxialTree& workstring  );
+
   /** Animation */
   inline AxialTree animate()
   { return animate(__context.get_animation_timestep(),0,__max_derivation); }
@@ -358,6 +361,8 @@ protected:
                       size_t nb_iter , 
                       const AxialTree& workstring, 
                       bool previouslyinterpreted = false);
+
+ AxialTree __decompose( const AxialTree& workstring );
 
  AxialTree __step(AxialTree& workingstring,
                    const RulePtrMap& ruleset,
