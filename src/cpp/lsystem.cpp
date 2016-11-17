@@ -838,8 +838,14 @@ Lsystem::__step(AxialTree& workingstring,
   return targetstring;
 }
 
-#include <QtCore/QtConcurrentRun>
-#include <QtCore/QtConcurrentMap>
+#include <QtGlobal>
+#if QT_VERSION >= 0x050000 
+    #include <QtConcurrent/QtConcurrentRun>
+    #include <QtConcurrent/QtConcurrentMap>
+#else
+    #include <QtCore/QtConcurrentRun>
+    #include <QtCore/QtConcurrentMap>
+#endif
 
 AxialTree partialForwardStep(size_t beg, 
                              size_t size,
