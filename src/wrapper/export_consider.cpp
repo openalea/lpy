@@ -35,6 +35,7 @@ using namespace boost::python;
 #define bp boost::python
 LPY_USING_NAMESPACE
 
+DEF_POINTEE( ConsiderFilter )
 
 void export_Consider(){
 
@@ -91,8 +92,11 @@ void export_Consider(){
 	.def("consider",       &ConsiderFilter::consider)
 	.staticmethod("consider")
 
-	.def("ignore",         &ConsiderFilter::ignore)
-	.staticmethod("ignore")
+    .def("ignore",         &ConsiderFilter::ignore)
+    .staticmethod("ignore")
+
+    .def("ignorePredefined",         &ConsiderFilter::ignorePredefined)
+    .staticmethod("ignorePredefined")
 
 
 	;

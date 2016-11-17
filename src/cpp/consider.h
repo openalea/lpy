@@ -46,6 +46,8 @@ public:
 
   ConsiderFilter(const std::string& modules, eConsiderMethod method = eConsider);
 
+  ConsiderFilter(const ModuleClassList& modules, eConsiderMethod method = eConsider);
+
   // isConsidered
   inline bool isConsidered(const std::string& module) const
   { return !isIgnored(module); }
@@ -92,9 +94,11 @@ public:
 
   static ConsiderFilterPtr ignore(const std::string& modules) 
   {   
-	  if (modules.empty()) return ConsiderFilterPtr();
-	  return ConsiderFilterPtr(new ConsiderFilter(modules,eIgnore)); 
+      if (modules.empty()) return ConsiderFilterPtr();
+      return ConsiderFilterPtr(new ConsiderFilter(modules,eIgnore)); 
   }
+
+  static ConsiderFilterPtr ignorePredefined() ;
 
 protected:
   /// attributes for ignore and consider
