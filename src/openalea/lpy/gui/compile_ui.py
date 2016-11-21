@@ -1,20 +1,10 @@
 from openalea.vpltk.qt import qt
+from openalea.vpltk.qt.uic import compileUi, compile_args
 
 import os
 import sys
 
-try :
-    if os.environ['QT_API'] == 'pyqt' :
-        from PyQt4.uic import compileUi
-        compile_args = dict(execute=False, indent=4)
-    elif os.environ['QT_API'] == 'pyside' :
-        from pysideuic import compileUi
-        compile_args = dict(execute=False, indent=4, from_imports=False)
-    else :
-        raise NotImplementedError
-except ImportError :
-    print 'You must install %s-tools' % os.environ['QT_API']
-
+from openalea.vpltk.qt import QT_API, PYQT5_API, PYQT4_API, PYSIDE_API
 
 def get_uifnames_from(fname):
     uiprefix = os.path.splitext(fname)[0]
@@ -37,24 +27,41 @@ def compile_rc (rcfname) :
     """ compile a Ressource file """
     pyfname = get_rcfnames_from(rcfname)
     if sys.platform == 'darwin':
-        exe = 'pyrcc4-2.7'
+        if os.environ[QT_API] in PYQT5_API:
+            exe = 'pyrcc5-2.7'
+        else:
+            exe = 'pyrcc4-2.7'
     elif sys.platform == 'posix':
-        exe = 'pyrcc4'
+        if os.environ[QT_API] in PYQT5_API:
+            exe = 'pyrcc4'
+        else:
+            exe = 'pyrcc5'
     else:
         exe = os.path.join(sys.prefix,'pyrcc4.bat')
         if not os.path.exists(exe):
-            exe = 'pyrcc4'
+            if os.environ[QT_API] in PYQT5_API:
+                exe = 'pyrcc4'
+            else:
+                exe = 'pyrcc5'
     cmd = '%s "%s" > "%s"' % (exe,rcfname, pyfname)
     os.system(cmd)
 
+def detect_file_api(fname):
+    patternapi = {'PyQt5':PYQT5_API, 'PyQt4':PYQT4_API, 'PySide':PYSIDE_API} 
+    txt = file(fname,'r').read()
+    for pattern,api in patternapi.items():
+        if pattern in txt: return api
+    return None
+
 def check_ui_generation(uifname):
     """ check if a py file should regenerated from a ui """
+    api = os.environ['QT_API']
     pyfname = get_uifnames_from(uifname)
     if ( os.path.exists(uifname) and 
          not os.path.exists(pyfname) or
          (os.access(pyfname,os.F_OK|os.W_OK) and
-         os.stat(pyfname).st_mtime < os.stat(uifname).st_mtime )) :
-        print 'Generate Ui'
+         os.stat(pyfname).st_mtime < os.stat(uifname).st_mtime or not api in detect_file_api(pyfname))) :
+        print 'Generate Ui', repr(uifname)
         compile_ui(uifname)
 
 def check_rc_generation(rcfname):
@@ -64,5 +71,5 @@ def check_rc_generation(rcfname):
         not os.path.exists(pyfname) or
         (os.access(pyfname,os.F_OK|os.W_OK) and
         os.stat(pyfname).st_mtime < os.stat(rcfname).st_mtime )) :
-        print 'Generate Rc'
+        print 'Generate Rc', repr(rcfname)
         compile_rc(rcfname)

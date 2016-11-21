@@ -1,8 +1,8 @@
-from openalea.vpltk.qt import qt
+from openalea.vpltk.qt.QtCore import QDir
 import os
 
 def getTmpLpyDir():
-    tmpdir = os.path.join(str(qt.QtCore.QDir.tempPath()),'lpy','new')
+    tmpdir = os.path.join(str(QDir.tempPath()),'lpy','new')
     if not os.path.exists(tmpdir):
         os.makedirs(tmpdir)
     return tmpdir

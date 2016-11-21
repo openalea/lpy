@@ -9,15 +9,25 @@ import debugger_ui
 import debugger_right_ui
 from objectpanel import LpyObjectPanelDock
 
-class DebugLeftWidget(qt.QtGui.QWidget,debugger_ui.Ui_Form):
+
+Qt = qt.QtCore.Qt
+QApplication = qt.QtWidgets.QApplication
+QSplitter = qt.QtWidgets.QSplitter
+QDockWidget = qt.QtWidgets.QDockWidget
+QWidget = qt.QtWidgets.QWidget
+QIcon = qt.QtGui.QIcon
+QPixmap = qt.QtGui.QPixmap
+_translate = qt.QtCore.QCoreApplication.translate
+
+class DebugLeftWidget(QWidget,debugger_ui.Ui_Form):
     def __init__(self,parent):
-        qt.QtGui.QWidget.__init__(self,parent)
+        QWidget.__init__(self,parent)
         debugger_ui.Ui_Form.__init__(self)
         self.setupUi(self)
 
-class DebugRightWidget(qt.QtGui.QWidget,debugger_right_ui.Ui_Form):
+class DebugRightWidget(QWidget,debugger_right_ui.Ui_Form):
     def __init__(self,parent):
-        qt.QtGui.QWidget.__init__(self,parent)
+        QWidget.__init__(self,parent)
         debugger_right_ui.Ui_Form.__init__(self)
         self.setupUi(self)
 
@@ -31,7 +41,7 @@ def initDocks(lpywidget):
     prevdock = None
     st = lpywidget.statusBar()
     for i,dock in enumerate([lpywidget.materialDock, lpywidget.scalarDock, lpywidget.descriptionDock, lpywidget.parametersDock]):
-        lpywidget.addDockWidget(qt.QtCore.Qt.LeftDockWidgetArea,dock)
+        lpywidget.addDockWidget(Qt.LeftDockWidgetArea,dock)
         #lpywidget.menuView.addAction(dock.toggleViewAction())
         dock.statusBar = st
         dock.showMessage = showMessage
@@ -45,35 +55,35 @@ def initDocks(lpywidget):
     lpywidget.menuView.addAction(lpywidget.descriptionDock.toggleViewAction())
     lpywidget.menuView.addAction(lpywidget.parametersDock.toggleViewAction())
    
-    lpywidget.addDockWidget(qt.QtCore.Qt.LeftDockWidgetArea,lpywidget.helpDock)
+    lpywidget.addDockWidget(Qt.LeftDockWidgetArea,lpywidget.helpDock)
     action = lpywidget.helpDock.toggleViewAction()
-    action.setShortcut(qt.QtGui.QApplication.translate("MainWindow", "F1", None, qt.QtGui.QApplication.UnicodeUTF8))
+    action.setShortcut(_translate("MainWindow", "F1"))
     lpywidget.helpDock.hide()
     lpywidget.helpDock.setFloating(True)
-    icon = qt.QtGui.QIcon()
-    icon.addPixmap(qt.QtGui.QPixmap(":/images/icons/book.png"),qt.QtGui.QIcon.Normal,qt.QtGui.QIcon.Off)
+    icon = QIcon()
+    icon.addPixmap(QPixmap(":/images/icons/book.png"),QIcon.Normal,QIcon.Off)
     action.setIcon(icon)
     lpywidget.menuHelp.addSeparator()
     lpywidget.menuHelp.addAction(action)
     lpywidget.tabifyDockWidget(lpywidget.materialDock,lpywidget.parametersDock)
     lpywidget.tabifyDockWidget(lpywidget.parametersDock,lpywidget.descriptionDock)
     # debug dock
-    lpywidget.debugDock = qt.QtGui.QDockWidget("Debugger",lpywidget)
+    lpywidget.debugDock = QDockWidget("Debugger",lpywidget)
     lpywidget.debugDock.setObjectName("LpyDebugger")
-    lpywidget.debugWidget = qt.QtGui.QSplitter(qt.QtCore.Qt.Horizontal,lpywidget)
+    lpywidget.debugWidget = QSplitter(Qt.Horizontal,lpywidget)
     lpywidget.debugWidget.left = DebugLeftWidget(lpywidget.debugWidget)
     lpywidget.debugWidget.addWidget(lpywidget.debugWidget.left)
     lpywidget.debugWidget.right = DebugRightWidget(lpywidget.debugWidget)
     lpywidget.debugWidget.addWidget(lpywidget.debugWidget.right)
     lpywidget.debugWidget.setEnabled(False)
     lpywidget.debugDock.setWidget(lpywidget.debugWidget)
-    lpywidget.addDockWidget(qt.QtCore.Qt.BottomDockWidgetArea,lpywidget.debugDock)    
+    lpywidget.addDockWidget(Qt.BottomDockWidgetArea,lpywidget.debugDock)    
     action = lpywidget.debugDock.toggleViewAction()
     lpywidget.menuView.addSeparator()
     lpywidget.menuView.addAction(action)
     lpywidget.debugDock.hide()
     #profiler dock
-    lpywidget.addDockWidget(qt.QtCore.Qt.BottomDockWidgetArea,lpywidget.profilerDock)    
+    lpywidget.addDockWidget(Qt.BottomDockWidgetArea,lpywidget.profilerDock)    
     action = lpywidget.profilerDock.toggleViewAction()
     lpywidget.menuView.addAction(action)
     lpywidget.profilerDock.hide()
@@ -85,7 +95,7 @@ def initDocks(lpywidget):
         lpywidget.shell = shellclass(lpywidget.interpreter, parent=lpywidget.interpreterDock)    
         lpywidget.interpreterDock.setWidget(lpywidget.shell)
         action = lpywidget.interpreterDock.toggleViewAction()
-        action.setShortcut(qt.QtGui.QApplication.translate("MainWindow", "Ctrl+P", None, qt.QtGui.QApplication.UnicodeUTF8))
+        action.setShortcut(_translate("MainWindow", "Ctrl+P"))
         lpywidget.menuView.addSeparator()
         lpywidget.menuView.addAction(action)
         lpywidget.interpreter.locals['window'] = lpywidget
@@ -100,7 +110,7 @@ def initDocks(lpywidget):
         except:
             lpywidget.interpreter.runcode('from openalea.plantgl.all import *')
             lpywidget.interpreter.runcode('from openalea.lpy import *')
-        lpywidget.addDockWidget(qt.QtCore.Qt.BottomDockWidgetArea,lpywidget.interpreterDock)
+        lpywidget.addDockWidget(Qt.BottomDockWidgetArea,lpywidget.interpreterDock)
         lpywidget.tabifyDockWidget(lpywidget.debugDock,lpywidget.interpreterDock)
     else:
         lpywidget.interpreter = None

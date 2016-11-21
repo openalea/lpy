@@ -1,6 +1,7 @@
-from openalea.vpltk.qt import qt
+from openalea.vpltk.qt.QtWidgets import QComboBox, QItemDelegate
 
-class OptionEditorDelegate(qt.QtGui.QItemDelegate):
+
+class OptionEditorDelegate(QItemDelegate):
     """ 
     Tool class used in LsysWindow option editor 
     It allows to choose a value from a combobox in a QTable
@@ -8,7 +9,7 @@ class OptionEditorDelegate(qt.QtGui.QItemDelegate):
 
     def createEditor(self, parent, option, index):
         """ Create the editor """
-        editor = qt.QtGui.QComboBox(parent)
+        editor = QComboBox(parent)
         option = index.model().itemFromIndex(index).option
         editor.addItems([option[i].name for i in xrange(len(option))])
         return editor

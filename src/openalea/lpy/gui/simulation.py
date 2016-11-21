@@ -10,6 +10,21 @@ import cProfile as profiling
 from lpyprofiling import *
 from lpytmpfile import *
 
+
+QObject = qt.QtCore.QObject
+pyqtSignal = qt.QtCore.pyqtSignal
+QBrush = qt.QtGui.QBrush
+QColor = qt.QtGui.QColor
+QFont = qt.QtGui.QFont
+QIcon = qt.QtGui.QIcon
+QPainter = qt.QtGui.QPainter
+QPixmap = qt.QtGui.QPixmap
+QStandardItem = qt.QtGui.QStandardItem
+QStandardItemModel = qt.QtGui.QStandardItemModel
+QFileDialog = qt.QtWidgets.QFileDialog
+QLineEdit = qt.QtWidgets.QLineEdit
+QMessageBox = qt.QtWidgets.QMessageBox
+
 defaultcode = "Axiom: \n\nderivation length: 1\nproduction:\n\n\ninterpretation:\n\n\nendlsystem\n"
 
    
@@ -111,31 +126,31 @@ class LpySimulation:
     def generateIcon(self):
         import svnmanip
         if self.readonly is True:
-            pixmap = qt.QtGui.QPixmap(":/images/icons/lock.png")
+            pixmap = QPixmap(":/images/icons/lock.png")
         elif self._edited:
-            pixmap = qt.QtGui.QPixmap(":/images/icons/codefile-red.png")
+            pixmap = QPixmap(":/images/icons/codefile-red.png")
         else:
-            pixmap = qt.QtGui.QPixmap(":/images/icons/codefile.png")
+            pixmap = QPixmap(":/images/icons/codefile.png")
         if not self.readonly and not self.fname is None and svnmanip.hasSvnSupport() :
             if svnmanip.isSvnFile(self.fname):
                 status = svnmanip.svnFileTextStatus(self.fname)
                 self.svnstatus = status
                 if  status == svnmanip.modified:
-                    pixmap2 = qt.QtGui.QPixmap(":/images/icons/svn-modified.png")
+                    pixmap2 = QPixmap(":/images/icons/svn-modified.png")
                 elif status == svnmanip.normal:
-                    pixmap2 = qt.QtGui.QPixmap(":/images/icons/svn-normal.png")
+                    pixmap2 = QPixmap(":/images/icons/svn-normal.png")
                 elif status == svnmanip.conflicted:
-                    pixmap2 = qt.QtGui.QPixmap(":/images/icons/svn-conflict.png")
+                    pixmap2 = QPixmap(":/images/icons/svn-conflict.png")
                 elif status == svnmanip.added:
-                    pixmap2 = qt.QtGui.QPixmap(":/images/icons/svn-add.png")
+                    pixmap2 = QPixmap(":/images/icons/svn-add.png")
                 else:
                     pixmap2 = None
                 if not pixmap2 is None:
-                    painter = qt.QtGui.QPainter(pixmap);
+                    painter = QPainter(pixmap);
                     painter.drawPixmap(pixmap.width()-pixmap2.width(),pixmap.height()-pixmap2.height(),pixmap2)
                     painter.end()
-        icon = qt.QtGui.QIcon()
-        icon.addPixmap(pixmap.scaledToHeight(32),qt.QtGui.QIcon.Normal,qt.QtGui.QIcon.Off)
+        icon = QIcon()
+        icon.addPixmap(pixmap.scaledToHeight(32),QIcon.Normal,QIcon.Off)
         return icon
     def registerTab(self):
         self.lpywidget.documentNames.insertTab(self.index,self.generateIcon(),self.getTabName())
@@ -194,7 +209,7 @@ class LpySimulation:
         #if self.lsystem.isCurrent() :self.lsystem.done()
         self.lpywidget.codeeditor.saveSimuState(self)
         for key,editor in self.lpywidget.desc_items.iteritems():
-            if type(editor) == qt.QtGui.QLineEdit:
+            if type(editor) == QLineEdit:
                 self.desc_items[key] = editor.text()
             else:
                 self.desc_items[key] = editor.toPlainText().encode('iso-8859-1','replace')
@@ -203,7 +218,7 @@ class LpySimulation:
         self.visualparameters = [(panel.getInfo(),panel.getObjects()) for panel in self.lpywidget.getObjectPanels()]
         self.scalars = self.lpywidget.scalarEditor.getScalars()
     def initializeParametersTable(self):
-        self.optionModel = qt.QtGui.QStandardItemModel(0, 1)
+        self.optionModel = QStandardItemModel(0, 1)
         self.optionModel.setHorizontalHeaderLabels(["Parameter", "Value" ])
         options = self.lsystem.context().options
         self.optionDelegate = oed.OptionEditorDelegate()
@@ -214,29 +229,29 @@ class LpySimulation:
             option = options[i]
             if option.category != category:
                 category = option.category
-                sc = qt.QtGui.QStandardItem(category)                
+                sc = QStandardItem(category)                
                 sc.setEditable(False)
-                sc.setBackground(qt.QtGui.QBrush(qt.QtGui.QColor(172,168,153)))
-                sc.setForeground(qt.QtGui.QBrush(qt.QtGui.QColor(255,255,255)))
-                qf = qt.QtGui.QFont()
+                sc.setBackground(QBrush(QColor(172,168,153)))
+                sc.setForeground(QBrush(QColor(255,255,255)))
+                qf = QFont()
                 qf.setBold(True)
                 sc.setFont(qf)
                 self.optionModel.setItem(indexitem, 0, sc)
-                sc = qt.QtGui.QStandardItem()                
+                sc = QStandardItem()                
                 sc.setEditable(False)
-                sc.setBackground(qt.QtGui.QBrush(qt.QtGui.QColor(172,168,153)))
-                sc.setForeground(qt.QtGui.QBrush(qt.QtGui.QColor(255,255,255)))
+                sc.setBackground(QBrush(QColor(172,168,153)))
+                sc.setForeground(QBrush(QColor(255,255,255)))
                 self.optionModel.setItem(indexitem, 1, sc)
                 indexitem += 1             
-            si = qt.QtGui.QStandardItem(option.name)
+            si = QStandardItem(option.name)
             si.setToolTip(option.comment)
             si.setEditable(False)
             self.optionModel.setItem(indexitem, 0, si)
-            si = qt.QtGui.QStandardItem(option.currentValue())
+            si = QStandardItem(option.currentValue())
             si.option = option
             self.optionModel.setItem(indexitem, 1, si)
             indexitem += 1
-        qt.QtCore.QObject.connect(self.optionModel,qt.QtCore.SIGNAL('itemChanged(QStandardItem*)'),self.textEdited)
+        self.optionModel.itemChanged.connect(self.textEdited) # QObject.connect(self.optionModel,SIGNAL('itemChanged(QStandardItem*)'),self.textEdited)
     def setTree(self,tree,nbiterations,timing=None, plottiming = None):
         self.tree = tree
         self.nbiterations = nbiterations
@@ -267,11 +282,11 @@ class LpySimulation:
         if self._edited:
             if not self.isCurrent():
                 self.makeCurrent()
-            answer = qt.QtGui.QMessageBox.warning(self.lpywidget,self.getShortName(),"Do you want to save this document ?",
-                                     qt.QtGui.QMessageBox.Save,qt.QtGui.QMessageBox.Discard,qt.QtGui.QMessageBox.Cancel)
-            if answer == qt.QtGui.QMessageBox.Save: self.save()
-            elif answer == qt.QtGui.QMessageBox.Cancel: return False
-            elif answer == qt.QtGui.QMessageBox.Discard:
+            answer = QMessageBox.warning(self.lpywidget,self.getShortName(),"Do you want to save this document ?",
+                                        QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, QMessageBox.Save)
+            if answer == QMessageBox.Save: self.save()
+            elif answer == QMessageBox.Cancel: return False
+            elif answer == QMessageBox.Discard:
                 bckupname = self.getBackupName()
                 if bckupname and os.path.exists(bckupname): os.remove(bckupname)
         return True
@@ -299,8 +314,9 @@ class LpySimulation:
             self.saveas()
     def saveas(self):
         bckupname = self.getBackupName()
-        fname = str(qt.QtGui.QFileDialog.getSaveFileName(self.lpywidget,"Save Py Lsystems file",self.fname if self.fname else '.',"Py Lsystems Files (*.lpy);;All Files (*.*)"))
-        if fname:
+        qfname = QFileDialog.getSaveFileName(self.lpywidget,"Save L-Py file",self.fname if self.fname else '.',"Py Lsystems Files (*.lpy);;All Files (*.*)")
+        if qfname:
+            fname = str(qfname[0])
             if not os.path.exists(fname):
                 self.readonly = False  
             else : self.readonly = (not os.access(fname, os.W_OK))
@@ -472,11 +488,11 @@ class LpySimulation:
         readname = self.fname
         bckupname = self.getBackupName()
         if bckupname and os.path.exists(bckupname):
-            answer = qt.QtGui.QMessageBox.warning(self.lpywidget,"Recovery mode","A backup file '"+os.path.basename(bckupname)+"' exists. Do you want to recover ?",qt.QtGui.QMessageBox.Ok,qt.QtGui.QMessageBox.Discard)
-            if answer == qt.QtGui.QMessageBox.Ok:
+            answer = QMessageBox.warning(self.lpywidget,"Recovery mode","A backup file '"+os.path.basename(bckupname)+"' exists. Do you want to recover ?",QMessageBox.Ok,QMessageBox.Discard)
+            if answer == QMessageBox.Ok:
                 recovery = True
                 readname = bckupname
-            elif answer == qt.QtGui.QMessageBox.Discard:
+            elif answer == QMessageBox.Discard:
                 os.remove(bckupname)     
         os.chdir(os.path.dirname(self.fname))        
         code = file(readname,'rU').read()
@@ -725,12 +741,12 @@ class LpySimulation:
           self.monitoring = True
           if not self.fname is None:
             if not os.path.exists(self.fname):
-                answer = qt.QtGui.QMessageBox.warning(self.lpywidget,"Removed file","File '"+os.path.basename(self.fname)+"' do not exists anymore. Do you want to keep it in editor ?",qt.QtGui.QMessageBox.Yes,qt.QtGui.QMessageBox.No)
-                if answer == qt.QtGui.QMessageBox.No:
+                answer = QMessageBox.warning(self.lpywidget,"Removed file","File '"+os.path.basename(self.fname)+"' do not exists anymore. Do you want to keep it in editor ?",QMessageBox.Yes,QMessageBox.No)
+                if answer == QMessageBox.No:
                     self.lpywidget.closeDocument(self.index)
             elif os.stat(self.fname).st_mtime > self.mtime :
-                answer = qt.QtGui.QMessageBox.warning(self.lpywidget,"File has changed","File '"+os.path.basename(self.fname)+"' has changed on disk. Do you want to reload it ?",qt.QtGui.QMessageBox.Yes,qt.QtGui.QMessageBox.No)
-                if answer == qt.QtGui.QMessageBox.Yes:
+                answer = QMessageBox.warning(self.lpywidget,"File has changed","File '"+os.path.basename(self.fname)+"' has changed on disk. Do you want to reload it ?",QMessageBox.Yes,QMessageBox.No)
+                if answer == QMessageBox.Yes:
                     self.reload()
                 else:
                     self.mtime = os.stat(self.fname).st_mtime +1

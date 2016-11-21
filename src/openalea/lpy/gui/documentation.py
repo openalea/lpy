@@ -160,7 +160,7 @@ def vplantsDialog(parent = None):
     if not parent or not hasattr(parent,'vpsplash'):
         #if not os.path.exists(logofilename): raise Exception('No logo image')
         pix = qt.QtGui.QPixmap(vplogofilename)
-        vpsplash = qt.QtGui.QSplashScreen(pix)
+        vpsplash = qt.QtWidgets.QSplashScreen(pix)
     else:
         vpsplash = parent.vpsplash
     vpsplash.showMessage(vpInfoTxt,qt.QtCore.Qt.AlignBottom|qt.QtCore.Qt.AlignLeft)
@@ -173,7 +173,7 @@ def lpyDialog(parent = None):
     if not parent or not hasattr(parent,'splash'):
         #if not os.path.exists(logofilename): raise Exception('No logo image')
         pix = qt.QtGui.QPixmap(lpylogofilename)
-        splash = qt.QtGui.QSplashScreen(pix)
+        splash = qt.QtWidgets.QSplashScreen(pix)
     else:
         splash = parent.splash
     #splash.showMessage(lpyInfoTxt,qt.QtCore.Qt.AlignBottom|qt.QtCore.Qt.AlignLeft)
