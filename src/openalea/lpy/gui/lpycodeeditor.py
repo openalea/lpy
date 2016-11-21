@@ -1,26 +1,7 @@
 from openalea.vpltk.qt import qt
-
-pyqtSignal =  qt.QtCore.pyqtSignal
-Qt = qt.QtCore.Qt
-QRegExp = qt.QtCore.QRegExp
-QFont = qt.QtGui.QFont
-QPoint = qt.QtCore.QPoint
-QObject = qt.QtCore.QObject
-QWidget = qt.QtWidgets.QWidget 
-QPainter = qt.QtGui.QPainter
-QPen = qt.QtGui.QPen
-QColor = qt.QtGui.QColor
-QPixmap = qt.QtGui.QPixmap
-QSyntaxHighlighter = qt.QtGui.QSyntaxHighlighter
-QTextEdit = qt.QtWidgets.QTextEdit
-QTextDocument = qt.QtGui.QTextDocument
-QTextOption = qt.QtGui.QTextOption
-QTextCharFormat = qt.QtGui.QTextCharFormat
-QTextCursor = qt.QtGui.QTextCursor
-QLabel = qt.QtWidgets.QLabel
-QPalette = qt.QtGui.QPalette
-QTimer = qt.QtCore.QTimer
-QMimeData = qt.QtCore.QMimeData
+from openalea.vpltk.qt.QtCore import QMimeData, QObject, QPoint, QRegExp, QTimer, Qt, pyqtSignal
+from openalea.vpltk.qt.QtGui import QColor, QFont, QPainter, QPalette, QPen, QPixmap, QSyntaxHighlighter, QTextCharFormat, QTextCursor, QTextDocument, QTextOption
+from openalea.vpltk.qt.QtWidgets import QLabel, QTextEdit, QWidget
 
 class LineData:
     def __init__(self,i = None,p = None):

@@ -14,7 +14,7 @@ except:
 
 from openalea.plantgl.all import *
 QT_VERSION = get_pgl_qt_version() >> 16
-os.environ['QT_API'] = 'pyqt'+str(QT_VERSION)
+os.environ['QT_API'] = 'pyqt' if QT_VERSION == 4 else 'pyqt'+str(QT_VERSION)
 from openalea.vpltk import qt
 from openalea.vpltk.qt.compat import *
 

@@ -66,10 +66,11 @@ def check_ui_generation(uifname):
 
 def check_rc_generation(rcfname):
     """ check if a py file should regenerated from a ui """
+    api = os.environ['QT_API']
     pyfname = get_rcfnames_from(rcfname)
     if (os.path.exists(rcfname) and 
         not os.path.exists(pyfname) or
         (os.access(pyfname,os.F_OK|os.W_OK) and
-        os.stat(pyfname).st_mtime < os.stat(rcfname).st_mtime )) :
+        os.stat(pyfname).st_mtime < os.stat(rcfname).st_mtime or not api in detect_file_api(pyfname))) :
         print 'Generate Rc', repr(rcfname)
         compile_rc(rcfname)

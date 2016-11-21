@@ -33,34 +33,39 @@ def detect_signals(filetext):
     import re  # (?<sigparam>[a-zA-Z_, \t]*)
     patternEmit = '(?P<sender>[a-zA-Z_\.]*).emit\\(SIGNAL\\([\'"](?P<signalname>[a-zA-Z_]+)\\((?P<sigparam>.*)\\)[\'"]\\),?(?P<param>.*)\\)'
     patternConnect = 'QObject\.connect\((?P<sender>.+),[ ]*SIGNAL\([\'"](?P<signalname>.+)\((?P<sigparam>.*)\)[\'"]\)[ ]*,[ ]*(?P<slot>.+)\)'
-    patternDisonnect = patternConnect.replace('connect','disconnect')
-    cclass, cline = None, None
+    patternDisconnect = patternConnect.replace('connect','disconnect')
+    cclass, cline, clinelength = None, None, 0
     signals = []
     res = ''
     iline = 0
+    toinsert = {}
     for oline in filetext.splitlines(True):
         if oline.startswith('class'):
             print oline, oline.split(' \t')
             cclass = re.split('[ \t:(]',oline)[1]
             cline = iline 
             res += oline
+            clinelength = len(oline)
+            toinsert[(cclass, cline, clinelength)] = []
         elif 'self.emit' in oline:
             m = re.search(patternEmit, oline)
             if m:
                 gd = m.groupdict()
-                res += oline[:m.regs[0][0]]
                 sigparam = gd['sigparam']
-                if sigparam == 'PyQt_PyObject': sigparam = "'PyQt_PyObject'"
-                res += "#" + gd['sender']+'.'+gd['signalname']+' = pyqtSignal('+sigparam+') # AUTO SIGNAL TRANSLATION in class '+ cclass +'\n'
+                if 'PyQt_PyObject' in sigparam: sigparam.replace("PyQt_PyObject","'PyQt_PyObject'")
+                if gd['sender'] == 'self' : 
+                    toinsert[(cclass, cline,clinelength)].append(gd['signalname']+' = pyqtSignal('+sigparam+') # AUTO SIGNAL DEFINITION')
+                else :
+                    res += oline[:m.regs[0][0]]
+                    res += "#" + gd['sender']+'.'+gd['signalname']+' = pyqtSignal('+sigparam+') # AUTO SIGNAL TRANSLATION in class '+ cclass +'\n'
                 res += oline[:m.regs[0][0]]
                 res +=gd['sender']+'.'+gd['signalname']+'.emit('+gd['param']+')'+ oline[m.regs[0][1]:-1].rstrip() + " # " + oline[m.regs[0][0]:m.regs[0][1]] +" # AUTO SIGNAL TRANSLATION\n"
             else:
                 res += oline
         elif 'disconnect' in oline:
-            m = re.search(patternConnect, oline)
+            m = re.search(patternDisconnect, oline)
             if m:
                 gd = m.groupdict()
-                res += oline[:m.regs[0][0]]
                 res += oline[:m.regs[0][0]]
                 res += gd['sender']+'.'+gd['signalname']+'.disconnect('+gd['slot']+')'+ oline[m.regs[0][1]:].rstrip() + " # " + oline[m.regs[0][0]:m.regs[0][1]] + '\n'
             else:
@@ -69,11 +74,13 @@ def detect_signals(filetext):
             m = re.search(patternConnect, oline)
             if m:
                 gd = m.groupdict()
-                res += oline[:m.regs[0][0]]
                 sigparam = gd['sigparam']
-                if sigparam == 'PyQt_PyObject': sigparam = "'PyQt_PyObject'"
-                if gd['sender'] != 'self' : res += "# "
-                res += gd['sender']+'.'+gd['signalname']+' = pyqtSignal('+sigparam+') # AUTO SIGNAL TRANSLATION in class '+ cclass +'\n'
+                if 'PyQt_PyObject' in sigparam: sigparam.replace("PyQt_PyObject","'PyQt_PyObject'")
+                if gd['sender'] == 'self' : 
+                    toinsert[(cclass, cline, clinelength)].append(gd['signalname']+' = pyqtSignal('+sigparam+') # AUTO SIGNAL DEFINITION')
+                else :
+                    res += oline[:m.regs[0][0]]
+                    res += '#'+gd['sender']+'.'+gd['signalname']+' = pyqtSignal('+sigparam+') # AUTO SIGNAL TRANSLATION in class '+ cclass +'\n'
                 res += oline[:m.regs[0][0]]
                 res += gd['sender']+'.'+gd['signalname']+'.connect('+gd['slot']+')'+ oline[m.regs[0][1]:].rstrip() + " # " + oline[m.regs[0][0]:m.regs[0][1]] + '\n'
             else:
@@ -81,6 +88,18 @@ def detect_signals(filetext):
         else:
            res += oline
         iline += len(oline)
+    toinsert = list(toinsert.items())
+    toinsert.sort(lambda a,b: -cmp(a[0][1],b[0][1]))
+    for cl, signals in toinsert:
+        cname, cline, clen = cl
+        debline = cline+clen 
+        while res[debline] in ' \t': debline+=1
+        nres = res[:cline+clen]
+        for sig in signals:
+            nres += res[cline+clen:debline]+sig+'\n'
+        nres += res[cline+clen+1:]
+        res = nres
+
     return res
 
 def generate_qt_classmap(filetext):
@@ -102,7 +121,7 @@ def generate_qt_header(qt_classmap):
     import PyQt5.QtPrintSupport as qpmodule
     qw = set(qwmodule.__dict__.keys())
     qp = set(qpmodule.__dict__.keys())
-    classmap = []
+    classmap = {}
     for key, value in qt_classmap.items():
         nvalue = value.split('.')
         if key == 'SIGNAL':
@@ -113,12 +132,16 @@ def generate_qt_header(qt_classmap):
                 nvalue[1] = 'QtWidgets'
             elif nvalue[2] in qp:
                 nvalue[1] = 'QtPrintSupport'
-        classmap.append((key, '.'.join(nvalue)))
-    classmap.sort(cmp = lambda a,b : cmp(a[1],b[1]))
+        if not nvalue[1] in classmap: classmap[nvalue[1]] = []
+        classmap[nvalue[1]].append(key)
     res = ''
-    for key, value in classmap:
-        res += key+' = '+value+'\n'
+    for key, value in classmap.items():
+        value.sort()
+        res += 'from openalea.vpltk.qt.'+key+' import '+', '.join(value)+'\n'
     return res
+
+def qth(text):
+    print generate_qt_header(generate_qt_classmap(text))
 
 def simmlify_code(filetext,qt_classmap):
     nfiletext = filetext
@@ -126,4 +149,6 @@ def simmlify_code(filetext,qt_classmap):
         nfiletext = nfiletext.replace(oclass, nclass)
     return nfiletext
 
-print reformat("settings.py")
+
+
+#print reformat("/Users/fboudon/Develop/oagit/plantgl/src/plantgl/gui/curve2deditor.py")

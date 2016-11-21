@@ -4,11 +4,9 @@ import traceback as tb
 import sys
 
 
-QMutex = qt.QtCore.QMutex
-QObject = qt.QtCore.QObject
-QThread = qt.QtCore.QThread
-pyqtSignal = qt.QtCore.pyqtSignal
-QMessageBox = qt.QtWidgets.QMessageBox
+from openalea.vpltk.qt.QtCore import QMutex, QObject, QThread, pyqtSignal
+from openalea.vpltk.qt.QtWidgets import QMessageBox
+
 
 class ThreadTransferException (Exception):
     def __init__(self,exc_type,exc_value,exc_traceback):

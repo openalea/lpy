@@ -6,21 +6,16 @@ except:
 
 from openalea.vpltk.qt import qt
 
-QMenuBar = qt.QtWidgets.QMenuBar
-QObject = qt.QtCore.QObject
-QSizePolicy = qt.QtWidgets.QSizePolicy
-QVBoxLayout = qt.QtWidgets.QVBoxLayout
-pyqtSignal = qt.QtCore.pyqtSignal
-QApplication = qt.QtWidgets.QApplication
-QCheckBox = qt.QtWidgets.QCheckBox
-QDialog = qt.QtWidgets.QDialog
-QHBoxLayout = qt.QtWidgets.QHBoxLayout
-QLayout = qt.QtWidgets.QLayout
-QPushButton = qt.QtWidgets.QPushButton
-QSpacerItem = qt.QtWidgets.QSpacerItem
+from openalea.vpltk.qt.QtCore import QObject, pyqtSignal
+from openalea.vpltk.qt.QtWidgets import QApplication, QCheckBox, QDialog, QHBoxLayout, QLayout, QMenuBar, QPushButton, QSizePolicy, QSpacerItem, QVBoxLayout
+
     
 class ObjectDialog(QDialog):
     """the class that will create dialog between the panel and the editor window"""
+    valueChanged = pyqtSignal()
+    hidden = pyqtSignal()
+    AutomaticUpdate = pyqtSignal(bool)
+
     def __init__(self, *args):
         """during the init of the dialog we have to know the editor we want to open, the typ variable will allow us to know that"""
         QDialog.__init__(self,*args)
@@ -74,9 +69,6 @@ class ObjectDialog(QDialog):
         self.applyButton.setText(QApplication.translate("ObjectDialog", "Apply", None, QApplication.UnicodeUTF8))
         self.cancelButton.setText(QApplication.translate("ObjectDialog", "Cancel", None, QApplication.UnicodeUTF8))
       
-        self.valueChanged = pyqtSignal()
-        self.AutomaticUpdate = pyqtSignal(bool)
-
         self.cancelButton.pressed.connect(self.reject)
         self.okButton.pressed.connect(self.__ok)
         self.applyButton.pressed.connect(self.__apply)

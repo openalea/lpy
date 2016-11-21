@@ -114,7 +114,8 @@ if True : #not sys.platform == 'darwin':
                 self.setValue(value)
                 self.item.setText(str(value))
                 self.label.setMinimumWidth(self.labelwidth)
-                self.valueChanged.emit(self.item.scalar) # self.emit(SIGNAL('valueChanged(PyQt_PyObject)'),self.item.scalar) # AUTO SIGNAL TRANSLATION                self.locked = False
+                self.valueChanged.emit(self.item.scalar) # self.emit(SIGNAL('valueChanged(PyQt_PyObject)'),self.item.scalar) # AUTO SIGNAL TRANSLATION
+                self.locked = False
             
         def setRange(self,minv,maxv):
             if self.isfloat:
@@ -275,7 +276,8 @@ class ScalarEditor (QTreeView):
             v.importValue(sc)
             v.si_name.setText(v.name)
             v.si_value.setText(str(v.value))
-            self.itemValueChanged.emit(v) # self.emit(SIGNAL('itemValueChanged(PyQt_PyObject)'),v) # AUTO SIGNAL TRANSLATION            self.emit(SIGNAL('valueChanged()'))
+            self.itemValueChanged.emit(v) # self.emit(SIGNAL('itemValueChanged(PyQt_PyObject)'),v) # AUTO SIGNAL TRANSLATION
+            self.valueChanged.emit()
     def visualEditMetaScalar(self,scalar):
         metaEdit = self.metaIntEdit
         if scalar.isFloat():
@@ -347,7 +349,8 @@ class ScalarEditor (QTreeView):
             if sc.isCategory():
                 self.setFirstColumnSpanned(i,ri,True)
     def internalValueChanged(self,scalar):
-        self.itemValueChanged.emit(scalar) # self.emit(SIGNAL('itemValueChanged(PyQt_PyObject)'),scalar) # AUTO SIGNAL TRANSLATION        self.emit(SIGNAL('valueChanged()'))
+        self.itemValueChanged.emit(scalar) # self.emit(SIGNAL('itemValueChanged(PyQt_PyObject)'),scalar) # AUTO SIGNAL TRANSLATION
+        self.valueChanged.emit()
     def internalItemChanged(self,item):
         if hasattr(item,'nameEditor'):
             item.scalar.name = str(item.text())

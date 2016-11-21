@@ -11,19 +11,10 @@ from lpyprofiling import *
 from lpytmpfile import *
 
 
-QObject = qt.QtCore.QObject
-pyqtSignal = qt.QtCore.pyqtSignal
-QBrush = qt.QtGui.QBrush
-QColor = qt.QtGui.QColor
-QFont = qt.QtGui.QFont
-QIcon = qt.QtGui.QIcon
-QPainter = qt.QtGui.QPainter
-QPixmap = qt.QtGui.QPixmap
-QStandardItem = qt.QtGui.QStandardItem
-QStandardItemModel = qt.QtGui.QStandardItemModel
-QFileDialog = qt.QtWidgets.QFileDialog
-QLineEdit = qt.QtWidgets.QLineEdit
-QMessageBox = qt.QtWidgets.QMessageBox
+from openalea.vpltk.qt.QtCore import QObject, pyqtSignal
+from openalea.vpltk.qt.QtGui import QBrush, QColor, QFont, QIcon, QPainter, QPixmap, QStandardItem, QStandardItemModel
+from openalea.vpltk.qt.QtWidgets import QFileDialog, QLineEdit, QMessageBox
+
 
 defaultcode = "Axiom: \n\nderivation length: 1\nproduction:\n\n\ninterpretation:\n\n\nendlsystem\n"
 

@@ -8,24 +8,9 @@ from math import sin, pi
 
 from objectmanagers import get_managers
 
-
-QWidget = qt.QtWidgets.QWidget
-Qt = qt.QtCore.Qt
-QMenu = qt.QtWidgets.QMenu
-pyqtSignal = qt.QtCore.pyqtSignal
-QFont = qt.QtGui.QFont
-QAction = qt.QtWidgets.QAction
-QApplication = qt.QtWidgets.QApplication
-QPoint = qt.QtCore.QPoint
-QFileDialog = qt.QtWidgets.QFileDialog
-QFontMetrics = qt.QtGui.QFontMetrics
-QDockWidget = qt.QtWidgets.QDockWidget
-QLineEdit = qt.QtWidgets.QLineEdit
-QMessageBox = qt.QtWidgets.QMessageBox
-QVBoxLayout = qt.QtWidgets.QVBoxLayout
-QImageWriter = qt.QtGui.QImageWriter
-QObject = qt.QtCore.QObject
-QScrollArea = qt.QtWidgets.QScrollArea
+from openalea.vpltk.qt.QtCore import QObject, QPoint, Qt, pyqtSignal
+from openalea.vpltk.qt.QtGui import QFont, QFontMetrics, QImageWriter
+from openalea.vpltk.qt.QtWidgets import QAction, QApplication, QDockWidget, QFileDialog, QLineEdit, QMenu, QMessageBox, QScrollArea, QVBoxLayout, QWidget
 
 def retrieveidinname(name,prefix):
     if name == prefix: return 1
