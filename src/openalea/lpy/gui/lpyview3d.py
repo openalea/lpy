@@ -18,12 +18,13 @@ class LpyView3D (ParentClass):
         self.glrenderer = GLRenderer(self.discretizer)
         self.bboxcomputer = BBoxComputer(self.discretizer)
         self.animationMode = eStatic
+        self.forceclear = True
         if hasPyQGLViewer:
             self.camera().setViewDirection(Vec(-1,0,0))
             self.camera().setUpVector(Vec(0,0,1))
     def display(self,scene = None):
         self.scene = scene
-        if self.animationMode != eAnimatedScene:
+        if self.animationMode != eAnimatedScene or self.forceclear:
             self.glrenderer.clear()
             self.discretizer.clear()
             self.bboxcomputer.clear()

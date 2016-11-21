@@ -2,14 +2,24 @@ from openalea.vpltk.qt import qt
 import svnmanip
 import os
 
+
+QWidget = qt.QtWidgets.QWidget
+Qt = qt.QtCore.Qt
+QMenu = qt.QtWidgets.QMenu
+pyqtSignal = qt.QtCore.pyqtSignal
+QApplication = qt.QtWidgets.QApplication
+QTabBar = qt.QtWidgets.QTabBar
 QObject = qt.QtCore.QObject
-SIGNAL = qt.QtCore.SIGNAL
-QMessageBox = qt.QtGui.QMessageBox
+QMessageBox = qt.QtWidgets.QMessageBox
 
 
-class LpyTabBar(qt.QtGui.QTabBar):
+class LpyTabBar(QTabBar):
+    
+    switchDocument = pyqtSignal(int,int)
+    newDocumentRequest = pyqtSignal()
+
     def __init__(self,parent):
-        qt.QtGui.QTabBar.__init__(self,parent)
+        QTabBar.__init__(self,parent)
         self.setDrawBase(False)
         self.selection = None
         self.lpystudio = None
@@ -17,23 +27,23 @@ class LpyTabBar(qt.QtGui.QTabBar):
         
     def connectTo(self,lpystudio):
         self.lpystudio = lpystudio
-        QObject.connect(self,SIGNAL('switchDocument'),lpystudio.switchDocuments)
-        QObject.connect(self,SIGNAL('currentChanged(int)'),lpystudio.changeDocument)
-        QObject.connect(self,SIGNAL('newDocumentRequest'),lpystudio.newfile)
+        self.switchDocument.connect(lpystudio.switchDocuments)
+        self.currentChanged.connect(lpystudio.changeDocument)
+        self.newDocumentRequest.connect(lpystudio.newfile)
         
     def mousePressEvent(self,event):
-        if event.button() == qt.QtCore.Qt.LeftButton:
+        if event.button() == Qt.LeftButton:
             self.initialtab = self.tabAt(event.pos())
-        qt.QtGui.QTabBar.mousePressEvent(self,event)
+        QTabBar.mousePressEvent(self,event)
     
     def mouseReleaseEvent(self,event):
-        if event.button() == qt.QtCore.Qt.LeftButton:
+        if event.button() == Qt.LeftButton:
             tabselect = self.tabAt(event.pos())
             if tabselect != -1 and not self.initialtab is None:
                 if tabselect != self.initialtab:
-                    self.emit(SIGNAL("switchDocument"),tabselect,self.initialtab)
+                    self.switchDocument.emit(tabselect,self.initialtab)
             self.initialtab = None
-        qt.QtGui.QTabBar.mousePressEvent(self,event)
+        QTabBar.mousePressEvent(self,event)
 
     # def mouseMoveEvent(self,event):
     #     tabselect = self.tabAt(event.pos())
@@ -41,35 +51,35 @@ class LpyTabBar(qt.QtGui.QTabBar):
     #         if tabselect != originaltab:
     #             pass
     #             #self.emit(SIGNAL("switchDocument"),tabselect,originaltab)
-    #     qt.QtGui.QTabBar.mouseMoveEvent(self,event)
+    #     QTabBar.mouseMoveEvent(self,event)
     # def mouseDoubleClickEvent(self,event):
     #     tabselect = self.tabAt(event.pos())
     #     if tabselect != -1 :
     #         self.emit(SIGNAL("newDocumentRequest"))
-    #     qt.QtGui.QTabBar.mouseDoubleClickEvent(self,event)
+    #     QTabBar.mouseDoubleClickEvent(self,event)
 
     def contextMenuEvent(self,event):
         self.selection = self.tabAt(event.pos())
         if self.selection != -1:
-            menu = qt.QtGui.QMenu(self)
+            menu = QMenu(self)
             action = menu.addAction('Close')
-            QObject.connect(action,SIGNAL('triggered(bool)'),self.close)
+            action.triggered.connect(self.close)
             action = menu.addAction('Close all except this ')
-            QObject.connect(action,SIGNAL('triggered(bool)'),self.closeAllExcept)
+            action.triggered.connect(self.closeAllExcept)
             menu.addSeparator()
             if self.lpystudio.simulations[self.selection].readonly:
                 action = menu.addAction('Remove Readonly ')
-                QObject.connect(action,SIGNAL('triggered(bool)'),self.removeReadOnly)
+                action.triggered.connect(self.removeReadOnly)
             else:
                 action = menu.addAction('Set Readonly ')
-                QObject.connect(action,SIGNAL('triggered(bool)'),self.setReadOnly)
+                action.triggered.connect(self.setReadOnly)
             menu.addSeparator()
             action = menu.addAction('Copy filename ')
-            QObject.connect(action,SIGNAL('triggered(bool)'),self.copyFilename)
+            action.triggered.connect(self.copyFilename)
             action = menu.addAction('Open folder')
-            QObject.connect(action,SIGNAL('triggered(bool)'),self.openFolder)
+            action.triggered.connect(self.openFolder)
             action = menu.addAction('Open terminal')
-            QObject.connect(action,SIGNAL('triggered(bool)'),self.openTerminalAtFolder)
+            action.triggered.connect(self.openTerminalAtFolder)
             fname = self.lpystudio.simulations[self.selection].fname
             if fname and svnmanip.hasSvnSupport() :
                 if svnmanip.isSvnFile(fname):
@@ -77,21 +87,21 @@ class LpyTabBar(qt.QtGui.QTabBar):
                     status = svnmanip.svnFileTextStatus(fname)
                     if status != svnmanip.added:
                         action = menu.addAction('SVN Update')
-                        QObject.connect(action,SIGNAL('triggered(bool)'),self.svnUpdate)
+                        action.triggered.connect(self.svnUpdate)
                     if status in  [svnmanip.added,svnmanip.modified]:
                         action = menu.addAction('SVN Commit')
-                        QObject.connect(action,SIGNAL('triggered(bool)'),self.svnCommit)
+                        action.triggered.connect(self.svnCommit)
                     if status != svnmanip.normal:
                         action = menu.addAction('SVN Revert')
-                        QObject.connect(action,SIGNAL('triggered(bool)'),self.svnRevert)
+                        action.triggered.connect(self.svnRevert)
                     if status != svnmanip.added:
                         menu.addSeparator()
                         action = menu.addAction('Is Up-to-date ?')
-                        QObject.connect(action,SIGNAL('triggered(bool)'),self.svnIsUpToDate)
+                        action.triggered.connect(self.svnIsUpToDate)
                 elif svnmanip.isSvnFile(os.path.dirname(fname)):
                     menu.addSeparator()
                     action = menu.addAction('SVN Add')
-                    QObject.connect(action,SIGNAL('triggered(bool)'),self.svnAdd)
+                    action.triggered.connect(self.svnAdd)
             menu.exec_(event.globalPos())
     def openFolder(self):
         import os, sys
@@ -123,7 +133,7 @@ class LpyTabBar(qt.QtGui.QTabBar):
         self.lpystudio.closeAllExcept(self.selection)
 
     def copyFilename(self):
-        qt.QtGui.QApplication.clipboard().setText(self.lpystudio.simulations[self.selection].fname)
+        QApplication.clipboard().setText(self.lpystudio.simulations[self.selection].fname)
 
     def removeReadOnly(self):
         self.lpystudio.simulations[self.selection].removeReadOnly()
@@ -147,10 +157,13 @@ class LpyTabBar(qt.QtGui.QTabBar):
         self.lpystudio.simulations[self.selection].svnCommit()
         
         
-class LpyTabBarNeighbor(qt.QtGui.QWidget):
+class LpyTabBarNeighbor(QWidget):
+    
+    newDocumentRequest = pyqtSignal()
+
     def __init__(self,parent):
-        qt.QtGui.QWidget.__init__(self,parent)
+        QWidget.__init__(self,parent)
         
     def mouseDoubleClickEvent(self,event):
-        self.emit(SIGNAL("newDocumentRequest"))
-        qt.QtGui.QWidget.mouseDoubleClickEvent(self,event)
+        self.newDocumentRequest.emit()
+        QWidget.mouseDoubleClickEvent(self,event)

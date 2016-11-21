@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/Users/pradal/devlp/release/vplants/lpy/src/openalea/lpy/gui/debugger_ui.ui'
+# Form implementation generated from reading ui file '/Users/fboudon/Develop/oagit/lpy/src/openalea/lpy/gui/debugger_ui.ui'
 #
-# Created: Fri Oct 17 16:56:35 2014
-#      by: PyQt4 UI code generator 4.11.1
+# Created by: PyQt4 UI code generator 4.11.4
 #
 # WARNING! All changes made in this file will be lost!
 

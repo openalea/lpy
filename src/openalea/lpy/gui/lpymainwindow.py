@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/Users/fboudon/Develop/vplants/trunk/lpy/src/openalea/lpy/gui/lpymainwindow.ui'
+# Form implementation generated from reading ui file '/Users/fboudon/Develop/oagit/lpy/src/openalea/lpy/gui/lpymainwindow.ui'
 #
-# Created: Thu Jul 10 14:45:03 2014
-#      by: PyQt4 UI code generator 4.10.4
+# Created by: PyQt4 UI code generator 4.11.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -96,8 +95,8 @@ class Ui_MainWindow(object):
         self.dockWidgetContents_3 = QtGui.QWidget()
         self.dockWidgetContents_3.setObjectName(_fromUtf8("dockWidgetContents_3"))
         self.verticalLayout_5 = QtGui.QVBoxLayout(self.dockWidgetContents_3)
-        self.verticalLayout_5.setSpacing(2)
         self.verticalLayout_5.setMargin(2)
+        self.verticalLayout_5.setSpacing(2)
         self.verticalLayout_5.setObjectName(_fromUtf8("verticalLayout_5"))
         self.groupBox = QtGui.QGroupBox(self.dockWidgetContents_3)
         self.groupBox.setObjectName(_fromUtf8("groupBox"))
@@ -168,8 +167,8 @@ class Ui_MainWindow(object):
         self.dockWidgetContents_4 = QtGui.QWidget()
         self.dockWidgetContents_4.setObjectName(_fromUtf8("dockWidgetContents_4"))
         self.verticalLayout_6 = QtGui.QVBoxLayout(self.dockWidgetContents_4)
-        self.verticalLayout_6.setSpacing(0)
         self.verticalLayout_6.setMargin(0)
+        self.verticalLayout_6.setSpacing(0)
         self.verticalLayout_6.setObjectName(_fromUtf8("verticalLayout_6"))
         self.lpytoolbox = QtGui.QToolBox(self.dockWidgetContents_4)
         self.lpytoolbox.setMidLineWidth(1)
@@ -178,8 +177,8 @@ class Ui_MainWindow(object):
         self.page.setGeometry(QtCore.QRect(0, 0, 112, 180))
         self.page.setObjectName(_fromUtf8("page"))
         self.verticalLayout_2 = QtGui.QVBoxLayout(self.page)
-        self.verticalLayout_2.setSpacing(2)
         self.verticalLayout_2.setContentsMargins(2, 2, 2, 0)
+        self.verticalLayout_2.setSpacing(2)
         self.verticalLayout_2.setObjectName(_fromUtf8("verticalLayout_2"))
         self.descriptionEdit = QtGui.QTextEdit(self.page)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
@@ -208,8 +207,8 @@ class Ui_MainWindow(object):
         self.page_2.setGeometry(QtCore.QRect(0, 0, 98, 296))
         self.page_2.setObjectName(_fromUtf8("page_2"))
         self.verticalLayout = QtGui.QVBoxLayout(self.page_2)
-        self.verticalLayout.setSpacing(2)
         self.verticalLayout.setMargin(2)
+        self.verticalLayout.setSpacing(2)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.label_3 = QtGui.QLabel(self.page_2)
         self.label_3.setObjectName(_fromUtf8("label_3"))
@@ -252,8 +251,8 @@ class Ui_MainWindow(object):
         self.pageEdition = QtGui.QWidget()
         self.pageEdition.setObjectName(_fromUtf8("pageEdition"))
         self.verticalLayout_4 = QtGui.QVBoxLayout(self.pageEdition)
-        self.verticalLayout_4.setSpacing(0)
         self.verticalLayout_4.setMargin(0)
+        self.verticalLayout_4.setSpacing(0)
         self.verticalLayout_4.setObjectName(_fromUtf8("verticalLayout_4"))
         self.frame = QtGui.QFrame(self.pageEdition)
         self.frame.setFrameShape(QtGui.QFrame.StyledPanel)
@@ -384,8 +383,8 @@ class Ui_MainWindow(object):
         self.frameReplace.setFrameShadow(QtGui.QFrame.Raised)
         self.frameReplace.setObjectName(_fromUtf8("frameReplace"))
         self.hboxlayout1 = QtGui.QHBoxLayout(self.frameReplace)
-        self.hboxlayout1.setSpacing(3)
         self.hboxlayout1.setMargin(0)
+        self.hboxlayout1.setSpacing(3)
         self.hboxlayout1.setObjectName(_fromUtf8("hboxlayout1"))
         self.label_9 = QtGui.QLabel(self.frameReplace)
         self.label_9.setObjectName(_fromUtf8("label_9"))
@@ -406,8 +405,8 @@ class Ui_MainWindow(object):
         self.pageView3D = QtGui.QWidget()
         self.pageView3D.setObjectName(_fromUtf8("pageView3D"))
         self.verticalLayout_8 = QtGui.QVBoxLayout(self.pageView3D)
-        self.verticalLayout_8.setSpacing(0)
         self.verticalLayout_8.setMargin(0)
+        self.verticalLayout_8.setSpacing(0)
         self.verticalLayout_8.setObjectName(_fromUtf8("verticalLayout_8"))
         self.view3D = LpyView3D(self.pageView3D)
         self.view3D.setObjectName(_fromUtf8("view3D"))
@@ -475,8 +474,8 @@ class Ui_MainWindow(object):
         self.dockWidgetContents_9 = QtGui.QWidget()
         self.dockWidgetContents_9.setObjectName(_fromUtf8("dockWidgetContents_9"))
         self.verticalLayout_9 = QtGui.QVBoxLayout(self.dockWidgetContents_9)
-        self.verticalLayout_9.setSpacing(2)
         self.verticalLayout_9.setMargin(2)
+        self.verticalLayout_9.setSpacing(2)
         self.verticalLayout_9.setObjectName(_fromUtf8("verticalLayout_9"))
         self.profileView = QtGui.QTreeView(self.dockWidgetContents_9)
         palette = QtGui.QPalette()
@@ -1001,8 +1000,8 @@ class Ui_MainWindow(object):
         self.actionSVNAdd.setText(_translate("MainWindow", "Add", None))
 
 from lpycodeeditor import LpyCodeEditor
-from scalareditor import ScalarEditor
 from lpytabbar import LpyTabBar, LpyTabBarNeighbor
 from lpyview3d import LpyView3D
 from openalea.plantgl.gui.materialeditor import MaterialEditor
+from scalareditor import ScalarEditor
 import lpyresources_rc

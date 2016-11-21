@@ -7,7 +7,8 @@ try :
 except ImportError, e:
     has_svn = False
 
-QMessageBox = qt.QtGui.QMessageBox
+QDialog = qt.QtWidgets.QDialog
+QMessageBox = qt.QtWidgets.QMessageBox
 
 def hasSvnSupport():
     return has_svn
@@ -45,12 +46,12 @@ if has_svn:
                 print 'Login is None'
                 return False, '', '', False
             import logindialog
-            dialog = qt.QtGui.QDialog(svn_client_gui_parent)
+            dialog = QDialog(svn_client_gui_parent)
             widget = logindialog.Ui_LoginDialog()
             widget.setupUi(dialog)
             dialog.setWindowTitle(realm)
             widget.loginEdit.setText(username)
-            if dialog.exec_() != qt.QtGui.QDialog.Accepted:
+            if dialog.exec_() != QDialog.Accepted:
                 return False, '', '', False
             else:
                 return True, str(widget.loginEdit.text()), str(widget.passEdit.text()), True
@@ -58,13 +59,13 @@ if has_svn:
         def ssl_client_cert_password_prompt( realm, may_save ):
             if svn_client_gui_parent is None : return False, '', False
             import logindialog
-            dialog = qt.QtGui.QDialog(svn_client_gui_parent)
+            dialog = QDialog(svn_client_gui_parent)
             widget = logindialog.Ui_LoginDialog()
             widget.setupUi(dialog)
             dialog.setWindowTitle(realm)
             widget.loginLabel.setText('Domain')
             widget.loginEdit.setText(realm)
-            if dialog.exec_() != qt.QtGui.QDialog.Accepted:
+            if dialog.exec_() != QDialog.Accepted:
                 return False, '', False
             else:
                 return True,  str(widget.passEdit.text()), True
@@ -148,11 +149,11 @@ if has_svn:
     
     def get_log( parent , title = 'SVN Commit'):
             import logdialog
-            dialog = qt.QtGui.QDialog(parent)
+            dialog = QDialog(parent)
             widget = logdialog.Ui_LogDialog()
             widget.setupUi(dialog)
             dialog.setWindowTitle(title)
-            if dialog.exec_() != qt.QtGui.QDialog.Accepted:
+            if dialog.exec_() != QDialog.Accepted:
                 return False, ''
             else:
                 return True,  str(widget.logEdit.toPlainText())
