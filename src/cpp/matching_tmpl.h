@@ -90,102 +90,102 @@ bool process_get_module(PIterator pattern,
 
 /*---------------------------------------------------------------------------*/
 
-template<class Iterator,class RPIterator>
+template<class Iterator,class RPIterator, class IteratorMap>
 struct GetFather {
 public:
 	static inline Iterator next(Iterator pos, RPIterator pattern, 
 							    Iterator string_begin, Iterator string_end, 
-                                const ConsiderFilterPtr& filter) { 
-		return parent(pos, string_begin, string_end, filter);
+                                const ConsiderFilterPtr& filter, IteratorMap* iteratormap = NULL) { 
+		return parent(pos, string_begin, string_end, filter, iteratormap);
 	}
 };
 
-template<class Iterator,class RPIterator>
+template<class Iterator,class RPIterator, class IteratorMap>
 struct GetScalePredecessor {
 public:
 	static inline Iterator next(Iterator pos, RPIterator pattern, 
 		                        Iterator string_begin, Iterator string_end, 
-                                const ConsiderFilterPtr& filter) { 
-		return predecessor_at_scale(pos, pattern->scale(), string_begin, string_end, filter);
+                                const ConsiderFilterPtr& filter, IteratorMap* iteratormap = NULL) { 
+		return predecessor_at_scale(pos, pattern->scale(), string_begin, string_end, filter, iteratormap);
 	}
 };
 
-template<class Iterator,class RPIterator>
+template<class Iterator,class RPIterator, class IteratorMap>
 struct GetLevelPredecessor {
 public:
 	static inline Iterator next(Iterator pos, RPIterator pattern, 
 		                        Iterator string_begin, Iterator string_end, 
-                                const ConsiderFilterPtr& filter) { 
-		return predecessor_at_level(pos, pattern->scale(), string_begin, string_end, filter);
+                                const ConsiderFilterPtr& filter, IteratorMap* iteratormap = NULL) { 
+		return predecessor_at_level(pos, pattern->scale(), string_begin, string_end, filter, iteratormap);
 	}
 };
 
-template<class Iterator,class PIterator>
+template<class Iterator,class PIterator, class IteratorMap>
 struct StringNext {
 public:
 	static inline Iterator next(Iterator pos, PIterator pattern, Iterator string_end, 
-                                const ConsiderFilterPtr& filter) { 
+                                const ConsiderFilterPtr& filter, IteratorMap* iteratormap = NULL) { 
 		return pos+1;
 	}
 
 };
 
-template<class Iterator,class PIterator>
+template<class Iterator,class PIterator, class IteratorMap>
 struct GetNext {
 public:
 	static inline Iterator next(Iterator pos, PIterator pattern, Iterator string_end, 
-                                const ConsiderFilterPtr& filter) { 
+                                const ConsiderFilterPtr& filter, IteratorMap* iteratormap = NULL) { 
 		return next_module(pos,string_end, false, filter);
 	}
 	static inline Iterator initial_next(Iterator pos, PIterator pattern, Iterator last_matched, Iterator string_end, 
-                                        const ConsiderFilterPtr& filter) { 
+                                        const ConsiderFilterPtr& filter, IteratorMap* iteratormap = NULL) { 
 		return next_module(pos,string_end, true, filter);
 	}
 };
 
-template<class Iterator,class PIterator>
+template<class Iterator,class PIterator, class IteratorMap>
 struct StringPrevious {
 public:
 	static inline Iterator next(Iterator pos, PIterator pattern, Iterator string_begin, Iterator string_end, 
-                                const ConsiderFilterPtr& filter) { 
+                                const ConsiderFilterPtr& filter, IteratorMap* iteratormap = NULL) { 
 		if (pos == string_begin) return string_end;
 		return pos-1;
 	}
 };
 
-template<class Iterator,class PIterator>
+template<class Iterator,class PIterator, class IteratorMap>
 struct GetPrevious {
 public:
 	static inline Iterator next(Iterator pos, PIterator pattern, Iterator string_begin, Iterator string_end, 
-                                const ConsiderFilterPtr& filter) { 
+                                const ConsiderFilterPtr& filter, IteratorMap* iteratormap = NULL) { 
 		return previous_module(pos,string_begin,string_end,false,filter);
 	}
 };
 
-template<class Iterator,class PIterator>
+template<class Iterator,class PIterator, class IteratorMap>
 struct GetScaleSuccessor {
 public:
 	static inline Iterator next(Iterator pos, PIterator pattern, Iterator string_end, 
-                                const ConsiderFilterPtr& filter) { 
+                                const ConsiderFilterPtr& filter, IteratorMap* iteratormap = NULL) { 
 		return next_module_at_scale(pos,pattern->scale(),string_end, false, -1, filter);
         // The -1 is a problem. Here we do not know the scale of the previous matched element.
 	}
 
 	static inline Iterator initial_next(Iterator pos, PIterator pattern, Iterator last_matched, Iterator string_end, 
-                                        const ConsiderFilterPtr& filter) { 
+                                        const ConsiderFilterPtr& filter, IteratorMap* iteratormap = NULL) { 
 		return next_module_at_scale(pos,pattern->scale(),string_end, true, last_matched->scale(), filter);
 	}
 };
 
-template<class Iterator, class PIterator>
+template<class Iterator, class PIterator, class IteratorMap>
 struct GetLevelSuccessor {
 public:
 	static inline Iterator next(Iterator pos, PIterator pattern, Iterator string_end, 
-                                const ConsiderFilterPtr& filter) { 
+                                const ConsiderFilterPtr& filter, IteratorMap* iteratormap = NULL) { 
 		return next_module_at_level(pos, pattern->scale(), string_end, false, filter);
 	}
 	static inline Iterator initial_next(Iterator pos, PIterator pattern, Iterator last_matched, Iterator string_end, 
-                                        const ConsiderFilterPtr& filter) { 
+                                        const ConsiderFilterPtr& filter, IteratorMap* iteratormap = NULL) { 
 		return next_module_at_level(pos, pattern->scale(), string_end, true, filter);
 	}
 };
@@ -196,13 +196,14 @@ template<class Matcher>
 struct RegExpMatcher {
 public:
 	typedef typename Matcher::Iterator Iterator;
-	typedef typename Matcher::PIterator PIterator;
+    typedef typename Matcher::PIterator PIterator;
+    typedef typename Matcher::IteratorMap IteratorMap;
 	typedef typename Matcher::argtype argtype;
 
 	static bool match(Iterator matching_start, Iterator  string_beg, Iterator  string_end,
 					  PIterator pattern, Iterator& last_matched,  
 					  Iterator& matching_end, const ConsiderFilterPtr& filter, 
-					  argtype& lparams){
+					  argtype& lparams, IteratorMap* iteratormap = NULL ){
 		Iterator it = matching_start;
 		PIterator it2 = pattern;
 		if(it2->isRepExp()){
@@ -217,7 +218,7 @@ public:
 			size_t numiter = 0;
 			while(ok && numiter < maxiter) {
 				argtype lp;
-				if((ok = Matcher::match(it,string_beg,string_end,lpattern.begin(),lpattern.end(),last_matched,it,filter,lp)))
+				if((ok = Matcher::match(it,string_beg,string_end,lpattern.begin(),lpattern.end(),last_matched,it,filter,lp, iteratormap)))
 				{  llp.push_back(lp); last_matched = it; ++it; ++numiter; }
 			}
 			if (numiter < miniter) return false;
@@ -238,7 +239,7 @@ public:
 				const PatternString& lpattern = bp::extract<const PatternString&>(it2->getAt(ip).getPyValue())();
 				nbargs.push_back(lpattern.getVarNb());
 				if(matched == -1) { 
-					if(Matcher::match(it,string_beg,string_end,lpattern.begin(),lpattern.end(),last_matched,it,filter,lp)) {
+					if(Matcher::match(it,string_beg,string_end,lpattern.begin(),lpattern.end(),last_matched,it,filter,lp, iteratormap)) {
                         matched = ip;
                     }
 				}
@@ -259,7 +260,7 @@ public:
 	}
 
 	static bool reverse_match(Iterator matching_start, Iterator  string_begin, Iterator  string_end,
-					  PIterator pattern, Iterator& matching_end, const ConsiderFilterPtr& filter, argtype& lparams)
+					  PIterator pattern, Iterator& matching_end, const ConsiderFilterPtr& filter, argtype& lparams, IteratorMap* iteratormap = NULL)
 	{
 		Iterator it = matching_start;
 		PIterator it2 = pattern;
@@ -275,7 +276,7 @@ public:
 			size_t numiter = 0;
 			while(ok && numiter < maxiter) {
 				argtype lp;
-				if((ok = Matcher::match(it,string_begin,string_end,lpattern.rbegin(),lpattern.rend(),it,filter,lp)))
+				if((ok = Matcher::match(it,string_begin,string_end,lpattern.rbegin(),lpattern.rend(),it,filter,lp,iteratormap)))
 				{  llp.insert(llp.begin(),lp); ++numiter; }
 				// printf("%s %i %s\n",it->name().c_str(),numiter,(ok?"Ok":"Stop"));
 			}
@@ -297,7 +298,7 @@ public:
 				const PatternString& lpattern = bp::extract<const PatternString&>(it2->getAt(ip).getPyValue())();
 				nbargs.push_back(lpattern.getVarNb());
 				if(matched == -1) { 
-					if(Matcher::match(it,string_begin,string_end,lpattern.rbegin(),lpattern.rend(),it,filter,lp))  {
+					if(Matcher::match(it,string_begin,string_end,lpattern.rbegin(),lpattern.rend(),it,filter,lp,iteratormap))  {
                         matched = ip;
                     }
 				}
@@ -321,22 +322,24 @@ public:
 /*---------------------------------------------------------------------------*/
 
 template<
-template < typename, typename> class _NextElement = StringNext, 
+template < typename, typename, typename> class _NextElement = StringNext, 
 class _Iterator = AxialTree::const_iterator, 
 class _PIterator = PatternString::const_iterator,
+class _IteratorMap = AxialTree::IteratorMap,
 class _argtype = ArgList>
 struct StringMatcher
 {
 	typedef _argtype argtype;
 	typedef _Iterator Iterator;
-	typedef _PIterator PIterator;
-	typedef _NextElement<Iterator,PIterator> Next;
-	typedef StringMatcher<_NextElement,Iterator,PIterator,argtype> MType;
+    typedef _PIterator PIterator;
+    typedef _IteratorMap IteratorMap;
+	typedef _NextElement<Iterator,PIterator,IteratorMap> Next;
+	typedef StringMatcher<_NextElement,Iterator,PIterator,IteratorMap,argtype> MType;
 
 	static bool match(Iterator matching_start, Iterator  string_beg, Iterator  string_end,
 					  PIterator pattern_begin, PIterator  pattern_end, 
 					  Iterator& matching_end, Iterator& last_matched, const ConsiderFilterPtr& filter,
-					  argtype& params)
+					  argtype& params, IteratorMap* iteratormap = NULL)
 	{
 
 		Iterator it = matching_start;
@@ -347,13 +350,13 @@ struct StringMatcher
 			argtype lmp;
 			if( it == string_end) return false;
 			if(it2->isGetModule()){ if(!process_get_module(it2,it,string_beg,string_end,lp)) return false; }
-			else if( it2->isRE() ) { if(!RegExpMatcher<MType>::match(it,string_beg,string_end,it2,pit,it,filter,lp))return false; }
+			else if( it2->isRE() ) { if(!RegExpMatcher<MType>::match(it,string_beg,string_end,it2,pit,it,filter,lp,iteratormap))return false; }
 			else { 
 				if( !MatchingEngine::module_match(*it,*it2,lmp)) return false;
 			    else ArgsCollector::append_args(lp,lmp); 
 			}
 			pit = it;
-			it = Next::next(it,it2,string_end,filter); 
+			it = Next::next(it,it2,string_end,filter,iteratormap); 
 		}
 		params = lp;
 		matching_end = it;
@@ -365,21 +368,23 @@ struct StringMatcher
 /*---------------------------------------------------------------------------*/
 
 template<
-template < typename, typename> class PreviousElement = StringPrevious, 
+template < typename, typename, typename> class PreviousElement = StringPrevious, 
 class _Iterator = AxialTree::const_iterator, 
 class _PRIterator = PatternString::const_reverse_iterator,
+class _IteratorMap = AxialTree::IteratorMap,
 class _argtype = ArgList>
 struct StringReverseMatcher 
 {
 	typedef _argtype argtype;
 	typedef _Iterator Iterator;
 	typedef _PRIterator PIterator;
-	typedef PreviousElement<Iterator,PIterator> Previous;
-	typedef StringReverseMatcher<PreviousElement,Iterator,PIterator,argtype> MType;
+    typedef _IteratorMap IteratorMap;
+	typedef PreviousElement<Iterator,PIterator,IteratorMap> Previous;
+	typedef StringReverseMatcher<PreviousElement,Iterator,PIterator,IteratorMap,argtype> MType;
 
 	static bool match(Iterator matching_start, Iterator  string_begin, Iterator  string_end,
 					  PIterator pattern_rbegin, PIterator  pattern_rend, 
-					  Iterator& matching_end, const ConsiderFilterPtr& filter, argtype& params)
+					  Iterator& matching_end, const ConsiderFilterPtr& filter, argtype& params, IteratorMap* iteratormap = NULL)
 	{
         // printf("start reverse  match [%i] %s\n", distance(string_begin,matching_start), matching_start->str().c_str() );
 		/* matching_start is supposed to be on the first element to test.
@@ -390,7 +395,7 @@ struct StringReverseMatcher
 		argtype lp;
 		for (PIterator it2 = pattern_rbegin; it2 != pattern_rend; ){
 			if( it2->isRE() ) { 
-				if(!RegExpMatcher<MType>::reverse_match(it,string_begin,string_end,it2,it,filter,lp))return false; 
+				if(!RegExpMatcher<MType>::reverse_match(it,string_begin,string_end,it2,it,filter,lp,iteratormap))return false; 
 				++it2;
 			}
 			else {
@@ -400,12 +405,12 @@ struct StringReverseMatcher
 				ArgsCollector::prepend_args(lp,lmp);
 				++it2;
 				if (it2 != pattern_rend){
-					it = Previous::next(it,it2,string_begin,string_end,filter);
+					it = Previous::next(it,it2,string_begin,string_end,filter,iteratormap);
 					if (it == string_end) return false;
 				}
 				else
 					// dont know what to use as reference to continue
-					it = Previous::next(it,it2-1,string_begin,string_end, filter); 
+					it = Previous::next(it,it2-1,string_begin,string_end, filter, iteratormap); 
 			}
 		}
 		params = lp;
@@ -417,24 +422,26 @@ struct StringReverseMatcher
 /*---------------------------------------------------------------------------*/
 
 template<
-template < typename, typename > class FatherElement = GetFather, 
-template < typename, typename > class PreviousElement = GetPrevious, 
+template < typename, typename, typename > class FatherElement = GetFather, 
+template < typename, typename, typename > class PreviousElement = GetPrevious, 
 class _Iterator = AxialTree::const_iterator, 
 class _PRIterator = PatternString::const_reverse_iterator,
+class _IteratorMap = AxialTree::IteratorMap,
 class _argtype = ArgList>
 struct TreeLeftMatcher 
 {
 	typedef _argtype argtype;
 	typedef _Iterator Iterator;
 	typedef _PRIterator PIterator;
-	typedef FatherElement<Iterator,PIterator> Father;
-	typedef PreviousElement<Iterator,PIterator> Previous;
-	typedef TreeLeftMatcher<FatherElement,PreviousElement,Iterator,PIterator,argtype> MType;
+    typedef _IteratorMap IteratorMap;
+	typedef FatherElement<Iterator, PIterator, IteratorMap> Father;
+	typedef PreviousElement<Iterator, PIterator, IteratorMap> Previous;
+	typedef TreeLeftMatcher<FatherElement,PreviousElement,Iterator,PIterator,IteratorMap,argtype> MType;
 
 
 	static bool match(Iterator matching_start, Iterator  string_begin, Iterator  string_end,
 		PIterator pattern_rbegin, PIterator  pattern_rend, Iterator& matching_end, const ConsiderFilterPtr& filter,
-		argtype& params)
+		argtype& params, IteratorMap* iteratormap = NULL)
 	{
 		/* matching_start is supposed to be before the first element to test.
 		   matching_end will be on the last matched element */
@@ -452,7 +459,7 @@ struct TreeLeftMatcher
 			argtype lp;
 			while (it2->isRE()){
 				argtype lmp;
-				if(!RegExpMatcher<MType>::reverse_match(it,string_begin,string_end,it2,it,filter,lmp)) 
+				if(!RegExpMatcher<MType>::reverse_match(it,string_begin,string_end,it2,it,filter,lmp,iteratormap)) 
 					return false; 
 				ArgsCollector::prepend_args(lp,lmp);
 				++it2;
@@ -466,13 +473,13 @@ struct TreeLeftMatcher
 		
 		for (PIterator it2 = pattern_rbegin; it2 != pattern_rend; ){
 			if( it2->isRE() ) { 
-				if(!RegExpMatcher<MType>::reverse_match(it,string_begin,string_end,it2,it,filter,lp))return false; 
+				if(!RegExpMatcher<MType>::reverse_match(it,string_begin,string_end,it2,it,filter,lp, iteratormap))return false; 
 				++it2;
 			}
 			else {
-				if (it2->isLeftBracket()) it = Previous::next(it,it2,string_begin,string_end, filter);
+				if (it2->isLeftBracket()) it = Previous::next(it,it2,string_begin,string_end, filter,iteratormap);
 				else { 
-					it = Father::next(it,it2,string_begin,string_end, filter);
+					it = Father::next(it,it2,string_begin,string_end, filter,iteratormap);
 				}
 				
 				if (it == string_end) return false;
@@ -528,22 +535,24 @@ struct TreeLeftMatcher
 /*---------------------------------------------------------------------------*/
 
 template<
-template < typename, typename > class _NextElement = GetNext,
+template < typename, typename, typename > class _NextElement = GetNext,
 class _Iterator = AxialTree::const_iterator, 
 class _PIterator = PatternString::const_iterator,
+class _IteratorMap = AxialTree::IteratorMap,
 class _argtype = ArgList>
 struct TreeRightMatcher 
 {
 	typedef _argtype argtype;
 	typedef _Iterator Iterator;
 	typedef _PIterator PIterator;
-	typedef _NextElement<Iterator,PIterator> NextElement;
-	typedef TreeRightMatcher<_NextElement,Iterator,PIterator,argtype> MType;
+	typedef _IteratorMap IteratorMap;
+    typedef _NextElement<Iterator, PIterator, IteratorMap> NextElement;
+	typedef TreeRightMatcher<_NextElement,Iterator,PIterator,IteratorMap,argtype> MType;
 
 	static bool match(Iterator matching_start, Iterator  string_beg, Iterator  string_end,
 					  PIterator pattern_begin, PIterator  pattern_end, 
 					  Iterator& last_matched, Iterator& matching_end, 
-                      const ConsiderFilterPtr& filter, argtype& params)
+                      const ConsiderFilterPtr& filter, argtype& params, IteratorMap* iteratormap = NULL)
 	{
 		//if (matching_start != string_end ) printf("start right  match [%i] : %s\n", distance(string_beg,matching_start), matching_start->str().c_str() );
         // else printf("start right  match [%i] \n", distance(string_beg,matching_start) );
@@ -559,7 +568,7 @@ struct TreeRightMatcher
 			argtype lp;
 			while (it2->isRE()){
 				argtype lmp;
-				if(!RegExpMatcher<MType>::match(string_end,string_beg,string_end,it2,_last_matched,it,filter,lmp)) 
+				if(!RegExpMatcher<MType>::match(string_end,string_beg,string_end,it2,_last_matched,it,filter,lmp,iteratormap)) 
 					return false; 
 				ArgsCollector::prepend_args(lp,lmp);
 				++it2;
@@ -573,10 +582,10 @@ struct TreeRightMatcher
 
 
         if (it == _last_matched) {
-            it = NextElement::next(it,it2,string_end, filter);
+            it = NextElement::next(it,it2,string_end, filter,iteratormap);
         }
 		else { 
-            it = NextElement::initial_next(it,it2,_last_matched,string_end, filter);	
+            it = NextElement::initial_next(it,it2,_last_matched,string_end, filter,iteratormap);	
         }		
         
 		bool nextpattern = true;
@@ -608,7 +617,7 @@ struct TreeRightMatcher
 			}
 			else if(it2->isRE()) {
 				// We do not ask for next elem, it will be made after.
-				if(!RegExpMatcher<MType>::match(it,string_beg,string_end,it2,_last_matched,it,filter,lparams)) 
+				if(!RegExpMatcher<MType>::match(it,string_beg,string_end,it2,_last_matched,it,filter,lparams,iteratormap)) 
 					return false;
 			}
 			else if(!it2->isBracket()){ // matching a pattern module
@@ -624,7 +633,7 @@ struct TreeRightMatcher
 					// if bracket, skip or return false
 					if(it->isRightBracket())return false; 
 					else if(it->isLeftBracket()) {
-						it = endBracket(it,string_end);
+						it = endBracket(it,string_end,iteratormap);
 						nextpattern = false;
 					}
 				}
@@ -636,7 +645,7 @@ struct TreeRightMatcher
 						if(it2->isExactRightBracket())return false;
 						else {
 							// search start before it to avoid matching A[B]C with A[B[]C]C
-							it = endBracket(it,string_end,true);
+							it = endBracket(it,string_end,iteratormap, true);
 						}
 					}
 				}
@@ -648,7 +657,7 @@ struct TreeRightMatcher
 			if (nextsrc) { 
 				_last_matched = it;
                 if(it != string_end && it2 != pattern_end)
-    				it = NextElement::next(it,it2,string_end, filter);				
+    				it = NextElement::next(it,it2,string_end, filter, iteratormap);				
 			}
 		}
 		if(it2 != pattern_end && it2->isGetIterator()){

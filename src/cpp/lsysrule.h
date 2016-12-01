@@ -125,14 +125,16 @@ public:
 			   const AxialTree& dest,
 			   AxialTree::const_iterator& endpos,
 			   ArgList& args,
+               AxialTree::IteratorMap* itermap = NULL,
                eDirection direction = eForward) const ;
 
     inline bool reverse_match(const AxialTree& src,
 			   AxialTree::const_iterator pos,
 			   const AxialTree& dest,
 			   AxialTree::const_iterator& endpos,
-               ArgList& args) const 
-    { return match(src,pos,dest,endpos,args,eBackward); }
+               ArgList& args,
+               AxialTree::IteratorMap* itermap = NULL) const 
+    { return match(src,pos,dest,endpos,args, itermap, eBackward); }
 
 	bool applyTo( AxialTree& dest, 
 				  const ArgList& args, 

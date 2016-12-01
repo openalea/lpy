@@ -35,6 +35,7 @@
 #include <functional>
 #include "axialtree_manip.h"
 #include <QtCore/QSharedData>
+#include <plantgl/tool/util_hashmap.h>
 
 LPY_BEGIN_NAMESPACE
 
@@ -67,6 +68,9 @@ public:
 
   /// The type of this Lstring
   typedef AbstractLString<Module> AbstractLStringType;
+
+  /// An iterator map
+  typedef pgl_hash_map<size_t, const_iterator> IteratorMap;
 
 private:
 

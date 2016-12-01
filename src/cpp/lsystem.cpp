@@ -691,6 +691,7 @@ AxialTree Lsystem::__debugStep(AxialTree& workingstring,
       AxialTree::const_iterator _it = workingstring.begin();
       AxialTree::const_iterator _it3 = _it;
       AxialTree::const_iterator _endit = workingstring.end();
+      AxialTree::IteratorMap itermap; 
 
       while ( _it != _endit ) {
           if ( _it->isCut() )
@@ -702,7 +703,7 @@ AxialTree Lsystem::__debugStep(AxialTree& workingstring,
                   _it2 != mruleset.end(); _it2++){
 					  ArgList args;
 					  size_t prodlength;
-                      if((*_it2)->match(workingstring,_it,targetstring,_it3,args)){
+                      if((*_it2)->match(workingstring,_it,targetstring,_it3,args,&itermap)){
 						  try {
 							match = (*_it2)->applyTo(targetstring,args,&prodlength);
 						  }catch(error_already_set){
@@ -734,6 +735,7 @@ AxialTree Lsystem::__debugStep(AxialTree& workingstring,
       AxialTree::const_iterator _lastit = workingstring.begin();
       AxialTree::const_iterator _beg = workingstring.begin();
       AxialTree::const_iterator _end = workingstring.end();
+      AxialTree::IteratorMap itermap; 
       while ( _it !=  _end) {
           bool match = false;
 		  const RulePtrSet& mruleset = ruleset[_it->getClassId()];
@@ -741,7 +743,7 @@ AxialTree Lsystem::__debugStep(AxialTree& workingstring,
               _it2 != mruleset.end();  _it2++){
 				  ArgList args;
 				  size_t prodlength;
-                  if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args)){
+                  if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args,&itermap)){
 					  try {
 						match = (*_it2)->reverseApplyTo(targetstring,args,&prodlength);
 					  }catch(error_already_set){
@@ -769,7 +771,7 @@ AxialTree Lsystem::__debugStep(AxialTree& workingstring,
   return targetstring;
 }
 
-
+#include "axialtree_manip.h"
 
 AxialTree 
 Lsystem::__step(AxialTree& workingstring,
@@ -777,6 +779,7 @@ Lsystem::__step(AxialTree& workingstring,
 				bool query,
 				bool& matching,
                 eDirection direction){
+  printf("__Step\n");
   if (__context.multicoreProcessing()) { return __parallelStep(workingstring, ruleset, query, matching, direction);  }
   ContextMaintainer c(&__context);
   matching = false;
@@ -788,6 +791,11 @@ Lsystem::__step(AxialTree& workingstring,
       AxialTree::const_iterator _it = workingstring.begin();
       AxialTree::const_iterator _it3 = _it;
       AxialTree::const_iterator _endit = workingstring.end();
+      AxialTree::IteratorMap itermap;
+      printf("compute mapped brackets \n");
+      endBracket(_it, _endit, &itermap); 
+
+      printf("nb of mapped brackets : %lu\n", itermap.size());
 
       while ( _it != _endit ) {
           if ( _it->isCut() )
@@ -798,7 +806,7 @@ Lsystem::__step(AxialTree& workingstring,
               for(RulePtrSet::const_iterator _it2 = mruleset.begin();
                   _it2 != mruleset.end(); _it2++){
 					  ArgList args;
-                      if((*_it2)->match(workingstring,_it,targetstring,_it3,args)){
+                      if((*_it2)->match(workingstring,_it,targetstring,_it3,args,&itermap)){
                           match = (*_it2)->applyTo(targetstring,args);
 						  if(match) { _it = _it3; break; }
                       }
@@ -809,6 +817,7 @@ Lsystem::__step(AxialTree& workingstring,
               else matching = true;
           }
       }
+      printf("end rewriting\n");
   }
   else {
       AxialTree::const_iterator _it = workingstring.end()-1;
@@ -816,13 +825,19 @@ Lsystem::__step(AxialTree& workingstring,
       AxialTree::const_iterator _lastit = workingstring.begin();
       AxialTree::const_iterator _beg = workingstring.begin();
       AxialTree::const_iterator _end = workingstring.end();
+      AxialTree::IteratorMap itermap; 
+      printf("compute mapped brackets \n");
+      // endBracket(_beg, _end, &itermap); 
+
+      printf("nb of mapped brackets : %lu\n", itermap.size());
       while ( _it !=  _end) {
           bool match = false;
 		  const RulePtrSet& mruleset = ruleset[_it->getClassId()];
           for(RulePtrSet::const_iterator _it2 = mruleset.begin();
               _it2 != mruleset.end();  _it2++){
 				  ArgList args;
-                  if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args)){
+                  // printf("reverse_match\n");
+                  if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args,&itermap)){
                       match = (*_it2)->reverseApplyTo(targetstring,args);
                       if(match) { _it = _it3; break; }
                   }
@@ -862,6 +877,7 @@ AxialTree partialForwardStep(size_t beg,
 
       AxialTree::const_iterator _it = itbeg;
       AxialTree::const_iterator _it3 = _it;
+      AxialTree::IteratorMap itermap; 
 
 
       while ( _it != itend ) {
@@ -871,7 +887,7 @@ AxialTree partialForwardStep(size_t beg,
               for(RulePtrSet::const_iterator _it2 = mruleset.begin();
                   _it2 != mruleset.end(); _it2++){
                       ArgList args;
-                      if((*_it2)->match(workingstring,_it,targetstring,_it3,args)){
+                      if((*_it2)->match(workingstring,_it,targetstring,_it3,args,&itermap)){
                           match = (*_it2)->applyTo(targetstring,args);
                           if(match) { _it = _it3; break; }
                       }
@@ -900,6 +916,7 @@ AxialTree partialBackwardStep(size_t beg,
       AxialTree::const_iterator _it = itend -1;
       AxialTree::const_iterator _lastit = itbeg;
       AxialTree::const_iterator _it3 = _it;
+      AxialTree::IteratorMap itermap; 
 
 
       while ( _it != itend ) {
@@ -909,7 +926,7 @@ AxialTree partialBackwardStep(size_t beg,
               for(RulePtrSet::const_iterator _it2 = mruleset.begin();
                   _it2 != mruleset.end(); _it2++){
                       ArgList args;
-                      if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args)){
+                      if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args,&itermap)){
                           match = (*_it2)->reverseApplyTo(targetstring,args);
                           if(match) { _it = _it3; break; }
                       }
@@ -995,6 +1012,7 @@ Lsystem::__stepWithMatching(AxialTree& workingstring,
   AxialTree::const_iterator _it = workingstring.begin();
   AxialTree::const_iterator _it3 = _it;
   AxialTree::const_iterator _endit = workingstring.end();
+  AxialTree::IteratorMap itermap; 
   size_t prodlength;
   matching.clear();
   while ( _it != _endit ) {
@@ -1006,7 +1024,7 @@ Lsystem::__stepWithMatching(AxialTree& workingstring,
           for(RulePtrSet::const_iterator _it2 = mruleset.begin();
               _it2 != mruleset.end();  _it2++){
 				  ArgList args;
-                  if((*_it2)->match(workingstring,_it,targetstring,_it3,args)){
+                  if((*_it2)->match(workingstring,_it,targetstring,_it3,args,&itermap)){
                       match = (*_it2)->applyTo(targetstring,args,&prodlength);
 					  if (match){
 						matching.append(distance(_it,_it3),prodlength);
@@ -1398,12 +1416,14 @@ Lsystem::__derive( size_t starting_iter ,
 			  decomposition = __getRules(eDecomposition,group,ndir,&decompositionHasQuery);
 			  __newrules = false;
 		  }
+          printf("production\n" );
 		  if (!production.empty()){
 			  if(!hasDebugger())
 				  workstring = __step(workstring,production,previouslyinterpreted?false:productionHasQuery,matching,dir);
 			  else workstring = __debugStep(workstring,production,previouslyinterpreted?false:productionHasQuery,matching,dir,*__debugger);
 			  previouslyinterpreted = false;
 		  }
+          printf("decomposition\n" );
 		  if(!decomposition.empty()){
 			  bool decmatching = true;
 			  for(size_t i = 0; decmatching && i < __decomposition_max_depth; i++){
@@ -1419,6 +1439,7 @@ Lsystem::__derive( size_t starting_iter ,
 		  if( (i+1) <  nb_iter && __context.isSelectionRequested()) {
 			 __plot(workstring,true);
 		  }
+        printf("end step\n");
 	  }
 	  if(starting_iter+i == __max_derivation) {
 		  // Call end function

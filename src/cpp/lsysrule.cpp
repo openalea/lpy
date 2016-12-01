@@ -488,6 +488,7 @@ LsysRule::match(const AxialTree& src,
 			   const AxialTree& dest,
 			   AxialTree::const_iterator& endpos,
                ArgList& args,
+               AxialTree::IteratorMap* itermap,
                eDirection direction) const 
 {
 
@@ -521,7 +522,7 @@ LsysRule::match(const AxialTree& src,
   if(!__leftcontext.empty()){
       if(!MatchingEngine::left_match(endposLeft,src.const_begin(),src.const_end(),
 		                              __leftcontext.const_rbegin(),__leftcontext.const_rend(),
-									  endposLeft,__consider,args))
+									  endposLeft,__consider,args,itermap))
 	       return false;
   }
 
@@ -534,7 +535,7 @@ LsysRule::match(const AxialTree& src,
     dest2->push_back(pos);
     if(!MatchingEngine::left_match(dest2->const_end()-1,dest2->const_begin(),dest2->const_end(),
 		                          __newleftcontext.const_rbegin(),__newleftcontext.const_rend(),
-								  endposNewLeft,__consider,args_ncg)){
+								  endposNewLeft,__consider,args_ncg /*, itermap*/)){
         dest2->erase(dest2->end()-1);
         return false;
     }
@@ -551,7 +552,7 @@ LsysRule::match(const AxialTree& src,
 	ArgList args_ncd;
     if(!MatchingEngine::right_match(dest.const_begin(),dest.const_begin(),dest.const_end(),
 		                          __newrightcontext.const_begin(),__newrightcontext.const_end(),
-								  endposNewRightLastMatch,endposNewRight,__consider,args_ncd)) return false;
+								  endposNewRightLastMatch,endposNewRight,__consider,args_ncd /*, itermap*/)) return false;
     							  // last_match,endpos2,args_ncd)) return false;
 	ArgsCollector::append_args(args,args_ncd);
   }
@@ -563,7 +564,7 @@ LsysRule::match(const AxialTree& src,
 	ArgList args_cd;
     if(!MatchingEngine::right_match(endposRight,src.const_begin(),src.const_end(),
 		                          __rightcontext.const_begin(),__rightcontext.const_end(),
-								  endposRightLastMatch,endposRight,__consider,args_cd))return false;
+								  endposRightLastMatch,endposRight,__consider,args_cd, itermap))return false;
 	ArgsCollector::append_args(args,args_cd);
   }
   const_cast<LsysRule *>(this)->__lstringmatcher = LstringMatcherPtr(new LstringMatcher(src.const_begin(),	
@@ -574,7 +575,8 @@ LsysRule::match(const AxialTree& src,
 					   endposRightLastMatch,
 					   // endposNewRight,
 					   // endposRightLastMatch
-                       __consider
+                       __consider,
+                       itermap
 					   ));
 
 
