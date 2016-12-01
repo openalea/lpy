@@ -210,6 +210,7 @@ __group(0),
 __selection_always_required(false),
 __selection_requested(false),
 __warn_with_sharp_module(true),
+__axiom_decomposition_enabled(false),
 return_if_no_matching(true),
 optimizationLevel(DEFAULT_OPTIMIZATION_LEVEL),
 __animation_step(DefaultAnimationTimeStep),
@@ -236,6 +237,7 @@ LsysContext::LsysContext(const LsysContext& lsys):
   __selection_always_required(lsys.__selection_always_required),
   __selection_requested(false),
   __warn_with_sharp_module(lsys.__warn_with_sharp_module),
+  __axiom_decomposition_enabled(lsys.__axiom_decomposition_enabled),
   return_if_no_matching(lsys.return_if_no_matching),
   optimizationLevel(lsys.optimizationLevel),
   __animation_step(lsys.__animation_step),
@@ -261,6 +263,7 @@ __group(0),
 __selection_always_required(false),
 __selection_requested(false),
 __warn_with_sharp_module(true),
+__axiom_decomposition_enabled(false),
 return_if_no_matching(true),
 optimizationLevel(DEFAULT_OPTIMIZATION_LEVEL),
 __animation_step(DefaultAnimationTimeStep),
@@ -289,6 +292,7 @@ LsysContext::operator=(const LsysContext& lsys)
   __selection_always_required = lsys.__selection_always_required;
   __selection_requested = false;
   __warn_with_sharp_module = lsys.__warn_with_sharp_module;
+  __axiom_decomposition_enabled = lsys.__axiom_decomposition_enabled;
   return_if_no_matching = lsys.return_if_no_matching;
   optimizationLevel = lsys.optimizationLevel;
   __animation_step =lsys.__animation_step;
@@ -383,6 +387,12 @@ void LsysContext::init_options()
 	option->addValue("Disabled",this,&LsysContext::setReturnIfNoMatching,false,"Disable early return.");
 	option->addValue("Enabled",this,&LsysContext::setReturnIfNoMatching,true,"Enable early return.");
 	option->setDefault(0);	
+
+    option = options.add("Axiom decomposition","Set whether the axiom is immediatly decomposed.","Processing");
+    option->addValue("Disabled",this,&LsysContext::enableAxiomDecomposition,false,"Disable early return.");
+    option->addValue("Enabled",this,&LsysContext::enableAxiomDecomposition,true,"Enable early return.");
+    option->setDefault(0);  
+
 #if (PGL_VERSION >= 0x020B00)
 	/** warn if turtle has invalid value option */
 	option = options.add("Warning with Turtle inconsistency","Set whether a warning/error is raised when an invalid value is found during turtle processing.","Processing");
@@ -1022,10 +1032,21 @@ LsysContext::setSelectionAlwaysRequired(bool enabled)
 void 
 LsysContext::setWarnWithSharpModule(bool enabled)
 { 
-	if (__warn_with_sharp_module != enabled){
-		__warn_with_sharp_module = enabled; 
-		options.setSelection("Warning with sharp module",(size_t)__warn_with_sharp_module);
-	}
+    if (__warn_with_sharp_module != enabled){
+        __warn_with_sharp_module = enabled; 
+        options.setSelection("Warning with sharp module",(size_t)__warn_with_sharp_module);
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void 
+LsysContext::enableAxiomDecomposition(bool enabled)
+{ 
+    if (__axiom_decomposition_enabled != enabled){
+        __axiom_decomposition_enabled = enabled; 
+        options.setSelection("Axiom decomposition",(size_t)__axiom_decomposition_enabled);
+    }
 }
 
 /*---------------------------------------------------------------------------*/

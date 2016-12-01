@@ -255,6 +255,10 @@ public:
   inline bool warnWithSharpModule() const { return __warn_with_sharp_module; }
   void setWarnWithSharpModule(bool);
 
+  /// Specify whether the axiom should be decomposed
+  inline bool axiomDecompositionEnabled() const { return __axiom_decomposition_enabled; }
+  void enableAxiomDecomposition(bool);
+
   /// Specify the multicore rewritting option
   inline bool multicoreProcessing() const { return __multicore; }
   void setMulticoreProcessing(bool enabled) { __multicore = enabled; }
@@ -369,6 +373,9 @@ protected:
 
   /// Warn if found sharp module
   bool __warn_with_sharp_module;
+
+  /// Check if axiom should be decomposed.
+  bool __axiom_decomposition_enabled;
 
   /// animation step property and its mutex
   double __animation_step;
