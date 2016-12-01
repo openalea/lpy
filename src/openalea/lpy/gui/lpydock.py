@@ -9,15 +9,10 @@ import debugger_ui
 import debugger_right_ui
 from objectpanel import LpyObjectPanelDock
 
-
-Qt = qt.QtCore.Qt
-QApplication = qt.QtWidgets.QApplication
-QSplitter = qt.QtWidgets.QSplitter
-QDockWidget = qt.QtWidgets.QDockWidget
-QWidget = qt.QtWidgets.QWidget
-QIcon = qt.QtGui.QIcon
-QPixmap = qt.QtGui.QPixmap
-_translate = qt.QtCore.QCoreApplication.translate
+from openalea.vpltk.qt.QtCore import Qt, QCoreApplication
+from openalea.vpltk.qt.QtGui import QIcon, QPixmap
+from openalea.vpltk.qt.QtWidgets import QApplication, QDockWidget, QSplitter, QWidget
+_translate = QCoreApplication.translate
 
 class DebugLeftWidget(QWidget,debugger_ui.Ui_Form):
     def __init__(self,parent):

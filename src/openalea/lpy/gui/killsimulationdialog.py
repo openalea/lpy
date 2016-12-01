@@ -7,8 +7,8 @@ except:
 from openalea.vpltk.qt import qt    
 from killsimulationwidget import Ui_KillSimulationDialog
 
-QTimer = qt.QtCore.QTimer
-QDialog = qt.QtWidgets.QDialog
+from openalea.vpltk.qt.QtCore import QTimer
+from openalea.vpltk.qt.QtWidgets import QDialog
 
 class KillSimulationDialog (QDialog,Ui_KillSimulationDialog):
     def __init__(self,parent):

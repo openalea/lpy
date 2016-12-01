@@ -2,16 +2,8 @@ from openalea.vpltk.qt import qt
 import svnmanip
 import os
 
-
-QWidget = qt.QtWidgets.QWidget
-Qt = qt.QtCore.Qt
-QMenu = qt.QtWidgets.QMenu
-pyqtSignal = qt.QtCore.pyqtSignal
-QApplication = qt.QtWidgets.QApplication
-QTabBar = qt.QtWidgets.QTabBar
-QObject = qt.QtCore.QObject
-QMessageBox = qt.QtWidgets.QMessageBox
-
+from openalea.vpltk.qt.QtCore import QObject, Qt, pyqtSignal
+from openalea.vpltk.qt.QtWidgets import QApplication, QMenu, QMessageBox, QTabBar, QWidget
 
 class LpyTabBar(QTabBar):
     
@@ -20,7 +12,7 @@ class LpyTabBar(QTabBar):
 
     def __init__(self,parent):
         QTabBar.__init__(self,parent)
-        self.setDrawBase(False)
+        #self.setDrawBase(False)
         self.selection = None
         self.lpystudio = None
         self.initialtab = None

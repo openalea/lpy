@@ -1,10 +1,10 @@
 from openalea.vpltk.qt.compat import *
 from openalea.vpltk.qt import qt
+from openalea.vpltk.qt.QtCore import QSettings
+from openalea.vpltk.qt.QtGui import QFont
+from openalea.vpltk.qt.QtWidgets import QApplication
 import os
 
-QSettings = qt.QtCore.QSettings
-QFont = qt.QtGui.QFont
-QApplication = qt.QtWidgets.QApplication
 
 def getSettings():
     settings = QSettings(QSettings.IniFormat, QSettings.UserScope,'OpenAlea','LPy')

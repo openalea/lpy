@@ -63,11 +63,11 @@ class ObjectDialog(QDialog):
         self.horizontalLayout.addWidget(self.cancelButton)
         self.verticalLayout.addLayout(self.horizontalLayout)
         
-        self.setWindowTitle(QApplication.translate("ObjectDialog", "Object Editor", None, QApplication.UnicodeUTF8))
-        self.autoUpdateCheckBox.setText(QApplication.translate("ObjectDialog", "Auto update", None, QApplication.UnicodeUTF8))
-        self.okButton.setText(QApplication.translate("ObjectDialog", "Ok", None, QApplication.UnicodeUTF8))
-        self.applyButton.setText(QApplication.translate("ObjectDialog", "Apply", None, QApplication.UnicodeUTF8))
-        self.cancelButton.setText(QApplication.translate("ObjectDialog", "Cancel", None, QApplication.UnicodeUTF8))
+        self.setWindowTitle("ObjectDialog")
+        self.autoUpdateCheckBox.setText("Auto update")
+        self.okButton.setText("Ok")
+        self.applyButton.setText("Apply")
+        self.cancelButton.setText("Cancel")
       
         self.cancelButton.pressed.connect(self.reject)
         self.okButton.pressed.connect(self.__ok)

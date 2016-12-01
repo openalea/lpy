@@ -1,4 +1,6 @@
 from openalea.vpltk.qt import qt
+from openalea.vpltk.qt.QtWidgets import QDialog, QMessageBox
+
 from settings import getSettings
 
 try :
@@ -7,8 +9,6 @@ try :
 except ImportError, e:
     has_svn = False
 
-QDialog = qt.QtWidgets.QDialog
-QMessageBox = qt.QtWidgets.QMessageBox
 
 def hasSvnSupport():
     return has_svn

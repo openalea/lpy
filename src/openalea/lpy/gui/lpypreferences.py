@@ -6,10 +6,8 @@ import generate_ui
 import lpyprefwidget
 
 
-QObject = qt.QtCore.QObject
-pyqtSignal = qt.QtCore.pyqtSignal
-QDialog = qt.QtWidgets.QDialog
-
+from openalea.vpltk.qt.QtCore import QObject, pyqtSignal
+from openalea.vpltk.qt.QtWidgets import QDialog
 
 
 class LpyPreferences:

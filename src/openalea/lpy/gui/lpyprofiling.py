@@ -1,12 +1,14 @@
 from openalea.vpltk.qt import qt
+from openalea.vpltk.qt.QtCore import QObject, Qt, pyqtSignal
+from openalea.vpltk.qt.QtGui import QStandardItem, QStandardItemModel
 import os
 
 AnimatedProfiling, ProfilingWithFinalPlot, ProfilingWithNoPlot = range(3)
 
 
-class MyItem(qt.QtGui.QStandardItem):
-    def __init__(self,value):
-        qt.QtGui.QStandardItem.__init__(self,str(value))
+class MyItem(QStandardItem):
+   def __init__(self,value):
+        QStandardItem.__init__(self,str(value))
         self.value = value
     def __lt__(self,other):
         return self.value < other.value
@@ -69,12 +71,12 @@ def sort_stats(stats):
                 del statdict[subs.code]
     return statdict.values()
 
-class ProfileItemModel (qt.QtGui.QStandardItemModel):
-    def __init__(self,a,b,table,lpywidget,fname):
-        qt.QtGui.QStandardItemModel.__init__(self,a, b)
+class ProfileItemModel (QStandardItemModel):
+   def __init__(self,a,b,table,lpywidget,fname):
+        QStandardItemModel.__init__(self,a, b)
         self.lpywidget = lpywidget
         self.fname = fname
-        qt.QtCore.QObject.connect(table,qt.QtCore.SIGNAL('doubleClicked(const QModelIndex&)'),self.selectionEvent)
+        table.doubleClicked.connect(self.selectionEvent) # QObject.connect(table,SIGNAL('doubleClicked(const QModelIndex&)'),self.selectionEvent)
     def selectionEvent(self,element):
         it = self.itemFromIndex(element)
         r = it.row()
@@ -108,4 +110,4 @@ def drawProfileTable(table,stats,rule_table = None,timing = None, fname = None, 
                     if hasattr(sst,'calls') and len(sst.calls) > 0:
                         st_stack.append((sst,subitems))
         table.setModel(optionModel)
-        optionModel.sort(1,qt.QtCore.Qt.DescendingOrder)
+        optionModel.sort(1,Qt.DescendingOrder)

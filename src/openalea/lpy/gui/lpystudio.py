@@ -39,26 +39,11 @@ except:
 
 from openalea.lpy import *
 
-QCoreApplication = qt.QtCore.QCoreApplication
-QEvent = qt.QtCore.QEvent
-QMutex = qt.QtCore.QMutex
-QObject = qt.QtCore.QObject
-QThread = qt.QtCore.QThread
-QWaitCondition = qt.QtCore.QWaitCondition
-Qt = qt.QtCore.Qt
-pyqtSignal = qt.QtCore.pyqtSignal
-QIcon = qt.QtGui.QIcon
-QPixmap = qt.QtGui.QPixmap
-QPrintDialog = qt.QtPrintSupport.QPrintDialog
-QPrinter = qt.QtPrintSupport.QPrinter
-QAction = qt.QtWidgets.QAction
-QApplication = qt.QtWidgets.QApplication
-QDialog = qt.QtWidgets.QDialog
-QFileDialog = qt.QtWidgets.QFileDialog
-QInputDialog = qt.QtWidgets.QInputDialog
-QMainWindow = qt.QtWidgets.QMainWindow
-QMessageBox = qt.QtWidgets.QMessageBox
-QTabBar = qt.QtWidgets.QTabBar
+from openalea.vpltk.qt.QtPrintSupport import QPrintDialog, QPrinter
+from openalea.vpltk.qt.QtCore import QCoreApplication, QEvent, QMutex, QObject, QThread, QWaitCondition, Qt, pyqtSignal, pyqtSlot
+from openalea.vpltk.qt.QtGui import QIcon, QPixmap
+from openalea.vpltk.qt.QtWidgets import QAction, QApplication, QDialog, QFileDialog, QInputDialog, QMainWindow, QMessageBox, QTabBar
+
 
 # Restore default signal handler for CTRL+C
 #import signal; signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -90,7 +75,7 @@ class LpyPlotter:
         else:
             Viewer.frameGL.saveImage(fname,format)
         
-class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
+class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
 
     endTask = pyqtSignal('PyQt_PyObject')
 
@@ -167,6 +152,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         #self.documentNames.setTabsClosable(True)
         self.newfile()
         self.textEditionWatch = False
+        self.documentNames.show()
         self.documentNames.connectTo(self)
 
         self.endTask.connect(self.endTaskCheck) # QObject.connect(self,SIGNAL('endTask(PyQt_PyObject)'),self.endTaskCheck)
@@ -249,54 +235,34 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         self.textEditionWatch = True
         if True : #self.lpy_update_enabled: 
             self.check_lpy_update(True)
+
     def check_lpy_update_available(self):
-        import svnmanip, os
-        available = False
-        if svnmanip.hasSvnSupport() :
-            import openalea.lpy.__version__ as lv
-            testfile = os.path.dirname(lv.__file__)+'/__version__.py'
-            #print testfile, svnmanip.isSvnFile(testfile)
-            if svnmanip.isSvnFile(testfile):
-                available = not svnmanip.isSSHRepository(testfile)
+        available = True
         if not available:
             self.actionCheckUpdate.setEnabled(False)
         return available
-        
+    
+    def retrieve_official_lpy_version(self):
+        import urllib2
+        versionurl = 'https://raw.githubusercontent.com/VirtualPlants/lpy/master/src/openalea/lpy/__version__.py'
+        response = urllib2.urlopen(versionurl)
+        pyversioncode = response.read()
+        lvofficial = {}
+        exec(pyversioncode, lvofficial)
+        return lvofficial['__version_number__'],lvofficial['LPY_VERSION_STR']
+
     def check_lpy_update(self, silent = False):
-        import svnmanip, os, time
-        if svnmanip.hasSvnSupport():
-            import openalea.lpy.__version__ as lv
-            testfile = os.path.dirname(lv.__file__)+'/__version__.py'            
-            if svnmanip.isSvnFile(testfile):
-                # we are dealing with a develop version of lpy
-                current_rev = svnmanip.svnFileInfo(testfile).revision.number
-                if not silent or ((current_rev > self.svnLastRevisionChecked) and ((self.svnLastDateChecked + 24*60*60) < time.time())):
-                    self.svnLastDateChecked = time.time()
-                    if svnmanip.isSSHRepository(testfile): # in case of svn+ssh protocol, we do not even try to not block the process.
-                        self.svnLastRevisionChecked = current_rev
-                        if not silent:
-                            QMessageBox.information(self,"Lpy Update","You have a develop version of lpy.\nCannot check svn repository.\nProtocol 'SVN+SSH' not supported correctly by PySvn.")
-                        else:
-                            self.statusBar().showMessage("Cannot check version of svn repository of lpy. Protocol 'SVN+SSH' not supported correctly by PySvn.")                        
-                    else:
-                        try:
-                            if not svnmanip.svnIsUpToDate(testfile,self if not silent else None,True):
-                                QMessageBox.information(self,"Lpy Update","A new develop version of lpy seems available !\nPlease update sources of lpy, plantgl, vpltk and recompile.")
-                                self.svnLastRevisionChecked = current_rev
-                            elif not silent:
-                                QMessageBox.information(self,"Lpy Update","You have a develop version of lpy.\nYou are up-to-date.")
-                            else:
-                                self.statusBar().showMessage("L-Py is up-to-date.")                        
-                        except:
-                            if not silent:
-                                QMessageBox.information(self,"Lpy Update","You have a develop version of lpy.\nCannot check svn repository.")
-                            else:
-                                self.statusBar().showMessage('Cannot check version of svn repository of lpy.')
-            else: # release version
-                if silent:
-                    self.statusBar().showMessage("Cannot check update with release version of lpy for now.")
-                else:
-                    QMessageBox.information(self,"Lpy Update","Cannot check update with release version of lpy for now.")
+        import openalea.lpy.__version__ as lv
+        import os, time
+        if not silent or ((self.svnLastDateChecked + 24*60*60) < time.time()):
+            self.svnLastDateChecked = time.time()
+            officialversion,offverstring = self.retrieve_official_lpy_version()
+            if lv.__version_number__ < officialversion:
+                QMessageBox.information(self,"Lpy Update","Your version is "+lv.LPY_VERSION_STR+".\nA new version of lpy seems available on github :"+offverstring+"\nPlease update sources of lpy, plantgl, vpltk and recompile.")
+            elif not silent:
+                QMessageBox.information(self,"Lpy Update","Your version is "+lv.LPY_VERSION_STR+".\nYou are up-to-date!")
+            else:
+                self.statusBar().showMessage("L-Py "+lv.LPY_VERSION_STR+" is up-to-date.")                        
 
     def switchCentralView(self):
         if not self.centralViewIsGL:
@@ -496,11 +462,16 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow,ComputationTaskManager) :
         if self.debugger.running:
             self.debugger.stopDebugger()
             self.debugMode = False
+
+    #@pyqtSlot('QString')
     def setToolBarApp(self,value):
+        if type(value) == int: # hack since pyqtSlot does not seems to work
+            value = ['Icons', 'Texts', 'Icons and texts', 'Texts below icons'][value]
         for bar in [self.FileBar,self.LsytemBar,self.editToolBar]:
             bar.setToolButtonStyle({'Icons' : Qt.ToolButtonIconOnly, 'Texts' : Qt.ToolButtonTextOnly , 'Icons and texts' : Qt.ToolButtonTextBesideIcon, 'Texts below icons' : Qt.ToolButtonTextUnderIcon }[str(value)])
     def getToolBarApp(self):
         return { Qt.ToolButtonIconOnly : (0,'Icons') , Qt.ToolButtonTextOnly : (1,'Texts') , Qt.ToolButtonTextBesideIcon : (2,'Icons and texts'), Qt.ToolButtonTextUnderIcon : (3,'Texts below icons')  }[self.FileBar.toolButtonStyle()]
+
     def toggleUseThread(self):
         ComputationTaskManager.toggleUseThread(self)
     def toggleFitAnimationView(self):

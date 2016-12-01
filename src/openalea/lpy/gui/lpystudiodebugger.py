@@ -7,13 +7,9 @@ import sys
 import traceback as tb
 
 
-QCoreApplication = qt.QtCore.QCoreApplication
-QMutex = qt.QtCore.QMutex
-QObject = qt.QtCore.QObject
-pyqtSignal = qt.QtCore.pyqtSignal
-QStandardItem = qt.QtGui.QStandardItem
-QStandardItemModel = qt.QtGui.QStandardItemModel
-QMessageBox = qt.QtWidgets.QMessageBox
+from openalea.vpltk.qt.QtCore import QCoreApplication, QMutex, QObject, pyqtSignal
+from openalea.vpltk.qt.QtGui import QStandardItem, QStandardItemModel
+from openalea.vpltk.qt.QtWidgets import QMessageBox
 
 class AbortDebugger(Exception):
     def __init__(self,txt=''):

@@ -1,6 +1,5 @@
 from openalea.plantgl.all import *
 from openalea.vpltk import qt
-from openalea.vpltk.qt import QtOpenGL
 from OpenGL.GL import *
 from OpenGL.GLU import *
 import sys, traceback, os
@@ -11,6 +10,14 @@ from objectmanagers import get_managers
 from openalea.vpltk.qt.QtCore import QObject, QPoint, Qt, pyqtSignal
 from openalea.vpltk.qt.QtGui import QFont, QFontMetrics, QImageWriter
 from openalea.vpltk.qt.QtWidgets import QAction, QApplication, QDockWidget, QFileDialog, QLineEdit, QMenu, QMessageBox, QScrollArea, QVBoxLayout, QWidget
+
+try:
+    from openalea.vpltk.qt.QtOpenGL import QOpenGLWidget 
+    QGLParentClass = QOpenGLWidget 
+except:
+    from openalea.vpltk.qt.QtOpenGL import QGLWidget 
+    QGLParentClass = QGLWidget 
+
 
 def retrieveidinname(name,prefix):
     if name == prefix: return 1
@@ -112,7 +119,7 @@ class ManagerDialogContainer (QObject):
         return (not (self.editorDialog is None)) and self.editorDialog.isVisible()
 
 
-class ObjectListDisplay(QtOpenGL.QGLWidget): 
+class ObjectListDisplay(QGLParentClass): 
     """ Display and edit a list of parameter objects """
     class Theme:
         def __init__(self):
@@ -163,7 +170,7 @@ class ObjectListDisplay(QtOpenGL.QGLWidget):
     renameRequest = pyqtSignal(int)
     
     def __init__(self,parent, panelmanager = None):
-        QtOpenGL.QGLWidget.__init__(self,parent)
+        QGLParentClass.__init__(self,parent)
         
         # global manager of all the panels
         self.panelmanager = panelmanager 
@@ -689,9 +696,9 @@ class ObjectListDisplay(QtOpenGL.QGLWidget):
         elif event.button() == Qt.RightButton:
             if self.active:
                 self.setSelection(self.itemUnderPos(event.pos()))
-            QtOpenGL.QGLWidget.mousePressEvent(self,event)
+            QGLParentClass.mousePressEvent(self,event)
         else:
-            QtOpenGL.QGLWidget.mousePressEvent(self,event)
+            QGLParentClass.mousePressEvent(self,event)
 
 
     def mouseMoveEvent(self,event):
@@ -715,7 +722,7 @@ class ObjectListDisplay(QtOpenGL.QGLWidget):
     def mouseReleaseEvent(self,event):
         self.selectionPositionBegin = None
         self.selectionPositionCurrent = None
-        QtOpenGL.QGLWidget.mouseReleaseEvent(self,event)
+        QGLWidget.mouseReleaseEvent(self,event)
         self.updateGL()
 
     def mouseDoubleClickEvent(self,event):
@@ -826,14 +833,14 @@ class ObjectListDisplay(QtOpenGL.QGLWidget):
     def enterEvent(self,event):
         """ when entering the objectList, reactivate the mouseTracking"""
         self.setMouseTracking(True)
-        QtOpenGL.QGLWidget.enterEvent(self,event)
+        QGLParentClass.enterEvent(self,event)
 
 
     def leaveEvent(self,event):
         """ when the mouse is leaving the objectList,  disable the mouseTracking and set the cursorselection to None"""
         self.setMouseTracking(False)
         self.setCursorSelection(None)
-        QtOpenGL.QGLWidget.leaveEvent(self,event)
+        QGLParentClass.leaveEvent(self,event)
 
     def getObjects(self):
         """ 

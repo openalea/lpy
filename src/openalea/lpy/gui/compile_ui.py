@@ -55,7 +55,7 @@ def detect_file_api(fname):
 
 def check_ui_generation(uifname):
     """ check if a py file should regenerated from a ui """
-    api = os.environ['QT_API']
+    api = os.environ[QT_API]
     pyfname = get_uifnames_from(uifname)
     if ( os.path.exists(uifname) and 
          not os.path.exists(pyfname) or
@@ -66,7 +66,7 @@ def check_ui_generation(uifname):
 
 def check_rc_generation(rcfname):
     """ check if a py file should regenerated from a ui """
-    api = os.environ['QT_API']
+    api = os.environ[QT_API]
     pyfname = get_rcfnames_from(rcfname)
     if (os.path.exists(rcfname) and 
         not os.path.exists(pyfname) or
