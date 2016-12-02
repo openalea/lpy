@@ -7,7 +7,7 @@ AnimatedProfiling, ProfilingWithFinalPlot, ProfilingWithNoPlot = range(3)
 
 
 class MyItem(QStandardItem):
-   def __init__(self,value):
+    def __init__(self,value):
         QStandardItem.__init__(self,str(value))
         self.value = value
     def __lt__(self,other):
@@ -72,7 +72,7 @@ def sort_stats(stats):
     return statdict.values()
 
 class ProfileItemModel (QStandardItemModel):
-   def __init__(self,a,b,table,lpywidget,fname):
+    def __init__(self,a,b,table,lpywidget,fname):
         QStandardItemModel.__init__(self,a, b)
         self.lpywidget = lpywidget
         self.fname = fname
