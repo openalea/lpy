@@ -36,6 +36,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
 #include <plantgl/tool/sequencer.h>
+#include "debug_tool.h"
 
 using namespace boost::python;
 TOOLS_USING_NAMESPACE
@@ -779,7 +780,6 @@ Lsystem::__step(AxialTree& workingstring,
 				bool query,
 				bool& matching,
                 eDirection direction){
-  printf("__Step\n");
   if (__context.multicoreProcessing()) { return __parallelStep(workingstring, ruleset, query, matching, direction);  }
   ContextMaintainer c(&__context);
   matching = false;
@@ -791,11 +791,10 @@ Lsystem::__step(AxialTree& workingstring,
       AxialTree::const_iterator _it = workingstring.begin();
       AxialTree::const_iterator _it3 = _it;
       AxialTree::const_iterator _endit = workingstring.end();
-      AxialTree::IteratorMap itermap;
-      printf("compute mapped brackets \n");
-      endBracket(_it, _endit, &itermap); 
-
-      printf("nb of mapped brackets : %lu\n", itermap.size());
+      AxialTree::IteratorMap * itermap = NULL;
+      AxialTree::IteratorMap _itermap;
+      if (__context.brackectMappingOptimLevel() >= 1) { itermap = &_itermap; }
+      if (__context.brackectMappingOptimLevel() == 2) { endBracket(_it, _endit, itermap); }
 
       while ( _it != _endit ) {
           if ( _it->isCut() )
@@ -806,7 +805,7 @@ Lsystem::__step(AxialTree& workingstring,
               for(RulePtrSet::const_iterator _it2 = mruleset.begin();
                   _it2 != mruleset.end(); _it2++){
 					  ArgList args;
-                      if((*_it2)->match(workingstring,_it,targetstring,_it3,args,&itermap)){
+                      if((*_it2)->match(workingstring,_it,targetstring,_it3,args,itermap)){
                           match = (*_it2)->applyTo(targetstring,args);
 						  if(match) { _it = _it3; break; }
                       }
@@ -817,7 +816,6 @@ Lsystem::__step(AxialTree& workingstring,
               else matching = true;
           }
       }
-      printf("end rewriting\n");
   }
   else {
       AxialTree::const_iterator _it = workingstring.end()-1;
@@ -825,19 +823,18 @@ Lsystem::__step(AxialTree& workingstring,
       AxialTree::const_iterator _lastit = workingstring.begin();
       AxialTree::const_iterator _beg = workingstring.begin();
       AxialTree::const_iterator _end = workingstring.end();
-      AxialTree::IteratorMap itermap; 
-      printf("compute mapped brackets \n");
-      // endBracket(_beg, _end, &itermap); 
+      AxialTree::IteratorMap * itermap = NULL;
+      AxialTree::IteratorMap _itermap;
+      if (__context.brackectMappingOptimLevel() >= 1) { itermap = &_itermap; }
+      if (__context.brackectMappingOptimLevel() == 2) { endBracket(_beg, _end, itermap); }
 
-      printf("nb of mapped brackets : %lu\n", itermap.size());
       while ( _it !=  _end) {
           bool match = false;
 		  const RulePtrSet& mruleset = ruleset[_it->getClassId()];
           for(RulePtrSet::const_iterator _it2 = mruleset.begin();
               _it2 != mruleset.end();  _it2++){
 				  ArgList args;
-                  // printf("reverse_match\n");
-                  if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args,&itermap)){
+                  if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args,itermap)){
                       match = (*_it2)->reverseApplyTo(targetstring,args);
                       if(match) { _it = _it3; break; }
                   }
@@ -1045,9 +1042,10 @@ Lsystem::__stepWithMatching(AxialTree& workingstring,
 AxialTree 
 Lsystem::__recursiveSteps(AxialTree& workingstring,
 				          const RulePtrMap& ruleset, 
-                          size_t maxdepth)
+                          size_t maxdepth, bool& matching)
 {
   ContextMaintainer c(&__context);
+  matching = false;
   if( workingstring.empty()) return workingstring;
   AxialTree::const_iterator _it = workingstring.begin();
   AxialTree::const_iterator _it3 = _it;
@@ -1066,12 +1064,14 @@ Lsystem::__recursiveSteps(AxialTree& workingstring,
 				ArgList args;
                 if((*_it2)->match(workingstring,_it,ltargetstring,_it3,args)){
                       match = (*_it2)->applyTo(ltargetstring,args);
-					  if(match) { _it = _it3; break; }
+					  if(match) { _it = _it3; matching = true; break; }
                   }
           }
           if (match){
               if(maxdepth >1) {
-                  targetstring += __recursiveSteps(ltargetstring,ruleset,maxdepth-1);
+                  bool submatch;
+                  targetstring += __recursiveSteps(ltargetstring,ruleset,maxdepth-1, submatch);
+                  if (submatch) matching = submatch;
               }
               else targetstring += ltargetstring;
           }
@@ -1416,21 +1416,24 @@ Lsystem::__derive( size_t starting_iter ,
 			  decomposition = __getRules(eDecomposition,group,ndir,&decompositionHasQuery);
 			  __newrules = false;
 		  }
-          printf("production\n" );
 		  if (!production.empty()){
 			  if(!hasDebugger())
 				  workstring = __step(workstring,production,previouslyinterpreted?false:productionHasQuery,matching,dir);
 			  else workstring = __debugStep(workstring,production,previouslyinterpreted?false:productionHasQuery,matching,dir,*__debugger);
 			  previouslyinterpreted = false;
 		  }
-          printf("decomposition\n" );
 		  if(!decomposition.empty()){
-			  bool decmatching = true;
+              bool decmatching;
+              workstring = __recursiveSteps(workstring, decomposition, __decomposition_max_depth, decmatching);
+              if (decmatching) matching = true;
+              previouslyinterpreted = false;
+
+			  /*bool decmatching = true;
 			  for(size_t i = 0; decmatching && i < __decomposition_max_depth; i++){
 				  workstring = __step(workstring,decomposition,previouslyinterpreted?false:decompositionHasQuery,decmatching,dir);
 				  previouslyinterpreted = false;
 				  if (decmatching) matching = true;
-			  }
+			  }*/
 		  }
 		  // Call endeach function
 		  if(__context.hasEndEachFunction())
@@ -1439,7 +1442,6 @@ Lsystem::__derive( size_t starting_iter ,
 		  if( (i+1) <  nb_iter && __context.isSelectionRequested()) {
 			 __plot(workstring,true);
 		  }
-        printf("end step\n");
 	  }
 	  if(starting_iter+i == __max_derivation) {
 		  // Call end function
@@ -1480,9 +1482,7 @@ Lsystem::__decompose( const AxialTree& wstring){
 
       if(!decomposition.empty()){
           bool decmatching = true;
-          for(size_t i = 0; decmatching && i < __decomposition_max_depth; i++){
-              workstring = __step(workstring,decomposition,decompositionHasQuery,decmatching,dir);
-          }
+          workstring = __recursiveSteps(workstring, decomposition, __decomposition_max_depth, decmatching);
       }
     }
   }
@@ -1602,7 +1602,8 @@ Lsystem::__homomorphism(AxialTree& wstring){
   bool homHasQuery = false;  
   RulePtrMap interpretation = __getRules(eInterpretation,__currentGroup,eForward,&homHasQuery);
   if (!interpretation.empty()){
-      workstring = __recursiveSteps(wstring,interpretation,__interpretation_max_depth);
+      bool decmatching;
+      workstring = __recursiveSteps(wstring,interpretation,__interpretation_max_depth, decmatching);
   }
   return workstring;
 }

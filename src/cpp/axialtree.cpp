@@ -55,9 +55,7 @@ AxialTree::AxialTree(const AxialTree& m):
   IncTracker(AxialTree)
   std::vector<std::pair<size_t,std::string> > parsedstring = LpyParsing::parselstring(s);
 
-  size_t newcapacity = size()+parsedstring.size();
-  if (__conststring().capacity() < newcapacity)
-  __string().reserve(newcapacity);
+  reserve(size()+parsedstring.size());
   for(std::vector<std::pair<size_t,std::string> >::const_iterator it = parsedstring.begin();
 	  it != parsedstring.end(); ++it){
 		__string().push_back(ParamModule(it->first,it->second));

@@ -73,6 +73,7 @@ public:
   std::string keyword() const;
 
   std::string str() const;
+  inline const char * c_str() const { return str().c_str(); }
 
 /*  
   void makeCurrent();

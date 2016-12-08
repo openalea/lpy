@@ -150,6 +150,7 @@ public:
 	AxialTree process( const AxialTree& src ) const;
 
 	std::string str() const ;
+    inline const char * c_str() const { return str().c_str(); }
 
 	std::string functionName() const ;
 	std::string callerFunctionName() const ;

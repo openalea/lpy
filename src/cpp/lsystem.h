@@ -71,6 +71,7 @@ public:
 
   /** print */
   std::string str() const ;
+  inline const char * c_str() const { return str().c_str(); }
   std::string code() ;
 
   /** compile */
@@ -383,7 +384,7 @@ protected:
                               StringMatching& matching);
  AxialTree __recursiveSteps(AxialTree& workingstring,
 				            const RulePtrMap& ruleset, 
-                            size_t maxdepth);
+                            size_t maxdepth, bool& matching);
 
  void __recursiveInterpretation(AxialTree& workingstring,
 				                const RulePtrMap& ruleset,

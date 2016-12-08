@@ -23,7 +23,7 @@ meta_version = version
 f = pj(os.path.dirname(__file__),'src', 'openalea', 'lpy','__version__.py')
 d = {}
 execfile(f,d,d)
-version= d['LPY_NUM_VERSION_STR']
+version= d['LPY_VERSION_STR']
 if meta_version != version:
     print 'Warning:: Update the version in metainfo.ini !!'
 print pkg_name,': version =',version

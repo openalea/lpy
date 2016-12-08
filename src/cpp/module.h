@@ -69,6 +69,7 @@ public:
   { return __mclass->issubclass(mclass) ;  }
 
   virtual std::string str() const;
+  inline const char* c_str() const { return str().c_str(); }
   virtual std::string repr() const;
   inline bool operator==(const Module& n) const { return sameName(n); }
   inline bool operator!=(const Module& other) const { return !operator==(other); }

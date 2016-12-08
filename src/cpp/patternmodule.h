@@ -50,6 +50,7 @@ class LPY_API LsysVar {
 	LsysVar(boost::python::object value);
 
 	std::string str() const;
+    inline const char * c_str() const { return str().c_str(); }
 
 	inline const std::string& name() const { return __name; }
 	inline void setName(const std::string& n) { __name = n; }

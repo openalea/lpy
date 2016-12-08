@@ -43,7 +43,7 @@ LPY_BEGIN_NAMESPACE
 #define IterMap(Iterator) pgl_hash_map<size_t, Iterator>
 
 template<class Iterator>
-size_t iter_to_hashable(Iterator iter, Iterator string_end) { return std::distance(iter, string_end); }
+size_t iter_to_hashable(Iterator iter, Iterator string_end) { return (size_t)&(*iter); /*std::distance(iter, string_end);*/ }
 
 template<class Iterator>
 Iterator endBracket(Iterator pos, Iterator string_end, bool startingBeforePos = false)
@@ -86,21 +86,36 @@ Iterator endBracket(Iterator pos, Iterator string_end, IteratorMap * itermap = N
 
   if(pos == string_end) return pos;
   int bracket= 0;
+  Iterator beg = pos;
   std::stack<Iterator> iterstack;
-  if (pos->isLeftBracket()) iterstack.push(pos);
-  if (!startingBeforePos && pos->isLeftBracket()) ++pos;
+  if (!startingBeforePos && pos->isLeftBracket()) {    
+        typename IteratorMap::const_iterator mappedend = itermap->find(iter_to_hashable(pos, string_end));
+        if (mappedend != itermap->end()) {
+            Iterator lpos = pos;
+            if(mappedend->second == string_end) { pos = mappedend->second; }
+            else { pos = mappedend->second+1; }
+            printf("use map %lu\n", std::distance(lpos, pos));
+            return pos;
+        }
+        else {
+            iterstack.push(pos);
+            ++pos;
+        }
+  }
   while(pos != string_end && (bracket>0 || !pos->isRightBracket())){
+    // printf("%i %i \n", -int(iter_to_hashable(pos, string_end)), bracket);
     if(pos->isLeftBracket()) {
         typename IteratorMap::const_iterator mappedend = itermap->find(iter_to_hashable(pos, string_end));
         if (mappedend != itermap->end()) {
-            printf("use map\n");
+            Iterator lpos = pos;
             if(mappedend->second == string_end) { pos = mappedend->second; }
             else { pos = mappedend->second+1; }
+            printf("use map %lu\n", std::distance(lpos, pos));
         }
         else {
-            printf("push\n");
             iterstack.push(pos);
             ++bracket;
+            // printf("push %i %i\n", -int(iter_to_hashable(pos, string_end)), bracket);
             ++pos;
         }
     }
@@ -108,7 +123,7 @@ Iterator endBracket(Iterator pos, Iterator string_end, IteratorMap * itermap = N
         assert(bracket > 0);
         bracket--;
         Iterator mappedbegin = iterstack.top(); iterstack.pop();
-        printf("pop %i %i\n", -int(iter_to_hashable(mappedbegin, string_end)), -int(iter_to_hashable(pos, string_end)));
+        // printf("pop %i %i %i\n", -int(iter_to_hashable(mappedbegin, string_end)), -int(iter_to_hashable(pos, string_end)), bracket);
         (*itermap)[iter_to_hashable(mappedbegin, string_end)] = pos;
         (*itermap)[iter_to_hashable(pos, string_end)] = mappedbegin;
         ++pos; 
@@ -116,15 +131,15 @@ Iterator endBracket(Iterator pos, Iterator string_end, IteratorMap * itermap = N
     else  { ++pos; }
   }
   if (iterstack.size() > 0) {
-    printf("final pop\n");
+    // printf("final pop\n");
     assert (iterstack.size() == 1);
     Iterator mappedbegin = iterstack.top(); iterstack.pop();
     (*itermap)[iter_to_hashable(mappedbegin, string_end)] = pos;
     (*itermap)[iter_to_hashable(pos, string_end)] = mappedbegin;
-    printf("final pop done : %i %i\n", -int(iter_to_hashable(mappedbegin, string_end)), -int(iter_to_hashable(pos, string_end)));
-    for(Iterator it = mappedbegin; it != pos; ++it) printf("%s",it->str().c_str());
-    printf("\n");
+    // printf("final pop done : %i %i\n", -int(iter_to_hashable(mappedbegin, string_end)), -int(iter_to_hashable(pos, string_end)));
   }
+  // for(Iterator it = beg; it != string_end; ++it) printf("%s",it->str().c_str());
+  // printf("\n");
   return pos; 
 }
 
@@ -139,11 +154,12 @@ Iterator beginBracket(Iterator pos, Iterator string_begin, Iterator string_end, 
 
   int bracket= 0;
   std::stack<Iterator> iterstack;
-  if (pos != string_end && pos->isRightBracket())
-    iterstack.push(pos);
 
   if(pos == string_end)--pos;
-  else if(!startingAfterPos && pos->isRightBracket())--pos;
+  else if(!startingAfterPos && pos->isRightBracket()) {
+    iterstack.push(pos);
+    --pos;
+  }
 
   while(pos != string_begin && (bracket>0 || !pos->isLeftBracket())){
     if(pos->isRightBracket()) {

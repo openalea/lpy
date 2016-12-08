@@ -76,6 +76,7 @@ public:
 
   /** string representation */
   std::string str() const ;
+  inline const char * c_str() const { return str().c_str(); }
 
   /** The Start, End, StartEach, EndEach and PostDraw execution */
   boost::python::object start();
@@ -263,6 +264,9 @@ public:
   inline bool multicoreProcessing() const { return __multicore; }
   void setMulticoreProcessing(bool enabled) { __multicore = enabled; }
 
+  inline int brackectMappingOptimLevel() const { return __bracketmapping_optim_level; }
+  void setBracketMappingOptimLevel(int level) { __bracketmapping_optim_level = level; } 
+
   /** Turtles and interpretation structures */
   PGL(PglTurtle) turtle;
   PGL(Turtle)    envturtle;
@@ -406,6 +410,8 @@ protected:
   QReadWriteLock __early_return_mutex;
 
   bool __multicore;
+
+  int __bracketmapping_optim_level;
 };
 
 /*---------------------------------------------------------------------------*/

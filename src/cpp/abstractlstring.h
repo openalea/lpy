@@ -32,6 +32,7 @@
 #define __lpy_abstractlstring_h__
 
 #include <vector>
+#include <deque>
 #include <functional>
 #include "axialtree_manip.h"
 #include <QtCore/QSharedData>
@@ -52,7 +53,8 @@ public:
   typedef Module ModuleType;
 
   /// The type of the module container
-  typedef std::vector<element_type> ModuleList;
+  // typedef std::vector<element_type> ModuleList;
+  typedef std::deque<element_type> ModuleList;
 
   /// An iterator used to iterate through an AxialTree.
   typedef typename ModuleList::iterator iterator;
@@ -317,7 +319,10 @@ public:
 
   inline bool empty() const { return __conststring().empty(); }
   inline size_t size() const { return __conststring().size(); }
-  inline void reserve(size_t s) { return __string().reserve(s); }
+
+  inline size_t capacity() { return size(); /*__conststring().capacity();*/ }
+  inline void reserve(size_t s) { /*__string().reserve(s);*/ }
+  
   inline void clear() { resetString(); }
 
   template<class Equal /*= std::equal_to<Module>*/ >

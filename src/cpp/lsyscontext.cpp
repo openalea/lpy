@@ -223,7 +223,8 @@ __nbargs_of_start(0),
 __early_return(false),
 __early_return_mutex(),
 __paramproductions(),
-__multicore(false)
+__multicore(false),
+__bracketmapping_optim_level(0)
 {
     registerLstringMatcher();
 	IncTracker(LsysContext)
@@ -250,7 +251,8 @@ LsysContext::LsysContext(const LsysContext& lsys):
   __early_return(false),
   __early_return_mutex(),
   __paramproductions(),
-  __multicore(false)
+  __multicore(false),
+  __bracketmapping_optim_level(0)
 {
     // __nproduction.setLocalData(new AxialTree(*lsys.__nproduction.localData()));
 	IncTracker(LsysContext)
@@ -277,7 +279,8 @@ __early_return(false),
 __early_return_mutex(),
 __paramproductions(),
 __locals(locals),
-__multicore(false)
+__multicore(false),
+__bracketmapping_optim_level(0)
 {
 	IncTracker(LsysContext)
 	init_options();
@@ -303,6 +306,7 @@ LsysContext::operator=(const LsysContext& lsys)
   __nbargs_of_start =lsys.__nbargs_of_start;
   __early_return = false;
   __paramproductions = lsys.__paramproductions;
+  __bracketmapping_optim_level = lsys.__bracketmapping_optim_level;
   return *this;
 }
 
@@ -408,6 +412,12 @@ void LsysContext::init_options()
     option->addValue("Enabled",this,&LsysContext::setMulticoreProcessing,true,"Enable multicore rewriting.");
     option->setDefault(0);
 #endif
+
+    option = options.add("Bracket mapping optimization","Specify the level of optimization of mapping brackets for lstring traversal.","Processing");
+    option->addValue("Disabled",this,&LsysContext::setBracketMappingOptimLevel,0,"Disable brackets mapping optimization.");
+    option->addValue("On the fly",this,&LsysContext::setBracketMappingOptimLevel,1,"Enable brackets mapping on the fly.");
+    option->addValue("As preprocessing",this,&LsysContext::setBracketMappingOptimLevel,2,"Compute brackets mapping as preprocessing of each step.");
+    option->setDefault(0);
 
 	/** selection required option */
 	option = options.add("Selection Always Required","Set whether selection check in GUI is required or not. Selection is then transform in X module in the Lstring.","Interaction");

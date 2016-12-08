@@ -49,7 +49,7 @@ PatternString::~PatternString() { DecTracker(PatternString) }
 PatternString::PatternString(const std::string& s, int lineno) : BaseType() {
   IncTracker(PatternString)
   std::vector<std::pair<size_t,std::string> > parsedstring = LpyParsing::parselstring(s,lineno);
-  __string().reserve(parsedstring.size());
+  reserve(parsedstring.size());
   for(std::vector<std::pair<size_t,std::string> >::const_iterator it = parsedstring.begin();
 	  it != parsedstring.end(); ++it){
 		append(PatternModule(it->first,it->second,lineno));

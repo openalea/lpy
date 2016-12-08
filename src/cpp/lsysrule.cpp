@@ -496,7 +496,7 @@ LsysRule::match(const AxialTree& src,
   QMutexLocker m(mutex);    
 #endif
   
-  args.reserve(__nbParams);
+  // args.reserve(__nbParams);
   ArgList args_pred;
   AxialTree::const_iterator endpos1;
   AxialTree::const_iterator last_match = pos;

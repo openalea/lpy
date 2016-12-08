@@ -46,4 +46,12 @@ NodeModule::NodeModule(AxialTree::const_iterator pos,
 
 NodeModule::~NodeModule() { }
 
+
+NodeModule::NodeModule() : ParamModule() { }
+
+NodeModule::NodeModule(AxialTree::const_iterator beg, 
+             AxialTree::const_iterator end):
+    ParamModule(*beg), __pos(beg), __beg(beg),__end(end), __filter()
+{
+}
 /*---------------------------------------------------------------------------*/

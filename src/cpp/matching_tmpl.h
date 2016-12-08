@@ -66,7 +66,8 @@ bool process_get_module(PIterator pattern,
 						Iterator it, 
 						Iterator string_beg, 
 						Iterator string_end, 
-						argtype& params)
+						argtype& params,
+                        const ConsiderFilterPtr& filter)
 {
 	argtype lp;
 	// get arg 1. It is supposed to be a module class that we look for
@@ -81,7 +82,7 @@ bool process_get_module(PIterator pattern,
 	else { */
 	if(MatchingEngine::compatible_classes(it->getClass(),lpattern))
 			// append a copy of the module
-			ArgsCollector::append_arg(params,bp::object(NodeModule(it,string_beg,string_end)));
+			ArgsCollector::append_arg(params,bp::object(NodeModule(it,string_beg,string_end, filter)));
 		else return false;
 	/* }*/
 	return true;
@@ -349,7 +350,7 @@ struct StringMatcher
 			// printf("string[%i]='%s' matched with exp[%i]='%s'\n", distance(string_beg,it), it->str().c_str() , distance(pattern_begin,it2), it2->str().c_str() );
 			argtype lmp;
 			if( it == string_end) return false;
-			if(it2->isGetModule()){ if(!process_get_module(it2,it,string_beg,string_end,lp)) return false; }
+			if(it2->isGetModule()){ if(!process_get_module(it2,it,string_beg,string_end,lp, filter)) return false; }
 			else if( it2->isRE() ) { if(!RegExpMatcher<MType>::match(it,string_beg,string_end,it2,pit,it,filter,lp,iteratormap))return false; }
 			else { 
 				if( !MatchingEngine::module_match(*it,*it2,lmp)) return false;
@@ -400,7 +401,7 @@ struct StringReverseMatcher
 			}
 			else {
 				argtype lmp; 
-				if(it2->isGetModule()){ if(!process_get_module(it2,it,string_begin,string_end,lmp)) return false;  }
+				if(it2->isGetModule()){ if(!process_get_module(it2,it,string_begin,string_end,lmp, filter)) return false;  }
 				else if(!MatchingEngine::module_match(*it,*it2,lmp)) return false; 
 				ArgsCollector::prepend_args(lp,lmp);
 				++it2;
@@ -485,7 +486,7 @@ struct TreeLeftMatcher
 				if (it == string_end) return false;
 
 				argtype lmp; 
-				if(it2->isGetModule()){ if(!process_get_module(it2,it,string_begin,string_end,lmp)) return false;  }
+				if(it2->isGetModule()){ if(!process_get_module(it2,it,string_begin,string_end,lmp, filter)) return false;  }
 				else if(!MatchingEngine::module_match(*it,*it2,lmp)) return false; 
 				ArgsCollector::prepend_args(lp,lmp);
 				++it2;
@@ -588,6 +589,7 @@ struct TreeRightMatcher
             it = NextElement::initial_next(it,it2,_last_matched,string_end, filter,iteratormap);	
         }		
         
+        std::stack<Iterator> bracketstack;
 		bool nextpattern = true;
 		bool nextsrc = true;
 		while(it != string_end && it2 != pattern_end){
@@ -612,7 +614,7 @@ struct TreeRightMatcher
 			}
 			else if(it2->isGetModule()){
 				/// We should take into account when scale is asked
-				if(!process_get_module(it2,it,string_beg,string_end,lparams))
+				if(!process_get_module(it2,it,string_beg,string_end,lparams, filter))
 					return false;
 			}
 			else if(it2->isRE()) {
@@ -642,15 +644,28 @@ struct TreeRightMatcher
 				/// We should take into account when scale is asked
 				if(it2->isRightBracket()){
 					if(!it->isRightBracket()) {
-						if(it2->isExactRightBracket())return false;
-						else {
-							// search start before it to avoid matching A[B]C with A[B[]C]C
-							it = endBracket(it,string_end,iteratormap, true);
+						if(it2->isExactRightBracket()) return false;
+						else {                            
+                            bool found = false;
+                            Iterator begbracket = bracketstack.top(); bracketstack.pop();
+                            if (iteratormap) {
+                                typename IteratorMap::const_iterator res = iteratormap->find(iter_to_hashable(begbracket,string_end));
+                                if (res != iteratormap->end()) {
+                                    // printf("> use map %lu\n", std::distance(it, res->second));
+                                    it = res->second;
+                                    found = true;
+                                }
+                            }
+
+                            if (!found)
+							    // search start before it to avoid matching A[B]C with A[B[]C]C
+							    it = endBracket(it,string_end,iteratormap, true);
 						}
 					}
 				}
 				else { // it2->isLeftBracket()
 					if(!it->isLeftBracket())return false;
+                    bracketstack.push(it);
 				}
 			}
 			if (nextpattern) ++it2;

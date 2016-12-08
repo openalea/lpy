@@ -22,4 +22,4 @@ def version_string(version, gitrev = ''):
 LPY_VERSION_MAJOR = get_major(__version_number__)
 LPY_VERSION_MINOR = get_minor(__version_number__)
 LPY_VERSION_REV   = get_revision(__version_number__)
-LPY_VERSION_STR = version_string(__version_number__, __revision_str__)
+LPY_VERSION_STR   = version_string(__version_number__, __revision_str__)

@@ -64,6 +64,7 @@ public:
 	std::string repr() const;
 
     inline std::string str() const { return str_slice(const_begin(),const_end()); }
+    inline const char * c_str() const { return str().c_str(); }
 	inline std::string str_slice(int beg, int end) const
 	{ const_iterator begit, endit; getValidIterators(beg,end,begit,endit); return str_slice(begit,endit); }
 
