@@ -898,9 +898,11 @@ bool MatchingImplementation::string_left_match(AxialTree::const_iterator matchin
                                    const ConsiderFilterPtr filter,
 								   ArgList& params, AxialTree::IteratorMap* itermap)
 { 
-	matching_start = StringPrevious<AxialTree::const_iterator,PatternString::const_reverse_iterator, AxialTree::IteratorMap>::next(matching_start,pattern_rbegin,string_begin, string_end,filter);
-	return StringReverseMatcher<>::
+	matching_start = StringPrevious<AxialTree::const_iterator,PatternString::const_reverse_iterator, AxialTree::IteratorMap>::next(matching_start, pattern_rbegin, string_begin, string_end, filter);
+	bool res = StringReverseMatcher<>::
 		match(matching_start, string_begin, string_end, pattern_rbegin, pattern_rend, matching_end, filter, params);
+    if (res) matching_end = StringNext<AxialTree::const_iterator,PatternString::const_reverse_iterator, AxialTree::IteratorMap>::next(matching_end, pattern_rbegin, string_end, filter);
+    return res;
 }
 
 bool MatchingImplementation::tree_right_match(AxialTree::const_iterator  matching_start,

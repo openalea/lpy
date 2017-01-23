@@ -80,10 +80,11 @@ bool process_get_module(PIterator pattern,
 		else return false;
 	}
 	else { */
-	if(MatchingEngine::compatible_classes(it->getClass(),lpattern))
-			// append a copy of the module
-			ArgsCollector::append_arg(params,bp::object(NodeModule(it,string_beg,string_end, filter)));
-		else return false;
+	if(MatchingEngine::compatible_classes(it->getClass(),lpattern)) {
+		// append a copy of the module
+		ArgsCollector::append_arg(params,bp::object(NodeModule(it,string_beg,string_end, filter)));
+    }
+	else return false;
 	/* }*/
 	return true;
 }
@@ -222,15 +223,19 @@ public:
 				if((ok = Matcher::match(it,string_beg,string_end,lpattern.begin(),lpattern.end(),last_matched,it,filter,lp, iteratormap)))
 				{  llp.push_back(lp); last_matched = it; ++it; ++numiter; }
 			}
-			if (numiter < miniter) return false;
-			--it;
-			if(numiter == 0){
+			if (numiter < miniter) {
+                return false;
+            }
+            // if (it != string_beg) --it;
+            if(numiter > 0){
+                ArgsCollector::append_args(lparams,ArgsCollector::fusion_args(llp)); 
+            }
+			else {
 				size_t nbvar = lpattern.getVarNb();
 				for(size_t i = 0; i < nbvar; ++i){
 					ArgsCollector::append_arg(lparams,bp::list());
 				}
 			}
-			else { ArgsCollector::append_args(lparams,ArgsCollector::fusion_args(llp)); }
 		}
 		else if(it2->isOr()){
  			int matched = -1;			
@@ -296,7 +301,7 @@ public:
 			argtype lp;
 			std::vector<size_t> nbargs;
 			for(int ip = 0;ip < it2->argSize(); ++ip){
-				const PatternString& lpattern = bp::extract<const PatternString&>(it2->getAt(ip).getPyValue())();
+				PatternString lpattern = bp::extract<PatternString>(it2->getAt(ip).getPyValue())();
 				nbargs.push_back(lpattern.getVarNb());
 				if(matched == -1) { 
 					if(Matcher::match(it,string_begin,string_end,lpattern.rbegin(),lpattern.rend(),it,filter,lp,iteratormap))  {
@@ -391,9 +396,29 @@ struct StringReverseMatcher
 		/* matching_start is supposed to be on the first element to test.
 		   matching_end will be on the first not matched element */
 		Iterator it = matching_start;
-		if(it == string_end) return false;
-		PIterator it2 = pattern_rbegin;
-		argtype lp;
+        PIterator it2 = pattern_rbegin;
+        argtype lp;
+
+        if (it == string_end) {
+            // We test here if we can match nothing with 'None' or some regexp
+            size_t d = distance( pattern_rbegin, pattern_rend);
+            if (d == 0) return true;
+            argtype lp;
+            while (it2 != pattern_rend && it2->isNone()) ++it2;
+            while (it2 != pattern_rend && it2->isRE()){
+                argtype lmp;
+                if(!RegExpMatcher<MType>::reverse_match(it,string_begin,string_end,it2,it,filter,lmp,iteratormap)) 
+                    return false; 
+                ArgsCollector::prepend_args(lp,lmp);
+                ++it2;
+                while (it2 != pattern_rend && it2->isNone()) ++it2;
+            }
+            if (it2 != pattern_rend) return false;
+
+            params = lp;
+            return true;
+        }
+
 		for (PIterator it2 = pattern_rbegin; it2 != pattern_rend; ){
 			if( it2->isRE() ) { 
 				if(!RegExpMatcher<MType>::reverse_match(it,string_begin,string_end,it2,it,filter,lp,iteratormap))return false; 
@@ -454,18 +479,18 @@ struct TreeLeftMatcher
 			// We test here if we can match nothing with 'None' or some regexp
 			size_t d = distance( pattern_rbegin, pattern_rend);
 			if (d == 0) return true;
-			if (d == 1 && pattern_rbegin->isNone()) {
-                return true;
-            }
 			argtype lp;
-			while (it2->isRE()){
+            while (it2 != pattern_rend && it2->isNone()) ++it2;
+			while (it2 != pattern_rend && it2->isRE()){
 				argtype lmp;
 				if(!RegExpMatcher<MType>::reverse_match(it,string_begin,string_end,it2,it,filter,lmp,iteratormap)) 
 					return false; 
 				ArgsCollector::prepend_args(lp,lmp);
 				++it2;
+                while (it2 != pattern_rend && it2->isNone()) ++it2;
 			}
 			if (it2 != pattern_rend) return false;
+
 			params = lp;
 			return true;
 		}
@@ -550,16 +575,16 @@ struct TreeRightMatcher
     typedef _NextElement<Iterator, PIterator, IteratorMap> NextElement;
 	typedef TreeRightMatcher<_NextElement,Iterator,PIterator,IteratorMap,argtype> MType;
 
-	static bool match(Iterator matching_start, Iterator  string_beg, Iterator  string_end,
+	static bool match(Iterator matching_start, 
+                      Iterator  string_beg, Iterator  string_end,
 					  PIterator pattern_begin, PIterator  pattern_end, 
 					  Iterator& last_matched, Iterator& matching_end, 
-                      const ConsiderFilterPtr& filter, argtype& params, IteratorMap* iteratormap = NULL)
+                      const ConsiderFilterPtr& filter, argtype& params, 
+                      IteratorMap* iteratormap = NULL)
 	{
-		//if (matching_start != string_end ) printf("start right  match [%i] : %s\n", distance(string_beg,matching_start), matching_start->str().c_str() );
-        // else printf("start right  match [%i] \n", distance(string_beg,matching_start) );
 		Iterator it = matching_start;
 		PIterator it2 = pattern_begin;
-        Iterator& _last_matched = last_matched;
+        Iterator _last_matched = last_matched;
 		// In case of no right context in the string
 		if (it == string_end) {
 			// We test here if we can match nothing with 'None' or some regexp
@@ -567,7 +592,7 @@ struct TreeRightMatcher
 			if (d == 0) return true;
 			if (d == 1 && pattern_begin->isNone()) return true;
 			argtype lp;
-			while (it2->isRE()){
+			while (it2 != pattern_end && it2->isRE()){
 				argtype lmp;
 				if(!RegExpMatcher<MType>::match(string_end,string_beg,string_end,it2,_last_matched,it,filter,lmp,iteratormap)) 
 					return false; 
@@ -586,14 +611,13 @@ struct TreeRightMatcher
             it = NextElement::next(it,it2,string_end, filter,iteratormap);
         }
 		else { 
-            it = NextElement::initial_next(it,it2,_last_matched,string_end, filter,iteratormap);	
+            it = NextElement::initial_next(it, it2, _last_matched, string_end, filter, iteratormap);
         }		
         
         std::stack<Iterator> bracketstack;
 		bool nextpattern = true;
 		bool nextsrc = true;
 		while(it != string_end && it2 != pattern_end){
-            // printf("look at string [%i]: '%s' and expression [%i] : '%s'\n",distance(string_beg,it),(it != string_beg-1?it->name().c_str():""), distance(pattern_begin,it2),it2->name().c_str());
 			nextpattern = true;
 			nextsrc = true;
 			if(it2->isStar()){
@@ -619,8 +643,10 @@ struct TreeRightMatcher
 			}
 			else if(it2->isRE()) {
 				// We do not ask for next elem, it will be made after.
+                Iterator it1 = it;
 				if(!RegExpMatcher<MType>::match(it,string_beg,string_end,it2,_last_matched,it,filter,lparams,iteratormap)) 
 					return false;
+                nextsrc = false;
 			}
 			else if(!it2->isBracket()){ // matching a pattern module
 				/// We should take into account when scale is asked
@@ -672,7 +698,7 @@ struct TreeRightMatcher
 			if (nextsrc) { 
 				_last_matched = it;
                 if(it != string_end && it2 != pattern_end)
-    				it = NextElement::next(it,it2,string_end, filter, iteratormap);				
+    				it = NextElement::next(it, it2, string_end, filter, iteratormap);				
 			}
 		}
 		if(it2 != pattern_end && it2->isGetIterator()){

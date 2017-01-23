@@ -35,7 +35,7 @@ LPY_USING_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
-NodeModule::NodeModule(AxialTree::const_iterator pos, 
+LPY(NodeModule::NodeModule)(AxialTree::const_iterator pos, 
 			 AxialTree::const_iterator beg, 
 			 AxialTree::const_iterator end,
              const ConsiderFilterPtr filter):
@@ -43,10 +43,17 @@ NodeModule::NodeModule(AxialTree::const_iterator pos,
 {
 }
 
+NodeModule NodeModule::generate(AxialTree::const_iterator pos, 
+             AxialTree::const_iterator beg, 
+             AxialTree::const_iterator end,
+             const ConsiderFilterPtr filter)
+{
+    return NodeModule(pos, beg, end, filter);
+}
 
 NodeModule::~NodeModule() { }
 
-
+/*
 NodeModule::NodeModule() : ParamModule() { }
 
 NodeModule::NodeModule(AxialTree::const_iterator beg, 
@@ -54,4 +61,5 @@ NodeModule::NodeModule(AxialTree::const_iterator beg,
     ParamModule(*beg), __pos(beg), __beg(beg),__end(end), __filter()
 {
 }
+*/
 /*---------------------------------------------------------------------------*/

@@ -29,3 +29,12 @@ SConscript( pj(prefix,"src/wrapper/SConscript"),
             exports={"env":env} )
 
 Default("build")
+
+standartprefix = 'build-scons'
+if prefix != standartprefix:
+    if os.path.exists(standartprefix):
+        if os.path.isdir(standartprefix) and not os.path.islink(standartprefix): 
+            import shutil
+            shutil.rmtree(standartprefix)
+        else: os.remove(standartprefix)
+    os.symlink(prefix, standartprefix)

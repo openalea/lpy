@@ -50,6 +50,9 @@ class LPY_API AxialTree  : public AbstractLString<ParamModule>  {
 public:
   typedef AbstractLString<ParamModule> BaseType;
 
+  typedef BaseType::iterator iterator;
+  typedef BaseType::const_iterator const_iterator;
+
   AxialTree();
   AxialTree(const AxialTree&);
   AxialTree(const std::string&);
