@@ -1,30 +1,21 @@
 from openalea.vpltk.qt import qt
 from scalar import *
-try:
-    import openalea.lpy.gui.py2exe_release
-    py2exe_release = True
-except:
-    py2exe_release = False
-
+import generate_ui
 import sys
-    
-# Generate GUI if necessary
-if not py2exe_release:
-    import os
-    import compile_ui as ui
-    ldir    = os.path.dirname(__file__)
-    ui.check_ui_generation(os.path.join(ldir, 'scalarmetaedit.ui'))
-    ui.check_ui_generation(os.path.join(ldir, 'scalarfloatmetaedit.ui'))
-    del ldir
 
 import scalarmetaedit as sme
 
-class ScalarDialog(qt.QtGui.QDialog,sme.Ui_ScalarDialog):
+from openalea.vpltk.qt.QtCore import QDataStream, QIODevice, QObject, Qt, pyqtSignal
+from openalea.vpltk.qt.QtGui import QBrush, QColor, QStandardItem, QStandardItemModel
+from openalea.vpltk.qt.QtWidgets import QDialog, QDoubleSpinBox, QHBoxLayout, QItemDelegate, QLabel, QMenu, QPushButton, QSlider, QSpinBox, QTreeView, QWidget
+
+
+class ScalarDialog(QDialog,sme.Ui_ScalarDialog):
     def __init__(self,*args):
-        qt.QtGui.QDialog.__init__(self,*args)
+        QDialog.__init__(self,*args)
         self.setupUi(self)
-        qt.QtCore.QObject.connect(self.minValueEdit,qt.QtCore.SIGNAL('valueChanged(int)'),self.updateRange)
-        qt.QtCore.QObject.connect(self.maxValueEdit,qt.QtCore.SIGNAL('valueChanged(int)'),self.updateRange)
+        self.minValueEdit.valueChanged.connect(self.updateRange) # QObject.connect(self.minValueEdit,SIGNAL('valueChanged(int)'),self.updateRange)
+        self.maxValueEdit.valueChanged.connect(self.updateRange) # QObject.connect(self.maxValueEdit,SIGNAL('valueChanged(int)'),self.updateRange)
     def setScalar(self,value):
         self.nameEdit.setText(value.name)
         self.valueEdit.setValue(value.value)
@@ -42,13 +33,13 @@ class ScalarDialog(qt.QtGui.QDialog,sme.Ui_ScalarDialog):
 
 import scalarfloatmetaedit as sfme
 
-class FloatScalarDialog(qt.QtGui.QDialog,sfme.Ui_FloatScalarDialog):
+class FloatScalarDialog(QDialog,sfme.Ui_FloatScalarDialog):
     def __init__(self,*args):
-        qt.QtGui.QDialog.__init__(self,*args)
+        QDialog.__init__(self,*args)
         self.setupUi(self)
-        qt.QtCore.QObject.connect(self.minValueEdit,qt.QtCore.SIGNAL('valueChanged(double)'),self.updateRange)
-        qt.QtCore.QObject.connect(self.maxValueEdit,qt.QtCore.SIGNAL('valueChanged(double)'),self.updateRange)
-        qt.QtCore.QObject.connect(self.decimalEdit,qt.QtCore.SIGNAL('valueChanged(int)'),self.updateDecimal)
+        self.minValueEdit.valueChanged.connect(self.updateRange) # QObject.connect(self.minValueEdit,SIGNAL('valueChanged(double)'),self.updateRange)
+        self.maxValueEdit.valueChanged.connect(self.updateRange) # QObject.connect(self.maxValueEdit,SIGNAL('valueChanged(double)'),self.updateRange)
+        self.decimalEdit.valueChanged.connect(self.updateDecimal) # QObject.connect(self.decimalEdit,SIGNAL('valueChanged(int)'),self.updateDecimal)
     def setScalar(self,value):
         self.nameEdit.setText(value.name)
         self.valueEdit.setValue(value.value)
@@ -69,30 +60,33 @@ class FloatScalarDialog(qt.QtGui.QDialog,sfme.Ui_FloatScalarDialog):
         self.maxValueEdit.setDecimals(value)
 
 if True : #not sys.platform == 'darwin':        
-    class ItemSlider(qt.QtGui.QWidget):
+    class ItemSlider(QWidget):
+        
+        valueChanged = pyqtSignal('PyQt_PyObject') 
+
         def __init__(self,orientation,parent,item):
-            qt.QtGui.QWidget.__init__(self,parent)
-            self.setFocusPolicy(qt.QtCore.Qt.StrongFocus)            
+            QWidget.__init__(self,parent)
+            self.setFocusPolicy(Qt.StrongFocus)            
             self.setMinimumHeight(20) 
-            horizontalLayout = qt.QtGui.QHBoxLayout(self)
+            horizontalLayout = QHBoxLayout(self)
             horizontalLayout.setContentsMargins(0, 0, 0, 0)
-            self.label = qt.QtGui.QLabel(self)
+            self.label = QLabel(self)
             horizontalLayout.addWidget(self.label)
-            self.slider = qt.QtGui.QSlider(orientation,self)
+            self.slider = QSlider(orientation,self)
             horizontalLayout.addWidget(self.slider)
             self.item = item
             scalar = item.scalar
             self.isfloat = scalar.isFloat()
             if item.scalar.isFloat():
-                self.spinBox = qt.QtGui.QDoubleSpinBox(self)
+                self.spinBox = QDoubleSpinBox(self)
                 self.spinBox.setSingleStep(0.1**scalar.decimals)
             else:
-                self.spinBox = qt.QtGui.QSpinBox(self)
+                self.spinBox = QSpinBox(self)
             self.spinBox.setMinimumHeight(20)                
             horizontalLayout.addWidget(self.spinBox)
             self.spinBox.hide()
             #self.slider.hide()
-            self.chgButton = qt.QtGui.QPushButton('O',self)
+            self.chgButton = QPushButton('O',self)
             self.chgButton.setMaximumWidth(15)
             self.chgButton.setMinimumWidth(15)
             horizontalLayout.addWidget(self.chgButton)
@@ -102,12 +96,12 @@ if True : #not sys.platform == 'darwin':
             self.locked = False
 
             if self.isfloat:
-                qt.QtCore.QObject.connect(self.slider,qt.QtCore.SIGNAL('valueChanged(int)'),self.updateInt2FloatItem)
-                qt.QtCore.QObject.connect(self.spinBox,qt.QtCore.SIGNAL('valueChanged(double)'),self.updateItem)
+                self.slider.valueChanged.connect(self.updateInt2FloatItem) # QObject.connect(self.slider,SIGNAL('valueChanged(int)'),self.updateInt2FloatItem)
+                self.spinBox.valueChanged.connect(self.updateItem) # QObject.connect(self.spinBox,SIGNAL('valueChanged(double)'),self.updateItem)
             else:
-                qt.QtCore.QObject.connect(self.slider,qt.QtCore.SIGNAL('valueChanged(int)'),self.updateItem)
-                qt.QtCore.QObject.connect(self.spinBox,qt.QtCore.SIGNAL('valueChanged(int)'),self.updateItem)
-            qt.QtCore.QObject.connect(self.chgButton,qt.QtCore.SIGNAL('pressed()'),self.changeEditor)
+                self.slider.valueChanged.connect(self.updateItem) # QObject.connect(self.slider,SIGNAL('valueChanged(int)'),self.updateItem)
+                self.spinBox.valueChanged.connect(self.updateItem) # QObject.connect(self.spinBox,SIGNAL('valueChanged(int)'),self.updateItem)
+            self.chgButton.pressed.connect(self.changeEditor) # QObject.connect(self.chgButton,SIGNAL('pressed()'),self.changeEditor)
 
         def updateInt2FloatItem(self,value):
             a = 10.**self.item.scalar.decimals
@@ -120,7 +114,7 @@ if True : #not sys.platform == 'darwin':
                 self.setValue(value)
                 self.item.setText(str(value))
                 self.label.setMinimumWidth(self.labelwidth)
-                self.emit(qt.QtCore.SIGNAL('valueChanged(PyQt_PyObject)'),self.item.scalar)
+                self.valueChanged.emit(self.item.scalar) # self.emit(SIGNAL('valueChanged(PyQt_PyObject)'),self.item.scalar) # AUTO SIGNAL TRANSLATION
                 self.locked = False
             
         def setRange(self,minv,maxv):
@@ -158,34 +152,39 @@ if True : #not sys.platform == 'darwin':
                 self.spinBox.hide()
 
 else:
-    class ItemSlider(qt.QtGui.QSpinBox):
+    class ItemSlider(QSpinBox):
+        
+        valueChanged = pyqtSignal('PyQt_PyObject') 
+
         def __init__(self,orientation, parent, item):
-            qt.QtGui.QSpinBox.__init__(self, parent)
+            QSpinBox.__init__(self, parent)
             self.item = item
             scalar = item.scalar
             self.setRange(scalar.minvalue,scalar.maxvalue)
             self.setValue(scalar.value)
-            qt.QtCore.QObject.connect(self,qt.QtCore.SIGNAL('valueChanged(int)'),self.updateItem)
+            self.valueChanged.connect(self.updateItem) # QObject.connect(self,SIGNAL('valueChanged(int)'),self.updateItem)
+
         def updateItem(self,value):
             self.item.scalar.value = value
             self.item.setText(str(value))
-            self.emit(qt.QtCore.SIGNAL('valueChanged(PyQt_PyObject)'),self.item.scalar)
+            self.valueChanged.emit(self.item.scalar) # self.emit(SIGNAL('valueChanged(PyQt_PyObject)'),self.item.scalar) # AUTO SIGNAL TRANSLATION
 
-class ScalarEditorDelegate(qt.QtGui.QItemDelegate):
+
+class ScalarEditorDelegate(QItemDelegate):
     """ 
     Tool class used in LsysWindow scalar editor 
     It allows to choose a float value from a slider in a QTable
     """
     def __init__(self,maineditor):
-        qt.QtGui.QItemDelegate.__init__(self)
+        QItemDelegate.__init__(self)
         self.maineditor = maineditor
 
     def createEditor(self, parent, option, index):
         """ Create the editor """
         item = index.model().itemFromIndex(index)
         if not item.scalar.isBool():
-            editor = ItemSlider(qt.QtCore.Qt.Horizontal,parent,item)
-            qt.QtCore.QObject.connect(editor,qt.QtCore.SIGNAL('valueChanged(PyQt_PyObject)'),self.maineditor.internalValueChanged)
+            editor = ItemSlider(Qt.Horizontal,parent,item)
+            editor.valueChanged.connect(self.maineditor.internalValueChanged) # QObject.connect(editor,SIGNAL('valueChanged(PyQt_PyObject)'),self.maineditor.internalValueChanged)
             return editor
     
     def setEditorData(self, editor, index):
@@ -202,26 +201,31 @@ class ScalarEditorDelegate(qt.QtGui.QItemDelegate):
         #model.itemFromIndex(index).setText(str(value))
 
         
-class MyItemModel(qt.QtGui.QStandardItemModel):
+class MyItemModel(QStandardItemModel):
+    
+    moveRequest = pyqtSignal(int,int)
+
     def __init__(self,a,b,scalarmap):
-        qt.QtGui.QStandardItemModel.__init__(self,a,b)
+        QStandardItemModel.__init__(self,a,b)
         self.scalarmap = scalarmap
         
     def dropMimeData(self,data,action,row,column,parent):        
         encoded = data.data("application/x-qstandarditemmodeldatalist")
-        stream = qt.QtCore.QDataStream(encoded, qt.QtCore.QIODevice.ReadOnly)
+        stream = QDataStream(encoded, QIODevice.ReadOnly)
         r = stream.readInt()
-        self.emit(qt.QtCore.SIGNAL("moveRequest(int,int)"),r,parent.row())
+        self.moveRequest.emit(r,parent.row()) # self.emit(SIGNAL("moveRequest(int,int)"),r,parent.row()) # AUTO SIGNAL TRANSLATION
         return True
         
     def supportedDropActions(self):
-        return qt.QtCore.Qt.MoveAction
+        return Qt.MoveAction
 
 #window.scalarEditor.scalarModel
 
-class ScalarEditor (qt.QtGui.QTreeView):
+class ScalarEditor (QTreeView):
+    valueChanged = pyqtSignal()
+    itemValueChanged = pyqtSignal('PyQt_PyObject')
     def __init__(self,parent):
-        qt.QtGui.QTreeView.__init__(self,parent)
+        QTreeView.__init__(self,parent)
         self.scalars = []
         self.scalarmap = {}
         self.initTable()
@@ -232,21 +236,21 @@ class ScalarEditor (qt.QtGui.QTreeView):
         self.metaFloatEdit = FloatScalarDialog(self)
         self.setItemsExpandable(False)
         self.setIndentation(0)
-    # def setItemsExpandable(self, value) : pass
-    # def setAllColumnsShowFocus(self, value) : pass
+
     def initTable(self):
         self.scalarModel = MyItemModel(0, 1, self.scalarmap)
-        qt.QtCore.QObject.connect(self.scalarModel,qt.QtCore.SIGNAL('itemChanged(QStandardItem*)'),self.internalItemChanged)
-        qt.QtCore.QObject.connect(self.scalarModel,qt.QtCore.SIGNAL('moveRequest(int,int)'),self.moveItem)
+        self.scalarModel.itemChanged.connect(self.internalItemChanged) # QObject.connect(self.scalarModel,SIGNAL('itemChanged(QStandardItem*)'),self.internalItemChanged)
+        self.scalarModel.moveRequest.connect(self.moveItem) # QObject.connect(self.scalarModel,SIGNAL('moveRequest(int,int)'),self.moveItem)
         self.scalarModel.setHorizontalHeaderLabels(["Parameter", "Value" ])
         self.setModel(self.scalarModel)
+
     def contextMenuEvent(self,event):
         items = self.selection()
         self.deleteAction.setEnabled(len(items) > 0)
         self.editAction.setEnabled(len(items) == 1 and not(self.scalars[items[0]].isCategory() or self.scalars[items[0]].isBool()))
         self.menu.exec_(event.globalPos())
     def createContextMenu(self):
-        self.menu = qt.QtGui.QMenu("Scalar Edit",self)
+        self.menu = QMenu("Scalar Edit",self)
         self.menu.addAction("New Integer",self.newScalar)
         self.menu.addAction("New Float",self.newFloatScalar)
         self.menu.addAction("New Boolean",self.newBoolScalar)
@@ -263,7 +267,7 @@ class ScalarEditor (qt.QtGui.QTreeView):
         for i in self.selection():
             self.scalarModel.removeRow(i)
             del self.scalars[i]
-        self.emit(qt.QtCore.SIGNAL('valueChanged()'))
+        self.valueChanged.emit()
     def editMetaScalar(self):
         item = self.selection()[0]
         v = self.scalars[item]
@@ -272,8 +276,8 @@ class ScalarEditor (qt.QtGui.QTreeView):
             v.importValue(sc)
             v.si_name.setText(v.name)
             v.si_value.setText(str(v.value))
-            self.emit(qt.QtCore.SIGNAL('itemValueChanged(PyQt_PyObject)'),v)
-            self.emit(qt.QtCore.SIGNAL('valueChanged()'))
+            self.itemValueChanged.emit(v) # self.emit(SIGNAL('itemValueChanged(PyQt_PyObject)'),v) # AUTO SIGNAL TRANSLATION
+            self.valueChanged.emit()
     def visualEditMetaScalar(self,scalar):
         metaEdit = self.metaIntEdit
         if scalar.isFloat():
@@ -282,27 +286,27 @@ class ScalarEditor (qt.QtGui.QTreeView):
         res = metaEdit.exec_()
         if res: return metaEdit.getScalar()
     def getItems(self,scalar):
-        si_name = qt.QtGui.QStandardItem(scalar.name)
+        si_name = QStandardItem(scalar.name)
         si_name.setEditable(True)
         #si_name.setData(scalar)
         si_name.scalar = scalar
         si_name.nameEditor = True
         if scalar.isCategory():
-            b = qt.QtGui.QBrush(qt.QtGui.QColor(255,255,255))
+            b = QBrush(QColor(255,255,255))
             si_name.setForeground(b)
-            b = qt.QtGui.QBrush(qt.QtGui.QColor(0,0,0))
+            b = QBrush(QColor(0,0,0))
             si_name.setBackground(b)
             return [si_name]
-            si_value = qt.QtGui.QStandardItem()
+            si_value = QStandardItem()
             si_value.setEditable(False)
             si_value.setBackground(b)
         elif scalar.isBool():
-            si_value = qt.QtGui.QStandardItem()
+            si_value = QStandardItem()
             si_value.setCheckable(True)
-            si_value.setCheckState(qt.QtCore.Qt.Checked if scalar.value else qt.QtCore.Qt.Unchecked)
+            si_value.setCheckState(Qt.Checked if scalar.value else Qt.Unchecked)
             si_value.stdEditor = True
         else:
-            si_value = qt.QtGui.QStandardItem(str(scalar.value))
+            si_value = QStandardItem(str(scalar.value))
         si_value.scalar = scalar
         scalar.si_name = si_name
         scalar.si_value = si_value
@@ -345,15 +349,15 @@ class ScalarEditor (qt.QtGui.QTreeView):
             if sc.isCategory():
                 self.setFirstColumnSpanned(i,ri,True)
     def internalValueChanged(self,scalar):
-        self.emit(qt.QtCore.SIGNAL('itemValueChanged(PyQt_PyObject)'),scalar)
-        self.emit(qt.QtCore.SIGNAL('valueChanged()'))
+        self.itemValueChanged.emit(scalar) # self.emit(SIGNAL('itemValueChanged(PyQt_PyObject)'),scalar) # AUTO SIGNAL TRANSLATION
+        self.valueChanged.emit()
     def internalItemChanged(self,item):
         if hasattr(item,'nameEditor'):
             item.scalar.name = str(item.text())
-            self.emit(qt.QtCore.SIGNAL('valueChanged()'))
+            self.valueChanged.emit()
         elif hasattr(item,'stdEditor'):
-            item.scalar.value = item.checkState() == qt.QtCore.Qt.Checked
-            self.emit(qt.QtCore.SIGNAL('valueChanged()'))
+            item.scalar.value = item.checkState() == Qt.Checked
+            self.valueChanged.emit()
     def moveItem(self, r0, r1):
         item = self.scalars.pop(r0)
         if r1 == -1:
@@ -361,4 +365,4 @@ class ScalarEditor (qt.QtGui.QTreeView):
         else:
             self.scalars.insert(r1,item)
         self.replotScalars()
-        self.emit(qt.QtCore.SIGNAL('valueChanged()'))
+        self.valueChanged.emit()

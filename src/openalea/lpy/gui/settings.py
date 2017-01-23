@@ -1,10 +1,13 @@
 from openalea.vpltk.qt.compat import *
 from openalea.vpltk.qt import qt
+from openalea.vpltk.qt.QtCore import QSettings
+from openalea.vpltk.qt.QtGui import QFont
+from openalea.vpltk.qt.QtWidgets import QApplication
 import os
 
 
 def getSettings():
-    settings = qt.QtCore.QSettings(qt.QtCore.QSettings.IniFormat, qt.QtCore.QSettings.UserScope,'OpenAlea','LPy')
+    settings = QSettings(QSettings.IniFormat, QSettings.UserScope,'OpenAlea','LPy')
     return settings
 
 def restoreState(lpywidget):
@@ -80,13 +83,13 @@ def restoreState(lpywidget):
     if settings.contains('geometry'):
         rect = settings.value('geometry')
         if rect:
-            maxrect = qt.QtGui.QApplication.desktop().geometry()
+            maxrect = QApplication.desktop().geometry()
             if maxrect.contains(rect) :
                 lpywidget.setGeometry(rect)
     tbapp = str(settings.value('toolbarStyle',to_qvariant(lpywidget.getToolBarApp()[1])))
     lpywidget.setToolBarApp(tbapp)
     if settings.contains('editionfont'):
-        f = qt.QtGui.QFont()
+        f = QFont()
         fstr = str(from_qvariant(settings.value('editionfont')))
         if fstr != 'default' and f.fromString(fstr):
             #print 'read font',fstr
@@ -113,7 +116,7 @@ def restoreState(lpywidget):
         pass
     settings.endGroup()
 
-    if settings.status() != qt.QtCore.QSettings.NoError:
+    if settings.status() != QSettings.NoError:
         raise 'settings error'
     del settings
     
@@ -196,5 +199,5 @@ def saveState(lpywidget):
     settings.beginGroup('profiling')
     settings.setValue('mode',to_qvariant(lpywidget.profilingMode))
     settings.endGroup()
-    if settings.status() != qt.QtCore.QSettings.NoError:
+    if settings.status() != QSettings.NoError:
             raise Exception('settings error')

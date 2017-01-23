@@ -1047,6 +1047,10 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
       }
   }
   __context.check_init_functions();
+
+  if (__context.axiomDecompositionEnabled())
+    __axiom = __decompose(__axiom);
+
   RELEASE_RESSOURCE
 }
 

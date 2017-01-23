@@ -55,6 +55,7 @@ bp::object py_complex1(const NodeModule* obj, int s) { return translate_node(obj
 bp::object py_components(const NodeModule* obj) { return translate_nodes(obj->components()); }
 bp::object py_components_at_scale(const NodeModule* obj, int s) { return translate_nodes(obj->components_at_scale(s)); }
 
+
 void export_NodeModule(){
 
 	class_<NodeModule,  bases<ParamModule> >("NodeModule",no_init)

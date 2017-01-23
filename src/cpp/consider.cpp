@@ -117,9 +117,18 @@ bool ConsiderFilter::isNoneCurrent()
 ConsiderFilter::ConsiderFilter(const std::string& modules, eConsiderMethod method):
 RefCountObject(), __method(method) {
   if(!modules.empty()){
-	AxialTree t(modules);
-	for(AxialTree::const_iterator _it = t.begin(); _it != t.end(); ++_it)
-	  __keyword[_it->getClass()->getId()] = _it->getClass();
+    AxialTree t(modules);
+    for(AxialTree::const_iterator _it = t.begin(); _it != t.end(); ++_it)
+      __keyword[_it->getClass()->getId()] = _it->getClass();
+  }
+}
+
+
+ConsiderFilter::ConsiderFilter(const ModuleClassList& modules, eConsiderMethod method):
+RefCountObject(), __method(method) {
+  if(!modules.empty()){
+    for(ModuleClassList::const_iterator _it = modules.begin(); _it != modules.end(); ++_it)
+      __keyword[(*_it)->getId()] = (*_it);
   }
 }
 
@@ -156,6 +165,20 @@ ConsiderFilter::str() const{
   return res;
 }	
 
+ConsiderFilterPtr ConsiderFilter::ignorePredefined() 
+{   
+    ModuleClassList mcl(ModuleClass::getPredefinedClasses());
+    std::vector<std::string> toremove;
+    toremove.push_back("");
+    toremove.push_back("[");
+    toremove.push_back("]");
+    for(std::vector<std::string>::const_iterator itn = toremove.begin(); itn != toremove.end(); ++itn){
+        ModuleClassList::iterator itm = mcl.begin();
+        for(; itm != mcl.end() && (*itm)->name != *itn; ++itm);
+        if(itm != mcl.end()) mcl.erase(itm);
+    }
+    return ConsiderFilterPtr(new ConsiderFilter(mcl,eIgnore)); 
+}
 /*---------------------------------------------------------------------------*/
 /*
 ConsiderFilterMaintainer::ConsiderFilterMaintainer(ConsiderFilterPtr _filter) : 

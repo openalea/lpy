@@ -40,9 +40,10 @@ LstringMatcher::LstringMatcher(AxialTree::const_iterator _begin,
 				   AxialTree::const_iterator _leftpos,
 				   AxialTree::const_iterator _rightpos,
 				   AxialTree::const_iterator _rightlastmatch,
-                   const ConsiderFilterPtr   _filter):
+                   const ConsiderFilterPtr   _filter,
+                   AxialTree::IteratorMap*   _iteratormap):
   begin(_begin), end(_end), leftpos(_leftpos), 
-  rightpos(_rightpos), rightlastmatch(_rightlastmatch), filter(_filter)
+  rightpos(_rightpos), rightlastmatch(_rightlastmatch), filter(_filter), iteratormap(_iteratormap)
 {
 }
 
@@ -54,12 +55,14 @@ LstringMatcher::set(AxialTree::const_iterator _begin,
 					 AxialTree::const_iterator _leftpos,
 					 AxialTree::const_iterator _rightpos,
 					 AxialTree::const_iterator _rightlastmatch,
-                     const ConsiderFilterPtr   _filter)
+                     const ConsiderFilterPtr   _filter,
+                     AxialTree::IteratorMap*   _iteratormap)
 {
 	begin    = _begin ; end = _end;
 	leftpos  = _leftpos ; 
 	rightpos = _rightpos ; rightlastmatch = _rightlastmatch ; 
     filter   = _filter;
+    iteratormap = _iteratormap;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -84,7 +87,7 @@ bool LstringMatcher::inLeftContext(const PatternString& pattern, boost::python::
 	if(!pattern.empty()){
 		if(!MatchingEngine::left_match(leftpos,begin,end,
 			pattern.const_rbegin(),pattern.const_rend(),
-			endposLeft,filter,values)) return false;
+			endposLeft,filter,values, iteratormap)) return false;
 		leftpos = endposLeft;
 		update_returned_args(args, pattern.getVarNames(), values);
 	}
@@ -107,7 +110,7 @@ bool LstringMatcher::inRightContext(const PatternString& pattern, boost::python:
 	if(!pattern.empty()){
 		if(!MatchingEngine::right_match(rightpos,begin,end,
 			pattern.const_begin(),pattern.const_end(),
-			rightlastmatch, endposRigth,filter, values)) 
+			rightlastmatch, endposRigth,filter, values, iteratormap)) 
 			return false;
 		rightpos = endposRigth;
 		update_returned_args(args, pattern.getVarNames(), values);

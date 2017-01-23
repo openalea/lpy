@@ -2,6 +2,9 @@
 __pycache__/
 *.py[cod]
 
+# lpy temp file
+*.lpy~
+
 # C extensions
 build-scons
 *.so

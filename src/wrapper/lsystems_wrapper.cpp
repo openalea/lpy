@@ -62,12 +62,12 @@ BOOST_PYTHON_MODULE(__lpy_kernel__)
 	export_Options();
 	export_ModuleClass();
 	export_Module();
+    export_Consider();
 	export_PatternModule();
-    export_NodeModule();
 	export_AxialTree();
 	export_PatternString();
+    export_NodeModule();
     export_Interpretation();
-    export_Consider();
     export_LsysRule();
     export_LsysContext();
     export_Lsystem();

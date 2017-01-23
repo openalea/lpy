@@ -36,6 +36,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
 #include <plantgl/tool/sequencer.h>
+#include "debug_tool.h"
 
 using namespace boost::python;
 TOOLS_USING_NAMESPACE
@@ -691,6 +692,7 @@ AxialTree Lsystem::__debugStep(AxialTree& workingstring,
       AxialTree::const_iterator _it = workingstring.begin();
       AxialTree::const_iterator _it3 = _it;
       AxialTree::const_iterator _endit = workingstring.end();
+      AxialTree::IteratorMap itermap; 
 
       while ( _it != _endit ) {
           if ( _it->isCut() )
@@ -702,7 +704,7 @@ AxialTree Lsystem::__debugStep(AxialTree& workingstring,
                   _it2 != mruleset.end(); _it2++){
 					  ArgList args;
 					  size_t prodlength;
-                      if((*_it2)->match(workingstring,_it,targetstring,_it3,args)){
+                      if((*_it2)->match(workingstring,_it,targetstring,_it3,args,&itermap)){
 						  try {
 							match = (*_it2)->applyTo(targetstring,args,&prodlength);
 						  }catch(error_already_set){
@@ -734,6 +736,7 @@ AxialTree Lsystem::__debugStep(AxialTree& workingstring,
       AxialTree::const_iterator _lastit = workingstring.begin();
       AxialTree::const_iterator _beg = workingstring.begin();
       AxialTree::const_iterator _end = workingstring.end();
+      AxialTree::IteratorMap itermap; 
       while ( _it !=  _end) {
           bool match = false;
 		  const RulePtrSet& mruleset = ruleset[_it->getClassId()];
@@ -741,7 +744,7 @@ AxialTree Lsystem::__debugStep(AxialTree& workingstring,
               _it2 != mruleset.end();  _it2++){
 				  ArgList args;
 				  size_t prodlength;
-                  if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args)){
+                  if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args,&itermap)){
 					  try {
 						match = (*_it2)->reverseApplyTo(targetstring,args,&prodlength);
 					  }catch(error_already_set){
@@ -769,7 +772,7 @@ AxialTree Lsystem::__debugStep(AxialTree& workingstring,
   return targetstring;
 }
 
-
+#include "axialtree_manip.h"
 
 AxialTree 
 Lsystem::__step(AxialTree& workingstring,
@@ -788,6 +791,10 @@ Lsystem::__step(AxialTree& workingstring,
       AxialTree::const_iterator _it = workingstring.begin();
       AxialTree::const_iterator _it3 = _it;
       AxialTree::const_iterator _endit = workingstring.end();
+      AxialTree::IteratorMap * itermap = NULL;
+      AxialTree::IteratorMap _itermap;
+      if (__context.brackectMappingOptimLevel() >= 1) { itermap = &_itermap; }
+      if (__context.brackectMappingOptimLevel() == 2) { endBracket(_it, _endit, itermap); }
 
       while ( _it != _endit ) {
           if ( _it->isCut() )
@@ -798,7 +805,7 @@ Lsystem::__step(AxialTree& workingstring,
               for(RulePtrSet::const_iterator _it2 = mruleset.begin();
                   _it2 != mruleset.end(); _it2++){
 					  ArgList args;
-                      if((*_it2)->match(workingstring,_it,targetstring,_it3,args)){
+                      if((*_it2)->match(workingstring,_it,targetstring,_it3,args,itermap)){
                           match = (*_it2)->applyTo(targetstring,args);
 						  if(match) { _it = _it3; break; }
                       }
@@ -816,13 +823,18 @@ Lsystem::__step(AxialTree& workingstring,
       AxialTree::const_iterator _lastit = workingstring.begin();
       AxialTree::const_iterator _beg = workingstring.begin();
       AxialTree::const_iterator _end = workingstring.end();
+      AxialTree::IteratorMap * itermap = NULL;
+      AxialTree::IteratorMap _itermap;
+      if (__context.brackectMappingOptimLevel() >= 1) { itermap = &_itermap; }
+      if (__context.brackectMappingOptimLevel() == 2) { endBracket(_beg, _end, itermap); }
+
       while ( _it !=  _end) {
           bool match = false;
 		  const RulePtrSet& mruleset = ruleset[_it->getClassId()];
           for(RulePtrSet::const_iterator _it2 = mruleset.begin();
               _it2 != mruleset.end();  _it2++){
 				  ArgList args;
-                  if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args)){
+                  if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args,itermap)){
                       match = (*_it2)->reverseApplyTo(targetstring,args);
                       if(match) { _it = _it3; break; }
                   }
@@ -838,8 +850,14 @@ Lsystem::__step(AxialTree& workingstring,
   return targetstring;
 }
 
-#include <QtCore/QtConcurrentRun>
-#include <QtCore/QtConcurrentMap>
+#include <QtGlobal>
+#if QT_VERSION >= 0x050000 
+    #include <QtConcurrent/QtConcurrentRun>
+    #include <QtConcurrent/QtConcurrentMap>
+#else
+    #include <QtCore/QtConcurrentRun>
+    #include <QtCore/QtConcurrentMap>
+#endif
 
 AxialTree partialForwardStep(size_t beg, 
                              size_t size,
@@ -856,6 +874,7 @@ AxialTree partialForwardStep(size_t beg,
 
       AxialTree::const_iterator _it = itbeg;
       AxialTree::const_iterator _it3 = _it;
+      AxialTree::IteratorMap itermap; 
 
 
       while ( _it != itend ) {
@@ -865,7 +884,7 @@ AxialTree partialForwardStep(size_t beg,
               for(RulePtrSet::const_iterator _it2 = mruleset.begin();
                   _it2 != mruleset.end(); _it2++){
                       ArgList args;
-                      if((*_it2)->match(workingstring,_it,targetstring,_it3,args)){
+                      if((*_it2)->match(workingstring,_it,targetstring,_it3,args,&itermap)){
                           match = (*_it2)->applyTo(targetstring,args);
                           if(match) { _it = _it3; break; }
                       }
@@ -894,6 +913,7 @@ AxialTree partialBackwardStep(size_t beg,
       AxialTree::const_iterator _it = itend -1;
       AxialTree::const_iterator _lastit = itbeg;
       AxialTree::const_iterator _it3 = _it;
+      AxialTree::IteratorMap itermap; 
 
 
       while ( _it != itend ) {
@@ -903,7 +923,7 @@ AxialTree partialBackwardStep(size_t beg,
               for(RulePtrSet::const_iterator _it2 = mruleset.begin();
                   _it2 != mruleset.end(); _it2++){
                       ArgList args;
-                      if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args)){
+                      if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args,&itermap)){
                           match = (*_it2)->reverseApplyTo(targetstring,args);
                           if(match) { _it = _it3; break; }
                       }
@@ -989,6 +1009,7 @@ Lsystem::__stepWithMatching(AxialTree& workingstring,
   AxialTree::const_iterator _it = workingstring.begin();
   AxialTree::const_iterator _it3 = _it;
   AxialTree::const_iterator _endit = workingstring.end();
+  AxialTree::IteratorMap itermap; 
   size_t prodlength;
   matching.clear();
   while ( _it != _endit ) {
@@ -1000,7 +1021,7 @@ Lsystem::__stepWithMatching(AxialTree& workingstring,
           for(RulePtrSet::const_iterator _it2 = mruleset.begin();
               _it2 != mruleset.end();  _it2++){
 				  ArgList args;
-                  if((*_it2)->match(workingstring,_it,targetstring,_it3,args)){
+                  if((*_it2)->match(workingstring,_it,targetstring,_it3,args,&itermap)){
                       match = (*_it2)->applyTo(targetstring,args,&prodlength);
 					  if (match){
 						matching.append(distance(_it,_it3),prodlength);
@@ -1021,9 +1042,10 @@ Lsystem::__stepWithMatching(AxialTree& workingstring,
 AxialTree 
 Lsystem::__recursiveSteps(AxialTree& workingstring,
 				          const RulePtrMap& ruleset, 
-                          size_t maxdepth)
+                          size_t maxdepth, bool& matching)
 {
   ContextMaintainer c(&__context);
+  matching = false;
   if( workingstring.empty()) return workingstring;
   AxialTree::const_iterator _it = workingstring.begin();
   AxialTree::const_iterator _it3 = _it;
@@ -1042,12 +1064,14 @@ Lsystem::__recursiveSteps(AxialTree& workingstring,
 				ArgList args;
                 if((*_it2)->match(workingstring,_it,ltargetstring,_it3,args)){
                       match = (*_it2)->applyTo(ltargetstring,args);
-					  if(match) { _it = _it3; break; }
+					  if(match) { _it = _it3; matching = true; break; }
                   }
           }
           if (match){
               if(maxdepth >1) {
-                  targetstring += __recursiveSteps(ltargetstring,ruleset,maxdepth-1);
+                  bool submatch;
+                  targetstring += __recursiveSteps(ltargetstring,ruleset,maxdepth-1, submatch);
+                  if (submatch) matching = submatch;
               }
               else targetstring += ltargetstring;
           }
@@ -1326,6 +1350,7 @@ Lsystem::derive(  const AxialTree& wstring,
 
 
 
+
 AxialTree 
 Lsystem::__derive( size_t starting_iter , 
                     size_t nb_iter , 
@@ -1398,12 +1423,17 @@ Lsystem::__derive( size_t starting_iter ,
 			  previouslyinterpreted = false;
 		  }
 		  if(!decomposition.empty()){
-			  bool decmatching = true;
+              bool decmatching;
+              workstring = __recursiveSteps(workstring, decomposition, __decomposition_max_depth, decmatching);
+              if (decmatching) matching = true;
+              previouslyinterpreted = false;
+
+			  /*bool decmatching = true;
 			  for(size_t i = 0; decmatching && i < __decomposition_max_depth; i++){
 				  workstring = __step(workstring,decomposition,previouslyinterpreted?false:decompositionHasQuery,decmatching,dir);
 				  previouslyinterpreted = false;
 				  if (decmatching) matching = true;
-			  }
+			  }*/
 		  }
 		  // Call endeach function
 		  if(__context.hasEndEachFunction())
@@ -1419,6 +1449,42 @@ Lsystem::__derive( size_t starting_iter ,
 			__lastcomputedscene = __apply_post_process(workstring,false);
 	  }
 	}
+  }
+  return workstring;
+}
+
+AxialTree 
+Lsystem::decompose( const AxialTree& workstring  )
+{
+  ACQUIRE_RESSOURCE
+  enableEarlyReturn(false);
+  ContextMaintainer c(&__context);
+  AxialTree res = __decompose(workstring);
+  enableEarlyReturn(false);
+  return res;
+  RELEASE_RESSOURCE
+
+}
+
+AxialTree 
+Lsystem::__decompose( const AxialTree& wstring){
+  AxialTree workstring = wstring;
+  if (!workstring.empty()){
+    if(!__rules.empty()){
+
+      eDirection dir = getDirection();
+      size_t group = __context.getGroup();
+
+      if (group > __rules.size()) LsysWarning("Group not valid.");
+
+      bool decompositionHasQuery;
+      RulePtrMap decomposition = __getRules(eDecomposition,group,dir,&decompositionHasQuery);
+
+      if(!decomposition.empty()){
+          bool decmatching = true;
+          workstring = __recursiveSteps(workstring, decomposition, __decomposition_max_depth, decmatching);
+      }
+    }
   }
   return workstring;
 }
@@ -1536,7 +1602,8 @@ Lsystem::__homomorphism(AxialTree& wstring){
   bool homHasQuery = false;  
   RulePtrMap interpretation = __getRules(eInterpretation,__currentGroup,eForward,&homHasQuery);
   if (!interpretation.empty()){
-      workstring = __recursiveSteps(wstring,interpretation,__interpretation_max_depth);
+      bool decmatching;
+      workstring = __recursiveSteps(wstring,interpretation,__interpretation_max_depth, decmatching);
   }
   return workstring;
 }

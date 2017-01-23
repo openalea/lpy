@@ -40,11 +40,6 @@ LPY_BEGIN_NAMESPACE
 class LPY_API NodeModule : public ParamModule  {
 public:
 
-  NodeModule(AxialTree::const_iterator pos, 
-			 AxialTree::const_iterator beg, 
-			 AxialTree::const_iterator end,
-             const ConsiderFilterPtr filter = ConsiderFilterPtr());
-
   virtual ~NodeModule();
 
   inline NodeModule parent() const
@@ -80,6 +75,16 @@ public:
   inline size_t position() const
   { return std::distance(__beg,__pos); }
 
+  static NodeModule generate(AxialTree::const_iterator pos, 
+             AxialTree::const_iterator beg, 
+             AxialTree::const_iterator end,
+             const ConsiderFilterPtr filter = ConsiderFilterPtr());
+
+  NodeModule(AxialTree::const_iterator pos, 
+             AxialTree::const_iterator beg, 
+             AxialTree::const_iterator end,
+             const ConsiderFilterPtr filter = ConsiderFilterPtr());
+
 protected:
 
   inline std::vector<NodeModule> make_nodes(const std::vector<AxialTree::const_iterator>& pos) const
@@ -94,15 +99,16 @@ protected:
 	  return NodeModule(pos,__beg,__end, __filter);
   }
 
-  NodeModule();
-
-  NodeModule(AxialTree::const_iterator beg, 
-			 AxialTree::const_iterator end);
+ /* NodeModule(AxialTree::const_iterator beg, 
+			 AxialTree::const_iterator end);*/
 
   AxialTree::const_iterator __pos;
   AxialTree::const_iterator __beg; 
   AxialTree::const_iterator __end;
   ConsiderFilterPtr         __filter;
+
+private:
+  NodeModule();
 
 };
 

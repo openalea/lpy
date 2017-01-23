@@ -244,7 +244,8 @@ void py_insert_ax_tuple(AxialTree * first, int i, const boost::python::tuple& pa
 {   first->setItemAt(i,ParamModule(pattern));  }
 
 NodeModule py_node(AxialTree * lstring, int i) 
-{   return NodeModule(int_to_iter(lstring,i),lstring->const_begin(),lstring->const_end());  }
+{   return NodeModule::generate(int_to_iter(lstring,i),lstring->const_begin(),lstring->const_end()); }
+
 
 void export_AxialTree() {
 
