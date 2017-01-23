@@ -53,14 +53,18 @@ class LpySimulation:
         self.keepCode_1_0_Compatibility = True
         self.readonly = False
         self._oldreadonly = False
+        self.tabbar().insertTab(self.index, self.getTabName())
+        self.tabbar().setTabEnabled(self.index, True)
         if not fname is None:
             self.open(fname)
         else:
-            self.setFname(None)         
+            self.setFname(None)
+    def tabbar(self):
+        return self.lpywidget.documentNames
     def getFname(self) : return self._fname
     def setFname(self,value) :
         self._fname = value
-        self.lpywidget.documentNames.setTabText(self.index,self.getShortName())
+        self.tabbar().setTabText(self.index,self.getShortName())
     fname = property(getFname,setFname)
     def isEdited(self):
         return self._edited 
@@ -144,13 +148,14 @@ class LpySimulation:
         icon.addPixmap(pixmap.scaledToHeight(32),QIcon.Normal,QIcon.Off)
         return icon
     def registerTab(self):
-        self.lpywidget.documentNames.insertTab(self.index,self.generateIcon(),self.getTabName())
+        #self.tabbar().insertTab(self.index,self.generateIcon(),self.getTabName())
+        pass
     def updateTabName(self, force = False):
         if self._oldedited != self._edited or self._oldreadonly != self.readonly:
             self._oldedited = self._edited
             self._oldreadonly = self.readonly
-        self.lpywidget.documentNames.setTabIcon(self.index,self.generateIcon())
-        self.lpywidget.documentNames.setTabText(self.index,self.getTabName())
+        self.tabbar().setTabIcon(self.index,self.generateIcon())
+        self.tabbar().setTabText(self.index,self.getTabName())
     def getTimeStep(self):
         return self.timestep*0.001
     def getOptimisationLevel(self):
@@ -188,8 +193,8 @@ class LpySimulation:
             self.lpywidget.interpreter.locals['lsystem'] = self.lsystem
         self.lpywidget.printTitle()
         self.lpywidget.setTimeStep(self.lsystem.context().animation_timestep)
-        if self.lpywidget.documentNames.currentIndex() != self.index:
-            self.lpywidget.documentNames.setCurrentIndex(self.index)
+        if self.tabbar().currentIndex() != self.index:
+            self.tabbar().setCurrentIndex(self.index)
         self.lpywidget.textEditionWatch = True
         if not self.fname is None:
             os.chdir(os.path.dirname(self.fname))         

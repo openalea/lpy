@@ -148,11 +148,14 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         st = self.statusBar()
         self.materialed.statusBar = st
         self.panelmanager = ObjectPanelManager(self)
-        self.documentNames.setShape(QTabBar.TriangularNorth)
+        #self.documentNames.setShape(QTabBar.TriangularNorth)
         #self.documentNames.setTabsClosable(True)
+        print
+        print
+        print
+        print len(self.simulations)
         self.newfile()
         self.textEditionWatch = False
-        self.documentNames.show()
         self.documentNames.connectTo(self)
 
         self.endTask.connect(self.endTaskCheck) # QObject.connect(self,SIGNAL('endTask(PyQt_PyObject)'),self.endTaskCheck)
@@ -229,12 +232,15 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         self.textEditionWatch = True
         self._initialized = False        
         self.lpy_update_enabled = self.check_lpy_update_available()
+
     def init(self):
         self.textEditionWatch = False
         self.recoverPreviousFiles()
         self.textEditionWatch = True
         if True : #self.lpy_update_enabled: 
             self.check_lpy_update(True)
+        self.documentNames.show()
+        self.currentSimulation().updateTabName()
 
     def check_lpy_update_available(self):
         available = True
@@ -511,6 +517,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         self.codeeditor.print_(printer)
     def createNewLsystem(self, fname = None):
         i = len(self.simulations)
+        print 'simu', i
         self.simulations.append(LpySimulation(self,i,fname))
         self.currentSimulationId = i
         self.currentSimulation().registerTab()
@@ -933,9 +940,20 @@ def help():
     print '--help    : print this help'
     print '--version : print version of the software.'
     print '--safe | --no-safe: load settings in a safe or no safe mode'
+    print '--run lpyfile: run an lpymodel'
     print
     print 'See http://openalea.gforge.inria.fr/wiki/doku.php?id=packages:vplants:lpy:main for more documentation' 
 
+def runmodel(fname):
+    from openalea.lpy import Lsystem
+    l = Lsystem(fname)
+    lstring = l.iterate()
+    l.plot(lstring)
+
+def animatemodel(fname):
+    from openalea.lpy import Lsystem
+    l = Lsystem(fname)
+    l.animate()
 
 def main():
     import sys, os
@@ -945,6 +963,16 @@ def main():
         return
     elif '--version' in args or '-v' in args:
         versiomessage()
+        return
+
+    elif '--run' in args or '-r' in args:
+        fname = args[args.index('-r' if '-r' in args else '--run')+1]
+        runmodel(fname)
+        return
+
+    elif '--animate' in args or '-a' in args:
+        fname = args[args.index('-a' if '-a' in args else '--animate')+1]
+        animatemodel(fname)
         return
 
     toopen = []

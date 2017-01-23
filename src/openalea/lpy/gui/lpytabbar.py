@@ -16,6 +16,7 @@ class LpyTabBar(QTabBar):
         self.selection = None
         self.lpystudio = None
         self.initialtab = None
+        self.inserted = set()
         
     def connectTo(self,lpystudio):
         self.lpystudio = lpystudio
@@ -147,7 +148,12 @@ class LpyTabBar(QTabBar):
         
     def svnCommit(self):
         self.lpystudio.simulations[self.selection].svnCommit()
-        
+    
+    def insertTab(self, index, val1, val2 = None):
+        self.inserted.add(index)
+        if val2 : QTabBar.insertTab(self, index, val1, val2)
+        else : QTabBar.insertTab(self, index, val1)
+
         
 class LpyTabBarNeighbor(QWidget):
     
