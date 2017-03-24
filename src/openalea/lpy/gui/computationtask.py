@@ -62,7 +62,7 @@ class ComputationTask(QThread):
         self.start()
 
 
-class ComputationTaskManager:
+class ComputationTaskManager(QObject):
     endTask = pyqtSignal('PyQt_PyObject')
     killedTask = pyqtSignal('PyQt_PyObject')
 
@@ -87,19 +87,19 @@ class ComputationTaskManager:
             self.computationThread = None
         else:
             self.releaseCR()
-        self.endTask.emit(ct) # self.emit(SIGNAL('endTask(PyQt_PyObject)'),ct) # AUTO SIGNAL TRANSLATION
+        self.endTask.emit(ct)
     def abortTask(self):
         ct = self.computationThread
         self.computationThread = None
         self.releaseCR()
-        self.endTask.emit(ct) # self.emit(SIGNAL('endTask(PyQt_PyObject)'),ct) # AUTO SIGNAL TRANSLATION
+        self.endTask.emit(ct) 
         self.clear()
     def killTask(self):
         ct = self.computationThread
         ct.kill()
         self.computationThread = None
         self.releaseCR()
-        self.killedTask.emit(ct) # self.emit(SIGNAL('killedTask(PyQt_PyObject)'),ct) # AUTO SIGNAL TRANSLATION
+        self.killedTask.emit(ct) 
         self.clear()
     def registerTask(self,task):
         if self.computationThread is None:
