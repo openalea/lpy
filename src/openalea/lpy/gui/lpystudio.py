@@ -150,10 +150,6 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         self.panelmanager = ObjectPanelManager(self)
         #self.documentNames.setShape(QTabBar.TriangularNorth)
         #self.documentNames.setTabsClosable(True)
-        print
-        print
-        print
-        print len(self.simulations)
         self.newfile()
         self.textEditionWatch = False
         self.documentNames.connectTo(self)
@@ -335,7 +331,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         self.simulations[id2].index = id2
         self.simulations[id1].updateTabName(True)
         self.simulations[id2].updateTabName(True)
-        QObject.disconnect(self.documentNames,SIGNAL('currentChanged(int)'),self.changeDocument)
+        self.documentNames.currentChanged.disconnect(self.changeDocument)
         self.documentNames.setCurrentIndex(id1)
         self.documentNames.currentChanged.connect(self.changeDocument) # QObject.connect(self.documentNames,SIGNAL('currentChanged(int)'),self.changeDocument)
     def focusInEvent ( self, event ):
@@ -350,11 +346,13 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
             self.documentNames.removeTab(id)
             for i in xrange(id+1,len(self.simulations)):
                 self.simulations[i].index = i-1
+
             self.textEditionWatch = False
             defaultdoc = self.codeeditor.defaultdoc
             self.codeeditor.setLpyDocument(defaultdoc)
             self.simulations.pop(id)
             self.textEditionWatch = True
+
             if len(self.simulations) == 0:
                 self.currentSimulationId = None
                 self.newfile()
@@ -517,7 +515,6 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         self.codeeditor.print_(printer)
     def createNewLsystem(self, fname = None):
         i = len(self.simulations)
-        print 'simu', i
         self.simulations.append(LpySimulation(self,i,fname))
         self.currentSimulationId = i
         self.currentSimulation().registerTab()
