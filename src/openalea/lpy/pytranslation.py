@@ -1,4 +1,5 @@
 def splitmodules(text):
+    from openalea.lpy import ModuleClass
     it = 0
     result = []
     while text[it] in ' \t' and it < len(text):
@@ -6,9 +7,10 @@ def splitmodules(text):
     last = it
     while it < len(text):
         c = text[it]
-        if c in ' \t':
+        print it, c
+        if c.isspace():
             pot = it
-            while c in ' \t' and it < len(text):
+            while c.isspace() and it < len(text):
                 it += 1
                 c = text[it]
             if it == len(text) :
@@ -18,6 +20,7 @@ def splitmodules(text):
             if c != '(' :
                 result.append(text[last:pot])
                 last = it
+
         elif c == '(' :
             nbpar = 0
             while nbpar > 1 or c != ')' and it < len(text):
@@ -33,12 +36,21 @@ def splitmodules(text):
                 break
             c = text[it]
             result.append(text[last:it])
-            while c in ' \t' and it < len(text):
+            while c.isspace() and it < len(text):
                 it += 1
                 c = text[it]
             last = it
         else:
-            it += 1
+            m = ModuleClass.get(text[last:it+1]) 
+            print repr(text[last:it+1]), m
+            if m is None or m.name == '':
+                it += 1
+            elif it < len(text)-1 and text[it+1] == '(':
+                it += 1
+            else:
+                result.append(text[last:it+1])
+                it += 1
+                last = it
     if last != len(text):
         result.append(text[last:])
     return result
