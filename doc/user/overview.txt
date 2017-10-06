@@ -1,7 +1,0 @@
-L-systems were conceived as a mathematical framework for modeling growth of plants. 
-L-Py is a simulation software that mixes L-systems construction with the Python high-level modeling language. 
-In addition to this software module, an integrated visual development environment has been developed that facilitates the creation of plant models.
-In particular, easy to use optimization tools have been integrated. 
-Thanks to Python and its modular approach, this framework makes it possible to integrate a variety of tools defined in different modeling context,
-in particular tools from the OpenAlea platform. Additionally, it can be integrated as a simple growth simulation module 
-into more complex computational pipelines.
