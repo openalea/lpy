@@ -59,6 +59,8 @@ coverage.xml
 # Sphinx documentation
 doc/_build
 doc/_build/doctrees
+.idea/
+cmake-build-debug/
 
 # PyBuilder
 target/
