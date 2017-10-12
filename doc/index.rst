@@ -23,7 +23,6 @@ L-Py is inspired by Lstudio/cpfg-lpfg defined by P. Prusinkiewicz et al. (http:/
 
 
 
-
 Documentation
 =============
 

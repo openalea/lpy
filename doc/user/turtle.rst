@@ -1,8 +1,8 @@
 L-Py Turtle explanation
-##############
+#######################
 
 Initial orientation of turtle’s frame
-============
+=====================================
 
 Global reference frame (X,Y,Z) of L-Py (A).
 
@@ -15,7 +15,7 @@ The Turtle reference frame (H,L,U) is defined in (B) and can be displayed using 
 .. image:: ../_images/ex001.png
 
 Visualize the turtle reference frame
-============
+====================================
 
 Default angle is 60° ( **+** is identical to **+(60)** )
 
@@ -28,7 +28,7 @@ Default angle is 60° ( **+** is identical to **+(60)** )
 .. image:: ../_images/ex002.png
 
 Rotating with HLU
-============
+=================
 
 Primitives can be used to rotate the turtle in its current reference frame (H = Head, L = Left, U = Up, angles are expressed by default in degrees).
 
@@ -43,7 +43,7 @@ Primitives can be used to rotate the turtle in its current reference frame (H = 
 .. image:: ../_images/ex003.png
 
 Drawing Polygons
-============
+================
 
 Basic method
 ------------
@@ -55,13 +55,13 @@ Turn and move forward
     Axiom: Frame(2)+(30)F(5)+(120)F(5)+(120)F(5)  # (A)
 
 Procedural method
-------------
+-----------------
 
 A loop construct can be used to produce the L-string specifying the polygon
 
 .. code-block:: python
 
-    Axiom: Frame(2)+F(5)+F(5)+F(5)+F(5)+F(5)+F(5)  #(B)
+    Axiom: Frame(2)+F(5)+F(5)+F(5)+F(5)+F(5)+F(5)  # (B)
     # Or equivalently:
     Axiom:
         nproduce Frame(2)
@@ -71,9 +71,9 @@ A loop construct can be used to produce the L-string specifying the polygon
 .. image:: ../_images/ex004.png
 
 Filled polygon
-============
+==============
 
-Polygon can be drawn by using {} and positioning a series of dots (‘.’) in space, corresponding to the consecutive vertices of the polygon (A)
+Polygon can be drawn by using {} and positioning a series of dots ('.') in space, corresponding to the consecutive vertices of the polygon (A)
 
 Here, the instruction starts by positioning the first vertex of the polygon at the origin of the reference frame
 
@@ -120,7 +120,7 @@ Filling concave objects requires to use a smarter filling procedure. This can be
 .. image:: ../_images/ex006.png
 
 Branching system
-============
+================
 
 Bracket makes it possible to specify branches. Before each opening bracket, the turtle parameters (represented by the Frames) are stored on the Turtle stack. These parameters are then pop back when a closing bracket is found.
 
@@ -138,7 +138,7 @@ The same branching system can be augmented with other modules (@**O** for sphere
     :scale: 50%
 
 SetGuide
-============
+========
 
 Drawing a straight line made of length **l=10** with segments of size **dl = 1.0** (and thus contains n= 10 segments) (A)
 
@@ -161,7 +161,7 @@ The guiding curve can be defined in different ways. It can be defined for exampl
     def f(u):
       return (u,u**2)
 
-    C0 = Polyline2D([f(u) for u in arange(0,1,0.1)])     # (B)
+    C0 = Polyline2D([f(u) for u in arange(0,1,0.1)])  # (B)
 
 or using the embedded L-Py graphical interface for specifying 2D curves (the curve is then given the name **C0** for instance in the interface):
 
@@ -185,11 +185,60 @@ Note that the turtle can move less than the length of the 2D curve. In this case
 
     L = 6
     L0 = 10
-    Axiom: SetGuide(C0,L0) nF(L, 0.1)     # (B)
+    Axiom: SetGuide(C0,L0) nF(L, 0.1)  # (B)
 
     L = 15
     L0 = 10
-    Axiom: SetGuide(C0,L0) nF(L, 0.1)     # (C)
+    Axiom: SetGuide(C0,L0) nF(L, 0.1)  # (C)
 
 .. image:: ../_images/ex010.png
     :scale: 60%
+
+.. _turtle_color_system:
+
+Color System
+============
+
+To use color system, it is necessary to set materials with the **Color Map** window (:ref:`lpy_user`).
+
+The semicolon (';') is use to increase the current material index (A) and the comma (',') to dricrease it (B).
+A parameter can be set to specify the index of the material to use.
+
+.. code-block:: python
+
+		Axiom: F(2) ; @O(0.2)  # (A)
+		# Or equivalently:
+		Axiom: F(2) ;(2) @O(0.2)
+
+		Axiom: F(2) , @O(0.2)  # (B)
+		# Or equivalently:
+		Axiom: F(2) ,(0) @O(0.2)
+
+.. image:: ../_images/ex011.png
+		:scale: 60%
+
+The second manner to set color to an object is to use **SetColor**. There is two way to use it.
+The first way is to specify the index of the material (A) and the second way is to set the **rgb** (or rgba) values in parameters (B).
+
+.. code-block:: python
+
+		Axiom: F(2) SetColor(5) @O(0.2)             # (A)
+
+		Axiom: F(2) SetColor(45, 200, 200) @O(0.2)  # (B)
+
+.. image:: ../_images/ex012.png
+		:scale: 60%
+
+The last manner to use the color system is to use **InterpolateColors**, it use to mix up to color in one.
+There is three parameter, the first and the second are the index of materials and the last is optional and it use to set a priority to the first or the second color for the final color.
+
+.. code-block:: python
+
+		Axiom: F(2) InterpolateColors(1, 5) @O(0.2)       # (A)
+
+		Axiom: F(2) InterpolateColors(1, 5, 0.2) @O(0.2)  # (B)
+
+		Axiom: F(2) InterpolateColors(1, 5, 0.8) @O(0.8)  # (C)
+
+.. image:: ../_images/ex013.png
+		:scale: 60%
