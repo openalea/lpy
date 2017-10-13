@@ -64,7 +64,7 @@ The PlantGL visualizer has a 3D-camera where you can turn around your rendering.
 .. _Editor_Color_Map:
 
 Color Map
-=============
+=========
 
 We quickly saw and talked about the custom color palette available in the sidebar tools. It can be used to create
 colors and access it directly in your code by avoiding multiple duplications of SetColor(r,g,b[,a])
@@ -137,7 +137,7 @@ When you're satisfied with your curve configuration, you can click on the **Appl
 .. _Editor_Debugger:
 
 Debugger
-=======
+========
 
 As you may know, the render of your project is done with PlantGL. The fact is that L-Py keep as a *string* your project
 and, thanks to the string, convert it into instructions to PlantGL.

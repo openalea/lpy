@@ -199,7 +199,7 @@ Note that the turtle can move less than the length of the 2D curve. In this case
 Color System
 ============
 
-To use color system, it is necessary to set materials with the **Color Map** window (:ref:`lpy_user`).
+To use color system, it is necessary to set materials with the **Color Map** window (:ref:`Editor_Color_Map`).
 
 The semicolon (';') is use to increase the current material index (A) and the comma (',') to dricrease it (B).
 A parameter can be set to specify the index of the material to use.
@@ -229,8 +229,8 @@ The first way is to specify the index of the material (A) and the second way is 
 .. image:: ../_images/ex012.png
 		:scale: 60%
 
-The last manner to use the color system is to use **InterpolateColors**, it use to mix up to color in one.
-There is three parameter, the first and the second are the index of materials and the last is optional and it use to set a priority to the first or the second color for the final color.
+The last manner to use the color system is to use **InterpolateColors**, it use to mix up two colors in one.
+There is three parameter, the first and the second are the index of materials and the last is optional and it use to set a priority to the first or the second color to make the final color.
 
 .. code-block:: python
 
