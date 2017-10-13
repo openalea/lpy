@@ -34,7 +34,6 @@ Documentation
     ./user/filesyntax.rst
     ./user/predefinedsymbols.rst
     ./user/commands.rst
-    ./user/features.rst
     ./user/editor.rst
     ./user/turtle.rst
     ./user/subtelties.rst
