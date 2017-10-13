@@ -44,302 +44,355 @@ LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
-class ParamModule;
-class ModuleClass;
-typedef RCPtr<ModuleClass> ModuleClassPtr;
-typedef std::vector<ModuleClassPtr> ModuleClassList;
-typedef pgl_hash_map_string<size_t> ParameterNameDict;
+  class ParamModule;
+
+  class ModuleClass;
+
+  typedef RCPtr<ModuleClass> ModuleClassPtr;
+  typedef std::vector<ModuleClassPtr> ModuleClassList;
+  typedef pgl_hash_map_string<size_t> ParameterNameDict;
 
 #define PREDEFINED_MODULE_APPLY(MACRO) \
-	MACRO(None) \
-	MACRO(LeftBracket) \
-	MACRO(RightBracket) \
-	MACRO(ExactRightBracket) \
-	MACRO(Cut) \
-	MACRO(Star) \
-	MACRO(RepExp) \
-	MACRO(Or) \
-	MACRO(QueryPosition) \
-	MACRO(QueryHeading) \
-	MACRO(QueryUp) \
-	MACRO(QueryLeft) \
-	MACRO(QueryRigth) \
-	MACRO(QueryFrame) \
-	MACRO(F) \
-	MACRO(f) \
-	MACRO(nF) \
-	MACRO(X) \
-	MACRO(StartGC) \
-	MACRO(EndGC) \
-	MACRO(StartPolygon) \
-	MACRO(EndPolygon) \
-	MACRO(PointPolygon) \
-	MACRO(SetPosition) \
-	MACRO(SetPositionRel) \
-	MACRO(LineTo) \
-	MACRO(LineOrientedTo) \
-	MACRO(PinPoint) \
-	MACRO(LineRel) \
-	MACRO(LineOrientedRel) \
-	MACRO(PinPointRel) \
+        MACRO(None) \
+        MACRO(LeftBracket) \
+        MACRO(RightBracket) \
+        MACRO(ExactRightBracket) \
+        MACRO(Cut) \
+        MACRO(Star) \
+        MACRO(RepExp) \
+        MACRO(Or) \
+        MACRO(QueryPosition) \
+        MACRO(QueryHeading) \
+        MACRO(QueryUp) \
+        MACRO(QueryLeft) \
+        MACRO(QueryRigth) \
+        MACRO(QueryFrame) \
+        MACRO(F) \
+        MACRO(f) \
+        MACRO(nF) \
+        MACRO(X) \
+        MACRO(StartGC) \
+        MACRO(EndGC) \
+        MACRO(StartPolygon) \
+        MACRO(EndPolygon) \
+        MACRO(PointPolygon) \
+        MACRO(SetPosition) \
+        MACRO(SetPositionRel) \
+        MACRO(LineTo) \
+        MACRO(LineOrientedTo) \
+        MACRO(PinPoint) \
+        MACRO(LineRel) \
+        MACRO(LineOrientedRel) \
+        MACRO(PinPointRel) \
     MACRO(SetHeading) \
     MACRO(EulerAngles) \
-	MACRO(Left) \
-	MACRO(Right) \
-	MACRO(Up) \
-	MACRO(Down) \
-	MACRO(RollL) \
-	MACRO(RollR) \
-	MACRO(iRollL) \
-	MACRO(iRollR) \
-	MACRO(TurnAround) \
+        MACRO(Left) \
+        MACRO(Right) \
+        MACRO(Up) \
+        MACRO(Down) \
+        MACRO(RollL) \
+        MACRO(RollR) \
+        MACRO(iRollL) \
+        MACRO(iRollR) \
+        MACRO(TurnAround) \
     MACRO(RollToVert) \
     MACRO(RollToHorizontal) \
     MACRO(Sphere) \
     MACRO(Box) \
     MACRO(Quad) \
-	MACRO(Circle) \
-	MACRO(Label) \
-	MACRO(Frame) \
-	MACRO(IncWidth) \
-	MACRO(DecWidth) \
-	MACRO(SetWidth) \
-	MACRO(IncColor) \
-	MACRO(DecColor) \
+        MACRO(Circle) \
+        MACRO(Label) \
+        MACRO(Frame) \
+        MACRO(IncWidth) \
+        MACRO(DecWidth) \
+        MACRO(SetWidth) \
+        MACRO(IncColor) \
+        MACRO(DecColor) \
     MACRO(SetColor) \
     MACRO(InterpolateColors) \
-	MACRO(DivScale) \
-	MACRO(MultScale) \
-	MACRO(SetScale) \
-	MACRO(Surface) \
-	MACRO(CpfgSurface) \
-	MACRO(PglShape) \
-	MACRO(Elasticity) \
-	MACRO(Tropism) \
-	MACRO(SetContour) \
-	MACRO(SectionResolution) \
-	MACRO(SetGuide) \
-	MACRO(EndGuide) \
-	MACRO(Sweep) \
-	MACRO(PositionOnGuide) \
-	MACRO(TextureScale) \
-	MACRO(TextureUScale) \
-	MACRO(TextureVScale) \
-	MACRO(TextureTranslation) \
-	MACRO(TextureRotation) \
+        MACRO(DivScale) \
+        MACRO(MultScale) \
+        MACRO(SetScale) \
+        MACRO(Surface) \
+        MACRO(CpfgSurface) \
+        MACRO(PglShape) \
+        MACRO(Elasticity) \
+        MACRO(Tropism) \
+        MACRO(SetContour) \
+        MACRO(SectionResolution) \
+        MACRO(SetGuide) \
+        MACRO(EndGuide) \
+        MACRO(Sweep) \
+        MACRO(PositionOnGuide) \
+        MACRO(TextureScale) \
+        MACRO(TextureUScale) \
+        MACRO(TextureVScale) \
+        MACRO(TextureTranslation) \
+        MACRO(TextureRotation) \
     MACRO(TextureTransformation) \
     MACRO(TextureBaseColor) \
     MACRO(InterpolateTextureBaseColors) \
-	MACRO(GetIterator) \
-	MACRO(GetModule) \
-	MACRO(New) \
-	MACRO(LeftReflection) \
-	MACRO(UpReflection) \
-	MACRO(HeadingReflection) \
-	MACRO(StartScreenProjection) \
-	MACRO(EndScreenProjection) \
+        MACRO(GetIterator) \
+        MACRO(GetModule) \
+        MACRO(New) \
+        MACRO(LeftReflection) \
+        MACRO(UpReflection) \
+        MACRO(HeadingReflection) \
+        MACRO(StartScreenProjection) \
+        MACRO(EndScreenProjection) \
 
 #define DECLARE_PM(MName) static ModuleClassPtr MName;
 
-class LPY_API ModuleClass : public TOOLS(RefCountObject) {
-public:
+  class LPY_API ModuleClass : public TOOLS(RefCountObject)
+  {
+   public:
     static int DEFAULT_SCALE;
 
-	friend class ModuleVTable;
-	friend class LsysContext;
+    friend class ModuleVTable;
 
-	ModuleClass(const std::string& name);
-	ModuleClass(const std::string& name, const std::string& alias);
-	~ModuleClass();
+    friend class LsysContext;
 
-	size_t getId() const { return id; }
+    ModuleClass(const std::string &name);
+    ModuleClass(const std::string &name, const std::string &alias);
+    ~ModuleClass();
 
-	void activate(bool value = true) ;
-	inline void desactivate() { activate(false); }
+    size_t getId() const
+    { return id; }
 
-	inline bool isActive() const { return active; }
-	virtual void interpret(ParamModule& m, PGL::Turtle& t) ;
-	virtual std::string getDocumentation() const { return ""; }
-	virtual bool isPredefined() const { return false; }
+    void activate(bool value = true);
 
-	std::string name;
-	std::vector<std::string> aliases;
+    inline void desactivate()
+    { activate(false); }
 
-	static ModuleClassList& getPredefinedClasses();
-	static void clearPredefinedClasses();
-	static void createPredefinedClasses();
+    inline bool isActive() const
+    { return active; }
+
+    virtual void interpret(ParamModule &m, PGL::Turtle &t);
+
+    virtual std::string getDocumentation() const
+    { return ""; }
+
+    virtual bool isPredefined() const
+    { return false; }
+
+    std::string name;
+    std::vector<std::string> aliases;
+
+    static ModuleClassList &getPredefinedClasses();
+    static void clearPredefinedClasses();
+    static void createPredefinedClasses();
 
     PREDEFINED_MODULE_APPLY(DECLARE_PM)
 
-	inline bool isLeftBracket() const {  return this == ModuleClass::LeftBracket; }
-	inline bool isRightBracket() const {  return this == ModuleClass::RightBracket; }
-	inline bool isExactRightBracket() const { return this == ModuleClass::ExactRightBracket; }
-	inline bool isBracket() const { return isLeftBracket() || isRightBracket() || isExactRightBracket(); }
+    inline bool isLeftBracket() const
+    { return this == ModuleClass::LeftBracket; }
 
-	inline int getScale() const 
-	{ if (__vtable) return __vtable->scale; 
-	  else return DEFAULT_SCALE; }
+    inline bool isRightBracket() const
+    { return this == ModuleClass::RightBracket; }
 
-	void setScale(int scale);
+    inline bool isExactRightBracket() const
+    { return this == ModuleClass::ExactRightBracket; }
 
-	inline ModulePropertyPtr getProperty(const std::string& name) const 
-	{ if (__vtable) return __vtable->getProperty(name); else return ModulePropertyPtr(); }
+    inline bool isBracket() const
+    { return isLeftBracket() || isRightBracket() || isExactRightBracket(); }
 
-	void setProperty(ModulePropertyPtr prop);
+    inline int getScale() const
+    {
+      if (__vtable) return __vtable->scale;
+      else return DEFAULT_SCALE;
+    }
 
-	void setBases(const ModuleClassList& bases);
-	ModuleClassList getBases() const;
+    void setScale(int scale);
 
-	inline bool hasBaseClasses() const 
-	{ if (__vtable) return __vtable->hasBaseClasses(); else return false; }
+    inline ModulePropertyPtr getProperty(const std::string &name) const
+    { if (__vtable) return __vtable->getProperty(name); else return ModulePropertyPtr(); }
 
-	inline bool issubclass(const ModuleClassPtr& other) const
-	{
-		if (other.get() == this) return true;
-		if(__vtable) return __vtable->issubclass(other);
-		else return false;
-	}
+    void setProperty(ModulePropertyPtr prop);
 
-	inline std::vector<size_t> getAllBaseIds() const 
-	{ if (__vtable) return __vtable->getAllBaseIds(); else { return std::vector<size_t>(); } } 
+    void setBases(const ModuleClassList &bases);
+    ModuleClassList getBases() const;
 
-	bool removeProperty(const std::string& name);
-	bool isOnlyInPattern() const { return onlyInPattern; }
+    inline bool hasBaseClasses() const
+    { if (__vtable) return __vtable->hasBaseClasses(); else return false; }
 
-	static size_t NOPOS;
+    inline bool issubclass(const ModuleClassPtr &other) const
+    {
+      if (other.get() == this) return true;
+      if (__vtable) return __vtable->issubclass(other);
+      else return false;
+    }
 
-	void setParameterNames(const std::vector<std::string>& names);
+    inline std::vector<size_t> getAllBaseIds() const
+    {
+      if (__vtable) return __vtable->getAllBaseIds();
+      else
+	{ return std::vector<size_t>(); }
+    }
 
-	std::vector<std::string> getParameterNames() const;
+    bool removeProperty(const std::string &name);
 
-	const ParameterNameDict& getParameterNameDict() const { return __paramnames; }
+    bool isOnlyInPattern() const
+    { return onlyInPattern; }
 
-	inline size_t getNamedParameterNb() const
-	{ return __paramnames.size(); }
+    static size_t NOPOS;
 
-	size_t getParameterPosition(const std::string&) const;
+    void setParameterNames(const std::vector<std::string> &names);
 
-	inline bool hasParameter(const std::string& name) const 
-	{ return getParameterPosition(name) != NOPOS; }
+    std::vector<std::string> getParameterNames() const;
 
-	static size_t getMaxId() { return MAXID; }
+    const ParameterNameDict &getParameterNameDict() const
+    { return __paramnames; }
 
-protected:
-	static ModuleClassList * PredefinedClasses;
-	bool onlyInPattern;
-private:
-	size_t id;
-	bool active;
+    inline size_t getNamedParameterNb() const
+    { return __paramnames.size(); }
 
-	static size_t MAXID;
+    size_t getParameterPosition(const std::string &) const;
 
-	ModuleVTablePtr __vtable;
-	void create_vtable();
+    inline bool hasParameter(const std::string &name) const
+    { return getParameterPosition(name) != NOPOS; }
 
-	ParameterNameDict __paramnames;
+    static size_t getMaxId()
+    { return MAXID; }
 
-	static const ParameterNameDict * sorter;
+   protected:
+    static ModuleClassList *PredefinedClasses;
+    bool onlyInPattern;
+   private:
+    size_t id;
+    bool active;
 
-	static bool sortNames(const std::string&,const std::string&);
+    static size_t MAXID;
 
-};
+    ModuleVTablePtr __vtable;
+    void create_vtable();
 
-class LPY_API PredefinedModuleClass : public ModuleClass {
-    static const char * CATEGORY_NAME[];
-public:
-	enum eCategory {
-		eNone = 0,
-		eStructure,
-		eRotation,
-		ePosition,
-		eScale,
-		ePrimitive,
-		eWidth,
-		eColor,
-	    eTropism,
-		eRequest,
-		eTexture,
-		eStringManipulation,
-		ePatternMatching,
-		eUserDefined,
-		eLastCategory = eUserDefined
-	} ;
-	static std::string getCategoryName(eCategory);
+    ParameterNameDict __paramnames;
 
-	PredefinedModuleClass(const std::string& name, 
-						  const std::string& documentation,
-						  eCategory category = eNone);
+    static const ParameterNameDict *sorter;
 
-	PredefinedModuleClass(const std::string& name, 
-						  const std::string& alias, 
-						  const std::string& documentation,
-						  eCategory category = eNone);
+    static bool sortNames(const std::string &, const std::string &);
 
-	~PredefinedModuleClass();
-	bool isPredefined() const { return true; }
-	std::string getDocumentation() const { return documentation; }
-	eCategory getCategory() const { return category; }
-	std::string documentation;
-	eCategory category;
+  };
 
-};
+  class LPY_API PredefinedModuleClass : public ModuleClass
+  {
+    static const char *CATEGORY_NAME[];
+   public:
+    enum eCategory
+    {
+      eNone = 0,
+      eStructure,
+      eRotation,
+      ePosition,
+      eScale,
+      ePrimitive,
+      eWidth,
+      eColor,
+      eTropism,
+      eRequest,
+      eTexture,
+      eStringManipulation,
+      ePatternMatching,
+      eUserDefined,
+      eLastCategory = eUserDefined
+    };
+    static std::string getCategoryName(eCategory);
+
+    PredefinedModuleClass(const std::string &name,
+			  const std::string &documentation,
+			  eCategory category = eNone);
+
+    PredefinedModuleClass(const std::string &name,
+			  const std::string &alias,
+			  const std::string &documentation,
+			  eCategory category = eNone);
+
+    ~PredefinedModuleClass();
+
+    bool isPredefined() const
+    { return true; }
+
+    std::string getDocumentation() const
+    { return documentation; }
+
+    eCategory getCategory() const
+    { return category; }
+
+    std::string documentation;
+    eCategory category;
+
+  };
 
 
-class LPY_API ModuleClassTable {
-public:
-	friend class ModuleClass;
+  class LPY_API ModuleClassTable
+  {
+   public:
+    friend class ModuleClass;
 
-	// Singleton
-	static ModuleClassTable& get();
-	static void clearModuleClasses();
+    // Singleton
+    static ModuleClassTable &get();
+    static void clearModuleClasses();
 
-	ModuleClassPtr declare(const std::string& name);
-	ModuleClassPtr declare(const char name) { std::string n(1,name); return declare(n); }
-	bool declare(ModuleClass * moduleclass);
-	bool isDeclared(const ModuleClass * moduleclass) const;
+    ModuleClassPtr declare(const std::string &name);
 
-	ModuleClassPtr alias(const std::string& aliasname, const std::string& name);
-	void alias(const std::string& aliasname, ModuleClassPtr module);
-	/// get a class. If it does not exist, create it
-	ModuleClassPtr getClass(const std::string&) ;
-	/// find an existing class
-	ModuleClassPtr find(size_t id) const ;
-	/// find an existing class
-	ModuleClassPtr find(const std::string&) const ;
+    ModuleClassPtr declare(const char name)
+    {
+      std::string n(1, name);
+      return declare(n);
+    }
 
-	bool remove(const std::string& name);
-	bool remove(const ModuleClass * moduleclass);
+    bool declare(ModuleClass *moduleclass);
+    bool isDeclared(const ModuleClass *moduleclass) const;
 
-	void reset();
-	size_t size() const { return modulenamelist.size(); }
-	bool empty() const { return modulenamelist.empty(); }
-	ModuleClassList getClasses() const ;
-	std::vector<std::string> getNames() const ;
+    ModuleClassPtr alias(const std::string &aliasname, const std::string &name);
+    void alias(const std::string &aliasname, ModuleClassPtr module);
+    /// get a class. If it does not exist, create it
+    ModuleClassPtr getClass(const std::string &);
+    /// find an existing class
+    ModuleClassPtr find(size_t id) const;
+    /// find an existing class
+    ModuleClassPtr find(const std::string &) const;
 
-	static void setMandatoryDeclaration(bool value) { get().mandatory_declaration = value; }
-	bool mandatory_declaration;
+    bool remove(const std::string &name);
+    bool remove(const ModuleClass *moduleclass);
 
-	ModuleClassPtr parse(std::string::const_iterator beg, std::string::const_iterator end,
-					    size_t& nsize);
+    void reset();
 
-protected:
+    size_t size() const
+    { return modulenamelist.size(); }
 
-	typedef  pgl_hash_map_string<ModuleClass *> ModuleClassMap;
-    typedef pgl_hash_map<size_t,ModuleClass *> ModuleClassIdMap;
-	ModuleClassMap  modulenamemap;
-	ModuleClassIdMap modulenamelist;
-	size_t maxnamelength;
+    bool empty() const
+    { return modulenamelist.empty(); }
 
-	void clear();
-	void registerPredefinedModule();
+    ModuleClassList getClasses() const;
+    std::vector<std::string> getNames() const;
 
-private:
-	friend class ModuleClassTableGarbageCollector; 
+    static void setMandatoryDeclaration(bool value)
+    { get().mandatory_declaration = value; }
 
-	static ModuleClassTable * __INSTANCE;
-	ModuleClassTable();
+    bool mandatory_declaration;
+
+    ModuleClassPtr parse(std::string::const_iterator beg, std::string::const_iterator end,
+			 size_t &nsize);
+
+   protected:
+
+    typedef pgl_hash_map_string<ModuleClass *> ModuleClassMap;
+    typedef pgl_hash_map<size_t, ModuleClass *> ModuleClassIdMap;
+    ModuleClassMap modulenamemap;
+    ModuleClassIdMap modulenamelist;
+    size_t maxnamelength;
+
+    void clear();
+    void registerPredefinedModule();
+
+   private:
+    friend class ModuleClassTableGarbageCollector;
+
+    static ModuleClassTable *__INSTANCE;
+    ModuleClassTable();
     ~ModuleClassTable();
-};
+  };
 
 /*---------------------------------------------------------------------------*/
 

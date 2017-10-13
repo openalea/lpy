@@ -40,17 +40,17 @@ LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
-LPY_API void LsysError(const std::string& error);
+  LPY_API void LsysError(const std::string &error);
 
-LPY_API void LsysError(const std::string& error,const std::string& filename, int lineno);
+  LPY_API void LsysError(const std::string &error, const std::string &filename, int lineno);
 
-LPY_API void LsysSyntaxError(const std::string& error);
+  LPY_API void LsysSyntaxError(const std::string &error);
 
-LPY_API void LsysSyntaxError(const std::string& error,const std::string& filename, int lineno);
+  LPY_API void LsysSyntaxError(const std::string &error, const std::string &filename, int lineno);
 
-LPY_API void LsysWarning(const std::string& error);
+  LPY_API void LsysWarning(const std::string &error);
 
-LPY_API void LsysWarning(const std::string& error,const std::string& filename, int lineno);
+  LPY_API void LsysWarning(const std::string &error, const std::string &filename, int lineno);
 
 #ifdef DEBUG
 #define lpyassert(x) assert(x)

@@ -41,32 +41,44 @@ TOOLS_USING_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
-void Compilation::setCompiler(eCompiler compiler) {
-	if (!cythonAvailable && compiler == eCython) Compiler = eDefaultCompiler;
-	else Compiler = compiler;
-	if(compiler == eCython){
-		tmp_extension = "pyx";
-	}
-	else {
-		tmp_extension = "py";
-	}
-}
-
-void Compilation::setPythonExec(const std::string& path)
+void Compilation::setCompiler(eCompiler compiler)
 {
-	python_exec = path;
+  if (!cythonAvailable && compiler == eCython) Compiler = eDefaultCompiler;
+  else Compiler = compiler;
+  if (compiler == eCython)
+    {
+      tmp_extension = "pyx";
+    }
+  else
+    {
+      tmp_extension = "py";
+    }
+}
+
+void Compilation::setPythonExec(const std::string &path)
+{
+  python_exec = path;
 }
 
 
-void Compilation::compile(const std::string& code, PyObject * globals, PyObject * locals, const std::string& fname){
-	if(!code.empty()){
-		switch(Compiler){
-			case eCython:      pyx_file_compile (code, fname, globals, locals); break;
-			case ePythonFile : py_file_compile  (code, fname, globals, locals); break;
-			default:
-			case ePythonStr :  py_string_compile(code, globals, locals); break;
-		}
+void Compilation::compile(const std::string &code, PyObject *globals, PyObject *locals, const std::string &fname)
+{
+  if (!code.empty())
+    {
+      switch (Compiler)
+	{
+	  case eCython:
+	    pyx_file_compile(code, fname, globals, locals);
+	  break;
+	  case ePythonFile :
+	    py_file_compile(code, fname, globals, locals);
+	  break;
+	  default:
+	  case ePythonStr :
+	    py_string_compile(code, globals, locals);
+	  break;
 	}
+    }
 }
 
 
@@ -76,66 +88,67 @@ bool Compilation::cythonAvailable = true;
 std::string Compilation::tmp_extension = "py";
 std::string Compilation::python_exec = "python";
 
-void Compilation::py_string_compile(const std::string& code, PyObject * globals, PyObject * locals)
+void Compilation::py_string_compile(const std::string &code, PyObject *globals, PyObject *locals)
 {
-	bp::exec(bp::str(code.c_str()),bp::object(bp::handle<>(bp::borrowed(globals))),bp::object(bp::handle<>(bp::borrowed(locals))));
-	// bp::handle<>( PyRun_String(code.c_str(),Py_file_input,globals,locals) );
+  bp::exec(bp::str(code.c_str()), bp::object(bp::handle<>(bp::borrowed(globals))),
+	   bp::object(bp::handle<>(bp::borrowed(locals))));
+  // bp::handle<>( PyRun_String(code.c_str(),Py_file_input,globals,locals) );
 }
 
-std::string Compilation::generate_fname(const std::string& fname)
+std::string Compilation::generate_fname(const std::string &fname)
 {
-	static size_t tmpid = 0;
-	++tmpid;
-	if(fname.empty())return "lsystem_"+number(tmpid);
-	else return fname+number(tmpid);
+  static size_t tmpid = 0;
+  ++tmpid;
+  if (fname.empty())return "lsystem_" + number(tmpid);
+  else return fname + number(tmpid);
 }
 
-void Compilation::py_file_write(const std::string& code,
-								const std::string& fname)
+void Compilation::py_file_write(const std::string &code,
+				const std::string &fname)
 {
-	std::ofstream stream(fname.c_str());
-	stream << "from openalea.lpy import *" << std::endl;
-	stream << code;
+  std::ofstream stream(fname.c_str());
+  stream << "from openalea.lpy import *" << std::endl;
+  stream << code;
 }
 
-void Compilation::py_file_remove(const std::string& fname)
+void Compilation::py_file_remove(const std::string &fname)
 {
-	remove(fname.c_str());
+  remove(fname.c_str());
 }
 
-void Compilation::py_file_import(const std::string& fname, 
-								 PyObject * globals,
-							     PyObject * locals)
+void Compilation::py_file_import(const std::string &fname,
+				 PyObject *globals,
+				 PyObject *locals)
 {
-	bp::object module = bp::import(fname.c_str());
-	bp::handle<> moduledict(bp::borrowed(PyModule_GetDict(module.ptr())));
-	if(!moduledict)LsysError("Cannot import module dict");
-	PyDict_Update(locals,moduledict.get());	
+  bp::object module = bp::import(fname.c_str());
+  bp::handle<> moduledict(bp::borrowed(PyModule_GetDict(module.ptr())));
+  if (!moduledict)LsysError("Cannot import module dict");
+  PyDict_Update(locals, moduledict.get());
 }
 
-void Compilation::pyx_file_compile(const std::string& code,
-								  const std::string& fname, 
-								  PyObject * globals,
-							      PyObject * locals)
+void Compilation::pyx_file_compile(const std::string &code,
+				   const std::string &fname,
+				   PyObject *globals,
+				   PyObject *locals)
 {
-	std::string lfname = generate_fname(fname);
-	std::string clfname = lfname+"."+tmp_extension;
-	py_file_write(code,clfname);
-	py_file_import(lfname,globals,locals);
-	py_file_remove(clfname);
+  std::string lfname = generate_fname(fname);
+  std::string clfname = lfname + "." + tmp_extension;
+  py_file_write(code, clfname);
+  py_file_import(lfname, globals, locals);
+  py_file_remove(clfname);
 }
 
-void Compilation::py_file_compile(const std::string& code,
-								  const std::string& fname, 
-								  PyObject * globals,
-							      PyObject * locals)
+void Compilation::py_file_compile(const std::string &code,
+				  const std::string &fname,
+				  PyObject *globals,
+				  PyObject *locals)
 {
-	std::string lfname = generate_fname(fname);
-	std::string clfname = lfname+"."+tmp_extension;
-	py_file_write(code,clfname);
-	std::string cmd = python_exec+" -OO "+lfname+".py";
-	system(cmd.c_str());
-	py_file_import(lfname,globals,locals);
-	py_file_remove(clfname);
+  std::string lfname = generate_fname(fname);
+  std::string clfname = lfname + "." + tmp_extension;
+  py_file_write(code, clfname);
+  std::string cmd = python_exec + " -OO " + lfname + ".py";
+  system(cmd.c_str());
+  py_file_import(lfname, globals, locals);
+  py_file_remove(clfname);
 }
 /*---------------------------------------------------------------------------*/

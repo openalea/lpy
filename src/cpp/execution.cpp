@@ -34,22 +34,26 @@ LPY_USING_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
-PyExecution::PyExecution() : __mutex() {}
+PyExecution::PyExecution() : __mutex()
+{}
 
-PyExecution * PyExecution::__pyexec(0);
+PyExecution *PyExecution::__pyexec(0);
 
 
-PyExecution * PyExecution::get() {
-    if(__pyexec == NULL) __pyexec = new PyExecution();
-    return __pyexec;
+PyExecution *PyExecution::get()
+{
+  if (__pyexec == NULL) __pyexec = new PyExecution();
+  return __pyexec;
 }
 
-void PyExecution::acquire() { 
-    __mutex.lock(); 
+void PyExecution::acquire()
+{
+  __mutex.lock();
 }
 
-void PyExecution::release() { 
-    __mutex.unlock(); 
+void PyExecution::release()
+{
+  __mutex.unlock();
 }
 
 /*---------------------------------------------------------------------------*/

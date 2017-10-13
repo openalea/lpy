@@ -39,211 +39,218 @@ LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
-class LPY_API MatchingEngine {
+  class LPY_API MatchingEngine
+  {
 
-public:
-	enum eModuleMatchingMethod {
-			eMSimple = 0,
-			eMWithStar,
-			eMWithStarNValueConstraint,
-			eDefaultModuleMatching = eMWithStarNValueConstraint
-	  };
+   public:
+    enum eModuleMatchingMethod
+    {
+      eMSimple = 0,
+      eMWithStar,
+      eMWithStarNValueConstraint,
+      eDefaultModuleMatching = eMWithStarNValueConstraint
+    };
 
-  static void setModuleMatchingMethod(eModuleMatchingMethod);
-  static eModuleMatchingMethod getModuleMatchingMethod();
+    static void setModuleMatchingMethod(eModuleMatchingMethod);
+    static eModuleMatchingMethod getModuleMatchingMethod();
 
-  static void setInheritanceModuleMatchingActivated(bool b);
-  static bool isInheritanceModuleMatchingActivated();
+    static void setInheritanceModuleMatchingActivated(bool b);
+    static bool isInheritanceModuleMatchingActivated();
 
-  enum eStringMatchingMethod {
-			eString = 0,
-			eAxialTree,
-			eMLevelAxialTree,
-			eMScaleAxialTree,
-			eDefaultStringMatching = eAxialTree
+    enum eStringMatchingMethod
+    {
+      eString = 0,
+      eAxialTree,
+      eMLevelAxialTree,
+      eMScaleAxialTree,
+      eDefaultStringMatching = eAxialTree
+    };
+
+    static void setStringMatchingMethod(eStringMatchingMethod);
+    static eStringMatchingMethod getStringMatchingMethod();
+
+   private:
+    static eModuleMatchingMethod ModuleMatchingMethod;
+    static eStringMatchingMethod StringMatchingMethod;
+    typedef bool (*ModuleMatchingFuncType)(const ParamModule &, const PatternModule &, ArgList &);
+    static ModuleMatchingFuncType ModuleMatchingFunc;
+
+    typedef bool (*RightMatchingFuncType)(AxialTree::const_iterator, AxialTree::const_iterator,
+					  AxialTree::const_iterator,
+					  PatternString::const_iterator, PatternString::const_iterator,
+					  AxialTree::const_iterator &, AxialTree::const_iterator &,
+					  const ConsiderFilterPtr, ArgList &, AxialTree::IteratorMap *);
+
+    static RightMatchingFuncType RightMatchingFunc;
+
+    typedef bool (*LeftMatchingFuncType)(AxialTree::const_iterator, AxialTree::const_iterator,
+					 AxialTree::const_iterator, PatternString::const_reverse_iterator,
+					 PatternString::const_reverse_iterator, AxialTree::const_iterator &,
+					 const ConsiderFilterPtr, ArgList &, AxialTree::IteratorMap *);
+
+    static LeftMatchingFuncType LeftMatchingFunc;
+
+   public:
+    static bool compatible_classes(const ModuleClassPtr &module,
+				   const ModuleClassPtr &pattern);
+
+    static bool module_match(const ParamModule &module,
+			     const PatternModule &pattern,
+			     ArgList &params);
+
+
+    static bool match(AxialTree::const_iterator matching_start,
+		      AxialTree::const_iterator string_begin,
+		      AxialTree::const_iterator string_end,
+		      PatternString::const_iterator pattern_begin,
+		      PatternString::const_iterator pattern_end,
+		      AxialTree::const_iterator &matching_end,
+		      AxialTree::const_iterator &last_matched,
+		      const ConsiderFilterPtr filter,
+		      ArgList &params);
+
+    static bool reverse_match(AxialTree::const_iterator matching_start,
+			      AxialTree::const_iterator string_begin,
+			      AxialTree::const_iterator string_end,
+			      PatternString::const_reverse_iterator pattern_rbegin,
+			      PatternString::const_reverse_iterator pattern_rend,
+			      AxialTree::const_iterator &matching_end,
+			      const ConsiderFilterPtr filter,
+			      ArgList &params);
+
+
+    static bool right_match(AxialTree::const_iterator matching_start,
+			    AxialTree::const_iterator string_begin,
+			    AxialTree::const_iterator string_end,
+			    PatternString::const_iterator pattern_begin,
+			    PatternString::const_iterator pattern_end,
+			    AxialTree::const_iterator &last_matched,
+			    AxialTree::const_iterator &matching_end,
+			    const ConsiderFilterPtr filter,
+			    ArgList &params, AxialTree::IteratorMap *itermap = NULL);
+
+    static bool left_match(AxialTree::const_iterator matching_start,
+			   AxialTree::const_iterator string_begin,
+			   AxialTree::const_iterator string_end,
+			   PatternString::const_reverse_iterator pattern_rbegin,
+			   PatternString::const_reverse_iterator pattern_rend,
+			   AxialTree::const_iterator &matching_end,
+			   const ConsiderFilterPtr filter,
+			   ArgList &params, AxialTree::IteratorMap *itermap = NULL);
   };
-
-  static void setStringMatchingMethod(eStringMatchingMethod);
-  static eStringMatchingMethod getStringMatchingMethod();
-
-private:
-  static eModuleMatchingMethod ModuleMatchingMethod;
-  static eStringMatchingMethod StringMatchingMethod;
-  typedef bool (*ModuleMatchingFuncType)(const ParamModule&, const PatternModule&, ArgList&);
-  static ModuleMatchingFuncType ModuleMatchingFunc;
-
-  typedef bool (*RightMatchingFuncType)(AxialTree::const_iterator, AxialTree::const_iterator, AxialTree::const_iterator,
-										PatternString::const_iterator, PatternString::const_iterator,
-										AxialTree::const_iterator&, AxialTree::const_iterator&, const ConsiderFilterPtr, ArgList&, AxialTree::IteratorMap*);
-
-  static RightMatchingFuncType RightMatchingFunc;
-
-  typedef bool (*LeftMatchingFuncType)(AxialTree::const_iterator, AxialTree::const_iterator,
-									   AxialTree::const_iterator, PatternString::const_reverse_iterator,
-									   PatternString::const_reverse_iterator, AxialTree::const_iterator&, const ConsiderFilterPtr, ArgList&, AxialTree::IteratorMap*);
-
-  static LeftMatchingFuncType LeftMatchingFunc;
-
-public:
-	static bool compatible_classes(const ModuleClassPtr& module, 
-							 const ModuleClassPtr& pattern) ;
-
-	static bool module_match(const ParamModule& module, 
-							 const PatternModule& pattern,
-							 ArgList& params) ;
-
-
-	static bool match(AxialTree::const_iterator  matching_start,
-			   AxialTree::const_iterator  string_begin,
-			   AxialTree::const_iterator  string_end,
-			   PatternString::const_iterator  pattern_begin,
-			   PatternString::const_iterator  pattern_end,
-			   AxialTree::const_iterator& matching_end,
-			   AxialTree::const_iterator& last_matched,
-               const ConsiderFilterPtr filter,
-			   ArgList& params) ;
-
-	static bool reverse_match(AxialTree::const_iterator matching_start,
-					 AxialTree::const_iterator  string_begin,
-					 AxialTree::const_iterator  string_end,
-					 PatternString::const_reverse_iterator  pattern_rbegin,
-					 PatternString::const_reverse_iterator  pattern_rend,
-					 AxialTree::const_iterator& matching_end,
-                     const ConsiderFilterPtr filter,
-					 ArgList& params);
-
-
-	static bool right_match(AxialTree::const_iterator  matching_start,
-   	    AxialTree::const_iterator  string_begin,
-		AxialTree::const_iterator  string_end,
-		PatternString::const_iterator  pattern_begin,
-		PatternString::const_iterator  pattern_end,
-		AxialTree::const_iterator&  last_matched,
-		AxialTree::const_iterator&  matching_end,
-        const ConsiderFilterPtr filter,
-		ArgList& params, AxialTree::IteratorMap* itermap = NULL);
-
-	static bool left_match(AxialTree::const_iterator  matching_start,
-			  	    AxialTree::const_iterator  string_begin,
-			  	    AxialTree::const_iterator  string_end,
-					PatternString::const_reverse_iterator  pattern_rbegin,
-					PatternString::const_reverse_iterator  pattern_rend,
-					AxialTree::const_iterator& matching_end,
-                    const ConsiderFilterPtr filter,
-					ArgList& params, AxialTree::IteratorMap* itermap = NULL);
-};
 
 /*---------------------------------------------------------------------------*/
 
-class LPY_API MatchingImplementation : public MatchingEngine {
-public:
-	static bool simple_module_matching(const ParamModule& module, 
-									   const PatternModule& pattern, 
-									   ArgList& l);
+  class LPY_API MatchingImplementation : public MatchingEngine
+  {
+   public:
+    static bool simple_module_matching(const ParamModule &module,
+				       const PatternModule &pattern,
+				       ArgList &l);
 
-	static bool module_matching_with_star(const ParamModule& module, 
-									      const PatternModule& pattern, 
-									      ArgList& l);
+    static bool module_matching_with_star(const ParamModule &module,
+					  const PatternModule &pattern,
+					  ArgList &l);
 
-	static bool module_matching_with_star_and_valueconstraints(const ParamModule& module, 
-									      const PatternModule& pattern, 
-									      ArgList& l);
+    static bool module_matching_with_star_and_valueconstraints(const ParamModule &module,
+							       const PatternModule &pattern,
+							       ArgList &l);
 
-	static bool string_exact_match(AxialTree::const_iterator  matching_start,
-						     AxialTree::const_iterator  string_begin,
-		                     AxialTree::const_iterator  string_end,
-							 PatternString::const_iterator  pattern_begin,
-							 PatternString::const_iterator  pattern_end,
-							 AxialTree::const_iterator& matching_end,
-						     AxialTree::const_iterator& last_matched,
-                             const ConsiderFilterPtr filter,
-							 ArgList& params) ;
+    static bool string_exact_match(AxialTree::const_iterator matching_start,
+				   AxialTree::const_iterator string_begin,
+				   AxialTree::const_iterator string_end,
+				   PatternString::const_iterator pattern_begin,
+				   PatternString::const_iterator pattern_end,
+				   AxialTree::const_iterator &matching_end,
+				   AxialTree::const_iterator &last_matched,
+				   const ConsiderFilterPtr filter,
+				   ArgList &params);
 
-	static bool string_exact_reverse_match(AxialTree::const_iterator matching_start,
-		                             AxialTree::const_iterator  string_begin,
-									 AxialTree::const_iterator  string_end,
-					                 PatternString::const_reverse_iterator  pattern_rbegin,
-									 PatternString::const_reverse_iterator  pattern_rend,
-									 AxialTree::const_iterator& matching_end,
-                                     const ConsiderFilterPtr filter,
-									 ArgList& params);
+    static bool string_exact_reverse_match(AxialTree::const_iterator matching_start,
+					   AxialTree::const_iterator string_begin,
+					   AxialTree::const_iterator string_end,
+					   PatternString::const_reverse_iterator pattern_rbegin,
+					   PatternString::const_reverse_iterator pattern_rend,
+					   AxialTree::const_iterator &matching_end,
+					   const ConsiderFilterPtr filter,
+					   ArgList &params);
 
-	static bool string_right_match(AxialTree::const_iterator  matching_start,
-						         AxialTree::const_iterator  string_begin,
-		                         AxialTree::const_iterator  string_end,
-								 PatternString::const_iterator  pattern_begin,
-								 PatternString::const_iterator  pattern_end,
-							     AxialTree::const_iterator&  last_matched,
-								 AxialTree::const_iterator& matching_end,
-                                 const ConsiderFilterPtr filter,
-								 ArgList& params, AxialTree::IteratorMap* itermap = NULL);
+    static bool string_right_match(AxialTree::const_iterator matching_start,
+				   AxialTree::const_iterator string_begin,
+				   AxialTree::const_iterator string_end,
+				   PatternString::const_iterator pattern_begin,
+				   PatternString::const_iterator pattern_end,
+				   AxialTree::const_iterator &last_matched,
+				   AxialTree::const_iterator &matching_end,
+				   const ConsiderFilterPtr filter,
+				   ArgList &params, AxialTree::IteratorMap *itermap = NULL);
 
-	static bool string_left_match(AxialTree::const_iterator matching_start,
-		                             AxialTree::const_iterator  string_begin,
-									 AxialTree::const_iterator  string_end,
-					                 PatternString::const_reverse_iterator  pattern_rbegin,
-									 PatternString::const_reverse_iterator  pattern_rend,
-									 AxialTree::const_iterator& matching_end,
-                                     const ConsiderFilterPtr filter,
-									 ArgList& params, AxialTree::IteratorMap* itermap = NULL);
+    static bool string_left_match(AxialTree::const_iterator matching_start,
+				  AxialTree::const_iterator string_begin,
+				  AxialTree::const_iterator string_end,
+				  PatternString::const_reverse_iterator pattern_rbegin,
+				  PatternString::const_reverse_iterator pattern_rend,
+				  AxialTree::const_iterator &matching_end,
+				  const ConsiderFilterPtr filter,
+				  ArgList &params, AxialTree::IteratorMap *itermap = NULL);
 
-	static bool tree_right_match(AxialTree::const_iterator  matching_start,
-								 AxialTree::const_iterator  string_begin,
-		                         AxialTree::const_iterator  string_end,
-								 PatternString::const_iterator  pattern_begin,
-								 PatternString::const_iterator  pattern_end,
-							     AxialTree::const_iterator&  last_matched,
-								 AxialTree::const_iterator& matching_end,
-                                 const ConsiderFilterPtr filter,
-								 ArgList& params, AxialTree::IteratorMap* itermap = NULL);
+    static bool tree_right_match(AxialTree::const_iterator matching_start,
+				 AxialTree::const_iterator string_begin,
+				 AxialTree::const_iterator string_end,
+				 PatternString::const_iterator pattern_begin,
+				 PatternString::const_iterator pattern_end,
+				 AxialTree::const_iterator &last_matched,
+				 AxialTree::const_iterator &matching_end,
+				 const ConsiderFilterPtr filter,
+				 ArgList &params, AxialTree::IteratorMap *itermap = NULL);
 
-	static bool tree_left_match(AxialTree::const_iterator  matching_start,
-		                        AxialTree::const_iterator  string_begin,
-								AxialTree::const_iterator  string_end,
-								PatternString::const_reverse_iterator  pattern_rbegin,
-								PatternString::const_reverse_iterator  pattern_rend,
-								AxialTree::const_iterator& matching_end,
-                                 const ConsiderFilterPtr filter,
-								ArgList& params, AxialTree::IteratorMap* itermap = NULL);
+    static bool tree_left_match(AxialTree::const_iterator matching_start,
+				AxialTree::const_iterator string_begin,
+				AxialTree::const_iterator string_end,
+				PatternString::const_reverse_iterator pattern_rbegin,
+				PatternString::const_reverse_iterator pattern_rend,
+				AxialTree::const_iterator &matching_end,
+				const ConsiderFilterPtr filter,
+				ArgList &params, AxialTree::IteratorMap *itermap = NULL);
 
-	static bool mstree_left_match(AxialTree::const_iterator  matching_start,
-		                        AxialTree::const_iterator  string_begin,
-								AxialTree::const_iterator  string_end,
-								PatternString::const_reverse_iterator  pattern_rbegin,
-								PatternString::const_reverse_iterator  pattern_rend,
-								AxialTree::const_iterator& matching_end,
-                                 const ConsiderFilterPtr filter,
-								ArgList& params, AxialTree::IteratorMap* itermap = NULL);
+    static bool mstree_left_match(AxialTree::const_iterator matching_start,
+				  AxialTree::const_iterator string_begin,
+				  AxialTree::const_iterator string_end,
+				  PatternString::const_reverse_iterator pattern_rbegin,
+				  PatternString::const_reverse_iterator pattern_rend,
+				  AxialTree::const_iterator &matching_end,
+				  const ConsiderFilterPtr filter,
+				  ArgList &params, AxialTree::IteratorMap *itermap = NULL);
 
-	static bool mltree_left_match(AxialTree::const_iterator  matching_start,
-		                        AxialTree::const_iterator  string_begin,
-								AxialTree::const_iterator  string_end,
-								PatternString::const_reverse_iterator  pattern_rbegin,
-								PatternString::const_reverse_iterator  pattern_rend,
-								AxialTree::const_iterator& matching_end,
-                                 const ConsiderFilterPtr filter,
-								ArgList& params, AxialTree::IteratorMap* itermap = NULL);
+    static bool mltree_left_match(AxialTree::const_iterator matching_start,
+				  AxialTree::const_iterator string_begin,
+				  AxialTree::const_iterator string_end,
+				  PatternString::const_reverse_iterator pattern_rbegin,
+				  PatternString::const_reverse_iterator pattern_rend,
+				  AxialTree::const_iterator &matching_end,
+				  const ConsiderFilterPtr filter,
+				  ArgList &params, AxialTree::IteratorMap *itermap = NULL);
 
-	static bool mstree_right_match(AxialTree::const_iterator  matching_start,
-								 AxialTree::const_iterator  string_begin,
-		                         AxialTree::const_iterator  string_end,
-								 PatternString::const_iterator  pattern_begin,
-								 PatternString::const_iterator  pattern_end,
-								 AxialTree::const_iterator&  last_matched,
-								 AxialTree::const_iterator& matching_end,
-                                 const ConsiderFilterPtr filter,
-								 ArgList& params, AxialTree::IteratorMap* itermap = NULL);
+    static bool mstree_right_match(AxialTree::const_iterator matching_start,
+				   AxialTree::const_iterator string_begin,
+				   AxialTree::const_iterator string_end,
+				   PatternString::const_iterator pattern_begin,
+				   PatternString::const_iterator pattern_end,
+				   AxialTree::const_iterator &last_matched,
+				   AxialTree::const_iterator &matching_end,
+				   const ConsiderFilterPtr filter,
+				   ArgList &params, AxialTree::IteratorMap *itermap = NULL);
 
-	static bool mltree_right_match(AxialTree::const_iterator  matching_start,
-								 AxialTree::const_iterator  string_begin,
-		                         AxialTree::const_iterator  string_end,
-								 PatternString::const_iterator  pattern_begin,
-								 PatternString::const_iterator  pattern_end,
-								 AxialTree::const_iterator&  last_matched,
-								 AxialTree::const_iterator& matching_end,
-                                 const ConsiderFilterPtr filter,
-								 ArgList& params, AxialTree::IteratorMap* itermap = NULL);
-};
+    static bool mltree_right_match(AxialTree::const_iterator matching_start,
+				   AxialTree::const_iterator string_begin,
+				   AxialTree::const_iterator string_end,
+				   PatternString::const_iterator pattern_begin,
+				   PatternString::const_iterator pattern_end,
+				   AxialTree::const_iterator &last_matched,
+				   AxialTree::const_iterator &matching_end,
+				   const ConsiderFilterPtr filter,
+				   ArgList &params, AxialTree::IteratorMap *itermap = NULL);
+  };
 
 /*---------------------------------------------------------------------------*/
 

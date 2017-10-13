@@ -39,151 +39,172 @@
 
 LPY_BEGIN_NAMESPACE
 
-class ParametricProduction;
-typedef RCPtr<ParametricProduction> ParametricProductionPtr;
+  class ParametricProduction;
 
-class LPY_API ParametricProduction : public TOOLS(RefCountObject) {
-public:
-	friend class ParamProductionManager;
+  typedef RCPtr<ParametricProduction> ParametricProductionPtr;
 
-	struct ArgPos {
-		size_t moduleid;
-		size_t argid;
-		bool isStarArg;
-		bool isNewName;
-		ArgPos(size_t m, 
-			   size_t a, 
-			   bool sa = false, 
-			   bool nn = false) : 
-		  moduleid(m), argid(a), isStarArg(sa), isNewName(nn) { }
-	};
+  class LPY_API ParametricProduction : public TOOLS(RefCountObject)
+  {
+   public:
+    friend class ParamProductionManager;
 
-	typedef std::vector<ArgPos> ArgPosList;
-	static const size_t modulearg = 1000;
+    struct ArgPos
+    {
+      size_t moduleid;
+      size_t argid;
+      bool isStarArg;
+      bool isNewName;
 
-	~ParametricProduction();
+      ArgPos(size_t m,
+	     size_t a,
+	     bool sa = false,
+	     bool nn = false) :
+	      moduleid(m), argid(a), isStarArg(sa), isNewName(nn)
+      {}
+    };
 
-	inline void append_variable_module()
-	{ 
-	  __arguments.push_back(ArgPos(__canvas.size(),modulearg));
-	  __canvas.append(ParamModule()); 
-	}
+    typedef std::vector<ArgPos> ArgPosList;
+    static const size_t modulearg = 1000;
 
-	inline void append_module_type(const std::string& name)
+    ~ParametricProduction();
+
+    inline void append_variable_module()
+    {
+      __arguments.push_back(ArgPos(__canvas.size(), modulearg));
+      __canvas.append(ParamModule());
+    }
+
+    inline void append_module_type(const std::string &name)
+    {
+      __canvas.append(ParamModule(name));
+      if (__canvas.last().getClass() == ModuleClass::New)
+	next_arg_for_new = true;
+    }
+
+    inline void append_module_type(size_t classid)
+    {
+      __canvas.append(ParamModule(classid));
+      if (__canvas.last().getClass() == ModuleClass::New)
+	next_arg_for_new = true;
+    }
+
+    inline void append_module_value(const boost::python::object &value)
+    {
+      lpyassert(!__canvas.empty());
+      if (next_arg_for_new)
 	{
-		__canvas.append(ParamModule(name)); 
-		if(__canvas.last().getClass() == ModuleClass::New)
-			next_arg_for_new = true;
+	  __canvas.last().setName(bp::extract<std::string>(value)());
+	  next_arg_for_new = false;
 	}
+      else __canvas.last().append(value);
+    }
 
-	inline void append_module_type(size_t classid) 
-	{ 
-		__canvas.append(ParamModule(classid)); 
-		if(__canvas.last().getClass() == ModuleClass::New)
-			next_arg_for_new = true;
-	}
+    inline void append_module_variable()
+    {
+      assert(!__canvas.empty());
+      __arguments.push_back(ArgPos(__canvas.size() - 1, __canvas.last().size(), false, next_arg_for_new));
+      if (next_arg_for_new) next_arg_for_new = false;
+      else __canvas.last().append(bp::object());
+    }
 
-	inline void append_module_value(const boost::python::object& value) 
-	{ 
-	  lpyassert(!__canvas.empty()); 
-	  if(next_arg_for_new){
-		  __canvas.last().setName(bp::extract<std::string>(value)());
-		  next_arg_for_new = false;
+    inline void append_module_star_variable()
+    {
+      assert(!__canvas.empty());
+      __arguments.push_back(ArgPos(__canvas.size() - 1, __canvas.last().size(), true, next_arg_for_new));
+      if (next_arg_for_new) next_arg_for_new = false;
+    }
+
+    inline AxialTree generate(const boost::python::list &args) const
+    {
+      return generate(0, args);
+    }
+
+    inline AxialTree generate(const boost::python::tuple &args) const
+    {
+      return generate(1, args);
+    }
+
+    inline AxialTree generate(size_t i, const boost::python::object &args) const
+    {
+      AxialTree res(__canvas);
+      for (ArgPosList::const_iterator itArg = __arguments.begin(); itArg != __arguments.end(); ++itArg, ++i)
+	if (itArg->argid != modulearg)
+	  {
+	    if (itArg->isStarArg)
+	      {
+		ParamModule &m = res[itArg->moduleid];
+		bp::object argi = bp::object(args[i]);
+		if (itArg->isNewName)
+		  {
+		    bp::extract<bp::dict> pdict(argi);
+		    if (pdict.check()) m.setName(bp::extract<std::string>(argi["name"])());
+		    else m.setName(bp::extract<std::string>(argi[0])());
+		  }
+		m.appendArgumentList(argi);
+	      }
+	    else
+	      {
+		if (itArg->isNewName)res[itArg->moduleid].setName(bp::extract<std::string>(args[i])());
+		else res[itArg->moduleid].setAt(itArg->argid, args[i]);
+	      }
 	  }
-	  else __canvas.last().append(value); 
-	}
+	else res.setAt(itArg->moduleid, bp::extract<ParamModule>(args[i])());
+      return res;
+    }
 
-	inline void append_module_variable() 
-	{ 
-	   assert(!__canvas.empty()); 
-	   __arguments.push_back(ArgPos(__canvas.size()-1,__canvas.last().size(),false,next_arg_for_new));
-	   if(next_arg_for_new) next_arg_for_new = false;
-	   else __canvas.last().append(bp::object()); 
-	}
+    inline size_t nbArgs() const
+    { return __arguments.size(); }
 
-	inline void append_module_star_variable() 
-	{ 
-	   assert(!__canvas.empty()); 
-	   __arguments.push_back(ArgPos(__canvas.size()-1,__canvas.last().size(),true,next_arg_for_new)); 
-	   if(next_arg_for_new) next_arg_for_new = false;
-	}
+    inline bool hasArgs() const
+    { return !__arguments.empty(); }
 
-	inline AxialTree generate(const boost::python::list& args) const {
-		return generate(0,args);
-	}
+    inline AxialTree getCanvas() const
+    { return __canvas; }
 
-	inline AxialTree generate(const boost::python::tuple& args) const {
-		return generate(1,args);
-	}
+    static ParametricProductionPtr create();
+    static ParametricProductionPtr get(size_t pid);
 
-	inline AxialTree generate(size_t i, const boost::python::object& args) const {
-		AxialTree res(__canvas);
-		for(ArgPosList::const_iterator itArg = __arguments.begin(); itArg != __arguments.end(); ++itArg, ++i)
-			if(itArg->argid != modulearg){
-				if(itArg->isStarArg) {
-					ParamModule& m = res[itArg->moduleid];
-					bp::object argi  = bp::object(args[i]);
-					if(itArg->isNewName){
-                        bp::extract<bp::dict> pdict(argi);
-                        if (pdict.check()) m.setName(bp::extract<std::string>(argi["name"])());
-                        else m.setName(bp::extract<std::string>(argi[0])());
-                    }
-                    m.appendArgumentList(argi);
-				}
-				else {
-					if(itArg->isNewName)res[itArg->moduleid].setName(bp::extract<std::string>(args[i])());
-					else res[itArg->moduleid].setAt(itArg->argid,args[i]);
-				}
-			}
-			else res.setAt(itArg->moduleid,bp::extract<ParamModule>(args[i])());
-		return res;
-	}
+    size_t pid() const
+    { return __pid; }
 
-	inline size_t nbArgs() const { return __arguments.size(); }
-	inline bool hasArgs() const { return !__arguments.empty(); }
+   protected:
+    ParametricProduction() : next_arg_for_new(false)
+    {}
 
-	inline AxialTree getCanvas() const { return __canvas; }
+    AxialTree __canvas;
+    ArgPosList __arguments;
+    bool next_arg_for_new;
+    size_t __pid;
 
-	static ParametricProductionPtr create();
-	static ParametricProductionPtr get(size_t pid);
+  };
 
-	size_t pid() const { return __pid; }
+  typedef std::vector<ParametricProductionPtr> ParametricProductionList;
 
-protected:
-	ParametricProduction() : next_arg_for_new(false) { }
+  class ParamProductionManager
+  {
+    friend class ParametricProduction;
 
-	AxialTree __canvas;
-	ArgPosList __arguments;
-	bool next_arg_for_new;
-	size_t __pid;
-	
-};
+   public:
 
-typedef std::vector<ParametricProductionPtr> ParametricProductionList;
+    static ParamProductionManager &get();
+    ~ParamProductionManager();
 
-class ParamProductionManager {
-	friend class ParametricProduction;
-public:
+    ParametricProductionPtr get_production(size_t pid);
 
-	static ParamProductionManager& get(); 
-	~ParamProductionManager();
+   protected:
+    typedef std::vector<ParametricProduction *> ParametricProductionMap;
 
-	ParametricProductionPtr get_production(size_t pid);
+    static ParamProductionManager *Instance;
 
-protected:
-	typedef std::vector<ParametricProduction *> ParametricProductionMap;
+    void add_production(ParametricProduction &);
+    void remove_production(ParametricProduction &);
 
-	static ParamProductionManager * Instance;
+    ParamProductionManager();
 
-	void add_production(ParametricProduction&);
-	void remove_production(ParametricProduction&);
+    ParametricProductionMap __productions;
+    std::queue<size_t> __free_indices;
 
-	ParamProductionManager();
-
-	ParametricProductionMap __productions;
-	std::queue<size_t> __free_indices;
-
-};
+  };
 
 /*---------------------------------------------------------------------------*/
 

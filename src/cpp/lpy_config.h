@@ -90,7 +90,7 @@
 
 #ifndef LPY_API
 #define LPY_API
-#define LPY_TEMPLATE_API(T) 
+#define LPY_TEMPLATE_API(T)
 #endif
 
 
@@ -139,7 +139,7 @@
 
 #else
 
-#ifdef _MSC_VER 
+#ifdef _MSC_VER
 #  pragma message "namespace LPY not used"
 #else
 #  warning namespace LPY not used

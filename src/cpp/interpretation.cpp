@@ -63,7 +63,8 @@ std::string StringInterpreter::help(const std::string& command){
 
 /*---------------------------------------------------------------------------*/
 
-std::string LPY::helpTurtle(const std::string& command){
+std::string LPY::helpTurtle(const std::string &command)
+{
   ModuleClassPtr m = ModuleClassTable::get().find(command);
   if (m) return m->getDocumentation();
   else return "";
@@ -71,78 +72,93 @@ std::string LPY::helpTurtle(const std::string& command){
 
 /*---------------------------------------------------------------------------*/
 
-inline bool cmp_modclass(const ModuleClassPtr& a, const ModuleClassPtr& b)
-{  return static_pointer_cast<PredefinedModuleClass>(a)->getCategory() < static_pointer_cast<PredefinedModuleClass>(b)->getCategory(); }
+inline bool cmp_modclass(const ModuleClassPtr &a, const ModuleClassPtr &b)
+{
+  return static_pointer_cast<PredefinedModuleClass>(a)->getCategory() <
+	 static_pointer_cast<PredefinedModuleClass>(b)->getCategory();
+}
 
-std::string LPY::helpTurtle() { 
-    std::stringstream stream;
-	ModuleClassList pf = ModuleClass::getPredefinedClasses();
-	stable_sort(pf.begin(),pf.end(),cmp_modclass);
-	PredefinedModuleClass::eCategory pcat = PredefinedModuleClass::eNone;
-	for(ModuleClassList::const_iterator it = pf.begin(); it != pf.end(); ++it) 
+std::string LPY::helpTurtle()
+{
+  std::stringstream stream;
+  ModuleClassList pf = ModuleClass::getPredefinedClasses();
+  stable_sort(pf.begin(), pf.end(), cmp_modclass);
+  PredefinedModuleClass::eCategory pcat = PredefinedModuleClass::eNone;
+  for (ModuleClassList::const_iterator it = pf.begin(); it != pf.end(); ++it)
+    {
+      const ModuleClassPtr &m = *it;
+      // if (m == ModuleClass::None) continue;
+      PredefinedModuleClass::eCategory ccat = static_pointer_cast<PredefinedModuleClass>(m)->getCategory();
+      if (ccat != pcat)
 	{
-	  const ModuleClassPtr& m = *it;
-	  // if (m == ModuleClass::None) continue;
-	  PredefinedModuleClass::eCategory ccat = static_pointer_cast<PredefinedModuleClass>(m)->getCategory();
-	  if(ccat != pcat){
-		  stream << PredefinedModuleClass::getCategoryName(ccat) << std::endl;
-		  pcat = ccat;
-	  }
-	  stream << m->name;
-	  if (!m->aliases.empty()){
-		  stream << " ( ";
-		  for(std::vector<std::string>::const_iterator ita = m->aliases.begin();
-			  ita != m->aliases.end(); ++ita){
-			if (ita != m->aliases.begin()) stream << ", ";
-			stream << *ita;
-		  }
-		  stream << " )";
-	  }
-	  stream << " : "<< m->getDocumentation() << std::endl;
+	  stream << PredefinedModuleClass::getCategoryName(ccat) << std::endl;
+	  pcat = ccat;
 	}
-	return stream.str();
+      stream << m->name;
+      if (!m->aliases.empty())
+	{
+	  stream << " ( ";
+	  for (std::vector<std::string>::const_iterator ita = m->aliases.begin();
+	       ita != m->aliases.end(); ++ita)
+	    {
+	      if (ita != m->aliases.begin()) stream << ", ";
+	      stream << *ita;
+	    }
+	  stream << " )";
+	}
+      stream << " : " << m->getDocumentation() << std::endl;
+    }
+  return stream.str();
 }
 
 
 /*---------------------------------------------------------------------------*/
 
-void LPY::turtle_interpretation(AxialTree& tree, Turtle& turtle){
+void LPY::turtle_interpretation(AxialTree &tree, Turtle &turtle)
+{
   turtle.start();
   turtle.setId(0);
   LPY::turtle_do_interpretation(tree, turtle);
 }
 
-void LPY::turtle_do_interpretation(AxialTree& tree, Turtle& turtle){
-  turtle_partial_interpretation(tree,turtle);
-  
+void LPY::turtle_do_interpretation(AxialTree &tree, Turtle &turtle)
+{
+  turtle_partial_interpretation(tree, turtle);
+
   turtle.stop();
-  if (!turtle.emptyStack()){
-      printf("Turtle stack size : %lu\n",turtle.getStack().size());
+  if (!turtle.emptyStack())
+    {
+      printf("Turtle stack size : %lu\n", turtle.getStack().size());
       LsysError("Ill-formed string: unmatched brackets");
-  }
+    }
 }
 
-void LPY::turtle_partial_interpretation(AxialTree& tree, Turtle& turtle){
-  for(AxialTree::iterator _it = tree.begin();
-      _it != tree.end(); ++_it) {
-        _it->interpret(turtle);
-        if(turtle.getId() != Shape::NOID)turtle.incId();
-  }
+void LPY::turtle_partial_interpretation(AxialTree &tree, Turtle &turtle)
+{
+  for (AxialTree::iterator _it = tree.begin();
+       _it != tree.end(); ++_it)
+    {
+      _it->interpret(turtle);
+      if (turtle.getId() != Shape::NOID)turtle.incId();
+    }
 }
 
-void LPY::turtle_interpretation(AxialTree& tree, Turtle& turtle, const StringMatching& matching){
+void LPY::turtle_interpretation(AxialTree &tree, Turtle &turtle, const StringMatching &matching)
+{
   turtle.start();
   StringMatching::const_iterator _iditer = matching.begin();
   turtle.setId(*_iditer);
-  for(AxialTree::iterator _it = tree.begin();_it != tree.end(); ++_it,++_iditer){
-        _it->interpret(turtle);
-        if(turtle.getId() != Shape::NOID)turtle.setId(*_iditer);
-  }
+  for (AxialTree::iterator _it = tree.begin(); _it != tree.end(); ++_it, ++_iditer)
+    {
+      _it->interpret(turtle);
+      if (turtle.getId() != Shape::NOID)turtle.setId(*_iditer);
+    }
   turtle.stop();
-  if (!turtle.emptyStack()){
-      printf("Turtle stack size : %lu\n",turtle.getStack().size());
-	LsysError("Ill-formed string: unmatched brackets");
-  }
+  if (!turtle.emptyStack())
+    {
+      printf("Turtle stack size : %lu\n", turtle.getStack().size());
+      LsysError("Ill-formed string: unmatched brackets");
+    }
 }
 
 /*---------------------------------------------------------------------------*/

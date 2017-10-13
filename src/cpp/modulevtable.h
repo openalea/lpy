@@ -15,101 +15,119 @@ LPY_BEGIN_NAMESPACE
 /*---------------------------------------------------------------------------*/
 
 
-class LPY_API BaseModuleProperty : public TOOLS(RefCountObject) {
-public:
-	BaseModuleProperty(const std::string& _name);
-	virtual ~BaseModuleProperty();
-	virtual bool isPythonProperty() const { return false; }
-	std::string name;
-};
+  class LPY_API BaseModuleProperty : public TOOLS(RefCountObject)
+  {
+   public:
+    BaseModuleProperty(const std::string &_name);
+    virtual ~BaseModuleProperty();
 
-typedef RCPtr<BaseModuleProperty> ModulePropertyPtr;
+    virtual bool isPythonProperty() const
+    { return false; }
 
-template<class Type>
-class LPY_API ModuleProperty : public BaseModuleProperty {
-public:
-	typedef Type element_type;
+    std::string name;
+  };
 
-	ModuleProperty(const std::string& name, element_type _value) : 
-		BaseModuleProperty(name), value(_value) {}
+  typedef RCPtr<BaseModuleProperty> ModulePropertyPtr;
+
+  template<class Type>
+  class LPY_API ModuleProperty : public BaseModuleProperty
+  {
+   public:
+    typedef Type element_type;
+
+    ModuleProperty(const std::string &name, element_type _value) :
+	    BaseModuleProperty(name), value(_value)
+    {}
 
     element_type value;
-  
-};
 
-class LPY_API ModulePyProperty : public ModuleProperty<boost::python::object> {
-public:
-	ModulePyProperty(const std::string& name, boost::python::object _value) : 
-		ModuleProperty< boost::python::object > ( name, _value) {}
+  };
 
-	virtual bool isPythonProperty() const { return true; }
-};
+  class LPY_API ModulePyProperty : public ModuleProperty<boost::python::object>
+  {
+   public:
+    ModulePyProperty(const std::string &name, boost::python::object _value) :
+	    ModuleProperty<boost::python::object>(name, _value)
+    {}
 
-typedef RCPtr<ModulePyProperty> ModulePyPropertyPtr;
+    virtual bool isPythonProperty() const
+    { return true; }
+  };
+
+  typedef RCPtr<ModulePyProperty> ModulePyPropertyPtr;
 
 /*---------------------------------------------------------------------------*/
 
-class ModuleClass;
-typedef RCPtr<ModuleClass> ModuleClassPtr;
-typedef std::vector<ModuleClassPtr> ModuleClassList;
+  class ModuleClass;
+
+  typedef RCPtr<ModuleClass> ModuleClassPtr;
+  typedef std::vector<ModuleClassPtr> ModuleClassList;
 
 
 /// Module Virtual Table
-class LPY_API ModuleVTable : public TOOLS(RefCountObject) {
-public:
-	typedef pgl_hash_map_string<ModulePropertyPtr> PropertyMap;
-	friend class ModuleClass;
-	
-	ModuleVTable(ModuleClassPtr owner = ModuleClassPtr(), ModuleClassPtr base = ModuleClassPtr());
-	~ModuleVTable();
+  class LPY_API ModuleVTable : public TOOLS(RefCountObject)
+  {
+   public:
+    typedef pgl_hash_map_string<ModulePropertyPtr> PropertyMap;
 
-	ModulePropertyPtr getProperty(const std::string& name) const;
-	void setProperty(ModulePropertyPtr prop);
-	bool removeProperty(const std::string& name);
+    friend class ModuleClass;
 
-	int scale;
+    ModuleVTable(ModuleClassPtr owner = ModuleClassPtr(), ModuleClassPtr base = ModuleClassPtr());
+    ~ModuleVTable();
 
-	inline ModuleClassPtr getModuleClass() const { return __owner; }
-	inline void setModuleClass(ModuleClassPtr mclass) { __owner = mclass; }
+    ModulePropertyPtr getProperty(const std::string &name) const;
+    void setProperty(ModulePropertyPtr prop);
+    bool removeProperty(const std::string &name);
 
-	inline ModuleClassList getBases() const { 
-		ModuleClassList bases;
-		for(ModuleClassDirectPtrList::const_iterator it = __modulebases.begin(); it != __modulebases.end(); ++it)
-			bases.push_back(*it);
-		return bases; 
-	}
+    int scale;
 
-	inline bool hasBaseClasses() const { return !__modulebases.empty(); }
+    inline ModuleClassPtr getModuleClass() const
+    { return __owner; }
 
-	void setBase(ModuleClassPtr mclass) ;
-	void setBases(const ModuleClassList& mclasses) ;
+    inline void setModuleClass(ModuleClassPtr mclass)
+    { __owner = mclass; }
 
-	inline std::vector<size_t> getAllBaseIds() const {
-		std::vector<size_t> basesid;
-		for(pgl_hash_set<size_t>::const_iterator it = __modulebasescache.begin(); it != __modulebasescache.end(); ++it)
-			basesid.push_back(*it);
-		return basesid; 
-	}
+    inline ModuleClassList getBases() const
+    {
+      ModuleClassList bases;
+      for (ModuleClassDirectPtrList::const_iterator it = __modulebases.begin(); it != __modulebases.end(); ++it)
+	bases.push_back(*it);
+      return bases;
+    }
 
-	bool issubclass(const ModuleClassPtr& mclass) const;
+    inline bool hasBaseClasses() const
+    { return !__modulebases.empty(); }
 
-	void activate();
-	void desactivate(); 
+    void setBase(ModuleClassPtr mclass);
+    void setBases(const ModuleClassList &mclasses);
 
-protected:
-	void updateInheritedParameters() ;
+    inline std::vector<size_t> getAllBaseIds() const
+    {
+      std::vector<size_t> basesid;
+      for (pgl_hash_set<size_t>::const_iterator it = __modulebasescache.begin(); it != __modulebasescache.end(); ++it)
+	basesid.push_back(*it);
+      return basesid;
+    }
 
-	PropertyMap __propertymap;
-	ModuleClass * __owner;
-	typedef ModuleClass * ModuleClassDirectPtr;
-	typedef std::vector<ModuleClassDirectPtr> ModuleClassDirectPtrList;
-	ModuleClassDirectPtrList __modulebases;
-	pgl_hash_set<size_t> __modulebasescache;
+    bool issubclass(const ModuleClassPtr &mclass) const;
 
-};
+    void activate();
+    void desactivate();
 
-typedef RCPtr<ModuleVTable> ModuleVTablePtr;
-typedef std::vector<ModuleVTablePtr> ModuleVTableList;
+   protected:
+    void updateInheritedParameters();
+
+    PropertyMap __propertymap;
+    ModuleClass *__owner;
+    typedef ModuleClass *ModuleClassDirectPtr;
+    typedef std::vector<ModuleClassDirectPtr> ModuleClassDirectPtrList;
+    ModuleClassDirectPtrList __modulebases;
+    pgl_hash_set<size_t> __modulebasescache;
+
+  };
+
+  typedef RCPtr<ModuleVTable> ModuleVTablePtr;
+  typedef std::vector<ModuleVTablePtr> ModuleVTableList;
 
 /*---------------------------------------------------------------------------*/
 

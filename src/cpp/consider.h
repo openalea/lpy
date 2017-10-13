@@ -38,42 +38,49 @@ LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
-class ConsiderFilter;
-typedef RCPtr<ConsiderFilter> ConsiderFilterPtr;
+  class ConsiderFilter;
 
-class LPY_API ConsiderFilter  : public TOOLS(RefCountObject) {
-public:
+  typedef RCPtr<ConsiderFilter> ConsiderFilterPtr;
 
-  ConsiderFilter(const std::string& modules, eConsiderMethod method = eConsider);
+  class LPY_API ConsiderFilter : public TOOLS(RefCountObject)
+  {
+   public:
 
-  ConsiderFilter(const ModuleClassList& modules, eConsiderMethod method = eConsider);
+    ConsiderFilter(const std::string &modules, eConsiderMethod method = eConsider);
 
-  // isConsidered
-  inline bool isConsidered(const std::string& module) const
-  { return !isIgnored(module); }
+    ConsiderFilter(const ModuleClassList &modules, eConsiderMethod method = eConsider);
 
-  inline bool isConsidered(const Module& module) const
-  { return !isIgnored(module.getClass()); }
+    // isConsidered
+    inline bool isConsidered(const std::string &module) const
+    { return !isIgnored(module); }
 
-  inline bool isConsidered(const ModuleClassPtr moduleclass) const
-  { return !isIgnored(moduleclass); }
+    inline bool isConsidered(const Module &module) const
+    { return !isIgnored(module.getClass()); }
 
-  // isIgnored
-  inline bool isIgnored(const std::string& module) const
-  { return isIgnored(ModuleClassTable::get().getClass(module)); }
+    inline bool isConsidered(const ModuleClassPtr moduleclass) const
+    { return !isIgnored(moduleclass); }
 
-  inline bool isIgnored(const Module& module) const
-  { return isIgnored(module.getClass()); }
+    // isIgnored
+    inline bool isIgnored(const std::string &module) const
+    { return isIgnored(ModuleClassTable::get().getClass(module)); }
 
-  bool isIgnored(const ModuleClassPtr module) const;
+    inline bool isIgnored(const Module &module) const
+    { return isIgnored(module.getClass()); }
 
-  inline bool ignoring() const { return __method == eIgnore; }
-  inline eConsiderMethod method() const { return __method; }
+    bool isIgnored(const ModuleClassPtr module) const;
 
-  std::string keyword() const;
+    inline bool ignoring() const
+    { return __method == eIgnore; }
 
-  std::string str() const;
-  inline const char * c_str() const { return str().c_str(); }
+    inline eConsiderMethod method() const
+    { return __method; }
+
+    std::string keyword() const;
+
+    std::string str() const;
+
+    inline const char *c_str() const
+    { return str().c_str(); }
 
 /*  
   void makeCurrent();
@@ -87,26 +94,26 @@ public:
   static ConsiderFilterPtr current();
 */
 
-  static ConsiderFilterPtr consider(const std::string& modules)
-  {   
-	  if (modules.empty()) return ConsiderFilterPtr();
-	  return ConsiderFilterPtr(new ConsiderFilter(modules)); 
-  }
-
-  static ConsiderFilterPtr ignore(const std::string& modules) 
-  {   
+    static ConsiderFilterPtr consider(const std::string &modules)
+    {
       if (modules.empty()) return ConsiderFilterPtr();
-      return ConsiderFilterPtr(new ConsiderFilter(modules,eIgnore)); 
-  }
+      return ConsiderFilterPtr(new ConsiderFilter(modules));
+    }
 
-  static ConsiderFilterPtr ignorePredefined() ;
+    static ConsiderFilterPtr ignore(const std::string &modules)
+    {
+      if (modules.empty()) return ConsiderFilterPtr();
+      return ConsiderFilterPtr(new ConsiderFilter(modules, eIgnore));
+    }
 
-protected:
-  /// attributes for ignore and consider
-  typedef pgl_hash_map<size_t,ModuleClassPtr> ModuleClassSet;
-  ModuleClassSet __keyword;
-  eConsiderMethod __method;
-};
+    static ConsiderFilterPtr ignorePredefined();
+
+   protected:
+    /// attributes for ignore and consider
+    typedef pgl_hash_map<size_t, ModuleClassPtr> ModuleClassSet;
+    ModuleClassSet __keyword;
+    eConsiderMethod __method;
+  };
 
 
 /*

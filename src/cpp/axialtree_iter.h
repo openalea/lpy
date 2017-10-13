@@ -42,66 +42,77 @@ LPY_BEGIN_NAMESPACE
 /*---------------------------------------------------------------------------*/
 
 
-template<class Lstring, class Iterator = typename Lstring::const_iterator>
-struct PyLstringIterator{
-public:
-	typedef Lstring string_type;
-	typedef Iterator iterator_type;
-	typedef typename string_type::element_type element_type;
+  template<class Lstring, class Iterator = typename Lstring::const_iterator>
+  struct PyLstringIterator
+  {
+   public:
+    typedef Lstring string_type;
+    typedef Iterator iterator_type;
+    typedef typename string_type::element_type element_type;
 
-	iterator_type current;
-	iterator_type end;
-	PyLstringIterator(iterator_type _beg, iterator_type _end):
-	    current(_beg),end(_end), nbBracket(0), processfirst(false) {}
+    iterator_type current;
+    iterator_type end;
 
-	PyLstringIterator(const Lstring& lstring):
-	    current(lstring.begin()),end(lstring.end()), nbBracket(0), processfirst(false) {}
+    PyLstringIterator(iterator_type _beg, iterator_type _end) :
+	    current(_beg), end(_end), nbBracket(0), processfirst(false)
+    {}
 
-	const element_type& next(bool onlyConsidered = false) {
-		if(current == end) throw PythonExc_StopIteration();
-		if(processfirst == true){
-			if(onlyConsidered) current = next_module(current,end);
-			else ++current; 
-			if(current == end) throw PythonExc_StopIteration();
-		}
-		else processfirst = true;
-		return process_next(onlyConsidered);
+    PyLstringIterator(const Lstring &lstring) :
+	    current(lstring.begin()), end(lstring.end()), nbBracket(0), processfirst(false)
+    {}
+
+    const element_type &next(bool onlyConsidered = false)
+    {
+      if (current == end) throw PythonExc_StopIteration();
+      if (processfirst == true)
+	{
+	  if (onlyConsidered) current = next_module(current, end);
+	  else ++current;
+	  if (current == end) throw PythonExc_StopIteration();
 	}
+      else processfirst = true;
+      return process_next(onlyConsidered);
+    }
 
-	size_t size() { return std::distance(current,end); }
+    size_t size()
+    { return std::distance(current, end); }
 
-	const element_type& toEndBracket( bool startingBeforePos = false)
-	{ 
-		if(current == end) throw PythonExc_StopIteration();
-		current = endBracket(current,end,startingBeforePos); 
-		return process_next();
+    const element_type &toEndBracket(bool startingBeforePos = false)
+    {
+      if (current == end) throw PythonExc_StopIteration();
+      current = endBracket(current, end, startingBeforePos);
+      return process_next();
+    }
+
+    const element_type &currentValue() const
+    {
+      if (current == end) throw PythonExc_IndexError();
+      return *current;
+    }
+
+   protected:
+
+    const element_type &process_next(bool onlyConsidered = false)
+    {
+      const element_type &val = *current;
+      // Iterator should only stay on the sub tree whithin which it was created. Check whether it is true
+      if (val.isRightBracket())
+	{
+	  --nbBracket;
+	  if (nbBracket < 0 && end != (current + 1))
+	    {
+	      end = current + 1;
+	    }
 	}
+      else if (val.isLeftBracket()) ++nbBracket;
+      return val;
+    }
 
-	const element_type& currentValue() const { 
-		if(current == end) throw PythonExc_IndexError();
-		return *current; 
-	}
+    size_t nbBracket;
+    bool processfirst;
+  };
 
-protected:
-
-	const element_type& process_next(bool onlyConsidered = false){
-		const element_type& val = *current;
-		// Iterator should only stay on the sub tree whithin which it was created. Check whether it is true  
-		if (val.isRightBracket()) {
-			--nbBracket;
-			if( nbBracket < 0  && end != (current+1)){
-					end = current+1;
-			}
-		}
-		else if(val.isLeftBracket()) ++nbBracket;
-		return val; 
-	}
-
-	size_t nbBracket;
-	bool processfirst;
-};
-
-typedef PyLstringIterator<AxialTree> PyAxialTreeIterator;
+  typedef PyLstringIterator<AxialTree> PyAxialTreeIterator;
 
 /*---------------------------------------------------------------------------*/
 

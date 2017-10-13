@@ -37,15 +37,17 @@ LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
-LPY_API enum eDirection {
-      eForward,
-      eBackward
-} ;
+  LPY_API enum eDirection
+  {
+    eForward,
+    eBackward
+  };
 
-LPY_API enum eConsiderMethod {
-	eConsider,
-	eIgnore
-};
+  LPY_API enum eConsiderMethod
+  {
+    eConsider,
+    eIgnore
+  };
 
 // #define MULTICORE_ENABLED
 
