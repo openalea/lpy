@@ -32,8 +32,6 @@ Documentation
     ./user/installing.rst
     ./user/lsystems.rst
     ./user/filesyntax.rst
-    ./user/predefinedsymbols.rst
-    ./user/commands.rst
     ./user/editor.rst
     ./user/turtle.rst
     ./user/subtelties.rst
