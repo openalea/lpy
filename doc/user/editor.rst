@@ -79,6 +79,70 @@ Here you can configure the ambient, diffuse, specular and emission color of your
 you can also configure the material shininess and transparency to add some properties on your material.
 
 
+.. _Editor_Scalar_Parameters:
+
+Scalar Parameters
+=================
+
+While developing your project, you may encounter the fact when you need to test out some values on an element.
+Thanks to the scalar parameters located in the Sidebar Tools, you can create a global variables that will replace some others variables put in
+your code.
+
+.. image:: ../_images/editor/ex010.png
+    :scale: 60%
+
+Let's get into it:
+
+Firstly, create three scalar parameters and name these **X,Y,Z** respectively.
+
+.. image:: ../_images/editor/ex011.png
+    :scale: 60%
+
+[Detailler screenshot d'ajout de paramètres + ex]
+
+You can see that the parameters has been added to the widget:
+
+.. image:: ../_images/editor/ex012.png
+    :scale: 60%
+
+To not get lost by these variables without any sense, you can also add **categories** to sort your variables and
+add to it a senseful name.
+
+For my part, I've done this to not be lost in my work:
+
+.. image:: ../_images/editor/ex013.png
+    :scale: 60%
+
+*Code:*
+
+.. code-block:: python
+
+    Axiom: B[+A][-F(Z)]
+
+    production:
+
+    interpretation:
+    A --> F(X)
+    B --> F(Y)
+
+    endlsystem
+
+Then, with the code above, double left-click on the values at the right, play with the slider that appeared
+and click on **Run** or **Animate**.
+
+The render on PlantGL should display something like this (with X=2, Y=4 and Z=3):
+
+.. image:: ../_images/editor/ex014.png
+    :scale: 60%
+
+See ? The values you put on in the *Scalar Parameters* widget are directly modified into the code and then
+displayed on screen as wanted!
+
+And if you're bored to modify the values and to click each time on **Run** or **Animate**, you can also activate the
+Auto-Run feature, to do so, click on *L-systems > Auto-Run*. It will modify values at runtime when you're changing the values
+without the need to re-run or re-animate your project!
+
+
 .. _Editor_Custom_Curves:
 
 Custom Curves
