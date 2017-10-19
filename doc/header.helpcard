@@ -1,0 +1,7 @@
+.title: "L-Py Helpcard"
+
+L-Py is based on the specification of Lstudio/cpfg-lpfg defined by P. Prusinkiewicz et al. (http://algorithmicbotany.org/lstudio).
+
+.sub-title: "Predefined Symbols"
+
+Here is a recap of the predefined symbol used in L-Py with their turtle interpretation:
