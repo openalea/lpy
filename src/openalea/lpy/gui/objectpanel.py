@@ -8,15 +8,48 @@ from math import sin, pi
 from objectmanagers import get_managers
 
 from openalea.vpltk.qt.QtCore import QObject, QPoint, Qt, pyqtSignal
-from openalea.vpltk.qt.QtGui import QFont, QFontMetrics, QImageWriter
+from openalea.vpltk.qt.QtGui import QFont, QFontMetrics, QImageWriter, QColor, QPainter
 from openalea.vpltk.qt.QtWidgets import QAction, QApplication, QDockWidget, QFileDialog, QLineEdit, QMenu, QMessageBox, QScrollArea, QVBoxLayout, QWidget
 
+def renderText(self, x, y, text, font = QFont(), color = None):
+    #print 'renderText'
+    # Identify x and y locations to render text within widget
+    #height = self.height()
+    #textPosX, textPosY, textPosZ = gluProject(x, y, 0)
+    #textPosY = height - textPosY; # y is inverted
+    textPosX, textPosY = x, y
+
+    # Retrieve last OpenGL color to use as a font color
+    if color is None:
+        glColor = glGetDoublev(GL_CURRENT_COLOR)
+        fontColor = QColor(glColor[0], glColor[1], glColor[2], glColor[3])
+    else:
+        fontColor = QColor(*color)
+
+    # Render text
+    painter = QPainter(self)
+    painter.setPen(fontColor)
+    painter.setFont(font)
+    painter.drawText(textPosX, textPosY, text)
+    painter.end()
+    pass
+
 try:
-    from openalea.vpltk.qt.QtOpenGL import QOpenGLWidget 
+    from openalea.vpltk.qt.QtGui import QOpenGLWidget  
     QGLParentClass = QOpenGLWidget 
+    print 'Use QOpenGLWidget'
+
+    QGLParentClass.mRenderText = renderText
+
 except:
     from openalea.vpltk.qt.QtOpenGL import QGLWidget 
     QGLParentClass = QGLWidget 
+
+    def mRenderText(self, x, y, text, font = QFont(), color = None):
+        if not color is None: glColor4fv(color)
+        self.renderText(x,y,text,font)
+
+    QGLWidget.mRenderText = mRenderText
 
 
 def retrieveidinname(name,prefix):
@@ -94,10 +127,10 @@ class ManagerDialogContainer (QObject):
                 QMessageBox.warning(self.panel,"Cannot edit","Cannot edit object ! Python module (PyQGLViewer) is certainly missing!")
                 return
         self.manager.setObjectToEditor(self.editor,obj)
-        try:
-            self.editor.updateGL()
-        except:
-            pass
+        #try:
+        #    self.editor.updateGL()
+        #except:
+        #    pass
         self.editorDialog.hasChanged = False
         self.editorDialog.show()
 
@@ -117,6 +150,7 @@ class ManagerDialogContainer (QObject):
     def isVisible(self):
         """ Tell whether editor is visible """
         return (not (self.editorDialog is None)) and self.editorDialog.isVisible()
+
 
 
 class ObjectListDisplay(QGLParentClass): 
@@ -222,6 +256,8 @@ class ObjectListDisplay(QGLParentClass):
         self.createContextMenuActions()
         self.theme = self.Theme()
         self.setTheme(self.BLACK_THEME)
+        self._width, self._heigth = self.width(), self.height()
+        self._scalingfactor = 1,1
 
     def setTheme(self,theme):
         self.theme.values.update(theme)
@@ -312,9 +348,9 @@ class ObjectListDisplay(QGLParentClass):
 
     def getBorderSize(self):
         if self.orientation == Qt.Vertical:
-            decal = max( 0, (self.width() - self.thumbwidth) / 2)
+            decal = max( 0, (self._width - self.thumbwidth) / 2)
         else:
-            decal = max( 0, (self.height() - self.thumbwidth) / 2 )      
+            decal = max( 0, (self._height - self.thumbwidth) / 2 )      
         ldecal = decal
         if ldecal > 15:
             ldecal = 15
@@ -360,7 +396,8 @@ class ObjectListDisplay(QGLParentClass):
     def computeNewName(self,basename):
         bn = retrievebasename(basename)
         allnames = []
-        for panel in self.panelmanager.getObjectPanels():
+        panels = self.panelmanager.getObjectPanels() if self.panelmanager else [self]
+        for panel in panels:
             allnames += [ manager.getName(obj) for manager,obj in panel.getObjects() ]
         mid = retrievemaxidname(allnames,bn)
         if not mid is None:
@@ -423,19 +460,25 @@ class ObjectListDisplay(QGLParentClass):
         self.panelmanager.createNewPanel()
         self.sendSelectionTo(self.panelmanager.getObjectPanels()[-1].name)
     
-    def resizeGL(self,w,h):
+    def resizeGL(self, w, h):
         """ resizing events"""
-        w,h = self.parent().width(),self.parent().height()
+        ow, oh = w,h
+        pw, ph = self.parent().width(),self.parent().height()
+        self._width, self._height = w, h
+        self._scalingfactor = w/float(pw), h/float(ph)
+
         if w == 0 or h == 0: return
         if w > h+50 :
-            self.thumbwidth = max(20,min(self.maxthumbwidth,h*0.95))
+            scalingfactor = h/float(ph)
+            self.thumbwidth = max(self.minthumbwidth*scalingfactor, min(self.maxthumbwidth*scalingfactor, h*0.95))
             self.objectthumbwidth = self.thumbwidth*0.7
             if self.orientation == Qt.Vertical:
                 self.setOrientation(Qt.Horizontal)
             else:
                 self.updateFrameView()
         else:
-            self.thumbwidth = max(20,min(self.maxthumbwidth,w*0.95))
+            scalingfactor = w/float(pw)
+            self.thumbwidth = max(self.minthumbwidth*scalingfactor, min(self.maxthumbwidth*scalingfactor, w*0.95))
             self.objectthumbwidth = self.thumbwidth*0.7
             if self.orientation == Qt.Horizontal:
                 self.setOrientation(Qt.Vertical)
@@ -530,7 +573,8 @@ class ObjectListDisplay(QGLParentClass):
             self.backGroundList = glGenLists(1)
         glNewList(self.backGroundList,GL_COMPILE)
         glPolygonMode(GL_FRONT_AND_BACK,GL_FILL)
-        self.drawBackGround(self.width(),self.height())
+        if self.isVisible():
+            self.drawBackGround(self._width,self._height)
         glEndList()
         
     def computeBackGround(self,w,h):
@@ -554,6 +598,7 @@ class ObjectListDisplay(QGLParentClass):
         self.bgObject = QuadSet(points,indices)
             
     def drawBackGround(self,w,h):
+        if self.bgObject is None: self.computeBackGround(w,h)
         glPushMatrix()
         if self.active:
             c = self.theme.waveColor
@@ -580,8 +625,8 @@ class ObjectListDisplay(QGLParentClass):
             It also call the function 'displayThumbnail' to draw the thumbnail of the object 
             take into account the orientation of the panel (vertical or horizontal)"""
         if not self.isVisible(): return
-        w = self.width()
-        h = self.height()
+        w = self._width
+        h = self._height
         if w == 0 or h == 0: return
         if self.active:
             bgcol = self.theme.backGroundColor
@@ -600,6 +645,8 @@ class ObjectListDisplay(QGLParentClass):
         glOrtho(0,w,h,0,-1000,1000);
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity()
+        #glTranslatef(w*(self._scalingfactor[0]-1)*0.5,-h*(self._scalingfactor[1]-1),0)
+        #glScalef(self._scalingfactor[0],self._scalingfactor[1],1)
         hscroll = self.scroll.horizontalScrollBar().value()
         glTranslatef(-hscroll,0,0)
         glCallList(self.backGroundList)
@@ -628,28 +675,30 @@ class ObjectListDisplay(QGLParentClass):
             manager.displayThumbnail(obj,i,self.cursorselection==i,self.objectthumbwidth)
             
             glPopMatrix()
+
             if not self.active:
-                glColor4fv(self.theme.inactiveText)
+                txtColor = self.theme.inactiveText
             else:
                 if self.cursorselection == i:
-                    glColor4fv(self.theme.selectedBottomText)
+                    txtColor =  self.theme.selectedBottomText
                 else:
-                    glColor4fv(self.theme.bottomText)
+                    txtColor = self.theme.bottomText
             if self.orientation == Qt.Vertical:
                 tx,ty, ty2 = b1,(i*self.thumbwidth)+b2,((i-1)*self.thumbwidth)+b2+3
             else:
                 tx,ty, ty2 = (i*self.thumbwidth)+b2,b1, b1-self.thumbwidth+3
-            self.drawTextIn(manager.getName(obj),tx+decal.x()-hscroll,ty+decal.y(),self.thumbwidth)
+            self.drawTextIn(manager.getName(obj),tx+decal.x()-hscroll,ty+decal.y(),self.thumbwidth, color = txtColor)
             if self.active:
                 if self.cursorselection == i:
-                    glColor4fv(self.theme.selectedTopText)
+                    txtColor = self.theme.selectedTopText
                 else:
-                    glColor4fv(self.theme.topText)
-            self.drawTextIn(manager.typename,tx+decal.x()-hscroll,ty2+decal.y(),self.thumbwidth,below = True)
+                    txtColor = self.theme.topText
+                    pass
+            self.drawTextIn(manager.typename,tx+decal.x()-hscroll,ty2+decal.y(),self.thumbwidth, below = True, color = txtColor)
             i+=1            
 
 
-    def drawTextIn(self,text,x,y,width, below = False):
+    def drawTextIn(self, text, x, y, width, below = False, color = None):
             fm = QFontMetrics(self.font())
             tw = fm.width(text)
             th = fm.height()
@@ -668,13 +717,15 @@ class ObjectListDisplay(QGLParentClass):
             if mth > th:
                 py -= (mth-th)/2
             #glPolygonMode(GL_FRONT_AND_BACK,GL_FILL)
-            self.renderText(x+px,y+py,str(text))
+            #if not color is None: glColor4fv(color)
+            self.mRenderText(x+px, y+py, str(text), color = color)
+            return 
             
     def itemUnderPos(self,pos):
         """function that will return the object under mouseCursor, if no object is present, this wil return None"""
         w = self.width() if self.orientation == Qt.Vertical else self.height()
-        posx,posy = pos.x(), pos.y()
-        b1,b2 = self.getBorderSize()
+        posx, posy = pos.x(), pos.y()
+        b1, b2 = self.getBorderSize()
         if self.orientation == Qt.Horizontal:
             posx, posy = posy, posx
         if b1 <= posx <= b1 + self.thumbwidth:
