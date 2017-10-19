@@ -647,7 +647,14 @@ class LpyCodeEditor(QTextEdit):
     def insertFromMimeData(self,source):
         if source.hasUrls():
             if not self.editor is None:
-                self.editor.openfile(str(source.urls()[0].toLocalFile()))
+                url = source.urls()[0]
+                if len(url.host()) == 0 and url.path().startswith("/.file/id="):
+                    import os
+                    cmd = """osascript -e 'get posix path of posix file "{}" -- kthxbai'""".format(url.path())
+                    path = os.popen(cmd).read().strip()
+                else:
+                    path = url.toLocalFile()
+                self.editor.openfile(path)
         else : 
             nsource = QMimeData()
             nsource.setText(source.text())
@@ -808,3 +815,22 @@ class LpyCodeEditor(QTextEdit):
 
     def getCode(self):
         return unicode(self.toPlainText()).encode('iso-8859-1','replace')
+
+    def codeToExecute(self):
+        cursor = self.textCursor()
+        curpos = cursor.position()
+        selbegin = cursor.selectionStart()
+        selend   = cursor.selectionEnd()
+        cursor.setPosition(selbegin)
+        cursor.movePosition(QTextCursor.StartOfLine)
+        cursor.setPosition(selend, QTextCursor.KeepAnchor)
+        cursor.movePosition(QTextCursor.EndOfLine, QTextCursor.KeepAnchor)
+        cmd = cursor.selectedText()
+        if False : #len(cmd) > 0:
+            lines = cmd.splitlines()
+            fline = lines[0]
+            nfline = fline.lstrip()
+            torem = len(fline) - len(nfline)
+            nlines = [l[torem:] for l in lines]
+            cmd = '\n'.join(nlines)
+        return cmd

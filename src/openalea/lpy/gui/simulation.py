@@ -9,6 +9,7 @@ from scalar import *
 import cProfile as profiling
 from lpyprofiling import *
 from lpytmpfile import *
+import pymodulemonitoring as pm
 
 
 from openalea.vpltk.qt.QtCore import QObject, pyqtSignal
@@ -38,6 +39,8 @@ class AbstractSimulation:
 
         self.readonly = False
         self._oldreadonly = False
+
+        self.modulemonitor = pm.ModuleMonitor()
 
     def tabbar(self):
         return self.lpywidget.documentNames
@@ -524,6 +527,8 @@ class LpySimulation (AbstractSimulation):
                 if self.isCurrent():
                     self.saveState()
                 self.saveToFile(bckupname)
+        #self.modulemonitor.reloadall()
+        #mw = pm.ModuleMonitorWatcher(self.modulemonitor)
         self.lsystem.clear()
         if self.fname:
             self.lsystem.filename = self.getStrFname()
