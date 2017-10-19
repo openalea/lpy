@@ -137,22 +137,20 @@ public:
 
   /** derive */
   inline AxialTree derive( )
-  { return _derive(__axiom, 0, __max_derivation); }
-
+  { return derive(__axiom, 0,__max_derivation); }
   inline AxialTree derive( size_t nb_iter )
-  { return _derive(__axiom, 0, nb_iter); }
+  { return derive(__axiom, 0, nb_iter); }
 
   inline AxialTree derive( const AxialTree& workstring )
-  { return _derive(workstring, 0,__max_derivation); }
+  { return derive(workstring, 0,__max_derivation); }
 
   inline AxialTree derive( const AxialTree& workstring, size_t nb_iter )
-  { return _derive(workstring, 0,nb_iter ); }
+  { return derive(workstring, 0,nb_iter ); }
 
   AxialTree derive( const AxialTree& workstring, 
                      size_t starting_iter , 
                      size_t nb_iter , 
-                     bool previouslyinterpreted = false  )
-  { return _derive(workstring, starting_iter,nb_iter,previouslyinterpreted ); }
+                     bool previouslyinterpreted = false  );
 
 
   AxialTree decompose( const AxialTree& workstring  );
@@ -360,14 +358,8 @@ protected:
  AxialTree __homomorphism(AxialTree& workstring);
  void __plot(AxialTree& workstring, bool checkLastComputedScene =  false);
  void __turtle_interpretation(AxialTree& workstring, PGL::Turtle& t);
- 
- AxialTree _derive( const AxialTree& workstring, 
-                     size_t starting_iter , 
-                     size_t& nb_iter , 
-                     bool previouslyinterpreted = false  );
-
- AxialTree __derive(  size_t starting_iter , 
-                      size_t& nb_iter , 
+ AxialTree __derive( size_t starting_iter , 
+                      size_t nb_iter , 
                       const AxialTree& workstring, 
                       bool previouslyinterpreted = false);
 

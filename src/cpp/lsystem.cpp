@@ -1334,15 +1334,14 @@ Lsystem::__recursiveInterpretation(AxialTree& workingstring,
 */
 
 AxialTree 
-Lsystem::_derive(  const AxialTree& wstring, 
+Lsystem::derive(  const AxialTree& wstring, 
                   size_t starting_iter , 
-                  size_t& nb_iter , 
+                  size_t nb_iter , 
                   bool previouslyinterpreted ){
   ACQUIRE_RESSOURCE
   enableEarlyReturn(false);
   if ( (__rules.empty() || wstring.empty()) && __context.return_if_no_matching )return wstring;
   ContextMaintainer c(&__context);
-  __context.frameDisplay(false);
   AxialTree res = __derive(starting_iter,nb_iter,wstring,previouslyinterpreted);
   enableEarlyReturn(false);
   return res;
@@ -1353,11 +1352,11 @@ Lsystem::_derive(  const AxialTree& wstring,
 
 
 AxialTree 
-Lsystem::__derive(  size_t starting_iter , 
-                    size_t& nb_iter , 
+Lsystem::__derive( size_t starting_iter , 
+                    size_t nb_iter , 
                     const AxialTree& wstring, 
                     bool previouslyinterpreted){
-  bool frameToDisplay = __context.isFrameDisplayed();
+  __context.frameDisplay(true);
   AxialTree workstring = wstring;
   if(starting_iter == 0) {
 	__context.setIterationNb(0);
@@ -1404,7 +1403,7 @@ Lsystem::__derive(  size_t starting_iter ,
 			  }
 		  }
 		  __lastcomputedscene = ScenePtr();
-		  __context.frameDisplay(i == (nb_iter -1)?frameToDisplay:false);
+		  __context.frameDisplay(i == (nb_iter -1));
 		  __context.setIterationNb(starting_iter+i);
           __apply_pre_process(workstring,true);
 		  eDirection dir = getDirection();
@@ -1661,11 +1660,9 @@ Lsystem::animate(const AxialTree& workstring,double dt,size_t beg,size_t nb_iter
     Sequencer timer(dt);
     timer.touch();
     __plot(tree);
-    size_t stepsize = 1;
     if (nb_iter > 0 && !isEarlyReturnEnabled()){
 	  for (size_t i = beg; i < beg+nb_iter; i++){
-        __context.frameDisplay(true);
-  	    tree = __derive(i,stepsize,tree,true);
+	    tree = __derive(i,1,tree,true);
 		if(__context.isFrameDisplayed()) {
 			timer.touch();
 			__plot(tree,true);
@@ -1704,10 +1701,8 @@ Lsystem::record(const std::string& prefix,
 	int fill = (int)ceil(log10((float)beg+nb_iter+1));
 	LPY::saveImage(prefix+conv_number(beg,fill)+"."+suffix,suffix);
     if (nb_iter > 0){
-      size_t stepsize = 1;
 	  for (size_t i = beg+1; i <= beg+nb_iter; i++){
-        __context.frameDisplay(true);
-		tree = __derive(i-1,stepsize,tree,true);
+		tree = __derive(i-1,1,tree,true);
 		if(__context.isFrameDisplayed()) {
 			__plot(tree,true);
 		}
