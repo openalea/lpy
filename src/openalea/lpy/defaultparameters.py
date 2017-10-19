@@ -36,24 +36,6 @@ class LocalsRetriever:
         return self.mylocals, res
 
 
-def default_parameters(function):
-    """ This decorator retrieve all the local variables of a function and insert it 
-    in the global namespace if they do not already exist after the function definition. 
-    Exemple:
-    @default_parameters
-    def myparam():
-        a = 1
-        b = 2
-
-    c  = a * b
-    """
-    import inspect
-    if len(inspect.getargspec(f).args) == 0:
-        params, res = LocalsRetriever(function)()
-        map(get_caller_frame().f_locals.setdefault, params.keys(), params.values())
-        return function
-
-
 def default_parameters_wrapper(function):
     def wrapper(*args, **kwargs):
         l = LocalsRetriever(function)
@@ -62,6 +44,43 @@ def default_parameters_wrapper(function):
         return res
     return wrapper
 
+def defaultparameters(function):
+    """ 
+    A decorator to define in a simple way default values of parameters.
+
+    This decorator retrieve all the local variables of a function and insert them
+    in the global namespace if they do not already exist after the function definition. 
+
+    Example:
+
+    @defaultparameters
+    def myparams():
+        a = 1
+        b = 2
+
+    c  = a * b
+
+    If the function has parameters, it should be called explicitly to have initialization.
+    @defaultparameters
+    def myparams(i):
+        a = 1
+        b = 2*i
+    
+    myparams(4)
+    c  = a * b
 
 
-__all__ = ['default_parameters']
+    """
+    import inspect
+    if len(inspect.getargspec(function).args) == 0:
+        params, res = LocalsRetriever(function)()
+        map(get_caller_frame().f_locals.setdefault, params.keys(), params.values())
+        return function
+    else:
+        return default_parameters_wrapper(function)
+
+
+
+
+
+__all__ = ['defaultparameters']
