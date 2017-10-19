@@ -38,14 +38,11 @@ LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
-  struct LPY_API PackedArgs
-  {
-   public:
-    PackedArgs(const boost::python::object _args) : args(_args)
-    {}
-
+struct LPY_API PackedArgs {
+public:
+	PackedArgs(const boost::python::object _args): args(_args) {}
     boost::python::object args;
-  };
+};
 
 /*---------------------------------------------------------------------------*/
 

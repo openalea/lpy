@@ -38,35 +38,30 @@ LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
-  class LPY_API PyExecution
-  {
+class LPY_API PyExecution {
 
-   protected:
+protected:
 
     PyExecution();
-    static PyExecution *__pyexec;
+    static PyExecution * __pyexec;
 
-   public:
+public:
 
-    static PyExecution *get();
+    static PyExecution * get();
 
     void acquire();
     void release();
 
     QMutex __mutex;
 
-  };
+};
 
 
-  class LPY_API PyExecutionLocker
-  {
-   public:
-    PyExecutionLocker()
-    { PyExecution::get()->acquire(); }
-
-    ~PyExecutionLocker()
-    { PyExecution::get()->release(); }
-  };
+class LPY_API PyExecutionLocker {
+public:
+    PyExecutionLocker()  { PyExecution::get()->acquire(); }
+    ~PyExecutionLocker() { PyExecution::get()->release(); }
+};
 
 /*---------------------------------------------------------------------------*/
 

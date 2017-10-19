@@ -46,17 +46,17 @@ static PlotFunction __PLOT = &PGLViewerApplication::display;
 
 void LPY::registerPglPlotFunction(PlotFunction func)
 {
-  __PLOT = func;
+    __PLOT = func;
 }
 
 void LPY::cleanPglPlotFunction()
 {
-  __PLOT = &PGLViewerApplication::display;
+    __PLOT = &PGLViewerApplication::display;
 }
 
-void LPY::plot(const PGL(ScenePtr) &s)
+void LPY::plot(const PGL(ScenePtr)& s)
 {
-  __PLOT(s);
+    __PLOT(s);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -65,22 +65,22 @@ static GetSelectFunction __GETSELECT = &ViewerApplication::getSelection;
 
 void LPY::registerGetSelectionFunction(GetSelectFunction func)
 {
-  __GETSELECT = func;
+    __GETSELECT = func;
 }
 
 void LPY::cleanGetSelectionFunction()
 {
-  __GETSELECT = &PGLViewerApplication::getSelection;
+    __GETSELECT = &PGLViewerApplication::getSelection;
 }
 
 std::vector<uint_t> LPY::getSelection()
 {
-  return __GETSELECT();
+    return __GETSELECT();
 }
 
 /*---------------------------------------------------------------------------*/
 
-static WaitSelectFunction DEFAULTWAITSELECT =
+static WaitSelectFunction DEFAULTWAITSELECT = 
 #if PGL_VERSION >= 0x020B01
 	&ViewerApplication::waitSelection;
 #else
@@ -91,22 +91,22 @@ static WaitSelectFunction __WAITSELECT = DEFAULTWAITSELECT;
 
 void LPY::registerWaitSelectionFunction(WaitSelectFunction func)
 {
-  __WAITSELECT = func;
+    __WAITSELECT = func;
 }
 
 void LPY::cleanWaitSelectionFunction()
 {
-  __WAITSELECT = DEFAULTWAITSELECT;
+	__WAITSELECT = DEFAULTWAITSELECT;
 }
 
-uint_t LPY::waitSelection(const std::string &txt)
+uint_t LPY::waitSelection(const std::string& txt)
 {
 #if PGL_VERSION >= 0x020B01
-  if (__WAITSELECT != NULL)
+	if (__WAITSELECT != NULL)
 #endif
-  return __WAITSELECT(txt);
+		return __WAITSELECT(txt);
 #if PGL_VERSION >= 0x020B01
-  else return UINT32_MAX;
+	else return UINT32_MAX;
 #endif
 }
 
@@ -114,93 +114,84 @@ uint_t LPY::waitSelection(const std::string &txt)
 
 
 
-static void DEFAULTDISPLAYMESSAGE(const std::string &txt)
-{ ViewerApplication::showMessage(txt); }
+static void DEFAULTDISPLAYMESSAGE(const std::string& txt) { ViewerApplication::showMessage(txt); }
 
 static DisplayMessageFunction __DISPLAYMESSAGE = &DEFAULTDISPLAYMESSAGE;
 
 void LPY::registerDisplayMessageFunction(DisplayMessageFunction func)
 {
-  __DISPLAYMESSAGE = func;
+    __DISPLAYMESSAGE = func;
 }
 
 void LPY::cleanDisplayMessageFunction()
 {
-  __DISPLAYMESSAGE = &DEFAULTDISPLAYMESSAGE;
+	__DISPLAYMESSAGE = &DEFAULTDISPLAYMESSAGE;
 }
 
-void LPY::displayMessage(const std::string &txt)
+void LPY::displayMessage(const std::string& txt)
 {
-  __DISPLAYMESSAGE(txt);
+	__DISPLAYMESSAGE(txt);
 }
 
 /*---------------------------------------------------------------------------*/
 
-static void pglSaveImage(const std::string &fname, const std::string &format)
-{ ViewerApplication::saveImage(fname, format); }
+static void pglSaveImage(const std::string& fname, const std::string& format)
+{ ViewerApplication::saveImage(fname,format); }
 
 static SaveImageFunction __SAVEIMAGE = &pglSaveImage;
 
 void LPY::registerSaveImageFunction(SaveImageFunction func)
 {
-  __SAVEIMAGE = func;
+    __SAVEIMAGE = func;
 }
 
 void LPY::cleanSaveImageFunction()
 {
-  __SAVEIMAGE = &pglSaveImage;
+    __SAVEIMAGE = &pglSaveImage;
 }
 
-void LPY::saveImage(const std::string &fname, const std::string &format)
+void LPY::saveImage(const std::string& fname, const std::string& format)
 {
-  return __SAVEIMAGE(fname, format);
-}
-
-/*---------------------------------------------------------------------------*/
-
-void LPY::plot(AxialTree &tree)
-{
-  plot(tree, LsysContext::currentContext()->turtle);
-}
-
-void LPY::plot(AxialTree &tree, PglTurtle &turtle)
-{
-  // PGLViewerApplication::display(LPY::scene(tree,turtle));
-  __PLOT(LPY::scene(tree, turtle));
-}
-
-void LPY::plot(AxialTree &tree, StringMatching &matching)
-{
-  plot(tree, matching, LsysContext::currentContext()->turtle);
-}
-
-void LPY::plot(AxialTree &tree, StringMatching &matching, PglTurtle &turtle)
-{
-  // PGLViewerApplication::display(LPY::scene(tree,turtle));
-  __PLOT(LPY::scene(tree, matching, turtle));
+    return __SAVEIMAGE(fname,format);
 }
 
 /*---------------------------------------------------------------------------*/
 
-ScenePtr LPY::scene(AxialTree &tree)
-{
-  return scene(tree, LsysContext::currentContext()->turtle);
+void LPY::plot(AxialTree& tree){
+  plot(tree,LsysContext::currentContext()->turtle);
 }
 
-ScenePtr LPY::scene(AxialTree &tree, PglTurtle &turtle)
-{
-  turtle_interpretation(tree, turtle);
+void LPY::plot(AxialTree& tree, PglTurtle& turtle){
+  // PGLViewerApplication::display(LPY::scene(tree,turtle));
+  __PLOT(LPY::scene(tree,turtle));
+}
+
+void LPY::plot(AxialTree& tree,StringMatching& matching){
+  plot(tree,matching,LsysContext::currentContext()->turtle);
+}
+
+void LPY::plot(AxialTree& tree,StringMatching& matching, PglTurtle& turtle){
+  // PGLViewerApplication::display(LPY::scene(tree,turtle));
+  __PLOT(LPY::scene(tree,matching,turtle));
+}
+
+/*---------------------------------------------------------------------------*/
+
+ScenePtr LPY::scene(AxialTree& tree){
+  return scene(tree,LsysContext::currentContext()->turtle);
+}
+
+ScenePtr LPY::scene(AxialTree& tree, PglTurtle& turtle){
+  turtle_interpretation(tree,turtle);
   return turtle.getScene();
 }
 
-ScenePtr LPY::scene(AxialTree &tree, StringMatching &matching)
-{
-  return scene(tree, matching, LsysContext::currentContext()->turtle);
+ScenePtr LPY::scene(AxialTree& tree,StringMatching& matching){
+  return scene(tree,matching,LsysContext::currentContext()->turtle);
 }
 
-ScenePtr LPY::scene(AxialTree &tree, StringMatching &matching, PglTurtle &turtle)
-{
-  turtle_interpretation(tree, turtle, matching);
+ScenePtr LPY::scene(AxialTree& tree,StringMatching& matching, PglTurtle& turtle){
+  turtle_interpretation(tree,turtle,matching);
   return turtle.getScene();
 }
 

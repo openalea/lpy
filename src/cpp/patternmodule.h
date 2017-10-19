@@ -38,99 +38,78 @@ LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
-  class LPY_API LsysVar
-  {
-   public:
-    enum ConditionType
-    {
-      NoCondition,
-      EqualValueCondition,
-      FunctionalCondition
-    };
+class LPY_API LsysVar {
+  public:
+	enum ConditionType {
+		NoCondition,
+		EqualValueCondition,
+		FunctionalCondition
+	};
 
-    LsysVar(const std::string &);
-    LsysVar(boost::python::object value);
+	LsysVar(const std::string&);
+	LsysVar(boost::python::object value);
 
-    std::string str() const;
+	std::string str() const;
+    inline const char * c_str() const { return str().c_str(); }
 
-    inline const char *c_str() const
-    { return str().c_str(); }
+	inline const std::string& name() const { return __name; }
+	inline void setName(const std::string& n) { __name = n; }
 
-    inline const std::string &name() const
-    { return __name; }
+	std::string varname() const;
+	bool isCompatible(const boost::python::object& value) const;
+	void setCondition(const std::string& textualcondition, int lineno = -1);
 
-    inline void setName(const std::string &n)
-    { __name = n; }
+	inline std::string textualcondition() const { return __textualcondition; }
+	inline bool operator==(const LsysVar& other) const { return __name == other.__name; }
 
-    std::string varname() const;
-    bool isCompatible(const boost::python::object &value) const;
-    void setCondition(const std::string &textualcondition, int lineno = -1);
+	inline const boost::python::object& getPyValue() const { return __pyvalue; }
 
-    inline std::string textualcondition() const
-    { return __textualcondition; }
+    inline bool isNamed() const { return !(__name.empty() || __name[0] == '-' || 
+		                                   (__name[0] == '*' && ( __name[1] == '-' || (__name[1] == '*' && __name[2] == '-')))); }
+	inline bool isArgs() const { return !__name.empty() && __name[0] == '*' && (__name.end() == __name.begin()+1 ||__name[1] != '*'); }
+	inline bool isKwds() const { return !__name.empty() && __name[0] == '*' && __name.end() != __name.begin()+1 && __name[1] == '*'; }
+	inline bool hasCondition() const { return __conditionType != NoCondition; }
 
-    inline bool operator==(const LsysVar &other) const
-    { return __name == other.__name; }
+	void setUnnamed();
 
-    inline const boost::python::object &getPyValue() const
-    { return __pyvalue; }
+  protected:
 
-    inline bool isNamed() const
-    {
-      return !(__name.empty() || __name[0] == '-' ||
-	       (__name[0] == '*' && (__name[1] == '-' || (__name[1] == '*' && __name[2] == '-'))));
-    }
+	std::string __name;
+	ConditionType __conditionType;
+	std::string __textualcondition;
+	boost::python::object __pyvalue;
 
-    inline bool isArgs() const
-    { return !__name.empty() && __name[0] == '*' && (__name.end() == __name.begin() + 1 || __name[1] != '*'); }
-
-    inline bool isKwds() const
-    { return !__name.empty() && __name[0] == '*' && __name.end() != __name.begin() + 1 && __name[1] == '*'; }
-
-    inline bool hasCondition() const
-    { return __conditionType != NoCondition; }
-
-    void setUnnamed();
-
-   protected:
-
-    std::string __name;
-    ConditionType __conditionType;
-    std::string __textualcondition;
-    boost::python::object __pyvalue;
-
-  };
+};
 
 /*---------------------------------------------------------------------------*/
 
 
-  class LPY_API PatternModule : public AbstractParamModule<LsysVar>
-  {
-   public:
+class LPY_API PatternModule : public AbstractParamModule<LsysVar> {
+public:
 
-    PatternModule();
-    PatternModule(const std::string &name, int lineno = -1);
-    PatternModule(size_t classid, const std::string &args, int lineno = -1);
+  PatternModule();
+  PatternModule(const std::string& name, int lineno = -1);
+  PatternModule(size_t classid, const std::string& args, int lineno = -1);
 
-    virtual ~PatternModule();
+  virtual ~PatternModule();
 
 
-    std::vector<std::string> getVarNames() const;
-    size_t getVarNb() const;
-    void setUnnamedVariables();
-    void setUnnamedVariable(size_t);
-    std::vector<size_t> getFirstClassId() const;
-    std::vector<size_t> getLastClassId() const;
-    std::vector<size_t> getBorderClassId(eDirection dir = eForward) const;
+  std::vector<std::string> getVarNames() const;
+  size_t getVarNb() const;
+  void setUnnamedVariables();
+  void setUnnamedVariable(size_t);
+  std::vector<size_t> getFirstClassId() const;
+  std::vector<size_t> getLastClassId() const;
+  std::vector<size_t> getBorderClassId(eDirection dir = eForward) const;
 
-    /*bool match(const ParamModule&m) const;
-    bool match(const ParamModule&m, ArgList&) const;
-    bool match(const std::string&, size_t nbargs) const;*/
+  /*bool match(const ParamModule&m) const;
+  bool match(const ParamModule&m, ArgList&) const;
+  bool match(const std::string&, size_t nbargs) const;*/
 
-   protected:
-    void __processPatternModule(const std::string &argstr, int lineno = -1);
+protected:
+  void __processPatternModule(const std::string& argstr, int lineno = -1);
 
-  };
+};
 
 /*---------------------------------------------------------------------------*/
 

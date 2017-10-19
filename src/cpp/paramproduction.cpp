@@ -36,31 +36,30 @@ LPY_USING_NAMESPACE
 
 ParametricProductionPtr ParametricProduction::create()
 {
-  ParametricProductionPtr value(new ParametricProduction());
-  ParamProductionManager::get().add_production(*value);
-  return value;
+	ParametricProductionPtr value(new ParametricProduction());
+	ParamProductionManager::get().add_production(*value);
+	return value;
 }
 
 ParametricProductionPtr ParametricProduction::get(size_t pid)
 {
-  return ParamProductionManager::get().get_production(pid);
+	return ParamProductionManager::get().get_production(pid);
 }
 
-ParametricProduction::~ParametricProduction()
+ParametricProduction::~ParametricProduction(){
+	ParamProductionManager::get().remove_production(*this);
+}
+
+ParamProductionManager * ParamProductionManager::Instance(0);
+
+ParamProductionManager& ParamProductionManager::get()
 {
-  ParamProductionManager::get().remove_production(*this);
+	if (ParamProductionManager::Instance == NULL)
+		ParamProductionManager::Instance = new ParamProductionManager();
+	return *ParamProductionManager::Instance;
 }
 
-ParamProductionManager *ParamProductionManager::Instance(0);
-
-ParamProductionManager &ParamProductionManager::get()
-{
-  if (ParamProductionManager::Instance == NULL)
-    ParamProductionManager::Instance = new ParamProductionManager();
-  return *ParamProductionManager::Instance;
-}
-
-ParamProductionManager::ParamProductionManager() :
+ParamProductionManager::ParamProductionManager():
 	__productions(), __free_indices()
 {
 }
@@ -69,46 +68,43 @@ ParamProductionManager::ParamProductionManager() :
 
 ParametricProductionPtr ParamProductionManager::get_production(size_t pid)
 {
-  if (pid < __productions.size())
-    {
-      return ParametricProductionPtr(__productions[pid]);
-    }
-  else
-    {
-      std::string msg("Cannot find parametric production ");
-      msg += TOOLS(number(pid));
-      LsysError(msg);
-      return ParametricProductionPtr();
-    }
+	if (pid < __productions.size())
+	{
+		return ParametricProductionPtr(__productions[pid]);
+	}
+	else 
+	{
+		std::string msg("Cannot find parametric production ");
+		msg += TOOLS(number(pid));
+		LsysError(msg);
+		return ParametricProductionPtr();
+	}
 }
 
-void ParamProductionManager::add_production(ParametricProduction &value)
+void ParamProductionManager::add_production(ParametricProduction& value)
 {
 
-  size_t pid;
-  if (__free_indices.empty())
-    {
-      pid = __productions.size();
-      __productions.push_back(&value);
-    }
-  else
-    {
-      pid = __free_indices.front();
-      __free_indices.pop();
-      __productions[pid] = &value;
-    }
+	size_t pid;
+	if (__free_indices.empty()){
+		pid = __productions.size();
+		__productions.push_back(&value);
+	}
+	else {
+		pid = __free_indices.front();
+		__free_indices.pop();
+		__productions[pid] = & value;
+	}
 
-  value.__pid = pid;
+	value.__pid = pid;
 }
 
-void ParamProductionManager::remove_production(ParametricProduction &value)
+void ParamProductionManager::remove_production(ParametricProduction& value)
 {
-  size_t pid = value.pid();
-  if (pid == __productions.size())
-    __productions.pop_back();
-  else
-    {
-      __free_indices.push(pid);
-      __productions[pid] = NULL;
-    }
+	size_t pid = value.pid();
+	if (pid == __productions.size())
+		__productions.pop_back();
+	else {
+		__free_indices.push(pid);
+		__productions[pid] = NULL;
+	}
 }

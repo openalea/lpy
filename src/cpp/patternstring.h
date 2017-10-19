@@ -39,65 +39,59 @@ LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
-  class LPY_API PatternString : public AbstractLString<PatternModule>
-  {
-   public:
-    typedef AbstractLString<PatternModule> BaseType;
+class LPY_API PatternString : public AbstractLString<PatternModule> {
+public:
+  typedef AbstractLString<PatternModule> BaseType;
 
-    PatternString();
-    // PatternString(const PatternString&);
-    PatternString(const PatternModule &);
-    PatternString(const_iterator beg, const_iterator end);
-    PatternString(const std::string &, int lineno = -1);
+  PatternString();
+  // PatternString(const PatternString&);
+  PatternString(const PatternModule&);
+  PatternString(const_iterator beg, const_iterator end);
+  PatternString(const std::string&, int lineno = -1);
 
-    ~PatternString();
-    // PatternString& operator=(const PatternString&);
+  ~PatternString();
+  // PatternString& operator=(const PatternString&);
+ 
+  // Get the list of all variables used
+  std::vector<std::string> getVarNames() const;
+  size_t getVarNb() const;
+  void setUnnamedVariables();
+  void setUnnamedVariable(size_t);
+  std::vector<size_t> getFirstClassId() const;
+  std::vector<size_t> getLastClassId() const;
 
-    // Get the list of all variables used
-    std::vector<std::string> getVarNames() const;
-    size_t getVarNb() const;
-    void setUnnamedVariables();
-    void setUnnamedVariable(size_t);
-    std::vector<size_t> getFirstClassId() const;
-    std::vector<size_t> getLastClassId() const;
+  std::string str() const;
+  inline const char * c_str() const { return str().c_str(); }
+  std::string repr() const;
 
-    std::string str() const;
-
-    inline const char *c_str() const
-    { return str().c_str(); }
-
-    std::string repr() const;
-
-  };
+};
 
 /*---------------------------------------------------------------------------*/
 
 
-  class PatternStringManager
-  {
-    friend class PatternString;
+class PatternStringManager {
+	friend class PatternString;
+public:
 
-   public:
+	static PatternStringManager& get(); 
+	~PatternStringManager();
 
-    static PatternStringManager &get();
-    ~PatternStringManager();
+	const PatternString& get_pattern(size_t pid);
+	size_t register_pattern(const PatternString& pattern);
+	void remove_pattern(size_t pid);
 
-    const PatternString &get_pattern(size_t pid);
-    size_t register_pattern(const PatternString &pattern);
-    void remove_pattern(size_t pid);
+protected:
+	typedef std::vector<PatternString> PatternStringMap;
 
-   protected:
-    typedef std::vector<PatternString> PatternStringMap;
+	static PatternStringManager * Instance;
 
-    static PatternStringManager *Instance;
+	PatternStringManager();
 
-    PatternStringManager();
+	PatternStringMap __patterns;
+	std::queue<size_t> __free_indices;
+	PatternString __nullpattern;
 
-    PatternStringMap __patterns;
-    std::queue<size_t> __free_indices;
-    PatternString __nullpattern;
-
-  };
+};
 
 /*---------------------------------------------------------------------------*/
 

@@ -37,82 +37,80 @@ LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
-  class LPY_API NodeModule : public ParamModule
-  {
-   public:
+class LPY_API NodeModule : public ParamModule  {
+public:
 
-    virtual ~NodeModule();
+  virtual ~NodeModule();
 
-    inline NodeModule parent() const
-    { return make_node(LPY::parent(__pos, __beg, __end, __filter)); }
+  inline NodeModule parent() const
+  { return make_node(LPY::parent(__pos,__beg,__end, __filter));}
 
-    inline std::vector<NodeModule> children() const
-    { return make_nodes(LPY::children(__pos, __end, __filter)); }
+  inline std::vector<NodeModule> children() const
+  { return make_nodes(LPY::children(__pos,__end, __filter)); }
 
-    inline std::vector<NodeModule> lateral_children() const
-    { return make_nodes(LPY::lateral_children(__pos, __end, __filter)); }
+  inline std::vector<NodeModule> lateral_children() const
+  { return make_nodes(LPY::lateral_children(__pos,__end, __filter)); }
 
-    inline NodeModule direct_child() const
-    { return make_node(LPY::direct_child(__pos, __end, __filter)); }
+  inline NodeModule direct_child() const
+  { return make_node(LPY::direct_child(__pos,__end, __filter)); }
 
-    inline NodeModule complex(int scale) const
-    { return make_node(LPY::complex(__pos, scale, __beg, __end, __filter)); }
+  inline NodeModule complex(int scale) const
+  {  return make_node(LPY::complex(__pos,scale,__beg,__end, __filter)); }
 
-    inline NodeModule complex() const
-    { return complex(scale() + 1); }
+  inline NodeModule complex() const
+  { return complex(scale()+1); }
 
-    inline std::vector<NodeModule> components() const
-    { return make_nodes(LPY::components(__pos, __end, __filter)); }
+  inline std::vector<NodeModule> components() const
+  {  return make_nodes(LPY::components(__pos,__end, __filter)); }
 
-    inline std::vector<NodeModule> components_at_scale(int scale) const
-    { return make_nodes(LPY::components_at_scale(__pos, scale, __end, __filter)); }
+  inline std::vector<NodeModule> components_at_scale(int scale) const
+  {  return make_nodes(LPY::components_at_scale(__pos, scale, __end, __filter)); }
 
-    inline bool isRoot() const
-    { return __pos == __beg; }
+  inline bool isRoot() const
+  { return __pos == __beg; }
 
-    inline bool isValid() const
-    { return __pos != __end; }
+  inline bool isValid() const
+  { return __pos != __end; }
 
-    inline size_t position() const
-    { return std::distance(__beg, __pos); }
+  inline size_t position() const
+  { return std::distance(__beg,__pos); }
 
-    static NodeModule generate(AxialTree::const_iterator pos,
-			       AxialTree::const_iterator beg,
-			       AxialTree::const_iterator end,
-			       const ConsiderFilterPtr filter = ConsiderFilterPtr());
+  static NodeModule generate(AxialTree::const_iterator pos, 
+             AxialTree::const_iterator beg, 
+             AxialTree::const_iterator end,
+             const ConsiderFilterPtr filter = ConsiderFilterPtr());
 
-    NodeModule(AxialTree::const_iterator pos,
-	       AxialTree::const_iterator beg,
-	       AxialTree::const_iterator end,
-	       const ConsiderFilterPtr filter = ConsiderFilterPtr());
+  NodeModule(AxialTree::const_iterator pos, 
+             AxialTree::const_iterator beg, 
+             AxialTree::const_iterator end,
+             const ConsiderFilterPtr filter = ConsiderFilterPtr());
 
-   protected:
+protected:
 
-    inline std::vector<NodeModule> make_nodes(const std::vector<AxialTree::const_iterator> &pos) const
-    {
-      std::vector<NodeModule> res;
-      for (std::vector<AxialTree::const_iterator>::const_iterator itpos = pos.begin(); itpos != pos.end(); ++itpos)
-	res.push_back(NodeModule(*itpos, __beg, __end, __filter));
-      return res;
-    }
+  inline std::vector<NodeModule> make_nodes(const std::vector<AxialTree::const_iterator>& pos) const
+  { 
+	  std::vector<NodeModule> res;
+	  for(std::vector<AxialTree::const_iterator>::const_iterator itpos = pos.begin(); itpos != pos.end(); ++itpos)
+		  res.push_back(NodeModule(*itpos,__beg,__end, __filter));
+	  return res;
+  }
+  inline NodeModule make_node(const AxialTree::const_iterator& pos) const
+  { 
+	  return NodeModule(pos,__beg,__end, __filter);
+  }
 
-    inline NodeModule make_node(const AxialTree::const_iterator &pos) const
-    {
-      return NodeModule(pos, __beg, __end, __filter);
-    }
+ /* NodeModule(AxialTree::const_iterator beg, 
+			 AxialTree::const_iterator end);*/
 
-    /* NodeModule(AxialTree::const_iterator beg,
-			    AxialTree::const_iterator end);*/
+  AxialTree::const_iterator __pos;
+  AxialTree::const_iterator __beg; 
+  AxialTree::const_iterator __end;
+  ConsiderFilterPtr         __filter;
 
-    AxialTree::const_iterator __pos;
-    AxialTree::const_iterator __beg;
-    AxialTree::const_iterator __end;
-    ConsiderFilterPtr __filter;
+private:
+  NodeModule();
 
-   private:
-    NodeModule();
-
-  };
+};
 
 /*---------------------------------------------------------------------------*/
 

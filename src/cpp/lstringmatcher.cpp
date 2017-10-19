@@ -36,14 +36,14 @@ LPY_USING_NAMESPACE
 /*---------------------------------------------------------------------------*/
 
 LstringMatcher::LstringMatcher(AxialTree::const_iterator _begin,
-			       AxialTree::const_iterator _end,
-			       AxialTree::const_iterator _leftpos,
-			       AxialTree::const_iterator _rightpos,
-			       AxialTree::const_iterator _rightlastmatch,
-			       const ConsiderFilterPtr _filter,
-			       AxialTree::IteratorMap *_iteratormap) :
-	begin(_begin), end(_end), leftpos(_leftpos),
-	rightpos(_rightpos), rightlastmatch(_rightlastmatch), filter(_filter), iteratormap(_iteratormap)
+				   AxialTree::const_iterator _end,
+				   AxialTree::const_iterator _leftpos,
+				   AxialTree::const_iterator _rightpos,
+				   AxialTree::const_iterator _rightlastmatch,
+                   const ConsiderFilterPtr   _filter,
+                   AxialTree::IteratorMap*   _iteratormap):
+  begin(_begin), end(_end), leftpos(_leftpos), 
+  rightpos(_rightpos), rightlastmatch(_rightlastmatch), filter(_filter), iteratormap(_iteratormap)
 {
 }
 
@@ -51,90 +51,84 @@ LstringMatcher::LstringMatcher(AxialTree::const_iterator _begin,
 
 void
 LstringMatcher::set(AxialTree::const_iterator _begin,
-		    AxialTree::const_iterator _end,
-		    AxialTree::const_iterator _leftpos,
-		    AxialTree::const_iterator _rightpos,
-		    AxialTree::const_iterator _rightlastmatch,
-		    const ConsiderFilterPtr _filter,
-		    AxialTree::IteratorMap *_iteratormap)
+					 AxialTree::const_iterator _end,
+					 AxialTree::const_iterator _leftpos,
+					 AxialTree::const_iterator _rightpos,
+					 AxialTree::const_iterator _rightlastmatch,
+                     const ConsiderFilterPtr   _filter,
+                     AxialTree::IteratorMap*   _iteratormap)
 {
-  begin = _begin;
-  end = _end;
-  leftpos = _leftpos;
-  rightpos = _rightpos;
-  rightlastmatch = _rightlastmatch;
-  filter = _filter;
-  iteratormap = _iteratormap;
+	begin    = _begin ; end = _end;
+	leftpos  = _leftpos ; 
+	rightpos = _rightpos ; rightlastmatch = _rightlastmatch ; 
+    filter   = _filter;
+    iteratormap = _iteratormap;
 }
 
 /*---------------------------------------------------------------------------*/
-void LstringMatcher::update_returned_args(boost::python::dict &args, const std::vector<std::string> &varnames,
-					  const ArgList &values) const
+void LstringMatcher::update_returned_args(boost::python::dict& args, const std::vector<std::string>& varnames, const ArgList& values) const
 {
-  std::vector<std::string>::const_iterator itVar = varnames.begin();
-  ArgList::const_iterator itValue = values.begin();
-  for (; itVar != varnames.end() && itValue != values.end(); ++itVar, ++itValue)
-    args[*itVar] = *itValue;
+	std::vector<std::string>::const_iterator itVar = varnames.begin();
+	ArgList::const_iterator itValue = values.begin();
+	for(;itVar != varnames.end() && itValue != values.end(); ++itVar, ++itValue)
+		args[*itVar] = *itValue;
 }
 
-bool LstringMatcher::pInLeftContext(size_t patternid, boost::python::dict &args)
+bool LstringMatcher::pInLeftContext(size_t patternid, boost::python::dict& args)
 {
-  PatternString leftcontext = PatternStringManager::get().get_pattern(patternid);
-  return inLeftContext(leftcontext, args);
+   PatternString leftcontext = PatternStringManager::get().get_pattern(patternid);
+   return inLeftContext(leftcontext,args);
 }
 
-bool LstringMatcher::inLeftContext(const PatternString &pattern, boost::python::dict &args)
+bool LstringMatcher::inLeftContext(const PatternString& pattern, boost::python::dict& args)
 {
-  AxialTree::const_iterator endposLeft;
-  ArgList values;
-  if (!pattern.empty())
-    {
-      if (!MatchingEngine::left_match(leftpos, begin, end,
-				      pattern.const_rbegin(), pattern.const_rend(),
-				      endposLeft, filter, values, iteratormap))
-	return false;
-      leftpos = endposLeft;
-      update_returned_args(args, pattern.getVarNames(), values);
-    }
-  return true;
+	AxialTree::const_iterator endposLeft;
+	ArgList values;
+	if(!pattern.empty()){
+		if(!MatchingEngine::left_match(leftpos,begin,end,
+			pattern.const_rbegin(),pattern.const_rend(),
+			endposLeft,filter,values, iteratormap)) return false;
+		leftpos = endposLeft;
+		update_returned_args(args, pattern.getVarNames(), values);
+	}
+	return true;
 }
 
 /*---------------------------------------------------------------------------*/
 
 
-bool LstringMatcher::pInRightContext(size_t patternid, boost::python::dict &args)
+bool LstringMatcher::pInRightContext(size_t patternid, boost::python::dict& args)
 {
-  PatternString pattern = PatternStringManager::get().get_pattern(patternid);
-  return inRightContext(pattern, args);
+   PatternString pattern = PatternStringManager::get().get_pattern(patternid);
+   return inRightContext(pattern,args);
 }
 
-bool LstringMatcher::inRightContext(const PatternString &pattern, boost::python::dict &args)
+bool LstringMatcher::inRightContext(const PatternString& pattern, boost::python::dict& args)
 {
-  AxialTree::const_iterator endposRigth;
-  ArgList values;
-  if (!pattern.empty())
-    {
-      if (!MatchingEngine::right_match(rightpos, begin, end,
-				       pattern.const_begin(), pattern.const_end(),
-				       rightlastmatch, endposRigth, filter, values, iteratormap))
-	return false;
-      rightpos = endposRigth;
-      update_returned_args(args, pattern.getVarNames(), values);
-    }
-  return true;
+	AxialTree::const_iterator endposRigth;
+	ArgList values;
+	if(!pattern.empty()){
+		if(!MatchingEngine::right_match(rightpos,begin,end,
+			pattern.const_begin(),pattern.const_end(),
+			rightlastmatch, endposRigth,filter, values, iteratormap)) 
+			return false;
+		rightpos = endposRigth;
+		update_returned_args(args, pattern.getVarNames(), values);
+	}
+	return true;
 }
 
 /*---------------------------------------------------------------------------*/
 
-LstringMatcherMaintainer::LstringMatcherMaintainer(const LstringMatcherPtr &lmatcher, LsysContext *_context) :
-	context(_context ? _context : LsysContext::current())
-{
-  context->registerLstringMatcher(lmatcher);
+LstringMatcherMaintainer::LstringMatcherMaintainer(const LstringMatcherPtr& lmatcher, LsysContext * _context) : 
+        context(_context?_context:LsysContext::current())
+{ 
+    context->registerLstringMatcher(lmatcher); 
 }
 
-LstringMatcherMaintainer::~LstringMatcherMaintainer()
-{
-  context->registerLstringMatcher();
+LstringMatcherMaintainer::~LstringMatcherMaintainer() 
+{ 
+    context->registerLstringMatcher();  
 }
 
 /*---------------------------------------------------------------------------*/

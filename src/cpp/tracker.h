@@ -61,18 +61,18 @@ LPY_BEGIN_NAMESPACE
 
 #define TRACKER_CLASS_DECLARE(mclass) static size_t mclass;
 
-  class LPY_API Tracker {
-  public:
-	  TRACKER_CLASS_APPLY(TRACKER_CLASS_DECLARE)
-	  static void printReport();
-  };
+class LPY_API Tracker {
+public:
+	TRACKER_CLASS_APPLY(TRACKER_CLASS_DECLARE)
+	static void printReport();
+};
 
 #define IncTracker(classname) ++Tracker::classname;
 #define DecTracker(classname) --Tracker::classname;
 
 #else
 
-#define IncTracker(classname)
+#define IncTracker(classname) 
 #define DecTracker(classname)
 
 #endif

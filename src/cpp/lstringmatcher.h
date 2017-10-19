@@ -59,16 +59,16 @@ public:
 				   AxialTree::const_iterator _leftpos,
 				   AxialTree::const_iterator _rightpos,
 				   AxialTree::const_iterator _rightlastmatch,
-		   const ConsiderFilterPtr filter,
-		   AxialTree::IteratorMap* iteratormap);
+                   const ConsiderFilterPtr filter,
+                   AxialTree::IteratorMap* iteratormap);
 
 	void set(AxialTree::const_iterator _begin,
 			 AxialTree::const_iterator _end,
 			 AxialTree::const_iterator _leftpos,
 			 AxialTree::const_iterator _rightpos,
 			 AxialTree::const_iterator _rightlastmatch,
-	     const ConsiderFilterPtr filter,
-	     AxialTree::IteratorMap* iteratormap);
+             const ConsiderFilterPtr filter,
+             AxialTree::IteratorMap* iteratormap);
 
 	bool pInLeftContext(size_t patternid, boost::python::dict& args);
 	bool inLeftContext(const PatternString& pattern, boost::python::dict& args);

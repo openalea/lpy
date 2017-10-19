@@ -43,219 +43,196 @@
 LPY_BEGIN_NAMESPACE
 
 
-  class LPY_API LsysRule
-  {
+class LPY_API LsysRule {
 
-   public:
+public:
 
-    // LsysRule();
-    LsysRule(const LsysRule &);
-    LsysRule(size_t = 0, size_t = 0, char prefix = 'p', int lineno = -1);
-    ~LsysRule();
+	// LsysRule();
+	LsysRule(const LsysRule&);
+	LsysRule(size_t = 0, size_t = 0, char prefix = 'p', int lineno = -1);
+	~LsysRule();
 
-    void set(const std::string &code);
+	void set( const std::string& code );
 
-    void consider(const ConsiderFilterPtr consider);
-    void consider(const std::string &modules);
-    void ignore(const std::string &modules);
+	void consider(const ConsiderFilterPtr consider);
+	void consider(const std::string& modules);
+	void ignore(const std::string& modules);
+	ConsiderFilterPtr getConsiderFilter() const { return __consider; }
 
-    ConsiderFilterPtr getConsiderFilter() const
-    { return __consider; }
+	inline size_t getId() const { return __id; }
+	inline void setId(size_t id) { __id = id; }
 
-    inline size_t getId() const
-    { return __id; }
+	inline size_t getGroupId() const { return __gid; }
+	inline void setGroupId(size_t id) { __gid = id; }
 
-    inline void setId(size_t id)
-    { __id = id; }
-
-    inline size_t getGroupId() const
-    { return __gid; }
-
-    inline void setGroupId(size_t id)
-    { __gid = id; }
-
-    AxialTree apply(bool *isApplied = NULL) const;
-    AxialTree apply(const ArgList &args, bool *isApplied = NULL) const;
+	AxialTree apply(bool * isApplied = NULL) const;
+	AxialTree apply( const ArgList& args, bool * isApplied = NULL ) const ;
 //	boost::python::object apply( const boost::python::tuple& args ) const;
 
-    inline bool isCompiled() const
-    { return __function != boost::python::object(); }
+	inline bool isCompiled() const {  return __function != boost::python::object(); }
+	void compile();
+	void recompile();
+	void importPyFunction();
 
-    void compile();
-    void recompile();
-    void importPyFunction();
+	void clear();
+	
+	inline const PatternString& predecessor() const
+	{ return __predecessor; }
+	
+	inline const PatternString& leftContext() const
+	{ return __leftcontext; }
+	
+	inline const PatternString& newLeftContext() const
+	{ return __newleftcontext; }
+	
+	inline const PatternString& rightContext() const
+	{ return __rightcontext; }
+	
+	inline const PatternString& newRightContext() const
+	{ return __newrightcontext; }
+	
+	inline const std::string& definition() const
+	{ return __definition; }
+	
+	inline const std::vector<std::string>& formalParameters() const
+	{ return __formalparameters; }
+	
+	inline size_t nbParameters() const 
+	{ return __nbParams; }
+	
+	size_t nbContexts() const;
 
-    void clear();
+	inline bool isContextFree() const
+	{ return nbContexts() == 0; }
 
-    inline const PatternString &predecessor() const
-    { return __predecessor; }
+	inline bool hasQuery() const
+	{ return __hasquery; }
 
-    inline const PatternString &leftContext() const
-    { return __leftcontext; }
+	inline const boost::python::object& function() const
+	{ return __function; }
 
-    inline const PatternString &newLeftContext() const
-    { return __newleftcontext; }
+    inline bool forwardCompatible() const 
+        { return __newrightcontext.empty(); }
 
-    inline const PatternString &rightContext() const
-    { return __rightcontext; }
+    inline bool backwardCompatible() const 
+        { return __newleftcontext.empty(); }
 
-    inline const PatternString &newRightContext() const
-    { return __newrightcontext; }
+    inline bool isCompatible(eDirection direction) const 
+        { return (direction == eForward? forwardCompatible() : backwardCompatible()); }
 
-    inline const std::string &definition() const
-    { return __definition; }
+	bool match(const AxialTree& src,
+			   AxialTree::const_iterator pos,
+			   const AxialTree& dest,
+			   AxialTree::const_iterator& endpos,
+			   ArgList& args,
+               AxialTree::IteratorMap* itermap = NULL,
+               eDirection direction = eForward) const ;
 
-    inline const std::vector<std::string> &formalParameters() const
-    { return __formalparameters; }
+    inline bool reverse_match(const AxialTree& src,
+			   AxialTree::const_iterator pos,
+			   const AxialTree& dest,
+			   AxialTree::const_iterator& endpos,
+               ArgList& args,
+               AxialTree::IteratorMap* itermap = NULL) const 
+    { return match(src,pos,dest,endpos,args, itermap, eBackward); }
 
-    inline size_t nbParameters() const
-    { return __nbParams; }
+	bool applyTo( AxialTree& dest, 
+				  const ArgList& args, 
+				  size_t * length = NULL,
+				  eDirection direction = eForward) const;
 
-    size_t nbContexts() const;
+	inline bool reverseApplyTo( AxialTree& dest, 
+				  const ArgList& args, 
+				  size_t * length = NULL,
+				  eDirection direction = eForward) const
+	{ return applyTo(dest,args,length,eBackward); }
 
-    inline bool isContextFree() const
-    { return nbContexts() == 0; }
+	AxialTree process( const AxialTree& src ) const;
 
-    inline bool hasQuery() const
-    { return __hasquery; }
+	std::string str() const ;
+    inline const char * c_str() const { return str().c_str(); }
 
-    inline const boost::python::object &function() const
-    { return __function; }
+	std::string functionName() const ;
+	std::string callerFunctionName() const ;
+	std::string name() const ;
+	std::string uname() const ;
+	
+	std::string getCode() ;
+	std::string getCoreCode() ;
+	std::string getCallerCode() const;
 
-    inline bool forwardCompatible() const
-    { return __newrightcontext.empty(); }
+	void setStatic();
+	void keepOnlyRelevantVariables();
 
-    inline bool backwardCompatible() const
-    { return __newleftcontext.empty(); }
+	int redundantParameter() const;
 
-    inline bool isCompatible(eDirection direction) const
-    { return (direction == eForward ? forwardCompatible() : backwardCompatible()); }
+	int lineno;
+	uint32_t getCodeLength() const { return __codelength; }
 
-    bool match(const AxialTree &src,
-	       AxialTree::const_iterator pos,
-	       const AxialTree &dest,
-	       AxialTree::const_iterator &endpos,
-	       ArgList &args,
-	       AxialTree::IteratorMap *itermap = NULL,
-	       eDirection direction = eForward) const;
+	inline bool isStatic() const { return __isStatic; }
+	inline AxialTree getStaticProduction() const { return __staticResult; }
 
-    inline bool reverse_match(const AxialTree &src,
-			      AxialTree::const_iterator pos,
-			      const AxialTree &dest,
-			      AxialTree::const_iterator &endpos,
-			      ArgList &args,
-			      AxialTree::IteratorMap *itermap = NULL) const
-    { return match(src, pos, dest, endpos, args, itermap, eBackward); }
+protected:
 
-    bool applyTo(AxialTree &dest,
-		 const ArgList &args,
-		 size_t *length = NULL,
-		 eDirection direction = eForward) const;
+	void parseHeader( const std::string& name);
+	void parseParameters();
+	void initStaticProduction();
 
-    inline bool reverseApplyTo(AxialTree &dest,
-			       const ArgList &args,
-			       size_t *length = NULL,
-			       eDirection direction = eForward) const
-    { return applyTo(dest, args, length, eBackward); }
-
-    AxialTree process(const AxialTree &src) const;
-
-    std::string str() const;
-
-    inline const char *c_str() const
-    { return str().c_str(); }
-
-    std::string functionName() const;
-    std::string callerFunctionName() const;
-    std::string name() const;
-    std::string uname() const;
-
-    std::string getCode();
-    std::string getCoreCode();
-    std::string getCallerCode() const;
-
-    void setStatic();
-    void keepOnlyRelevantVariables();
-
-    int redundantParameter() const;
-
-    int lineno;
-
-    uint32_t getCodeLength() const
-    { return __codelength; }
-
-    inline bool isStatic() const
-    { return __isStatic; }
-
-    inline AxialTree getStaticProduction() const
-    { return __staticResult; }
-
-   protected:
-
-    void parseHeader(const std::string &name);
-    void parseParameters();
-    void initStaticProduction();
-
-    size_t __id;
-    size_t __gid;
+	size_t __id;
+	size_t __gid;
     char __prefix;
-    PatternString __predecessor;
-    PatternString __leftcontext;
-    PatternString __newleftcontext;
-    PatternString __rightcontext;
-    PatternString __newrightcontext;
-    std::vector<std::string> __formalparameters;
-    size_t __nbParams;
-    std::string __definition;
-    boost::python::object __function;
-    bool __hasquery;
-    bool __isStatic;
-    AxialTree __staticResult;
-    uint32_t __codelength;
-    ConsiderFilterPtr __consider;
-    LstringMatcherPtr __lstringmatcher;
+	PatternString __predecessor;
+	PatternString __leftcontext;
+	PatternString __newleftcontext;
+	PatternString __rightcontext;
+	PatternString __newrightcontext;
+	std::vector<std::string> __formalparameters;
+	size_t __nbParams;
+	std::string __definition;
+	boost::python::object __function;
+	bool __hasquery;
+	bool __isStatic;
+	AxialTree __staticResult;
+	uint32_t __codelength;
+	ConsiderFilterPtr __consider;
+	LstringMatcherPtr __lstringmatcher;
 
-   private:
-    void __precall_function(size_t nbargs = 0) const;
-    void __precall_function(size_t nbargs, const ArgList &obj) const;
-    boost::python::object __call_function(size_t nbargs, const ArgList &obj) const;
-    AxialTree __postcall_function(boost::python::object, bool *isApplied = NULL) const;
+private:
+    void __precall_function( size_t nbargs = 0 ) const;
+    void __precall_function( size_t nbargs,  const ArgList& obj ) const;
+    boost::python::object __call_function( size_t nbargs,  const ArgList& obj ) const;
+    AxialTree __postcall_function( boost::python::object, bool * isApplied = NULL ) const;
 
-    QMutex *mutex;
+    QMutex * mutex;
 
-  };
-
-/*---------------------------------------------------------------------------*/
-
-  typedef std::vector<LsysRule> RuleSet;
-  typedef std::vector<const LsysRule *> RulePtrSet;
+};
 
 /*---------------------------------------------------------------------------*/
 
-  class RulePtrMap
-  {
-   public:
-    typedef std::vector<RulePtrSet> RulePtrSetMap;
+typedef std::vector<LsysRule> RuleSet;
+typedef std::vector<const LsysRule *> RulePtrSet;
 
-    RulePtrMap();
-    RulePtrMap(const RulePtrSet &rules, eDirection direction = eForward);
+/*---------------------------------------------------------------------------*/
 
-    inline const RulePtrSet &operator[](size_t id) const
-    { return (id < __maxsmb ? __map[id] : __defaultset); }
+class RulePtrMap {
+public:
+	typedef std::vector<RulePtrSet> RulePtrSetMap;
 
-    inline bool empty() const
-    { return __nbrules == 0; }
+	RulePtrMap();
+	RulePtrMap(const RulePtrSet& rules, eDirection direction = eForward);
 
-    inline size_t size() const
-    { return __nbrules; }
+	inline const RulePtrSet& operator[](size_t id) const 
+	{ return (id < __maxsmb?__map[id]:__defaultset); }
+	inline bool empty() const {  return __nbrules == 0; }
+	inline size_t size() const { return __nbrules; }
 
-   protected:
-    RulePtrSetMap __map;
-    RulePtrSet __defaultset;
-    size_t __nbrules;
-    size_t __maxsmb;
+protected:
+	RulePtrSetMap __map;
+	RulePtrSet __defaultset;
+	size_t __nbrules;
+	size_t __maxsmb;
 
-  };
+};
 
 /*---------------------------------------------------------------------------*/
 

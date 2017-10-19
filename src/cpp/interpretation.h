@@ -39,17 +39,17 @@
 
 LPY_BEGIN_NAMESPACE
 
-  class AxialTree;
+class AxialTree;
 
 /*---------------------------------------------------------------------------*/
 
-  std::string LPY_API helpTurtle(const std::string &command);
-  std::string LPY_API helpTurtle();
+std::string LPY_API helpTurtle(const std::string& command );
+std::string LPY_API helpTurtle() ;
 
-  void LPY_API turtle_interpretation(AxialTree &tree, PGL::Turtle &turtle);
-  void LPY_API turtle_do_interpretation(AxialTree &tree, PGL::Turtle &turtle);
-  void LPY_API turtle_partial_interpretation(AxialTree &tree, PGL::Turtle &turtle);
-  void LPY_API turtle_interpretation(AxialTree &tree, PGL::Turtle &turtle, const StringMatching &matching);
+void LPY_API turtle_interpretation(AxialTree& tree, PGL::Turtle& turtle);
+void LPY_API turtle_do_interpretation(AxialTree& tree, PGL::Turtle& turtle);
+void LPY_API turtle_partial_interpretation(AxialTree& tree, PGL::Turtle& turtle);
+void LPY_API turtle_interpretation(AxialTree& tree, PGL::Turtle& turtle, const StringMatching& matching);
 
 /*---------------------------------------------------------------------------*/
 

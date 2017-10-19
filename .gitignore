@@ -64,4 +64,3 @@ cmake-build-debug/
 
 # PyBuilder
 target/
-/CMakeLists.txt

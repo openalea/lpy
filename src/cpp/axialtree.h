@@ -42,209 +42,191 @@ LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
-  class PatternString;
+class PatternString;
 
 /*---------------------------------------------------------------------------*/
 
-  class LPY_API AxialTree : public AbstractLString<ParamModule>
-  {
-   public:
-    typedef AbstractLString<ParamModule> BaseType;
+class LPY_API AxialTree  : public AbstractLString<ParamModule>  {
+public:
+  typedef AbstractLString<ParamModule> BaseType;
 
-    typedef BaseType::iterator iterator;
-    typedef BaseType::const_iterator const_iterator;
+  typedef BaseType::iterator iterator;
+  typedef BaseType::const_iterator const_iterator;
 
-    AxialTree();
-    AxialTree(const AxialTree &);
-    AxialTree(const std::string &);
-    AxialTree(const ParamModule &);
-    AxialTree(const boost::python::list &);
-    AxialTree(const boost::python::tuple &);
-    AxialTree(const_iterator beg, const_iterator end);
+  AxialTree();
+  AxialTree(const AxialTree&);
+  AxialTree(const std::string&);
+  AxialTree(const ParamModule&);
+  AxialTree(const boost::python::list&);
+  AxialTree(const boost::python::tuple&);
+  AxialTree(const_iterator beg, const_iterator end);
 
-    ~AxialTree();
+  ~AxialTree();
+  
 
+	std::string repr() const;
 
-    std::string repr() const;
+    inline std::string str() const { return str_slice(const_begin(),const_end()); }
+    inline const char * c_str() const { return str().c_str(); }
+	inline std::string str_slice(int beg, int end) const
+	{ const_iterator begit, endit; getValidIterators(beg,end,begit,endit); return str_slice(begit,endit); }
 
-    inline std::string str() const
-    { return str_slice(const_begin(), const_end()); }
+	std::string str_slice(const_iterator beg, const_iterator end) const;
 
-    inline const char *c_str() const
-    { return str().c_str(); }
+	size_t count(const std::string& name) const;
+	size_t count(const std::string& name, size_t nbparam) const;
+	size_t count(const ParamModule& module) const;
 
-    inline std::string str_slice(int beg, int end) const
-    {
-      const_iterator begit, endit;
-      getValidIterators(beg, end, begit, endit);
-      return str_slice(begit, endit);
-    }
+	inline const_iterator find(const std::string& name) const
+	{ return find(name,const_begin(),const_end()); }
 
-    std::string str_slice(const_iterator beg, const_iterator end) const;
+	inline const_iterator find(const std::string& name, 
+					    const_iterator start) const
+	{ return find(name,start,end()); }
 
-    size_t count(const std::string &name) const;
-    size_t count(const std::string &name, size_t nbparam) const;
-    size_t count(const ParamModule &module) const;
+	const_iterator find(const std::string& name, 
+					    const_iterator start,
+						const_iterator stop) const;
 
-    inline const_iterator find(const std::string &name) const
-    { return find(name, const_begin(), const_end()); }
+	inline const_iterator find(const std::string& name, size_t nbparam) const
+	{ return find(name,nbparam,const_begin(),const_end()); }
 
-    inline const_iterator find(const std::string &name,
-			       const_iterator start) const
-    { return find(name, start, end()); }
+	inline const_iterator find(const std::string& name, size_t nbparam, 
+					    const_iterator start) const
+	{ return find(name,nbparam,start,const_end()); }
 
-    const_iterator find(const std::string &name,
-			const_iterator start,
-			const_iterator stop) const;
+	const_iterator find(const std::string& name, size_t nbparam, 
+					    const_iterator start,
+						const_iterator stop) const;
 
-    inline const_iterator find(const std::string &name, size_t nbparam) const
-    { return find(name, nbparam, const_begin(), const_end()); }
+	inline const_iterator find(const PatternModule& pattern) const
+	{ return find(pattern.name(),pattern.size(),const_begin(),const_end()); }
 
-    inline const_iterator find(const std::string &name, size_t nbparam,
-			       const_iterator start) const
-    { return find(name, nbparam, start, const_end()); }
+	inline const_iterator find(const PatternModule& pattern, 
+					    const_iterator start) const
+	{ return find(pattern.name(),pattern.size(),start,const_end()); }
 
-    const_iterator find(const std::string &name, size_t nbparam,
-			const_iterator start,
-			const_iterator stop) const;
+	inline const_iterator find(const PatternModule& pattern, 
+					    const_iterator start,
+						const_iterator stop) const
+	{ return find(pattern.name(),pattern.size(),start,stop); }
 
-    inline const_iterator find(const PatternModule &pattern) const
-    { return find(pattern.name(), pattern.size(), const_begin(), const_end()); }
+	inline const_iterator find(const PatternString& pattern) const
+	{ return find(pattern,begin(),const_end()); }
 
-    inline const_iterator find(const PatternModule &pattern,
-			       const_iterator start) const
-    { return find(pattern.name(), pattern.size(), start, const_end()); }
+	inline const_iterator find(const PatternString& pattern, 
+					    const_iterator start) const
+	{ return find(pattern,start,const_end()); }
 
-    inline const_iterator find(const PatternModule &pattern,
-			       const_iterator start,
-			       const_iterator stop) const
-    { return find(pattern.name(), pattern.size(), start, stop); }
+	const_iterator find(const PatternString& pattern, 
+					    const_iterator start,
+						const_iterator stop) const;
 
-    inline const_iterator find(const PatternString &pattern) const
-    { return find(pattern, begin(), const_end()); }
+	inline bool match(const PatternModule& pattern, 
+			   const_iterator pos) const
+	{ return pos->match(pattern); }
 
-    inline const_iterator find(const PatternString &pattern,
-			       const_iterator start) const
-    { return find(pattern, start, const_end()); }
+	inline bool match(const PatternString& pattern, 
+			   const_iterator  pos) const
+   { AxialTree::const_iterator res; return match(pattern,pos,res); }
 
-    const_iterator find(const PatternString &pattern,
-			const_iterator start,
-			const_iterator stop) const;
+	inline bool match(const PatternString& pattern, 
+			   const_iterator  pos,
+			   const_iterator& resultingpos) const
+	{ ArgList params; return match(pattern,pos,resultingpos,params); }
 
-    inline bool match(const PatternModule &pattern,
-		      const_iterator pos) const
-    { return pos->match(pattern); }
+	inline bool match(const PatternString& pattern, 
+			   const_iterator  pos,
+			   const_iterator& resultingpos,
+			   ArgList& params) const
+    { AxialTree::const_iterator last_matched;  return match(pattern,pos,resultingpos,last_matched,params);  }
 
-    inline bool match(const PatternString &pattern,
-		      const_iterator pos) const
-    {
-      AxialTree::const_iterator res;
-      return match(pattern, pos, res);
-    }
+	bool match(const PatternString& pattern, 
+			   const_iterator  pos,
+			   const_iterator& resultingpos,
+			   const_iterator& last_matched,
+			   ArgList& params,
+               const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
 
-    inline bool match(const PatternString &pattern,
-		      const_iterator pos,
-		      const_iterator &resultingpos) const
-    {
-      ArgList params;
-      return match(pattern, pos, resultingpos, params);
-    }
+	bool reverse_match(const PatternString& pattern, 
+			   const_iterator  pos,
+               const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
 
-    inline bool match(const PatternString &pattern,
-		      const_iterator pos,
-		      const_iterator &resultingpos,
-		      ArgList &params) const
-    {
-      AxialTree::const_iterator last_matched;
-      return match(pattern, pos, resultingpos, last_matched, params);
-    }
+	bool reverse_match(const PatternString& pattern, 
+			   const_iterator  pos,
+			   const_iterator& resultingpos,
+			   ArgList& params,
+               const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
 
-    bool match(const PatternString &pattern,
-	       const_iterator pos,
-	       const_iterator &resultingpos,
-	       const_iterator &last_matched,
-	       ArgList &params,
-	       const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
+	bool reverse_match(const PatternString& pattern, 
+			   const_iterator  pos,
+			   const_iterator& resultingpos,
+                const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
 
-    bool reverse_match(const PatternString &pattern,
-		       const_iterator pos,
-		       const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
+	bool rightmatch(const PatternString& pattern, 
+					const_iterator pos,
+                    const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
 
-    bool reverse_match(const PatternString &pattern,
-		       const_iterator pos,
-		       const_iterator &resultingpos,
-		       ArgList &params,
-		       const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
+	bool rightmatch(const PatternString& pattern, 
+					const_iterator pos,
+					const_iterator& resultingpos,
+                    const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
 
-    bool reverse_match(const PatternString &pattern,
-		       const_iterator pos,
-		       const_iterator &resultingpos,
-		       const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
+	bool rightmatch(const PatternString& pattern, 
+					const_iterator pos,
+					const_iterator& resultingpos,
+					ArgList& params,
+                    const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
 
-    bool rightmatch(const PatternString &pattern,
-		    const_iterator pos,
-		    const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
+	bool rightmatch(const PatternString& pattern, 
+					const_iterator pos,
+					const_iterator last_matched,
+					const_iterator& resultingpos,
+                    ArgList& params,
+                    const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
 
-    bool rightmatch(const PatternString &pattern,
-		    const_iterator pos,
-		    const_iterator &resultingpos,
-		    const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
+	bool leftmatch(const PatternString& pattern,  
+					const_iterator pos,
+					const_iterator& resultingpos,
+					ArgList& params,
+                    const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
 
-    bool rightmatch(const PatternString &pattern,
-		    const_iterator pos,
-		    const_iterator &resultingpos,
-		    ArgList &params,
-		    const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
+	bool leftmatch(const PatternString& pattern,  
+					const_iterator pos,
+					const_iterator& resultingpos,
+                    const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
 
-    bool rightmatch(const PatternString &pattern,
-		    const_iterator pos,
-		    const_iterator last_matched,
-		    const_iterator &resultingpos,
-		    ArgList &params,
-		    const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
+	bool leftmatch(const PatternString& pattern,  
+					const_iterator pos,
+                    const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
 
-    bool leftmatch(const PatternString &pattern,
-		   const_iterator pos,
-		   const_iterator &resultingpos,
-		   ArgList &params,
-		   const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
+	const_iterator rightfind(const PatternString& pattern,
+							 const_iterator start,
+						     const_iterator stop) const;
 
-    bool leftmatch(const PatternString &pattern,
-		   const_iterator pos,
-		   const_iterator &resultingpos,
-		   const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
+	inline const_iterator rightfind(const PatternString& pattern,
+							 const_iterator start) const
+	{ return rightfind(pattern,start,const_end()); }
 
-    bool leftmatch(const PatternString &pattern,
-		   const_iterator pos,
-		   const ConsiderFilterPtr filter = ConsiderFilterPtr()) const;
+	inline const_iterator rightfind(const PatternString& pattern) const
+	{ return rightfind(pattern,const_begin(),const_end()); }
 
-    const_iterator rightfind(const PatternString &pattern,
-			     const_iterator start,
-			     const_iterator stop) const;
+	const_iterator leftfind(const PatternString& pattern,
+							 const_iterator start,
+						     const_iterator stop) const;
 
-    inline const_iterator rightfind(const PatternString &pattern,
-				    const_iterator start) const
-    { return rightfind(pattern, start, const_end()); }
+	inline const_iterator leftfind(const PatternString& pattern,
+							 const_iterator start) const
+	{ return leftfind(pattern,start,const_end()); }
 
-    inline const_iterator rightfind(const PatternString &pattern) const
-    { return rightfind(pattern, const_begin(), const_end()); }
+	inline const_iterator leftfind(const PatternString& pattern) const
+	{ return leftfind(pattern,const_begin(),const_end()); }
 
-    const_iterator leftfind(const PatternString &pattern,
-			    const_iterator start,
-			    const_iterator stop) const;
+	AxialTree replace(const PatternModule&, const ParamModule&) const;
+	AxialTree replace(const PatternModule&, const AxialTree&) const;
+	AxialTree replace(const PatternString&, const AxialTree&) const;
 
-    inline const_iterator leftfind(const PatternString &pattern,
-				   const_iterator start) const
-    { return leftfind(pattern, start, const_end()); }
-
-    inline const_iterator leftfind(const PatternString &pattern) const
-    { return leftfind(pattern, const_begin(), const_end()); }
-
-    AxialTree replace(const PatternModule &, const ParamModule &) const;
-    AxialTree replace(const PatternModule &, const AxialTree &) const;
-    AxialTree replace(const PatternString &, const AxialTree &) const;
-
-  };
+};
 
 
 /*---------------------------------------------------------------------------*/

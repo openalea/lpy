@@ -40,14 +40,14 @@ LPY_BEGIN_NAMESPACE
 
 #define TRACKER_CLASS_IMP_DECLARE(mclass) size_t Tracker::mclass(0);
 
-  TRACKER_CLASS_APPLY(TRACKER_CLASS_IMP_DECLARE)
+TRACKER_CLASS_APPLY(TRACKER_CLASS_IMP_DECLARE)
 
 
 #define TRACKER_CLASS_PRINT(mclass) std::cerr << #mclass " count : " << Tracker::mclass << std::endl;
 
-  void Tracker::printReport(){
-	  TRACKER_CLASS_APPLY(TRACKER_CLASS_PRINT)
-  }
+void Tracker::printReport(){
+	TRACKER_CLASS_APPLY(TRACKER_CLASS_PRINT)
+}
 
 #endif
 

@@ -35,94 +35,83 @@
 
 TOOLS_USING_NAMESPACE
 
-typedef pgl_hash_map<const char *, Timer> TimerMap;
+typedef pgl_hash_map<const char *, Timer> TimerMap; 
 static TimerMap timers;
 
-Timer &get_timer(const char *name)
-{
-  TimerMap::iterator ittimer = timers.find(name);
-  if (ittimer == timers.end())
-    {
-      timers[name] = Timer();
-      return timers[name];
+Timer& get_timer(const char * name) {
+    TimerMap::iterator ittimer = timers.find(name);
+    if (ittimer == timers.end()){
+        timers[name] = Timer();
+        return timers[name];
     }
-  else return ittimer->second;
+    else return ittimer->second;
 }
 
-void LPY::start_timing(const char *name)
-{
-  get_timer(name).start();
+void LPY::start_timing(const char * name){
+    get_timer(name).start();
 }
 
-void LPY::stop_timing(const char *name)
-{
-  get_timer(name).stop();
+void LPY::stop_timing(const char * name){
+    get_timer(name).stop();
 }
 
-void LPY::print_timing(const char *name)
+void LPY::print_timing(const char * name )
 {
-  if (name == 0)
-    {
-      for (TimerMap::const_iterator ittimer = timers.begin(); ittimer != timers.end(); ++ittimer)
-	printf("%s : %f elapsed.\n", ittimer->first, ittimer->second.elapsedTime());
+    if (name == 0) {
+        for(TimerMap::const_iterator ittimer = timers.begin(); ittimer != timers.end(); ++ittimer)
+            printf("%s : %f elapsed.\n", ittimer->first, ittimer->second.elapsedTime());
     }
-  else
-    {
-      printf("%s : %f elapsed.\n", name, get_timer(name).elapsedTime());
+    else {
+        printf("%s : %f elapsed.\n", name, get_timer(name).elapsedTime());
     }
 
 }
 
-void LPY::reset_timing()
-{
-  timers.clear();
+void LPY::reset_timing(){
+    timers.clear();
 }
 
-typedef pgl_hash_map<const char *, int> ValueMap;
+typedef pgl_hash_map<const char *, int> ValueMap; 
 static ValueMap debugvalues;
 
-int &get_debugvalue(const char *name)
-{
-  ValueMap::iterator itvalue = debugvalues.find(name);
-  if (itvalue == debugvalues.end())
-    {
-      debugvalues[name] = 0;
-      return debugvalues[name];
+int& get_debugvalue(const char * name) {
+    ValueMap::iterator itvalue = debugvalues.find(name);
+    if (itvalue == debugvalues.end()){
+        debugvalues[name] = 0;
+        return debugvalues[name];
     }
-  else return itvalue->second;
+    else return itvalue->second;
 }
 
 
-void LPY::set_debug_value(const char *name, int value)
+void LPY::set_debug_value(const char * name, int value)
 {
-  get_debugvalue(name) = value;
+    get_debugvalue(name) = value;
 }
 
-void LPY::inc_debug_value(const char *name)
+void LPY::inc_debug_value(const char * name)
 {
-  set_debug_value(name, get_debugvalue(name) + 1);
+    set_debug_value(name, get_debugvalue(name)+1);
 }
 
-void LPY::dec_debug_value(const char *name)
+void LPY::dec_debug_value(const char * name)
 {
-  set_debug_value(name, get_debugvalue(name) + 1);
+    set_debug_value(name, get_debugvalue(name)+1);
 }
 
-void LPY::print_debug_values(const char *name)
+void LPY::print_debug_values(const char * name)
 {
 
-  if (name == 0)
-    {
-      for (ValueMap::const_iterator itvalue = debugvalues.begin(); itvalue != debugvalues.end(); ++itvalue)
-	printf("%s : %i.\n", itvalue->first, itvalue->second);
+    if (name == 0) {
+        for(ValueMap::const_iterator itvalue = debugvalues.begin(); itvalue != debugvalues.end(); ++itvalue)
+            printf("%s : %i.\n", itvalue->first, itvalue->second);
     }
-  else
-    {
-      printf("%s : %i.\n", name, get_debugvalue(name));
+    else {
+        printf("%s : %i.\n", name, get_debugvalue(name));
     }
 }
 
 void LPY::reset_debug_values()
 {
-  debugvalues.clear();
+    debugvalues.clear();
 }

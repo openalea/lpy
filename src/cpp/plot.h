@@ -38,44 +38,44 @@
 
 LPY_BEGIN_NAMESPACE
 
-  class AxialTree;
+class AxialTree;
 
 /*---------------------------------------------------------------------------*/
 
-  typedef void (*PlotFunction)(const PGL(ScenePtr) &);
-  typedef std::vector<uint_t> (*GetSelectFunction)();
-  typedef void (*SaveImageFunction)(const std::string &, const std::string &);
-  typedef uint_t (*WaitSelectFunction)(const std::string &);
-  typedef void (*DisplayMessageFunction)(const std::string &);
+typedef void (*PlotFunction)(const PGL(ScenePtr)&);
+typedef std::vector<uint_t> (*GetSelectFunction)();
+typedef void (*SaveImageFunction)(const std::string&, const std::string&);
+typedef uint_t (*WaitSelectFunction)(const std::string&);
+typedef void (*DisplayMessageFunction)(const std::string&);
 
-  void LPY_API registerPglPlotFunction(PlotFunction func);
-  void LPY_API cleanPglPlotFunction();
-  void LPY_API registerGetSelectionFunction(GetSelectFunction func);
-  void LPY_API cleanGetSelectionFunction();
-  void LPY_API registerSaveImageFunction(SaveImageFunction func);
-  void LPY_API cleanSaveImageFunction();
-  void LPY_API registerWaitSelectionFunction(WaitSelectFunction func);
-  void LPY_API cleanWaitSelectionFunction();
-  void LPY_API registerDisplayMessageFunction(DisplayMessageFunction func);
-  void LPY_API cleanDisplayMessageFunction();
+void LPY_API registerPglPlotFunction(PlotFunction func);
+void LPY_API cleanPglPlotFunction();
+void LPY_API registerGetSelectionFunction(GetSelectFunction func);
+void LPY_API cleanGetSelectionFunction();
+void LPY_API registerSaveImageFunction(SaveImageFunction func);
+void LPY_API cleanSaveImageFunction();
+void LPY_API registerWaitSelectionFunction(WaitSelectFunction func);
+void LPY_API cleanWaitSelectionFunction();
+void LPY_API registerDisplayMessageFunction(DisplayMessageFunction func);
+void LPY_API cleanDisplayMessageFunction();
 
-  void LPY_API plot(const PGL(ScenePtr) &);
-  std::vector<uint_t> LPY_API getSelection();
-  void saveImage(const std::string &, const std::string &format = "PNG");
-  uint_t LPY_API waitSelection(const std::string &);
-  void LPY_API displayMessage(const std::string &txt);
+void LPY_API plot(const PGL(ScenePtr)&);
+std::vector<uint_t> LPY_API getSelection();
+void saveImage(const std::string&, const std::string& format = "PNG");
+uint_t LPY_API waitSelection(const std::string&);
+void LPY_API displayMessage(const std::string& txt);
 
-  void LPY_API plot(AxialTree &tree);
-  void LPY_API plot(AxialTree &tree, PGL::PglTurtle &turtle);
+void LPY_API plot(AxialTree& tree);
+void LPY_API plot(AxialTree& tree, PGL::PglTurtle& turtle);
 
-  void LPY_API plot(AxialTree &tree, StringMatching &matching);
-  void LPY_API plot(AxialTree &tree, StringMatching &matching, PGL::PglTurtle &turtle);
+void LPY_API plot(AxialTree& tree, StringMatching& matching);
+void LPY_API plot(AxialTree& tree, StringMatching& matching, PGL::PglTurtle& turtle);
 
-  PGL(ScenePtr) LPY_API scene(AxialTree &tree);
-  PGL(ScenePtr) LPY_API scene(AxialTree &tree, PGL::PglTurtle &turtle);
+PGL(ScenePtr) LPY_API scene(AxialTree& tree);
+PGL(ScenePtr) LPY_API scene(AxialTree& tree, PGL::PglTurtle& turtle);
 
-  PGL(ScenePtr) LPY_API scene(AxialTree &tree, StringMatching &matching);
-  PGL(ScenePtr) LPY_API scene(AxialTree &tree, StringMatching &matching, PGL::PglTurtle &turtle);
+PGL(ScenePtr) LPY_API scene(AxialTree& tree, StringMatching& matching);
+PGL(ScenePtr) LPY_API scene(AxialTree& tree, StringMatching& matching, PGL::PglTurtle& turtle);
 
 /*---------------------------------------------------------------------------*/
 
