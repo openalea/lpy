@@ -1,3 +1,5 @@
+.. _Helpcard_LPy:
+
 L-Py Helpcard
 =============
 

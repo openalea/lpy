@@ -93,14 +93,15 @@ your code.
 
 Let's get into it:
 
-Firstly, create three scalar parameters and name these **X,Y,Z** respectively.
+Firstly, create three *float* scalar parameters and name these **X,Y,Z** respectively by right-clicking in the green area.
 
 .. image:: ../_images/editor/ex011.png
-    :scale: 60%
+    :scale: 80%
 
-[Detailler screenshot d'ajout de paramètres + ex]
+Here, I'll set all of my variables to have a value in a range between 0 and 10. For this exemple,
+the other parameters are not important.
 
-You can see that the parameters has been added to the widget:
+You can see now that the parameters has been added to the widget:
 
 .. image:: ../_images/editor/ex012.png
     :scale: 60%
@@ -108,7 +109,7 @@ You can see that the parameters has been added to the widget:
 To not get lost by these variables without any sense, you can also add **categories** to sort your variables and
 add to it a senseful name.
 
-For my part, I've done this to not be lost in my work:
+For my part, I've done this to not get lost in my work:
 
 .. image:: ../_images/editor/ex013.png
     :scale: 60%
@@ -130,7 +131,7 @@ For my part, I've done this to not be lost in my work:
 Then, with the code above, double left-click on the values at the right, play with the slider that appeared
 and click on **Run** or **Animate**.
 
-The render on PlantGL should display something like this (with X=2, Y=4 and Z=3):
+The render on PlantGL should display something like this (with X=4, Y=2 and Z=1.5):
 
 .. image:: ../_images/editor/ex014.png
     :scale: 60%
@@ -139,7 +140,7 @@ See ? The values you put on in the *Scalar Parameters* widget are directly modif
 displayed on screen as wanted!
 
 And if you're bored to modify the values and to click each time on **Run** or **Animate**, you can also activate the
-Auto-Run feature, to do so, click on *L-systems > Auto-Run*. It will modify values at runtime when you're changing the values
+**Auto-Run** feature, to do so, click on *L-systems > Auto-Run*. It will modify values at runtime when you're changing the values
 without the need to re-run or re-animate your project!
 
 
@@ -259,3 +260,65 @@ This is sorted as:
 
 The *run()* function is basically the entire process, but you can find all your *rules* in this *run()* function
 plus the *plot()* function, which is the scene rendering function by PlantGL.
+
+
+.. _Editor_Python_Shell:
+
+Python Shell
+============
+
+You can find at the bottom of L-Py a Python Shell that can be useful to display at run-time some data from
+your project. The Python Shell implemented looks familiar to a simple shell if you're used to a Linux or Mac System:
+
+.. image:: ../_images/editor/ex015.png
+    :scale: 60%
+
+You can find in the :ref:`Helpcard_LPy` all of the available commands for the Python Shell. Here will be explained
+all known commands at this date:
+
+lstring
+-------
+
+When ``lstring`` is called, this command write on the shell the last computed lsystem string of the current simulation.
+
+Do you remember the :ref:`Editor_Scalar_Parameters` exemple ? Try to get it again and try to send the *lstring* command
+in the Python Shell, you should have this being returned:
+
+.. code-block:: python
+
+    In [1]: lstring
+    Out[1]: AxialTree(B[+A][-F(1.5)])
+
+We can see that, here, the code has been interpreted as an **AxialTree**, which is the system module. This **AxialTree**
+contains custom turtle instructions (**B** and **A** here) that will be reinterpreted at the end of the computing as
+**F**\ (*Y value*) for **B** and **F**\ (*X value*) for **A**.
+
+.. note::
+
+    Why the X and Y variables has not been replaced by its value is because it is an interpretation of the L-Py program
+    of the element and not a production that replaces the variable !
+
+
+lsystem
+-------
+
+When ``lsystem`` is called, this command write on the shell the reference to the internal lsystem object
+representing the current simulation.
+
+.. code-block:: python
+
+    In [1]: lsystem
+    Out[1]: <openalea.lpy.__lpy_kernel__.Lsystem at 0x7f3b5f0d0890>
+
+window
+-------
+
+When ``window`` is called, this command write on the shell the reference to the lpy widget object.
+
+.. code-block:: python
+
+    In [1]: window
+    Out[1]: <openalea.lpy.gui.lpystudio.LPyWindow at 0x7f3b866409d0>
+
+The *lsystem* and *window* commands can be useful if you need to know some advanced details on
+the current lsystem object represented on-screen.
