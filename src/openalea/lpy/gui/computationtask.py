@@ -17,8 +17,6 @@ class ThreadTransferException (Exception):
 class ComputationTask(QThread):
 
     killed = pyqtSignal()
-    finished = pyqtSignal()
-    terminated = pyqtSignal()
 
     def __init__(self, process = None, 
                        postprocess = None, 

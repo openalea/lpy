@@ -98,13 +98,13 @@ def restoreState(lpywidget):
     settings.beginGroup('stdout')
     lc = settings.value('lpyshell',True)=='true'
     sc = settings.value('sysconsole',False)=='true'
-    lpywidget.shell.setOutputRedirection(lc,sc,1)
+    lpywidget.shellwidget.setOutputRedirection(lc,sc,1)
     settings.endGroup()
     
     settings.beginGroup('stderr')
     lc = settings.value('lpyshell',True)=='true'
     sc = settings.value('sysconsole',False)=='true'
-    lpywidget.shell.setOutputRedirection(lc,sc,2)
+    lpywidget.shellwidget.setOutputRedirection(lc,sc,2)
     settings.endGroup()
     
     settings.beginGroup('edition')
@@ -181,14 +181,14 @@ def saveState(lpywidget):
     settings.endGroup()
     if not lpywidget.interpreter is None:
         settings.beginGroup('stdout')
-        outinshell = lpywidget.shell.hasMultipleStdOutRedirection() or lpywidget.shell.isSelfStdOutRedirection()
-        outinsys   = lpywidget.shell.hasMultipleStdOutRedirection() or lpywidget.shell.isSysStdOutRedirection()
+        outinshell = lpywidget.shellwidget.hasMultipleStdOutRedirection() or lpywidget.shellwidget.isSelfStdOutRedirection()
+        outinsys   = lpywidget.shellwidget.hasMultipleStdOutRedirection() or lpywidget.shellwidget.isSysStdOutRedirection()
         settings.setValue('lpyshell',to_qvariant(outinshell))
         settings.setValue('sysconsole',to_qvariant(outinsys))
         settings.endGroup()
         settings.beginGroup('stderr')
-        errinshell = lpywidget.shell.hasMultipleStdErrRedirection() or lpywidget.shell.isSelfStdErrRedirection()
-        errinsys   = lpywidget.shell.hasMultipleStdErrRedirection() or lpywidget.shell.isSysStdErrRedirection()
+        errinshell = lpywidget.shellwidget.hasMultipleStdErrRedirection() or lpywidget.shellwidget.isSelfStdErrRedirection()
+        errinsys   = lpywidget.shellwidget.hasMultipleStdErrRedirection() or lpywidget.shellwidget.isSysStdErrRedirection()
         settings.setValue('lpyshell',to_qvariant(errinshell))
         settings.setValue('sysconsole',to_qvariant(errinsys))
         settings.endGroup()

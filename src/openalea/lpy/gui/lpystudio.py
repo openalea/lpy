@@ -15,8 +15,13 @@ except:
 from openalea.plantgl.all import *
 QT_VERSION = get_pgl_qt_version() >> 16
 os.environ['QT_API'] = 'pyqt' if QT_VERSION == 4 else 'pyqt'+str(QT_VERSION)
+if QT_VERSION == 4:
+    os.environ.setdefault('QT_API_VERSION', '2')
 from openalea.vpltk import qt
 from openalea.vpltk.qt.compat import *
+if QT_VERSION == 4:
+    import sip
+    assert sip.getapi('QString') == 2
 
 try:
    import PyQGLViewer
@@ -41,7 +46,7 @@ from openalea.lpy import *
 
 from openalea.vpltk.qt.QtPrintSupport import QPrintDialog, QPrinter
 from openalea.vpltk.qt.QtCore import QCoreApplication, QEvent, QMutex, QObject, QThread, QWaitCondition, Qt, pyqtSignal, pyqtSlot
-from openalea.vpltk.qt.QtGui import QIcon, QPixmap
+from openalea.vpltk.qt.QtGui import QIcon, QPixmap, QTextCursor
 from openalea.vpltk.qt.QtWidgets import QAction, QApplication, QDialog, QFileDialog, QInputDialog, QMainWindow, QMessageBox, QTabBar
 
 
@@ -78,6 +83,9 @@ class LpyPlotter:
 class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
 
     endTask = pyqtSignal('PyQt_PyObject')
+    killedTask = pyqtSignal('PyQt_PyObject')
+
+    instances = []
 
     def __init__(self, parent=None, withinterpreter = True):
         """
@@ -86,6 +94,11 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         QMainWindow.__init__(self, parent)
         ComputationTaskManager.__init__(self)
         lsmw.Ui_MainWindow.__init__(self)
+
+
+        import weakref
+        LPyWindow.instances.append(weakref.ref(self))
+
         self.withinterpreter = withinterpreter
         self.setupUi(self)
         self.editToolBar.hide()
@@ -866,7 +879,13 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         if len(self.cCompilerPath) != 0 and not self.cCompilerPath in os.environ['PATH']:
             os.environ['PATH']+=';'+self.cCompilerPath
     def executeCode(self):
-        self.interpreter.runcode(self.codeeditor.textCursor().selectedText())
+        cmd = self.codeeditor.codeToExecute()
+        #print '... '+'\n... '.join(cmd.splitlines())
+        #self.interpreter.runcode(cmd)
+        self.shellwidget.execute(cmd)
+        cursor = self.codeeditor.textCursor()
+        cursor.movePosition(QTextCursor.Down)
+        self.codeeditor.setTextCursor(cursor)
     def submitBug(self):
         import webbrowser
         webbrowser.open("https://gforge.inria.fr/tracker/?func=add&group_id=79&atid=13767")

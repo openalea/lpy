@@ -77,7 +77,8 @@ def check_local_modules(dir = '.'):
             result.append(modname)
     return result
 
-def reload_local_modules(dir = '.'):
+def reload_local_modules(dir = '.', verbose = False):
     import sys
     for mod in check_local_modules(dir):
+        if verbose: print 'Reload', mod
         reload(sys.modules[mod])
