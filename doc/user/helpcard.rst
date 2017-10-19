@@ -1,15 +1,14 @@
 L-Py Helpcard
-=============
+#############
 
-L-Py-card
 L-Py is based on the specification of Lstudio/cpfg-lpfg defined by P. Prusinkiewicz et al. (http://algorithmicbotany.org/lstudio).
-Predefined Symbols
-Here is a recap of the predefined symbol used in L-Py with their turtle interpretation:
+
+.. include:: ../_generated/helpcard-gen.rst
 
 .. raw:: html
 	<H1>L-Py</H1>
 	L-Py is based on the specification of Lstudio/cpfg-lpfg defined by P. Prusinkiewicz et al. (http://algorithmicbotany.org/lstudio).
-	<H2> Predefined Symbols </H2>
+	<H2> efined Symbols </H2>
 	Here is a recap of the predefined symbol used in L-Py with their turtle interpretation: <BR>
 
 	<table><tr><td colspan=3 align="center"><H3>Structure</H3></td></tr>
