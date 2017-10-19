@@ -1,13 +1,8 @@
 from openalea.vpltk.qt import qt
-try:
-    from openalea.oalab.shell import get_shell_class
-    from openalea.core.interpreter import get_interpreter_class
-except :
-    from openalea.vpltk.shell.shell import get_shell_class, get_interpreter_class
-
 import debugger_ui
 import debugger_right_ui
 from objectpanel import LpyObjectPanelDock
+from lpyshell import set_shell_widget
 
 from openalea.vpltk.qt.QtCore import Qt, QCoreApplication
 from openalea.vpltk.qt.QtGui import QIcon, QPixmap
@@ -84,27 +79,13 @@ def initDocks(lpywidget):
     lpywidget.profilerDock.hide()
     #interpreter dock
     if lpywidget.withinterpreter :
-        shellclass = get_shell_class()
-        interpreterclass = get_interpreter_class()
-        lpywidget.interpreter = interpreterclass()
-        lpywidget.shell = shellclass(lpywidget.interpreter, parent=lpywidget.interpreterDock)    
-        lpywidget.interpreterDock.setWidget(lpywidget.shell)
+        set_shell_widget(lpywidget)
+
         action = lpywidget.interpreterDock.toggleViewAction()
-        action.setShortcut(_translate("MainWindow", "Ctrl+P"))
+        action.setShortcut(QCoreApplication.translate("MainWindow", "Ctrl+P"))        
         lpywidget.menuView.addSeparator()
         lpywidget.menuView.addAction(action)
-        lpywidget.interpreter.locals['window'] = lpywidget
-        lpywidget.interpreter.locals['clear'] = lpywidget.shell.clear
-        try:
-            exec('from openalea.plantgl.all import *',lpywidget.interpreter.locals,lpywidget.interpreter.locals)
-            exec('from openalea.lpy import *',lpywidget.interpreter.locals,lpywidget.interpreter.locals)
-            #lpywidget.interpreter.loadcode('from openalea.plantgl.all import *' )
-            #lpywidget.interpreter.loadcode('from openalea.lpy import *')
-            # lpywidget.interpreter.runcode('from openalea.plantgl.all import *')
-            # lpywidget.interpreter.runcode('from openalea.lpy import *')
-        except:
-            lpywidget.interpreter.runcode('from openalea.plantgl.all import *')
-            lpywidget.interpreter.runcode('from openalea.lpy import *')
+        
         lpywidget.addDockWidget(Qt.BottomDockWidgetArea,lpywidget.interpreterDock)
         lpywidget.tabifyDockWidget(lpywidget.debugDock,lpywidget.interpreterDock)
     else:
