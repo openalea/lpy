@@ -273,7 +273,7 @@ your project. The Python Shell implemented looks familiar to a simple shell if y
 .. image:: ../_images/editor/ex015.png
     :scale: 60%
 
-You can find in the :ref:`Helpcard_LPy` all of the available commands for the Python Shell. Here will be explained
+You can find in the `Lpy Helpcard <./helpcard.html>`_ all of the available commands for the Python Shell. Here will be explained
 all known commands at this date:
 
 lstring
