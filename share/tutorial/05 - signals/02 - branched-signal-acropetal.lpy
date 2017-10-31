@@ -1,0 +1,22 @@
+Axiom: A[-A]A[+A]A[-A]B
+
+derivation length: 3
+ignore: +-
+production:
+
+A > B --> B
+
+interpretation:
+
+B --> ;(3)F
+A --> ;(1)F
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+__copyright__ = 'opensource GPL'
+__description__ = 'change B B to use fast information transfer '
+__institutes__ = 'INRIA-CIRAD V.Plants team'
+__authors__ = 'F. Boudon, C. Godin'

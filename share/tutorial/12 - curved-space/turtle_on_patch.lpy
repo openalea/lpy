@@ -1,0 +1,241 @@
+from vplants.plantgl.math import Vector2,Vector3
+
+#Routines needed to direct turtle using surface parameters u,v
+#without the user having to manually keep the turtle on the 
+#surface
+#
+#Need the chosen path, curve, in embedded space,
+#as well as its first and second derivatives, 
+#curve_d1(t) :
+#curve_d2(t) :
+# respectively.
+#
+u = 0
+v = 1
+U = Vector2((0,0))
+#
+
+def patchSetRes(_res) :
+  """Set the resolution with which the turtle measures the 
+  curvature of the patch.
+  Parameters :
+    _res - real 
+  """
+  global patchRes
+  patchRes = _res
+  return
+
+def normalup() :
+  """Orient the turtle's Up vector to match the normal vector
+  of the patch. Project the heading onto the patch
+  """
+  global U
+  normal = patch.getNormalAt(U)
+  heading = (normal ^ GetHead(GetPos)) ^ normal
+  SetHead(heading,normal)
+  return
+
+def patchMoveTo(upos,vpos) :
+  """Set the turtle position to the given coordinates on the 
+  patch.
+  Parameters :
+    upos,vpos - u,v coordinates respectively
+  """
+  vec3 = patch.getPointAt(upos,vpos)
+  MoveTo(vec3)
+  normalup()
+  return
+
+def Fpatch(length,topradius=0.01) :
+  """Move forward and draw for geodesic length of length.
+  Parameters :
+    length - real, length of geodesic
+    topradius - real, radius of geodesic
+  """
+  global patchRes
+  while length > 0 :
+    _Fpatch(length,topradius)
+    length -= patchRes
+  return
+
+def _Fpatch(length,topradius=0.01) :
+  """Move forward and draw for geodesic length of length, 
+  or length of patchRes if length = 0.
+  Parameters :
+    length - real, length of geodesic
+    topradius - real, radius of geodesic
+  """
+  global patchRes
+  if length>patchRes :
+    length = patchRes
+#      newpos = patch.getPointAt(patchStep(patchRes))
+#    else :
+  head = patchGetHead()
+  U += length * head
+  newpos = patch.getPointAt(U)
+#  OLineTo(newpos)
+  normalup()
+  return
+
+def patchSetHead(du,dv) :
+  """Convert heading on patch to heading of turtle.
+  """
+  global U,u,v
+  _unit = unit_coord()    
+  _heading = du * _unit[0] + dv * _unit[1]
+  _normal = patch.getNormalAt(U[u],U[v])
+  nproduce SetHead(_heading[0],_heading[1],_heading[2],_normal[0],_normal[1],_normal[2])
+  return
+
+def patchGetHead() :
+  """Find projection of heading onto patch. Given in u,v 
+  coordinates.
+  """
+  global U,u,v
+  heading = GetHead()
+  utangent = patch.getUTangentAt(U[u],U[v])
+  uhead = utangent.normed() * heading
+  vtangent = patch.getVTangentAt(U)    
+  vhead = vtangent.normed() * heading
+  return Vector2(uhead,vhead)
+
+def coord() :
+  """Extract coord Vector3s from NURBS patch.
+  """
+  global U,u,v
+  ucoord = U[u]
+  vcoord = U[v]
+  coords = {}
+  coords[u] = patch.getUTangentAt(ucoord,vcoord)
+  coords[v] = patch.getVTangentAt(ucoord,vcoord)
+  return coords
+
+def unit_coord() :
+  """Returns dictionary of Vector3 of unit length parallel to corresponding
+  Vector3 coord.
+  globals :
+      U - Vector2, intrinsic position on surface
+      u,v - 0,1
+  dependencies :
+      coord - duple of Vector2, tangents to coordinate directions
+  returns :
+      dictionary
+  """
+  global U,u,v
+  coords = coord()
+  print 'coords',coords
+  _unit = {}
+  for i in (u,v) :
+    _unit[i] = coords[i].normed()
+  return _unit
+
+def draw_geo(direct,length) :
+  """Coordinates the drawing of a geodesic of length 'length' in the direction 'direct'
+  with an accuracy of 'inc'.
+  """
+  global u,v,patchRes
+  print 'called draw_geo'
+  patchSetRes(0.1)
+  patchSetHead(direct[u],direct[v])
+  while length > 0 :
+    print
+    _Fpatch(length)
+    length -= patchRes
+    print 'length',length
+  return
+#
+#W(1,0.01)A((0.7,.99))G(Vector2((0,-1)),1)
+#B(t) < G(direct,_len) :
+#  print 'G draw_geo',direct
+#  patchSetHead(direct[0],direct[1])
+#  nproduce Fpatch(_len)
+#_pos = coord()
+#_pos,vec,_len = draw_geo(t,vec,_len,inc)
+#_output = (_pos[0],_pos[1])
+#nproduce B(_output)
+#if _len :
+#  print 'B(%f,%f) G()' %(_output[0],_output[1])
+#  nproduce G(vec,_len-inc,inc)
+#else :
+#  print '_len =',_len
+#return
+
+Axiom: J(2)W(3,0.01)A((0,.45))E(0,0.45,Vector2((1,0)),1.5,0.05)A((0,0.5))E(0,0.5,Vector2((1,0)),1.5,0.05)
+
+initialvec = Vector2((0,0))
+finalvec = Vector2((2,2))
+
+derivation length: 60
+production:
+B(upos,vpos) :
+  _destination = patch.getPointAt(upos,vpos)  # Vector3 position of destination
+  print 'BB patch.getPointAt',upos,vpos
+  produce D(_destination)?H(0,0,0) 
+
+A(t) :
+  _origin = patch.getPointAt(t[0],t[1])  # Vector3 position of origin
+  print 'origin in A',_origin
+  produce C(_origin)
+
+G(upos,vpos,direct,length) :
+  """Coordinates the drawing of a geodesic of length 'length' in the direction 'direct'
+  with an accuracy of 'inc'.
+  """
+  global patchRes
+  print 'called draw_geo'
+  upos += direct[0]*patchRes
+  vpos += direct[1]*patchRes
+  #patchSetHead(direct[u],direct[v])
+  nproduce   B(upos,vpos)
+  if length > 0 :
+    nproduce N(upos,vpos,direct,length)
+    print 'length',length
+
+?H(h1,h2,h3) N(upos,vpos,direct,length) :
+  """Reorients heading on patch to accomodate its curvature.
+  """
+  global patchRes
+  #print "Reorienting turtle, heading"
+  heading = Vector3(h1,h2,h3).normed()
+  #print 'utangent'
+  utangent = patch.getUTangentAt(upos,vpos)
+  #print 'uhead'
+  uhead = utangent.normed() * heading
+  #print 'vtangent'
+  vtangent = patch.getVTangentAt(upos,vpos)
+  #print 'vhead'
+  vhead = vtangent.normed() * heading
+  produce G(upos,vpos,Vector2(uhead,vhead),length-patchRes)
+ 
+E(upos,vpos,direct,length,inc) :
+  patchSetRes(inc)
+  nproduce G(upos,vpos,direct,length)
+
+interpretation:
+J(t) --> SetColor(t)@g(patch,1)
+W(t,x) --> SetColor(t) SetWidth(x)
+C(origin) --> @M(origin.x,origin.y,origin.z)@O()
+D(destination) --> OLineTo(destination.x,destination.y,destination.z)@O
+#Q(direct,length) --> F(GetHead()) #N(direct,length,GetHead())
+#G(direct,length) --> draw_geo(direct,length)
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	context.animation_timestep = 0.001
+	import openalea.plantgl.all as pgl
+	patch = pgl.NurbsPatch(	
+	    pgl.Point4Matrix([[(0, -0.5, 0, 1), (0, -0.194826, -0.288638, 1), (0, 0.286346, -0.288638, 1), (0, 0.5, 0, 1)], [(-0.0511597, -1.31723, 0.193582, 1), (1.25518, -0.558116, 0.241131, 1), (1.33418, 0.557144, 0.213018, 1), (0, 0.746398, 0.340373, 1)], [(0, -0.795678, 0.694826, 1), (0.959953, -0.134105, 0.864113, 1), (0.973315, 0.242103, 0.891573, 1), (0, 0.746398, 0.722986, 1)], [(-0.110162, -0.81539, 1.22561, 1), (0.0310232, -0.140779, 1.25123, 1), (0.065397, 0.143161, 1.02033, 1), (0, 0.5, 1, 1)]]) , 
+	    )
+	patch.name = "patch"
+	panel_0 = ({'active': True, 'visible': True, 'name': 'Panel 1'},[('NurbsPatch',patch)])
+	panel_1 = ({'active': True, 'visible': True, 'name': 'Panel 1 2'},[])
+	parameterset = [panel_0,panel_1,]
+	context["__functions__"] = []
+	context["__curves__"] = []
+	context["__parameterset__"] = parameterset
+	context["patch"] = patch

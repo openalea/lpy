@@ -7,7 +7,10 @@ def StartEach(lstring):
   previousString = lstring
   
   # generate global symbol to represent the previous structure
-  return Lstring('@Ls(1)')
+  return Lstring('@Ls')
+
+def StartInterpretation():
+  nproduce -(90)
 
 Axiom: F
 
@@ -17,17 +20,15 @@ production:
 decomposition:
 maximum depth: 1
 
-@Ls(s) :
-  # generate previous structure with a scaling factor
-  nproduce  @Di(s)
-  nsproduce(previousString)
-  nproduce @Di(1./s)
+# generate previous structure with a scaling factor
+@Ls : nsproduce(previousString)
 
 production:
 
-@Ls(x) --> @Ls(x/3.) + @Ls(x/3.) -- @Ls(x/3.) + @Ls(x/3.)
+@Ls --> @Di(1/3.) @Ls  +  @Ls --  @Ls  +  @Ls @Di(3.)
 
 interpretation:
 
+F --> F
 
 endlsystem

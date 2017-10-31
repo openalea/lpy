@@ -1,0 +1,94 @@
+from openalea.plantgl.all import *
+from random import uniform
+from math import acos, cos, sin, pi
+
+# generate attractor points on the surface of a sphere
+rand_sphere_coords = [[2.0*pi*uniform(0,1),acos(2.0*uniform(0,1)-1)] for i in range(0,5000)]
+sphere_radius = 5.0
+
+attractor_pts = Point3Array([[sphere_radius*cos(x[0])*sin(x[1]), sphere_radius*sin(x[0])*sin(x[1]), sphere_radius*cos(x[1])] for x in rand_sphere_coords])
+
+# place the attractor points into a grid
+attractor_pts_grid = Point3Grid(Vector3(1,1,1),attractor_pts)
+
+# set parameters for space colonization algorithm 
+query_radius = 1.0
+kill_radius = 0.5 * query_radius
+grow_dist = 1.0
+
+# set position of the initial node
+initial_node_pos = Vector3(0,0,5.0)
+
+# begin L-system
+module Attractors
+module Node
+
+Axiom: Attractors(attractor_pts) SetInitialPos() Node(initial_node_pos)
+
+derivation length: 25
+
+production:
+
+Node(pt):
+  # find nearest attractor points in bounding sphere of given radius
+  neighbour_indicies = attractor_pts_grid.query_ball_point(pt,query_radius)
+  
+  # skip this node if there are no attractor points near it
+  if neighbour_indicies == []:
+    produce Node(pt)
+  
+  # loop through nearest neighbouring attractor points, and compute mean direction towards them
+  mean_dir = Vector3(0,0,0)
+  for i in neighbour_indicies:
+    mean_dir += direction(attractor_pts[i] - pt)
+  mean_dir /= len(neighbour_indicies)
+  # DO NOT normalize: mean_dir.normalize()  
+  
+  new_pt = pt + mean_dir * grow_dist
+  
+  # disable all the attractor points that are within the kill radius of the new point
+  neighbour_indicies = attractor_pts_grid.query_ball_point(new_pt, kill_radius)
+  attractor_pts_grid.disable_points(neighbour_indicies)        
+  
+  produce Node(pt) [ Node(new_pt) ] 
+
+
+interpretation:
+
+Node(pt) --> SetColor(2) LineTo(pt[0],pt[1],pt[2]) Sphere(0.2)
+# to draw the query and kill spheres: SetColor(10) Sphere(query_radius) SetColor(9) Sphere(kill_radius)
+
+SetInitialPos() --> @M(initial_node_pos[0],initial_node_pos[1],initial_node_pos[2])
+
+Attractors(points):
+  for i,pt in enumerate(points):
+    enabled = attractor_pts_grid.is_point_enabled(i)
+    nproduce @M(pt[0],pt[1],pt[2]) SetColor(3 if enabled else 4) Sphere(0.1 if enabled else 0.02)
+  produce
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	import openalea.plantgl.all as pgl
+	Color_10 = pgl.Material("Color_10" , ambient = (60,0,0) , diffuse = 3 , transparency = 0.12 , )
+	Color_10.name = "Color_10"
+	context.turtle.setMaterial(10,Color_10)
+	import openalea.plantgl.all as pgl
+	profile = pgl.BezierCurve2D(	
+	    pgl.Point3Array([(0.00304516, 0.989158, 1),(0.919709, 0.988049, 1),(0.989333, 0.451245, 1),(0.942931, 0.0692266, 1),(0.432096, 0.0477193, 1),(-0.00755788, 0.0124374, 1)]) , 
+	    )
+	profile.name = "profile"
+	profile2 = pgl.BezierCurve2D(	
+	    pgl.Point3Array([(0.00030319, 0.144896, 1),(0.110857, 0.341659, 1),(0.279505, 0.157395, 1),(0.260455, 0.0381235, 1),(0.143832, -0.0595403, 1),(-0.00117527, 0.0996232, 1)]) , 
+	    )
+	profile2.name = "profile2"
+	panel_0 = ({'active': True, 'visible': True, 'name': 'Panel 1'},[('Curve2D',profile),('Curve2D',profile2)])
+	parameterset = [panel_0,]
+	context["__functions__"] = []
+	context["__curves__"] = [('profile',profile),('profile2',profile2),]
+	context["__parameterset__"] = parameterset
+	context["profile"] = profile
+	context["profile2"] = profile2

@@ -78,7 +78,7 @@ I(b,m,v,c) :
 	if m==1 :
 		produce I(b,0,v,c)
 
-homomorphism:
+interpretation:
 
 I(b,m,v,c) : 
 	if SHOW_COUNT:

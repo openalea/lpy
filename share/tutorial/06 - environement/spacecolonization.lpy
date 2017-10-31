@@ -1,0 +1,140 @@
+from openalea.plantgl.all import *
+from random import uniform
+from math import pi,radians
+
+def generate_points(nbpoints,size):
+  pts = []
+  for i in xrange(nbpoints):
+    angle = uniform(0,2 * pi)
+    ok = False
+    while not ok:
+      x,y,z =  uniform(-1,1),uniform(-1,1),uniform(0,1)
+      if (x**2+y**2) <= profile(z)**2: ok = True
+    pts.append(Vector3(x,y,z)*size)
+  return pts
+
+pts = generate_points(5000,20)
+
+scale = 1
+grow_dist = scale
+killradius = grow_dist * 1
+perceptionradius = grow_dist * 1.5 
+perceptionangle = radians(90.0)
+
+min_nb_pt = 2
+
+initial_radius = 0.1
+
+rootpos = Vector3(0,0,1)
+rootdir = Vector3(0,0,1)
+
+# place the attractor points into a grid
+attractor_grid = Point3Grid(pts, 10)
+
+rootattr = attractor_grid.query_points_in_cone(rootpos, rootdir, perceptionradius, perceptionangle)
+attractor_grid.disable_points(rootattr )
+
+
+Attractors = {}
+def register_attractors(attractors, node):
+   """ Check for competition for attractors.  If an attractors is already assign to another bud, 
+       check which is the closest and assign to it. """
+   global Attractors
+   todel = []
+   for at in attractors:
+     dist = norm(pts[at]-node)
+     if Attractors.has_key(at):
+        r = Attractors[at]
+        if dist < r[0]:
+            del r[1][r[1].index(at)]
+            r = (dist,attractors)
+        else:
+           todel.append(at)
+     else:
+        r = (dist,attractors)
+     Attractors[at] = r
+   for d in todel:
+       attractors.remove(d)
+
+
+def children_dirs(dir, angle = 60, nb = 4):
+    # compute a whorl of 'nb' buds at branching angles.
+    rotdir = direction(dir.anOrthogonalVector())
+    rotmat = Matrix3.axisRotation(rotdir, radians(angle))
+    v0 = rotmat * dir
+    return [dir]+[v0]+[ Matrix3.axisRotation(dir, i * 2* pi/nb) *v0 for i in xrange(1,nb)]
+
+def StartEach():
+  global Attractors
+  Attractors = {}
+
+backward()
+
+initial_radius = 0.04
+e = 2.5
+
+def piperadius(ris):
+   return pow(sum([pow(ri,e) for ri in ris]),1./e)
+
+
+module Shoot, Bud, I, Attractors
+
+Axiom: Attractors Bud(rootpos,rootattr)
+
+derivation length: 100
+production:
+
+
+Bud(pt, atts) :  
+   if len(atts) > min_nb_pt: # if enough attractors are available 
+       # compute mean direction    
+       mean_dir = pointset_mean_direction(pt,pts,atts)
+       # compute new position
+       new_pt = pt + mean_dir * grow_dist        
+       # remove closest attractors
+       localattractors = attractor_grid.query_ball_point(new_pt,killradius)
+       attractor_grid.disable_points(localattractors )
+       # produce active nodes    
+       produce [I(pt,initial_radius) Node(new_pt,direction(new_pt-pt))]
+   else:    
+       # remove node   
+       produce
+
+I(pt, r) >> x([I(lpt, lr)]) :
+  if len(lr) >= 1:
+    produce I(pt,piperadius(lr))
+
+
+Node(pt, dir):
+  for d in children_dirs(dir):
+     # find nearest attractor points in cone of perception of given radius and angle
+     attractors = attractor_grid.query_points_in_cone(pt,d, perceptionradius, perceptionangle)
+     register_attractors(attractors , pt) # to check conflict
+     if len(attractors ) >= min_nb_pt: # generate lateral buds
+        nproduce Bud(pt, attractors)
+
+interpretation:
+
+I(pos,radius) --> _(radius) LineTo(pos)
+Bud(pt, cdir, atts) -->  [SetColor(5) Sphere(0.1*scale)]
+Attractors :
+  pttodisplay = attractor_grid.get_enabled_points()
+  if len(pttodisplay) > 0:
+    produce [,(3) @g(PointSet(pttodisplay,width=2))]
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	import openalea.plantgl.all as pgl
+	profile = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.0181818, 1),(0.219697, 0.0363636, 1),(0.297727, 0.313636, 1),(0.389394, 0.327273, 1),(0.593182, 0.290909, 1),(0.688636, 0.0590909, 1),(0.784091, 0.0954545, 1),(0.884091, 0.172727, 1),(1, 0, 1)]) , 
+	    )
+	profile.name = "profile"
+	panel_0 = ({'active': True, 'visible': True, 'name': 'Panel 1'},[('Function',profile)])
+	parameterset = [panel_0,]
+	context["__functions__"] = [('profile',profile),]
+	context["__curves__"] = []
+	context["__parameterset__"] = parameterset
+	context["profile"] = pgl.QuantisedFunction(profile)

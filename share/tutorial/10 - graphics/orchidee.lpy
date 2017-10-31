@@ -1,0 +1,271 @@
+from random import *
+from openalea.plantgl.all import *
+from math import *
+
+phyllo = 137.5
+size = 10
+
+NBasalLeaves= 5
+
+peduncleLength = 8
+stemLength = 13         # total internodes on the main stem
+NFlowers = 8   # total flowers on the main stem (should be < N)
+NFlowerClosed = 4
+
+MaxDiam = 1.5
+
+context().turtle.setMaterial(9,ImageTexture('leaftexture3.png'))
+context().turtle.setMaterial(10,ImageTexture('leaf1.jpg'))
+
+def diam(n):
+  x = float(n)/stemLength
+  return diamFunc(x)*MaxDiam
+  
+def inintervals(u,uinters):
+    for umin,umax in uinters:
+        if umin <= u <= umax: return True
+    return  False
+
+module Ophrys, Stem, Leaf, Peduncle, Flower, ClosedFlower, ClosedSepals, Sepals, Petals, UpperC, LowerC
+module MyGC, OnGC
+
+Axiom: ,(2) _diam(0)Ophrys 
+
+derivation length: 20
+production:
+
+Ophrys -->  StartGC SetGuide(stem,stemLength*size) BasalPart(NBasalLeaves) Stem(0)
+
+decomposition:
+maximum depth: 100
+
+BasalPart(n):
+  if (n > 0):
+    r = random()
+    delta = r*30
+    produce F(0.1,diam(0))/(phyllo)[ ^(-90)f(diam(0))^(90) &(10+delta) BasalLeaf] BasalPart(n-1)
+  else: produce 
+
+Stem(n) :
+  if n == stemLength : produce
+  elif n >= stemLength - NFlowers : 
+    d = diam(n)
+    if n >= stemLength - NFlowerClosed: # closed flowers
+      produce F(size/2.,d) [/(n*phyllo) ^(-90)f(d)^(90) Leaf] [/(n*phyllo) ClosedFlower(d)] Stem(n+1)
+    else: # open flowers
+      produce F(size,d) [/(n*phyllo) ^(-90)f(d)^(90) Leaf] [/(n*phyllo) Flower(d)] Stem(n+1)
+  else : 
+    d = diam(n)
+    nproduce F(size,d)[/(n*phyllo) ^(-90)f(d)^(90) Leaf] Stem(n+1)
+
+production:
+#interpretation:
+#maximum depth: 10
+
+BasalLeaf:
+    nproduce [ ,(10) TextureVScale(1/60.) &(10) MyGC (leafAxis,leafSection, leafWidth, 60, 15, 100)]
+    
+Leaf:
+    nproduce [ ,(10) TextureVScale(1/60.) &(10) MyGC (leafAxis,leafSection, leafWidth, 20, 10, 100)]
+
+ClosedFlower(d) --> ^(-90)f(d/2.)^(90) /(110) Peduncle(d) +(10) /(90) ClosedSepals
+
+Flower(d) -->  ^(-90)f(d/2.)^(90) /(110) Peduncle(d) +(60)  Sepals /(90) F(0.5) Petals UpperC LowerC 
+
+Peduncle(d):
+  nproduce SetGuide(peduncleStem,peduncleLength) F(0.1,0.1)
+  for i in xrange(peduncleLength):
+        nproduce F(1,d)
+  produce /(90)
+  
+ClosedSepals :
+    nproduce [ ,(5) /(phyllo)
+    for i in xrange(3):
+        nproduce /(120) [&(25) MyGC (sepalaxis,sepalsection, sepalwidth, 10, 10, 100) ]
+    produce ]
+    
+Sepals :
+    nproduce [ ,(5) /(phyllo)
+    for i in xrange(3):
+        nproduce /(120) [&(60) MyGC (sepalaxis,sepalsection, sepalwidth, 10, 10, 100) ]
+    produce ]
+
+Petals:    
+    nproduce [ ,(2)  /(0) 
+    for i in xrange(2):
+        nproduce /(120)  [&(80) MyGC (petalaxis,petalsection, petalwidth, 4, 10, 100) ]
+    produce ]
+
+
+UpperC -->[ ^(30) ,(6) MyGC(upperCAxis,upperCSection,upperCWidth,8,10,100)]
+
+LowerC -->[ ,(9) TextureScale(1,0.12) TextureRotation(180) MyGC(lowerCAxis,lowerCSection,lowerCWidth,8,10,100)] [,(8) OnGC(lowerCAxis,lowerCSection,lowerCWidth,8,10,200) ]
+
+
+MyGC(axis,section,width,length,widthfactor,discretization):
+   # print 'myGC'
+   nproduce  [ SetGuide(axis,length) SetContour(section) _(width(0)) StartGC()
+   step = 1/float(discretization)
+   for j in xrange(discretization):
+       nproduce F(step*length,widthfactor*width((j+1)*step))
+   nproduce ]
+
+OnGC(axis,section,width,length,widthfactor,discretization):
+   nproduce  [ EndGC() SetGuide(axis,length) SetContour(section) _(width(0)) 
+   step = 1/float(discretization)
+   d = Discretizer()
+   section.apply(d)
+   dsection = d.result
+   for j in xrange(discretization):
+       t = (j+1)*step
+       nproduce f(step*length)
+       if 0.9 <= t <= 1.0 or 0.2 <= t <= 0.4:
+           uval = [[0,1]] if 0.9 <= t <= 1.0 else [[0,0.1+0.2*cos((pi/2)*abs(t-0.3)/0.1)],[0.9-0.2*cos((pi/2)*abs(t-0.3)/0.1),1.0]]
+           w = widthfactor*width(t)
+           nproduce ?F  Section(section,w,t,uval)
+   nproduce ]
+
+?F(p,h,u,l) Section(section,width,t,validu):
+    k = 0
+    while k < 1.0:
+        if inintervals(k,validu):
+            p2 = section.getPointAt(k)
+            gp = p2.x*l+p2.y*u
+            gp*= width
+            nml = section.getNormalAt(k)
+            nml = nml.x*l+nml.y*u
+            nml *= -1
+            nproduce [MoveRel(gp.x,gp.y,gp.z) SetHead(nml.x,nml.y,nml.z,h.x,h.y,h.z) _(0.03) F(0.2,0.001) ]
+        k += uniform(0,0.05)
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	import openalea.plantgl.all as pgl
+	Color_5 = pgl.Material("Color_5" , ambient = (147,81,147) , diffuse = 1.4966 , specular = (22,22,22) , transparency = 0.12 , )
+	Color_5.name = "Color_5"
+	context.turtle.setMaterial(5,Color_5)
+	Color_6 = pgl.Material("Color_6" , ambient = (29,33,9) , diffuse = 5.18182 , transparency = 0.06 , )
+	Color_6.name = "Color_6"
+	context.turtle.setMaterial(6,Color_6)
+	Color_7 = pgl.Material("Color_7" , ambient = (6,0,0) , diffuse = 13.5 , )
+	Color_7.name = "Color_7"
+	context.turtle.setMaterial(7,Color_7)
+	Color_8 = pgl.Material("Color_8" , ambient = (139,139,139) , diffuse = 1.38849 , )
+	Color_8.name = "Color_8"
+	context.turtle.setMaterial(8,Color_8)
+	PGL_140420067759184 = pgl.ImageTexture("PGL_140420067759184" , "leaftexture3.png" , )
+	PGL_140420067759184.name = "PGL_140420067759184"
+	Color_9 = pgl.Texture2D(image = PGL_140420067759184 , )
+	Color_9.name = "Color_9"
+	context.turtle.setMaterial(9,Color_9)
+	PGL_140420067759280 = pgl.ImageTexture("PGL_140420067759280" , "leaf1.jpg" , )
+	PGL_140420067759280.name = "PGL_140420067759280"
+	Color_10 = pgl.Texture2D(image = PGL_140420067759280 , )
+	Color_10.name = "Color_10"
+	context.turtle.setMaterial(10,Color_10)
+	scalars = [('NFlowers', 'Integer', 8, 1, 20), ('NFlowerClosed', 'Integer', 2, 0, 20), ('peduncleLength', 'Integer', 8, 1, 100), ('hairy', 'Bool', True)]
+	context["__scalars__"] = scalars
+	for s in scalars:
+		if not s[1] == "Category" : context[s[0]] = s[2]
+	import openalea.plantgl.all as pgl
+	sepalaxis = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.499694, -0.158688, 1),(-0.233927, -0.177153, 1),(-0.0424371, -0.12135, 1),(0.262783, 0.00817484, 1),(0.392776, 0.208197, 1),(0.511204, 0.305056, 1)]) , 
+	    )
+	sepalaxis.name = "sepalaxis"
+	sepalsection = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.476391, 0.117304, 1),(-0.358299, 0.144279, 1),(-0.246183, -0.0211946, 1),(-0.10819, 0.100564, 1),(0.0095102, -0.0780153, 1),(0.101517, 0.0675893, 1),(0.228676, -0.0293118, 1),(0.3342, 0.0315675, 1),(0.435666, 0.181737, 1),(0.515704, 0.150304, 1)]) , 
+	    )
+	sepalsection.name = "sepalsection"
+	import openalea.plantgl.all as pgl
+	sepalwidth = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.0982243, 1),(0.169856, 0.224498, 1),(0.331167, 0.322702, 1),(0.514778, 0.243613, 1),(0.638005, 0.364498, 1),(0.821759, 0.201548, 1),(0.932563, 0.218595, 1),(1, 0.0106212, 1)]) , 
+	    )
+	sepalwidth.name = "sepalwidth"
+	petalaxis = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.499694, -0.158688, 1),(-0.233927, -0.177153, 1),(-0.0424371, -0.12135, 1),(0.262783, 0.00817484, 1),(0.392776, 0.208197, 1),(0.511204, 0.305056, 1)]) , 
+	    )
+	petalaxis.name = "petalaxis"
+	petalsection = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.399374, -0.0732101, 1),(-0.274558, 0.0274474, 1),(-0.0431853, 0.13682, 1),(0.308245, 0.0716428, 1),(0.48733, -0.0685854, 1)]) , 
+	    )
+	petalsection.name = "petalsection"
+	petalwidth = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.0395257, 1),(0.178241, 0.0651733, 1),(0.506392, 0.138794, 1),(0.800795, 0.142849, 1),(1, 0.0106212, 1)]) , 
+	    )
+	petalwidth.name = "petalwidth"
+	peduncleStem = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.345812, -0.0073193, 1),(-0.100274, 0.0709719, 1),(0.0956137, 0.194435, 1),(0.313075, 0.373082, 1)]) , 
+	    )
+	peduncleStem.name = "peduncleStem"
+	stem = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.133384, 0.129768, 1),(0.275473, -0.019783, 1),(0.670081, 0.260602, 1)]) , 
+	    )
+	stem.name = "stem"
+	leafSection = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.438525, 0.0368852, 1),(-0.139132, -0.192319, 1),(0.112119, -0.143634, 1),(0.409836, 0.0368852, 1)]) , 
+	    )
+	leafSection.name = "leafSection"
+	leafWidth = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.22437, 1),(0.340594, 0.521722, 1),(0.843932, 0.608008, 1),(1, -0.00196886, 1)]) , 
+	    )
+	leafWidth.name = "leafWidth"
+	leafAxis = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.0474054, 0.0437405, 1),(0.205002, -0.14464, 1),(0.387483, -0.238004, 1)]) , 
+	    )
+	leafAxis.name = "leafAxis"
+	diamFunc = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 1.00216, 1),(0.608086, 0.766856, 1),(0.836851, 0.489074, 1),(1, 0.351994, 1)]) , 
+	    )
+	diamFunc.name = "diamFunc"
+	panel_0 = ({'active': True, 'visible': True, 'name': 'Panel 1'},[('Curve2D',sepalaxis),('Curve2D',sepalsection),('Function',sepalwidth),('Curve2D',petalaxis),('Curve2D',petalsection),('Function',petalwidth),('Curve2D',peduncleStem),('Curve2D',stem),('Curve2D',leafSection),('Function',leafWidth),('Curve2D',leafAxis),('Function',diamFunc)])
+	upperCAxis = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.277339, 0.110672, 1),(0.0217391, 0.112648, 1),(0.127141, 0.0474308, 1),(0.306324, 0.124506, 1),(0.5, 0, 1),(0.472332, -0.0612648, 1),(0.488142, -0.124506, 1),(0.547431, -0.100791, 1),(0.650198, -0.175889, 1),(0.650198, -0.250988, 1)]) , 
+	    )
+	upperCAxis.name = "upperCAxis"
+	upperCSection = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.307114, -0.283267, 1),(-0.36166, -0.22332, 1),(-0.306324, -0.164032, 1),(-0.127141, 0.13834, 1),(0.071805, 0.13834, 1),(0.298419, -0.15415, 1),(0.349802, -0.227273, 1),(0.286561, -0.286561, 1)]) , 
+	    )
+	upperCSection.name = "upperCSection"
+	upperCWidth = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.0988142, 1),(0.182647, 0.141518, 1),(0.246377, 0.285329, 1),(0.354703, 0.483685, 1),(0.457075, 0.127336, 1),(0.530712, 0.0637151, 1),(0.653558, 0.0882843, 1),(0.686317, 0.161992, 1),(0.826941, 0.161502, 1),(0.826941, 0.030956, 1),(1, 0.032759, 1)]) , 
+	    )
+	upperCWidth.name = "upperCWidth"
+	lowerCAxis = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.523015, 0.231719, 1),(-0.5, 0.0671937, 1),(-0.162714, 0.0316206, 1),(0.170619, 0.0513834, 1),(0.531006, 0.0352793, 1),(0.612481, -0.0633646, 1),(0.593109, -0.127952, 1)]) , 
+	    )
+	lowerCAxis.name = "lowerCAxis"
+	lowerCSection = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.243081, -0.374857, 1),(-0.256613, -0.414837, 1),(-0.305867, -0.465896, 1),(-0.36166, -0.252799, 1),(-0.345629, -0.170583, 1),(-0.285979, -0.0495448, 1),(-0.127141, 0.010598, 1),(0.0587033, 0.00732258, 1),(0.277396, -0.0266167, 1),(0.337724, -0.157425, 1),(0.343251, -0.289506, 1),(0.277143, -0.418131, 1),(0.249786, -0.459618, 1),(0.19014, -0.421946, 1)]) , 
+	    )
+	lowerCSection.name = "lowerCSection"
+	lowerCWidth = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.299702, 1),(0.169198, 0.311377, 1),(0.212547, 0.612565, 1),(0.375597, 0.664768, 1),(0.422486, 0.284138, 1),(0.556811, 0.287901, 1),(0.561204, 0.627223, 1),(0.916115, 0.649919, 1),(0.951128, 0.401654, 1),(1, 0.0392458, 1)]) , 
+	    )
+	lowerCWidth.name = "lowerCWidth"
+	panel_1 = ({'active': True, 'visible': True, 'name': 'InternalLeafPanel'},[('Curve2D',upperCAxis),('Curve2D',upperCSection),('Function',upperCWidth),('Curve2D',lowerCAxis),('Curve2D',lowerCSection),('Function',lowerCWidth)])
+	parameterset = [panel_0,panel_1,]
+	context["__functions__"] = [('sepalwidth',sepalwidth),('petalwidth',petalwidth),('leafWidth',leafWidth),('diamFunc',diamFunc),('upperCWidth',upperCWidth),('lowerCWidth',lowerCWidth),]
+	context["__curves__"] = [('sepalaxis',sepalaxis),('sepalsection',sepalsection),('petalaxis',petalaxis),('petalsection',petalsection),('peduncleStem',peduncleStem),('stem',stem),('leafSection',leafSection),('leafAxis',leafAxis),('upperCAxis',upperCAxis),('upperCSection',upperCSection),('lowerCAxis',lowerCAxis),('lowerCSection',lowerCSection),]
+	context["__parameterset__"] = parameterset
+	context["sepalaxis"] = sepalaxis
+	context["sepalsection"] = sepalsection
+	context["sepalwidth"] = pgl.QuantisedFunction(sepalwidth)
+	context["petalaxis"] = petalaxis
+	context["petalsection"] = petalsection
+	context["petalwidth"] = pgl.QuantisedFunction(petalwidth)
+	context["peduncleStem"] = peduncleStem
+	context["stem"] = stem
+	context["leafSection"] = leafSection
+	context["leafWidth"] = pgl.QuantisedFunction(leafWidth)
+	context["leafAxis"] = leafAxis
+	context["diamFunc"] = pgl.QuantisedFunction(diamFunc)
+	context["upperCAxis"] = upperCAxis
+	context["upperCSection"] = upperCSection
+	context["upperCWidth"] = pgl.QuantisedFunction(upperCWidth)
+	context["lowerCAxis"] = lowerCAxis
+	context["lowerCSection"] = lowerCSection
+	context["lowerCWidth"] = pgl.QuantisedFunction(lowerCWidth)
