@@ -234,11 +234,15 @@ There is three parameter, the first and the second are the index of materials an
 
 .. code-block:: python
 
-		Axiom: F(2) InterpolateColors(1, 5) @O(0.2)       # (A)
+		Step = 20
+		DIncr = 1.0 / Step
 
-		Axiom: F(2) InterpolateColors(1, 5, 0.2) @O(0.2)  # (B)
-
-		Axiom: F(2) InterpolateColors(1, 5, 0.8) @O(0.8)  # (C)
+		Axiom:
+		  d = 0.0
+		  for i in range(Step):
+		    nproduce InterpolateColors(3, 5, d) F(0.1)
+		    d += DIncr
+		  produce ;(2) @O(0.15)
 
 .. image:: ../_images/ex013.png
 		:scale: 60%
