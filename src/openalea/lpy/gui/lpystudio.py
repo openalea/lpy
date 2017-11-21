@@ -12,21 +12,13 @@ try:
 except:
     py2exe_release = False
 
-from openalea.plantgl.all import *
-QT_VERSION = get_pgl_qt_version() >> 16
-os.environ['QT_API'] = 'pyqt' if QT_VERSION == 4 else 'pyqt'+str(QT_VERSION)
-if QT_VERSION == 4:
-    os.environ.setdefault('QT_API_VERSION', '2')
-from openalea.vpltk import qt
-from openalea.vpltk.qt.compat import *
-if QT_VERSION == 4:
-    import sip
-    assert sip.getapi('QString') == 2
-
+import qt_check 
+import openalea.vpltk.qt.QtCore
 try:
    import PyQGLViewer
 except ImportError, e:
     PyQGLViewer = None
+
 
 import traceback as tb
 import documentation as doc
@@ -38,12 +30,15 @@ from objectpanel import ObjectPanelManager
 
 try:
     import matplotlib
-    matplotlib.use('Qt4Agg')
+    matplotlib.use('Qt'+str(QT_VERSION)+'Agg')
 except:
     pass
 
+from openalea.plantgl.all import Viewer, eStatic, eAnimatedPrimitives, eAnimatedScene
 from openalea.lpy import *
 
+
+from openalea.vpltk.qt.compat import *
 from openalea.vpltk.qt.QtPrintSupport import QPrintDialog, QPrinter
 from openalea.vpltk.qt.QtCore import QCoreApplication, QEvent, QMutex, QObject, QThread, QWaitCondition, Qt, pyqtSignal, pyqtSlot
 from openalea.vpltk.qt.QtGui import QIcon, QPixmap, QTextCursor
@@ -63,6 +58,7 @@ import lpymainwindow as lsmw
 from computationtask import *
 from lpystudiodebugger import LpyVisualDebugger
 from lpyprofiling import AnimatedProfiling, ProfilingWithFinalPlot, ProfilingWithNoPlot
+
 
 class LpyPlotter:
     def __init__(self,parent):
@@ -260,11 +256,16 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
     def retrieve_official_lpy_version(self):
         import urllib2
         versionurl = 'https://raw.githubusercontent.com/VirtualPlants/lpy/master/src/openalea/lpy/__version__.py'
-        response = urllib2.urlopen(versionurl)
-        pyversioncode = response.read()
-        lvofficial = {}
-        exec(pyversioncode, lvofficial)
-        return lvofficial['__version_number__'],lvofficial['LPY_VERSION_STR']
+        try:
+            response = urllib2.urlopen(versionurl)
+        except urllib2.URLError, ue:
+            import openalea.lpy.__version__ as lv
+            return lv.__version_number__, lv.LPY_VERSION_STR
+        else:
+            pyversioncode = response.read()
+            lvofficial = {}
+            exec(pyversioncode, lvofficial)
+            return lvofficial['__version_number__'],lvofficial['LPY_VERSION_STR']
 
     def check_lpy_update(self, silent = False):
         import openalea.lpy.__version__ as lv

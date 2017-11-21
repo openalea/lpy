@@ -102,8 +102,9 @@ class ComputationTaskManager(QObject):
     def registerTask(self,task):
         if self.computationThread is None:
             if self.with_thread:
-                task.finished.connect(self.finalizeTask) # QObject.connect(task,SIGNAL('finished()'),self.finalizeTask)
-                task.terminated.connect(self.abortTask) # QObject.connect(task,SIGNAL('terminated()'),self.abortTask)
+                task.finished.connect(self.finalizeTask)
+                if QT_VERSION <= 4:
+                    task.terminated.connect(self.abortTask) 
                 self.computationThread = task
                 task.initialize()
                 task.start()
