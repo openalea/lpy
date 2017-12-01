@@ -9,6 +9,7 @@ from scalar import *
 import cProfile as profiling
 from lpyprofiling import *
 from lpytmpfile import *
+import pymodulemonitoring as pm
 
 
 from openalea.vpltk.qt.QtCore import QObject, pyqtSignal
@@ -19,53 +20,37 @@ from openalea.vpltk.qt.QtWidgets import QFileDialog, QLineEdit, QMessageBox
 defaultcode = "Axiom: \n\nderivation length: 1\nproduction:\n\n\ninterpretation:\n\n\nendlsystem\n"
 
    
-class LpySimulation:
-    def __init__(self,lpywidget,index = 0, fname = None):
+class AbstractSimulation:
+    def __init__(self, lpywidget, index = 0, fname = None):
         self.lpywidget = lpywidget
         self.index = index
-        self.lsystem = Lsystem()
         self._fname = fname
         self._tmpfname = None
-        self.tree = None
-        self.nbiterations = 0
-        self.timestep = 50
+
         self.textedition = False
         self._edited = False
         self._oldedited = False
+
         self.code = defaultcode
         self.textdocument = None
         self.cursor = None
         self.optionModel = None
         self.optionDelegate = None
-        self.firstView = True
-        self.autorun = False
-        self.iterateStep = None
-        self.desc_items = {'__authors__'    : '' ,
-                          '__institutes__'  : '' ,
-                          '__copyright__'   : '' ,
-                          '__description__' : '' ,
-                          '__references__'  : '' }
-        #self.functions = []
-        #self.curves = []
-        self.visualparameters = [({'name':'Panel 1'},[])]
-        self.scalars = []
-        self.scalarEditState = None
-        self.keepCode_1_0_Compatibility = True
+
         self.readonly = False
         self._oldreadonly = False
-        self.tabbar().insertTab(self.index, self.getTabName())
-        self.tabbar().setTabEnabled(self.index, True)
-        if not fname is None:
-            self.open(fname)
-        else:
-            self.setFname(None)
+
+        self.modulemonitor = pm.ModuleMonitor()
+
     def tabbar(self):
         return self.lpywidget.documentNames
+
     def getFname(self) : return self._fname
     def setFname(self,value) :
         self._fname = value
         self.tabbar().setTabText(self.index,self.getShortName())
     fname = property(getFname,setFname)
+
     def isEdited(self):
         return self._edited 
     def setEdited(self,value):
@@ -73,6 +58,7 @@ class LpySimulation:
         self.lpywidget.printTitle()
         self.updateTabName()
     edited = property(isEdited,setEdited)
+
     def textEdited(self):
         self.textedition = True
         self._edited = True
@@ -84,10 +70,12 @@ class LpySimulation:
         self.lpywidget.printTitle()
         self.updateTabName()
         return r
+
     def isCurrent(self):
         return self.index == self.lpywidget.currentSimulationId
     def makeCurrent(self):
         self.lpywidget.changeDocument(self.index)
+
     def isDefault(self):
         if self.isCurrent():
             self.saveState()
@@ -100,7 +88,8 @@ class LpySimulation:
                 return False
         ini = self.getInitialisationCode()
         if len(ini) > 0: return False
-        return True            
+        return True  
+                  
     def getShortName(self):
         if self._fname is None : return 'New'
         else : return os.path.splitext(os.path.basename(self.fname))[0]
@@ -148,7 +137,8 @@ class LpySimulation:
         icon.addPixmap(pixmap.scaledToHeight(32),QIcon.Normal,QIcon.Off)
         return icon
     def registerTab(self):
-        #self.tabbar().insertTab(self.index,self.generateIcon(),self.getTabName())
+        #self.tabbar().insertTab(self.index, self.getTabName())
+        self.tabbar().insertTab(self.index,self.generateIcon(),self.getTabName())
         pass
     def updateTabName(self, force = False):
         if self._oldedited != self._edited or self._oldreadonly != self.readonly:
@@ -156,10 +146,7 @@ class LpySimulation:
             self._oldreadonly = self.readonly
         self.tabbar().setTabIcon(self.index,self.generateIcon())
         self.tabbar().setTabText(self.index,self.getTabName())
-    def getTimeStep(self):
-        return self.timestep*0.001
-    def getOptimisationLevel(self):
-        return self.lsystem.context().options.find('Optimization').selection
+
     def getBackupName(self):
         if self.fname:
             return os.path.join(os.path.dirname(self.fname),'#'+os.path.basename(self.fname)+'#')
@@ -167,6 +154,7 @@ class LpySimulation:
             if not self._tmpfname:
                 self._tmpfname = getNewTmpLpyFile()
             return self._tmpfname
+
     def restoreState(self):        
         self.lpywidget.textEditionWatch = False
         te, tf = self.textedition, self._edited
@@ -201,6 +189,7 @@ class LpySimulation:
         self.lpywidget.actionAutoRun.setChecked(self.autorun)
         self.updateReadOnly()
         #if not self.lsystem.isCurrent() : self.lsystem.makeCurrent()
+
     def saveState(self):
         #if self.lsystem.isCurrent() :self.lsystem.done()
         self.lpywidget.codeeditor.saveSimuState(self)
@@ -213,6 +202,7 @@ class LpySimulation:
         #self.curves = self.lpywidget.curvepanel.getCurves()
         self.visualparameters = [(panel.getInfo(),panel.getObjects()) for panel in self.lpywidget.getObjectPanels()]
         self.scalars = self.lpywidget.scalarEditor.getScalars()
+
     def initializeParametersTable(self):
         self.optionModel = QStandardItemModel(0, 1)
         self.optionModel.setHorizontalHeaderLabels(["Parameter", "Value" ])
@@ -248,32 +238,9 @@ class LpySimulation:
             self.optionModel.setItem(indexitem, 1, si)
             indexitem += 1
         self.optionModel.itemChanged.connect(self.textEdited) # QObject.connect(self.optionModel,SIGNAL('itemChanged(QStandardItem*)'),self.textEdited)
-    def setTree(self,tree,nbiterations,timing=None, plottiming = None):
-        self.tree = tree
-        self.nbiterations = nbiterations
-        msg = 'Nb Iterations : '+str(self.nbiterations)
-        if not timing is None:
-            msg += " in "+str(round(timing,3))+" sec."
-        if not plottiming is None:
-            msg += " Plot in "+str(round(plottiming,3))+" sec."
-        self.lpywidget.statusBar().showMessage(msg)
-        if not self.lpywidget.interpreter is None:
-            self.lpywidget.interpreter.locals['lstring'] = self.tree
-    def updateLsystemCode(self):
-        if self.lpywidget.codeBackupEnabled:
-            if  self._edited:
-                bckupname = self.getBackupName()
-                if self.isCurrent():
-                    self.saveState()
-                self.saveToFile(bckupname)
-        self.lsystem.clear()
-        if self.fname:
-            self.lsystem.filename = self.getStrFname()
-        self.code = self.lpywidget.codeeditor.getCode()
-        lpycode = self.code
-        lpycode += '\n'+self.getInitialisationCode(False)
-        res = self.lsystem.set(lpycode,{},self.lpywidget.showPyCode)
-        if not res is None: print res
+
+
+
     def close(self):
         if self._edited:
             if not self.isCurrent():
@@ -286,6 +253,7 @@ class LpySimulation:
                 bckupname = self.getBackupName()
                 if bckupname and os.path.exists(bckupname): os.remove(bckupname)
         return True
+
     def save(self):
         if self.fname and not self.readonly:
             if self.isCurrent():
@@ -308,6 +276,7 @@ class LpySimulation:
             self.updateReadOnly()
         else:
             self.saveas()
+
     def saveas(self):
         bckupname = self.getBackupName()
         qfname = QFileDialog.getSaveFileName(self.lpywidget,"Save L-Py file",self.fname if self.fname else '.',"Py Lsystems Files (*.lpy);;All Files (*.*)")
@@ -321,6 +290,7 @@ class LpySimulation:
             if not self.readonly and bckupname and os.path.exists(bckupname):
                 os.remove(bckupname)
             self.save()
+
     def removeReadOnly(self):
         if not os.access(self.fname, os.W_OK):
             import stat
@@ -329,6 +299,7 @@ class LpySimulation:
             self.readonly = not os.access(self.fname, os.W_OK)
             self.updateTabName()
             self.updateReadOnly()
+
     def setReadOnly(self):
         if os.access(self.fname, os.W_OK):
             import stat
@@ -337,6 +308,7 @@ class LpySimulation:
             self.readonly = not os.access(self.fname, os.W_OK)
             self.updateTabName()
             self.updateReadOnly()
+
     def updateReadOnly(self):
         self.lpywidget.codeeditor.setReadOnly(self.readonly)
         self.lpywidget.materialed.setEnabled(not self.readonly)
@@ -352,6 +324,7 @@ class LpySimulation:
         self.lpywidget.copyrightEdit.setEnabled(not self.readonly)
         for panel in self.lpywidget.getObjectPanels():
             panel.setEnabled(not self.readonly)
+
     def saveToFile(self,fname):
         f = file(fname,'w')
         f.write(self.code)
@@ -361,15 +334,218 @@ class LpySimulation:
                 f.write('\n')
             f.write(initcode)
         f.close()
+
+    def getStrFname(self):
+        return self.fname.encode('iso-8859-1','replace')
+        
+    def open(self,fname):
+        self.setFname(fname)
+        assert self._fname == fname
+        recovery = False
+        readname = self.fname
+        bckupname = self.getBackupName()
+        if bckupname and os.path.exists(bckupname):
+            answer = QMessageBox.warning(self.lpywidget,"Recovery mode","A backup file '"+os.path.basename(bckupname)+"' exists. Do you want to recover ?",QMessageBox.Ok,QMessageBox.Discard)
+            if answer == QMessageBox.Ok:
+                recovery = True
+                readname = bckupname
+            elif answer == QMessageBox.Discard:
+                os.remove(bckupname)     
+        os.chdir(os.path.dirname(self.fname))        
+        code = file(readname,'rU').read()
+        self.readonly = (not os.access(fname, os.W_OK))
+        self.textedition = recovery
+        self.setEdited(recovery)
+        self.opencode(code)
+        self.mtime = os.stat(self.fname).st_mtime
+        self.updateReadOnly()
+    
+    def importtmpfile(self,fname):
+        self.textedition = True
+        self.setEdited(True)
+        try:
+            lpycode = file(fname,'rU').read()
+            self.opencode(lpycode)
+            self._tmpfname = fname
+        except:
+            exc_info = sys.exc_info()
+            traceback.print_exception(*exc_info)
+
+    def reload(self):
+        if self.fname:
+            self.open(self.fname)
+
+    def opencode(self,txt):
+        pass
+
+    def run(self, task):
+        pass
+    def post_run(self,task):
+        pass
+    def animate(self,task):
+        pass
+    def pre_animate(self,task):
+        pass
+    def post_animate(self,task):
+        pass
+    def pre_step(self,task):
+        pass
+    def step(self,task):
+        pass
+    def post_step(self,task):
+        pass
+    def iterate(self,task,n = None):    
+        pass
+    def debug(self):
+        pass
+    def rewind(self):
+        pass
+    def stepInterpretation(self,task):
+        pass        
+    def pre_stepInterpretation(self,task):
+        pass
+    def post_stepInterpretation(self,task):
+        pass
+    def profile(self,task):
+        pass
+    def pre_profile(self,task):
+        pass
+    def post_profile(self,task):
+        pass
+        
+    def clear(self):
+        pass
+
+    def cancel(self):
+        pass
+
+    def cleanup(self):
+        pass
+
+    def monitorfile(self):
+        if not hasattr(self,'monitoring'):
+          self.monitoring = True
+          if not self.fname is None:
+            if not os.path.exists(self.fname):
+                answer = QMessageBox.warning(self.lpywidget,"Removed file","File '"+os.path.basename(self.fname)+"' do not exists anymore. Do you want to keep it in editor ?",QMessageBox.Yes,QMessageBox.No)
+                if answer == QMessageBox.No:
+                    self.lpywidget.closeDocument(self.index)
+            elif os.stat(self.fname).st_mtime > self.mtime :
+                answer = QMessageBox.warning(self.lpywidget,"File has changed","File '"+os.path.basename(self.fname)+"' has changed on disk. Do you want to reload it ?",QMessageBox.Yes,QMessageBox.No)
+                if answer == QMessageBox.Yes:
+                    self.reload()
+                else:
+                    self.mtime = os.stat(self.fname).st_mtime +1
+            self.updateSvnStatus()
+
+          del self.monitoring
+
+    def updateSvnStatus(self):
+        import svnmanip
+        if svnmanip.hasSvnSupport():
+            if (not hasattr(self,'svnstatus') and svnmanip.isSvnFile(self.fname)) or (hasattr(self,'svnstatus') and svnmanip.svnFileTextStatus(self.fname) != self.svnstatus):
+                self.updateTabName(force=True)
+
+    def svnUpdate(self):
+        import svnmanip
+        hasupdated = svnmanip.svnUpdate(self.fname,self.lpywidget)
+        if hasupdated: self.reload()
+        self.updateSvnStatus()
+        
+    def svnIsUpToDate(self):
+        import svnmanip
+        svnmanip.svnIsUpToDate(self.fname,self.lpywidget)
+        self.updateSvnStatus()
+        
+    def svnAdd(self):
+        import svnmanip
+        svnmanip.svnFileAdd(self.fname)
+        self.updateSvnStatus()
+        
+    def svnRevert(self):
+        import svnmanip
+        svnmanip.svnFileRevert(self.fname)
+        self.reload()
+        self.updateSvnStatus()
+        
+    def svnCommit(self):
+        import svnmanip
+        svnmanip.svnFileCommit(self.fname, None, self.lpywidget)
+        self.updateSvnStatus()
+
+class LpySimulation (AbstractSimulation):
+    def __init__(self, lpywidget, index = 0, fname = None):
+        AbstractSimulation.__init__(self, lpywidget, index, fname)
+        self.lsystem = Lsystem()
+        self.tree = None
+        self.nbiterations = 0
+        self.timestep = 50
+        self.code = defaultcode
+
+        self.firstView = True
+        self.autorun = False
+        self.iterateStep = None
+
+        self.desc_items = {'__authors__'    : '' ,
+                          '__institutes__'  : '' ,
+                          '__copyright__'   : '' ,
+                          '__description__' : '' ,
+                          '__references__'  : '' }
+
+        self.visualparameters = [({'name':'Panel 1'},[])]
+        self.scalars = []
+        self.scalarEditState = None
+        self.keepCode_1_0_Compatibility = True
+
+        if not fname is None:
+            self.open(fname)
+        else:
+            self.setFname(None)
+
+    def getTimeStep(self):
+        return self.timestep*0.001
+
+    def getOptimisationLevel(self):
+        return self.lsystem.context().options.find('Optimization').selection
+
+    def setTree(self,tree,nbiterations,timing=None, plottiming = None):
+        self.tree = tree
+        self.nbiterations = nbiterations
+        msg = 'Nb Iterations : '+str(self.nbiterations)
+        if not timing is None:
+            msg += " in "+str(round(timing,3))+" sec."
+        if not plottiming is None:
+            msg += " Plot in "+str(round(plottiming,3))+" sec."
+        self.lpywidget.statusBar().showMessage(msg)
+        if not self.lpywidget.interpreter is None:
+            self.lpywidget.interpreter.locals['lstring'] = self.tree
+
+    def updateLsystemCode(self):
+        if self.lpywidget.codeBackupEnabled:
+            if  self._edited:
+                bckupname = self.getBackupName()
+                if self.isCurrent():
+                    self.saveState()
+                self.saveToFile(bckupname)
+        #self.modulemonitor.reloadall()
+        #mw = pm.ModuleMonitorWatcher(self.modulemonitor)
+        self.lsystem.clear()
+        if self.fname:
+            self.lsystem.filename = self.getStrFname()
+        self.code = self.lpywidget.codeeditor.getCode()
+        lpycode = self.code
+        lpycode += '\n'+self.getInitialisationCode(False)
+        res = self.lsystem.set(lpycode,{},self.lpywidget.showPyCode)
+        if not res is None: print res
+
     def getInitialisationCode(self,withall=True):
         code = self.initialisationFunction(withall)
         code += self.creditsCode()
         if len(code) > 0:
             code = LpyParsing.InitialisationBeginTag+'\n\n'+'__lpy_code_version__ = '+str(1.1)+'\n\n'+code
         return code
-    def getStrFname(self):
-        return self.fname.encode('iso-8859-1','replace')
-    def initialisationFunction(self,withall=True):
+
+    def initialisationFunction(self, withall=True):
         header = "def "+LsysContext.InitialisationFunctionName+"(context):\n"
         init_txt = ''
         if withall:
@@ -460,12 +636,14 @@ class LpySimulation:
             return header+init_txt
         else:
             return '' 
+
     def creditsCode(self):
         txt = ''
         for key,value in self.desc_items.iteritems():             
             if len(value) > 0:
                 txt += key+' = '+repr(str(value))+'\n'
         return txt
+
     def importcpfgproject(self,fname):
         from openalea.lpy.cpfg_compat.cpfg2lpy import translate_obj
         self.textedition = True
@@ -476,41 +654,7 @@ class LpySimulation:
         except:
             exc_info = sys.exc_info()
             traceback.print_exception(*exc_info)
-        
-    def open(self,fname):
-        self.setFname(fname)
-        assert self._fname == fname
-        recovery = False
-        readname = self.fname
-        bckupname = self.getBackupName()
-        if bckupname and os.path.exists(bckupname):
-            answer = QMessageBox.warning(self.lpywidget,"Recovery mode","A backup file '"+os.path.basename(bckupname)+"' exists. Do you want to recover ?",QMessageBox.Ok,QMessageBox.Discard)
-            if answer == QMessageBox.Ok:
-                recovery = True
-                readname = bckupname
-            elif answer == QMessageBox.Discard:
-                os.remove(bckupname)     
-        os.chdir(os.path.dirname(self.fname))        
-        code = file(readname,'rU').read()
-        self.readonly = (not os.access(fname, os.W_OK))
-        self.textedition = recovery
-        self.setEdited(recovery)
-        self.opencode(code)
-        self.mtime = os.stat(self.fname).st_mtime
-        self.updateReadOnly()
-    
-    def importtmpfile(self,fname):
-        self.textedition = True
-        self.setEdited(True)
-        try:
-            lpycode = file(fname,'rU').read()
-            self.opencode(lpycode)
-            self._tmpfname = fname
-        except:
-            exc_info = sys.exc_info()
-            traceback.print_exception(*exc_info)
-        
-        
+
     def opencode(self,txt):
         txts = txt.split(LpyParsing.InitialisationBeginTag)            
         self.code = txts[0]
@@ -571,15 +715,14 @@ class LpySimulation:
             self.textdocument.clear()
             self.textdocument.setPlainText(self.code)
             self.lpywidget.textEditionWatch = True
-    def reload(self):
-        if self.fname:
-            self.open(self.fname)
+
     def run(self,task):
         dl = self.lsystem.derivationLength
         timing = time()
         task.result = self.lsystem.derive(dl)
         task.timing = time() - timing
         task.dl = self.lsystem.getLastIterationNb()+1
+
     def post_run(self,task):
         if hasattr(task,'result'):
             self.firstView = False
@@ -589,6 +732,7 @@ class LpySimulation:
             self.setTree(task.result,task.dl,task.timing,plottiming)
             if self.lpywidget.displayMetaInfo and not self.autorun and  self.lsystem.context().has_key('__description__'):
                 self.lpywidget.viewer.showMessage(self.lsystem.context()['__description__'],5000)
+
     def animate(self,task):
         edition = self.isTextEdited()
         nbiter = self.nbiterations
@@ -616,14 +760,17 @@ class LpySimulation:
             task.result = make_animation(dt,dl)
         task.timing = time() - timing
         task.dl = self.lsystem.getLastIterationNb()+1
+
     def pre_animate(self,task):
         if self.isTextEdited() or self.lsystem.empty() or self.nbiterations == 0 or self.nbiterations >= self.lsystem.derivationLength:
             self.updateLsystemCode()
         self.lpywidget.viewer.start()
         self.lpywidget.viewer.setAnimation(eStatic if self.firstView and task.fitAnimationView else eAnimatedPrimitives)
+
     def post_animate(self,task):
         if hasattr(task,'result'):
             self.setTree(task.result,task.dl,task.timing)
+
     def pre_step(self,task):
         if self.isTextEdited() or self.lsystem.empty() or not self.tree or self.nbiterations >= self.lsystem.derivationLength:
             self.updateLsystemCode()
@@ -631,6 +778,7 @@ class LpySimulation:
             self.tree = self.lsystem.axiom
             task.done = True
         else: task.done = False
+
     def step(self,task):
         if not task.done and self.nbiterations < self.lsystem.derivationLength:
             timing = time()
@@ -641,16 +789,19 @@ class LpySimulation:
             task.dl = 0
             task.timing = 0
             task.result = self.lsystem.axiom
+
     def post_step(self,task):
         if hasattr(task,'result'):
             self.setTree(task.result,task.dl,task.timing)
             self.lsystem.plot(self.tree,True)
             self.firstView = False
+
     def iterate(self,task,n = None):    
         timing = time()
         task.result = self.lsystem.derive(self.tree,self.nbiterations,self.iterateStep)        
         task.timing = time() - timing
         task.dl = self.lsystem.getLastIterationNb()+1
+
     def debug(self):
         self.lsystem.setDebugger(self.lpywidget.debugger)
         try:
@@ -671,11 +822,13 @@ class LpySimulation:
         self.lsystem.clearDebugger()
         self.lsystem.plot(self.tree,True)
         self.firstView = False
+
     def rewind(self):
         self.updateLsystemCode()
         self.isTextEdited()
         self.setTree(self.lsystem.axiom,0)
         self.lsystem.plot(self.tree)
+
     def pre_stepInterpretation(self,task):
         if self.isTextEdited() or self.lsystem.empty() or not self.tree:
             self.updateLsystemCode()
@@ -683,6 +836,7 @@ class LpySimulation:
             self.tree = self.lsystem.axiom
         self.lpywidget.viewer.start()
         self.lpywidget.viewer.setAnimation(eAnimatedScene)
+
     def stepInterpretation(self,task):
         if self.tree:
             self.lsystem.stepInterpretation(self.tree)
@@ -690,10 +844,12 @@ class LpySimulation:
             self.lsystem.stepInterpretation(self.lsystem.axiom)
             task.dl = 0
             task.result = self.lsystem.axiom
+
     def post_stepInterpretation(self,task):
         if hasattr(task,'result'):
             self.setTree(task.result,task.dl)
             self.firstView = False
+
     def profile(self,task):
         edition = self.isTextEdited()
         nbiter = self.nbiterations
@@ -713,72 +869,26 @@ class LpySimulation:
         task.profile_stats = profile.getstats()
         task.timing = time() - timing
         task.dl = self.lsystem.getLastIterationNb()+1
+
     def pre_profile(self,task):
         if self.isTextEdited() or self.lsystem.empty() :
             self.updateLsystemCode()
         self.lpywidget.viewer.start()
         self.lpywidget.viewer.animation(True)
+        
     def post_profile(self,task):
         if hasattr(task,'result'):
             self.setTree(task.result,task.dl,task.timing)
         rt = self.lsystem.get_rule_fonction_table()
         drawProfileTable(task.profileView,task.profile_stats,rt,task.timing,self.fname,self.lpywidget)
+
     def clear(self):
         self.lsystem.clear()
         self.setTree(None,0)
+
     def cancel(self):
         self.lsystem.early_return = True
+        
     def cleanup(self):
         self.lsystem.forceRelease()
         self.lsystem.clear()
-
-    def monitorfile(self):
-        if not hasattr(self,'monitoring'):
-          self.monitoring = True
-          if not self.fname is None:
-            if not os.path.exists(self.fname):
-                answer = QMessageBox.warning(self.lpywidget,"Removed file","File '"+os.path.basename(self.fname)+"' do not exists anymore. Do you want to keep it in editor ?",QMessageBox.Yes,QMessageBox.No)
-                if answer == QMessageBox.No:
-                    self.lpywidget.closeDocument(self.index)
-            elif os.stat(self.fname).st_mtime > self.mtime :
-                answer = QMessageBox.warning(self.lpywidget,"File has changed","File '"+os.path.basename(self.fname)+"' has changed on disk. Do you want to reload it ?",QMessageBox.Yes,QMessageBox.No)
-                if answer == QMessageBox.Yes:
-                    self.reload()
-                else:
-                    self.mtime = os.stat(self.fname).st_mtime +1
-            self.updateSvnStatus()
-
-          del self.monitoring
-
-    def updateSvnStatus(self):
-        import svnmanip
-        if svnmanip.hasSvnSupport():
-            if (not hasattr(self,'svnstatus') and svnmanip.isSvnFile(self.fname)) or (hasattr(self,'svnstatus') and svnmanip.svnFileTextStatus(self.fname) != self.svnstatus):
-                self.updateTabName(force=True)
-
-    def svnUpdate(self):
-        import svnmanip
-        hasupdated = svnmanip.svnUpdate(self.fname,self.lpywidget)
-        if hasupdated: self.reload()
-        self.updateSvnStatus()
-        
-    def svnIsUpToDate(self):
-        import svnmanip
-        svnmanip.svnIsUpToDate(self.fname,self.lpywidget)
-        self.updateSvnStatus()
-        
-    def svnAdd(self):
-        import svnmanip
-        svnmanip.svnFileAdd(self.fname)
-        self.updateSvnStatus()
-        
-    def svnRevert(self):
-        import svnmanip
-        svnmanip.svnFileRevert(self.fname)
-        self.reload()
-        self.updateSvnStatus()
-        
-    def svnCommit(self):
-        import svnmanip
-        svnmanip.svnFileCommit(self.fname, None, self.lpywidget)
-        self.updateSvnStatus()

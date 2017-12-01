@@ -1,5 +1,5 @@
 from openalea.vpltk.qt import qt
-
+from qt_check import QT_VERSION
 import traceback as tb
 import sys
 
@@ -17,8 +17,6 @@ class ThreadTransferException (Exception):
 class ComputationTask(QThread):
 
     killed = pyqtSignal()
-    finished = pyqtSignal()
-    terminated = pyqtSignal()
 
     def __init__(self, process = None, 
                        postprocess = None, 
@@ -62,7 +60,7 @@ class ComputationTask(QThread):
         self.start()
 
 
-class ComputationTaskManager:
+class ComputationTaskManager(QObject):
     endTask = pyqtSignal('PyQt_PyObject')
     killedTask = pyqtSignal('PyQt_PyObject')
 
@@ -87,25 +85,26 @@ class ComputationTaskManager:
             self.computationThread = None
         else:
             self.releaseCR()
-        self.endTask.emit(ct) # self.emit(SIGNAL('endTask(PyQt_PyObject)'),ct) # AUTO SIGNAL TRANSLATION
+        self.endTask.emit(ct)
     def abortTask(self):
         ct = self.computationThread
         self.computationThread = None
         self.releaseCR()
-        self.endTask.emit(ct) # self.emit(SIGNAL('endTask(PyQt_PyObject)'),ct) # AUTO SIGNAL TRANSLATION
+        self.endTask.emit(ct) 
         self.clear()
     def killTask(self):
         ct = self.computationThread
         ct.kill()
         self.computationThread = None
         self.releaseCR()
-        self.killedTask.emit(ct) # self.emit(SIGNAL('killedTask(PyQt_PyObject)'),ct) # AUTO SIGNAL TRANSLATION
+        self.killedTask.emit(ct) 
         self.clear()
     def registerTask(self,task):
         if self.computationThread is None:
             if self.with_thread:
-                task.finished.connect(self.finalizeTask) # QObject.connect(task,SIGNAL('finished()'),self.finalizeTask)
-                task.terminated.connect(self.abortTask) # QObject.connect(task,SIGNAL('terminated()'),self.abortTask)
+                task.finished.connect(self.finalizeTask)
+                if QT_VERSION <= 4:
+                    task.terminated.connect(self.abortTask) 
                 self.computationThread = task
                 task.initialize()
                 task.start()

@@ -60,9 +60,9 @@ class LpyPreferences:
             if not self.editor.withinterpreter:
                 self.widget.textOutputBox.setEnabled(False)
             else:
-                self.widget.LPyConsoleButton.setChecked(self.editor.shell.isSelfStdOutRedirection() or  self.editor.shell.hasMultipleStdOutRedirection())
+                self.widget.LPyConsoleButton.setChecked(self.editor.shellwidget.isSelfStdOutRedirection() or  self.editor.shellwidget.hasMultipleStdOutRedirection())
                 self.widget.LPyConsoleButton.clicked.connect(self.setOutputRedirection) # QObject.connect(self.widget.LPyConsoleButton,SIGNAL('clicked(bool)'),self.setOutputRedirection)
-                self.widget.systemConsoleButton.setChecked(self.editor.shell.isSysStdOutRedirection() or  self.editor.shell.hasMultipleStdOutRedirection())
+                self.widget.systemConsoleButton.setChecked(self.editor.shellwidget.isSysStdOutRedirection() or  self.editor.shellwidget.hasMultipleStdOutRedirection())
                 self.widget.systemConsoleButton.clicked.connect(self.setOutputRedirection) # QObject.connect(self.widget.systemConsoleButton,SIGNAL('clicked(bool)'),self.setOutputRedirection)
         self.dialog.show()
     def chooseCCompilerPath(self):
@@ -89,5 +89,5 @@ class LpyPreferences:
         else:
             self.widget.profilingNoPlotButton.setChecked(True)
     def setOutputRedirection(self):
-        self.editor.shell.setOutputRedirection(self.widget.LPyConsoleButton.isChecked(),self.widget.systemConsoleButton.isChecked())
+        self.editor.shellwidget.setOutputRedirection(self.widget.LPyConsoleButton.isChecked(),self.widget.systemConsoleButton.isChecked())
             

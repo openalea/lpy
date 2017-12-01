@@ -398,11 +398,19 @@ void LsysContext::init_options()
     option->setDefault(0);  
 
 #if (PGL_VERSION >= 0x020B00)
-	/** warn if turtle has invalid value option */
-	option = options.add("Warning with Turtle inconsistency","Set whether a warning/error is raised when an invalid value is found during turtle processing.","Processing");
-	option->addValue<PglTurtle,bool>("Disabled",&turtle,&PglTurtle::setWarnOnError,false,"Disable warnings/errors.");
-	option->addValue<PglTurtle,bool>("Enabled",&turtle,&PglTurtle::setWarnOnError,true,"Enable warnings/errors.");
-	option->setDefault(turtle.warnOnError());	
+    /** warn if turtle has invalid value option */
+    option = options.add("Warning with Turtle inconsistency","Set whether a warning/error is raised when an invalid value is found during turtle processing.","Processing");
+    option->addValue<PglTurtle,bool>("Disabled",&turtle,&PglTurtle::setWarnOnError,false,"Disable warnings/errors.");
+    option->addValue<PglTurtle,bool>("Enabled",&turtle,&PglTurtle::setWarnOnError,true,"Enable warnings/errors.");
+    option->setDefault(turtle.warnOnError());   
+#endif
+
+#if (PGL_VERSION >= 0x021701)
+    /** warn if turtle has invalid value option */
+    option = options.add("Turtle Path Optimization","Set whether the Turtle use a cache with the path.","Processing");
+    option->addValue<PglTurtle,bool>("Disabled",&turtle,&PglTurtle::enablePathInfoCache,false,"Disable Cache.");
+    option->addValue<PglTurtle,bool>("Enabled",&turtle,&PglTurtle::enablePathInfoCache,true,"Enable Cache.");
+    option->setDefault(turtle.pathInfoCacheEnabled());   
 #endif
 
 

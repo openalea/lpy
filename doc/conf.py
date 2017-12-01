@@ -14,6 +14,7 @@
 
 import sys
 import os
+from os.path import join as pj
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -21,6 +22,10 @@ import os
 #sys.path.insert(0, os.path.abspath('.'))
 
 # -- General configuration ------------------------------------------------
+f = pj(os.path.dirname(__file__),'..','src', 'openalea', 'lpy','__version__.py')
+d = {}
+execfile(f,d,d)
+version= d['LPY_VERSION_STR']
 
 # If your documentation needs a minimal Sphinx version, state it here.
 #needs_sphinx = '1.0'
@@ -54,7 +59,7 @@ author = u'F. Boudon, T. Cokelaer, C. Pradal and C. Godin'
 # built documents.
 #
 # The short X.Y version.
-version = u'1'
+#version = u'1'
 # The full version, including alpha/beta/rc tags.
 release = u'0'
 

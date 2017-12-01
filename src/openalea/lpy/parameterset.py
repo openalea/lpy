@@ -42,7 +42,7 @@ class ParameterSet:
     
     def parameter_names(self):
         """ Gives the name of the parameters """
-        self.__dict__.keys()
+        return self.__dict__.keys()
     
     def copy(self, deep = True):
         """ Return a deep copy of self """

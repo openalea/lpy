@@ -7,11 +7,12 @@ Axiom:
   for i in xrange(nbValues):
     nproduce I(1)
 
-derivation length: nbValues+1
+
+derivation length: 1
 
 production:
 
-I(j)I(k) < I(i) --> I(k+j)
+I(j)I(k) << I(i) --> I(k+j)
 
 interpretation:
 

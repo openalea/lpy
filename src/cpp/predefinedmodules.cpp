@@ -163,7 +163,7 @@ DeclareModuleBegin(stopPolygon,"Pop a polygon from the stack and render it. Para
 DeclareModuleEnd
 
 
-DeclareModuleBegin(MoveTo,"Set the turtle position. Params : 'x, y, z' or 'v' (optionals, default = 0).",ePosition)
+DeclareModuleBegin(MoveTo,"Set the turtle position. Params : 'x, y, z' or 'v' (optionals, default = None for not changing specific coordinates).",ePosition)
 {
 	size_t nbargs = m.size();
 	switch (nbargs) {
@@ -172,11 +172,35 @@ DeclareModuleBegin(MoveTo,"Set the turtle position. Params : 'x, y, z' or 'v' (o
            {
               bp::extract<Vector3> ex (m.getAt(0));
               if (ex.check()) { t.move(ex());}
-              else t.move(m._getReal(0)); 
+              else {
+                real_t y = t.getPosition().y(); 
+                real_t z = t.getPosition().z();
+                t.move(m._getReal(0),y,z); 
+              }
               break;
            }
-         case 2:  t.move(m._getReal(0),m._getReal(1)); break;
-         default: t.move(m._getReal(0),m._getReal(1),m._getReal(2)); break;
+         case 2:  {
+            real_t x = 0;
+            if (m.getAt(0) == boost::python::object()){ x = t.getPosition().x(); }
+            else x = m._getReal(0);
+            real_t y = 0;
+            if (m.getAt(1) == boost::python::object()){ y = t.getPosition().y(); }
+            else y = m._getReal(1);
+            real_t z = t.getPosition().z();
+            t.move(x,y,z); break;
+        }
+         default: {
+            real_t x = 0;
+            if (m.getAt(0) == boost::python::object()){ x = t.getPosition().x(); }
+            else x = m._getReal(0);
+            real_t y = 0;
+            if (m.getAt(1) == boost::python::object()){ y = t.getPosition().y(); }
+            else y = m._getReal(1);
+            real_t z = 0;
+            if (m.getAt(2) == boost::python::object()){ z = t.getPosition().z(); }
+            else z = m._getReal(2);
+            t.move(x,y,z); break;
+        }
 	}
 }
 DeclareModuleEnd

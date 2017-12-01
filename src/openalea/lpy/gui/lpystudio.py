@@ -12,16 +12,13 @@ try:
 except:
     py2exe_release = False
 
-from openalea.plantgl.all import *
-QT_VERSION = get_pgl_qt_version() >> 16
-os.environ['QT_API'] = 'pyqt' if QT_VERSION == 4 else 'pyqt'+str(QT_VERSION)
-from openalea.vpltk import qt
-from openalea.vpltk.qt.compat import *
-
+import qt_check 
+import openalea.vpltk.qt.QtCore
 try:
    import PyQGLViewer
 except ImportError, e:
     PyQGLViewer = None
+
 
 import traceback as tb
 import documentation as doc
@@ -33,15 +30,18 @@ from objectpanel import ObjectPanelManager
 
 try:
     import matplotlib
-    matplotlib.use('Qt4Agg')
+    matplotlib.use('Qt'+str(QT_VERSION)+'Agg')
 except:
     pass
 
+from openalea.plantgl.all import Viewer, eStatic, eAnimatedPrimitives, eAnimatedScene
 from openalea.lpy import *
 
+
+from openalea.vpltk.qt.compat import *
 from openalea.vpltk.qt.QtPrintSupport import QPrintDialog, QPrinter
 from openalea.vpltk.qt.QtCore import QCoreApplication, QEvent, QMutex, QObject, QThread, QWaitCondition, Qt, pyqtSignal, pyqtSlot
-from openalea.vpltk.qt.QtGui import QIcon, QPixmap
+from openalea.vpltk.qt.QtGui import QIcon, QPixmap, QTextCursor
 from openalea.vpltk.qt.QtWidgets import QAction, QApplication, QDialog, QFileDialog, QInputDialog, QMainWindow, QMessageBox, QTabBar
 
 
@@ -58,6 +58,7 @@ import lpymainwindow as lsmw
 from computationtask import *
 from lpystudiodebugger import LpyVisualDebugger
 from lpyprofiling import AnimatedProfiling, ProfilingWithFinalPlot, ProfilingWithNoPlot
+
 
 class LpyPlotter:
     def __init__(self,parent):
@@ -78,6 +79,9 @@ class LpyPlotter:
 class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
 
     endTask = pyqtSignal('PyQt_PyObject')
+    killedTask = pyqtSignal('PyQt_PyObject')
+
+    instances = []
 
     def __init__(self, parent=None, withinterpreter = True):
         """
@@ -86,6 +90,11 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         QMainWindow.__init__(self, parent)
         ComputationTaskManager.__init__(self)
         lsmw.Ui_MainWindow.__init__(self)
+
+
+        import weakref
+        LPyWindow.instances.append(weakref.ref(self))
+
         self.withinterpreter = withinterpreter
         self.setupUi(self)
         self.editToolBar.hide()
@@ -150,10 +159,6 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         self.panelmanager = ObjectPanelManager(self)
         #self.documentNames.setShape(QTabBar.TriangularNorth)
         #self.documentNames.setTabsClosable(True)
-        print
-        print
-        print
-        print len(self.simulations)
         self.newfile()
         self.textEditionWatch = False
         self.documentNames.connectTo(self)
@@ -251,11 +256,16 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
     def retrieve_official_lpy_version(self):
         import urllib2
         versionurl = 'https://raw.githubusercontent.com/VirtualPlants/lpy/master/src/openalea/lpy/__version__.py'
-        response = urllib2.urlopen(versionurl)
-        pyversioncode = response.read()
-        lvofficial = {}
-        exec(pyversioncode, lvofficial)
-        return lvofficial['__version_number__'],lvofficial['LPY_VERSION_STR']
+        try:
+            response = urllib2.urlopen(versionurl)
+        except urllib2.URLError, ue:
+            import openalea.lpy.__version__ as lv
+            return lv.__version_number__, lv.LPY_VERSION_STR
+        else:
+            pyversioncode = response.read()
+            lvofficial = {}
+            exec(pyversioncode, lvofficial)
+            return lvofficial['__version_number__'],lvofficial['LPY_VERSION_STR']
 
     def check_lpy_update(self, silent = False):
         import openalea.lpy.__version__ as lv
@@ -335,7 +345,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         self.simulations[id2].index = id2
         self.simulations[id1].updateTabName(True)
         self.simulations[id2].updateTabName(True)
-        QObject.disconnect(self.documentNames,SIGNAL('currentChanged(int)'),self.changeDocument)
+        self.documentNames.currentChanged.disconnect(self.changeDocument)
         self.documentNames.setCurrentIndex(id1)
         self.documentNames.currentChanged.connect(self.changeDocument) # QObject.connect(self.documentNames,SIGNAL('currentChanged(int)'),self.changeDocument)
     def focusInEvent ( self, event ):
@@ -350,11 +360,13 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
             self.documentNames.removeTab(id)
             for i in xrange(id+1,len(self.simulations)):
                 self.simulations[i].index = i-1
+
             self.textEditionWatch = False
             defaultdoc = self.codeeditor.defaultdoc
             self.codeeditor.setLpyDocument(defaultdoc)
             self.simulations.pop(id)
             self.textEditionWatch = True
+
             if len(self.simulations) == 0:
                 self.currentSimulationId = None
                 self.newfile()
@@ -517,7 +529,6 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         self.codeeditor.print_(printer)
     def createNewLsystem(self, fname = None):
         i = len(self.simulations)
-        print 'simu', i
         self.simulations.append(LpySimulation(self,i,fname))
         self.currentSimulationId = i
         self.currentSimulation().registerTab()
@@ -869,7 +880,13 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         if len(self.cCompilerPath) != 0 and not self.cCompilerPath in os.environ['PATH']:
             os.environ['PATH']+=';'+self.cCompilerPath
     def executeCode(self):
-        self.interpreter.runcode(self.codeeditor.textCursor().selectedText())
+        cmd = self.codeeditor.codeToExecute()
+        #print '... '+'\n... '.join(cmd.splitlines())
+        #self.interpreter.runcode(cmd)
+        self.shellwidget.execute(cmd)
+        cursor = self.codeeditor.textCursor()
+        cursor.movePosition(QTextCursor.Down)
+        self.codeeditor.setTextCursor(cursor)
     def submitBug(self):
         import webbrowser
         webbrowser.open("https://gforge.inria.fr/tracker/?func=add&group_id=79&atid=13767")
