@@ -1,0 +1,231 @@
+try:
+  from openalea.lpy.parameterse_t import *
+except:
+  class ParameterSet:
+    def __init__(self, **kwd):
+      self.__dict__.update(kwd)
+
+# Resource and Demand Pool
+ResourcePool = 10
+
+# Timing
+time = 0
+dt = 1
+max_time = 600
+
+# Speed
+
+Demand, Allocation, Organogenesis = range(1,4)
+groupname = ['Demand', 'Allocation', 'Organogenesis']
+
+
+MaxLeafQ = 10.
+MaxFlowerQ = 10.
+MaxInternodeQ = 5.
+
+# demand function
+dQc = 1.
+dQe = 0.3
+
+def ApexDemand(d) : 
+      d.growthdemand = 0
+      d.maintainance = 0     
+
+def InternodeDemand(d) : 
+    if d.Q < MaxInternodeQ:
+      d.growthdemand = dQc
+      d.maintainance = dQe * (d.Q / MaxInternodeQ)
+    else: 
+      d.growthdemand = 0
+      d.maintainance = dQe 
+
+def LeafDemand(d) : 
+    if d.Q < MaxLeafQ:
+      d.growthdemand = dQc
+      d.maintainance = dQe * (d.Q / MaxLeafQ)
+    else: 
+      d.growthdemand = 0
+      d.maintainance = dQe 
+
+def FlowerDemand(d) : 
+    if d.Q < MaxFlowerQ:
+      d.growthdemand = dQc
+      d.maintainance = dQe * (d.Q / MaxFlowerQ)
+    else: 
+      d.growthdemand = 0
+      d.maintainance = dQe 
+
+# resource function
+# No resource for these organs
+def ApexResource(d): return 0
+def InternodeResource(d): return 0
+def FlowerResource(d): return 0
+
+Rmax = 1 # Resource maximum that can produced by a leaf
+def LeafResource(d): 
+    return Rmax * (d.Q / MaxLeafQ)
+
+# allocation function
+class GroupData:
+   def __init__(self,**kwd):
+       self.allocation = 0
+       self.sinkcoef = 1
+       self.demand = 0
+       self.__dict__.update(kwd)
+
+LeafGroupData = GroupData(sinkcoef=2)
+ApexGroupData = GroupData()
+FlowerGroupData = GroupData()
+InternodeGroupData = GroupData()
+OrganGroups = [LeafGroupData, ApexGroupData, FlowerGroupData, InternodeGroupData]
+
+def splitlist(l,cond):
+    ltrue,lfalse = [],[]
+    for v in l: 
+      if cond(v) : ltrue.append(v)
+      else : lfalse.append(v)
+    return ltrue,lfalse
+
+def updateAllocation():
+   global OrganGroups, ResourcePool
+   TotalDemand = sum([g.demand for g in OrganGroups])
+   if TotalDemand == 0:
+     # if no resource, no allocation
+     for g in OrganGroups:
+         g.allocation = 0
+     return
+   
+   if TotalDemand <= ResourcePool:
+     # if enough resource, full allocation
+     for g in OrganGroups:
+         g.allocation = g.demand
+     ResourcePool -= TotalDemand
+     return
+   
+   # else bias allocation
+   consideredgroups = OrganGroups
+   totalresource = ResourcePool
+   
+   while True:
+     TotalBiasDemand = sum([g.sinkcoef*g.demand for g in consideredgroups])
+     for g in consideredgroups:
+         di = g.sinkcoef * g.demand / TotalBiasDemand
+         g.allocation = totalresource * di
+     
+     overallocated, consideredgroups = splitlist(consideredgroups, lambda g : g.allocation > g.demand)
+     
+     if len(overallocated) > 0:
+       for g in overallocated: 
+           g.allocation = g.demand
+           totalresource -= g.demand
+     else:
+        break
+   
+   ResourcePool = 0
+
+def updateOrganAllocation(data, groupdata):
+   if data.growthdemand > 0 and data.maintainance < dQe :
+     data.Q += ((data.growthdemand+data.maintainance) * (groupdata.allocation / groupdata.demand)) - data.maintainance
+
+def StartEach():
+  if getGroup() == 0: 
+    useGroup(Demand)
+  global time
+  time += dt
+  if getGroup() == Demand:
+    for g in OrganGroups:
+       g.demand = 0
+
+def EndEach():
+    print time, groupname[getGroup()-1], ResourcePool
+    if getGroup() == Demand:
+      
+      print [g.demand for g in OrganGroups]
+      print ResourcePool
+      if ResourcePool == 0: Stop()
+      
+      updateAllocation()
+      
+      useGroup(Allocation)
+      
+    elif getGroup() == Allocation:
+      
+      useGroup(Organogenesis)
+    
+    else:
+      useGroup(Demand)
+
+
+module Seed, Pool
+module Apex 
+module Internode, Leaf, Flower
+
+Axiom: ,(2) Internode(ParameterSet(Q=0)) Apex(ParameterSet(Q=0)) Pool
+
+derivation length: max_time / dt
+production:
+
+group 1 : # Demand and Resource Computation
+
+Apex(data):
+  global ApexGroupData, ResourcePool
+  ApexDemand(data)
+  ApexGroupData.demand += data.growthdemand + data.maintainance
+  ResourcePool += ApexResource(data)
+  produce Apex(data)
+
+Internode(data):
+  global InternodeGroupData, ResourcePool
+  InternodeDemand(data)
+  InternodeGroupData.demand += data.growthdemand + data.maintainance
+  ResourcePool += InternodeResource(data)
+  produce Internode(data)
+
+Leaf(data):
+  global LeafGroupData, ResourcePool
+  LeafDemand(data)
+  LeafGroupData.demand += data.growthdemand + data.maintainance
+  ResourcePool += LeafResource(data)
+  produce Leaf(data)
+
+Flower(data):
+  global FlowerGroupData, ResourcePool
+  FlowerDemand(data)
+  FlowerGroupData.demand += data.growthdemand + data.maintainance
+  ResourcePool += FlowerResource(data)
+  produce Flower(data)
+
+group 2: # Allocation and organ growth
+
+Apex(data):
+  updateOrganAllocation(data,ApexGroupData)
+
+Leaf(data):
+  updateOrganAllocation(data,LeafGroupData)
+
+Internode(data):
+  updateOrganAllocation(data,InternodeGroupData)
+
+Flower(data):
+  updateOrganAllocation(data,FlowerGroupData)
+
+group 3: # Organogenesis
+
+Internode(idata) < Apex(data):
+  if idata.Q >= MaxInternodeQ:
+     produce /(137.5) [  Leaf(ParameterSet(Q=0)) ] Internode(ParameterSet(Q=0)) Apex(ParameterSet(Q=0))
+
+group 0:
+interpretation:
+
+
+Internode(data) --> F(data.Q)
+
+Apex(data) --> [,(2) @O ]
+
+Leaf(data) --> [ ,(2) &(45)  ~l(data.Q) ]
+
+Pool :
+  global ResourcePool
+  produce [@M(0,-10,-10) Label('T:'+str(time)+' R:'+str(ResourcePool)+'  D:'+str([g.demand for g in OrganGroups])+'  A:'+str([g.allocation for g in OrganGroups]))]
+endlsystem

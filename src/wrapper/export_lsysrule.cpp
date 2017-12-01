@@ -54,7 +54,7 @@ object match(LsysRule * rule,const AxialTree& tree, int pos, const AxialTree& de
   AxialTree::const_iterator endpos;
   ArgList args;
   if(!rule->match(tree,beg,dest,endpos,args))return object(false);
-  return make_tuple(tree.pos(endpos),args);
+  return boost::python::make_tuple(tree.pos(endpos),args);
 }
 
 object match2(LsysRule * rule,const AxialTree& tree, int pos ) {
@@ -63,7 +63,7 @@ object match2(LsysRule * rule,const AxialTree& tree, int pos ) {
   AxialTree dest;
   ArgList args;
   if(!rule->match(tree,beg,dest,endpos,args))return object(false);
-  return make_tuple(tree.pos(endpos),args);
+  return boost::python::make_tuple(tree.pos(endpos),args);
 }
 
 object match1(LsysRule * rule,const AxialTree& tree) {
@@ -75,7 +75,7 @@ object reverse_match(LsysRule * rule,const AxialTree& tree, int pos, AxialTree& 
   AxialTree::const_iterator endpos;
   ArgList args;
   if(!rule->reverse_match(tree,beg,dest,endpos,args))return object(false);
-  return make_tuple(tree.pos(endpos),args);
+  return boost::python::make_tuple(tree.pos(endpos),args);
 }
 
 boost::python::object reverse_match2(LsysRule * rule,const AxialTree& tree, int pos) {
@@ -84,7 +84,7 @@ boost::python::object reverse_match2(LsysRule * rule,const AxialTree& tree, int 
   AxialTree dest;
   ArgList args;
   if(!rule->reverse_match(tree,beg,dest,endpos,args))return object(false);
-  return make_tuple(tree.pos(endpos),args);
+  return boost::python::make_tuple(tree.pos(endpos),args);
 }
 
 boost::python::object reverse_match1(LsysRule * rule,const AxialTree& tree) {

@@ -28,13 +28,14 @@
  # ---------------------------------------------------------------------------
  */
 
-#include "consider.h"
 #include <plantgl/python/export_refcountptr.h>
+#include "consider.h"
 
 using namespace boost::python;
 #define bp boost::python
 LPY_USING_NAMESPACE
 
+DEF_POINTEE( ConsiderFilter )
 
 void export_Consider(){
 
@@ -73,7 +74,7 @@ void export_Consider(){
 	.def("keyword",        &ConsiderFilter::keyword)
 
 	.def("str",            &ConsiderFilter::str)
-
+/*
 	.def("makeCurrent",    &ConsiderFilter::makeCurrent)
 	.def("done",		   &ConsiderFilter::done)
 	.def("isCurrent",	   &ConsiderFilter::isCurrent)
@@ -87,12 +88,15 @@ void export_Consider(){
 
 	.def("current",	   &ConsiderFilter::current)
 	.staticmethod("current")
-
+*/
 	.def("consider",       &ConsiderFilter::consider)
 	.staticmethod("consider")
 
-	.def("ignore",         &ConsiderFilter::ignore)
-	.staticmethod("ignore")
+    .def("ignore",         &ConsiderFilter::ignore)
+    .staticmethod("ignore")
+
+    .def("ignorePredefined",         &ConsiderFilter::ignorePredefined)
+    .staticmethod("ignorePredefined")
 
 
 	;

@@ -36,6 +36,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
 #include <plantgl/tool/sequencer.h>
+#include "debug_tool.h"
 
 using namespace boost::python;
 TOOLS_USING_NAMESPACE
@@ -691,6 +692,7 @@ AxialTree Lsystem::__debugStep(AxialTree& workingstring,
       AxialTree::const_iterator _it = workingstring.begin();
       AxialTree::const_iterator _it3 = _it;
       AxialTree::const_iterator _endit = workingstring.end();
+      AxialTree::IteratorMap itermap; 
 
       while ( _it != _endit ) {
           if ( _it->isCut() )
@@ -702,7 +704,7 @@ AxialTree Lsystem::__debugStep(AxialTree& workingstring,
                   _it2 != mruleset.end(); _it2++){
 					  ArgList args;
 					  size_t prodlength;
-                      if((*_it2)->match(workingstring,_it,targetstring,_it3,args)){
+                      if((*_it2)->match(workingstring,_it,targetstring,_it3,args,&itermap)){
 						  try {
 							match = (*_it2)->applyTo(targetstring,args,&prodlength);
 						  }catch(error_already_set){
@@ -734,6 +736,7 @@ AxialTree Lsystem::__debugStep(AxialTree& workingstring,
       AxialTree::const_iterator _lastit = workingstring.begin();
       AxialTree::const_iterator _beg = workingstring.begin();
       AxialTree::const_iterator _end = workingstring.end();
+      AxialTree::IteratorMap itermap; 
       while ( _it !=  _end) {
           bool match = false;
 		  const RulePtrSet& mruleset = ruleset[_it->getClassId()];
@@ -741,7 +744,7 @@ AxialTree Lsystem::__debugStep(AxialTree& workingstring,
               _it2 != mruleset.end();  _it2++){
 				  ArgList args;
 				  size_t prodlength;
-                  if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args)){
+                  if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args,&itermap)){
 					  try {
 						match = (*_it2)->reverseApplyTo(targetstring,args,&prodlength);
 					  }catch(error_already_set){
@@ -769,7 +772,7 @@ AxialTree Lsystem::__debugStep(AxialTree& workingstring,
   return targetstring;
 }
 
-
+#include "axialtree_manip.h"
 
 AxialTree 
 Lsystem::__step(AxialTree& workingstring,
@@ -777,6 +780,7 @@ Lsystem::__step(AxialTree& workingstring,
 				bool query,
 				bool& matching,
                 eDirection direction){
+  if (__context.multicoreProcessing()) { return __parallelStep(workingstring, ruleset, query, matching, direction);  }
   ContextMaintainer c(&__context);
   matching = false;
   if( workingstring.empty()) return workingstring;
@@ -787,6 +791,10 @@ Lsystem::__step(AxialTree& workingstring,
       AxialTree::const_iterator _it = workingstring.begin();
       AxialTree::const_iterator _it3 = _it;
       AxialTree::const_iterator _endit = workingstring.end();
+      AxialTree::IteratorMap * itermap = NULL;
+      AxialTree::IteratorMap _itermap;
+      if (__context.brackectMappingOptimLevel() >= 1) { itermap = &_itermap; }
+      if (__context.brackectMappingOptimLevel() == 2) { endBracket(_it, _endit, itermap); }
 
       while ( _it != _endit ) {
           if ( _it->isCut() )
@@ -797,7 +805,7 @@ Lsystem::__step(AxialTree& workingstring,
               for(RulePtrSet::const_iterator _it2 = mruleset.begin();
                   _it2 != mruleset.end(); _it2++){
 					  ArgList args;
-                      if((*_it2)->match(workingstring,_it,targetstring,_it3,args)){
+                      if((*_it2)->match(workingstring,_it,targetstring,_it3,args,itermap)){
                           match = (*_it2)->applyTo(targetstring,args);
 						  if(match) { _it = _it3; break; }
                       }
@@ -815,13 +823,18 @@ Lsystem::__step(AxialTree& workingstring,
       AxialTree::const_iterator _lastit = workingstring.begin();
       AxialTree::const_iterator _beg = workingstring.begin();
       AxialTree::const_iterator _end = workingstring.end();
+      AxialTree::IteratorMap * itermap = NULL;
+      AxialTree::IteratorMap _itermap;
+      if (__context.brackectMappingOptimLevel() >= 1) { itermap = &_itermap; }
+      if (__context.brackectMappingOptimLevel() == 2) { endBracket(_beg, _end, itermap); }
+
       while ( _it !=  _end) {
           bool match = false;
 		  const RulePtrSet& mruleset = ruleset[_it->getClassId()];
           for(RulePtrSet::const_iterator _it2 = mruleset.begin();
               _it2 != mruleset.end();  _it2++){
 				  ArgList args;
-                  if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args)){
+                  if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args,itermap)){
                       match = (*_it2)->reverseApplyTo(targetstring,args);
                       if(match) { _it = _it3; break; }
                   }
@@ -837,6 +850,151 @@ Lsystem::__step(AxialTree& workingstring,
   return targetstring;
 }
 
+#include <QtGlobal>
+#if QT_VERSION >= 0x050000 
+    #include <QtConcurrent/QtConcurrentRun>
+    #include <QtConcurrent/QtConcurrentMap>
+#else
+    #include <QtCore/QtConcurrentRun>
+    #include <QtCore/QtConcurrentMap>
+#endif
+
+AxialTree partialForwardStep(size_t beg, 
+                             size_t size,
+                             AxialTree& workingstring,
+                             const RulePtrMap& ruleset)
+{
+      AxialTree targetstring;
+      targetstring.reserve(size);
+
+      AxialTree::const_iterator itbeg = workingstring.const_begin() + beg;
+      AxialTree::const_iterator itend = itbeg;
+      if (workingstring.size() >= beg + size) itend += size;
+      else itend = workingstring.const_end();
+
+      AxialTree::const_iterator _it = itbeg;
+      AxialTree::const_iterator _it3 = _it;
+      AxialTree::IteratorMap itermap; 
+
+
+      while ( _it != itend ) {
+          // printf("process module %lu %lu\n", beg, std::distance(workingstring.const_begin(), _it));
+              bool match = false;
+              const RulePtrSet& mruleset = ruleset[_it->getClassId()];
+              for(RulePtrSet::const_iterator _it2 = mruleset.begin();
+                  _it2 != mruleset.end(); _it2++){
+                      ArgList args;
+                      if((*_it2)->match(workingstring,_it,targetstring,_it3,args,&itermap)){
+                          match = (*_it2)->applyTo(targetstring,args);
+                          if(match) { _it = _it3; break; }
+                      }
+              }
+              if (!match){
+                 targetstring.push_back(_it); ++_it;
+              }
+      }
+      return targetstring;
+
+}
+
+AxialTree partialBackwardStep(size_t beg, 
+                             size_t size,
+                             AxialTree& workingstring,
+                             const RulePtrMap& ruleset)
+{
+      AxialTree targetstring;
+      targetstring.reserve(size);
+
+      AxialTree::const_iterator itbeg = workingstring.const_begin() + beg;
+      AxialTree::const_iterator itend = itbeg;
+      if (workingstring.size() >= beg + size) itend += size;
+      else itend = workingstring.const_end();
+
+      AxialTree::const_iterator _it = itend -1;
+      AxialTree::const_iterator _lastit = itbeg;
+      AxialTree::const_iterator _it3 = _it;
+      AxialTree::IteratorMap itermap; 
+
+
+      while ( _it != itend ) {
+          // printf("process module %lu %lu\n", beg, std::distance(workingstring.const_begin(), _it));
+              bool match = false;
+              const RulePtrSet& mruleset = ruleset[_it->getClassId()];
+              for(RulePtrSet::const_iterator _it2 = mruleset.begin();
+                  _it2 != mruleset.end(); _it2++){
+                      ArgList args;
+                      if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args,&itermap)){
+                          match = (*_it2)->reverseApplyTo(targetstring,args);
+                          if(match) { _it = _it3; break; }
+                      }
+              }
+              if (!match){
+                  targetstring.push_front(_it);
+                  if(_it != _lastit) --_it;
+                  else _it = itend;
+              }
+      }
+      return targetstring;
+
+}
+
+
+
+void assemble(AxialTree& result, const AxialTree& second)
+{  
+    result += second; 
+}
+
+AxialTree 
+Lsystem::__parallelStep(AxialTree& workingstring,
+                        const RulePtrMap& ruleset,
+                        bool query,
+                        bool& matching,
+                        eDirection direction){
+  ContextMaintainer c(&__context);
+  matching = false;
+  if( workingstring.empty()) return workingstring;
+
+  // check no pseudo lsystem
+
+  // process cut symbol
+
+  if ( query ) __turtle_interpretation(workingstring,__context.envturtle);
+  
+  int maxnbthread = QThreadPool::globalInstance()->maxThreadCount()-1;
+  size_t lstringsize = workingstring.size();
+  int nbsymbolperthread = lstringsize / maxnbthread;
+  printf("Thread nb:%i elements:%i lstring size:%lu\n", maxnbthread, nbsymbolperthread, lstringsize);
+
+  if (nbsymbolperthread * maxnbthread < lstringsize) ++nbsymbolperthread;
+
+
+  if ( direction == eForward){
+
+    QList<int> startmoduleid;
+    for(int threadid = 0; threadid < maxnbthread; ++threadid) 
+        startmoduleid.push_back(threadid * nbsymbolperthread);        
+
+    QFuture<AxialTree> result = QtConcurrent::mappedReduced(startmoduleid, 
+        boost::bind(partialForwardStep, _1, nbsymbolperthread, workingstring, ruleset),
+        assemble, QtConcurrent::OrderedReduce|QtConcurrent::SequentialReduce);
+
+    result.waitForFinished();
+    return result.result();
+  }
+  else {
+    QList<int> startmoduleid;
+    for(int threadid = 0; threadid < maxnbthread; ++threadid) 
+        startmoduleid.push_back(threadid * nbsymbolperthread);        
+
+    QFuture<AxialTree> result = QtConcurrent::mappedReduced(startmoduleid, 
+        boost::bind(partialBackwardStep, _1, nbsymbolperthread, workingstring, ruleset),
+        assemble, QtConcurrent::OrderedReduce|QtConcurrent::SequentialReduce);
+
+    result.waitForFinished();
+    return result.result();
+  }
+}
 AxialTree 
 Lsystem::__stepWithMatching(AxialTree& workingstring,
 				const RulePtrMap& ruleset,
@@ -851,6 +1009,7 @@ Lsystem::__stepWithMatching(AxialTree& workingstring,
   AxialTree::const_iterator _it = workingstring.begin();
   AxialTree::const_iterator _it3 = _it;
   AxialTree::const_iterator _endit = workingstring.end();
+  AxialTree::IteratorMap itermap; 
   size_t prodlength;
   matching.clear();
   while ( _it != _endit ) {
@@ -862,7 +1021,7 @@ Lsystem::__stepWithMatching(AxialTree& workingstring,
           for(RulePtrSet::const_iterator _it2 = mruleset.begin();
               _it2 != mruleset.end();  _it2++){
 				  ArgList args;
-                  if((*_it2)->match(workingstring,_it,targetstring,_it3,args)){
+                  if((*_it2)->match(workingstring,_it,targetstring,_it3,args,&itermap)){
                       match = (*_it2)->applyTo(targetstring,args,&prodlength);
 					  if (match){
 						matching.append(distance(_it,_it3),prodlength);
@@ -883,9 +1042,10 @@ Lsystem::__stepWithMatching(AxialTree& workingstring,
 AxialTree 
 Lsystem::__recursiveSteps(AxialTree& workingstring,
 				          const RulePtrMap& ruleset, 
-                          size_t maxdepth)
+                          size_t maxdepth, bool& matching)
 {
   ContextMaintainer c(&__context);
+  matching = false;
   if( workingstring.empty()) return workingstring;
   AxialTree::const_iterator _it = workingstring.begin();
   AxialTree::const_iterator _it3 = _it;
@@ -904,12 +1064,14 @@ Lsystem::__recursiveSteps(AxialTree& workingstring,
 				ArgList args;
                 if((*_it2)->match(workingstring,_it,ltargetstring,_it3,args)){
                       match = (*_it2)->applyTo(ltargetstring,args);
-					  if(match) { _it = _it3; break; }
+					  if(match) { _it = _it3; matching = true; break; }
                   }
           }
           if (match){
               if(maxdepth >1) {
-                  targetstring += __recursiveSteps(ltargetstring,ruleset,maxdepth-1);
+                  bool submatch;
+                  targetstring += __recursiveSteps(ltargetstring,ruleset,maxdepth-1, submatch);
+                  if (submatch) matching = submatch;
               }
               else targetstring += ltargetstring;
           }
@@ -1013,7 +1175,7 @@ void Lsystem::__gRecursiveInterpretation(AxialTree& workingstring,
 		inline void stop()  
 		{ turtle.stop();
 		  if (!turtle.emptyStack()){
-			printf("Turtle stack size : %i\n",turtle.getStack().size());
+			printf("Turtle stack size : %lu\n",turtle.getStack().size());
 			LsysError("Ill-formed string in interpretation: unmatched brackets");
 			}
 		}
@@ -1061,7 +1223,7 @@ Lsystem::__recursiveInterpretation(AxialTree& workingstring,
 			if(!context.isEarlyReturnEnabled()){
 				turtle.stop();
 				if (!turtle.emptyStack()){
-					printf("Turtle stack size : %i\n",turtle.getStack().size());
+					printf("Turtle stack size : %lu\n",turtle.getStack().size());
 					LsysError("Ill-formed string in interpretation: unmatched brackets");
 				}
 				else {
@@ -1188,6 +1350,7 @@ Lsystem::derive(  const AxialTree& wstring,
 
 
 
+
 AxialTree 
 Lsystem::__derive( size_t starting_iter , 
                     size_t nb_iter , 
@@ -1260,12 +1423,17 @@ Lsystem::__derive( size_t starting_iter ,
 			  previouslyinterpreted = false;
 		  }
 		  if(!decomposition.empty()){
-			  bool decmatching = true;
+              bool decmatching;
+              workstring = __recursiveSteps(workstring, decomposition, __decomposition_max_depth, decmatching);
+              if (decmatching) matching = true;
+              previouslyinterpreted = false;
+
+			  /*bool decmatching = true;
 			  for(size_t i = 0; decmatching && i < __decomposition_max_depth; i++){
 				  workstring = __step(workstring,decomposition,previouslyinterpreted?false:decompositionHasQuery,decmatching,dir);
 				  previouslyinterpreted = false;
 				  if (decmatching) matching = true;
-			  }
+			  }*/
 		  }
 		  // Call endeach function
 		  if(__context.hasEndEachFunction())
@@ -1281,6 +1449,42 @@ Lsystem::__derive( size_t starting_iter ,
 			__lastcomputedscene = __apply_post_process(workstring,false);
 	  }
 	}
+  }
+  return workstring;
+}
+
+AxialTree 
+Lsystem::decompose( const AxialTree& workstring  )
+{
+  ACQUIRE_RESSOURCE
+  enableEarlyReturn(false);
+  ContextMaintainer c(&__context);
+  AxialTree res = __decompose(workstring);
+  enableEarlyReturn(false);
+  return res;
+  RELEASE_RESSOURCE
+
+}
+
+AxialTree 
+Lsystem::__decompose( const AxialTree& wstring){
+  AxialTree workstring = wstring;
+  if (!workstring.empty()){
+    if(!__rules.empty()){
+
+      eDirection dir = getDirection();
+      size_t group = __context.getGroup();
+
+      if (group > __rules.size()) LsysWarning("Group not valid.");
+
+      bool decompositionHasQuery;
+      RulePtrMap decomposition = __getRules(eDecomposition,group,dir,&decompositionHasQuery);
+
+      if(!decomposition.empty()){
+          bool decmatching = true;
+          workstring = __recursiveSteps(workstring, decomposition, __decomposition_max_depth, decmatching);
+      }
+    }
   }
   return workstring;
 }
@@ -1398,7 +1602,8 @@ Lsystem::__homomorphism(AxialTree& wstring){
   bool homHasQuery = false;  
   RulePtrMap interpretation = __getRules(eInterpretation,__currentGroup,eForward,&homHasQuery);
   if (!interpretation.empty()){
-      workstring = __recursiveSteps(wstring,interpretation,__interpretation_max_depth);
+      bool decmatching;
+      workstring = __recursiveSteps(wstring,interpretation,__interpretation_max_depth, decmatching);
   }
   return workstring;
 }
@@ -1485,7 +1690,8 @@ std::string conv_number(size_t num, size_t fill){
 void
 Lsystem::record(const std::string& prefix,
 				const AxialTree& workstring,
-				size_t beg, size_t nb_iter){
+				size_t beg, size_t nb_iter,
+                const std::string& suffix){
     ACQUIRE_RESSOURCE
     enableEarlyReturn(false);
     AxialTree tree = workstring;
@@ -1493,14 +1699,14 @@ Lsystem::record(const std::string& prefix,
 	__context.setAnimationEnabled(true);
     __plot(tree);
 	int fill = (int)ceil(log10((float)beg+nb_iter+1));
-	LPY::saveImage(prefix+conv_number(beg,fill)+".png");
+	LPY::saveImage(prefix+conv_number(beg,fill)+"."+suffix,suffix);
     if (nb_iter > 0){
 	  for (size_t i = beg+1; i <= beg+nb_iter; i++){
 		tree = __derive(i-1,1,tree,true);
 		if(__context.isFrameDisplayed()) {
 			__plot(tree,true);
 		}
-		LPY::saveImage(prefix+conv_number(i,fill)+".png");
+		LPY::saveImage(prefix+conv_number(i,fill)+"."+suffix,suffix);
         if(isEarlyReturnEnabled()) break;
 	  }
 	}

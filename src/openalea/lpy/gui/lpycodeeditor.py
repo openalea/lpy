@@ -1,12 +1,7 @@
 from openalea.vpltk.qt import qt
-
-QRegExp = qt.QtCore.QRegExp
-QTextCharFormat = qt.QtGui.QTextCharFormat
-Qt = qt.QtCore.Qt
-QFont = qt.QtGui.QFont
-QTextCursor = qt.QtGui.QTextCursor
-QObject = qt.QtCore.QObject
-SIGNAL = qt.QtCore.SIGNAL
+from openalea.vpltk.qt.QtCore import QMimeData, QObject, QPoint, QRegExp, QTimer, Qt, pyqtSignal
+from openalea.vpltk.qt.QtGui import QColor, QFont, QPainter, QPalette, QPen, QPixmap, QSyntaxHighlighter, QTextCharFormat, QTextCursor, QTextDocument, QTextOption
+from openalea.vpltk.qt.QtWidgets import QLabel, QTextEdit, QWidget
 
 class LineData:
     def __init__(self,i = None,p = None):
@@ -27,9 +22,9 @@ class IdGenerator:
     def release(self,i):
         self.stack.append(i)
         
-class LpySyntaxHighlighter(qt.QtGui.QSyntaxHighlighter):
+class LpySyntaxHighlighter(QSyntaxHighlighter):
     def __init__(self,editor):
-        qt.QtGui.QSyntaxHighlighter.__init__(self,editor)
+        QSyntaxHighlighter.__init__(self,editor)
         self.rules = []
         keywordFormat = QTextCharFormat()
         keywordFormat.setForeground(Qt.darkMagenta)
@@ -68,9 +63,9 @@ class LpySyntaxHighlighter(qt.QtGui.QSyntaxHighlighter):
         self.exprules.append((QRegExp('\"[^\"]*\"'),0,self.stringFormat,0))
         self.exprules.append((QRegExp("\'[^\']*\'"),0,self.stringFormat,0))
         self.tabFormat = QTextCharFormat()
-        self.tabFormat.setBackground(qt.QtGui.QColor(220,220,220))
+        self.tabFormat.setBackground(QColor(220,220,220))
         self.spaceFormat = QTextCharFormat()
-        self.spaceFormat.setBackground(qt.QtGui.QColor(240,240,240))
+        self.spaceFormat.setBackground(QColor(240,240,240))
         self.tabRule = QRegExp("^[ \t]+")
         self.numberFormat = QTextCharFormat()
         self.numberFormat.setForeground(Qt.red)
@@ -87,7 +82,7 @@ class LpySyntaxHighlighter(qt.QtGui.QSyntaxHighlighter):
         self.lineid = IdGenerator()
         self.linedata = {}
     def setDocument(self,doc):
-        qt.QtGui.QSyntaxHighlighter.setDocument(self,doc)
+        QSyntaxHighlighter.setDocument(self,doc)
     def genlineid(self):
         return (self.lineid() << 2) +2
     def releaselinedata(self,lid):
@@ -200,24 +195,28 @@ class LpySyntaxHighlighter(qt.QtGui.QSyntaxHighlighter):
             self.setFormat(index, length, self.commentFormat)
             index = commentExp.indexIn(text,index+length+2)
     
-class Margin(qt.QtGui.QWidget):
+class Margin(QWidget):
+    
+    lineClicked = pyqtSignal(int)
+
     def __init__(self,parent,editor):
-        qt.QtGui.QWidget.__init__(self,parent)
+        QWidget.__init__(self,parent)
         self.editor = editor
         self.showLines = True
         self.markers = {}
         self.markerStack = {}
         self.markerType = {}
+
     def paintEvent( self, paintEvent ):
         if self.showLines:
             maxheight = self.editor.viewport().height()
             maxline = self.editor.document().blockCount()
-            painter = qt.QtGui.QPainter(self)
-            painter.setPen(qt.QtGui.QPen(qt.QtGui.QColor(100,100,100)))
+            painter = QPainter(self)
+            painter.setPen(QPen(QColor(100,100,100)))
             h = 0
             line = -1
             while h < maxheight and line < maxline:
-                cursor = self.editor.cursorForPosition(qt.QtCore.QPoint(1,h))
+                cursor = self.editor.cursorForPosition(QPoint(1,h))
                 nline = cursor.blockNumber()+1
                 rect = self.editor.cursorRect(cursor)
                 if nline > line:
@@ -232,9 +231,11 @@ class Margin(qt.QtGui.QWidget):
                         painter.drawPixmap(32,rect.top()+2,self.markerType[m])
                 h = rect.top()+rect.height()+1
             painter.end()
+    
     def mousePressEvent( self, event ):
         line = self.editor.cursorForPosition(event.pos()).blockNumber() 
-        self.emit(SIGNAL("lineClicked(int)"),line+1)
+        self.lineClicked.emit(line+1)
+        #self.emit(SIGNAL("lineClicked(int)"),)
     def clear( self ):
         self.removeAllMarkers()
         self.markerType = {}
@@ -341,12 +342,12 @@ class Margin(qt.QtGui.QWidget):
         
 ErrorMarker,BreakPointMarker,CodePointMarker = range(3)
 
-class LpyCodeEditor(qt.QtGui.QTextEdit):
+class LpyCodeEditor(QTextEdit):
     def __init__(self,parent):
-        qt.QtGui.QTextEdit.__init__(self,parent)
+        QTextEdit.__init__(self,parent)
         self.editor = None
         self.setAcceptDrops(True)
-        self.setWordWrapMode(qt.QtGui.QTextOption.WrapAnywhere)
+        self.setWordWrapMode(QTextOption.WrapAnywhere)
         self.findEdit = None
         self.gotoEdit = None
         self.matchCaseButton = None
@@ -378,32 +379,34 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
         self.replaceButton = lpyeditor.replaceButton
         self.replaceAllButton = lpyeditor.replaceAllButton
         self.statusBar = lpyeditor.statusBar()
-        self.positionLabel = qt.QtGui.QLabel(self.statusBar)
+        self.positionLabel = QLabel(self.statusBar)
         self.statusBar.addPermanentWidget(self.positionLabel)
-        QObject.connect(self.findEdit, SIGNAL('textEdited(const QString&)'),self.findText)
-        QObject.connect(lpyeditor.actionFind, SIGNAL('triggered()'),self.focusFind)
-        QObject.connect(self.findEdit, SIGNAL('returnPressed()'),self.setFocus)
-        QObject.connect(self.gotoEdit, SIGNAL('returnPressed()'),self.gotoLineFromEdit)
-        QObject.connect(self.gotoEdit, SIGNAL('returnPressed()'),self.setFocus)
-        QObject.connect(self.previousButton, SIGNAL('pressed()'),self.findPreviousText)
-        QObject.connect(self.nextButton, SIGNAL('pressed()'),self.findNextText)
-        QObject.connect(self.replaceButton, SIGNAL('pressed()'),self.replaceText)
-        QObject.connect(self.replaceAllButton, SIGNAL('pressed()'),self.replaceAllText)
-        QObject.connect(self, SIGNAL('cursorPositionChanged()'),self.printCursorPosition)
-        QObject.connect(lpyeditor.actionZoomIn, SIGNAL('triggered()'),self.zoomInEvent)
-        QObject.connect(lpyeditor.actionZoomOut, SIGNAL('triggered()'),self.zoomOutEvent)
-        QObject.connect(lpyeditor.actionNoZoom, SIGNAL('triggered()'),self.resetZoom)
-        QObject.connect(lpyeditor.actionGoto, SIGNAL('triggered()'),self.setLineInEdit)
+        self.findEdit.textEdited.connect(self.findText)
+
+        lpyeditor.actionFind.triggered.connect(self.focusFind)
+        self.findEdit.returnPressed.connect(self.setFocus)
+        self.gotoEdit.returnPressed.connect(self.gotoLineFromEdit)
+        self.gotoEdit.returnPressed.connect(self.setFocus)
+        self.previousButton.pressed.connect(self.findPreviousText)
+        self.nextButton.pressed.connect(self.findNextText)
+        self.replaceButton.pressed.connect(self.replaceText)
+        self.replaceAllButton.pressed.connect(self.replaceAllText)
+        self.cursorPositionChanged.connect(self.printCursorPosition)
+        lpyeditor.actionZoomIn.triggered.connect(self.zoomInEvent)
+        lpyeditor.actionZoomOut.triggered.connect(self.zoomOutEvent)
+        lpyeditor.actionNoZoom.triggered.connect(self.resetZoom)
+        lpyeditor.actionGoto.triggered.connect(self.setLineInEdit)
+
         self.defaultEditionFont = self.currentFont()
         self.defaultPointSize = self.currentFont().pointSize()
         self.setViewportMargins(50,0,0,0)
         self.sidebar = Margin(self,self)
         self.sidebar.setGeometry(0,0,50,100)
-        self.sidebar.defineMarker(ErrorMarker,qt.QtGui.QPixmap(':/images/icons/warningsErrors16.png'))
-        self.sidebar.defineMarker(BreakPointMarker,qt.QtGui.QPixmap(':/images/icons/BreakPoint.png'))
-        self.sidebar.defineMarker(CodePointMarker,qt.QtGui.QPixmap(':/images/icons/greenarrow16.png'))
+        self.sidebar.defineMarker(ErrorMarker,QPixmap(':/images/icons/warningsErrors16.png'))
+        self.sidebar.defineMarker(BreakPointMarker,QPixmap(':/images/icons/BreakPoint.png'))
+        self.sidebar.defineMarker(CodePointMarker,QPixmap(':/images/icons/greenarrow16.png'))
         self.sidebar.show() 
-        QObject.connect(self.sidebar, SIGNAL('lineClicked(int)'),self.checkLine)
+        self.sidebar.lineClicked.connect(self.checkLine)
     def checkLine(self,line):
         self.statusBar.showMessage("Line "+str(line)+" clicked",2000)
         if self.sidebar.hasMarkerAt(line):
@@ -417,14 +420,14 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
             self.sidebar.setMarkerAt(line,BreakPointMarker)
     def resizeEvent(self,event):
         self.sidebar.setGeometry(0,0,48,self.height())
-        qt.QtGui.QTextEdit.resizeEvent(self,event)
+        QTextEdit.resizeEvent(self,event)
     def scrollContentsBy(self,dx,dy):
         self.sidebar.update()
         self.sidebar.setFont(QFont(self.currentFont()))
-        qt.QtGui.QTextEdit.scrollContentsBy(self,dx,dy)
+        QTextEdit.scrollContentsBy(self,dx,dy)
     def focusInEvent ( self, event ):
         if self.editor : self.editor.currentSimulation().monitorfile()
-        return qt.QtGui.QTextEdit.focusInEvent ( self, event )
+        return QTextEdit.focusInEvent ( self, event )
     def setReplaceTab(self,value):
         self.replaceTab = value
     def tabSize(self):
@@ -477,7 +480,7 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
             seltxt = lcursor.selection().toPlainText()
             sbn = seltxt.count('\n')
             rev = self.document().revision()
-            qt.QtGui.QTextEdit.keyPressEvent(self,event)
+            QTextEdit.keyPressEvent(self,event)
             if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter:
                 self.returnEvent()
                 sbn -=1
@@ -534,11 +537,11 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
                 cursor.insertText(self.indentation)
                 cursor.endEditBlock()        
     def getFindOptions(self):
-        options = qt.QtGui.QTextDocument.FindFlags()
+        options = QTextDocument.FindFlags()
         if self.matchCaseButton.isChecked():
-            options |= qt.QtGui.QTextDocument.FindCaseSensitively
+            options |= QTextDocument.FindCaseSensitively
         if self.wholeWordButton.isChecked():
-            options |= qt.QtGui.QTextDocument.FindWholeWords
+            options |= QTextDocument.FindWholeWords
         return options
     def cursorAtStart(self):
         cursor = self.textCursor()
@@ -546,7 +549,7 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
         self.setTextCursor(cursor)            
     def focusFind(self):
         if not self.frameFind.isVisible():
-            self.setfindEditColor(qt.QtGui.QColor(255,255,255))
+            self.setfindEditColor(QColor(255,255,255))
             self.frameFind.show()
             cursor = self.textCursor()
             if cursor.hasSelection() :
@@ -567,25 +570,25 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
         found = self.find(txt,self.getFindOptions())
         if found:
             self.setFocus()
-            self.setfindEditColor(qt.QtGui.QColor(255,255,255))
+            self.setfindEditColor(QColor(255,255,255))
         else:
             #self.statusBar.showMessage('Text not found !',2000)
             self.findEndOFFile()
             self.cursorAtStart()
-            self.setfindEditColor(qt.QtGui.QColor(255,100,100))
+            self.setfindEditColor(QColor(255,100,100))
     def setfindEditColor(self,color):
         palette = self.findEdit.palette()
-        palette.setColor(qt.QtGui.QPalette.Base,color)
+        palette.setColor(QPalette.Base,color)
         self.findEdit.setPalette(palette)
     def findEndOFFile(self):
-            q = qt.QtGui.QLabel('Text not found !')
-            q.setPixmap(qt.QtGui.QPixmap(':/images/icons/wrap.png'))
+            q = QLabel('Text not found !')
+            q.setPixmap(QPixmap(':/images/icons/wrap.png'))
             self.statusBar.addWidget(q)
             self.statusBar.showMessage('     End of page found, restart from top !',2000)
-            qt.QtCore.QTimer.singleShot(2000,lambda : self.statusBar.removeWidget(q))            
+            QTimer.singleShot(2000,lambda : self.statusBar.removeWidget(q))            
     def findPreviousText(self):
         txt = self.findEdit.text()
-        found = self.find(txt,qt.QtGui.QTextDocument.FindBackward|self.getFindOptions())
+        found = self.find(txt,QTextDocument.FindBackward|self.getFindOptions())
         if found:
             self.setFocus()
         else:
@@ -644,11 +647,18 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
     def insertFromMimeData(self,source):
         if source.hasUrls():
             if not self.editor is None:
-                self.editor.openfile(str(source.urls()[0].toLocalFile()))
+                url = source.urls()[0]
+                if len(url.host()) == 0 and url.path().startswith("/.file/id="):
+                    import os
+                    cmd = """osascript -e 'get posix path of posix file "{}" -- kthxbai'""".format(url.path())
+                    path = os.popen(cmd).read().strip()
+                else:
+                    path = url.toLocalFile()
+                self.editor.openfile(path)
         else : 
-            nsource = qt.QtCore.QMimeData()
+            nsource = QMimeData()
             nsource.setText(source.text())
-            return qt.QtGui.QTextEdit.insertFromMimeData(self,nsource)
+            return QTextEdit.insertFromMimeData(self,nsource)
     def comment(self):
         cursor = self.textCursor()
         beg = cursor.selectionStart()
@@ -805,3 +815,22 @@ class LpyCodeEditor(qt.QtGui.QTextEdit):
 
     def getCode(self):
         return unicode(self.toPlainText()).encode('iso-8859-1','replace')
+
+    def codeToExecute(self):
+        cursor = self.textCursor()
+        curpos = cursor.position()
+        selbegin = cursor.selectionStart()
+        selend   = cursor.selectionEnd()
+        cursor.setPosition(selbegin)
+        cursor.movePosition(QTextCursor.StartOfLine)
+        cursor.setPosition(selend, QTextCursor.KeepAnchor)
+        cursor.movePosition(QTextCursor.EndOfLine, QTextCursor.KeepAnchor)
+        cmd = cursor.selectedText()
+        if False : #len(cmd) > 0:
+            lines = cmd.splitlines()
+            fline = lines[0]
+            nfline = fline.lstrip()
+            torem = len(fline) - len(nfline)
+            nlines = [l[torem:] for l in lines]
+            cmd = '\n'.join(nlines)
+        return cmd

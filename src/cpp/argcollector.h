@@ -49,7 +49,7 @@ inline boost::python::list toPyList( bp::list obj ) { return obj; }
 #define USE_OBJECTVEC_COLLECTOR
 #endif
 
-typedef std::vector<boost::python::object> StdArgListType;
+typedef std::deque<boost::python::object> StdArgListType;
 inline size_t len( const StdArgListType& obj ) { return obj.size(); }
 inline boost::python::object toPyList( const StdArgListType& obj ) {
 	return boost::python::object(obj);

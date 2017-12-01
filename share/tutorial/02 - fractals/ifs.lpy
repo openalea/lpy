@@ -1,11 +1,16 @@
-module Ls
+module @Ls
 
 previousString = None
 def StartEach(lstring):
+  # retrieve previous structure
   global previousString
   previousString = lstring
-  return Lstring('F')
+  
+  # generate global symbol to represent the previous structure
+  return Lstring('@Ls')
 
+def StartInterpretation():
+  nproduce -(90)
 
 Axiom: F
 
@@ -14,14 +19,16 @@ derivation length: 4
 production:
 decomposition:
 maximum depth: 1
-Ls : 
-  nsproduce(previousString)
+
+# generate previous structure with a scaling factor
+@Ls : nsproduce(previousString)
 
 production:
 
-F --> Ls + Ls -- Ls + Ls
+@Ls --> @Di(1/3.) @Ls  +  @Ls --  @Ls  +  @Ls @Di(3.)
 
 interpretation:
 
+F --> F
 
 endlsystem

@@ -61,6 +61,7 @@ public:
   std::vector<size_t> getLastClassId() const;
 
   std::string str() const;
+  inline const char * c_str() const { return str().c_str(); }
   std::string repr() const;
 
 };

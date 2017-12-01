@@ -43,6 +43,8 @@
 LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
+class ConsiderFilter;
+typedef RCPtr<ConsiderFilter> ConsiderFilterPtr;
 
 class LPY_API Module {
 public:
@@ -67,6 +69,7 @@ public:
   { return __mclass->issubclass(mclass) ;  }
 
   virtual std::string str() const;
+  inline const char* c_str() const { return str().c_str(); }
   virtual std::string repr() const;
   inline bool operator==(const Module& n) const { return sameName(n); }
   inline bool operator!=(const Module& other) const { return !operator==(other); }
@@ -91,8 +94,8 @@ public:
   inline bool isRE() const { return isRepExp() || isOr(); }
   inline bool isGetIterator() const { return __mclass == ModuleClass::GetIterator; }
   inline bool isGetModule() const { return __mclass == ModuleClass::GetModule; }
-  bool isConsidered() const;
-  bool isIgnored() const;
+  bool isConsidered(const ConsiderFilterPtr filter) const;
+  bool isIgnored(const ConsiderFilterPtr filter) const;
 
   inline int scale() const { return __mclass->getScale(); }
 protected:
@@ -430,3 +433,5 @@ LPY_END_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 #endif
+
+#include "consider.h"

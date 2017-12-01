@@ -113,15 +113,20 @@ void LPY::turtle_interpretation(AxialTree& tree, Turtle& turtle){
 }
 
 void LPY::turtle_do_interpretation(AxialTree& tree, Turtle& turtle){
+  turtle_partial_interpretation(tree,turtle);
+  
+  turtle.stop();
+  if (!turtle.emptyStack()){
+      printf("Turtle stack size : %lu\n",turtle.getStack().size());
+      LsysError("Ill-formed string: unmatched brackets");
+  }
+}
+
+void LPY::turtle_partial_interpretation(AxialTree& tree, Turtle& turtle){
   for(AxialTree::iterator _it = tree.begin();
       _it != tree.end(); ++_it) {
         _it->interpret(turtle);
         if(turtle.getId() != Shape::NOID)turtle.incId();
-  }
-  turtle.stop();
-  if (!turtle.emptyStack()){
-      printf("Turtle stack size : %i\n",turtle.getStack().size());
-      LsysError("Ill-formed string: unmatched brackets");
   }
 }
 
@@ -135,7 +140,7 @@ void LPY::turtle_interpretation(AxialTree& tree, Turtle& turtle, const StringMat
   }
   turtle.stop();
   if (!turtle.emptyStack()){
-      printf("Turtle stack size : %i\n",turtle.getStack().size());
+      printf("Turtle stack size : %lu\n",turtle.getStack().size());
 	LsysError("Ill-formed string: unmatched brackets");
   }
 }

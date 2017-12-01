@@ -36,6 +36,10 @@
 #include "tracker.h"
 #include <plantgl/version.h>
 #include <stack>
+#include <QtCore/QThread>
+#include <QtCore/QMutex>
+#include <QtCore/QMutexLocker>
+
 using namespace boost::python;
 LPY_USING_NAMESPACE
 PGL_USING(PglTurtle)
@@ -59,6 +63,8 @@ static std::vector<LsysContext *> LSYSCONTEXT_STACK;
 static LsysContext * DEFAULT_LSYSCONTEXT = NULL;
 // static LsysContext * CURRENT_LSYSCONTEXT = LsysContext::globalContext();
 static LsysContext * CURRENT_LSYSCONTEXT = NULL;
+static QMutex CURRENT_LSYSCONTEXT_MUTEX;
+
 
 class ContextGarbageCollector
 {
@@ -124,6 +130,7 @@ LsysContext::defaultContext()
 LsysContext *
 LsysContext::current()
 { 
+    QMutexLocker locker(&CURRENT_LSYSCONTEXT_MUTEX);
     if(!CURRENT_LSYSCONTEXT) CURRENT_LSYSCONTEXT = globalContext(); // defaultContext();
 	return CURRENT_LSYSCONTEXT; 
 }
@@ -132,6 +139,7 @@ void
 LsysContext::makeCurrent() 
 { 
   LsysContext * previous = currentContext();
+  QMutexLocker locker(&CURRENT_LSYSCONTEXT_MUTEX);
   if (previous == this) {
 	  LsysWarning("Multiple activation of same context!");
   }
@@ -145,6 +153,7 @@ void
 LsysContext::done() 
 { 
   if(isCurrent() && !LSYSCONTEXT_STACK.empty()){
+    QMutexLocker locker(&CURRENT_LSYSCONTEXT_MUTEX);
 	CURRENT_LSYSCONTEXT = LSYSCONTEXT_STACK.back();
 	LSYSCONTEXT_STACK.pop_back();
 	doneEvent();
@@ -201,53 +210,7 @@ __group(0),
 __selection_always_required(false),
 __selection_requested(false),
 __warn_with_sharp_module(true),
-return_if_no_matching(true),
-optimizationLevel(DEFAULT_OPTIMIZATION_LEVEL),
-__animation_step(DefaultAnimationTimeStep),
-__animation_enabled(false),
-__iteration_nb(0),
-__nbargs_of_endeach(0),
-__nbargs_of_end(0),
-__nbargs_of_starteach(0),
-__nbargs_of_start(0),
-__early_return(false),
-__early_return_mutex(),
-__paramproductions()
-{
-	IncTracker(LsysContext)
-	init_options();
-}
-
-LsysContext::LsysContext(const LsysContext& lsys):
-  __direction(lsys.__direction),
-  __group(lsys.__group),
-  __nproduction(lsys.__nproduction),
-  __selection_always_required(lsys.__selection_always_required),
-  __selection_requested(false),
-  __warn_with_sharp_module(lsys.__warn_with_sharp_module),
-  return_if_no_matching(lsys.return_if_no_matching),
-  optimizationLevel(lsys.optimizationLevel),
-  __animation_step(lsys.__animation_step),
-  __animation_enabled(lsys.__animation_enabled),
-  __iteration_nb(0),
-  __nbargs_of_endeach(0),
-  __nbargs_of_end(0),
-  __nbargs_of_starteach(0),
-  __nbargs_of_start(0),
-  __early_return(false),
-  __early_return_mutex(),
-  __paramproductions()
-{
-	IncTracker(LsysContext)
-	init_options();
-}
-
-LsysContext::LsysContext(const boost::python::dict& locals):
-__direction(eForward),
-__group(0),
-__selection_always_required(false),
-__selection_requested(false),
-__warn_with_sharp_module(true),
+__axiom_decomposition_enabled(false),
 return_if_no_matching(true),
 optimizationLevel(DEFAULT_OPTIMIZATION_LEVEL),
 __animation_step(DefaultAnimationTimeStep),
@@ -260,7 +223,64 @@ __nbargs_of_start(0),
 __early_return(false),
 __early_return_mutex(),
 __paramproductions(),
-__locals(locals)
+__multicore(false),
+__bracketmapping_optim_level(0)
+{
+    registerLstringMatcher();
+	IncTracker(LsysContext)
+	init_options();
+}
+
+LsysContext::LsysContext(const LsysContext& lsys):
+  __direction(lsys.__direction),
+  __group(lsys.__group),
+  // __nproduction(lsys.__nproduction),
+  __selection_always_required(lsys.__selection_always_required),
+  __selection_requested(false),
+  __warn_with_sharp_module(lsys.__warn_with_sharp_module),
+  __axiom_decomposition_enabled(lsys.__axiom_decomposition_enabled),
+  return_if_no_matching(lsys.return_if_no_matching),
+  optimizationLevel(lsys.optimizationLevel),
+  __animation_step(lsys.__animation_step),
+  __animation_enabled(lsys.__animation_enabled),
+  __iteration_nb(0),
+  __nbargs_of_endeach(0),
+  __nbargs_of_end(0),
+  __nbargs_of_starteach(0),
+  __nbargs_of_start(0),
+  __early_return(false),
+  __early_return_mutex(),
+  __paramproductions(),
+  __multicore(false),
+  __bracketmapping_optim_level(0)
+{
+    // __nproduction.setLocalData(new AxialTree(*lsys.__nproduction.localData()));
+	IncTracker(LsysContext)
+	init_options();
+}
+
+LsysContext::LsysContext(const boost::python::dict& locals):
+__direction(eForward),
+__group(0),
+__selection_always_required(false),
+__selection_requested(false),
+__warn_with_sharp_module(true),
+__axiom_decomposition_enabled(false),
+return_if_no_matching(true),
+optimizationLevel(DEFAULT_OPTIMIZATION_LEVEL),
+__animation_step(DefaultAnimationTimeStep),
+__animation_enabled(false),
+__iteration_nb(0),
+__nbargs_of_endeach(0),
+__nbargs_of_end(0),
+__nbargs_of_starteach(0),
+__nbargs_of_start(0),
+__early_return(false),
+__early_return_mutex(),
+__paramproductions(),
+__locals(locals),
+__multicore(false),
+__bracketmapping_optim_level(0)
 {
 	IncTracker(LsysContext)
 	init_options();
@@ -270,10 +290,12 @@ LsysContext::operator=(const LsysContext& lsys)
 {
   __direction = lsys.__direction;
   __group = lsys.__group;
-  __nproduction = lsys.__nproduction;
+  // __nproduction.setLocalData(lsys.__nproduction.localData());
+  // __nproduction = lsys.__nproduction;
   __selection_always_required = lsys.__selection_always_required;
   __selection_requested = false;
   __warn_with_sharp_module = lsys.__warn_with_sharp_module;
+  __axiom_decomposition_enabled = lsys.__axiom_decomposition_enabled;
   return_if_no_matching = lsys.return_if_no_matching;
   optimizationLevel = lsys.optimizationLevel;
   __animation_step =lsys.__animation_step;
@@ -284,6 +306,7 @@ LsysContext::operator=(const LsysContext& lsys)
   __nbargs_of_start =lsys.__nbargs_of_start;
   __early_return = false;
   __paramproductions = lsys.__paramproductions;
+  __bracketmapping_optim_level = lsys.__bracketmapping_optim_level;
   return *this;
 }
 
@@ -368,13 +391,42 @@ void LsysContext::init_options()
 	option->addValue("Disabled",this,&LsysContext::setReturnIfNoMatching,false,"Disable early return.");
 	option->addValue("Enabled",this,&LsysContext::setReturnIfNoMatching,true,"Enable early return.");
 	option->setDefault(0);	
+
+    option = options.add("Axiom decomposition","Set whether the axiom is immediatly decomposed.","Processing");
+    option->addValue("Disabled",this,&LsysContext::enableAxiomDecomposition,false,"Disable early return.");
+    option->addValue("Enabled",this,&LsysContext::enableAxiomDecomposition,true,"Enable early return.");
+    option->setDefault(0);  
+
 #if (PGL_VERSION >= 0x020B00)
-	/** warn if turtle has invalid value option */
-	option = options.add("Warning with Turtle inconsistency","Set whether a warning/error is raised when an invalid value is found during turtle processing.","Processing");
-	option->addValue<PglTurtle,bool>("Disabled",&turtle,&PglTurtle::setWarnOnError,false,"Disable warnings/errors.");
-	option->addValue<PglTurtle,bool>("Enabled",&turtle,&PglTurtle::setWarnOnError,true,"Enable warnings/errors.");
-	option->setDefault(turtle.warnOnError());	
+    /** warn if turtle has invalid value option */
+    option = options.add("Warning with Turtle inconsistency","Set whether a warning/error is raised when an invalid value is found during turtle processing.","Processing");
+    option->addValue<PglTurtle,bool>("Disabled",&turtle,&PglTurtle::setWarnOnError,false,"Disable warnings/errors.");
+    option->addValue<PglTurtle,bool>("Enabled",&turtle,&PglTurtle::setWarnOnError,true,"Enable warnings/errors.");
+    option->setDefault(turtle.warnOnError());   
 #endif
+
+#if (PGL_VERSION >= 0x021701)
+    /** warn if turtle has invalid value option */
+    option = options.add("Turtle Path Optimization","Set whether the Turtle use a cache with the path.","Processing");
+    option->addValue<PglTurtle,bool>("Disabled",&turtle,&PglTurtle::enablePathInfoCache,false,"Disable Cache.");
+    option->addValue<PglTurtle,bool>("Enabled",&turtle,&PglTurtle::enablePathInfoCache,true,"Enable Cache.");
+    option->setDefault(turtle.pathInfoCacheEnabled());   
+#endif
+
+
+#ifdef MULTICORE_ENABLED    
+    option = options.add("Multicore parallel rewriting","Set whether the string rewriting should be made on multiple cores.","Processing");
+    option->addValue("Disabled",this,&LsysContext::setMulticoreProcessing,false,"Disable multicore rewriting.");
+    option->addValue("Enabled",this,&LsysContext::setMulticoreProcessing,true,"Enable multicore rewriting.");
+    option->setDefault(0);
+#endif
+
+    option = options.add("Bracket mapping optimization","Specify the level of optimization of mapping brackets for lstring traversal.","Processing");
+    option->addValue("Disabled",this,&LsysContext::setBracketMappingOptimLevel,0,"Disable brackets mapping optimization.");
+    option->addValue("On the fly",this,&LsysContext::setBracketMappingOptimLevel,1,"Enable brackets mapping on the fly.");
+    option->addValue("As preprocessing",this,&LsysContext::setBracketMappingOptimLevel,2,"Compute brackets mapping as preprocessing of each step.");
+    option->setDefault(0);
+
 	/** selection required option */
 	option = options.add("Selection Always Required","Set whether selection check in GUI is required or not. Selection is then transform in X module in the Lstring.","Interaction");
 	option->addValue("Disabled",this,&LsysContext::setSelectionAlwaysRequired,false,"Disable Selection Check.");
@@ -902,6 +954,47 @@ LsysContext::check_init_functions()
 /*---------------------------------------------------------------------------*/
 
 
+
+void LsysContext::nproduce(const AxialTree& prod)
+{  
+#ifdef PRODUCTION_PER_THREAD
+    if (!__nproduction.hasLocalData()) __nproduction.setLocalData(new AxialTree(prod));
+    else __nproduction.localData()->append(prod); 
+#else
+    __nproduction.append(prod);
+#endif
+}
+
+void LsysContext::reset_nproduction() { 
+#ifdef PRODUCTION_PER_THREAD
+    if (!__nproduction.hasLocalData())  __nproduction.setLocalData(new AxialTree());
+    else __nproduction.localData()->clear();
+#else
+    __nproduction.clear();
+#endif
+}
+
+AxialTree LsysContext::get_nproduction() { 
+#ifdef PRODUCTION_PER_THREAD
+    if (!__nproduction.hasLocalData()) return AxialTree();
+    return *__nproduction.localData();
+#else
+    return __nproduction;
+#endif
+}
+
+void LsysContext::set_nproduction(const AxialTree& prod) { 
+#ifdef PRODUCTION_PER_THREAD
+    if (!__nproduction.hasLocalData()) __nproduction.setLocalData(new AxialTree(prod));
+    else *__nproduction.localData() = prod; 
+#else
+     __nproduction = prod;
+#endif
+}
+
+/*---------------------------------------------------------------------------*/
+
+
 size_t LsysContext::getIterationNb()
 {
     QReadLocker ml(&__iteration_nb_lock);
@@ -957,10 +1050,21 @@ LsysContext::setSelectionAlwaysRequired(bool enabled)
 void 
 LsysContext::setWarnWithSharpModule(bool enabled)
 { 
-	if (__warn_with_sharp_module != enabled){
-		__warn_with_sharp_module = enabled; 
-		options.setSelection("Warning with sharp module",(size_t)__warn_with_sharp_module);
-	}
+    if (__warn_with_sharp_module != enabled){
+        __warn_with_sharp_module = enabled; 
+        options.setSelection("Warning with sharp module",(size_t)__warn_with_sharp_module);
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
+void 
+LsysContext::enableAxiomDecomposition(bool enabled)
+{ 
+    if (__axiom_decomposition_enabled != enabled){
+        __axiom_decomposition_enabled = enabled; 
+        options.setSelection("Axiom decomposition",(size_t)__axiom_decomposition_enabled);
+    }
 }
 
 /*---------------------------------------------------------------------------*/
@@ -979,29 +1083,44 @@ bool LsysContext::isEarlyReturnEnabled()
 
 /*---------------------------------------------------------------------------*/
 
+void LsysContext::registerLstringMatcher(const LstringMatcherPtr& lstringmatcher)
+{ 
+    // size_t threadid = (size_t)QThread::currentThread();
+    
+    if(!__lstringmatcher.hasLocalData()) {
+        LstringMatcher ** val = new LstringMatcher *(lstringmatcher.get());
+        __lstringmatcher.setLocalData(val); 
+    }
+    else {
+        *__lstringmatcher.localData() = lstringmatcher.get();
+    }
+}
+
+inline bool is_a_null_ptr(LstringMatcher * lm) { return lm == NULL;}
+
 bool LsysContext::pInLeftContext(size_t pid, boost::python::dict& res)
 { 
-	if (is_null_ptr(__lstringmatcher)) LsysError("Cannot call InLeftContext");
-	return __lstringmatcher->pInLeftContext(pid, res);
+	if (!__lstringmatcher.hasLocalData() || is_a_null_ptr(*(__lstringmatcher.localData()))) LsysError("Cannot call InLeftContext");
+	return (*__lstringmatcher.localData())->pInLeftContext(pid, res);
 }
 
 bool LsysContext::inLeftContext(const PatternString& pattern, boost::python::dict& res)
 { 
-	if (is_null_ptr(__lstringmatcher)) LsysError("Cannot call inLeftContext");
-	return __lstringmatcher->inLeftContext(pattern, res);
+	if (!__lstringmatcher.hasLocalData() || is_a_null_ptr(*(__lstringmatcher.localData()))) LsysError("Cannot call inLeftContext");
+	return (*__lstringmatcher.localData())->inLeftContext(pattern, res);
 }
 
 
 bool LsysContext::pInRightContext(size_t pid, boost::python::dict& res)
 { 
-	if (is_null_ptr(__lstringmatcher)) LsysError("Cannot call InRightContext");
-	return __lstringmatcher->pInRightContext(pid, res);
+	if (!__lstringmatcher.hasLocalData() || is_a_null_ptr(*(__lstringmatcher.localData()))) LsysError("Cannot call InRightContext");
+	return (*__lstringmatcher.localData())->pInRightContext(pid, res);
 }
 
 bool LsysContext::inRightContext(const PatternString& pattern, boost::python::dict& res)
 { 
-	if (is_null_ptr(__lstringmatcher)) LsysError("Cannot call inRightContext");
-	return __lstringmatcher->inRightContext(pattern, res);
+	if (!__lstringmatcher.hasLocalData() || is_a_null_ptr(*(__lstringmatcher.localData()))) LsysError("Cannot call inRightContext");
+	return (*__lstringmatcher.localData())->inRightContext(pattern, res);
 }
 
 

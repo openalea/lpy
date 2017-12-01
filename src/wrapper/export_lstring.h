@@ -32,6 +32,8 @@
 #include <plantgl/python/boost_python.h>
 #include <plantgl/python/export_list.h>
 
+LPY_USING_NAMESPACE
+
 
 template<class LString>
 LString py_lstring_mult(const LString& lstring, int i) {
@@ -87,32 +89,33 @@ typename LString::const_iterator int_to_iter(LString * tree, int pos)
 
 
 template<class LString>
-boost::python::object py_roots(LString * tree)
-{ return veciter_to_list(tree,tree->roots()); }
+boost::python::object py_roots(LString * tree, ConsiderFilter * filter = NULL)
+{ return veciter_to_list(tree,tree->roots(filter)); }
 
 template<class LString>
-boost::python::object py_parent(LString * tree, int pos)
-{ return iter_to_int(tree,tree->parent(int_to_iter(tree,pos))); }
+boost::python::object py_parent(LString * tree, int pos, ConsiderFilter * filter = NULL)
+{ return iter_to_int(tree,tree->parent(int_to_iter(tree,pos), ConsiderFilterPtr(filter))); }
 
 template<class LString>
-boost::python::object py_children(LString * tree, int pos)
-{ return veciter_to_list(tree,tree->children(int_to_iter(tree,pos))); }
+boost::python::object py_children(LString * tree, int pos, ConsiderFilter * filter = NULL)
+{ return veciter_to_list(tree,tree->children(int_to_iter(tree,pos),filter)); }
 
 template<class LString>
-boost::python::object py_lateral_children(LString * tree, int pos)
-{ return veciter_to_list(tree,tree->lateral_children(int_to_iter(tree,pos))); }
+boost::python::object py_lateral_children(LString * tree, int pos, ConsiderFilter * filter = NULL)
+{ return veciter_to_list(tree,tree->lateral_children(int_to_iter(tree,pos),filter)); }
 
 template<class LString>
-boost::python::object py_direct_child(LString * tree, int pos)
-{ return iter_to_int(tree,tree->direct_child(int_to_iter(tree,pos))); }
+boost::python::object py_direct_child(LString * tree, int pos, ConsiderFilter * filter = NULL)
+{ return iter_to_int(tree,tree->direct_child(int_to_iter(tree,pos),filter)); }
 
 template<class LString>
-boost::python::object py_typed_children(LString * tree, int pos, char edge_type)
-{ if (edge_type == '<') return py_direct_child<LString>(tree,pos);
-  else if (edge_type == '+') return py_lateral_children<LString>(tree,pos);
+boost::python::object py_typed_children(LString * tree, int pos, char edge_type, ConsiderFilter * filter = NULL)
+{ if (edge_type == '<') return py_direct_child<LString>(tree,pos,filter);
+  else if (edge_type == '+') return py_lateral_children<LString>(tree,pos,filter);
   else {
     PyErr_SetString(PyExc_ValueError, "invalid edge type");
     boost::python::throw_error_already_set();
+    return boost::python::object();
   }
 }
 
@@ -125,36 +128,36 @@ boost::python::object py_beginBracket(LString * tree, int pos, bool startingAfte
 { return iter_to_int(tree,tree->beginBracket(int_to_iter(tree,pos),startingAfterPos)); }
 
 template<class LString>
-boost::python::object py_complex1(LString * tree, int pos, int scale)
-{ return iter_to_int(tree,tree->complex(int_to_iter(tree,pos),scale)); }
+boost::python::object py_complex1(LString * tree, int pos, int scale, ConsiderFilter * filter = NULL)
+{ return iter_to_int(tree,tree->complex(int_to_iter(tree,pos),scale,filter)); }
 
 template<class LString>
-boost::python::object py_complex(LString * tree, int pos)
-{ return iter_to_int(tree,tree->complex(int_to_iter(tree,pos))); }
+boost::python::object py_complex(LString * tree, int pos, ConsiderFilter * filter = NULL)
+{ return iter_to_int(tree,tree->complex(int_to_iter(tree,pos),filter)); }
 
 template<class LString>
-boost::python::object py_components(LString * tree, int pos)
-{ return veciter_to_list(tree,tree->components(int_to_iter(tree,pos)) ); }
+boost::python::object py_components(LString * tree, int pos, ConsiderFilter * filter = NULL)
+{ return veciter_to_list(tree,tree->components(int_to_iter(tree,pos),filter) ); }
 
 template<class LString>
-boost::python::object py_components_at_scale(LString * tree, int pos, int scale)
-{ return veciter_to_list(tree,tree->components_at_scale(int_to_iter(tree,pos),scale)); }
+boost::python::object py_components_at_scale(LString * tree, int pos, int scale, ConsiderFilter * filter = NULL)
+{ return veciter_to_list(tree,tree->components_at_scale(int_to_iter(tree,pos),scale,filter)); }
 
 template<class LString>
-boost::python::object py_successor_at_scale(LString * tree, int pos, int scale)
-{ return iter_to_int(tree,successor_at_scale(int_to_iter(tree,pos),scale,tree->const_end())); }
+boost::python::object py_successor_at_scale(LString * tree, int pos, int scale, ConsiderFilter * filter = NULL)
+{ return iter_to_int(tree,successor_at_scale(int_to_iter(tree,pos),scale,tree->const_end(),filter)); }
 
 template<class LString>
-boost::python::object py_successor_at_level(LString * tree, int pos, int scale)
-{ return iter_to_int(tree,successor_at_level(int_to_iter(tree,pos),scale,tree->const_end())); }
+boost::python::object py_successor_at_level(LString * tree, int pos, int scale, ConsiderFilter * filter = NULL)
+{ return iter_to_int(tree,successor_at_level(int_to_iter(tree,pos),scale,tree->const_end(),filter)); }
 
 template<class LString>
-boost::python::object py_predecessor_at_scale(LString * tree, int pos, int scale)
-{ return iter_to_int(tree,predecessor_at_scale(int_to_iter(tree,pos),scale,tree->const_begin(),tree->const_end())); }
+boost::python::object py_predecessor_at_scale(LString * tree, int pos, int scale, ConsiderFilter * filter = NULL)
+{ return iter_to_int(tree,predecessor_at_scale(int_to_iter(tree,pos),scale,tree->const_begin(),tree->const_end(),filter)); }
 
 template<class LString>
-boost::python::object py_predecessor_at_level(LString * tree, int pos, int scale)
-{ return iter_to_int(tree,predecessor_at_level(int_to_iter(tree,pos),scale,tree->const_begin(),tree->const_end())); }
+boost::python::object py_predecessor_at_level(LString * tree, int pos, int scale, ConsiderFilter * filter = NULL)
+{ return iter_to_int(tree,predecessor_at_level(int_to_iter(tree,pos),scale,tree->const_begin(),tree->const_end(),filter)); }
 
 template<class LString>
 LString& py_iadd_lstring(LString * first, const LString& pattern) 
@@ -224,23 +227,23 @@ class lstring_func : public boost::python::def_visitor<lstring_func<LString> >
 		 .def( "isAPath", &LString::isAPath )
 		 .def( "hasRequestModule", &LString::hasRequestModule )
 
-		 .def( "roots",  &py_roots<LString> ) 
-		 .def( "parent", &py_parent<LString>, boost::python::args("pos") ) 
-		 .def( "children",   &py_children<LString>, boost::python::args("pos") ) 
-		 .def( "children",   &py_typed_children<LString>, boost::python::args("pos","edge_type") ) 
+		 .def( "roots",  &py_roots<LString>, (boost::python::arg("filter") = ConsiderFilterPtr()) ) 
+		 .def( "parent", &py_parent<LString>, (boost::python::arg("pos"),boost::python::arg("filter") = ConsiderFilterPtr()) ) 
+		 .def( "children",   &py_children<LString>, (boost::python::arg("pos"),boost::python::arg("filter") = ConsiderFilterPtr()) ) 
+		 .def( "children",   &py_typed_children<LString>, (boost::python::arg("pos"),boost::python::arg("edge_type"),boost::python::arg("filter") = ConsiderFilterPtr()) ) 
 		 
-		 .def( "lateral_children", &py_lateral_children<LString>, boost::python::args("pos") ) 
-		 .def( "direct_child", &py_direct_child<LString>, boost::python::args("pos") ) 
+		 .def( "lateral_children", &py_lateral_children<LString>, (boost::python::arg("pos"),boost::python::arg("filter") = ConsiderFilterPtr()) ) 
+		 .def( "direct_child", &py_direct_child<LString>, (boost::python::arg("pos"),boost::python::arg("filter") = ConsiderFilterPtr()) ) 
 		 .def( "endBracket", &py_endBracket<LString>, (bp::arg("startingBeforePos")=false) ) 
 		 .def( "beginBracket", &py_beginBracket<LString>, (bp::arg("startingAfterPos")=false) ) 
-         .def( "complex", &py_complex1<LString>, boost::python::args("pos") ) 
-         .def( "complex", &py_complex<LString>, boost::python::args("pos","scale") ) 
-         .def( "components", &py_components<LString>, boost::python::args("pos") ) 
-         .def( "components_at_scale", &py_components_at_scale<LString>, boost::python::args("pos","scale") ) 
-		 .def( "successor_at_scale", &py_successor_at_scale<LString>, boost::python::args("pos","scale") ) 
-		 .def( "successor_at_level", &py_successor_at_level<LString>, boost::python::args("pos","level") ) 
-		 .def( "predecessor_at_scale", &py_predecessor_at_scale<LString>, boost::python::args("pos","scale") ) 
-		 .def( "predecessor_at_level", &py_predecessor_at_level<LString>, boost::python::args("pos","level") ) 
+         .def( "complex", &py_complex1<LString>, (boost::python::arg("pos"),boost::python::arg("filter") = ConsiderFilterPtr()) ) 
+         .def( "complex", &py_complex<LString>, (boost::python::arg("pos"),boost::python::arg("scale"),boost::python::arg("filter") = ConsiderFilterPtr()) ) 
+         .def( "components", &py_components<LString>, (boost::python::arg("pos"),boost::python::arg("filter") = ConsiderFilterPtr()) ) 
+         .def( "components_at_scale", &py_components_at_scale<LString>, (boost::python::arg("pos"),boost::python::arg("scale"),boost::python::arg("filter") = ConsiderFilterPtr()) ) 
+		 .def( "successor_at_scale", &py_successor_at_scale<LString>, (boost::python::arg("pos"),boost::python::arg("scale"),boost::python::arg("filter") = ConsiderFilterPtr()) ) 
+		 .def( "successor_at_level", &py_successor_at_level<LString>, (boost::python::arg("pos"),boost::python::arg("level"),boost::python::arg("filter") = ConsiderFilterPtr()) ) 
+		 .def( "predecessor_at_scale", &py_predecessor_at_scale<LString>, (boost::python::arg("pos"),boost::python::arg("scale"),boost::python::arg("filter") = ConsiderFilterPtr()) ) 
+		 .def( "predecessor_at_level", &py_predecessor_at_level<LString>, (boost::python::arg("pos"),boost::python::arg("level"),boost::python::arg("filter") = ConsiderFilterPtr()) ) 
 		 ;
     }
 };

@@ -93,7 +93,8 @@ typedef pgl_hash_map_string<size_t> ParameterNameDict;
 	MACRO(iRollL) \
 	MACRO(iRollR) \
 	MACRO(TurnAround) \
-	MACRO(RollToVert) \
+    MACRO(RollToVert) \
+    MACRO(RollToHorizontal) \
     MACRO(Sphere) \
     MACRO(Box) \
     MACRO(Quad) \
@@ -126,7 +127,9 @@ typedef pgl_hash_map_string<size_t> ParameterNameDict;
 	MACRO(TextureVScale) \
 	MACRO(TextureTranslation) \
 	MACRO(TextureRotation) \
-	MACRO(TextureTransformation) \
+    MACRO(TextureTransformation) \
+    MACRO(TextureBaseColor) \
+    MACRO(InterpolateTextureBaseColors) \
 	MACRO(GetIterator) \
 	MACRO(GetModule) \
 	MACRO(New) \

@@ -71,6 +71,7 @@ public:
 
   /** print */
   std::string str() const ;
+  inline const char * c_str() const { return str().c_str(); }
   std::string code() ;
 
   /** compile */
@@ -151,6 +152,9 @@ public:
                      size_t nb_iter , 
                      bool previouslyinterpreted = false  );
 
+
+  AxialTree decompose( const AxialTree& workstring  );
+
   /** Animation */
   inline AxialTree animate()
   { return animate(__context.get_animation_timestep(),0,__max_derivation); }
@@ -163,13 +167,13 @@ public:
   AxialTree animate(const AxialTree& workstring, double, size_t beg, size_t nb_iter);
 
   /** Record */
-  inline void record(const std::string& prefix)
-  { record(prefix,__axiom,0,__max_derivation); }
-  inline void record(const std::string& prefix, size_t nb_iter)
-  { record(prefix,__axiom,0,nb_iter); }
-  inline void record(const std::string& prefix, size_t beg, size_t nb_iter)
-  { return record(prefix,__axiom,beg,nb_iter); }
-  void record(const std::string& prefix, const AxialTree& workstring, size_t beg, size_t nb_iter);
+  inline void record(const std::string& prefix, const std::string& suffix = "png")
+  { record(prefix,__axiom,0,__max_derivation, suffix); }
+  inline void record(const std::string& prefix, size_t nb_iter, const std::string& suffix = "png")
+  { record(prefix,__axiom,0,nb_iter,suffix); }
+  inline void record(const std::string& prefix, size_t beg, size_t nb_iter, const std::string& suffix = "png")
+  { return record(prefix,__axiom,beg,nb_iter,suffix); }
+  void record(const std::string& prefix, const AxialTree& workstring, size_t beg, size_t nb_iter, const std::string& suffix = "png");
 
   /** nb of iterations */
   inline size_t derivationLength() const { return __max_derivation; }
@@ -359,10 +363,18 @@ protected:
                       const AxialTree& workstring, 
                       bool previouslyinterpreted = false);
 
+ AxialTree __decompose( const AxialTree& workstring );
+
  AxialTree __step(AxialTree& workingstring,
-				   const RulePtrMap& ruleset,
-				   bool query,bool& matching,
+                   const RulePtrMap& ruleset,
+                   bool query,bool& matching,
                    eDirection direction);
+ 
+ AxialTree __parallelStep(AxialTree& workingstring,
+                   const RulePtrMap& ruleset,
+                   bool query,bool& matching,
+                   eDirection direction);
+
  AxialTree __debugStep(AxialTree& workingstring, const RulePtrMap& ruleset,
 					bool query, bool& matching, eDirection direction, Debugger& debugger);
 
@@ -372,7 +384,7 @@ protected:
                               StringMatching& matching);
  AxialTree __recursiveSteps(AxialTree& workingstring,
 				            const RulePtrMap& ruleset, 
-                            size_t maxdepth);
+                            size_t maxdepth, bool& matching);
 
  void __recursiveInterpretation(AxialTree& workingstring,
 				                const RulePtrMap& ruleset,

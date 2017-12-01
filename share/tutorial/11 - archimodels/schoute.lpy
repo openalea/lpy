@@ -1,0 +1,74 @@
+import random as rd
+
+leafduration = 4 # life time of a leaf
+leafold =      2 # age at which a leaf is considered as old
+maxorder =     4 # maximum number of branching order
+radinc =    0.01 # increment of radius through time
+
+maxduration = lambda order : int(5./(order+1))+5  # life time of an apex
+branch_angle = lambda order : 8 # branching angle
+# number of axe at a ramification
+nb_axes = lambda order : rd.randint(2,4) if order > 2 else rd.randint(4-int((order+1)/2),5-int((order+1)/2))  
+up_angle = lambda t,order : -5        # up angle for lateral branches
+
+# number total of iterations of the system
+nbiter = sum([maxduration(o) for o in xrange(maxorder+1)])
+
+module A # represent trunk apical meristem
+module B # represent apical meristem of lateral branches
+module L # whorl of leaf
+module I # Internode
+
+
+Axiom: _(0.05)@GcI(0.5,0.05)A(0,0) 
+
+derivation length: nbiter
+production:
+
+A(t,o) :
+  if t < maxduration(o):
+     # simply produces a metamer and ages the apex
+     produce I(1,0.1)L(0,t)A(t+1,o) 
+  else:
+      # produce a whorl of sympodial branches
+      nbaxe = nb_axes(o)
+      for i in xrange(nbaxe):
+        nproduce [/(360*i/nbaxe)&(branch_angle(o))B(0,o+1)]
+
+
+B(t,o) :
+  if t < maxduration(o):
+     # simply produces a metamer and ages the apex
+     # reorient smoothly the branch toward the up
+     produce ^(up_angle(t,o))I(1,0.1)L(0,t)B(t+1,o)
+  else:
+      # produce a whorl of sympodial branches
+      nbaxe = nb_axes(o)
+      for i in xrange(nbaxe):
+        nproduce [/(360*i/nbaxe)&(branch_angle(o))B(0,o+1)]
+
+L(t,n) :
+  # ages the leaf. If too old, removes
+  if t < leafduration :  produce L(t+1,n)
+  else:   produce *
+
+# Increment radius of internodes
+I(s,r) --> I(s,r+radinc)
+_(r) --> _(r+radinc)
+
+homomorphism:
+
+I(a,r) --> F(a,r)
+
+L(t,p) :
+    phi = 0 if p % 2 == 0 else 90  # phyllotactic angle
+    col = 4 if t >= leafold else 2 # color is choosen according to age
+    produce [/(phi)^(120);(col)~l(1)][/(phi)&(120);(col)~l(1)]
+
+endlsystem
+###### INITIALISATION ######
+
+def __initialiseContext__(context):
+	context.options.setSelection("Module declaration",1)
+__description__ = """Schoute architectural model."""
+__authors__ = """E. Costes, F. Boudon"""

@@ -174,12 +174,13 @@ std::string::const_iterator next_token(std::string::const_iterator _it2,
 			int nbOpenParenthesis = 1;
 			while(_it2 != end && (*_it2 != ')' || nbOpenParenthesis > 0)){
 				_it2++;
-				if(_it2 != end)
+				if(_it2 != end) {
 					if(*_it2 == '(') ++nbOpenParenthesis;
 					else if (*_it2 == ')') --nbOpenParenthesis;
 					// skip strings
 					else if(*_it2 == '"') { _it2++; while(_it2 != end && *_it2 != '"')_it2++; }
 					else if(*_it2 == '\''){ _it2++; while(_it2 != end && *_it2 != '\'')_it2++; }
+                }
 			}
 			if(_it2 != end)_it2++;
 		  }
@@ -187,12 +188,13 @@ std::string::const_iterator next_token(std::string::const_iterator _it2,
 			int nbOpenBracket = 1;
 			while(_it2 != end && (*_it2 != ']' || nbOpenBracket > 0)){
 				_it2++;
-				if(_it2 != end)
+				if(_it2 != end) {
 					if(*_it2 == '[') ++nbOpenBracket;
 					else if (*_it2 == ']') --nbOpenBracket;
 					// skip strings
 					else if(*_it2 == '"') { _it2++; while(_it2 != end && *_it2 != '"')_it2++; }
 					else if(*_it2 == '\''){ _it2++; while(_it2 != end && *_it2 != '\'')_it2++; }
+                }
 			}
 			if(_it2 != end)_it2++;
 		  }
@@ -200,12 +202,13 @@ std::string::const_iterator next_token(std::string::const_iterator _it2,
 			int nbOpenBracket = 1;
 			while(_it2 != end && (*_it2 != '}' || nbOpenBracket > 0)){
 				_it2++;
-				if(_it2 != end)
+				if(_it2 != end) {
 					if(*_it2 == '{') ++nbOpenBracket;
 					else if (*_it2 == '}') --nbOpenBracket;
 					// skip strings
 					else if(*_it2 == '"') { _it2++; while(_it2 != end && *_it2 != '"')_it2++; }
 					else if(*_it2 == '\''){ _it2++; while(_it2 != end && *_it2 != '\'')_it2++; }
+                }
 			}
 			if(_it2 != end)_it2++;
 		  }
@@ -349,7 +352,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 		case 'a':
 		case 'A':
 		  _it2 = _it;
-		  if(has_keyword_pattern(_it,begcode,endpycode,"Axiom") || has_keyword_pattern(_it,begcode,endpycode,"axiom") && 
+		  if((has_keyword_pattern(_it,begcode,endpycode,"Axiom") || has_keyword_pattern(_it,begcode,endpycode,"axiom")) && 
 			 (_it2 == rules.begin() || *(_it2-1) == '\n')){
             code += std::string(beg,_it2);
 			beg = _it;
@@ -477,7 +480,8 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
             for(LpyParsing::ModDeclarationList::const_iterator itmod = modules.first.begin(); 
                  itmod != modules.first.end(); ++itmod){
                 if (itmod != modules.first.begin()) code += " ; ";
-                code += itmod->name+" = ModuleClass.get('"+itmod->name+"')";
+                if (LpyParsing::isValidVariableName(itmod->name))
+                    code += itmod->name+" = ModuleClass.get('"+itmod->name+"')";
             }
             code+="# "+std::string(_it2,_it);
 			beg = _it;
@@ -1043,6 +1047,10 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
       }
   }
   __context.check_init_functions();
+
+  if (__context.axiomDecompositionEnabled())
+    __axiom = __decompose(__axiom);
+
   RELEASE_RESSOURCE
 }
 

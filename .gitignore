@@ -2,6 +2,9 @@
 __pycache__/
 *.py[cod]
 
+# lpy temp file
+*.lpy~
+
 # C extensions
 build-scons
 *.so
@@ -54,7 +57,10 @@ coverage.xml
 *.log
 
 # Sphinx documentation
-docs/_build/
+doc/_build
+doc/_build/doctrees
+.idea/
+cmake-build-debug/
 
 # PyBuilder
 target/

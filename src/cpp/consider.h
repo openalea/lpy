@@ -46,6 +46,8 @@ public:
 
   ConsiderFilter(const std::string& modules, eConsiderMethod method = eConsider);
 
+  ConsiderFilter(const ModuleClassList& modules, eConsiderMethod method = eConsider);
+
   // isConsidered
   inline bool isConsidered(const std::string& module) const
   { return !isIgnored(module); }
@@ -71,7 +73,9 @@ public:
   std::string keyword() const;
 
   std::string str() const;
+  inline const char * c_str() const { return str().c_str(); }
 
+/*  
   void makeCurrent();
   void done();
   bool isCurrent();
@@ -81,6 +85,7 @@ public:
   static bool isNoneCurrent();
 
   static ConsiderFilterPtr current();
+*/
 
   static ConsiderFilterPtr consider(const std::string& modules)
   {   
@@ -90,9 +95,11 @@ public:
 
   static ConsiderFilterPtr ignore(const std::string& modules) 
   {   
-	  if (modules.empty()) return ConsiderFilterPtr();
-	  return ConsiderFilterPtr(new ConsiderFilter(modules,eIgnore)); 
+      if (modules.empty()) return ConsiderFilterPtr();
+      return ConsiderFilterPtr(new ConsiderFilter(modules,eIgnore)); 
   }
+
+  static ConsiderFilterPtr ignorePredefined() ;
 
 protected:
   /// attributes for ignore and consider
@@ -102,7 +109,7 @@ protected:
 };
 
 
-
+/*
 struct ConsiderFilterMaintainer {
     bool to_set;
     ConsiderFilterPtr filter;
@@ -111,6 +118,7 @@ struct ConsiderFilterMaintainer {
     ~ConsiderFilterMaintainer() ;
 
 };
+*/
 
 /*---------------------------------------------------------------------------*/
 

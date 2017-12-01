@@ -1,7 +1,12 @@
 from openalea.vpltk.qt import qt
-
+from qt_check import QT_VERSION
 import traceback as tb
 import sys
+
+
+from openalea.vpltk.qt.QtCore import QMutex, QObject, QThread, pyqtSignal
+from openalea.vpltk.qt.QtWidgets import QMessageBox
+
 
 class ThreadTransferException (Exception):
     def __init__(self,exc_type,exc_value,exc_traceback):
@@ -9,12 +14,15 @@ class ThreadTransferException (Exception):
         self.exc_value = exc_value
         self.exc_traceback = exc_traceback
 
-class ComputationTask(qt.QtCore.QThread):
+class ComputationTask(QThread):
+
+    killed = pyqtSignal()
+
     def __init__(self, process = None, 
                        postprocess = None, 
                        preprocess = None, 
                        cleanupprocess = None):
-        qt.QtCore.QThread.__init__(self)
+        QThread.__init__(self)
         self.process = process
         self.postprocess = postprocess
         self.preprocess = preprocess
@@ -47,15 +55,18 @@ class ComputationTask(qt.QtCore.QThread):
         self.quit()
         if self.cleanupprocess:
             self.cleanupprocess()
-        self.emit(qt.QtCore.SIGNAL("killed()"))
+        self.killed.emit() 
     def __call__(self):
         self.start()
 
 
-class ComputationTaskManager:
+class ComputationTaskManager(QObject):
+    endTask = pyqtSignal('PyQt_PyObject')
+    killedTask = pyqtSignal('PyQt_PyObject')
+
     def __init__(self):
         self.computationThread = None
-        self.computationMutex = qt.QtCore.QMutex()
+        self.computationMutex = QMutex()
         self.with_thread = False
     def toggleUseThread(self):
         self.with_thread = not self.with_thread
@@ -74,25 +85,26 @@ class ComputationTaskManager:
             self.computationThread = None
         else:
             self.releaseCR()
-        self.emit(qt.QtCore.SIGNAL('endTask(PyQt_PyObject)'),ct)
+        self.endTask.emit(ct)
     def abortTask(self):
         ct = self.computationThread
         self.computationThread = None
         self.releaseCR()
-        self.emit(qt.QtCore.SIGNAL('endTask(PyQt_PyObject)'),ct)
+        self.endTask.emit(ct) 
         self.clear()
     def killTask(self):
         ct = self.computationThread
         ct.kill()
         self.computationThread = None
         self.releaseCR()
-        self.emit(qt.QtCore.SIGNAL('killedTask(PyQt_PyObject)'),ct)
+        self.killedTask.emit(ct) 
         self.clear()
     def registerTask(self,task):
         if self.computationThread is None:
             if self.with_thread:
-                qt.QtCore.QObject.connect(task,qt.QtCore.SIGNAL('finished()'),self.finalizeTask)
-                qt.QtCore.QObject.connect(task,qt.QtCore.SIGNAL('terminated()'),self.abortTask)
+                task.finished.connect(self.finalizeTask)
+                if QT_VERSION <= 4:
+                    task.terminated.connect(self.abortTask) 
                 self.computationThread = task
                 task.initialize()
                 task.start()
@@ -104,7 +116,7 @@ class ComputationTaskManager:
                 self.graberror()
               self.computationThread = None
               self.releaseCR()
-              self.emit(qt.QtCore.SIGNAL('endTask(PyQt_PyObject)'),task)
+              self.endTask.emit(task) # self.emit(SIGNAL('endTask(PyQt_PyObject)'),task) # AUTO SIGNAL TRANSLATION
     def acquireCR(self):
         """ acquire computation ressources """
         if not self.computationMutex.tryLock():
@@ -147,7 +159,7 @@ class ComputationTaskManager:
             msg = exc_info[1].msg
         return 'An error occured:"'+str(exc_info[0].__name__)+':'+str(msg)+'"'
     def errorMessage(self,msg):
-        return qt.QtGui.QMessageBox.warning(self,"Exception",msg,qt.QtGui.QMessageBox.Ok)
+        return QMessageBox.warning(self,"Exception",msg,QMessageBox.Ok)
     def errorEvent(self,exc_info):
         pass
     def endErrorEvent(self,answer):

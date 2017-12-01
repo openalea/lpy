@@ -7,6 +7,10 @@ import sys
 import traceback as tb
 
 
+from openalea.vpltk.qt.QtCore import QCoreApplication, QMutex, QObject, pyqtSignal
+from openalea.vpltk.qt.QtGui import QStandardItem, QStandardItemModel
+from openalea.vpltk.qt.QtWidgets import QMessageBox
+
 class AbortDebugger(Exception):
     def __init__(self,txt=''):
         Exception.__init__(self,txt)
@@ -20,7 +24,7 @@ class LpyVisualDebugger (lpy.LpyDebugger):
         lpy.LpyDebugger.__init__(self)
         self.lpywidget = lpywidget
         self.debugWidget = self.lpywidget.debugWidget
-        self.waitcond = qt.QtCore.QMutex()
+        self.waitcond = QMutex()
         self.showHidden = False
         self.abort = False
         self.animation = False
@@ -31,10 +35,10 @@ class LpyVisualDebugger (lpy.LpyDebugger):
         self.srcView = self.debugWidget.right.srcView
         self.destView = self.debugWidget.right.destView
         self.ruleView = self.debugWidget.right.ruleView
-        qt.QtCore.QObject.connect(self.debugWidget.right.nextDebugButton,qt.QtCore.SIGNAL('clicked()'),self.next)
-        qt.QtCore.QObject.connect(self.debugWidget.right.animateDebugButton,qt.QtCore.SIGNAL('clicked()'),self.animate)
-        qt.QtCore.QObject.connect(self.debugWidget.right.animationDebugSlider,qt.QtCore.SIGNAL('valueChanged(int)'),self.setAnimationTiming)
-        qt.QtCore.QObject.connect(self.debugWidget.right.endDebugButton,qt.QtCore.SIGNAL('clicked()'),self.continueDebug)
+        self.debugWidget.right.nextDebugButton.clicked.connect(self.next) # QObject.connect(self.debugWidget.right.nextDebugButton,SIGNAL('clicked()'),self.next)
+        self.debugWidget.right.animateDebugButton.clicked.connect(self.animate) # QObject.connect(self.debugWidget.right.animateDebugButton,SIGNAL('clicked()'),self.animate)
+        self.debugWidget.right.animationDebugSlider.valueChanged.connect(self.setAnimationTiming) # QObject.connect(self.debugWidget.right.animationDebugSlider,SIGNAL('valueChanged(int)'),self.setAnimationTiming)
+        self.debugWidget.right.endDebugButton.clicked.connect(self.continueDebug) # QObject.connect(self.debugWidget.right.endDebugButton,SIGNAL('clicked()'),self.continueDebug)
     def setAnimationTiming(self, value):
         self.animationTiming = value /1000.
     def startDebugger(self):
@@ -73,14 +77,14 @@ class LpyVisualDebugger (lpy.LpyDebugger):
         self.lensrc = len(src)
         self.debugWidget.right.progressBar.setRange(0,self.lensrc)
         self.srcView.setText(str(self.src))
-        qt.QtCore.QObject.connect(self.lpywidget.codeeditor.sidebar,qt.QtCore.SIGNAL('lineClicked(int)'),self.breakPointChanged)
+        self.lpywidget.codeeditor.sidebar.lineClicked.connect(self.breakPointChanged) # QObject.connect(self.lpywidget.codeeditor.sidebar,SIGNAL('lineClicked(int)'),self.breakPointChanged)
     def end(self,result):
         self.srcView.setText(str(self.src))
         self.destView.setText(str(result))
         self.ruleView.setText('')
         self.alwaysStop = True
         self.stopDebugger()
-        qt.QtCore.QObject.disconnect(self.lpywidget.codeeditor.sidebar,qt.QtCore.SIGNAL('lineClicked(int)'),self.breakPointChanged)
+        self.lpywidget.codeeditor.sidebar.lineClicked.disconnect(self.breakPointChanged) # QObject.disconnect(self.lpywidget.codeeditor.sidebar,SIGNAL('lineClicked(int)'),self.breakPointChanged)
     def print_src(self,pos_beg,pos_end):
         txt = ''
         nbChar = 0
@@ -154,9 +158,9 @@ class LpyVisualDebugger (lpy.LpyDebugger):
         tb.print_exception(*exc_info)
         self.lpywidget.errorEvent(exc_info)
         errmsg = self.lpywidget.getErrorMessage(exc_info)
-        res = qt.QtGui.QMessageBox.warning(self.lpywidget,"Exception",errmsg,qt.QtGui.QMessageBox.Abort,qt.QtGui.QMessageBox.Ignore)
+        res = QMessageBox.warning(self.lpywidget,"Exception",errmsg,QMessageBox.Abort,QMessageBox.Ignore)
         self.delMarker()
-        if res == qt.QtGui.QMessageBox.Ignore:
+        if res == QMessageBox.Ignore:
             return True
         else : 
             return False
@@ -180,10 +184,10 @@ class LpyVisualDebugger (lpy.LpyDebugger):
         if self.animation :
             t = clock()
             while (clock()-t) < self.animationTiming and not self.waitcond.tryLock():
-                qt.QtCore.QCoreApplication.instance().processEvents()
+                QCoreApplication.instance().processEvents()
         else:
             while not self.waitcond.tryLock():            
-                qt.QtCore.QCoreApplication.instance().processEvents()           
+                QCoreApplication.instance().processEvents()           
         self.waitcond.unlock()
         if self.abort == True:
             self.abort = False
@@ -227,27 +231,27 @@ class LpyVisualDebugger (lpy.LpyDebugger):
             d = dict([ (n,v) for n,v in d.iteritems() if not n in lpyobjects and (len(n) < 2 or n[0:2] != '__')])
         self.updateTable(self.debugWidget.left.globalTable,d)
     def updateTable(self,table,args):
-        model = qt.QtGui.QStandardItemModel(len(args), 2)
+        model = QStandardItemModel(len(args), 2)
         model.setHorizontalHeaderLabels(["Name", "Value", "Type" ])
         indexitem = 0
         for name,val in args.iteritems():
-            si = qt.QtGui.QStandardItem(name)
+            si = QStandardItem(name)
             si.setEditable(False)
             model.setItem(indexitem, 0, si)
-            si = qt.QtGui.QStandardItem(repr(val))
+            si = QStandardItem(repr(val))
             si.setEditable(False)
             model.setItem(indexitem, 1, si)
             try:
-              si = qt.QtGui.QStandardItem(str(val.__class__.__name__))
+              si = QStandardItem(str(val.__class__.__name__))
             except:
-              si = qt.QtGui.QStandardItem(str(type(val).__name__))
+              si = QStandardItem(str(type(val).__name__))
             si.setEditable(False)
             model.setItem(indexitem, 2, si)
             indexitem += 1
         table.setModel(model)
         table.model = model
     def clearTable(self,table):
-        model = qt.QtGui.QStandardItemModel(0, 2)
+        model = QStandardItemModel(0, 2)
         model.setHorizontalHeaderLabels(["Name", "Value", "Type" ])
         table.setModel(model)
         table.model = model

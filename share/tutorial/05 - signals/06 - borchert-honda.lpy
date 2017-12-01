@@ -78,13 +78,13 @@ I(b,m,v,c) :
 	if m==1 :
 		produce I(b,0,v,c)
 
-homomorphism:
+interpretation:
 
 I(b,m,v,c) : 
 	if SHOW_COUNT:
-		produce _((c*0.01)**0.7);(color[m])F(LEN)@c[|f(LEN/3.)^(90)f(LEN)&(90);(4)@L(str(int(round(c))))] 
+		produce _((c*0.02)**0.7);(color[m])F(LEN)@c[|f(LEN/3.)^(90)f(LEN)&(90);(4)] #@L(str(int(round(c))))] 
 	elif SHOW_FLUX  :
-		produce _((c*0.01)**0.7);(color[m])F(LEN)@c[|f(LEN/3.)^(90)f(LEN)&(90);(4)@L(str(int(round(v))))]
+		produce _((c*0.02)**0.7);(color[m])F(LEN)@c[|f(LEN/3.)^(90)f(LEN)&(90);(4)] #@L(str(int(round(v))))]
 
 endlsystem
 
@@ -93,9 +93,13 @@ endlsystem
 
 ###### INITIALISATION ######
 
+__lpy_code_version__ = 1.1
+
 def __initialiseContext__(context):
-	from openalea.plantgl.all import Material,Color3
-	context.turtle.setMaterial(4,Material('Yellow',Color3(0,0,0),3,Color3(40,40,40),Color3(0,0,0),1,0))
+	import openalea.plantgl.all as pgl
+	Color_4 = pgl.Material("Color_4" , ambient = (0,0,0) , diffuse = 3 , )
+	Color_4.name = "Color_4"
+	context.turtle.setMaterial(4,Color_4)
 __copyright__ = 'open-source GPL'
 __institutes__ = 'INRIA - CIRAD Virtual Plants'
 __authors__ = 'F. Boudon, C. Godin'

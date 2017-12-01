@@ -9,7 +9,12 @@ pj= os.path.join
 name='pylsystems'
 
 options = Variables(['../options.py', 'options.py'], ARGUMENTS )
-tools = ['boost_python', 'vplants.plantgl','qt4']
+options.Add(EnumVariable('QT_VERSION','Qt major version to use','4',allowed_values=('4','5')))
+
+qt_env = Environment(options=options, tools=[])
+qt_version = int(qt_env['QT_VERSION'])
+
+tools = ['boost_python', 'vplants.plantgl','qt'+str(qt_version)]
 
 env = ALEASolution(options, tools)
 env.Append( CPPPATH = pj( '$build_includedir','lpy' ) )
@@ -24,3 +29,12 @@ SConscript( pj(prefix,"src/wrapper/SConscript"),
             exports={"env":env} )
 
 Default("build")
+
+standartprefix = 'build-scons'
+if prefix != standartprefix:
+    if os.path.exists(standartprefix):
+        if os.path.isdir(standartprefix) and not os.path.islink(standartprefix): 
+            import shutil
+            shutil.rmtree(standartprefix)
+        else: os.remove(standartprefix)
+    os.symlink(prefix, standartprefix)

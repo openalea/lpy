@@ -125,14 +125,16 @@ public:
 			   const AxialTree& dest,
 			   AxialTree::const_iterator& endpos,
 			   ArgList& args,
+               AxialTree::IteratorMap* itermap = NULL,
                eDirection direction = eForward) const ;
 
     inline bool reverse_match(const AxialTree& src,
 			   AxialTree::const_iterator pos,
 			   const AxialTree& dest,
 			   AxialTree::const_iterator& endpos,
-               ArgList& args) const 
-    { return match(src,pos,dest,endpos,args,eBackward); }
+               ArgList& args,
+               AxialTree::IteratorMap* itermap = NULL) const 
+    { return match(src,pos,dest,endpos,args, itermap, eBackward); }
 
 	bool applyTo( AxialTree& dest, 
 				  const ArgList& args, 
@@ -148,6 +150,7 @@ public:
 	AxialTree process( const AxialTree& src ) const;
 
 	std::string str() const ;
+    inline const char * c_str() const { return str().c_str(); }
 
 	std::string functionName() const ;
 	std::string callerFunctionName() const ;
@@ -199,6 +202,8 @@ private:
     void __precall_function( size_t nbargs,  const ArgList& obj ) const;
     boost::python::object __call_function( size_t nbargs,  const ArgList& obj ) const;
     AxialTree __postcall_function( boost::python::object, bool * isApplied = NULL ) const;
+
+    QMutex * mutex;
 
 };
 

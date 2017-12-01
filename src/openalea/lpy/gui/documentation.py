@@ -2,6 +2,11 @@ from openalea.lpy import helpTurtle,LPY_VERSION_STR
 from openalea.vpltk.qt import qt
 import os
 
+
+from openalea.vpltk.qt.QtCore import Qt
+from openalea.vpltk.qt.QtGui import QPixmap
+from openalea.vpltk.qt.QtWidgets import QMessageBox, QSplashScreen
+
 vplogofilename = ':/logo/biglogo.png'
 lpylogofilename = ':/logo/flower.png'
 
@@ -141,13 +146,13 @@ def getWikiSpecification():
     
 def aboutLpy(parent):
     lpyDialog(parent)
-    #qt.QtGui.QMessageBox.about(parent,"LPy",aboutTxt)
+    #QMessageBox.about(parent,"LPy",aboutTxt)
         
 def aboutVPlants(parent): 
         #try:
         vplantsDialog(parent)
         #except:
-        #qt.QtGui.QMessageBox.about(parent,"Virtual Plants",infoTxt)
+        #QMessageBox.about(parent,"Virtual Plants",infoTxt)
         
 def splashLPy(): 
     try:
@@ -159,11 +164,11 @@ def splashLPy():
 def vplantsDialog(parent = None):
     if not parent or not hasattr(parent,'vpsplash'):
         #if not os.path.exists(logofilename): raise Exception('No logo image')
-        pix = qt.QtGui.QPixmap(vplogofilename)
-        vpsplash = qt.QtGui.QSplashScreen(pix)
+        pix = QPixmap(vplogofilename)
+        vpsplash = QSplashScreen(pix)
     else:
         vpsplash = parent.vpsplash
-    vpsplash.showMessage(vpInfoTxt,qt.QtCore.Qt.AlignBottom|qt.QtCore.Qt.AlignLeft)
+    vpsplash.showMessage(vpInfoTxt,Qt.AlignBottom|Qt.AlignLeft)
     vpsplash.show()
     if parent:
         parent.vpsplash = vpsplash
@@ -172,12 +177,12 @@ def vplantsDialog(parent = None):
 def lpyDialog(parent = None):
     if not parent or not hasattr(parent,'splash'):
         #if not os.path.exists(logofilename): raise Exception('No logo image')
-        pix = qt.QtGui.QPixmap(lpylogofilename)
-        splash = qt.QtGui.QSplashScreen(pix)
+        pix = QPixmap(lpylogofilename)
+        splash = QSplashScreen(pix)
     else:
         splash = parent.splash
-    #splash.showMessage(lpyInfoTxt,qt.QtCore.Qt.AlignBottom|qt.QtCore.Qt.AlignLeft)
-    splash.showMessage(aboutTxt,qt.QtCore.Qt.AlignBottom|qt.QtCore.Qt.AlignLeft)
+    #splash.showMessage(lpyInfoTxt,Qt.AlignBottom|Qt.AlignLeft)
+    splash.showMessage(aboutTxt,Qt.AlignBottom|Qt.AlignLeft)
     splash.show()
     if parent:
         parent.splash = splash

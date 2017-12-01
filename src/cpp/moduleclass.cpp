@@ -109,11 +109,13 @@ void ModuleClass::interpret(ParamModule& m, PGL::Turtle& t) {
 void ModuleClass::activate(bool value) 
 {	
 	active = value; 
-    if (!active)
+    if (!active) {
 		if(__vtable)__vtable->desactivate(); 
-	else 
+    }
+	else {
 		if (!ModuleClassTable::get().isDeclared(this))
 			ModuleClassTable::get().declare(this);
+    }
 }
 
 void ModuleClass::create_vtable()

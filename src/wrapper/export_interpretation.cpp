@@ -41,5 +41,6 @@ void export_Interpretation()
   def("helpTurtle",(std::string(*)())&LPY::helpTurtle);
   def("helpTurtle",(std::string(*)(const std::string&))&LPY::helpTurtle);
   def("turtle_interpretation",(void(*)(AxialTree&,Turtle&))&LPY::turtle_interpretation);
+  def("turtle_partial_interpretation",(void(*)(AxialTree&,Turtle&))&LPY::turtle_partial_interpretation);
   def("turtle_interpretation",(void(*)(AxialTree&,Turtle&,const StringMatching&))&LPY::turtle_interpretation);
 }

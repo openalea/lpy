@@ -82,7 +82,7 @@ object py_find_mod(AxialTree * tree, const PatternModule& mod, int start, int st
 }
 
 object py_find_str(AxialTree * tree,const std::string& name, int start, int stop)
-{ return py_find_mod(tree,PatternModule(name),start,stop); }
+{ return iter_to_int(tree,tree->find(name,int_to_iter(tree,start),int_to_iter(tree,stop))); }
 
 
 /*
@@ -244,7 +244,8 @@ void py_insert_ax_tuple(AxialTree * first, int i, const boost::python::tuple& pa
 {   first->setItemAt(i,ParamModule(pattern));  }
 
 NodeModule py_node(AxialTree * lstring, int i) 
-{   return NodeModule(int_to_iter(lstring,i),lstring->const_begin(),lstring->const_end());  }
+{   return NodeModule::generate(int_to_iter(lstring,i),lstring->const_begin(),lstring->const_end()); }
+
 
 void export_AxialTree() {
 

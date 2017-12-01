@@ -36,6 +36,8 @@
 #include "argcollector_core.h"
 #include <boost/version.hpp>
 #include <sstream>
+#include <QtCore/QMutex>
+
 using namespace boost::python;
 LPY_USING_NAMESPACE
 #define bp boost::python
@@ -77,7 +79,8 @@ __function(other.__function),
 lineno(other.lineno),
 __codelength(other.__codelength),
 __consider(other.__consider),
-__lstringmatcher(){
+__lstringmatcher(),
+mutex(new QMutex()){
   IncTracker(LsysRule)
 }
 
@@ -90,7 +93,8 @@ __hasquery(false),
 __isStatic(false),
 lineno(_lineno),
 __codelength(0),
-__lstringmatcher(){
+__lstringmatcher(),
+mutex(new QMutex()){
   IncTracker(LsysRule)
 }
 
@@ -328,9 +332,10 @@ AxialTree LsysRule::__postcall_function( boost::python::object res, bool * isApp
 
 //#endif
 
+#include "execution.h"
+
 boost::python::object LsysRule::__call_function( size_t nbargs, const ArgList& args ) const
 {
-	ConsiderFilterMaintainer cm(__consider);
 	switch(nbargs){
 		case 0: return __function(); break;
 #if MAX_LRULE_DIRECT_ARITY > 0
@@ -357,6 +362,9 @@ boost::python::object LsysRule::__call_function( size_t nbargs, const ArgList& a
 AxialTree 
 LsysRule::apply( const ArgList& args, bool * isApplied ) const
 { 
+#ifdef MULTICORE_ENABLED    
+  PyExecutionLocker pyexec;
+#endif
   if(__isStatic) { 
     if(isApplied) *isApplied = true;
 	return __staticResult;
@@ -374,6 +382,9 @@ LsysRule::apply( const ArgList& args, bool * isApplied ) const
 AxialTree 
 LsysRule::apply( bool * isApplied ) const
 { 
+#ifdef MULTICORE_ENABLED    
+  PyExecutionLocker pyexec;
+#endif
   if(__isStatic) { 
     if(isApplied) *isApplied = true;
 	return __staticResult;
@@ -382,7 +393,8 @@ LsysRule::apply( bool * isApplied ) const
 
   LstringMatcherMaintainer m(__lstringmatcher);
   __precall_function();
-  return __postcall_function(__function(),isApplied); 
+  AxialTree result = __postcall_function(__function(),isApplied); 
+  return result;
 }
 
 template<class T>
@@ -476,17 +488,22 @@ LsysRule::match(const AxialTree& src,
 			   const AxialTree& dest,
 			   AxialTree::const_iterator& endpos,
                ArgList& args,
+               AxialTree::IteratorMap* itermap,
                eDirection direction) const 
 {
-  ConsiderFilterMaintainer cm(__consider);
-  args.reserve(__nbParams);
+
+#ifdef MULTICORE_ENABLED    
+  QMutexLocker m(mutex);    
+#endif
+  
+  // args.reserve(__nbParams);
   ArgList args_pred;
   AxialTree::const_iterator endpos1;
   AxialTree::const_iterator last_match = pos;
 
   // strict predecessor
   if (direction == eForward){
-   if(!MatchingEngine::match(pos,src.const_begin(),src.const_end(),__predecessor.const_begin(),__predecessor.const_end(),endpos1,last_match,args_pred)){
+   if(!MatchingEngine::match(pos,src.const_begin(),src.const_end(),__predecessor.const_begin(),__predecessor.const_end(),endpos1,last_match, __consider, args_pred)){
 	 return false;
    }
   }
@@ -494,7 +511,7 @@ LsysRule::match(const AxialTree& src,
     AxialTree::const_iterator tmp;
     if(!MatchingEngine::reverse_match(pos,src.const_begin(),src.const_end(),
 		                              __predecessor.const_rbegin(),__predecessor.const_rend(),
-									  tmp,args_pred))
+									  tmp,__consider,args_pred))
  	   return false;
     endpos1 = (pos == src.end()?pos:pos+1);
     pos = tmp;
@@ -505,7 +522,7 @@ LsysRule::match(const AxialTree& src,
   if(!__leftcontext.empty()){
       if(!MatchingEngine::left_match(endposLeft,src.const_begin(),src.const_end(),
 		                              __leftcontext.const_rbegin(),__leftcontext.const_rend(),
-									  endposLeft,args))
+									  endposLeft,__consider,args,itermap))
 	       return false;
   }
 
@@ -518,7 +535,7 @@ LsysRule::match(const AxialTree& src,
     dest2->push_back(pos);
     if(!MatchingEngine::left_match(dest2->const_end()-1,dest2->const_begin(),dest2->const_end(),
 		                          __newleftcontext.const_rbegin(),__newleftcontext.const_rend(),
-								  endposNewLeft,args_ncg)){
+								  endposNewLeft,__consider,args_ncg /*, itermap*/)){
         dest2->erase(dest2->end()-1);
         return false;
     }
@@ -535,7 +552,7 @@ LsysRule::match(const AxialTree& src,
 	ArgList args_ncd;
     if(!MatchingEngine::right_match(dest.const_begin(),dest.const_begin(),dest.const_end(),
 		                          __newrightcontext.const_begin(),__newrightcontext.const_end(),
-								  endposNewRightLastMatch,endposNewRight,args_ncd)) return false;
+								  endposNewRightLastMatch,endposNewRight,__consider,args_ncd /*, itermap*/)) return false;
     							  // last_match,endpos2,args_ncd)) return false;
 	ArgsCollector::append_args(args,args_ncd);
   }
@@ -547,7 +564,7 @@ LsysRule::match(const AxialTree& src,
 	ArgList args_cd;
     if(!MatchingEngine::right_match(endposRight,src.const_begin(),src.const_end(),
 		                          __rightcontext.const_begin(),__rightcontext.const_end(),
-								  endposRightLastMatch,endposRight,args_cd))return false;
+								  endposRightLastMatch,endposRight,__consider,args_cd, itermap))return false;
 	ArgsCollector::append_args(args,args_cd);
   }
   const_cast<LsysRule *>(this)->__lstringmatcher = LstringMatcherPtr(new LstringMatcher(src.const_begin(),	
@@ -555,9 +572,11 @@ LsysRule::match(const AxialTree& src,
 					   endposLeft,
 					   // endposNewLeft,
 					   endposRight,
-					   endposRightLastMatch //,
+					   endposRightLastMatch,
 					   // endposNewRight,
 					   // endposRightLastMatch
+                       __consider,
+                       itermap
 					   ));
 
 
@@ -573,7 +592,9 @@ LsysRule::applyTo( AxialTree& dest,
 				   eDirection direction) const {
   
    AxialTree prod;
-   if(__isStatic) prod = __staticResult;
+   if(__isStatic) { 
+      prod = __staticResult;
+   }
    else {
 	bool success = false;
 	prod = apply(args,&success);
@@ -581,10 +602,10 @@ LsysRule::applyTo( AxialTree& dest,
    }
    ModuleClassPtr cl;
    if (!prod.empty() && ((cl=prod[0].getClass()) == ModuleClass::Star || cl == ModuleClass::None)){ 
-		if(length!=NULL)*length = 0;
+		if(length!=NULL) *length = 0;
    }
    else {
-	if(length!=NULL)*length = prod.size();
+	if(length!=NULL) *length = prod.size();
 	if(direction == eForward) dest += prod;
 	else dest.prepend(prod);
    }

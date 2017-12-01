@@ -28,18 +28,21 @@
  # ---------------------------------------------------------------------------
  */
 
+#include <plantgl/python/export_refcountptr.h>
+#include <plantgl/python/export_list.h>
+#include <plantgl/python/extract_list.h>
+
 #include "axialtree.h"
 #include "packedargs.h"
 #include "matching.h"
 #include "export_module.h"
+
 #include <plantgl/tool/util_string.h>
 #include <plantgl/scenegraph/pgl_version.h>
+
 #if PGL_VERSION < 0x020700
 #error You should upgrade your version of PlantGL
 #endif
-#include <plantgl/python/export_list.h>
-#include <plantgl/python/extract_list.h>
-#include <plantgl/python/export_refcountptr.h>
 
 using namespace boost::python;
 #define bp boost::python

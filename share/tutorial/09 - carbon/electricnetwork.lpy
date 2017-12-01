@@ -1,0 +1,165 @@
+from openalea.plantgl.all import *
+
+MAXORDER = 5
+RAMIFORDER = 2
+phylotaxy = 360 / RAMIFORDER
+RESISTANCE = QuantisedFunction(RESISTANCE)
+
+def branching_angle(o):
+  return 50 - 40*(o/float(MAXORDER))
+
+def internode_length(o):
+  return 5 - 3*(o/float(MAXORDER))
+
+def internode_diam(o):
+  return 1 - 0.8*(o/float(MAXORDER))
+
+label = None
+
+
+def StartEach(lstring):
+  #print lstring
+  global label
+  if getIterationNb() == 0:
+    useGroup(1)
+    label = 'Decompose'
+  elif (getIterationNb()) % 2:
+    useGroup(2)
+    backward()
+    label = 'Compute Equivalent Resistance'
+  else:
+    useGroup(3)
+    forward()
+    label = 'Compute Flow'
+    
+
+pot_root = 0
+pot_leaf = -LEAFABSPOTENTIAL
+delta_pot = pot_root - pot_leaf
+
+dist = 30
+
+minmax = {}
+def checkminmax(prop, name):
+  value = prop.get(name)
+  minv, maxv = minmax.get(name,(0,0))
+  minmax[name] = (min(minv,value),max(maxv,value))
+
+def c(prop, name):
+  if not prop.hasattr(name): return Color3(0,0,0)
+  value = prop.get(name)
+  minv, maxv = minmax.get(name,(0,0))
+  cmap = PglColorMap(minv, maxv)
+  return cmap(value)
+
+module Legend
+module Color
+
+Axiom: Legend /(90) A(0)
+
+derivation length: 10
+production:
+group 1:
+decomposition:
+maximum depth: MAXORDER+1
+A(o):
+  if o <= MAXORDER:
+    nproduce I(ParameterSet(resistance=RESISTANCE(o/float(MAXORDER)), length=internode_length(o), diameter = internode_diam(o)))
+    for i in xrange(RAMIFORDER):
+      nproduce /(phylotaxy)[&(branching_angle(o))A(o+1)]
+  else:
+    produce
+
+production:
+group 2: # eqresistance
+
+consider: I
+I(p) >> x([I(pchildren)]):
+  #print type(pchildren) 
+  #assert len(pchildren) in [0,RAMIFORDER]
+  p.eq_resistance = p.resistance
+  if len(pchildren) > 0:
+    cap = 0
+    for pchild in pchildren:
+      cap += 1/pchild.resistance
+    p.eq_resistance += 1./cap
+  checkminmax(p,'eq_resistance')
+  produce I(p)
+
+group 3: # flow
+I(pparent) <<  I(p):
+  toppotential = pparent.deltapotentials
+  p.flow = toppotential / p.eq_resistance
+  p.deltapotentials = toppotential - p.flow * p.resistance
+  p.hydropotential = pot_leaf+p.deltapotentials
+  checkminmax(p,'flow')
+  checkminmax(p,'hydropotential')
+  produce I(p)
+
+I(p) : # root
+  toppotential = delta_pot
+  p.flow = toppotential / p.eq_resistance
+  p.deltapotentials = toppotential - p.flow * p.resistance
+  p.hydropotential = pot_leaf+p.deltapotentials
+  produce I(p)
+
+group 0:
+interpretation:
+maximum depth: 2
+
+I(p) : 
+  # couleur comme simple interpolation
+  # afficher les arbres avec checkbox.
+  nproduce _(p.diameter)
+  if VISUEQRES:    nproduce [ Color(p, 'eq_resistance')  MoveRel(0,dist, 0)   F(p.length) ]
+  if VISUHYDROPOT: nproduce [ Color(p, 'hydropotential') MoveRel(0,2*dist, 0) F(p.length) ]
+  if VISUFLOW:     nproduce [ Color(p, 'flow')           MoveRel(0,3*dist, 0) F(p.length) ]
+  if VISURES :     nproduce   Color(p, 'resistance') F(p.length)
+  else : nproduce f(p.length)
+
+Legend:
+  if label:
+    nproduce [@2D @M(-0.8,0.8) SetColor(0,0,0) @L('Step '+str(getIterationNb())+' : '+label, 12) ]
+  nproduce MoveRel(0,-3*dist/2, 0)
+  nproduce [ MoveRel(0,0,-5) 
+  if VISURES :     nproduce @L('Resistance') 
+  if VISUEQRES:    nproduce [ MoveRel(0,dist,0) @L('Equivalent Resistance') ]
+  if VISUHYDROPOT: nproduce [ MoveRel(0,2 * dist,0) @L('Hydraulic Potential') ]
+  if VISUFLOW:     nproduce [ MoveRel(0,3 * dist,0) @L('Flow') ]
+  nproduce ]
+
+
+Color(param, pname):
+  if not param.hasattr(pname): 
+    produce SetColor(7) 
+  value = param.get(pname)
+  minv, maxv = minmax.get(pname,(0,1))
+  deltav = maxv-minv
+  produce InterpolateColors(5,3,(value-minv)/deltav)
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	import openalea.plantgl.all as pgl
+	Color_7 = pgl.Material("Color_7" , ambient = (0,0,0) , diffuse = 9.41176 , )
+	Color_7.name = "Color_7"
+	context.turtle.setMaterial(7,Color_7)
+	context.options.setSelection('Bracket mapping optimization',2)
+	scalars = [('LEAFABSPOTENTIAL', 'Integer', 1, 1, 20), ('VISU', 'Category'), ('VISURES', 'Bool', True), ('VISUEQRES', 'Bool', True), ('VISUHYDROPOT', 'Bool', True), ('VISUFLOW', 'Bool', True)]
+	context["__scalars__"] = scalars
+	for s in scalars:
+		if not s[1] == "Category" : context[s[0]] = s[2]
+	import openalea.plantgl.all as pgl
+	RESISTANCE = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.00510926, 0.0356386, 1),(0.159186, 0.0455935, 1),(0.279548, 0.0841861, 1),(0.492246, 0.151945, 1),(0.720397, 0.302229, 1),(1.00959, 0.833136, 1)]) , 
+	    )
+	RESISTANCE.name = "RESISTANCE"
+	panel_0 = ({'active': True, 'visible': True, 'name': 'Panel 1'},[('Curve2D',RESISTANCE)])
+	parameterset = [panel_0,]
+	context["__functions__"] = []
+	context["__curves__"] = [('RESISTANCE',RESISTANCE),]
+	context["__parameterset__"] = parameterset
+	context["RESISTANCE"] = RESISTANCE

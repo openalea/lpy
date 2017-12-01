@@ -38,8 +38,14 @@
 #include <plantgl/algo/modelling/pglturtle.h>
 #include <plantgl/tool/util_hashset.h>
 #include <QtCore/QReadWriteLock>
+#include <QtCore/QMap>
+#include <QtCore/QThreadStorage>
 
 LPY_BEGIN_NAMESPACE
+
+#ifdef MULTICORE_ENABLED
+#define PRODUCTION_PER_THREAD
+#endif
 
 /*---------------------------------------------------------------------------*/
 
@@ -70,6 +76,7 @@ public:
 
   /** string representation */
   std::string str() const ;
+  inline const char * c_str() const { return str().c_str(); }
 
   /** The Start, End, StartEach, EndEach and PostDraw execution */
   boost::python::object start();
@@ -187,15 +194,14 @@ public:
   inline bool isFrameDisplayed() const  { return __frameDisplay; }
 
   /** iterative production */
-  inline void nproduce(const AxialTree& prod)
-  { __nproduction.append(prod); }
+  void nproduce(const AxialTree& prod);
+  void reset_nproduction() ;
+  AxialTree get_nproduction() ;
+  void set_nproduction(const AxialTree& prod) ;
+
 
   inline void nproduce(const boost::python::list& prod)
-  { __nproduction.append(AxialTree(prod)); }
-
-  inline void reset_nproduction() { __nproduction.clear(); }
-  inline AxialTree get_nproduction() const { return __nproduction; }
-  inline void set_nproduction(const AxialTree& prod) { __nproduction = prod; }
+  { nproduce(AxialTree(prod)); }
 
   /** parametric production */
   inline void add_pproduction(const ParametricProductionPtr pprod)
@@ -217,10 +223,10 @@ public:
 	return ParametricProduction::get(pprod_id)->generate(args); }
 
   inline void pproduce(size_t pprod_id, const bp::list& args)
-  { __nproduction.append(generate(pprod_id,args)); }
+  { nproduce(generate(pprod_id,args)); }
 
   inline void pproduce(const bp::tuple& args)
-  { __nproduction.append(generate(args)); }
+  { nproduce(generate(args)); }
 
   /** animation time step property */
   double get_animation_timestep();
@@ -249,6 +255,17 @@ public:
   /// Specify whether a warning should be made if found sharp module
   inline bool warnWithSharpModule() const { return __warn_with_sharp_module; }
   void setWarnWithSharpModule(bool);
+
+  /// Specify whether the axiom should be decomposed
+  inline bool axiomDecompositionEnabled() const { return __axiom_decomposition_enabled; }
+  void enableAxiomDecomposition(bool);
+
+  /// Specify the multicore rewritting option
+  inline bool multicoreProcessing() const { return __multicore; }
+  void setMulticoreProcessing(bool enabled) { __multicore = enabled; }
+
+  inline int brackectMappingOptimLevel() const { return __bracketmapping_optim_level; }
+  void setBracketMappingOptimLevel(int level) { __bracketmapping_optim_level = level; } 
 
   /** Turtles and interpretation structures */
   PGL(PglTurtle) turtle;
@@ -290,8 +307,7 @@ public:
 
   void importContext(const LsysContext& other);
 
-  void registerLstringMatcher(const LstringMatcherPtr lstringmatcher = LstringMatcherPtr())
-  { __lstringmatcher = lstringmatcher; }
+  void registerLstringMatcher(const LstringMatcherPtr& lstringmatcher = LstringMatcherPtr());
 
   bool pInLeftContext(size_t, boost::python::dict& res);
   bool inLeftContext(const PatternString& pattern, boost::python::dict& res);
@@ -344,7 +360,14 @@ protected:
   bool __frameDisplay;
 
   /// iterative production
-  AxialTree __nproduction;
+#ifdef PRODUCTION_PER_THREAD
+  typedef QThreadStorage<AxialTree *> ProductionHolderType;
+#else
+  typedef AxialTree ProductionHolderType;
+#endif
+
+  ProductionHolderType __nproduction;
+  // QReadWriteLock __nproduction_lock;
 
 
   /// selection required property
@@ -355,9 +378,13 @@ protected:
   /// Warn if found sharp module
   bool __warn_with_sharp_module;
 
+  /// Check if axiom should be decomposed.
+  bool __axiom_decomposition_enabled;
+
   /// animation step property and its mutex
   double __animation_step;
   QReadWriteLock __animation_step_mutex;
+
   /// animation property
   bool __animation_enabled;
 
@@ -373,14 +400,18 @@ protected:
   // list of parametric production
   ParametricProductionList __paramproductions;
 
-  // list of pattern to find
-//  PatternStringList __patternstrings;
-  LstringMatcherPtr __lstringmatcher;
+  // the lstring matcher to continue matching within the rules.  
+  QThreadStorage<LstringMatcher * *> __lstringmatcher;
+  // QMutex __lstringmatcher_mutex;
 
 
   // For multithreaded appli, allow to set an early_return
   bool __early_return;
   QReadWriteLock __early_return_mutex;
+
+  bool __multicore;
+
+  int __bracketmapping_optim_level;
 };
 
 /*---------------------------------------------------------------------------*/
