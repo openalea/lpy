@@ -1,0 +1,78 @@
+.sub-title: "Predefined commands"
+
+Here comes the python commands that control the simulation.
+
+.section: "The following commands can be redefined to initialize simulation state:"
+.table-begin:
+{def Start([lstring])}              {is called at the beginning of the simulation. One argument can be optionally defined to receive the input lstring. A modified lstring can be returned by the function to modify the axiom of the simulation.}
+{def End([lstring,geometries])}     {is called at the end of the simulation. One or two arguments can be optionally defined to receive the final lstring and its geometric interpretation. A modified lstring or scene can be returned by the function to change output of the simulation.}
+{def StartEach([lstring])}          {is called before each derivation step. One argument can be optionally defined to receive the input lstring. A modified lstring can be returned by the function to modify input lstring of the current iteration.}
+{def EndEach([lstring,geometries])} {is called after each derivation step. One or two arguments can be optionally defined to receive the current lstring and its geometric interpretation. Returning an lstring or (lstring, geometries) will be used for next iterations and display. If frameDisplayed() is False, geometries is None.}
+{def StartInterpretation()}         {is called at the beginning of the interpretation. Interpretable modules can be produced to generate extra graphical elements.}
+{def EndInterpretation()}           {is called at the end of the interpretation. Interpretable modules can be produced to generate extra graphical elements.}
+{def PostDraw()}                    {is called after drawing the representation of a new lstring.}
+.table-end:
+
+.section: "Python commands that control the rule application:"
+.table-begin:
+{Stop()}                    {Stop simlation at the end of this iteration.}
+{forward()}                 {Next iteration will be done in forward direction.}
+{backward()}                {Next iteration will be done in backward direction.}
+{isForward()}               {Test whether direction is forward.}
+{getIterationNb()}          {Return the id of the current iteration.}
+{useGroup(int)}             {Next iteration will use rules of given group and default group 0.}
+{getGroup()}                {Gives which group will be used.}
+{frameDisplay(bool)}        {Set whether a frame will be displayed at the end of the iteration. default is True in animation and False except for last iteration in run mode.}
+{isFrameDisplayed()}        {Tell whether a frame will be displayed at the end of the iteration.}
+{isAnimationEnabled()}      {Return the current simulation is in an animation.}
+{requestSelection(caption)} {Wait selection in the viewer before next iteration. Set frameDisplay to True.}
+.table-end:
+
+.section: "Lpy specific declaration:"
+.table-begin:
+{module <i>name</i>}                     {Declaration of module name.}
+{consider: <i>name</i>}                  {Symbol to consider.}
+{ignore: <i>name</i>}                    {Symbol to ignore.}
+{group <i>id</i>:}                       {Following rules will be associated to group <i>id</i>.}
+{Axiom: <i>Lstring</i>}                  {Declaration of the axiom of the Lsystem.}
+{produce <i>Lstring</i>}                 {Produce an <i>Lstring</i> and return.}
+{nproduce <i>Lstring</i>}                {Produce an <i>Lstring</i> whithout returning.}
+{nsproduce(<i>LstringStruct</i>)}        {Produce a given <i>Lstring</i> data structure whithout returning.}
+{makestring(<i>Lstring</i>)}             {Create an <i>LstringStruct</i> from <i>Lstring</i>.}
+{InLeftContext(pattern, argdict)}        {Test a left context. argdict contains value of all parameter of the pattern.}
+{InRightContext(pattern, argdict)}       {Test a right context. argdict contains value of all parameter of the pattern.}
+{derivation length: <i>value*}           {Number of derivation to do (default=1).}
+{initial_view=<i>value</i>}              {Number of derivation for bounding box evaluation (default=derivation length).}
+{production:}                            {Start of the production rules declaration.}
+{homomorphism:}                          {Start of the interpretation rules declaration.}
+{interpretation:}                        {Start of the interpretation rules declaration.}
+{decomposition:}                         {Start of the decomposition rules declaration.}
+{maximum depth:}                         {Number of decomposition or interpretation recursive call to do (default=1).}
+{endgroup}                               {Reactivate default group 0.}
+{endlsystem}                             {End of lsystem rules declaration.}
+.table-end:
+
+.section: "These commands have been added to the original cpfg-lpfg specification:"
+.table-begin:
+{context()} {Get context of execution of the L-system. To use with care.}
+.table-end:
+
+.section: "The following objects and commands are also accessible from within the lpy shell:"
+.table-begin:
+{lstring}       {Contains the last computed lsystem string of the current simulation.}
+{lsystem}       {Reference to the internal lsystem object representing the current simulation.}
+{window}        {Reference to lpy widget object.}
+{clear()}       {To clear the shell.}
+.table-end:
+
+All these functions are imported from openalea.lpy module. Other data structures and functionnalities are available in the module. You can check them with <b>help(openalea.lpy)</b>
+
+.sub-title: "References"
+For More details, see:
+
+.list-begin:
+F. Boudon, T. Cokelaer, C. Pradal and C. Godin, L-Py, an open L-systems framework in Python, FSPM 2010.
+P. Prusinkiewicz et al., 89, The algorithmic Beauty of Plants, Springer-Verlag.
+P. Prusinkiewicz. Graphical applications of L-systems. Proceedings of Graphics Interface '86, pp. 247-253.
+P. Prusinkiewicz, R. Karwowski, and B. Lane. The L+C plant modelling language. In Functional-Structural Plant Modelling in Crop Production, J. Vos et al. (eds.), Springer, 2007.
+.list-end:
