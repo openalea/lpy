@@ -1,5 +1,5 @@
 from openalea.vpltk.qt import qt
-
+from qt_check import QT_VERSION
 import traceback as tb
 import sys
 
