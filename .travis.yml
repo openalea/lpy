@@ -28,7 +28,7 @@ before_script:
 script:
   - source script.sh
   - conda install nose
-  - cd test; nosetests -I test_viewer.py -I test_projpershape.py -I test_geomprinter.py -I thread.py
+  - cd test; nosetests
 
 after_success:
   - source after_success.sh
