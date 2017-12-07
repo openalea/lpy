@@ -1,0 +1,53 @@
+package:
+  name: openalea.lpy
+  version: 2.7.0
+
+source:
+  path: ..
+
+
+about:
+  home: http://github.com/openalea/lpy
+  license: CeCILL
+  summary: L-Py is a simulation software that mixes L-systems construction with the Python high-level modeling language.
+
+build:
+  preserve_egg_dir: True
+  number: 0
+
+requirements:
+  build:
+   - python
+   - m4
+   - setuptools
+   - openalea.deploy
+   - scons
+   - openalea.sconsx
+   - qt ==4.8.6 [osx]
+   - qt <5 [linux]
+   - boost
+   - bison
+   - flex 2.5.39
+   - cgal
+   - gmp
+   - ann
+   - eigen
+   - qhull
+   - patchelf [linux]
+   - vplants.plantgl
+  run:
+   - python
+   - openalea.deploy
+   - openalea.core
+   - qt ==4.8.6 [osx]
+   - qt <5 [linux]
+   - pyqt
+   - gmp
+   - mpfr
+   - cgal
+   - qhull
+   - ann
+   - boost
+   - path.py
+   - vplants.plantgl
+   - pyqglviewer
