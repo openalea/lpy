@@ -7,7 +7,7 @@
 .. image:: https://ci.appveyor.com/api/projects/status/88n43wd5kektlwkf/branch/master?svg=true
    :target: https://ci.appveyor.com/project/fredboudon/lpy
 
-..  image:: http://lpy.readthedocs.io/en/latest/?badge=latest  
+..  image:: https://readthedocs.org/projects/lpy/badge/?version=latest
     :target: http://lpy.readthedocs.io/en/latest/
 
 
