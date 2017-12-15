@@ -1,0 +1,51 @@
+platform:
+  - x86
+  - x64
+
+environment:
+  matrix:
+  # Add here environement variables to control the Travis CI build
+    - CONDA_RECIPE: conda
+      CONDA_VERSION: 2
+      ANACONDA_UPLOAD: openalea
+      ANACONDA_LABEL: unstable
+
+install:
+  - git clone https://github.com/OpenAlea/appveyor-ci.git appveyor-ci
+  - cd appveyor-ci
+  - call install.bat
+  - conda config --add channels openalea/label/unstable
+  - conda config --add channels msys2
+  - conda config --add channels conda-forge
+
+before_build:
+  - call before_build.bat
+
+build_script:
+  - call build_script.bat
+
+after_build:
+  - call after_build.bat
+
+deploy:
+  provider: Script
+  on:
+    branch: master
+
+before_deploy:
+  - call before_deploy.bat
+
+deploy_script:
+  - call deploy_script.bat
+
+after_deploy:
+  - call after_deploy.bat
+
+on_success:
+  - call on_success.bat
+
+on_failure:
+  - call on_failure.bat
+
+on_finish:
+  - call on_finish.bat
