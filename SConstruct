@@ -6,13 +6,13 @@ import os
 ALEASolution = config.ALEASolution
 pj= os.path.join
 
-name='pylsystems'
+name='lpy'
 
 options = Variables(['../options.py', 'options.py'], ARGUMENTS )
 options.Add(EnumVariable('QT_VERSION','Qt major version to use','4',allowed_values=('4','5')))
 
 qt_env = Environment(options=options, tools=[])
-qt_version = int(qt_env['QT_VERSION'])
+qt_version = eval(qt_env['QT_VERSION'])
 
 tools = ['boost_python', 'vplants.plantgl','qt'+str(qt_version)]
 

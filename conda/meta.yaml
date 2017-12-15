@@ -1,0 +1,40 @@
+package:
+  name: vplants.lpy
+  version: 2.21.1
+
+source:
+  path: ..
+
+
+about:
+  home: http://openalea.gforge.inria.fr
+  license: GPL/LGPL
+  summary: An open-source graphic toolkit for the creation, simulation and analysis of 3D virtual plants.
+
+build:
+  preserve_egg_dir: True
+  number: 0
+
+requirements:
+  build:
+   - python
+   - setuptools
+   - openalea.deploy
+   - scons
+   - openalea.sconsx
+   - vplants.plantgl
+  run:
+   - vplants.plantgl
+
+test:
+  requires:
+    - nose
+  imports:
+    - vplants.plantgl
+  source_files:
+    - test/test_*.py
+    - test/test_*.lpy
+    - test/test_*.lpy
+    - test/lpytest
+  commands:
+   - nosetests -v 
