@@ -30,7 +30,7 @@ test:
   requires:
     - nose
   imports:
-    - vplants.plantgl
+    - openalea.lpy
   source_files:
     - test/test_*.py
     - test/test_*.lpy
