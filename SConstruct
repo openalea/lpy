@@ -19,6 +19,9 @@ tools = ['boost_python', 'vplants.plantgl','qt'+str(qt_version)]
 env = ALEASolution(options, tools)
 env.Append( CPPPATH = pj( '$build_includedir','lpy' ) )
 
+
+SetOption('implicit_cache', 0)
+
 # Build stage
 prefix= env['build_prefix']
 
