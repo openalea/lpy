@@ -4,4 +4,4 @@ export PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig
 
 cp options_conda_build.py options.py
 
-$PYTHON setup.py install --prefix=$PREFIX
+$PYTHON setup.py install --prefix=$PREFIX --scons-ext-param="--implicit-deps-changed"
