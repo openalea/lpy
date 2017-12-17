@@ -23,6 +23,7 @@ requirements:
    - scons
    - openalea.sconsx
    - vplants.plantgl
+   - qt<5
   run:
    - vplants.plantgl
 
