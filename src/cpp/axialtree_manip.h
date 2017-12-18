@@ -40,7 +40,7 @@ LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
-#define IterMap(Iterator) pgl_hash_map<size_t, Iterator>
+#define MIteratorMap pgl_hash_map<size_t, Iterator>
 
 template<class Iterator>
 size_t iter_to_hashable(Iterator iter, Iterator string_end) { return (size_t)&(*iter); /*std::distance(iter, string_end);*/ }
@@ -79,8 +79,8 @@ Iterator beginBracket(Iterator pos, Iterator string_begin, Iterator string_end, 
   return pos; 
 }
 
-template<class Iterator, class IteratorMap = IterMap(Iterator)>
-Iterator endBracket(Iterator pos, Iterator string_end, IteratorMap * itermap = NULL, bool startingBeforePos = false)
+template<class Iterator>
+Iterator endBracket(Iterator pos, Iterator string_end, MIteratorMap * itermap = NULL, bool startingBeforePos = false)
 { 
   if (itermap == NULL) return endBracket(pos, string_end, startingBeforePos);
 
@@ -89,12 +89,11 @@ Iterator endBracket(Iterator pos, Iterator string_end, IteratorMap * itermap = N
   Iterator beg = pos;
   std::stack<Iterator> iterstack;
   if (!startingBeforePos && pos->isLeftBracket()) {    
-        typename IteratorMap::const_iterator mappedend = itermap->find(iter_to_hashable(pos, string_end));
+        typename MIteratorMap::const_iterator mappedend = itermap->find(iter_to_hashable(pos, string_end));
         if (mappedend != itermap->end()) {
             Iterator lpos = pos;
             if(mappedend->second == string_end) { pos = mappedend->second; }
             else { pos = mappedend->second+1; }
-            printf("use map %lu\n", std::distance(lpos, pos));
             return pos;
         }
         else {
@@ -105,12 +104,11 @@ Iterator endBracket(Iterator pos, Iterator string_end, IteratorMap * itermap = N
   while(pos != string_end && (bracket>0 || !pos->isRightBracket())){
     // printf("%i %i \n", -int(iter_to_hashable(pos, string_end)), bracket);
     if(pos->isLeftBracket()) {
-        typename IteratorMap::const_iterator mappedend = itermap->find(iter_to_hashable(pos, string_end));
+        typename MIteratorMap::const_iterator mappedend = itermap->find(iter_to_hashable(pos, string_end));
         if (mappedend != itermap->end()) {
             Iterator lpos = pos;
             if(mappedend->second == string_end) { pos = mappedend->second; }
             else { pos = mappedend->second+1; }
-            printf("use map %lu\n", std::distance(lpos, pos));
         }
         else {
             iterstack.push(pos);
@@ -144,8 +142,8 @@ Iterator endBracket(Iterator pos, Iterator string_end, IteratorMap * itermap = N
 }
 
 
-template<class Iterator, class IteratorMap = IterMap(Iterator)>
-Iterator beginBracket(Iterator pos, Iterator string_begin, Iterator string_end, IteratorMap* itermap = NULL, bool startingAfterPos = false)
+template<class Iterator>
+Iterator beginBracket(Iterator pos, Iterator string_begin, Iterator string_end, MIteratorMap* itermap = NULL, bool startingAfterPos = false)
 { 
   if (itermap == NULL) return beginBracket(pos, string_begin, string_end, startingAfterPos);
 
@@ -163,7 +161,7 @@ Iterator beginBracket(Iterator pos, Iterator string_begin, Iterator string_end, 
 
   while(pos != string_begin && (bracket>0 || !pos->isLeftBracket())){
     if(pos->isRightBracket()) {
-        typename  IteratorMap::const_iterator mappedbegin = itermap->find(iter_to_hashable(pos, string_end));
+        typename  MIteratorMap::const_iterator mappedbegin = itermap->find(iter_to_hashable(pos, string_end));
         if (mappedbegin != itermap->end()) {
             if(mappedbegin->second == string_begin) { pos = mappedbegin->second; }
             else { pos = mappedbegin->second-1; }
@@ -214,8 +212,8 @@ bool wellBracketed(Iterator string_begin, Iterator string_end)
   return (bracket == 0); 
 }
 
-template<class Iterator, class IteratorMap = IterMap(Iterator)>
-Iterator parent(Iterator pos, Iterator string_begin, Iterator string_end, const ConsiderFilterPtr filter = ConsiderFilterPtr(), IteratorMap* itermap = NULL)
+template<class Iterator>
+Iterator parent(Iterator pos, Iterator string_begin, Iterator string_end, const ConsiderFilterPtr filter = ConsiderFilterPtr(), MIteratorMap* itermap = NULL)
 {
   if( pos == string_begin ) return string_end;
   --pos;
@@ -231,8 +229,8 @@ Iterator parent(Iterator pos, Iterator string_begin, Iterator string_end, const 
   else return pos;
 }
 
-template<class Iterator, class IteratorMap = IterMap(Iterator)>
-std::vector<Iterator>  children(Iterator pos, Iterator string_end, const ConsiderFilterPtr filter = ConsiderFilterPtr(), IteratorMap* itermap = NULL)
+template<class Iterator>
+std::vector<Iterator>  children(Iterator pos, Iterator string_end, const ConsiderFilterPtr filter = ConsiderFilterPtr(), MIteratorMap* itermap = NULL)
 { 
   std::vector<Iterator> result; 
   // current pos is the end of a branch
@@ -258,8 +256,8 @@ std::vector<Iterator>  children(Iterator pos, Iterator string_end, const Conside
   return result;
 }
 
-template<class Iterator, class IteratorMap  = IterMap(Iterator)>
-std::vector<Iterator> lateral_children(Iterator pos, Iterator string_end, const ConsiderFilterPtr filter = ConsiderFilterPtr(), IteratorMap* itermap = NULL) {
+template<class Iterator>
+std::vector<Iterator> lateral_children(Iterator pos, Iterator string_end, const ConsiderFilterPtr filter = ConsiderFilterPtr(), MIteratorMap* itermap = NULL) {
   std::vector<Iterator> result; 
   // current pos is the end of a branch
   if( (pos == string_end) || pos->isRightBracket()) return result;
@@ -281,16 +279,16 @@ std::vector<Iterator> lateral_children(Iterator pos, Iterator string_end, const 
   return result;
 }
 
-template<class Iterator, class IteratorMap = IterMap(Iterator)>
-Iterator direct_child(Iterator pos, Iterator string_end, const ConsiderFilterPtr filter = ConsiderFilterPtr(), IteratorMap* itermap = NULL) 
+template<class Iterator>
+Iterator direct_child(Iterator pos, Iterator string_end, const ConsiderFilterPtr filter = ConsiderFilterPtr(), MIteratorMap* itermap = NULL) 
 {
   if( (pos == string_end) || pos->isRightBracket()) return string_end;
   ++pos;
   return direct_child_from_previous_pos(pos,string_end, filter, itermap);
 }
 
-template<class Iterator, class IteratorMap = IterMap(Iterator)>
-Iterator direct_child_from_previous_pos(Iterator pos, Iterator string_end, const ConsiderFilterPtr filter = ConsiderFilterPtr(), IteratorMap* itermap = NULL) 
+template<class Iterator>
+Iterator direct_child_from_previous_pos(Iterator pos, Iterator string_end, const ConsiderFilterPtr filter = ConsiderFilterPtr(), MIteratorMap* itermap = NULL) 
 {
   // remove ignored modules and lateral branches
   while((pos != string_end) && (pos->isLeftBracket() || pos->isIgnored(filter))){
@@ -308,8 +306,8 @@ Iterator direct_child_from_previous_pos(Iterator pos, Iterator string_end, const
 
 
 
-template<class Iterator, class IteratorMap = IterMap(Iterator)>
-std::vector<Iterator> roots(Iterator string_begin, Iterator string_end, const ConsiderFilterPtr filter = ConsiderFilterPtr(), IteratorMap* itermap = NULL) 
+template<class Iterator>
+std::vector<Iterator> roots(Iterator string_begin, Iterator string_end, const ConsiderFilterPtr filter = ConsiderFilterPtr(), MIteratorMap* itermap = NULL) 
 { 
   std::vector<Iterator> res;
   if (string_begin == string_end) return res;
@@ -341,8 +339,8 @@ std::vector<Iterator> roots(Iterator string_begin, Iterator string_end, const Co
   return res;
 }
 
-template<class Iterator, class IteratorMap = IterMap(Iterator)>
-Iterator complex(Iterator pos, int scale, Iterator string_begin, Iterator string_end, const ConsiderFilterPtr filter = ConsiderFilterPtr(), IteratorMap* itermap = NULL)
+template<class Iterator>
+Iterator complex(Iterator pos, int scale, Iterator string_begin, Iterator string_end, const ConsiderFilterPtr filter = ConsiderFilterPtr(), MIteratorMap* itermap = NULL)
 {
   if( pos == string_begin ) return string_end;
   if( !is_lower_scale(pos->scale(),scale)) return string_end;
@@ -356,8 +354,8 @@ Iterator complex(Iterator pos, int scale, Iterator string_begin, Iterator string
 }
 
 
-template<class Iterator, class IteratorMap = IterMap(Iterator)>
-std::vector<Iterator>  components(Iterator pos, Iterator string_end, const ConsiderFilterPtr filter = ConsiderFilterPtr(), IteratorMap* itermap = NULL)
+template<class Iterator>
+std::vector<Iterator>  components(Iterator pos, Iterator string_end, const ConsiderFilterPtr filter = ConsiderFilterPtr(), MIteratorMap* itermap = NULL)
 { 
   std::vector<Iterator> result; 
   // current pos is the end of a branch
@@ -379,8 +377,8 @@ std::vector<Iterator>  components(Iterator pos, Iterator string_end, const Consi
   return result;
 }
 
-template<class Iterator, class IteratorMap = IterMap(Iterator)>
-std::vector<Iterator>  components_at_scale(Iterator pos, int scale, Iterator string_end, const ConsiderFilterPtr filter = ConsiderFilterPtr(), IteratorMap* itermap = NULL)
+template<class Iterator>
+std::vector<Iterator>  components_at_scale(Iterator pos, int scale, Iterator string_end, const ConsiderFilterPtr filter = ConsiderFilterPtr(), MIteratorMap* itermap = NULL)
 { 
   std::vector<Iterator> result; 
   // current pos is the end of a branch
@@ -430,8 +428,8 @@ Iterator predecessor_at_scale(Iterator pos, int scale, Iterator string_begin, It
 */
 
 
-template<class Iterator, class IteratorMap = IterMap(Iterator)>
-Iterator predecessor_at_scale(Iterator pos, int targetscale, Iterator string_begin, Iterator string_end, const ConsiderFilterPtr filter = ConsiderFilterPtr(), IteratorMap* itermap = NULL)
+template<class Iterator>
+Iterator predecessor_at_scale(Iterator pos, int targetscale, Iterator string_begin, Iterator string_end, const ConsiderFilterPtr filter = ConsiderFilterPtr(), MIteratorMap* itermap = NULL)
 {
   if( pos == string_begin ) return string_end;
   // warning : we assume here that the pos give us the current scale. In case of new left context, in theory, this information comes from somewhere else.
@@ -499,13 +497,13 @@ Iterator successor_at_scale(Iterator pos, int scale,
 */
 
 
-template<class Iterator, class IteratorMap = IterMap(Iterator)>
+template<class Iterator>
 Iterator successor_at_scale(Iterator pos, int scale, 
                             Iterator string_end,
                             bool fromPreviousPosition = false, 
                             int previous_scale = -1, 
                             const ConsiderFilterPtr filter = ConsiderFilterPtr(), 
-                            IteratorMap* itermap = NULL)
+                            MIteratorMap* itermap = NULL)
 {
   if( pos == string_end ) return string_end;  
   if(fromPreviousPosition) pos = direct_child_from_previous_pos(pos, string_end, filter, itermap);
@@ -537,9 +535,9 @@ Iterator successor_at_scale(Iterator pos, int scale,
 }
 
 
-template<class Iterator, class IteratorMap = IterMap(Iterator)>
+template<class Iterator>
 Iterator predecessor_at_level(Iterator pos, int scale, Iterator string_begin, Iterator string_end, const ConsiderFilterPtr filter = ConsiderFilterPtr(), 
-                              IteratorMap* itermap = NULL)
+                              MIteratorMap* itermap = NULL)
 {
   if( pos == string_begin ) return string_end;
   pos = parent(pos,string_begin, string_end, filter, itermap);
@@ -552,8 +550,8 @@ Iterator predecessor_at_level(Iterator pos, int scale, Iterator string_begin, It
   else return string_end;
 }
 
-template<class Iterator, class IteratorMap = IterMap(Iterator)>
-Iterator successor_at_level(Iterator pos, int scale, Iterator string_end, bool fromPreviousPosition = false, const ConsiderFilterPtr filter = ConsiderFilterPtr(), IteratorMap* itermap = NULL)
+template<class Iterator>
+Iterator successor_at_level(Iterator pos, int scale, Iterator string_end, bool fromPreviousPosition = false, const ConsiderFilterPtr filter = ConsiderFilterPtr(), MIteratorMap* itermap = NULL)
 {
   if( pos == string_end ) return string_end;
   if(fromPreviousPosition) pos = direct_child_from_previous_pos(pos, string_end, filter, itermap);
