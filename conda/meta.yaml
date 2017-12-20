@@ -1,4 +1,4 @@
-package:
+ package:
   name: vplants.lpy
   version: 2.21.1
 
@@ -39,4 +39,4 @@ test:
     - test/test_*.lpy
     - test/lpytest
   commands:
-   - nosetests -v 
+   - nosetests -v -I test_predecessor_at_scale.py -I test_multiline_produce.py -I test_kwd.py -I test_fibonacci.py -I test_enviro.py -I test_nproduce.py
