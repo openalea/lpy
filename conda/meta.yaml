@@ -37,6 +37,7 @@ test:
     - test/test_*.py
     - test/test_*.lpy
     - test/test_*.lpy
+    - test/plotredirection.py
     - test/lpytest
   commands:
    - nosetests -v 
