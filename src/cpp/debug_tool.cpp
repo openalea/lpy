@@ -31,6 +31,7 @@
 #include "debug_tool.h"
 #include <plantgl/tool/timer.h>
 #include <plantgl/tool/util_hashmap.h>
+#include <stdio.h>
 
 
 TOOLS_USING_NAMESPACE

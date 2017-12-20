@@ -23,6 +23,8 @@ requirements:
    - scons
    - openalea.sconsx
    - vplants.plantgl
+   - qt ==4.8.6 [osx]
+   - qt <5 [not osx]
   run:
    - vplants.plantgl
 
@@ -30,7 +32,7 @@ test:
   requires:
     - nose
   imports:
-    - vplants.plantgl
+    - openalea.lpy
   source_files:
     - test/test_*.py
     - test/test_*.lpy
