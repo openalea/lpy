@@ -36,8 +36,7 @@ test:
   source_files:
     - test/test_*.py
     - test/test_*.lpy
-    - test/test_*.lpy
     - test/plotredirection.py
     - test/lpytest
   commands:
-   - nosetests -v -I test_predecessor_at_scale.py -I test_multiline_produce.py -I test_kwd.py -I test_fibonacci.py -I test_enviro.py -I test_nproduce.py
+    - nosetests -v -I test_predecessor_at_scale.py -I test_multiline_produce.py -I test_kwd.py -I test_fibonacci.py -I test_enviro.py -I test_nproduce.py
