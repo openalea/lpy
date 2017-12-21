@@ -1,15 +1,15 @@
  package:
   name: vplants.lpy
-  version: 2.21.1
+  version: 2.7.0
 
 source:
   path: ..
 
 
 about:
-  home: http://openalea.gforge.inria.fr
+  home: https://github.com/openalea/lpy
   license: GPL/LGPL
-  summary: An open-source graphic toolkit for the creation, simulation and analysis of 3D virtual plants.
+  summary: L-Py is a simulation software that mixes L-systems construction with the Python high-level modeling language.
 
 build:
   preserve_egg_dir: True
