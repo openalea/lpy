@@ -27,6 +27,13 @@ requirements:
    - qt <5 [not osx]
   run:
    - vplants.plantgl
+   - qt ==4.8.6 [osx]
+   - qt <5 [not osx]
+   - pyqt
+   - openalea.vpltk
+   - pyopengl
+   - ipython
+   - pyqglviewer
 
 test:
   requires:
