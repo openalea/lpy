@@ -34,9 +34,6 @@ test:
   imports:
     - openalea.lpy
   source_files:
-    - test/test_*.py
-    - test/*.lpy
-    - test/plotredirection.py
-    - test/lpytest
+    - test/
   commands:
-    - nosetests -v -I test_predecessor_at_scale.py -I test_multiline_produce.py -I test_kwd.py -I test_fibonacci.py -I test_enviro.py -I test_nproduce.py
+    - nosetests -v -I test_predecessor_at_scale.py -I test_multiline_produce.py -I test_kwd.py -I test_fibonacci.py -I test_enviro.py -I test_nproduce.py -I test_ui.py
