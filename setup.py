@@ -43,6 +43,15 @@ install_requires = [binary_deps('vplants.plantgl')]
 #    install_requires.append('PyOpenGL')
 #    install_requires.append('pyqglviewer')
 
+def compile_interface():
+    cwd = os.getcwd()
+    os.chdir(pj('src','openalea','lpy','gui'))
+    sys.path = ['']+sys.path
+    import generate_ui
+    os.chdir(cwd)
+
+compile_interface()
+
 setup(
     name=name,
     version=version,
