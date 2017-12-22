@@ -35,7 +35,7 @@ test:
     - openalea.lpy
   source_files:
     - test/test_*.py
-    - test/test_*.lpy
+    - test/*.lpy
     - test/plotredirection.py
     - test/lpytest
   commands:
