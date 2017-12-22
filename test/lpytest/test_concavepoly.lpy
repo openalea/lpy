@@ -1,9 +1,13 @@
+from openalea.plantgl.all import pgl_support_extension
+
 def End(lstring,lscene):
   print len(lscene)
   faceset = lscene[-1].geometry
   print map(list,faceset.indexList)
   # assert faceset.indexList == [[1,2,3],[3,4,5],[0,1,3,5],[0,5,6,7],[7,8,9],[9,10,11],[7,9,11],[0,7,11]]
-  assert map(list,faceset.indexList) == [[0,11,10],[10,9,8],[0,10,8,7,6],[0,6,5,4],[0,4,3,2],[0,2,1]]
+  if pgl_support_extension('CGAL'):
+    indexList = map(list,faceset.indexList)
+    assert  indexList == [[0,11,10],[10,9,8],[0,10,8,7,6],[0,6,5,4],[0,4,3,2],[0,2,1]] or indexList == [[10, 9, 8], [0, 11, 10, 8], [0, 8, 7, 6], [0, 6, 5, 4], [0, 4, 3, 2], [0, 2, 1]]
 
     
 Axiom: +(90) BP F-F++F-F++F-F++F-F++F-F++F-F EP(True)

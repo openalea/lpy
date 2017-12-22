@@ -1,4 +1,5 @@
 from openalea.lpy import *
+from testresources import get_filename
 
 class Plotter:
     def __init__(self):
@@ -15,7 +16,7 @@ def test_selection():
     """ Test customisation of the plot and selection procedure """
     plot = Plotter()
     registerPlotter(plot)
-    l = Lsystem('test_selection.lpy')
+    l = Lsystem(get_filename('test_selection.lpy'))
     ln = len(l.axiom)
     l.context().makeCurrent()
     assert l.axiom == AxialTree('N[+NN][-N]N') and 'Invalid axiom parsing'
