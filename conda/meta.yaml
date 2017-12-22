@@ -24,6 +24,8 @@ requirements:
    - openalea.sconsx
    - vplants.plantgl
    - qt 
+   - pyqt
+   - openalea.vpltk
   run:
    - vplants.plantgl
    - qt 
