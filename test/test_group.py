@@ -1,9 +1,6 @@
 from openalea.lpy import *
+from testresources import get_filename
 
-
-def get_filename(fname, pymodname = __file__):
-    import os
-    return os.path.join(os.path.dirname(pymodname), fname)
 
 def test_group():
     """ Test group of rules """
