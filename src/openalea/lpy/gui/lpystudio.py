@@ -39,10 +39,13 @@ from openalea.lpy import *
 
 
 from openalea.vpltk.qt.compat import *
-from openalea.vpltk.qt.QtPrintSupport import QPrintDialog, QPrinter
 from openalea.vpltk.qt.QtCore import QCoreApplication, QEvent, QMutex, QObject, QThread, QWaitCondition, Qt, pyqtSignal, pyqtSlot
 from openalea.vpltk.qt.QtGui import QIcon, QPixmap, QTextCursor
 from openalea.vpltk.qt.QtWidgets import QAction, QApplication, QDialog, QFileDialog, QInputDialog, QMainWindow, QMessageBox, QTabBar
+try:
+    from openalea.vpltk.qt.QtPrintSupport import QPrintDialog, QPrinter
+except:
+    from openalea.vpltk.qt.QtGui import QPrintDialog, QPrinter
 
 
 # Restore default signal handler for CTRL+C

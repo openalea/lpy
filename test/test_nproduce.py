@@ -1,8 +1,9 @@
 from openalea.lpy import *
+from testresources import get_filename
 
 def test_nproduce(verbose = False):
     """ Test use of nproduce """
-    l=Lsystem('test_nproduce.lpy')
+    l=Lsystem(get_filename('test_nproduce.lpy'))
     if verbose: print l.axiom
     res = l.derive(1)
     if verbose: print res
