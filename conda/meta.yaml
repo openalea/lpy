@@ -23,10 +23,16 @@ requirements:
    - scons
    - openalea.sconsx
    - vplants.plantgl
-   - qt ==4.8.6 [osx]
-   - qt <5 [not osx]
+   - qt 
   run:
    - vplants.plantgl
+   - qt 
+   - pyqt
+   - openalea.vpltk
+   - ipython
+   - qtconsole
+   - pyopengl
+   - pyqglviewer
 
 test:
   requires:
@@ -35,5 +41,6 @@ test:
     - openalea.lpy
   source_files:
     - test/
+    - share/
   commands:
     - nosetests -v -I test_predecessor_at_scale.py   -I test_ui.py
