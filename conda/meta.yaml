@@ -1,0 +1,39 @@
+package:
+  name: vplants.lpy
+  version: 2.7.0
+
+source:
+  path: ..
+
+
+about:
+  home: https://github.com/openalea/lpy
+  license: GPL/LGPL
+  summary: L-Py is a simulation software that mixes L-systems construction with the Python high-level modeling language.
+
+build:
+  preserve_egg_dir: True
+  number: 0
+
+requirements:
+  build:
+   - python
+   - setuptools
+   - openalea.deploy
+   - scons
+   - openalea.sconsx
+   - vplants.plantgl
+   - qt ==4.8.6 [osx]
+   - qt <5 [not osx]
+  run:
+   - vplants.plantgl
+
+test:
+  requires:
+    - nose
+  imports:
+    - openalea.lpy
+  source_files:
+    - test/
+  commands:
+    - nosetests -v -I test_predecessor_at_scale.py -I test_multiline_produce.py -I test_kwd.py -I test_fibonacci.py -I test_enviro.py -I test_nproduce.py -I test_ui.py
