@@ -1,4 +1,5 @@
 from openalea.lpy import *
+from testresources import get_filename
 import warnings
 
 lcode_matchingmode = """
@@ -454,7 +455,7 @@ def matching_run(fname):
     
 def test_simple_match() : 
     """ Simple matching """
-    matching_run('test_simple_matching.lpy')
+    matching_run(get_filename('test_simple_matching.lpy'))
     
 ########################################################
 

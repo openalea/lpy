@@ -1,4 +1,5 @@
 from openalea.lpy import *
+from testresources import get_filename
 import warnings
 
 lcodebeg = """
@@ -36,14 +37,14 @@ def matching_run(code,optionvalues = range(4)):
 
 def test_axial_match() : 
     """ Test matching with axial tree context modification"""
-    f = open('test_axial_matching.lpy')
+    f = open(get_filename('test_axial_matching.lpy'))
     code = f.read()
     f.close()
     matching_run(code,range(1,4))
 
 def test_ms_match() : 
     """ Test matching with multiscale axial tree context modification"""
-    f = open('test_msmatch.lpy')
+    f = open(get_filename('test_msmatch.lpy'))
     code = f.read()
     f.close()
     matching_run(code,range(2,4))
@@ -63,7 +64,7 @@ U(x) > E:
 
 def test_axial_msmatch() : 
     """ Test matching with axial tree context modification"""
-    f = open('test_axial_msmatch.lpy')
+    f = open(get_filename('test_axial_msmatch.lpy'))
     code = f.read()
     f.close()
     matching_run(code,range(2,4))
