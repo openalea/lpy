@@ -255,6 +255,7 @@ void LsysRule::recompile(){
 void LsysRule::importPyFunction(){
 	if (!isCompiled()){
       __function = LsysContext::currentContext()->getObject(__nbParams<=MAX_LRULE_DIRECT_ARITY?functionName():callerFunctionName());
+      if(!isCompiled()) LsysError("Compilation failed.");
       // __function = LsysContext::currentContext()->getObject(functionName());
 	  initStaticProduction();
 	}
