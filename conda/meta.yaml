@@ -23,11 +23,13 @@ requirements:
    - scons
    - openalea.sconsx
    - vplants.plantgl
+   - boost
    - qt 
    - pyqt
    - openalea.vpltk
   run:
    - vplants.plantgl
+   - boost
    - qt 
    - pyqt
    - openalea.vpltk
