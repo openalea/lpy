@@ -34,7 +34,7 @@ requirements:
    - ipython
    - qtconsole
    - pyopengl
-   - pyqglviewer
+   - pyqglviewer [unix]
 
 test:
   requires:
