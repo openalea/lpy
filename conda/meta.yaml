@@ -47,4 +47,6 @@ test:
     - test/
     - share/
   commands:
-    - nosetests -v -I test_predecessor_at_scale.py   -I test_ui.py
+    - nosetests -v -I test_predecessor_at_scale.py   -I test_ui.py [unix]
+    - nosetests -v -I test_predecessor_at_scale.py   -I test_ui.py -I test_axialtree.py -I test_debugger.py [win]
+
