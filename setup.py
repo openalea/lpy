@@ -25,8 +25,8 @@ d = {}
 execfile(f,d,d)
 version= d['LPY_VERSION_STR']
 if meta_version != version:
-    print 'Warning:: Update the version in metainfo.ini !!'
-print pkg_name,': version =',version
+    print ('Warning:: Update the version in metainfo.ini !!')
+print (pkg_name,': version =',version)
 
 
 
@@ -39,9 +39,6 @@ from setuptools import setup
 from openalea.deploy.binary_deps import binary_deps
 
 install_requires = [binary_deps('vplants.plantgl')]
-#if 'linux' not in sys.platform:
-#    install_requires.append('PyOpenGL')
-#    install_requires.append('pyqglviewer')
 
 def compile_interface():
     cwd = os.getcwd()
