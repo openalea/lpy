@@ -40,6 +40,8 @@
 
 /*---------------------------------------------------------------------------*/
 
+class PglMutex;
+
 LPY_BEGIN_NAMESPACE
 
 
@@ -203,7 +205,7 @@ private:
     boost::python::object __call_function( size_t nbargs,  const ArgList& obj ) const;
     AxialTree __postcall_function( boost::python::object, bool * isApplied = NULL ) const;
 
-    QMutex * mutex;
+    PglMutex * mutex;
 
 };
 

@@ -1,0 +1,47 @@
+language: cpp
+
+os:
+  - linux
+  - osx
+
+sudo: required
+
+services:
+  - docker
+
+env:
+ - CONDA_RECIPE=conda
+   CONDA_VERSION=2
+
+install:
+  - git clone https://github.com/openalea/travis-ci.git
+  - cd travis-ci
+  - source install.sh
+
+before_script:
+  - source before_script.sh
+
+script:
+  - source script.sh
+  - conda install nose
+  - cd test; nosetests -v
+
+after_success:
+  - source after_success.sh
+
+after_failure:
+  - source after_failure.sh
+
+before_deploy:
+  - source before_deploy.sh
+
+deploy:
+  skip_cleanup: true
+  provider: script
+  script: bash deploy_script.sh
+
+after_deploy:
+  - source after_deploy.sh
+
+after_script:
+  - source after_script.sh

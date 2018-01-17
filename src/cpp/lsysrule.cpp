@@ -36,7 +36,7 @@
 #include "argcollector_core.h"
 #include <boost/version.hpp>
 #include <sstream>
-#include <QtCore/QMutex>
+#include <plantgl/tool/util_mutex.h>
 
 using namespace boost::python;
 LPY_USING_NAMESPACE
@@ -80,7 +80,7 @@ lineno(other.lineno),
 __codelength(other.__codelength),
 __consider(other.__consider),
 __lstringmatcher(),
-mutex(new QMutex()){
+mutex(new PglMutex()){
   IncTracker(LsysRule)
 }
 
@@ -94,7 +94,7 @@ __isStatic(false),
 lineno(_lineno),
 __codelength(0),
 __lstringmatcher(),
-mutex(new QMutex()){
+mutex(new PglMutex()){
   IncTracker(LsysRule)
 }
 
@@ -255,6 +255,7 @@ void LsysRule::recompile(){
 void LsysRule::importPyFunction(){
 	if (!isCompiled()){
       __function = LsysContext::currentContext()->getObject(__nbParams<=MAX_LRULE_DIRECT_ARITY?functionName():callerFunctionName());
+      if(!isCompiled()) LsysError("Compilation failed.");
       // __function = LsysContext::currentContext()->getObject(functionName());
 	  initStaticProduction();
 	}
