@@ -8,7 +8,7 @@ source:
 
 about:
   home: https://github.com/openalea/lpy
-  license: GPL/LGPL
+  license: CeCILL
   summary: L-Py is a simulation software that mixes L-systems construction with the Python high-level modeling language.
 
 build:
