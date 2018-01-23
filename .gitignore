@@ -2,11 +2,29 @@
 __pycache__/
 *.py[cod]
 
+options.py
+src/cpp/userconfig.h
+src/openalea/lpy/config.py
+
+src/openalea/lpy/gui/debugger_right_ui.py
+src/openalea/lpy/gui/debugger_ui.py
+src/openalea/lpy/gui/killsimulationwidget.py
+src/openalea/lpy/gui/logdialog.py
+src/openalea/lpy/gui/logindialog.py
+src/openalea/lpy/gui/lpymainwindow.py
+src/openalea/lpy/gui/lpyprefwidget.py
+src/openalea/lpy/gui/lpyresources_rc.py
+src/openalea/lpy/gui/scalarfloatmetaedit.py
+src/openalea/lpy/gui/scalarmetaedit.py
+
 # lpy temp file
 *.lpy~
 
 # C extensions
 build-scons
+build-scons_noqt
+build-scons_qt4
+build-scons_qt5
 *.so
 *.dll
 *.dblite
