@@ -26,7 +26,7 @@ requirements:
    - qt ==4.8.6 [osx]
    - qt <5 [not osx]
   run:
-   - vplants.plantgl
+   - openalea.plantgl
 
 test:
   requires:
