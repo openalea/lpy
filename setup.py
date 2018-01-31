@@ -25,8 +25,8 @@ d = {}
 execfile(f,d,d)
 version= d['LPY_VERSION_STR']
 if meta_version != version:
-    print 'Warning:: Update the version in metainfo.ini !!'
-print pkg_name,': version =',version
+    print ('Warning:: Update the version in metainfo.ini !!')
+print (pkg_name+': version ='+version)
 
 
 
@@ -38,11 +38,14 @@ build_prefix = "build-scons"
 from setuptools import setup
 from openalea.deploy.binary_deps import binary_deps
 
-# Do not use eggs to build lpy anymore.
-# install_requires = [binary_deps('vplants.plantgl')]
-#if 'linux' not in sys.platform:
-#    install_requires.append('PyOpenGL')
-#    install_requires.append('pyqglviewer')
+def compile_interface():
+    cwd = os.getcwd()
+    os.chdir(pj('src','openalea','lpy','gui'))
+    sys.path = ['']+sys.path
+    import generate_ui
+    os.chdir(cwd)
+
+compile_interface()
 install_requires = []
 
 setup(

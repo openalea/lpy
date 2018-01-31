@@ -26,23 +26,23 @@ def compile_ui(uifname):
 def compile_rc (rcfname) :
     """ compile a Ressource file """
     pyfname = get_rcfnames_from(rcfname)
-    if sys.platform == 'darwin':
+    def def_exe(suffix = ''):
         if os.environ[QT_API] in PYQT5_API:
-            exe = 'pyrcc5-2.7'
+            exe = 'pyrcc5'+suffix
         else:
-            exe = 'pyrcc4-2.7'
+            exe = 'pyrcc4'+suffix
+        return exe
+
+    if os.environ.has_key('CONDA_PREFIX'):
+        exe = def_exe()        
+    elif sys.platform == 'darwin':
+        exe = def_exe('-2.7')
     elif sys.platform == 'posix':
-        if os.environ[QT_API] in PYQT5_API:
-            exe = 'pyrcc4'
-        else:
-            exe = 'pyrcc5'
+        exe = def_exe()
     else:
         exe = os.path.join(sys.prefix,'pyrcc4.bat')
         if not os.path.exists(exe):
-            if os.environ[QT_API] in PYQT5_API:
-                exe = 'pyrcc4'
-            else:
-                exe = 'pyrcc5'
+            exe = def_exe()
     cmd = '%s "%s" > "%s"' % (exe,rcfname, pyfname)
     os.system(cmd)
 

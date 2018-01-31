@@ -1,6 +1,9 @@
+# do not edit the following line. It will be updated automatically
+{% set version = "2.7.0" %}
+
 package:
-  name: vplants.lpy
-  version: 2.7.0
+  name: openalea.lpy
+  version: {{ version }}
 
 source:
   path: ..
@@ -8,7 +11,7 @@ source:
 
 about:
   home: https://github.com/openalea/lpy
-  license: CeCILL
+  license: Cecill-C
   summary: L-Py is a simulation software that mixes L-systems construction with the Python high-level modeling language.
 
 build:
@@ -23,10 +26,20 @@ requirements:
    - scons
    - openalea.sconsx
    - openalea.plantgl
-   - qt ==4.8.6 [osx]
-   - qt <5 [not osx]
+   - boost
+   - qt 
+   - pyqt
+   - openalea.vpltk
   run:
    - openalea.plantgl
+   - boost
+   - qt 
+   - pyqt
+   - openalea.vpltk
+   - ipython
+   - qtconsole
+   - pyopengl
+   - pyqglviewer [unix]
 
 test:
   requires:
@@ -35,5 +48,7 @@ test:
     - openalea.lpy
   source_files:
     - test/
+    - share/
   commands:
-    - nosetests -v -I test_predecessor_at_scale.py -I test_ui.py
+    - nosetests -v -I test_predecessor_at_scale.py   -I test_ui.py [unix]
+    - nosetests -v -I test_predecessor_at_scale.py   -I test_ui.py -I test_axialtree.py -I test_debugger.py -I test_fibonacci.py -I test_lpytest.py -I test_matching.py [win]
