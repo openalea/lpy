@@ -26,7 +26,7 @@ execfile(f,d,d)
 version= d['LPY_VERSION_STR']
 if meta_version != version:
     print ('Warning:: Update the version in metainfo.ini !!')
-print (pkg_name,': version =',version)
+print (pkg_name+': version ='+version)
 
 
 
