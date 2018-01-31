@@ -78,8 +78,8 @@ std::string Compilation::python_exec = "python";
 
 void Compilation::py_string_compile(const std::string& code, PyObject * globals, PyObject * locals)
 {
-	bp::exec(bp::str(code.c_str()),bp::object(bp::handle<>(bp::borrowed(globals))),bp::object(bp::handle<>(bp::borrowed(locals))));
-	// bp::handle<>( PyRun_String(code.c_str(),Py_file_input,globals,locals) );
+	// bp::exec(bp::str(code.c_str()),bp::object(bp::handle<>(bp::borrowed(globals))),bp::object(bp::handle<>(bp::borrowed(locals))));
+	bp::handle<>( PyRun_String(code.c_str(),Py_file_input,globals,locals) );
 }
 
 std::string Compilation::generate_fname(const std::string& fname)
