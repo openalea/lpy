@@ -48,6 +48,8 @@ public:
 
   ConsiderFilter(const ModuleClassList& modules, eConsiderMethod method = eConsider);
 
+  ~ConsiderFilter();
+
   // isConsidered
   inline bool isConsidered(const std::string& module) const
   { return !isIgnored(module); }

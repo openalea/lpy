@@ -44,7 +44,8 @@ LPY_BEGIN_NAMESPACE
 
 #define TRACKER_CLASS_APPLY(MACRO) \
 	MACRO(Module) \
-	MACRO(AxialTree) \
+    MACRO(AxialTree) \
+    MACRO(ConsiderFilter) \
 	MACRO(PatternString) \
 	MACRO(LsysContext) \
 	MACRO(LsysOptionValue) \

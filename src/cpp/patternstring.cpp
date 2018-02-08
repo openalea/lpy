@@ -44,6 +44,8 @@ PatternString::PatternString(const_iterator beg, const_iterator end) : BaseType(
 
 PatternString::~PatternString() { DecTracker(PatternString) }
 
+PatternString::PatternString(const PatternString& s) : BaseType(s) {  IncTracker(PatternString) }
+
 
 
 PatternString::PatternString(const std::string& s, int lineno) : BaseType() {
