@@ -1,0 +1,54 @@
+from openalea.sconsx import config, environ
+from openalea.sconsx.util.qt_check import detect_installed_qt_version
+try:
+    import openalea.plantgl.config as pglconf
+except ImportError:
+    pglconf = None
+
+
+import os
+from os.path import pardir
+pj= os.path.join
+
+ALEASolution = config.ALEASolution
+
+name='lpy'
+
+options = Variables(['options.py', '../../options.py','../../../options.py'], ARGUMENTS )
+
+if pglconf :
+    qt_version = pglconf.PGL_QT_VERSION
+else:
+    options.Add(EnumVariable('QT_VERSION','Qt major version to use',str(detect_installed_qt_version(4)),allowed_values=('4','5')))
+
+    # Create an environment to access qt option values
+    qt_env = Environment(options=options, tools=[])
+    qt_version = eval(qt_env['QT_VERSION'])
+
+
+tools = ['openalea.lpy','openalea.plantgl','boost_python','qt'+str(qt_version)]
+
+env = ALEASolution(options, tools)
+
+# Build stage
+prefix = env['build_prefix']
+
+
+source= ["main.cpp"]
+
+LIBRARIES = list( env['LIBS'] )
+LIBRARIES.extend( ['lpy', 'pglgui', 'pglalgo', 'pgltool', 'pglmath','pglsg'] )
+
+lpypath = pj( pardir, pardir, 'build-scons')
+
+env.Append( CPPPATH = pj( lpypath ,'include' ) )
+env.Append( LIBPATH = pj( lpypath ,'lib' ) )
+
+bin, inst_bin = env.ALEAProgram( "embeddedlpy", source, LIBS = LIBRARIES )
+
+inst_bin = env.Install(os.getcwd(), bin)
+Alias("build", inst_bin)
+
+Default("build")
+
+

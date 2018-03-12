@@ -1,4 +1,4 @@
-from openalea.sconsx.util.configdeploy import *
+from openalea.sconsx.util.config_deploy import *
 
 #################################################################
 

@@ -16,7 +16,7 @@ about:
 
 build:
   preserve_egg_dir: True
-  number: 0
+  number: 1
 
 requirements:
   build:
@@ -25,13 +25,13 @@ requirements:
    - openalea.deploy
    - scons
    - openalea.sconsx
-   - vplants.plantgl
+   - openalea.plantgl
    - boost
    - qt 
    - pyqt
    - openalea.vpltk
   run:
-   - vplants.plantgl
+   - openalea.plantgl
    - boost
    - qt 
    - pyqt
@@ -52,4 +52,3 @@ test:
   commands:
     - nosetests -v -I test_predecessor_at_scale.py   -I test_ui.py [unix]
     - nosetests -v -I test_predecessor_at_scale.py   -I test_ui.py -I test_axialtree.py -I test_debugger.py -I test_fibonacci.py -I test_lpytest.py -I test_matching.py [win]
-
