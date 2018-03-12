@@ -44,7 +44,7 @@ public:
   typedef AbstractLString<PatternModule> BaseType;
 
   PatternString();
-  // PatternString(const PatternString&);
+  PatternString(const PatternString&);
   PatternString(const PatternModule&);
   PatternString(const_iterator beg, const_iterator end);
   PatternString(const std::string&, int lineno = -1);

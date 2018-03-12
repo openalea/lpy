@@ -33,32 +33,18 @@
 #include "export_lsystem.h"
 #include "moduleclass.h"
 #include "lsyscontext.h"
-#include "tracker.h"
-#include <plantgl/gui/base/application.h>
-#include <plantgl/python/exception_core.h>
+#include "lpyrun.h"
 
 using namespace boost::python;
 LPY_USING_NAMESPACE
 
 
-void cleanLsys() 
-{
-#ifdef TRACKER_ENABLED
-	std::cerr << "****** pre-cleaning *******" << std::endl;
-	Tracker::printReport();
-#endif
-	LsysContext::cleanContexts();
-	ModuleClassTable::clearModuleClasses ();
-	ViewerApplication::exit ();
-#ifdef TRACKER_ENABLED
-	std::cerr << "****** post-cleaning ******" << std::endl;
-	Tracker::printReport();
-#endif
-}
+
 
 BOOST_PYTHON_MODULE(__lpy_kernel__)
 {
-	define_stl_exceptions();
+    Lpy_Initialize();
+    
 	export_Options();
 	export_ModuleClass();
 	export_Module();
@@ -76,5 +62,4 @@ BOOST_PYTHON_MODULE(__lpy_kernel__)
     export_StringMatching();
     export_Debugger();
 	// def("cleanLsys",&cleanLsys);
-	Py_AtExit(&cleanLsys);
 };

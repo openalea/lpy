@@ -81,6 +81,7 @@ protected:
 };
 
 void LsysContext::cleanContexts(){
+    QMutexLocker locker(&CURRENT_LSYSCONTEXT_MUTEX);
 	if (DEFAULT_LSYSCONTEXT){
 		delete DEFAULT_LSYSCONTEXT;
 		DEFAULT_LSYSCONTEXT = NULL;

@@ -30,6 +30,7 @@
 
 #include "consider.h"
 #include "axialtree.h"
+#include "tracker.h"
 
 // using namespace boost::python;
 LPY_USING_NAMESPACE
@@ -116,6 +117,7 @@ bool ConsiderFilter::isNoneCurrent()
 
 ConsiderFilter::ConsiderFilter(const std::string& modules, eConsiderMethod method):
 RefCountObject(), __method(method) {
+  IncTracker(ConsiderFilter)
   if(!modules.empty()){
     AxialTree t(modules);
     for(AxialTree::const_iterator _it = t.begin(); _it != t.end(); ++_it)
@@ -126,12 +128,16 @@ RefCountObject(), __method(method) {
 
 ConsiderFilter::ConsiderFilter(const ModuleClassList& modules, eConsiderMethod method):
 RefCountObject(), __method(method) {
+  IncTracker(ConsiderFilter)
   if(!modules.empty()){
     for(ModuleClassList::const_iterator _it = modules.begin(); _it != modules.end(); ++_it)
       __keyword[(*_it)->getId()] = (*_it);
   }
 }
 
+ConsiderFilter::~ConsiderFilter(){
+  DecTracker(ConsiderFilter)    
+}
 
 bool
 ConsiderFilter::isIgnored(const ModuleClassPtr moduleclass) const{
