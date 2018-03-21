@@ -1,5 +1,5 @@
 # do not edit the following line. It will be updated automatically
-{% set version = "2.7.0" %}
+{% set version = "2.7.1" %}
 
 package:
   name: openalea.lpy
@@ -39,7 +39,7 @@ requirements:
    - ipython
    - qtconsole
    - pyopengl
-   - pyqglviewer [unix]
+   - pyqglviewer
 
 test:
   requires:
