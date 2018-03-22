@@ -28,13 +28,20 @@ When it's done, create an environment for L-Py:
 
 .. code-block:: bash
 
-        conda create -n lpy vplants.lpy -c openalea
+        conda create -n lpy openalea.lpy -c openalea
+        
+
 
 Then, activate the L-Py environment
 
 .. code-block:: bash
 
         source activate lpy
+
+.. warning:: On linux, the wrong version of boost may be installed (1.65 rather than 1.66 from openalea channel). 
+Use the command. In the lpy environment, install boost 1.66.0::
+    
+    conda install -c openalea boost=1.66.0
 
 And run L-Py
 
