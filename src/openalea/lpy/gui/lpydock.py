@@ -79,15 +79,21 @@ def initDocks(lpywidget):
     lpywidget.profilerDock.hide()
     #interpreter dock
     if lpywidget.withinterpreter :
-        set_shell_widget(lpywidget)
+        try:
+            set_shell_widget(lpywidget)
+        except:
+            lpywidget.withinterpreter = False
+            lpywidget.interpreter = None
+            lpywidget.interpreterDock.hide()
 
-        action = lpywidget.interpreterDock.toggleViewAction()
-        action.setShortcut(QCoreApplication.translate("MainWindow", "Ctrl+P"))        
-        lpywidget.menuView.addSeparator()
-        lpywidget.menuView.addAction(action)
-        
-        lpywidget.addDockWidget(Qt.BottomDockWidgetArea,lpywidget.interpreterDock)
-        lpywidget.tabifyDockWidget(lpywidget.debugDock,lpywidget.interpreterDock)
+        if lpywidget.withinterpreter :
+            action = lpywidget.interpreterDock.toggleViewAction()
+            action.setShortcut(QCoreApplication.translate("MainWindow", "Ctrl+P"))        
+            lpywidget.menuView.addSeparator()
+            lpywidget.menuView.addAction(action)
+            
+            lpywidget.addDockWidget(Qt.BottomDockWidgetArea,lpywidget.interpreterDock)
+            lpywidget.tabifyDockWidget(lpywidget.debugDock,lpywidget.interpreterDock)
     else:
         lpywidget.interpreter = None
          

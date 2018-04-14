@@ -519,7 +519,7 @@ LsysRule::match(const AxialTree& src,
   }
 
   // left context
-  AxialTree::const_iterator endposLeft = (direction == eForward?pos:pos+1);
+  AxialTree::const_iterator endposLeft = (direction == eForward || pos == src.end() ?pos:pos+1);
   if(!__leftcontext.empty()){
       if(!MatchingEngine::left_match(endposLeft,src.const_begin(),src.const_end(),
 		                              __leftcontext.const_rbegin(),__leftcontext.const_rend(),
