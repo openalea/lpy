@@ -1,5 +1,5 @@
 from openalea.lpy import *
-import os, glob
+import os, sys, glob
 
 def get_lpy_tst():
     d = os.path.os.path.dirname(__file__)
@@ -16,10 +16,16 @@ def exec_lpy_tst(lfile):
             print 'Test file :',lfile
             raise e
     
+toavoid = []
+if sys.platform == 'win32':
+    toavoid += ['test_inheritance.lpy']
     
 def test_lpy_tests():
     """ Test all lpy examples from lpytest/ repository """
     for lfile in get_lpy_tst():
+        if os.path.basename(lfile) in toavoid:
+            continue
+        print lfile
         yield exec_lpy_tst,lfile
 
         
