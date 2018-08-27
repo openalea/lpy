@@ -568,7 +568,7 @@ Iterator successor_at_level(Iterator pos, int scale, Iterator string_end, bool f
 template<class Iterator>
 Iterator next_module(Iterator pos, Iterator string_end, bool fromPreviousPosition = false, const ConsiderFilterPtr filter = ConsiderFilterPtr()) 
 {
-	if(!fromPreviousPosition) ++pos;
+  if(pos != string_end && (!fromPreviousPosition)) ++pos;
 	while(pos != string_end && pos->isIgnored(filter)){ ++pos; }
 	return pos;
 }

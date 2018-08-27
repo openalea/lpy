@@ -137,11 +137,11 @@ struct GetNext {
 public:
 	static inline Iterator next(Iterator pos, PIterator pattern, Iterator string_end, 
                                 const ConsiderFilterPtr& filter, IteratorMap* iteratormap = NULL) { 
-		return next_module(pos,string_end, false, filter);
+		return next_module(pos, string_end, false, filter);
 	}
 	static inline Iterator initial_next(Iterator pos, PIterator pattern, Iterator last_matched, Iterator string_end, 
                                         const ConsiderFilterPtr& filter, IteratorMap* iteratormap = NULL) { 
-		return next_module(pos,string_end, true, filter);
+		return next_module(pos, string_end, true, filter);
 	}
 };
 
@@ -560,6 +560,15 @@ struct TreeLeftMatcher
 };
 /*---------------------------------------------------------------------------*/
 
+template <class Iterator>
+bool is_equal(Iterator it1, Iterator it2){
+#if _MSC_VER == 1500
+	return &(*it1) == &(*it2);
+#else
+	return it1 == it2; 
+#endif
+}
+
 template<
 template < typename, typename, typename > class _NextElement = GetNext,
 class _Iterator = AxialTree::const_iterator, 
@@ -606,14 +615,12 @@ struct TreeRightMatcher
 
 		argtype lparams;
 
-
-        if (it == _last_matched) {
+        if (is_equal(it,_last_matched)) {
             it = NextElement::next(it,it2,string_end, filter,iteratormap);
         }
 		else { 
             it = NextElement::initial_next(it, it2, _last_matched, string_end, filter, iteratormap);
         }		
-        
         std::stack<Iterator> bracketstack;
 		bool nextpattern = true;
 		bool nextsrc = true;
