@@ -1,4 +1,4 @@
-Subtelties with L-Py 
+Subtleties with L-Py 
 ####################
 
 Axiom parameters that change after simulation
@@ -6,21 +6,21 @@ Axiom parameters that change after simulation
 
 Python makes it possible to create complex structure for instance to contains parameter of a module::
 
-    1   class ApexParameters:
-    2       def __init__(self,age=0):
-    3          self.age = age
-    4       def __str__(self):
-    5           return 'ApexParameters(age='+str(self.age)+')'
+       class ApexParameters:
+          def __init__(self,age=0):
+              self.age = age
+          def __str__(self):
+               return 'ApexParameters(age='+str(self.age)+')'
 
 It can then be instantiated in the axiom and modified during the simulation::
 
-    6   module Apex
-    7   Axiom: Apex(ApexParameters(age=0))
-    8   dt = 1
-    9   derivation length: 2
-    10  Apex(p) : 
-    11     p.age += dt
-    12     produce Node() Apex(p)
+       module Apex
+       Axiom: Apex(ApexParameters(age=0))
+       dt = 1
+       derivation length: 2
+       Apex(p) : 
+          p.age += dt
+          produce Node() Apex(p)
 
 Creating the lsystem and running it the first time will produce the expected result.::
 
@@ -53,11 +53,11 @@ axiom with modified parameters values.
 
 To avoid that, an explicit copy of the parameter should be done. Rules will have the following shape.::
 
-    10  Apex(p) : 
-    11     from copy import deepcopy
-    12     p = deepcopy(p)
-    13     p.age += dt
-    14     produce Node() Apex(p)
+      Apex(p) : 
+         from copy import deepcopy
+         p = deepcopy(p)
+         p.age += dt
+         produce Node() Apex(p)
 
 
 sproduce and undeclared modules

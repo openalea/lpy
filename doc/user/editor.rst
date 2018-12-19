@@ -17,19 +17,18 @@ On start, the editor looks like this:
 *1) Top Toolbar*
 
 
-Here are located the most used features implemented in L-Py. You can create, open or save your current program;
+This toolbar present the most used features of L-Py. You can create, open or save your current program;
 you can run and animate your work with the appropriate buttons or even execute it step by step and ultimately you can debug
 or check the process and rendering time with the Profile button.
 
 
 *2) Sidebar tools*
 
-On the left sidebar, there are of useful tools you can use, you have:
+On the left sidebar, meta information on the model and its execution can be defined or controlled :
 
-- "Color map" tab where you can create your custom colors and assign these to some objects in your project.
-- "Configuration" tab where you can configure your rendering settings.
-- "Description" tab where you can write down some notes about your program to describe it or remember important
-  facts about your project.
+- "Color map" :  Creation of custom materials or textures to assign to objects of the simulation.
+- "Configuration" : Configure the settings of the execution of the model.
+- "Description" : Presentation of the models and its contributors.
 
 
 *3) Editor*
@@ -38,23 +37,25 @@ L-Py gives you the possibility to code inside the application by a built-in edit
 and colored for a best readability.
 
 
-*4) Python Shell and custom panels*
+*4) Python Shell*
 
-By default, the Python Shell is located here but you can add some panels that can be useful in the creation of new
-curves (Polyline 2D).
+A Python Shell makes it possible to manipulates the lsystems and theirs variables.
 
+*5) Custom panels*
+
+Some panels for the definition of graphical object such as function, curves of patches.
 
 .. _Editor_PlantGL:
 
-PlantGL
-=======
+PlantGL Viewer
+===============
 
-When you think your program is ready to be tested, just click on **Run** or **Animate** to visualize your project.
+By default, the visualization of the model is made within the PlantGL Viewer after clicking on **Run** or **Animate** buttons .
 
 .. image:: ../_images/editor/ex002.png
     :scale: 60%
 
-The PlantGL visualizer has a 3D-camera where you can turn around your rendering. The basic controls you'll mostly use are:
+The PlantGL visualizer has a 3D-camera where you can turn around your object. The basic controls you'll mostly use are:
 
 - *Hold Left Click* to turn around X and the Y axis of the camera
 - *Wheel Mouse* to zoom / unzoom on the scene
@@ -66,55 +67,45 @@ The PlantGL visualizer has a 3D-camera where you can turn around your rendering.
 Color Map
 =========
 
-We quickly saw and talked about the custom color palette available in the sidebar tools. It can be used to create
+It can be used to create
 colors and access it directly in your code by avoiding multiple duplications of SetColor(r,g,b[,a])
 thanks to the **','** **';'** or **SetColor(index)** instructions.
 
 .. image:: ../_images/editor/ex003.png
     :scale: 60%
 
-When double-clicking on a material sphere, a pop-up appears to let you configure your custom material.
+When double-clicking on a material sphere, a dialog appears to configure a custom material.
 
-Here you can configure the ambient, diffuse, specular and emission color of your material plus its power. Ultimately,
-you can also configure the material shininess and transparency to add some properties on your material.
-
+The ambient, diffuse, specular, emission, shininess and transparency components of the material can be controled. 
 
 .. _Editor_Scalar_Parameters:
 
 Scalar Parameters
 =================
 
-While developing your project, you may encounter the fact when you need to test out some values on an element.
-Thanks to the scalar parameters located in the Sidebar Tools, you can create a global variables that will replace some others variables put in
-your code.
+A model may have critical parameters whose values need to be controled finelly. For this some graphical control are possible using the Scalar Parameters sidebar. In this bar, you can create a scalar parameter by defining a name, a type (bool, integer, float), some bounds. The name of the parameter will correspond to the name of the variable that will be created within the model.
 
 .. image:: ../_images/editor/ex010.png
     :scale: 60%
 
-Let's get into it:
-
-Firstly, create three *float* scalar parameters and name these **X,Y,Z** respectively by right-clicking in the green area.
+First, a right-click in the green area makes it possible to create a new scalar parameter. A definition dialog pops up.
 
 .. image:: ../_images/editor/ex011.png
     :scale: 80%
 
-Here, I'll set all of my variables to have a value in a range between 0 and 10. For this exemple,
-the other parameters are not important.
-
-You can see now that the parameters has been added to the widget:
+As a result different variables can be added and are accessible in the toolbar.
 
 .. image:: ../_images/editor/ex012.png
     :scale: 60%
 
-To not get lost by these variables without any sense, you can also add **categories** to sort your variables and
-add to it a senseful name.
-
-For my part, I've done this to not get lost in my work:
+To organize these variables, some **categories** can be added, represented in black.
 
 .. image:: ../_images/editor/ex013.png
     :scale: 60%
 
 *Code:*
+
+Within the code, the variables can be used as standard variables. In the following example, the previous X,Y, Z parameters are used as value of length of different branch of a simple structure.
 
 .. code-block:: python
 
@@ -136,12 +127,12 @@ The render on PlantGL should display something like this (with X=4, Y=2 and Z=1.
 .. image:: ../_images/editor/ex014.png
     :scale: 60%
 
-See ? The values you put on in the *Scalar Parameters* widget are directly modified into the code and then
-displayed on screen as wanted!
+The values put on in the *Scalar Parameters* widget are directly modified into the code and then
+displayed on screen on request.
 
-And if you're bored to modify the values and to click each time on **Run** or **Animate**, you can also activate the
-**Auto-Run** feature, to do so, click on *L-systems > Auto-Run*. It will modify values at runtime when you're changing the values
-without the need to re-run or re-animate your project!
+To avoid modifying the values and clicking each time on the **Run** button, ythe
+**Auto-Run** feature can be activated in the menu *L-systems > Auto-Run*. 
+Every modificaiton of the value will relaunch automatically the simulation.
 
 
 .. _Editor_Custom_Curves:
