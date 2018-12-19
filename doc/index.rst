@@ -19,7 +19,6 @@ Thanks to Python and its modular approach, this framework makes it possible to i
 in particular tools from the OpenAlea platform. Additionally, it can be integrated as a simple growth simulation module
 into more complex computational pipelines.
 
-L-Py is inspired by Lstudio/cpfg-lpfg defined by P. Prusinkiewicz et al. (http://algorithmicbotany.org/lstudio).
 
 
 
@@ -36,23 +35,27 @@ Documentation
     ./user/turtle.rst
     ./user/subtelties.rst
     ./user/helpcard.rst
+    ./user/integration.rst
 
-Modules and objects included in VPlants.Lpy are also described in :ref:`lpy_reference`.
+Modules and objects included in Lpy are also described in :ref:`lpy_reference`.
 
 .. warning::
 
-   This Guide is still very much in progress.    Many aspects of VPlants.Lpy are not covered.
+   This Guide is still very much in progress. Many aspects of Lpy are not covered.
 
-   More documentation can be found on the
-   `openalea <http://openalea.gforge.inria.fr>`__ wiki, in particular in the
-   `Lpy pages <http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=packages:vplants:lpy:main>`__
+   Documentation can be found on the
+   `Lpy Readthedocs pages <https://lpy.readthedocs.io/en/latest/>`__
 
 References
 ==========
 
+  * F. Boudon, C. Pradal, T. Cokelaer, P. Prusinkiewicz, C. Godin. L-Py: an L-system simulation framework for modeling plant architecture development based on a dynamic language. Frontiers in Plant Science, Frontiers, 2012, 3 (76), doi: `10.3389/fpls.2012.00076 <https://dx.doi.org/10.3389/fpls.2012.00076>`__.
+ 
+For more details on Lsystems, see also:
+
   *  F. Boudon, T. Cokelaer, C. Pradal and C. Godin, L-Py, an open L-systems framework in Python, FSPM 2010
 
-For more details on Lsystems, see also:
+L-Py was inspired by `Lstudio/cpfg-lpfg <http://algorithmicbotany.org/lstudio>`__ defined by P. Prusinkiewicz et al. See also
 
   *  P. Prusinkiewicz et al., 89, The algorithmic Beauty of Plants, Springer-Verlag.
   *  P. Prusinkiewicz. Graphical applications of L-systems. Proceedings of Graphics Interface '86, pp. 247-253.
