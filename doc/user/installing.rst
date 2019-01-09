@@ -28,7 +28,7 @@ When it's done, create an environment for L-Py:
 
 .. code-block:: bash
 
-        conda create -n lpy vplants.lpy -c openalea
+        conda create -n lpy openalea.lpy -c openalea
 
 Then, activate the L-Py environment
 

@@ -1,4 +1,4 @@
-L-Py in scripts or in third party application
+L-Py in scripts or in third party applications
 ###############################################
 
 Manipulation of Lsystems
@@ -78,7 +78,7 @@ Note that the function ``interpret`` of the Lsystem makes it possible to apply i
 Graphical output
 ----------------
 
-A visual interpretation can be made using turtle. For this the function ``turtle_interpretation`` of the Lsystem can be used. Custom turtle deriving from PlantGL ``Turtle`` class can be defined and used. By default, a ``PglTurtle`` is used which output PlantGL primitives. 
+A visual interpretation can be made using a 3D turtle. For this the function ``turtle_interpretation`` of the Lsystem can be used. Custom turtle deriving from PlantGL ``Turtle`` class can be defined and used. By default, a ``PglTurtle`` is used which output PlantGL primitives. 
 A computation of the PlantGL representation at each step can thus be defined in the following way:
 
 .. code-block:: python
@@ -93,7 +93,7 @@ A computation of the PlantGL representation at each step can thus be defined in 
         scene = t.getScene()
 
 
-Note that an interpretation as a PlantGL scene of the lstring can be computed directly with the ``sceneInterpretation`` of the Lsystem object.
+Note that an interpretation of the lstring as a PlantGL scene can be computed directly with the ``sceneInterpretation`` of the Lsystem object.
 
 .. code-block:: python
 
@@ -115,7 +115,7 @@ Plotting directly the 3D scene from the Lstring is also possible with the functi
         lsystem.plot(lstring)
 
 
-In such case, the viewer used to plot the 3D scene can be parameterized (By default it is the PlantGLViewer). For this the function ``registerPlotter`` of the lpy module can be used. It allows to register a plotter whose interface are expected
+In such case, the viewer used to plot the 3D scene can be parameterized (By default it is the PlantGLViewer). For this the function ``registerPlotter`` of the lpy module can be used. It allows to register a plotter whose following interface are expected
 
 .. code-block:: python
 
@@ -134,12 +134,12 @@ In such case, the viewer used to plot the 3D scene can be parameterized (By defa
                 """ Wait for selection of elements with the following text """
                 pass
 
-From the Lsystem point of view, it is possible to use the function ``animate`` or ``record`` to plot using the defined plotter the 3D interpretation of the Lsystem at each step.
+From the Lsystem point of view, it is possible to use the function ``animate`` or ``record`` to plot at each step the 3D interpretation of the Lsystem using the defined plotter.
 
 Graphical Parameters Manipulation
 =====================================
 
-The L-Py GUI makes it possible to define graphical parameters by the user and usable within the simulation. For this, som code are defined at the end of the Lsystem code. in addition to the variables defined in its namespace, it is possible to have access to the predefined graphical parameters of an Lsystems using some globals variables:
+The L-Py GUI makes it possible to define graphical parameters by the user and usable within the simulation. For this, some code are defined at the end of the Lsystem code. In addition to the variables defined in its namespace, it is possible to have access to the predefined graphical parameters of an Lsystems using some globals variables:
 
 .. code-block:: python
     
