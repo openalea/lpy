@@ -1,7 +1,10 @@
 #!/bin/bash
 
-export PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig
+# Working Dir
+mkdir build-cmake
+cd build-cmake
 
-cp options_conda_build.py options.py
-
-$PYTHON setup.py  install --prefix=$PREFIX 
+# Build
+cmake -DCMAKE_INSTALL_PREFIX=${PREFIX} -DCMAKE_PREFIX_PATH=${PREFIX} -DCMAKE_BUILD_TYPE=Release ..
+make -j${CPU_COUNT}
+make install

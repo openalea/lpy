@@ -1,5 +1,11 @@
-COPY options_conda_win.py options.py
+:: Working Dir
+mkdir build-cmake
+cd build-cmake
 
-%PYTHON% setup.py install
-
+:: Build
+cmake -G "NMake Makefiles" -DCMAKE_INSTALL_PREFIX=%LIBRARY_PREFIX% -DCMAKE_BUILD_TYPE=Release ..
+if errorlevel 1 exit 1
+nmake
+if errorlevel 1 exit 1
+nmake install
 if errorlevel 1 exit 1
