@@ -8,7 +8,6 @@ package:
 source:
   path: ..
 
-
 about:
   home: https://github.com/openalea/lpy
   license: Cecill-C
@@ -20,22 +19,16 @@ build:
 
 requirements:
   build:
-   - python
-   - setuptools
-   - openalea.deploy
-   - scons
-   - openalea.sconsx
+   - python =3
    - openalea.plantgl
    - boost
    - qt
    - pyqt
-   - openalea.vpltk
   run:
    - openalea.plantgl
    - boost
    - qt
    - pyqt
-   - openalea.vpltk
    - ipython
    - qtconsole
    - pyopengl
