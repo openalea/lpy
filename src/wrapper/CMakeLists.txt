@@ -2,23 +2,27 @@
 
 file(GLOB_RECURSE SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 
-add_library(_lpy SHARED ${SRC_FILES})
+add_library(__lpy_kernel__ SHARED ${SRC_FILES})
 
 # --- Linked Library
 
-target_link_libraries(_lpy lpy)
-target_link_libraries(_lpy ${PLANTGL_LIBRARIES})
-target_link_libraries(_lpy Python3::Python)
+target_link_libraries(__lpy_kernel__ lpy)
+target_link_libraries(__lpy_kernel__ ${PLANTGL_LIBRARIES})
+target_link_libraries(__lpy_kernel__ Python3::Python)
 
 # Disable Boost Auto-Link
-target_compile_definitions(_lpy PRIVATE BOOST_ALL_NO_LIB)
+target_compile_definitions(__lpy_kernel__ PRIVATE BOOST_ALL_NO_LIB)
 
-target_link_libraries(_lpy Boost::${BOOST_PYTHON_LIB})
+target_link_libraries(__lpy_kernel__ Boost::${BOOST_PYTHON_LIB})
 
 # --- Dependencies
 
-add_dependencies(_lpy lpy)
+add_dependencies(__lpy_kernel__ lpy)
 
 # --- Output Library
 
-install(TARGETS _lpy LIBRARY DESTINATION "lib")
+set_target_properties(__lpy_kernel__ PROPERTIES SUFFIX ".pyd")
+
+install(TARGETS __lpy_kernel__ DESTINATION "${CMAKE_SOURCE_DIR}/src/openalea/lpy")
+install(TARGETS __lpy_kernel__ DESTINATION "${CMAKE_SOURCE_DIR}/src/openalea/lpy_d")
+install(TARGETS __lpy_kernel__ DESTINATION "${CMAKE_SOURCE_DIR}/src/openalea/lpy_wralea")
