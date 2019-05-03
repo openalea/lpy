@@ -7,7 +7,7 @@ pj = os.path.join
 
 from openalea.deploy.metainfo import read_metainfo
 metadata = read_metainfo('metainfo.ini', verbose=True)
-for key,value in metadata.iteritems():
+for key,value in metadata.items():
     exec("%s = '%s'" % (key, value))
 
 ##############
@@ -22,7 +22,7 @@ meta_version = version
 # check that meta version is updated
 f = pj(os.path.dirname(__file__),'src', 'openalea', 'lpy','__version__.py')
 d = {}
-execfile(f,d,d)
+exec(compile(open(f, "rb").read(), f, 'exec'),d,d)
 version= d['LPY_VERSION_STR']
 if meta_version != version:
     print ('Warning:: Update the version in metainfo.ini !!')
