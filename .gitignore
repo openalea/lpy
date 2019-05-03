@@ -28,6 +28,7 @@ build-scons_qt5
 *.so
 *.dll
 *.dblite
+*.lib
 
 # Distribution / packaging
 .Python
