@@ -40,13 +40,13 @@ def test_successor_at_scale(assertion = True):
         if assertion:
             assert pred == res_1[i] and pred2 == res_2[i]
         else :
-          print i,m,
-          print '\t',pred,
-          if not pred is None: print lstring[pred],
-          print '\t',pred == res_1[i],
-          print '\t',pred2,
-          if not pred2 is None: print lstring[pred2],
-          print '\t',pred2 == res_2[i]
+          print(i,m, end=' ')
+          print('\t',pred, end=' ')
+          if not pred is None: print(lstring[pred], end=' ')
+          print('\t',pred == res_1[i], end=' ')
+          print('\t',pred2, end=' ')
+          if not pred2 is None: print(lstring[pred2], end=' ')
+          print('\t',pred2 == res_2[i])
 
 if __name__ == '__main__':
     test_successor_at_scale(False)

@@ -5,7 +5,7 @@ from openalea.plantgl.all import *
 def sc2dict(s):
     d = {}
     for i in s:
-        if not d.has_key(i.id):
+        if i.id not in d:
             d[i.id] = []
         d[i.id].append(i)
     return d
