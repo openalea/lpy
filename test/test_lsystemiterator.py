@@ -11,7 +11,7 @@ A --> BA
 """
 )
     for lstring in l:
-        print lstring
+        print(lstring)
 
         
 if __name__ == '__main__':

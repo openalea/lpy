@@ -13,12 +13,12 @@ def EndEach():
   assert matched
 """
 
-def runmatch(code, lcodebeg = lcodebeg,optionvalues = range(3)): 
+def runmatch(code, lcodebeg = lcodebeg,optionvalues = list(range(3))): 
     if type(optionvalues) == int:
         optionvalues = [optionvalues]
     for i in range(3):        
         l = Lsystem()
-        print i
+        print(i)
         l.context().options.setSelection('Module matching',i)
         if i in optionvalues:
             l.set(lcodebeg+code)
@@ -27,7 +27,7 @@ def runmatch(code, lcodebeg = lcodebeg,optionvalues = range(3)):
             try:
                 l.set(lcodebeg+code)
                 l.iterate()
-                print "Test do not fail for unsupported module matching mode : %i." % i
+                print("Test do not fail for unsupported module matching mode : %i." % i)
                 warnings.warn("Test do not fail for unsupported module matching mode : %i." % i)
             except:
                 pass
