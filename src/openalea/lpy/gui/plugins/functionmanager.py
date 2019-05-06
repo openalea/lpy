@@ -1,6 +1,6 @@
 try:
     from openalea.plantgl.gui.curve2deditor import Curve2DEditor,FuncConstraint
-except ImportError, e:
+except ImportError as e:
     Curve2DEditor = None
 from openalea.lpy.gui.abstractobjectmanager import *
 from curve2dmanager import displayLineAsThumbnail
@@ -17,7 +17,7 @@ class FunctionManager(AbstractPglObjectManager):
     def createDefaultObject(self,subtype=None):
         import openalea.plantgl.all as pgl
         nbP = 4
-        return pgl.NurbsCurve2D(pgl.Point3Array([(float(i)/(nbP-1),0) for i in xrange(nbP)],1) )
+        return pgl.NurbsCurve2D(pgl.Point3Array([(float(i)/(nbP-1),0) for i in range(nbP)],1) )
 
     def getEditor(self,parent):
         if Curve2DEditor:

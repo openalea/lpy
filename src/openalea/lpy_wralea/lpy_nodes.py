@@ -154,7 +154,7 @@ if WithLpyGui:
 
 
   except:
-    print "Import lpy.gui has failed"
+    print("Import lpy.gui has failed")
     WithLpyGui = False
     LSysWidget = None
 

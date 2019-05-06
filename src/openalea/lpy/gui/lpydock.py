@@ -1,8 +1,8 @@
 from openalea.vpltk.qt import qt
 import debugger_ui
 import debugger_right_ui
-from objectpanel import LpyObjectPanelDock
-from lpyshell import set_shell_widget
+from .objectpanel import LpyObjectPanelDock
+from .lpyshell import set_shell_widget
 
 from openalea.vpltk.qt.QtCore import Qt, QCoreApplication
 from openalea.vpltk.qt.QtGui import QIcon, QPixmap

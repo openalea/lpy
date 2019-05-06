@@ -1,5 +1,5 @@
 from openalea.plantgl.all import PglTurtle, PyStrPrinter, Material
-from __lpy_kernel__ import LpyParsing, LsysContext
+from .__lpy_kernel__ import LpyParsing, LsysContext
 
 def getInitialisationCode(context = None, scalars = None, visualparameters = None, credits = None, colorlist = None, simplified = False,
                            keepCode_1_0_Compatibility = False, referencedir = None):
@@ -42,7 +42,7 @@ def visualParametersCode(visualparameters = None,
         for panelinfo,objects in visualparameters:
             if panelinfo.get('active',True) or not simplified:
                 for manager,obj in objects:
-                    if not intialized_managers.has_key(manager):
+                    if manager not in intialized_managers:
                         intialized_managers[manager] = True
                         init_txt += manager.initWriting('\t')
                     init_txt += manager.writeObject(obj,'\t')
@@ -93,7 +93,7 @@ def colorListCode(colorlist = None, referencedir = None, indentation = '\t'):
         printer.line_between_object = 0
         if referencedir:
             printer.reference_dir = referencedir
-        for i in xrange(nbcurrent):
+        for i in range(nbcurrent):
             cmat = colorlist[i]
             if ( (i >= nbdefault) or 
                 (cmat.isTexture()) or
@@ -116,7 +116,7 @@ def contextOptionCode(context,indentation = '\t'):
         if not context.is_animation_timestep_to_default():
             init_txt += '\tcontext.animation_timestep = '+str(context.animation_timestep)+'\n'           
         options = context.options
-        for i in xrange(len(options)):
+        for i in range(len(options)):
             if not options[i].isToDefault():
                 init_txt += '\tcontext.options.setSelection('+repr(options[i].name)+','+str(options[i].selection)+')\n'
     return init_txt
@@ -131,7 +131,7 @@ def scalarCode(scalars = None, indentation = '\t'):
     
 def creditsCode(desc_items):
     txt = ''
-    for key,value in desc_items.iteritems():             
+    for key,value in desc_items.items():             
         if len(value) > 0:
             txt += key+' = '+repr(str(value))+'\n'
     return txt

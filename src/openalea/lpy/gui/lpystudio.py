@@ -12,21 +12,21 @@ try:
 except:
     py2exe_release = False
 
-import qt_check 
+from . import qt_check 
 import openalea.vpltk.qt.QtCore
 try:
    import PyQGLViewer
-except ImportError, e:
+except ImportError as e:
     PyQGLViewer = None
 
 
 import traceback as tb
-import documentation as doc
-import settings
-import lpypreferences
-from simulation import LpySimulation
-from killsimulationdialog import KillSimulationDialog
-from objectpanel import ObjectPanelManager
+from . import documentation as doc
+from . import settings
+from . import lpypreferences
+from .simulation import LpySimulation
+from .kilsimulationdialog import KillSimulationDialog
+from .objectpanel import ObjectPanelManager
 
 try:
     import matplotlib
@@ -56,11 +56,11 @@ sys.path = ['']+sys.path
 
 import generate_ui
 
-import lpydock
-import lpymainwindow as lsmw
-from computationtask import *
-from lpystudiodebugger import LpyVisualDebugger
-from lpyprofiling import AnimatedProfiling, ProfilingWithFinalPlot, ProfilingWithNoPlot
+from . import lpydock
+from . import lpymainwindow as lsmw
+from .computationtask import *
+from .lpystudiodebugger import LpyVisualDebugger
+from .lpyprofiling import AnimatedProfiling, ProfilingWithFinalPlot, ProfilingWithNoPlot
 
 
 class LpyPlotter:
@@ -257,11 +257,11 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         return available
     
     def retrieve_official_lpy_version(self):
-        import urllib2
+        import urllib.request, urllib.error, urllib.parse
         versionurl = 'https://raw.githubusercontent.com/VirtualPlants/lpy/master/src/openalea/lpy/__version__.py'
         try:
-            response = urllib2.urlopen(versionurl)
-        except urllib2.URLError, ue:
+            response = urllib.request.urlopen(versionurl)
+        except urllib.error.URLError as ue:
             import openalea.lpy.__version__ as lv
             return lv.__version_number__, lv.LPY_VERSION_STR
         else:
@@ -361,7 +361,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
             id = self.currentSimulationId
         if self.simulations[id].close():
             self.documentNames.removeTab(id)
-            for i in xrange(id+1,len(self.simulations)):
+            for i in range(id+1,len(self.simulations)):
                 self.simulations[i].index = i-1
 
             self.textEditionWatch = False
@@ -457,7 +457,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
                 self.killsimudialog.run(self.isRunning,self.killTask)
             else:
                 if self.isRunning():
-                    print "Force release"
+                    print("Force release")
                 self.releaseCR()
     def customEvent(self,event):
         self.viewer_plot(event.scene)
@@ -556,7 +556,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         self.releaseCR()
         self.currentSimulation().restoreState()
     def recoverPreviousFiles(self):
-        import lpytmpfile as tf
+        from . import lpytmpfile as tf
         import os
         torecover = tf.getPreviousTmpLpyFiles()
         nbrecoverfile = len(torecover)
@@ -736,7 +736,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
           self.releaseCR()      
     def debug(self):
       if self.debugMode == True:
-        self.debugger.next()
+        next(self.debugger)
       else:
         self.debugMode = True
         self.acquireCR()
@@ -811,8 +811,8 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         self.releaseCR()
     def appendInHistory(self,fname):
         if fname is None:
-            print 'Wrong added file in history'
-        fname = unicode(fname)
+            print('Wrong added file in history')
+        fname = str(fname)
         if not fname in self.history:
             self.history.insert(0,fname)
         elif fname == self.history[0]:
@@ -822,7 +822,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
             del self.history[self.historymaxsize:]
         self.createRecentMenu()        
     def removeInHistory(self,fname):
-        fname = unicode(fname)
+        fname = str(fname)
         if fname in self.history:
             self.history.remove(fname)
             self.createRecentMenu()
@@ -866,7 +866,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
                         action.setIcon(iconfile)
                         cmenu.addAction(action)
     def recentMenuAction(self,action):
-        self.openfile(unicode(action.data()))
+        self.openfile(str(action.data()))
     def clearHistory(self):
         self.history = []
         self.createRecentMenu()
@@ -897,7 +897,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         import webbrowser
         webbrowser.open("http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=packages:vplants:lpy:main")
     def initSVNMenu(self):
-        import svnmanip
+        from . import svnmanip
         if not svnmanip.hasSvnSupport() :
             self.menuSVN.setEnabled(False)
         else:
@@ -910,7 +910,8 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
             self.actionSVNIsUpToDate.triggered.connect(self.svnIsUpToDate) # QObject.connect(self.actionSVNIsUpToDate, SIGNAL('triggered(bool)'),self.svnIsUpToDate)
 
     def updateSVNMenu(self):
-        import svnmanip, os
+        from . import svnmanip
+        import os
         if svnmanip.hasSvnSupport() :
             fname = self.currentSimulation().fname
 
@@ -949,20 +950,20 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         
 def versionmessage():
     import openalea.lpy.__version__ as lpyversion
-    print 'L-Py, version '+lpyversion.LPY_VERSION_STR
+    print('L-Py, version '+lpyversion.LPY_VERSION_STR)
 
 def help():
     versionmessage()
-    print 'Frederic Boudon et al., Virtual Plants, CIRAD/INRIA/INRA'
-    print 
-    print 'lpy [OPTIONS] [FILES]'
-    print 'OPTIONS:'
-    print '--help    : print this help'
-    print '--version : print version of the software.'
-    print '--safe | --no-safe: load settings in a safe or no safe mode'
-    print '--run lpyfile: run an lpymodel'
-    print
-    print 'See http://openalea.gforge.inria.fr/wiki/doku.php?id=packages:vplants:lpy:main for more documentation' 
+    print('Frederic Boudon et al., Virtual Plants, CIRAD/INRIA/INRA')
+    print() 
+    print('lpy [OPTIONS] [FILES]')
+    print('OPTIONS:')
+    print('--help    : print this help')
+    print('--version : print version of the software.')
+    print('--safe | --no-safe: load settings in a safe or no safe mode')
+    print('--run lpyfile: run an lpymodel')
+    print()
+    print('See http://openalea.gforge.inria.fr/wiki/doku.php?id=packages:vplants:lpy:main for more documentation') 
 
 def runmodel(fname):
     from openalea.lpy import Lsystem
@@ -996,7 +997,7 @@ def main():
         return
 
     toopen = []
-    if len(args) > 1: toopen = map(os.path.abspath,args[1:])
+    if len(args) > 1: toopen = list(map(os.path.abspath,args[1:]))
 
     qapp = QApplication([])
     try:

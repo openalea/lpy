@@ -1,9 +1,9 @@
 from openalea.vpltk.qt import qt
-from scalar import *
+from .scalar import *
 import generate_ui
 import sys
 
-import scalarmetaedit as sme
+from . import scalarmetaedit as sme
 
 from openalea.vpltk.qt.QtCore import QDataStream, QIODevice, QObject, Qt, pyqtSignal
 from openalea.vpltk.qt.QtGui import QBrush, QColor, QStandardItem, QStandardItemModel

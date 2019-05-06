@@ -41,7 +41,7 @@ def detect_signals(filetext):
     toinsert = {}
     for oline in filetext.splitlines(True):
         if oline.startswith('class'):
-            print oline, oline.split(' \t')
+            print(oline, oline.split(' \t'))
             cclass = re.split('[ \t:(]',oline)[1]
             cline = iline 
             res += oline
@@ -122,7 +122,7 @@ def generate_qt_header(qt_classmap):
     qw = set(qwmodule.__dict__.keys())
     qp = set(qpmodule.__dict__.keys())
     classmap = {}
-    for key, value in qt_classmap.items():
+    for key, value in list(qt_classmap.items()):
         nvalue = value.split('.')
         if key == 'SIGNAL':
             key = 'pyqtSignal'
@@ -135,17 +135,17 @@ def generate_qt_header(qt_classmap):
         if not nvalue[1] in classmap: classmap[nvalue[1]] = []
         classmap[nvalue[1]].append(key)
     res = ''
-    for key, value in classmap.items():
+    for key, value in list(classmap.items()):
         value.sort()
         res += 'from openalea.vpltk.qt.'+key+' import '+', '.join(value)+'\n'
     return res
 
 def qth(text):
-    print generate_qt_header(generate_qt_classmap(text))
+    print(generate_qt_header(generate_qt_classmap(text)))
 
 def simmlify_code(filetext,qt_classmap):
     nfiletext = filetext
-    for nclass, oclass in qt_classmap.items():
+    for nclass, oclass in list(qt_classmap.items()):
         nfiletext = nfiletext.replace(oclass, nclass)
     return nfiletext
 
