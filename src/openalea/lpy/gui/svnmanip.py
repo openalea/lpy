@@ -1,12 +1,12 @@
 from openalea.vpltk.qt import qt
 from openalea.vpltk.qt.QtWidgets import QDialog, QMessageBox
 
-from settings import getSettings
+from .settings import getSettings
 
 try :
     import pysvn
     has_svn = True
-except ImportError, e:
+except ImportError as e:
     has_svn = False
 
 
@@ -43,9 +43,9 @@ if has_svn:
         
         def get_login( realm, username, may_save ):
             if svn_client_gui_parent is None : 
-                print 'Login is None'
+                print('Login is None')
                 return False, '', '', False
-            import logindialog
+            from . import logindialog
             dialog = QDialog(svn_client_gui_parent)
             widget = logindialog.Ui_LoginDialog()
             widget.setupUi(dialog)
@@ -58,7 +58,7 @@ if has_svn:
             
         def ssl_client_cert_password_prompt( realm, may_save ):
             if svn_client_gui_parent is None : return False, '', False
-            import logindialog
+            from . import logindialog
             dialog = QDialog(svn_client_gui_parent)
             widget = logindialog.Ui_LoginDialog()
             widget.setupUi(dialog)
@@ -133,7 +133,7 @@ if has_svn:
             else:
                 if parent : QMessageBox.question(parent,'Update', 'Updated at revision %s' % rev.number)
                 return True
-        except pysvn.ClientError, ce:
+        except pysvn.ClientError as ce:
             QMessageBox.warning(parent,'Update', ce.message)
             return False
 
@@ -148,7 +148,7 @@ if has_svn:
         return res
     
     def get_log( parent , title = 'SVN Commit'):
-            import logdialog
+            from . import logdialog
             dialog = QDialog(parent)
             widget = logdialog.Ui_LogDialog()
             widget.setupUi(dialog)
@@ -221,7 +221,7 @@ if has_svn:
                     msg += "Status : "+str(svnFileTextStatus(fname))
                     QMessageBox.question(parent,'Up-to-date', msg)                
                 return True
-        except pysvn.ClientError, ce:
+        except pysvn.ClientError as ce:
             if not silent and parent: 
                 QMessageBox.warning(parent,'Up-to-date', ce.message)
                 return True
@@ -271,28 +271,28 @@ if has_svn:
         try:
             res = svnFileTextStatus(fname)
             return (res !=  pysvn.wc_status_kind.unversioned and res !=  pysvn.wc_status_kind.none and res !=  pysvn.wc_status_kind.ignored)
-        except pysvn.ClientError,e:
+        except pysvn.ClientError as e:
             return False
         
     def isSvnModifiedFile(fname):
         try:
             res = svnFileTextStatus(fname)
             return (res ==  pysvn.wc_status_kind.modified)
-        except pysvn.ClientError,e:
+        except pysvn.ClientError as e:
             return False
     
     def isSvnAddedFile(fname):
         try:
             res = svnFileTextStatus(fname)
             return (res ==  pysvn.wc_status_kind.added)
-        except pysvn.ClientError,e:
+        except pysvn.ClientError as e:
             return False
     
     def isSSHRepository(fname):
         try:
             res = svnFileInfo(fname)
             return ('+ssh' in res.url)
-        except pysvn.ClientError,e:
+        except pysvn.ClientError as e:
             return False
     
     for d in dir(pysvn.wc_status_kind):

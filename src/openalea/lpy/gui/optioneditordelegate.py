@@ -11,7 +11,7 @@ class OptionEditorDelegate(QItemDelegate):
         """ Create the editor """
         editor = QComboBox(parent)
         option = index.model().itemFromIndex(index).option
-        editor.addItems([option[i].name for i in xrange(len(option))])
+        editor.addItems([option[i].name for i in range(len(option))])
         return editor
     
     def setEditorData(self, editor, index):

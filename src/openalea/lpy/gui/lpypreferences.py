@@ -1,9 +1,9 @@
 from openalea.vpltk.qt import qt
 import os
-from lpyprofiling import AnimatedProfiling, ProfilingWithFinalPlot, ProfilingWithNoPlot
+from .lpyprofiling import AnimatedProfiling, ProfilingWithFinalPlot, ProfilingWithNoPlot
 
 import generate_ui
-import lpyprefwidget
+from . import lpyprefwidget
 
 
 from openalea.vpltk.qt.QtCore import QObject, pyqtSignal

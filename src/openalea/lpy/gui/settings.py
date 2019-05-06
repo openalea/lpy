@@ -15,9 +15,9 @@ def restoreState(lpywidget):
     settings = getSettings()
     settings.beginGroup('history')
 
-    lpywidget.history = [ unicode(i) for i in list(settings.value('RecentFiles')) if not i is None and len(i) > 0]
+    lpywidget.history = [ str(i) for i in list(settings.value('RecentFiles')) if not i is None and len(i) > 0]
     try:
-        openedfiles = [ unicode(i) for i in list(settings.value('OpenedFiles')) if not i is None and len(i) > 0]
+        openedfiles = [ str(i) for i in list(settings.value('OpenedFiles')) if not i is None and len(i) > 0]
     except:
         openedfiles = ''
     try:
@@ -117,7 +117,7 @@ def restoreState(lpywidget):
     settings.endGroup()
 
     if settings.status() != QSettings.NoError:
-        raise 'settings error'
+        raise Exception('settings error')
     del settings
     
     if lpywidget.reloadAtStartup and len(openedfiles) > 0:
@@ -129,8 +129,8 @@ def restoreState(lpywidget):
                 lpywidget.openfile(openedfiles[lastfocus])
             except:
                 pass
-  except Exception, e:
-    print "cannot restore correctly state from ini file:", e
+  except Exception as e:
+    print("cannot restore correctly state from ini file:", e)
 
 def saveState(lpywidget):
     settings = getSettings()

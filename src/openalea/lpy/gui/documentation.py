@@ -157,8 +157,8 @@ def aboutVPlants(parent):
 def splashLPy(): 
     try:
         return lpyDialog()
-    except Exception,e:
-        print e
+    except Exception as e:
+        print(e)
         pass
 
 def vplantsDialog(parent = None):

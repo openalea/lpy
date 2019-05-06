@@ -1,15 +1,15 @@
 from openalea.vpltk.qt import qt
 from openalea.lpy import *
 from openalea.plantgl.all import PglTurtle, Viewer, Material, PyStrPrinter, eStatic, eAnimatedPrimitives, eAnimatedScene
-import optioneditordelegate as oed
+from . import optioneditordelegate as oed
 import os, shutil, sys, traceback
 from time import clock, time
-from lpystudiodebugger import AbortDebugger
-from scalar import *
+from .lpystudiodebugger import AbortDebugger
+from .scalar import *
 import cProfile as profiling
-from lpyprofiling import *
-from lpytmpfile import *
-import pymodulemonitoring as pm
+from .lpyprofiling import *
+from .lpytmpfile import *
+from . import pymodulemonitoring as pm
 
 
 from openalea.vpltk.qt.QtCore import QObject, pyqtSignal
@@ -83,7 +83,7 @@ class AbstractSimulation:
         if self.code != defaultcode : return False
         if self.textedition == True : return False
         if self._edited == True: return False
-        for i in self.desc_items.itervalues():
+        for i in self.desc_items.values():
             if len(i) > 0:
                 return False
         ini = self.getInitialisationCode()
@@ -108,7 +108,7 @@ class AbstractSimulation:
         #    t += '*'
         return t
     def generateIcon(self):
-        import svnmanip
+        from . import svnmanip
         if self.readonly is True:
             pixmap = QPixmap(":/images/icons/lock.png")
         elif self._edited:
@@ -164,7 +164,7 @@ class AbstractSimulation:
         self.lpywidget.parametersTable.setModel(self.optionModel)
         self.lpywidget.parametersTable.setItemDelegateForColumn(1,self.optionDelegate)
         self.textedition, self._edited = te, tf
-        for key,editor in self.lpywidget.desc_items.iteritems():
+        for key,editor in self.lpywidget.desc_items.items():
             editor.setText(self.desc_items[key])
         self.lpywidget.setTimeStep(self.lsystem.context().animation_timestep)
         self.lpywidget.materialed.setTurtle(self.lsystem.context().turtle)
@@ -193,7 +193,7 @@ class AbstractSimulation:
     def saveState(self):
         #if self.lsystem.isCurrent() :self.lsystem.done()
         self.lpywidget.codeeditor.saveSimuState(self)
-        for key,editor in self.lpywidget.desc_items.iteritems():
+        for key,editor in self.lpywidget.desc_items.items():
             if type(editor) == QLineEdit:
                 self.desc_items[key] = editor.text()
             else:
@@ -211,7 +211,7 @@ class AbstractSimulation:
         category = None
         categoryItem = None
         indexitem = 0
-        for i in xrange(len(options)):
+        for i in range(len(options)):
             option = options[i]
             if option.category != category:
                 category = option.category
@@ -264,9 +264,9 @@ class AbstractSimulation:
             if os.path.exists(self.fname) and  self.lpywidget.fileBackupEnabled :
                 try:
                     shutil.copy(self.fname,self.fname+'~')
-                except Exception,e:
-                    print 'Cannot create backup file',repr(self.fname+'~')
-                    print e
+                except Exception as e:
+                    print('Cannot create backup file',repr(self.fname+'~'))
+                    print(e)
             self.saveToFile(self.fname)
             self.mtime = os.stat(self.fname).st_mtime
             self.lpywidget.statusBar().showMessage("Save file '"+self.fname+"'",2000)
@@ -441,35 +441,35 @@ class AbstractSimulation:
           del self.monitoring
 
     def updateSvnStatus(self):
-        import svnmanip
+        from . import svnmanip
         if svnmanip.hasSvnSupport():
             if (not hasattr(self,'svnstatus') and svnmanip.isSvnFile(self.fname)) or (hasattr(self,'svnstatus') and svnmanip.svnFileTextStatus(self.fname) != self.svnstatus):
                 self.updateTabName(force=True)
 
     def svnUpdate(self):
-        import svnmanip
+        from . import svnmanip
         hasupdated = svnmanip.svnUpdate(self.fname,self.lpywidget)
         if hasupdated: self.reload()
         self.updateSvnStatus()
         
     def svnIsUpToDate(self):
-        import svnmanip
+        from . import svnmanip
         svnmanip.svnIsUpToDate(self.fname,self.lpywidget)
         self.updateSvnStatus()
         
     def svnAdd(self):
-        import svnmanip
+        from . import svnmanip
         svnmanip.svnFileAdd(self.fname)
         self.updateSvnStatus()
         
     def svnRevert(self):
-        import svnmanip
+        from . import svnmanip
         svnmanip.svnFileRevert(self.fname)
         self.reload()
         self.updateSvnStatus()
         
     def svnCommit(self):
-        import svnmanip
+        from . import svnmanip
         svnmanip.svnFileCommit(self.fname, None, self.lpywidget)
         self.updateSvnStatus()
 
@@ -536,7 +536,7 @@ class LpySimulation (AbstractSimulation):
         lpycode = self.code
         lpycode += '\n'+self.getInitialisationCode(False)
         res = self.lsystem.set(lpycode,{},self.lpywidget.showPyCode)
-        if not res is None: print res
+        if not res is None: print(res)
 
     def getInitialisationCode(self,withall=True):
         code = self.initialisationFunction(withall)
@@ -563,7 +563,7 @@ class LpySimulation (AbstractSimulation):
             if self.fname and len(self.fname) > 0:
                 printer.reference_dir = os.path.abspath(os.path.dirname(self.getStrFname()))
                 #print printer.reference_dir
-            for i in xrange(nbcurrent):
+            for i in range(nbcurrent):
                 cmat = currentlist[i]
                 if ( (i >= nbdefault) or 
                     (cmat.isTexture()) or
@@ -581,7 +581,7 @@ class LpySimulation (AbstractSimulation):
             if not self.lsystem.context().is_animation_timestep_to_default():
                 init_txt += '\tcontext.animation_timestep = '+str(self.getTimeStep())+'\n'           
             options = self.lsystem.context().options
-            for i in xrange(len(options)):
+            for i in range(len(options)):
                 if not options[i].isToDefault():
                     init_txt += '\tcontext.options.setSelection('+repr(options[i].name)+','+str(options[i].selection)+')\n'
         if len(self.scalars):
@@ -598,7 +598,7 @@ class LpySimulation (AbstractSimulation):
             for panelinfo,objects in self.visualparameters:
                 if panelinfo.get('active',True) or withall:
                     for manager,obj in objects:
-                        if not intialized_managers.has_key(manager):
+                        if manager not in intialized_managers:
                             intialized_managers[manager] = True
                             init_txt += manager.initWriting('\t') 
                         init_txt += manager.writeObject(obj,'\t')
@@ -639,7 +639,7 @@ class LpySimulation (AbstractSimulation):
 
     def creditsCode(self):
         txt = ''
-        for key,value in self.desc_items.iteritems():             
+        for key,value in self.desc_items.items():             
             if len(value) > 0:
                 txt += key+' = '+repr(str(value))+'\n'
         return txt
@@ -666,37 +666,37 @@ class LpySimulation (AbstractSimulation):
                 exc_info = sys.exc_info()
                 traceback.print_exception(*exc_info)
                 init = None
-            if context.has_key(context.InitialisationFunctionName):
+            if context.InitialisationFunctionName in context:
                 del context[context.InitialisationFunctionName]
-            for key in self.desc_items.iterkeys():
-                if context.has_key(key):
+            for key in self.desc_items.keys():
+                if key in context:
                     self.desc_items[key] = context[key]
                     if init is None:
                         init = True
                 else:
                     self.desc_items[key] = ''
-            from objectmanagers import get_managers
+            from .objectmanagers import get_managers
             managers = get_managers()
             self.visualparameters = []
             lpy_code_version = 1.0
-            if context.has_key('__lpy_code_version__'):
+            if '__lpy_code_version__' in context:
                 lpy_code_version = ['__lpy_code_version__']
-            if context.has_key('__functions__') and lpy_code_version <= 1.0 :
+            if '__functions__' in context and lpy_code_version <= 1.0 :
                 functions = context['__functions__']
                 for n,c in functions: c.name = n
                 # self.functions = [ c for n,c in functions ]
                 funcmanager = managers['Function']
                 self.visualparameters += [ ({'name':'Functions'}, [(funcmanager,func) for n,func in functions]) ]
-            if context.has_key('__curves__') and lpy_code_version <= 1.0 :
+            if '__curves__' in context and lpy_code_version <= 1.0 :
                 curves = context['__curves__']
                 for n,c in curves: c.name = n
                 # self.curves = [ c for n,c in curves ]
                 curvemanager = managers['Curve2D']
                 self.visualparameters += [ ({'name':'Curve2D'}, [(curvemanager,curve) for n,curve in curves]) ]
-            if context.has_key('__scalars__'):
+            if '__scalars__' in context:
                 scalars = context['__scalars__']   
                 self.scalars = [ ProduceScalar(v) for v in scalars ]
-            if context.has_key('__parameterset__'):
+            if '__parameterset__' in context:
                 def checkinfo(info):    
                     if type(info) == str:
                         return {'name':info}
@@ -708,7 +708,7 @@ class LpySimulation (AbstractSimulation):
                 import warnings
                 warnings.warn('initialisation failed')
         else:
-            for key in self.desc_items.iterkeys():
+            for key in self.desc_items.keys():
                 self.desc_items[key] = ''
         if self.textdocument:
             self.lpywidget.textEditionWatch = False
@@ -730,7 +730,7 @@ class LpySimulation (AbstractSimulation):
             self.lsystem.plot(task.result,True)
             plottiming = time() - plottiming
             self.setTree(task.result,task.dl,task.timing,plottiming)
-            if self.lpywidget.displayMetaInfo and not self.autorun and  self.lsystem.context().has_key('__description__'):
+            if self.lpywidget.displayMetaInfo and not self.autorun and  '__description__' in self.lsystem.context():
                 self.lpywidget.viewer.showMessage(self.lsystem.context()['__description__'],5000)
 
     def animate(self,task):
@@ -813,7 +813,7 @@ class LpySimulation (AbstractSimulation):
                     self.setTree(self.lsystem.derive(self.tree,self.nbiterations,1),self.nbiterations+1)
                 else:
                     self.setTree(self.lsystem.derive(self.lsystem.axiom,0,1),1)
-        except AbortDebugger,e :
+        except AbortDebugger as e :
             self.lsystem.clearDebugger()            
             return
         except :

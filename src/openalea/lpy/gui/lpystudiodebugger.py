@@ -1,7 +1,7 @@
 import openalea.lpy as lpy
 from openalea.vpltk.qt import qt
 from time import clock
-from lpycodeeditor import CodePointMarker, BreakPointMarker
+from . lpycodeeditor import CodePointMarker, BreakPointMarker
 
 import sys
 import traceback as tb
@@ -35,7 +35,7 @@ class LpyVisualDebugger (lpy.LpyDebugger):
         self.srcView = self.debugWidget.right.srcView
         self.destView = self.debugWidget.right.destView
         self.ruleView = self.debugWidget.right.ruleView
-        self.debugWidget.right.nextDebugButton.clicked.connect(self.next) # QObject.connect(self.debugWidget.right.nextDebugButton,SIGNAL('clicked()'),self.next)
+        self.debugWidget.right.nextDebugButton.clicked.connect(self.__next__) # QObject.connect(self.debugWidget.right.nextDebugButton,SIGNAL('clicked()'),self.next)
         self.debugWidget.right.animateDebugButton.clicked.connect(self.animate) # QObject.connect(self.debugWidget.right.animateDebugButton,SIGNAL('clicked()'),self.animate)
         self.debugWidget.right.animationDebugSlider.valueChanged.connect(self.setAnimationTiming) # QObject.connect(self.debugWidget.right.animationDebugSlider,SIGNAL('valueChanged(int)'),self.setAnimationTiming)
         self.debugWidget.right.endDebugButton.clicked.connect(self.continueDebug) # QObject.connect(self.debugWidget.right.endDebugButton,SIGNAL('clicked()'),self.continueDebug)
@@ -46,7 +46,7 @@ class LpyVisualDebugger (lpy.LpyDebugger):
         if not self.lpywidget.debugDock.isWindow():
           try:
             docks = self.lpywidget.tabifiedDockWidget(self.lpywidget.debugDock)
-          except AttributeError, e:          
+          except AttributeError as e:          
             docks = []
             id = self.lpywidget.interpreterDock
             if id.isVisible and not id.isWindow():
@@ -138,7 +138,7 @@ class LpyVisualDebugger (lpy.LpyDebugger):
         self.ruleView.setText(str(rule.lineno)+': '+rule.name())
         self.addMarker(rule.lineno)
         self.setProgress(pos_end if self.direction == lpy.eForward else pos_beg)
-        self.updateArgs(dict(zip(rule.parameterNames(),args)))
+        self.updateArgs(dict(list(zip(rule.parameterNames(),args))))
         self.wait()
         self.delMarker()
     def partial_match(self,pos_beg,pos_end,dest,rule,args):
@@ -146,7 +146,7 @@ class LpyVisualDebugger (lpy.LpyDebugger):
         self.print_dest(dest)
         self.ruleView.setText(str(rule.lineno)+': '+rule.name()+' --> nothing produce!')
         self.addMarker(rule.lineno)
-        self.updateArgs(dict(zip(rule.parameterNames(),args)))
+        self.updateArgs(dict(list(zip(rule.parameterNames(),args))))
         self.wait()
         self.delMarker()
     def error_match(self,pos_beg,pos_end,dest,rule,args,exc_info):
@@ -154,7 +154,7 @@ class LpyVisualDebugger (lpy.LpyDebugger):
         self.print_dest(dest)
         self.ruleView.setText(str(rule.lineno)+': '+rule.name()+' --> raise exception!')
         self.addMarker(rule.lineno)
-        self.updateArgs(dict(zip(rule.parameterNames(),args)))        
+        self.updateArgs(dict(list(zip(rule.parameterNames(),args))))        
         tb.print_exception(*exc_info)
         self.lpywidget.errorEvent(exc_info)
         errmsg = self.lpywidget.getErrorMessage(exc_info)
@@ -196,7 +196,7 @@ class LpyVisualDebugger (lpy.LpyDebugger):
             raise AbortDebugger()
         if self.breakPointMonitor:
             self.retrieveBreakPoints()
-    def next(self):
+    def __next__(self):
         self.waitcond.unlock()
     def animate(self):
         self.animation = True
@@ -228,13 +228,13 @@ class LpyVisualDebugger (lpy.LpyDebugger):
         self.simu.lsystem.context().getNamespace(d)
         if not self.showHidden:
             lpyobjects = dir(lpy)
-            d = dict([ (n,v) for n,v in d.iteritems() if not n in lpyobjects and (len(n) < 2 or n[0:2] != '__')])
+            d = dict([ (n,v) for n,v in d.items() if not n in lpyobjects and (len(n) < 2 or n[0:2] != '__')])
         self.updateTable(self.debugWidget.left.globalTable,d)
     def updateTable(self,table,args):
         model = QStandardItemModel(len(args), 2)
         model.setHorizontalHeaderLabels(["Name", "Value", "Type" ])
         indexitem = 0
-        for name,val in args.iteritems():
+        for name,val in args.items():
             si = QStandardItem(name)
             si.setEditable(False)
             model.setItem(indexitem, 0, si)

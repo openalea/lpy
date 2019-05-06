@@ -1,6 +1,6 @@
 try:
     from openalea.plantgl.gui.curve2deditor import Curve2DEditor,Curve2DConstraint
-except ImportError, e:
+except ImportError as e:
     Curve2DEditor = None
 from openalea.plantgl.scenegraph import Polyline2D, BezierCurve2D, NurbsCurve2D, Point2Array, Point3Array
 from openalea.lpy.gui.abstractobjectmanager import *
@@ -57,17 +57,17 @@ class Curve2DManager(AbstractPglObjectManager):
         self.frameColor = (0.5,0.5,0.5,1.0)
         
     def getTheme(self):
-        return { 'Curve2D' : [ int(self.curveColor[i] *255) for i in xrange(3)],
-                 'FocusCurve2D' : [ int(self.focusCurveColor[i] *255) for i in xrange(3)],
-                 'FrameColor' : [ int(self.frameColor[i] *255) for i in xrange(3)] } 
+        return { 'Curve2D' : [ int(self.curveColor[i] *255) for i in range(3)],
+                 'FocusCurve2D' : [ int(self.focusCurveColor[i] *255) for i in range(3)],
+                 'FrameColor' : [ int(self.frameColor[i] *255) for i in range(3)] } 
         
     def setTheme(self,theme):
-        if theme.has_key('FocusCurve2D'):
-            self.focusCurveColor  =  [ theme['FocusCurve2D'][i] *255 for i in xrange(3)] + [1]
-        if theme.has_key('Curve2D'):
-            self.curveColor  = [ theme['Curve2D'][i] *255 for i in xrange(3)] + [1]
-        if theme.has_key('FrameColor'):
-            self.frameColor = [ theme['FrameColor'][i] *255 for i in xrange(3)] + [1]
+        if 'FocusCurve2D' in theme:
+            self.focusCurveColor  =  [ theme['FocusCurve2D'][i] *255 for i in range(3)] + [1]
+        if 'Curve2D' in theme:
+            self.curveColor  = [ theme['Curve2D'][i] *255 for i in range(3)] + [1]
+        if 'FrameColor' in theme:
+            self.frameColor = [ theme['FrameColor'][i] *255 for i in range(3)] + [1]
                  
     def displayThumbnail(self, obj, i , focus, objectthumbwidth):
         if focus : color = self.focusCurveColor
@@ -77,11 +77,11 @@ class Curve2DManager(AbstractPglObjectManager):
     def createDefaultObject(self,subtype = None):
         nbP = 4
         if subtype == 'Polyline': 
-            return Polyline2D(Point2Array([(-0.5+float(i)/(nbP-1),0) for i in xrange(nbP)]) )
+            return Polyline2D(Point2Array([(-0.5+float(i)/(nbP-1),0) for i in range(nbP)]) )
         if subtype == 'BezierCurve': 
-            return BezierCurve2D(Point3Array([(-0.5+float(i)/(nbP-1),0) for i in xrange(nbP)],1) )
+            return BezierCurve2D(Point3Array([(-0.5+float(i)/(nbP-1),0) for i in range(nbP)],1) )
         else: 
-            return NurbsCurve2D(Point3Array([(-0.5+float(i)/(nbP-1),0) for i in xrange(nbP)],1) )
+            return NurbsCurve2D(Point3Array([(-0.5+float(i)/(nbP-1),0) for i in range(nbP)],1) )
 
     def reset(self,obj):
         subtype = 'NurbsCurve'        

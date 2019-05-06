@@ -3,7 +3,7 @@ from openalea.lpy.gui.abstractobjectmanager import *
 try:
     from openalea.plantgl.gui.nurbspatcheditor import NurbsPatchEditor
     from PyQGLViewer import Vec
-except ImportError, e:
+except ImportError as e:
     NurbsPatchEditor = None
 from OpenGL.GL import *
 from math import pi
