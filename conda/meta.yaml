@@ -19,7 +19,7 @@ build:
 
 requirements:
   build:
-   - python =3
+   - python
    - openalea.plantgl
    - boost
    - qt
@@ -27,7 +27,7 @@ requirements:
    - openalea.deploy
    - setuptools
   run:
-   - python =3
+   - python
    - openalea.plantgl
    - boost
    - qt
