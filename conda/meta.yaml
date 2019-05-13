@@ -16,13 +16,19 @@ about:
 build:
   preserve_egg_dir: True
   number: 1
+  features:
+    - vc9         [win and py27]
+    - vc14        [win and py37]
+  track_features:
+    - vc9         [win and py27]
+    - vc14        [win and py37]
 
 requirements:
   build:
    - python
    - openalea.plantgl
    - boost
-   - qt
+   - qt =5
    - pyqt
    - openalea.deploy
    - setuptools
@@ -30,12 +36,14 @@ requirements:
    - python
    - openalea.plantgl
    - boost
-   - qt
+   - qt =5
    - pyqt
    - ipython
    - qtconsole
    - pyopengl
    - pyqglviewer
+   - vs2008_runtime [win and py27]
+   - vs2015_runtime [win and py37]
 
 test:
   requires:
