@@ -495,6 +495,49 @@ Download the example : :download:`longPath.lpy <../_downloads/longPath.lpy>`
 |    :scale: 80%                 |
 +--------------------------------+
 
+*Drawing lines*
+---------------
+
+The primitive **LineTo** allows to draw a cylinder from the current position of the turtle to coordinates given in arguments. The topdiameter can also be given as a fourth argument.
+Such as other primitives using coordinates, a vector can be used.
+
+.. code-block:: python
+
+	Axiom: F LineTo(0,2,3)
+
++----------------------------------+
+| .. image:: ../_images/LineTo.png |
+|    :scale: 100%                  |
++----------------------------------+
+
+**LineTo** conserve the turtle's orientation. To change orientation while drawing, **OLineTo** should be used.
+
+.. code-block:: python
+
+	Axiom: F LineTo(0,2,2) Frame 	#(A)
+
+	Axiom: F OLineTo(0,2,2) Frame 	#(B)
+
+Download the example : :download:`LineTo.lpy <../_downloads/LineTo.lpy>`
+
++-----------------------------------+-----------------------------------+
+| .. image:: ../_images/LineTo2.png | .. image:: ../_images/OLineTo.png |
+|    :scale: 50%                    |    :scale: 50%                    |
++-----------------------------------+-----------------------------------+
+
+A relative drawing alternative also exists for **LineTo** and **OLineTo**. These primitives are **LineRel** and **OLineRel**
+
+.. code-block:: python
+
+	Axiom: F LineTo(0,1,1) 	#(A)
+
+	Axiom: F LineRel(0,1,1) #(B)
+
++------------------------------------+------------------------------------+
+| .. image:: ../_images/LineRel1.png | .. image:: ../_images/LineRel2.png |
+|    :scale: 70%                     |    :scale: 70%                     |
++------------------------------------+------------------------------------+
+
 *SetGuide*
 ----------
 
@@ -565,7 +608,7 @@ Note that the turtle can move less than the length of the 2D curve. In this case
 To stop using the 2D curve as a guide, **EndGuide** can be used.
 
 *Generalized cylinders*
-----------------------
+-----------------------
 
 When several rotations are used while drawing, the render at rotation places isn't great. The separation points are really visible. To fix it, **@Gc** (or **StartGC**) can be used.
 Until a **@Ge** (or **"EndGC**") all shapes drawn will be merged that so it becomes only one shape.
