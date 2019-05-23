@@ -124,6 +124,31 @@ Download the example : :download:`combined.lpy <../_downloads/combined.lpy>`
 Some useful tools
 =================
 
+*Changing the width*
+--------------------
+
+The width of the shapes can be increased (resp. decreased) using **_** (resp. **!**). These primitives increment or decrement width by 1. The default width is 0.1
+
+.. code-block:: python
+
+	Axiom : F_F!F 	#At the beginning, the cylinder has a width of 0.1 (default) then 1.1 and finally it comes back to 0.1
+
++---------------------------------+
+| .. image:: ../_images/width.png |
++---------------------------------+
+
+Alternatively, the width can be set using **setWidth** or by giving argument to **_** or **!**
+
+.. code-block:: python
+
+	Axiom : F_(2)F!(1)F
+
++----------------------------------+
+| .. image:: ../_images/width2.png |
++----------------------------------+
+
+Download the example : :download:`width.lpy <../_downloads/width.lpy>`
+
 .. _turtle_color_system:
 
 *Color System*

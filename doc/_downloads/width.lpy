@@ -1,0 +1,14 @@
+#Increase then decrease the width
+#Axiom: F_F!F
+
+#Set to 2 then to 1 the width
+Axiom: F_(2)F!(1)F
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem
