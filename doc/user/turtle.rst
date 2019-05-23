@@ -135,6 +135,7 @@ The width of the shapes can be increased (resp. decreased) using **_** (resp. **
 
 +---------------------------------+
 | .. image:: ../_images/width.png |
+|    :scale: 120%                 |
 +---------------------------------+
 
 Alternatively, the width can be set using **setWidth** or by giving argument to **_** or **!**
@@ -145,6 +146,7 @@ Alternatively, the width can be set using **setWidth** or by giving argument to 
 
 +----------------------------------+
 | .. image:: ../_images/width2.png |
+|    :scale: 120%                  |
 +----------------------------------+
 
 Download the example : :download:`width.lpy <../_downloads/width.lpy>`
