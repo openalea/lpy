@@ -21,6 +21,8 @@ The Turtle reference frame (H,L,U) is defined in (B) and can be displayed using 
 
     Axiom: Frame
 
+Download the example : :download:`Frame.lpy <../_downloads/Frame.lpy>`
+
 +--------------------------------+---------------------------------+
 | .. image:: ../_images/axis.png | .. image:: ../_images/frame.png |
 |    :scale: 100%                |    :scale: 100%                 |
@@ -37,6 +39,8 @@ Default angle is 60° ( **+** is identical to **+(60)** )
 
     Axiom: Frame FF[+ FF Frame ]F Frame FF      # New code with Frames (B)
 
+Download the example : :download:`visualize.lpy <../_downloads/visualize.lpy>`
+
 +-----------------------------------------+--------------------------------------+
 | .. image:: ../_images/without_frame.png | .. image:: ../_images/with_frame.png |
 |    :scale: 60%                          |    :scale: 60%                       |
@@ -51,6 +55,8 @@ First of all, the most basic primitive used to draw is **F**. It moves the turtl
 .. code-block:: python
 
     Axiom: F
+
+Download the example : :download:`F.lpy <../_downloads/F.lpy>`
 
 +-----------------------------------+
 | .. image:: ../_images/F.png 	    |
@@ -85,6 +91,8 @@ There are some other primitives which can be used to draw some basic shapes :
 	Axiom: @b(1)	# Draws a quad at the turtle's position.
 	# It can take two argument which are the length of the edges and the topradius.  
 
+Download the example : :download:`basicShapes.lpy <../_downloads/basicShapes.lpy>`
+
 +----------------------------------+----------------------------------+
 | .. image:: ../_images/sphere.png | .. image:: ../_images/circle.png |
 +----------------------------------+----------------------------------+
@@ -106,6 +114,8 @@ All these primitives can be combined together. For example :
 .. code-block:: python
 
 	Axiom: FF@O(.5)@B(2)Frame
+
+Download the example : :download:`combined.lpy <../_downloads/combined.lpy>`
 
 +------------------------------------+
 | .. image:: ../_images/combined.png |
@@ -168,6 +178,8 @@ There are three arguments, the first and the second are the index of materials a
 		    d += DIncr
 		  produce ;(2) @O(0.15)
 
+Download the example : :download:`color.lpy <../_downloads/color.lpy>`
+
 +---------------------------------------------+
 | .. image:: ../_images/interpolateColors.png |
 +---------------------------------------------+
@@ -192,6 +204,8 @@ There are some primitives which can be used to change the turtle's position.
 	import numpy as np
 	v = np.array([0,1,1])
 	Axiom: MoveTo(v)	#(B)
+
+Download the example : :download:`movement.lpy <../_downloads/movement.lpy>`
 
 +---------------------------------------+---------------------------------------+
 | .. image:: ../_images/moveTo1.png     | .. image:: ../_images/moveTo2.png     |
@@ -220,6 +234,8 @@ The primitive **f** works like **F** except that it doesn't draw anything. The a
 
 	Axiom: F-f+Ff(2)-F(2)
 
+Download the example : :download:`f.lpy <../_downloads/f.lpy>`
+
 +-----------------------------+
 | .. image:: ../_images/f.png |
 |   :scale: 80%               |
@@ -243,12 +259,14 @@ The turtle's orientation can be setted using some primitives.
 	v = np.array([1,2,3])
 	Axiom: Frame Pinpoint(v)	#(B)
 
+Download the example : :download:`orientation.lpy <../_downloads/orientation.lpy>`
+
 +-------------------------------------+-------------------------------------+
 | .. image:: ../_images/pinpoint1.png | .. image:: ../_images/pinpoint2.png |
 |    :scale: 100%                     |    :scale: 100%                     |
 +-------------------------------------+-------------------------------------+
 
-Like **MoveRel** for position, **PinpointRel** orients the turtle relatively to the current position.
+Such as **MoveRel** for position, **PinpointRel** orients the turtle relatively to the current position.
 
 .. code-block:: python
 
@@ -264,7 +282,7 @@ Like **MoveRel** for position, **PinpointRel** orients the turtle relatively to 
 *Setting the HLU axis*
 ----------------------
 
-The H and U axis can be set directly using @R. The arguments needed are 6 floats which represents the coordinates of the two axis or two vectors.
+The H and U axis can be set directly using **@R**. The arguments needed are 6 floats (which represent the coordinates of the two axis) or two vectors.
 
 .. code-block:: python
 
@@ -274,6 +292,8 @@ The H and U axis can be set directly using @R. The arguments needed are 6 floats
 	h = np.array([1,2,6])
 	u = np.array([3,9,7])
 	Axiom: @R(h,u) Frame 	#(B)
+
+Download the example : :download:`setHLU.lpy <../_downloads/setHLU.lpy>`
 
 +-------------------------------------+-------------------------------------+
 | .. image:: ../_images/@R.png        | .. image:: ../_images/@R2.png       |
@@ -327,6 +347,8 @@ Three primitives can be used to rescale the turtle : **DivScale**, **MultScale**
 
     Axiom: F@Di(2)-F@D(1)+F 	#(C)
 
+Download the example : :download:`scale.lpy <../_downloads/scale.lpy>`
+
 +------------------------------------+-------------------------------------+------------------------------------+
 | .. image:: ../_images/divScale.png | .. image:: ../_images/multScale.png | .. image:: ../_images/setScale.png |
 +------------------------------------+-------------------------------------+------------------------------------+
@@ -342,6 +364,8 @@ Turn and move forward : Here, at each **+**, the turtle does a rotation of the n
 .. code-block:: python
 
     Axiom: Frame(2)+(30)F(5)+(120)F(5)+(120)F(5)  # (A)
+
+Download the example : :download:`polygons.lpy <../_downloads/polygons.lpy>`
 
 *Procedural method*
 -------------------
@@ -391,6 +415,8 @@ Note that if the first dot/point is omitted, the polygon is not closed (D)
 
     Axiom: Frame _(0.05),(2){F(3)-(90)F(3)-(90)F(3)}
 
+Download the example : :download:`filledPolygons.lpy <../_downloads/filledPolygons.lpy>`
+
 +------------------------------------------+------------------------------------------+
 | .. image:: ../_images/filledPolygon1.png | .. image:: ../_images/filledPolygon2.png |
 +------------------------------------------+------------------------------------------+
@@ -432,6 +458,8 @@ Then it's possible to imbricate branches inside others :
 
     Axiom: F(2) [+F[-F(0.5)]F(0.5)] F [-F] F 	#(B)
 
+Download the example : :download:`branching.lpy <../_downloads/branching.lpy>`
+
 +--------------------------------------+--------------------------------------+
 | .. image:: ../_images/branching1.png | .. image:: ../_images/branching2.png |
 |    :scale: 50%                       |    :scale: 50%                       |
@@ -459,6 +487,8 @@ The primitive **nF** draws n steps of cylinders (n is the first argument). The s
 .. code-block:: python
 
 	Axiom: nF(3,1)+nF(5,1) 	#equivalent to FFF+FFFFF
+
+Download the example : :download:`longPath.lpy <../_downloads/longPath.lpy>`
 
 +--------------------------------+
 | .. image:: ../_images/path.png |
@@ -499,6 +529,8 @@ Then using curve **C0** in the **SetGuide** primitive, one can move the turtle o
     L0 = 10
     Axiom: SetGuide(C0,L0) nF(L, 0.1)
 
+Download the example : :download:`setGuide1.lpy <../_downloads/setGuide1.lpy>` (With a Polyline2D imported from PlantGL)
+
 +-------------------------------------+-------------------------------------+
 | .. image:: ../_images/setGuide1.png | .. image:: ../_images/setGuide2.png |
 |    :scale: 50%                      |    :scale: 50%                      |
@@ -510,6 +542,8 @@ or like the *(C)* example, the embedded L-Py graphical interface can be used to 
 | .. image:: ../_images/ex009.png | .. image:: ../_images/setGuide3.png |
 |                                 |    :scale: 80%                      |
 +---------------------------------+-------------------------------------+
+
+Download the example : :download:`setGuide2.lpy <../_downloads/setGuide2.lpy>` (With a Polyline2D created in the L-Py graphical interface)
 
 Note that the turtle can move less than the length of the 2D curve. In this case it will proceed forward over the **L** first units at the beginning of curve **C1** (D). By contrast, if **L** > **L0**, then the turtle keeps on moving straight after reaching length **L0** (E).
 
@@ -530,15 +564,6 @@ Note that the turtle can move less than the length of the 2D curve. In this case
 
 To stop using the 2D curve as a guide, **EndGuide** can be used.
 
-Rewriting shapes
-~~~~~~~~~~~~~~~~
-
-To clear the viewer, the primitive **None** can be written in the Axiom part.
-
-.. code-block:: python
-	
-	Axiom: None
-
 To go a little bit further
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -555,6 +580,8 @@ SectionResolution
 
 	Axiom: F SectionResolution(60) +F@O(0.5) 	#(B)
 
+Download the example : :download:`resolution.lpy <../_downloads/resolution.lpy>`
+
 +---------------------------------------+---------------------------------------+
 | .. image:: ../_images/resolution1.png | .. image:: ../_images/resolution2.png |
 |    :scale: 50%                        |    :scale: 50%                        |
@@ -570,9 +597,20 @@ The examples below belong to the same axiom, only the camera's orientation is di
 
 	Axiom: F+F@2DF 
 
+Download the example : :download:`screen.lpy <../_downloads/screen.lpy>`
+
 +-------------------------------+-------------------------------+
 | .. image:: ../_images/2D1.png | .. image:: ../_images/2D2.png |
 |    :scale: 50%                |    :scale: 50%                |
 +-------------------------------+-------------------------------+
 
 To switch back to the original coordinates system, **@3D** (or **EndScreenProjection**) can be used.
+
+Rewriting shapes
+~~~~~~~~~~~~~~~~
+
+To clear the viewer, the primitive **None** can be written in the Axiom part.
+
+.. code-block:: python
+	
+	Axiom: None

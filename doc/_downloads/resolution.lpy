@@ -1,0 +1,13 @@
+#low resolution
+Axiom: F SectionResolution(4) +F@O(0.5)
+#better resolution
+Axiom: F SectionResolution(60) +F@O(0.5)
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem

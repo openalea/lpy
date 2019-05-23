@@ -1,0 +1,11 @@
+#Equivalent to FFF+FFFFF
+Axiom: nF(3,1)+nF(5,1)
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem

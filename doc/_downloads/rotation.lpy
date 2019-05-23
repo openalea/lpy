@@ -1,0 +1,16 @@
+#Different turtle rotations
+Axiom: Frame /(60) Frame
+#Axiom: Frame \(60) Frame
+#Axiom: Frame ^(60) Frame
+#Axiom: Frame &(60) Frame   
+#Axiom: Frame +(60) Frame
+#Axiom: Frame -(60) Frame
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem

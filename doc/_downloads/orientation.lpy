@@ -1,0 +1,19 @@
+#Orient the turtle using coordinates
+Axiom: Frame Pinpoint(-2,2,-3)
+#Orient the turtle using a vector
+#import numpy as np
+#v = np.array([1,2,3])
+#Axiom: Frame Pinpoint(v)
+
+#PinpointRel
+#Axiom: Frame MoveTo(0,2,0) Pinpoint(1,0,1) Frame
+#Axiom: Frame MoveTo(0,2,0) PinpointRel(1,0,1) Frame 
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem

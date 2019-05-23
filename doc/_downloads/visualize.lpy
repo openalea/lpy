@@ -1,0 +1,14 @@
+#Without Frames
+Axiom: FF[+ FF]FFF
+
+#With Frames
+#Axiom: Frame FF[+ FF Frame ]F Frame FF    
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem

@@ -1,0 +1,15 @@
+#DivScale
+Axiom: F@Dd(2)-F
+#MultScale
+#Axiom: F@Di(3)-F
+#SetScale
+#Axiom: F@Di(2)-F@D(1)+F
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem

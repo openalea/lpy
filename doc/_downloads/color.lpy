@@ -1,0 +1,40 @@
+#First method using (;) and (,)
+
+#Increase the color index
+Axiom: F(2) ; @O(0.2) 
+# Or use directly the index
+#Axiom: F(2) ;(2) @O(0.2)
+
+#decrease the color index
+#Axiom: F(2) , @O(0.2)
+# Or use directly the index
+#Axiom: F(2) ,(0) @O(0.2)
+
+#Second method using SetColor
+
+#Using the index
+Axiom: F(2) SetColor(5) @O(0.2)             
+#Using the rgb(a) system
+#Axiom: F(2) SetColor(45, 200, 200) @O(0.2)  
+
+#Last method using InterpolateColors
+
+#Step = 20
+#DIncr = 1.0 / Step
+
+#Axiom:
+#  d = 0.0
+#  for i in range(Step):
+#    nproduce InterpolateColors(3, 5, d) F(0.1)
+#    d += DIncr
+#  produce ;(2) @O(0.15)
+
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem
