@@ -564,6 +564,23 @@ Note that the turtle can move less than the length of the 2D curve. In this case
 
 To stop using the 2D curve as a guide, **EndGuide** can be used.
 
+*Generalized cylinders*
+----------------------
+
+When several rotations are used while drawing, the render at rotation places isn't great. The separation points are really visible. To fix it, **@Gc** (or **StartGC**) can be used.
+Until a **@Ge** (or **"EndGC**") all shapes drawn will be merged that so it becomes only one shape.
+
+.. code-block:: python
+
+	Axiom: @GcF+F--F++F+F@Ge-F-F
+
+Download the example : :download:`generalizedCylinders.lpy <../_downloads/generalizedCylinders.lpy>`
+
++------------------------------------------------+
+| .. image:: ../_images/generalizedCylinders.png |
+|    :scale: 80%                                 |
++------------------------------------------------+
+
 To go a little bit further
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -614,3 +631,5 @@ To clear the viewer, the primitive **None** can be written in the Axiom part.
 .. code-block:: python
 	
 	Axiom: None
+
+*Work in progress*
