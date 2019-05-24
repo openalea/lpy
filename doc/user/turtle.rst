@@ -56,12 +56,6 @@ First of all, the most basic primitive used to draw is **F**. It moves the turtl
 
     Axiom: F
 
-Download the example : :download:`F.lpy <../_downloads/F.lpy>`
-
-+-----------------------------------+
-| .. image:: ../_images/F.png 	    |
-+-----------------------------------+
-
 **F** can take two arguments (of type float). The first one (default = 1) defines the length of the cylinder drawn and the second one (default = 0.1) defines it's topradius.
 
 .. code-block:: python
@@ -69,6 +63,8 @@ Download the example : :download:`F.lpy <../_downloads/F.lpy>`
     Axiom: F(3)		#(A)
 
     Axiom: F(3, 2.5) 	#(B)
+
+Download the example : :download:`F.lpy <../_downloads/F.lpy>`
 
 +------------------------------+--------------------------------+
 | .. image:: ../_images/F3.png | .. image:: ../_images/F2,5.png |
@@ -113,7 +109,7 @@ All these primitives can be combined together. For example :
 
 .. code-block:: python
 
-	Axiom: FF@O(.5)@B(2)Frame
+	Axiom: FF@B(2,1)@O(.5)
 
 Download the example : :download:`combined.lpy <../_downloads/combined.lpy>`
 
@@ -131,7 +127,7 @@ The width of the shapes can be increased (resp. decreased) using **_** (resp. **
 
 .. code-block:: python
 
-	Axiom : F_F!F 	#At the beginning, the cylinder has a width of 0.1 (default) then 1.1 and finally it comes back to 0.1
+	Axiom: F_ _ _F!F!F 	#At the beginning, the cylinder has a width of 0.1 (default) then 3.1, then 2.1 and finally 1.1
 
 +---------------------------------+
 | .. image:: ../_images/width.png |
@@ -142,12 +138,7 @@ Alternatively, the width can be set using **setWidth** or by giving argument to 
 
 .. code-block:: python
 
-	Axiom : F_(2)F!(1)F
-
-+----------------------------------+
-| .. image:: ../_images/width2.png |
-|    :scale: 120%                  |
-+----------------------------------+
+	Axiom : F_(3)F!(2)F!(1)F 	#Same result as above
 
 Download the example : :download:`width.lpy <../_downloads/width.lpy>`
 
@@ -368,11 +359,11 @@ Three primitives can be used to rescale the turtle : **DivScale**, **MultScale**
 
 .. code-block:: python
 
-    Axiom: F@Dd(2)-F 		#(A)
+    Axiom: F-(15)F-(15)@Dd(1.5)F-(15)@Dd(1.5)F 		#(A)
 
-    Axiom: F@Di(3)-F 		#(B)
+    Axiom: F-(15)@Di(.8)F-(15)@Di(.8)F-(15)@Di(.7)F 		#(B)
 
-    Axiom: F@Di(2)-F@D(1)+F 	#(C)
+    Axiom: @D(1.2)F-(15)@D(0.9)F-(15)@D(0.7)F-(15)@D(0.5)F	#(C)
 
 Download the example : :download:`scale.lpy <../_downloads/scale.lpy>`
 
@@ -489,7 +480,7 @@ Download the example : :download:`branching.lpy <../_downloads/branching.lpy>`
 
 +--------------------------------------+--------------------------------------+
 | .. image:: ../_images/branching1.png | .. image:: ../_images/branching2.png |
-|    :scale: 50%                       |    :scale: 50%                       |
+|    :scale: 40%                       |    :scale: 40%                       |
 +--------------------------------------+--------------------------------------+
 
 The same branching system can be augmented with other modules (@**O** for sphere, ...)
@@ -513,13 +504,14 @@ The primitive **nF** draws n steps of cylinders (n is the first argument). The s
 
 .. code-block:: python
 
-	Axiom: nF(3,1)+nF(5,1) 	#equivalent to FFF+FFFFF
+	Axiom: nF(2,1)+(20)nF(2,1)+(20)@D(0.8)nF(3,1)
+	#Equivalent to FF+(20)FF+(20)@D(0.8)FFF
 
 Download the example : :download:`longPath.lpy <../_downloads/longPath.lpy>`
 
 +--------------------------------+
 | .. image:: ../_images/path.png |
-|    :scale: 80%                 |
+|    :scale: 120%                |
 +--------------------------------+
 
 *Drawing lines*
@@ -530,7 +522,7 @@ Such as other primitives using coordinates, a vector can be used.
 
 .. code-block:: python
 
-	Axiom: F LineTo(0,2,3)
+	Axiom: LineTo(0,0,3)[LineTo(0,1,4)]LineTo(0,0,5)
 
 +----------------------------------+
 | .. image:: ../_images/LineTo.png |
@@ -541,28 +533,28 @@ Such as other primitives using coordinates, a vector can be used.
 
 .. code-block:: python
 
-	Axiom: F LineTo(0,2,2) Frame 	#(A)
+	Axiom: LineTo(0,0,2)[LineTo(0,1,3)Frame]LineTo(0,0,3)[LineTo(0,-1,4)Frame]LineTo(0,0,5) #(A)
 
-	Axiom: F OLineTo(0,2,2) Frame 	#(B)
+	Axiom: LineTo(0,0,2)[OLineTo(0,1,3)Frame]LineTo(0,0,3)[OLineTo(0,-1,4)Frame]LineTo(0,0,5) #(B)
 
 Download the example : :download:`LineTo.lpy <../_downloads/LineTo.lpy>`
 
 +-----------------------------------+-----------------------------------+
 | .. image:: ../_images/LineTo2.png | .. image:: ../_images/OLineTo.png |
-|    :scale: 50%                    |    :scale: 50%                    |
+|    :scale: 40%                    |    :scale: 40%                    |
 +-----------------------------------+-----------------------------------+
 
 A relative drawing alternative also exists for **LineTo** and **OLineTo**. These primitives are **LineRel** and **OLineRel**
 
 .. code-block:: python
 
-	Axiom: F LineTo(0,1,1) 	#(A)
+	Axiom: LineTo(0,0,2)[LineTo(0,1,2)]LineTo(0,0,4) 	#(A)
 
-	Axiom: F LineRel(0,1,1) #(B)
+	Axiom: LineTo(0,0,2)[LineRel(0,1,2)]LineTo(0,0,4) #(B)
 
 +------------------------------------+------------------------------------+
 | .. image:: ../_images/LineRel1.png | .. image:: ../_images/LineRel2.png |
-|    :scale: 70%                     |    :scale: 70%                     |
+|    :scale: 50%                     |    :scale: 50%                     |
 +------------------------------------+------------------------------------+
 
 *SetGuide*
@@ -610,7 +602,7 @@ or like the *(C)* example, the embedded L-Py graphical interface can be used to 
 
 +---------------------------------+-------------------------------------+
 | .. image:: ../_images/ex009.png | .. image:: ../_images/setGuide3.png |
-|                                 |    :scale: 80%                      |
+|    :scale: 40%                  |    :scale: 60%                      |
 +---------------------------------+-------------------------------------+
 
 Download the example : :download:`setGuide2.lpy <../_downloads/setGuide2.lpy>` (With a Polyline2D created in the L-Py graphical interface)
@@ -642,14 +634,16 @@ Until a **@Ge** (or **"EndGC**") all shapes drawn will be merged that so it beco
 
 .. code-block:: python
 
-	Axiom: @GcF+F--F++F+F@Ge-F-F
+	Axiom: F(2)+(30)F+(30)F+(30)F+(45)F+(45)F@O #Cylinders not generalized (A)
+
+	Axiom: @GcF(2)+(30)F+(30)F+(30)F+(45)F+(45)F@O@Gc #Cylinders generalized (B)
 
 Download the example : :download:`generalizedCylinders.lpy <../_downloads/generalizedCylinders.lpy>`
 
-+------------------------------------------------+
-| .. image:: ../_images/generalizedCylinders.png |
-|    :scale: 80%                                 |
-+------------------------------------------------+
++------------------------------------------+---------------------------------------+
+| .. image:: ../_images/notGeneralized.png | .. image:: ../_images/generalized.png |
+|    :scale: 50%                           |    :scale: 50%                        |
++------------------------------------------+---------------------------------------+
 
 To go a little bit further
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -671,7 +665,7 @@ Download the example : :download:`resolution.lpy <../_downloads/resolution.lpy>`
 
 +---------------------------------------+---------------------------------------+
 | .. image:: ../_images/resolution1.png | .. image:: ../_images/resolution2.png |
-|    :scale: 50%                        |    :scale: 50%                        |
+|    :scale: 70%                        |    :scale: 70%                        |
 +---------------------------------------+---------------------------------------+
 
 Screen Projection
@@ -682,13 +676,13 @@ The examples below belong to the same axiom, only the camera's orientation is di
 
 .. code-block:: python
 
-	Axiom: F+F@2DF 
+	Axiom: Frame @2DF(0.6)@O(0.2)
 
 Download the example : :download:`screen.lpy <../_downloads/screen.lpy>`
 
 +-------------------------------+-------------------------------+
 | .. image:: ../_images/2D1.png | .. image:: ../_images/2D2.png |
-|    :scale: 50%                |    :scale: 50%                |
+|    :scale: 70%                |    :scale: 70%                |
 +-------------------------------+-------------------------------+
 
 To switch back to the original coordinates system, **@3D** (or **EndScreenProjection**) can be used.

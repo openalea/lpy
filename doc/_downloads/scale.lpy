@@ -1,9 +1,11 @@
 #DivScale
-Axiom: F@Dd(2)-F
+Axiom: F-(15)F-(15)@Dd(1.5)F-(15)@Dd(1.5)F
+
 #MultScale
-#Axiom: F@Di(3)-F
+#Axiom: F-(15)@Di(.8)F-(15)@Di(.8)F-(15)@Di(.7)F
+
 #SetScale
-#Axiom: F@Di(2)-F@D(1)+F
+#Axiom: @D(1.2)F-(15)@D(0.9)F-(15)@D(0.7)F-(15)@D(0.5)F
 
 derivation length: 1
 production:
