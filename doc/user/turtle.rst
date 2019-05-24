@@ -102,21 +102,6 @@ Text can be displayed using the **@L** primitive but it doesn't appear on screen
 	Axiom: @L("Some text", 18)	# Draws a text Label at the turtle's position.
 	# It can take two arguments which are the text to display and it's size.
 
-Primitive combinations
-======================
-
-All these primitives can be combined together. For example :
-
-.. code-block:: python
-
-	Axiom: FF@B(2,1)@O(.5)
-
-Download the example : :download:`combined.lpy <../_downloads/combined.lpy>`
-
-+------------------------------------+
-| .. image:: ../_images/combined.png |
-+------------------------------------+
-
 Some useful tools
 =================
 
@@ -201,6 +186,21 @@ Download the example : :download:`color.lpy <../_downloads/color.lpy>`
 +---------------------------------------------+
 | .. image:: ../_images/interpolateColors.png |
 +---------------------------------------------+
+
+Primitive combinations
+======================
+
+All these primitives can be combined together. For example :
+
+.. code-block:: python
+
+	Axiom: F(2)!(0.06)F _;@B(2,1) ;(3)@O(.5)
+
+Download the example : :download:`combined.lpy <../_downloads/combined.lpy>`
+
++------------------------------------+
+| .. image:: ../_images/combined.png |
++------------------------------------+
 
 Drawing more complex shapes with the turtle
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -493,6 +493,23 @@ The same branching system can be augmented with other modules (@**O** for sphere
 | .. image:: ../_images/branching3.png |
 |    :scale: 80%                       |
 +--------------------------------------+
+
+A more complex combined shape
+=============================
+
+Here comes a more complex example using the previous primitives :
+
+.. code-block:: python
+
+	Axiom: F [+(45)F;@D(0.8){.F+(90)F+(90)F+(90)F+(90)}] F [-(45)F(1.5);@D(0.8){.F-(90)F-(90)F-(90)F-(90)}] F(2) [+(45)F+(30)F+(15)F+(30)F+(30)F;(3)@O(0.3)] 
+	[-(45)F-(30)F-(15)F-(30)F-(30)F;(3)@O(0.3)] [/(90)+(45)F+(30)F+(15)F+(30)F+(30)F;(3)@O(0.3)] [\(90)+(45)F+(30)F+(15)F+(30)F+(30)F;(3)@O(0.3)]
+
+Download the example : :download:`harderExample.lpy <../_downloads/harderExample.lpy>`
+
++-----------------------------------------+
+| .. image:: ../_images/harderExample.png |
+|    :scale: 100%                         |
++-----------------------------------------+
 
 Advanced primitives
 ===================

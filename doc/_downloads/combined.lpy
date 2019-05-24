@@ -1,4 +1,4 @@
-Axiom: FF@B(2,1)@O(.5)
+Axiom: F(2)!(0.06)F _;@B(2,1) ;(3)@O(.5)
 
 derivation length: 1
 production:
