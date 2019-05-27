@@ -8,7 +8,6 @@ project(lpy_project CXX)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 include("Anaconda")
-# include("CXX14")
 
 # --- (Win32) Multithreaded Compilation
 
@@ -34,7 +33,7 @@ set(Boost_NO_SYSTEM_PATHS ON)
 set(Boost_USE_MULTITHREAD ON)
 set(Boost_USE_STATIC_LIBS OFF)
 
-find_package(Boost 1.67 COMPONENTS ${BOOST_PYTHON_LIB} REQUIRED)
+find_package(Boost 1.67 COMPONENTS system ${BOOST_PYTHON_LIB} REQUIRED)
 
 # --- Include Directories
 
