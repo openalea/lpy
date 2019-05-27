@@ -7,7 +7,7 @@ Basic geometric primitives
 Definition of the Turtle’s reference frame (HLU)
 ================================================
 .. OK
-In LPy, screen coordinates are defined in a global reference frame F0 = (X,Y,Z) of L-Py (Fig. A).
+In L-Py, screen coordinates are defined in a global reference frame F0 = (X,Y,Z) of L-Py (Fig. A).
 
 The Turtle is defined by a reference frame (H,L,U) with respect to F0 (Fig. B) and can be displayed using the primitive **Frame**
 
@@ -142,7 +142,7 @@ A argument can be set to specify the index of the material to use.
 
 +------------------------------------------+------------------------------------------+
 | .. image:: ../_images/increase_color.png | .. image:: ../_images/decrease_color.png |
-|    :scale: 60%                           |    :scale: 60%                           |
+|    :scale: 50%                           |    :scale: 50%                           |
 +------------------------------------------+------------------------------------------+
 
 The second manner to set color to an object is to use **SetColor**. There is two way to use it.
@@ -156,7 +156,7 @@ The first way is to specify the index of the material (Fig. A) and the second wa
 
 +-------------------------------------+-------------------------------------+
 | .. image:: ../_images/setColor1.png | .. image:: ../_images/setColor2.png |
-|    :scale: 60%                      |    :scale: 60%                      |
+|    :scale: 50%                      |    :scale: 50%                      |
 +-------------------------------------+-------------------------------------+
 
 The last manner to use the color system is the method **InterpolateColors**, it mixes up two colors in one.
@@ -205,20 +205,25 @@ Primitives can be used to rotate the Turtle in its current reference frame (H = 
 
 .. code-block:: python
 
-    Axiom: Frame /(60) Frame     # Roll left arround the H axis.
+    Axiom: Frame(2) /(60) Frame(2)     # Roll left arround the H axis. 	(Fig. A)
 
-    Axiom: Frame \(60) Frame 	 # Roll right arround the H axis.
+    Axiom: Frame(2) \(60) Frame(2) 	 # Roll right arround the H axis. 	(Fig. B)
 
-    Axiom: Frame ^(60) Frame     # Pitch up arround the L axis. (note that the rotation is indirect)
+    Axiom: Frame(2) ^(60) Frame(2)     # Pitch up arround the L axis. (note that the rotation is indirect) 	(Fig. C)
 
-    Axiom: Frame &(60) Frame 	 # Pitch down arround the L axis. (note that the rotation is indirect)
+    Axiom: Frame(2) &(60) Frame(2) 	 # Pitch down arround the L axis. (note that the rotation is indirect) 	(Fig. D)
 
-    Axiom: Frame +(60) Frame     # Turn left arround the U axis.
+    Axiom: Frame(2) +(60) Frame(2)     # Turn left arround the U axis. 	(Fig. E)
 
-    Axiom: Frame -(60) Frame 	 # Turn right arround the U axis.
+    Axiom: Frame(2) -(60) Frame(2) 	 # Turn right arround the U axis. 	(Fig. F)
 
-
-.. image:: ../_images/ex003.png
++-------------------------------------+-------------------------------------+-------------------------------------+
+| .. image:: ../_images/rotation1.png | .. image:: ../_images/rotation2.png | .. image:: ../_images/rotation3.png |
+|    :scale: 40%                      |    :scale: 40%                      |    :scale: 40%                      |
++-------------------------------------+-------------------------------------+-------------------------------------+
+| .. image:: ../_images/rotation4.png | .. image:: ../_images/rotation5.png | .. image:: ../_images/rotation6.png |
+|    :scale: 40%                      |    :scale: 40%                      |    :scale: 40%                      |
++-------------------------------------+-------------------------------------+-------------------------------------+
 
 Moving the Turtle
 =================
