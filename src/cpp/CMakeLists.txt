@@ -25,3 +25,7 @@ endif()
 # --- Output Library
 
 install(TARGETS lpy LIBRARY DESTINATION "lib")
+
+# --- Install Headers
+
+install(DIRECTORY "." DESTINATION "include" FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp")
