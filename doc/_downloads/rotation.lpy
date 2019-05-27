@@ -1,10 +1,10 @@
 #Different turtle rotations
-Axiom: Frame /(60) Frame
-#Axiom: Frame \(60) Frame
-#Axiom: Frame ^(60) Frame
-#Axiom: Frame &(60) Frame   
-#Axiom: Frame +(60) Frame
-#Axiom: Frame -(60) Frame
+Axiom: Frame(2) /(60) Frame(2)    
+#Axiom: Frame(2) \(60) Frame(2)
+#Axiom: Frame(2) ^(60) Frame(2)
+#Axiom: Frame(2) &(60) Frame(2)
+#Axiom: Frame(2) +(60) Frame(2)
+#Axiom: Frame(2) -(60) Frame(2) 
 
 derivation length: 1
 production:

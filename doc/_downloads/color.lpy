@@ -13,7 +13,7 @@ Axiom: F(2) ; @O(0.2)
 #Second method using SetColor
 
 #Using the index
-Axiom: F(2) SetColor(5) @O(0.2)             
+#Axiom: F(2) SetColor(5) @O(0.2)             
 #Using the rgb(a) system
 #Axiom: F(2) SetColor(45, 200, 200) @O(0.2)  
 
@@ -28,6 +28,16 @@ Axiom: F(2) SetColor(5) @O(0.2)
 #    nproduce InterpolateColors(3, 5, d) F(0.1)
 #    d += DIncr
 #  produce ;(2) @O(0.15)
+
+#Step = 20
+#DIncr = 1.0 / Step
+
+#Axiom:
+#  d = 0.0
+#  for i in range(Step):
+#    nproduce InterpolateColors(2, 5, d) F(0.1)
+#    d += DIncr
+#  produce ;(1) @O(0.15)
 
 
 derivation length: 1

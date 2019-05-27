@@ -102,22 +102,22 @@ Some useful tools
 *Changing the width*
 --------------------
 
-The width of the shapes can be increased (resp. decreased) using **_** (resp. **!**). These primitives increment or decrement width by 1. The default width is 0.1
+The width of the shapes can be increased (resp. decreased) using **_** (resp. **!**). These primitives increment or decrement width by 1. The default width is 0.1.
 
 .. code-block:: python
 
-	Axiom: F_ _ _F!F!F 	#At the beginning, the cylinder has a width of 0.1 (default) then 3.1, then 2.1 and finally 1.1
+	Axiom: F_ _ _F!F!F 	#At the beginning, the cylinder has a width of 0.1 (default) then 3.1, then 2.1 and finally 1.1 (Fig. A)
 
-+---------------------------------+
-| .. image:: ../_images/width.png |
-|    :scale: 120%                 |
-+---------------------------------+
++---------------------------------+----------------------------------+
+| .. image:: ../_images/width.png | .. image:: ../_images/width2.png |
+|    :scale: 60%                  |    :scale: 60%                   |
++---------------------------------+----------------------------------+
 
 Alternatively, the width can be set using **setWidth** or by giving argument to **_** or **!**
 
 .. code-block:: python
 
-	Axiom : F_(3)F!(2)F!(1)F 	#Same result as above
+	Axiom: F_(2)F!(3)F!(1)F 	#(Fig. B)
 
 Download the example : :download:`width.lpy <../_downloads/width.lpy>`
 
@@ -161,6 +161,7 @@ The first way is to specify the index of the material (Fig. A) and the second wa
 
 The last manner to use the color system is the method **InterpolateColors**, it mixes up two colors in one.
 There are three arguments, the first and the second are the index of materials and the last is optional and it sets a priority to the first or the second color in order to make the final color.
+There are two examples below.
 
 .. code-block:: python
 
@@ -170,15 +171,28 @@ There are three arguments, the first and the second are the index of materials a
 		Axiom:
 		  d = 0.0
 		  for i in range(Step):
-		    nproduce InterpolateColors(3, 5, d) F(0.1)
+		    nproduce InterpolateColors(3, 5, d) F(0.1) 		#(Fig. A)
 		    d += DIncr
 		  produce ;(2) @O(0.15)
 
+	#Other example
+
+		Step = 20
+		DIncr = 1.0 / Step
+
+		Axiom:
+  			d = 0.0
+  			for i in range(Step):
+    		nproduce InterpolateColors(2, 5, d) F(0.1) 		#(Fig. B)
+    		d += DIncr
+  			produce ;(1) @O(0.15)
+
 Download the example : :download:`color.lpy <../_downloads/color.lpy>`
 
-+---------------------------------------------+
-| .. image:: ../_images/interpolateColors.png |
-+---------------------------------------------+
++---------------------------------------------+----------------------------------------------+
+| .. image:: ../_images/interpolateColors.png | .. image:: ../_images/interpolateColors2.png | 
+|    :scale: 50%                              |    :scale: 50%                               |
++---------------------------------------------+----------------------------------------------+
 
 Primitive combinations
 ======================
@@ -216,6 +230,8 @@ Primitives can be used to rotate the Turtle in its current reference frame (H = 
     Axiom: Frame(2) +(60) Frame(2)     # Turn left arround the U axis. 	(Fig. E)
 
     Axiom: Frame(2) -(60) Frame(2) 	 # Turn right arround the U axis. 	(Fig. F)
+
+Download the example : :download:`rotation.lpy <../_downloads/rotation.lpy>`
 
 +-------------------------------------+-------------------------------------+-------------------------------------+
 | .. image:: ../_images/rotation1.png | .. image:: ../_images/rotation2.png | .. image:: ../_images/rotation3.png |
