@@ -48,13 +48,13 @@ The most basic primitives used to draw are **F**, **+** and **-**. They respecti
 
 .. code-block:: python
 
-    Axiom: F(3)		#(Fig. A)
+    Axiom: F(3)			#(Fig. A)
 
 If a second argument is given, it redefines the topradius of the cylinder (but the bottom radius is defined by the value of radius in the current Turtle state)
 
 .. code-block:: python
 
-    Axiom: F(3, 2.5) 	#(Fig. B)
+    Axiom: F(3, 2.5) 		#(Fig. B)
 
 To change the value of the Turtle's radius before applying the F command, one can use the **_** command:
 
@@ -171,7 +171,7 @@ There are two examples below.
 		Axiom:
 		  d = 0.0
 		  for i in range(Step):
-		    nproduce InterpolateColors(3, 5, d) F(0.1) 		#(Fig. A)
+		    nproduce InterpolateColors(3, 5, d) F(0.1) 	#(Fig. A)
 		    d += DIncr
 		  produce ;(2) @O(0.15)
 
@@ -183,7 +183,7 @@ There are two examples below.
 		Axiom:
   			d = 0.0
   			for i in range(Step):
-    		nproduce InterpolateColors(2, 5, d) F(0.1) 		#(Fig. B)
+    		nproduce InterpolateColors(2, 5, d) F(0.1) 	#(Fig. B)
     		d += DIncr
   			produce ;(1) @O(0.15)
 
@@ -197,17 +197,20 @@ Download the example : :download:`color.lpy <../_downloads/color.lpy>`
 Primitive combinations
 ======================
 
-All these primitives can be combined together. For example :
+All these primitives can be combined together. There are two examples :
 
 .. code-block:: python
 
-	Axiom: F(2)!(0.06)F _;@B(2,1) ;(3)@O(.5)
+	Axiom: F(2)_(0.06)F _;@B(2,1) ;(3)@O(.5) 		#(Fig. A)
+
+	Axiom: ;@B(5),@O(0.5)_(0.5)F(3,0.5)_(0.2)@O(0.5) 	#(Fig. B)
 
 Download the example : :download:`combined.lpy <../_downloads/combined.lpy>`
 
-+------------------------------------+
-| .. image:: ../_images/combined.png |
-+------------------------------------+
++------------------------------------+-------------------------------------+
+| .. image:: ../_images/combined.png | .. image:: ../_images/combined2.png |
+|    :scale: 50%                     |    :scale: 50%                      |
++------------------------------------+-------------------------------------+
 
 Drawing more complex shapes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -219,17 +222,17 @@ Primitives can be used to rotate the Turtle in its current reference frame (H = 
 
 .. code-block:: python
 
-    Axiom: Frame(2) /(60) Frame(2)     # Roll left arround the H axis. 	(Fig. A)
+    Axiom: Frame(2) /(60) Frame(2)   # Roll left arround the H axis. (Fig. A)
 
-    Axiom: Frame(2) \(60) Frame(2) 	 # Roll right arround the H axis. 	(Fig. B)
+    Axiom: Frame(2) \(60) Frame(2)   # Roll right arround the H axis. (Fig. B)
 
-    Axiom: Frame(2) ^(60) Frame(2)     # Pitch up arround the L axis. (note that the rotation is indirect) 	(Fig. C)
+    Axiom: Frame(2) ^(60) Frame(2)   # Pitch up arround the L axis. (note that the rotation is indirect) (Fig. C)
 
-    Axiom: Frame(2) &(60) Frame(2) 	 # Pitch down arround the L axis. (note that the rotation is indirect) 	(Fig. D)
+    Axiom: Frame(2) &(60) Frame(2)   # Pitch down arround the L axis. (note that the rotation is indirect) (Fig. D)
 
-    Axiom: Frame(2) +(60) Frame(2)     # Turn left arround the U axis. 	(Fig. E)
+    Axiom: Frame(2) +(60) Frame(2)   # Turn left arround the U axis. (Fig. E)
 
-    Axiom: Frame(2) -(60) Frame(2) 	 # Turn right arround the U axis. 	(Fig. F)
+    Axiom: Frame(2) -(60) Frame(2)   # Turn right arround the U axis. (Fig. F)
 
 Download the example : :download:`rotation.lpy <../_downloads/rotation.lpy>`
 
@@ -342,30 +345,37 @@ The H and U axis can be set directly using **@R**. The arguments needed are 6 fl
 
 .. code-block:: python
 
-	Axiom: @R(1,1,1,3,2,1) Frame 	#(Fig. A)
+	Axiom: Frame(2) @R(0,0,1,0,1,0) Frame(2) 	#(Fig. A)
 
 	import numpy as np
-	h = np.array([1,2,6])
-	u = np.array([3,9,7])
-	Axiom: @R(h,u) Frame 	#(Fig. B)
+	h = np.array([0,1,0])
+	u = np.array([1,0,1])
+	Axiom: Frame(2) @R(h,u) Frame(2)		#(Fig. B)
 
 Download the example : :download:`setHLU.lpy <../_downloads/setHLU.lpy>`
 
+In (Fig. A), the H axis point now to (0,0,1) but it was already the case and the U axis point now to (0,1,0).
+In (Fig. B), the H axis point now to (0,1,0) and the U axis point now to (1,0,1).
+
 +-------------------------------------+-------------------------------------+
 | .. image:: ../_images/@R.png        | .. image:: ../_images/@R2.png       |
-|    :scale: 100%                     |    :scale: 100%                     |
+|    :scale: 60%                      |    :scale: 60%                      |
 +-------------------------------------+-------------------------------------+
 
 Finally, the Turtle's orientation can be set using Euler angles with the primitive EulerAngles. Three angles in degrees are needed (default = 180,90,0).
 
 .. code-block:: python
 
-	Axiom: EulerAngles(90,60,0) Frame
+	#Equivalent to Frame(2)&(30)Frame(2)
+	Axiom: Frame(2) EulerAngles(180,60,0) Frame(2) 	(#Fig. A)
 
-+---------------------------------+
-| .. image:: ../_images/euler.png |
-|   :scale: 120%                  |
-+---------------------------------+
+	#Equivalent to Frame(2)\(90)&(30)Frame(2)
+	Axiom: Frame(2) EulerAngles(90,60,0) Frame(2) 	(#Fig. B)
+
++---------------------------------+----------------------------------+
+| .. image:: ../_images/euler.png | .. image:: ../_images/euler2.png |
+|   :scale: 60%                   |    :scale: 60%                   |
++---------------------------------+----------------------------------+
 
 Rescaling the Turtle
 ====================
@@ -397,7 +407,7 @@ Turn and move forward : Here, at each **+**, the Turtle does a rotation of the n
 
 .. code-block:: python
 
-    Axiom: Frame(2)+(30)F(5)+(120)F(5)+(120)F(5)  # (Fig. A)
+    Axiom: Frame(2)+(30)F(5)+(120)F(5)+(120)F(5)   # (Fig. A)
 
 Download the example : :download:`polygons.lpy <../_downloads/polygons.lpy>`
 
@@ -484,7 +494,7 @@ Bracket makes it possible to specify branches. Before each opening bracket, the 
 
 .. code-block:: python
 
-	Axiom: F(4)[+F(3)]F(4)  	#(Fig. A)
+	Axiom: F(4)[+F(3)]F(4)  			    #(Fig. A)
 
 Then it's possible to nest branches inside each others :
 
@@ -541,15 +551,18 @@ The primitive **nF** draws n steps of cylinders (n is the first argument). The s
 
 .. code-block:: python
 
-	Axiom: nF(2,1)+(20)nF(2,1)+(20)@D(0.8)nF(3,1)
+	Axiom: nF(2,1)+(20)nF(2,1)+(20)@D(0.8)nF(3,1) 		 #(Fig. A)
 	#Equivalent to FF+(20)FF+(20)@D(0.8)FFF
+
+	#It can be used to create branching shapes too.
+	Axiom: nF(2,1)[+(45)nF(2,1)]nF(1,1)[-(45)nF(2,1)]nF(2,1) #(Fig. B)
 
 Download the example : :download:`longPath.lpy <../_downloads/longPath.lpy>`
 
-+--------------------------------+
-| .. image:: ../_images/path.png |
-|    :scale: 120%                |
-+--------------------------------+
++--------------------------------+---------------------------------+
+| .. image:: ../_images/path.png | .. image:: ../_images/path2.png |
+|    :scale: 60%                 |    :scale: 60%                  |
++--------------------------------+---------------------------------+
 
 *Drawing lines*
 ---------------
@@ -559,12 +572,18 @@ Such as other primitives using coordinates, a vector can be used.
 
 .. code-block:: python
 
-	Axiom: LineTo(0,0,3)[LineTo(0,1,4)]LineTo(0,0,5)
+	Axiom: LineTo(0,0,3)[LineTo(0,1,4)]LineTo(0,0,5) 	   #(Fig. A)
 
-+----------------------------------+
-| .. image:: ../_images/LineTo.png |
-|    :scale: 100%                  |
-+----------------------------------+
+Notice that **+**, **-**, **/** and other rotation primitives don't have any incidence on LineTo.
+
+.. code-block:: python
+
+	Axiom: LineTo(0,0,3)[+(90)LineTo(0,1,4)]-(30)LineTo(0,0,5) #(Fig. B)
+
++----------------------------------+-------------------------------------+
+| .. image:: ../_images/LineTo.png | .. image:: ../_images/LineToBis.png |
+|    :scale: 40%                   |    :scale: 40%                      |
++----------------------------------+-------------------------------------+
 
 **LineTo** conserve the Turtle's orientation. To change orientation while drawing, **OLineTo** should be used.
 
@@ -654,7 +673,7 @@ Note that the Turtle can move less than the length of the 2D curve. In this case
 
     L = 15
     L0 = 10
-    Axiom: SetGuide(C0,L0) nF(L, 0.1)  # (E)
+    Axiom: SetGuide(C0,L0) nF(L, 0.1)  # (Fig. E)
 
 +-------------------------------------+-------------------------------------+
 | .. image:: ../_images/setGuide4.png | .. image:: ../_images/setGuide5.png |
