@@ -310,13 +310,13 @@ The Turtle's orientation can be setted using some primitives.
 
 .. code-block:: python
 
-	Axiom: Pinpoint(1,0,0) Frame	#(Fig. A)
+	Axiom: Pinpoint(1,0,0) Frame	# The H axis point to (1,0,0) (Fig. A)
 
 	import numpy as np
 	v = np.array([0,1,0])
-	Axiom: Pinpoint(v) Frame	#(Fig. B)
+	Axiom: Pinpoint(v) Frame	# The H axis point to (0,1,0) (Fig. B)
 
-	Axiom: Pinpoint(1,1,0) Frame 	#(Fig. C)
+	Axiom: Pinpoint(1,1,0) Frame 	# The H axis point to (1,1,0) (Fig. C)
 
 Download the example : :download:`orientation.lpy <../_downloads/orientation.lpy>`
 
