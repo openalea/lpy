@@ -165,27 +165,27 @@ There are two examples below.
 
 .. code-block:: python
 
-		Step = 20
-		DIncr = 1.0 / Step
+	Step = 20
+	DIncr = 1.0 / Step
 
-		Axiom:
-		  d = 0.0
-		  for i in range(Step):
-		    nproduce InterpolateColors(3, 5, d) F(0.1) 	#(Fig. A)
-		    d += DIncr
-		  produce ;(2) @O(0.15)
+	Axiom:
+	  d = 0.0
+	  for i in range(Step):
+	    nproduce InterpolateColors(3, 5, d) F(2.0/Step) 	#(Fig. A)
+	    d += DIncr
+	  produce ;(2) @O(0.15)
 
 	#Other example
 
-		Step = 20
-		DIncr = 1.0 / Step
+	Step = 4
+	DIncr = 1.0 / Step
 
-		Axiom:
-  			d = 0.0
-  			for i in range(Step):
-    		nproduce InterpolateColors(2, 5, d) F(0.1) 	#(Fig. B)
-    		d += DIncr
-  			produce ;(1) @O(0.15)
+	Axiom:
+	  d = 0.0
+	  for i in range(Step):
+	    nproduce InterpolateColors(2, 5, d) F(2.0/Step)      #(Fig. B)
+	    d += DIncr
+	  produce ;(1) @O(0.15)
 
 Download the example : :download:`color.lpy <../_downloads/color.lpy>`
 
@@ -527,18 +527,17 @@ The same branching system can be augmented with other modules (@**O** for sphere
 A more complex combined shape
 =============================
 
-Here comes a more complex example using the previous primitives :
+There is below a more complex shape using the previous primitives. In this example, **~l** is used. This primitive draws a leaf.
 
 .. code-block:: python
 
-	Axiom: F [+(45)F;@D(0.8){.F+(90)F+(90)F+(90)F+(90)}] F [-(45)F(1.5);@D(0.8){.F-(90)F-(90)F-(90)F-(90)}] F(2) [+(45)F+(30)F+(15)F+(30)F+(30)F;(3)@O(0.3)]
-	[-(45)F-(30)F-(15)F-(30)F-(30)F;(3)@O(0.3)] [/(90)+(45)F+(30)F+(15)F+(30)F+(30)F;(3)@O(0.3)] [\(90)+(45)F+(30)F+(15)F+(30)F+(30)F;(3)@O(0.3)]
+	Axiom: F[;-(70)f(0.1)\(80)~l]F[;+(70)f(0.1)/(80)~l][-F[;+(70)f(0.1)~l][F(1.2);@O(0.2)]-F(0.6)[-f(0.4);(3)@O(0.3)]F(0.6);@O(0.2)]
+	F(1.5)[;+(70)f(0.1)/(80)~l]F(0.1)[+F;@O(0.2)]F;@O(0.2)
 
 Download the example : :download:`harderExample.lpy <../_downloads/harderExample.lpy>`
 
 +-----------------------------------------+
 | .. image:: ../_images/harderExample.png |
-|    :scale: 100%                         |
 +-----------------------------------------+
 
 Advanced primitives
