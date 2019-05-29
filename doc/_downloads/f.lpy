@@ -1,4 +1,6 @@
-Axiom: F-f+Ff(2)-F(2)
+Axiom: F[+fF]F[-fF]FF
+
+#Axiom: F[+F(2);@O(0.2)]F[-F[+F(0.5);@O(0.2)]-(30)F(0.5)[-(90)f(1.5);(3)@O(0.3)]F(0.5);@O(0.2)]FF;@O(0.2)
 
 derivation length: 1
 production:

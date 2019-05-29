@@ -282,22 +282,6 @@ Download the example : :download:`movement.lpy <../_downloads/movement.lpy>`
 |    :scale: 60%                         |    :scale: 60%                         |
 +----------------------------------------+----------------------------------------+
 
-*Moving of one or several units*
---------------------------------
-
-The primitive **f** works like **F** except that it doesn't draw anything. The argument defines the number of steps the Turtle will move.
-
-.. code-block:: python
-
-	Axiom: F-f+Ff(2)-F(2)
-
-Download the example : :download:`f.lpy <../_downloads/f.lpy>`
-
-+-----------------------------+
-| .. image:: ../_images/f.png |
-|   :scale: 80%               |
-+-----------------------------+
-
 Orient the Turtle
 =================
 
@@ -524,6 +508,26 @@ The same branching system can be augmented with other modules (@**O** for sphere
 
     Axiom: F(4)[+F(2)[+F(1);(3)@O(0.2)]F(1);(3)@O(0.2)]F(3)[-F(1);(3)@O(0.2)]F(1);(3)@O(0.2) 	#(Fig. D)
 
+Moving the turtle without drawing
+=================================
+
+The primitive **f** works like **F** except that it doesn't draw anything. The argument defines the number of steps the Turtle will move.
+
+.. code-block:: python
+
+	Axiom: F[+fF]F[-fF]FF 	#(Fig. A)
+
+	Axiom: F[+F(2);@O(0.2)]F[-F[+F(0.5);@O(0.2)]-(30)F(0.5)
+	[-(90)f(1.5);(3)@O(0.3)]F(0.5);@O(0.2)]FF;@O(0.2) 	#(Fig. B)
+	#The f primitive helps to represent the fall of a fruit
+
+Download the example : :download:`f.lpy <../_downloads/f.lpy>`
+
++-----------------------------+-------------------------------+
+| .. image:: ../_images/f.png |  .. image:: ../_images/f2.png |
+|   :scale: 60%               |     :scale: 60%               |
++-----------------------------+-------------------------------+
+
 A more complex combined shape
 =============================
 
@@ -532,7 +536,7 @@ There is below a more complex shape using the previous primitives. In this examp
 .. code-block:: python
 
 	Axiom: F[;-(70)f(0.1)\(80)~l]F[;+(70)f(0.1)/(80)~l][-F[;+(70)f(0.1)~l][F(1.2);@O(0.2)]-F(0.6)[-f(0.4);(3)@O(0.3)]F(0.6);@O(0.2)]
-	F(1.5)[;+(70)f(0.1)/(80)~l]F(0.1)[+F;@O(0.2)]F;@O(0.2)
+	F(1.5)[;+(70)f(0.1)/(70)~l]F(0.1)[+F;@O(0.2)]F;@O(0.2)
 
 Download the example : :download:`harderExample.lpy <../_downloads/harderExample.lpy>`
 
