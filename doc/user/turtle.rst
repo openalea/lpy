@@ -219,6 +219,7 @@ Rotating with HLU (Main primitives)
 ===================================
 
 Primitives can be used to rotate the Turtle in its current reference frame (H = Head, L = Left, U = Up, angles are expressed by default in degrees).
+These primitives are paired (one and it's opposite) : / and \\, ^ and & and finally + and -.
 
 .. code-block:: python
 
