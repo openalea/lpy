@@ -219,7 +219,7 @@ Rotating with HLU (Main primitives)
 ===================================
 
 Primitives can be used to rotate the Turtle in its current reference frame (H = Head, L = Left, U = Up, angles are expressed by default in degrees).
-These primitives are paired (one and it's opposite) : / and \\, ^ and & and finally + and -.
+These primitives are paired (one and it's opposite) : **/** and **\\**, **^** and **&** and finally **+** and **-**.
 
 .. code-block:: python
 
@@ -238,10 +238,10 @@ These primitives are paired (one and it's opposite) : / and \\, ^ and & and fina
 Download the example : :download:`rotation.lpy <../_downloads/rotation.lpy>`
 
 +-------------------------------------+-------------------------------------+-------------------------------------+
-| .. image:: ../_images/rotation1.png | .. image:: ../_images/rotation2.png | .. image:: ../_images/rotation3.png |
+| .. image:: ../_images/rotation1.png | .. image:: ../_images/rotation3.png | .. image:: ../_images/rotation5.png |
 |    :scale: 40%                      |    :scale: 40%                      |    :scale: 40%                      |
 +-------------------------------------+-------------------------------------+-------------------------------------+
-| .. image:: ../_images/rotation4.png | .. image:: ../_images/rotation5.png | .. image:: ../_images/rotation6.png |
+| .. image:: ../_images/rotation2.png | .. image:: ../_images/rotation4.png | .. image:: ../_images/rotation6.png |
 |    :scale: 40%                      |    :scale: 40%                      |    :scale: 40%                      |
 +-------------------------------------+-------------------------------------+-------------------------------------+
 
