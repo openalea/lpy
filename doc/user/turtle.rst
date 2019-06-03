@@ -347,20 +347,32 @@ In (Fig. B), the H axis point now to (0,1,0) and the U axis point now to (1,0,1)
 |    :scale: 60%                      |    :scale: 60%                      |
 +-------------------------------------+-------------------------------------+
 
-Finally, the Turtle's orientation can be set using Euler angles with the primitive EulerAngles. Three angles in degrees are needed (default = 180,90,0).
+Finally, the Turtle’s orientation can at any moment be set using Euler angles with the primitive **EulerAngles**. The Euler angles are defined with respect to the other global reference frame (screen coordinates). By default, the initial Turtle’s frame is defined by the Euler angles (180,90,0) with respect to the original frame.
 
 .. code-block:: python
 
-	#Equivalent to Frame(2)&(30)Frame(2)
-	Axiom: Frame(2) EulerAngles(180,60,0) Frame(2) 	(#Fig. A)
+	Axiom: Frame(2) EulerAngles(0,0,0) Frame(2)  # Turtle’s frame corresponds to the global reference frame. (Fig. A)
 
-	#Equivalent to Frame(2)\(90)&(30)Frame(2)
-	Axiom: Frame(2) EulerAngles(90,60,0) Frame(2) 	(#Fig. B)
+	Axiom: Frame(2) EulerAngles(180,0,0) Frame(2)  #180° rotation arround Z axis. (Fig. B)
 
-+---------------------------------+----------------------------------+
-| .. image:: ../_images/euler.png | .. image:: ../_images/euler2.png |
-|   :scale: 60%                   |    :scale: 60%                   |
-+---------------------------------+----------------------------------+
+	Axiom: Frame(2) EulerAngles(180,90,0) Frame(2)  #The 90° rotation arround the new Y axis. (Fig. C)
+	#There is the initial Turtle's frame
+
++----------------------------------+----------------------------------+----------------------------------+
+| .. image:: ../_images/euler.png  | .. image:: ../_images/euler2.png | .. image:: ../_images/euler3.png |
+|   :scale: 40%                    |    :scale: 40%                   |    :scale: 40%                   |
++----------------------------------+----------------------------------+----------------------------------+
+
+.. code-block:: python
+
+	#A succession of 3 rotations : First 30° arround Z axis (Fig. D), then 90° arround the new Y axis (Fig. E)
+	#and finally 60° arround the new X axis. (Fig. F)
+	Axiom: Frame(2) EulerAngles(30,90,60) Frame(2)  
+
++-----------------------------------+----------------------------------+----------------------------------+
+| .. image:: ../_images/euler4.png  | .. image:: ../_images/euler5.png | .. image:: ../_images/euler6.png |
+|   :scale: 40%                     |    :scale: 40%                   |    :scale: 40%                   |
++-----------------------------------+----------------------------------+----------------------------------+
 
 Rescaling the Turtle
 ====================
@@ -503,7 +515,7 @@ Download the example : :download:`branching.lpy <../_downloads/branching.lpy>`
 |    :scale: 40%                       |    :scale: 40%                       |
 +--------------------------------------+--------------------------------------+
 
-The same branching system can be augmented with other modules (@**O** for sphere, ...) (Fig. D)
+The same branching system can be augmented with other modules (**Frame**, **@O**, **@B**,...) (Fig. D)
 
 .. code-block:: python
 
@@ -725,7 +737,7 @@ Download the example : :download:`resolution.lpy <../_downloads/resolution.lpy>`
 
 +---------------------------------------+---------------------------------------+
 | .. image:: ../_images/resolution1.png | .. image:: ../_images/resolution2.png |
-|    :scale: 70%                        |    :scale: 70%                        |
+|    :scale: 60%                        |    :scale: 60%                        |
 +---------------------------------------+---------------------------------------+
 
 Screen Projection
