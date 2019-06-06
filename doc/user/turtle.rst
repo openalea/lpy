@@ -1,48 +1,91 @@
 L-Py Turtle
 ###########
 
-Basic geometric primitives
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Constructing basic shapes with the Turtle
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Definition of the Turtle’s reference frame (HLU)
-================================================
-.. OK
-In L-Py, screen coordinates are defined in a global reference frame F0 = (X,Y,Z) of L-Py (Fig. A).
-
-The Turtle is defined by a reference frame (H,L,U) with respect to F0 (Fig. B) and can be displayed using the primitive **Frame**
-
-- H (Head) pointing in the direction of the Turtle's "head".
-- L (Left) pointing in the direction of the Turtle's "left arm".
-- U (Up)   pointing in the direction of for the Turtle's back ("up").
-
-.. code-block:: python
-
-    Axiom: Frame
-
-+--------------------------------+---------------------------------+
-| .. image:: ../_images/axis.png | .. image:: ../_images/frame.png |
-|    :scale: 100%                |    :scale: 100%                 |
-+--------------------------------+---------------------------------+
-
-Starting with basic shapes
+Simple Turtle instructions
 ==========================
 
-The most basic primitives used to draw are **F**, **+** and **-**. They respectively move the Turtle forward while drawing a cylinder of one unit, turn letf and turn right.
+The Turtle is a geometric tool defined by a reference frame (usually not visible) that can be moved using geometric instructions.
 
 .. code-block:: python
 
-    Axiom: F 		#(Fig. A)
-    Axiom: FFF 		#(Fig. B)
-    Axiom: F+F+F 	#(Fig. C)
-    Axiom: F+F-F 	#(Fig. D)
+	#Turtle initial position (Fig. A)
+	Axiom: F 		#(Fig. B)
+	Axiom: FFF 		#(Fig. C)
+	Axiom: F+F+F 		#(Fig. D)
 
-+------------------------------+-------------------------------+
-| .. image:: ../_images/F.png  | .. image:: ../_images/FFF.png |
-|    :scale: 60%               |    :scale: 60%                |
-+------------------------------+-------------------------------+
-| .. image:: ../_images/F+.png | .. image:: ../_images/F-.png  |
-|    :scale: 60%               |    :scale: 60%                |
-+------------------------------+-------------------------------+
++------------------------------------+-----------------------------------+
+| .. image:: ../_images/turtle1.png  | .. image:: ../_images/turtle2.png |
+|    :scale: 40%                     |    :scale: 40%                    |
++------------------------------------+-----------------------------------+
+| .. image:: ../_images/turtle3.png  | .. image:: ../_images/turtle4.png |
+|    :scale: 40%                     |    :scale: 40%                    |
++------------------------------------+-----------------------------------+
+
+In this way, different types of shapes can be constructed :
+
+.. code-block:: python
+
+    Axiom: F+F-F 			#(Fig. A)
+    Axiom: FF-(90)FF-(90)FF-(90)FF 	#(Fig. B)
+    Axiom: FF[-F][+F]F 			#(Fig. C)
+
++-------------------------------+----------------------------------+----------------------------------+
+| .. image:: ../_images/F-.png  | .. image:: ../_images/square.png | .. image:: ../_images/branch.png |
+|    :scale: 40%                |    :scale: 40%                   |    :scale: 40%                   |
++-------------------------------+----------------------------------+----------------------------------+
+
+To resume, the **F** primitive moves the Turtle and draws a cylinder of one unit.
+
+To move the Turtle without drawing something, **f** should be used. The argument defines the number of steps the Turtle will move.
+
+.. code-block:: python
+
+	Axiom: F[+fF]F[-fF]FF 					#(Fig. A)
+
+	Axiom: +(90)F-(45)f-(45)F-(45)f-(45)F-(45)f-(45)F	#(Fig. B)
+
++-----------------------------+-------------------------------+
+| .. image:: ../_images/f.png |  .. image:: ../_images/f2.png |
+|   :scale: 60%               |     :scale: 60%               |
++-----------------------------+-------------------------------+
+
+Other basic geometric primitives make it possible to draw other predifined shapes :
+
+.. code-block:: python
+
+	Axiom: @O(1) 	# Draws a sphere at the Turtle's position.
+	# It can take one argument which is the radius of the sphere.
+
+	Axiom: @o(1)	# Draws a circle at the Turtle's position.
+	# It can take one argument which is the radius of the circle.
+
+	Axiom: @B(1)	# Draws a box at the Turtle's position.
+	# It can take two argument which are the length of the edges and the topradius.
+
+	Axiom: @b(1)	# Draws a quad at the Turtle's position.
+	# It can take two argument which are the length of the edges and the topradius.
+
++----------------------------------+----------------------------------+
+| .. image:: ../_images/sphere.png | .. image:: ../_images/circle.png |
++----------------------------------+----------------------------------+
+|.. image:: ../_images/box.png     | .. image:: ../_images/quad.png   |
++----------------------------------+----------------------------------+
+
+Specific commands allow to draw more complex shapes. These commands are **~** and **@g**.
+**~** draws the surface and **@g** draws the shape in argument.
+**~l** is already defined, it draws a leaf.
+
+.. code-block:: python
+
+	Axiom: ~l 	#(Fig. A)
+
++--------------------------------+--------------------------------+
+| .. image:: ../_images/leaf.png | *to complete with Fred's help* |
++--------------------------------+--------------------------------+
+
 
 **F** can take one or two arguments (of type float). If only one argument is given, it defines the length of the cylinder drawn (default value = 1). The diameter is by set by default to 0.1.
 
@@ -64,30 +107,8 @@ To change the value of the Turtle's radius before applying the F command, one ca
 
 +------------------------------+--------------------------------+------------------------------+
 | .. image:: ../_images/F3.png | .. image:: ../_images/F2,5.png | .. image:: ../_images/_F.png |
-|    :scale: 50%               |    :scale: 50%                 |    :scale: 50%               |
+|    :scale: 40%               |    :scale: 40%                 |    :scale: 40%               |
 +------------------------------+--------------------------------+------------------------------+
-
-There are some other primitives which can be used to draw some basic shapes :
-
-.. code-block:: python
-
-	Axiom: @O(1) 	# Draws a sphere at the Turtle's position.
-	# It can take one argument which is the radius of the sphere.
-
-	Axiom: @o(1)	# Draws a circle at the Turtle's position.
-	# It can take one argument which is the radius of the circle.
-
-	Axiom: @B(1)	# Draws a box at the Turtle's position.
-	# It can take two argument which are the length of the edges and the topradius.
-
-	Axiom: @b(1)	# Draws a quad at the Turtle's position.
-	# It can take two argument which are the length of the edges and the topradius.
-
-+----------------------------------+----------------------------------+
-| .. image:: ../_images/sphere.png | .. image:: ../_images/circle.png |
-+----------------------------------+----------------------------------+
-|.. image:: ../_images/box.png     | .. image:: ../_images/quad.png   |
-+----------------------------------+----------------------------------+
 
 Text can be displayed using the **@L** primitive but it doesn't appear on screenshots
 
@@ -159,41 +180,6 @@ The first way is to specify the index of the material (Fig. A) and the second wa
 |    :scale: 50%                      |    :scale: 50%                      |
 +-------------------------------------+-------------------------------------+
 
-The last manner to use the color system is the method **InterpolateColors**, it mixes up two colors in one.
-There are three arguments, the first and the second are the index of materials and the last is optional and it sets a priority to the first or the second color in order to make the final color.
-There are two examples below.
-
-.. code-block:: python
-
-	Step = 20
-	DIncr = 1.0 / Step
-
-	Axiom:
-	  d = 0.0
-	  for i in range(Step):
-	    nproduce InterpolateColors(3, 5, d) F(2.0/Step) 	#(Fig. A)
-	    d += DIncr
-	  produce ;(2) @O(0.15)
-
-	#Other example
-
-	Step = 4
-	DIncr = 1.0 / Step
-
-	Axiom:
-	  d = 0.0
-	  for i in range(Step):
-	    nproduce InterpolateColors(2, 5, d) F(2.0/Step)      #(Fig. B)
-	    d += DIncr
-	  produce ;(1) @O(0.15)
-
-Download the example : :download:`color.lpy <../_downloads/color.lpy>`
-
-+---------------------------------------------+----------------------------------------------+
-| .. image:: ../_images/interpolateColors.png | .. image:: ../_images/interpolateColors2.png | 
-|    :scale: 50%                              |    :scale: 50%                               |
-+---------------------------------------------+----------------------------------------------+
-
 Primitive combinations
 ======================
 
@@ -201,7 +187,7 @@ All these primitives can be combined together. There are two examples :
 
 .. code-block:: python
 
-	Axiom: F(2)_(0.06)F _;@B(2,1) ;(3)@O(.5) 		#(Fig. A)
+	Axiom: F[;+~l]F[;-~l]F[;+~l]F[;-~l]F[;+~l]F[;-~l]F	#(Fig. A)
 
 	Axiom: ;@B(5),@O(0.5)_(0.5)F(3,0.5)_(0.2)@O(0.5) 	#(Fig. B)
 
@@ -209,11 +195,33 @@ Download the example : :download:`combined.lpy <../_downloads/combined.lpy>`
 
 +------------------------------------+-------------------------------------+
 | .. image:: ../_images/combined.png | .. image:: ../_images/combined2.png |
-|    :scale: 50%                     |    :scale: 50%                      |
+|    :scale: 40%                     |    :scale: 40%                      |
 +------------------------------------+-------------------------------------+
 
 Drawing more complex shapes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In order to draw complex shapes, some basic knowledge about the Turtle is required.
+
+Definition of the Turtle’s reference frame (HLU)
+================================================
+.. OK
+In L-Py, screen coordinates are defined in a global reference frame F0 = (X,Y,Z) of L-Py (Fig. A).
+
+The Turtle is defined by a reference frame (H,L,U) with respect to F0 (Fig. B) and can be displayed using the primitive **Frame**
+
+- H (Head) pointing in the direction of the Turtle's "head".
+- L (Left) pointing in the direction of the Turtle's "left arm".
+- U (Up)   pointing in the direction of for the Turtle's back ("up").
+
+.. code-block:: python
+
+    Axiom: Frame
+
++--------------------------------+---------------------------------+
+| .. image:: ../_images/axis.png | .. image:: ../_images/frame.png |
+|    :scale: 100%                |    :scale: 100%                 |
++--------------------------------+---------------------------------+
 
 Rotating with HLU (Main primitives)
 ===================================
@@ -244,135 +252,6 @@ Download the example : :download:`rotation.lpy <../_downloads/rotation.lpy>`
 | .. image:: ../_images/rotation2.png | .. image:: ../_images/rotation4.png | .. image:: ../_images/rotation6.png |
 |    :scale: 40%                      |    :scale: 40%                      |    :scale: 40%                      |
 +-------------------------------------+-------------------------------------+-------------------------------------+
-
-Moving the Turtle
-=================
-
-There are some primitives which can be used to change the Turtle's position.
-
-*MoveTo and MoveRel*
---------------------
-
-**@M** (or **MoveTo**) moves the Turtle's to the given in arguments. It can be three floats or a vector.
-
-.. code-block:: python
-
-	Axiom: @M(0,2,0) Frame 	#(Fig. A)
-
-	import numpy as np
-	v = np.array([0,1,1])
-	Axiom: MoveTo(v)	#(Fig. B)
-
-Download the example : :download:`movement.lpy <../_downloads/movement.lpy>`
-
-+---------------------------------------+---------------------------------------+
-| .. image:: ../_images/moveTo1.png     | .. image:: ../_images/moveTo2.png     |
-|    :scale: 60%                        |    :scale: 60%                        |
-+---------------------------------------+---------------------------------------+
-
-**MoveRel** works almost in the same way but it moves the Turtle relatively to the current position :
-
-.. code-block:: python
-
-	Axiom: F MoveTo(0,3,0) Frame 	#The Turtle moves to the position (0,3,0) (Fig. A)
-
-	Axiom: F MoveRel(0,3,0) Frame 	#The Turtle moves along the Y axis for 3 units (Fig. B)
-
-+----------------------------------------+----------------------------------------+
-| .. image:: ../_images/moveRel1.png     | .. image:: ../_images/moveRel2.png     |
-|    :scale: 60%                         |    :scale: 60%                         |
-+----------------------------------------+----------------------------------------+
-
-Orient the Turtle
-=================
-
-The Turtle's orientation can be setted using some primitives.
-
-*Pinpoint and PinpointRel*
---------------------------
-
-**Pinpoint** orients the Turtle toward x,y and z given in arguments. It means that the H axis (the red arrow) will point to the coordinates given. One can use also a vector.
-
-.. code-block:: python
-
-	Axiom: Pinpoint(1,0,0) Frame	# The H axis point to (1,0,0) (Fig. A)
-
-	import numpy as np
-	v = np.array([0,1,0])
-	Axiom: Pinpoint(v) Frame	# The H axis point to (0,1,0) (Fig. B)
-
-	Axiom: Pinpoint(1,1,0) Frame 	# The H axis point to (1,1,0) (Fig. C)
-
-Download the example : :download:`orientation.lpy <../_downloads/orientation.lpy>`
-
-+-------------------------------------+-------------------------------------+-------------------------------------+
-| .. image:: ../_images/pinpoint1.png | .. image:: ../_images/pinpoint2.png | .. image:: ../_images/pinpoint3.png |
-|    :scale: 40%                      |    :scale: 40%                      |    :scale: 40%                      |
-+-------------------------------------+-------------------------------------+-------------------------------------+
-
-Such as **MoveRel** for position, **PinpointRel** orients the Turtle relatively to the current position.
-
-.. code-block:: python
-
-	Axiom: Frame MoveTo(0,2,0) Pinpoint(1,0,1) Frame 	#(Fig. A)
-
-	Axiom: Frame MoveTo(0,2,0) PinpointRel(1,0,1) Frame 	#(Fig. B)
-
-+----------------------------------------+----------------------------------------+
-| .. image:: ../_images/pinpointRel1.png | .. image:: ../_images/pinpointRel2.png |
-|    :scale: 60%                         |    :scale: 60%                         |
-+----------------------------------------+----------------------------------------+
-
-*Setting the HLU axis*
-----------------------
-
-The H and U axis can be set directly using **@R**. The arguments needed are 6 floats (which represent the coordinates of the two axis) or two vectors.
-
-.. code-block:: python
-
-	Axiom: Frame(2) @R(0,0,1,0,1,0) Frame(2) 	#(Fig. A)
-
-	import numpy as np
-	h = np.array([0,1,0])
-	u = np.array([1,0,1])
-	Axiom: Frame(2) @R(h,u) Frame(2)		#(Fig. B)
-
-Download the example : :download:`setHLU.lpy <../_downloads/setHLU.lpy>`
-
-In (Fig. A), the H axis point now to (0,0,1) but it was already the case and the U axis point now to (0,1,0).
-In (Fig. B), the H axis point now to (0,1,0) and the U axis point now to (1,0,1).
-
-+-------------------------------------+-------------------------------------+
-| .. image:: ../_images/@R.png        | .. image:: ../_images/@R2.png       |
-|    :scale: 60%                      |    :scale: 60%                      |
-+-------------------------------------+-------------------------------------+
-
-Finally, the Turtle’s orientation can at any moment be set using Euler angles with the primitive **EulerAngles**. The Euler angles are defined with respect to the other global reference frame (screen coordinates). By default, the initial Turtle’s frame is defined by the Euler angles (180,90,0) with respect to the original frame.
-
-.. code-block:: python
-
-	Axiom: Frame(2) EulerAngles(0,0,0) Frame(2)  # Turtle’s frame corresponds to the global reference frame. (Fig. A)
-
-	Axiom: Frame(2) EulerAngles(180,0,0) Frame(2)  #180° rotation arround Z axis. (Fig. B)
-
-	Axiom: Frame(2) EulerAngles(180,90,0) Frame(2)  #The 90° rotation arround the new Y axis. (Fig. C)
-	#There is the initial Turtle's frame
-
-+----------------------------------+----------------------------------+----------------------------------+
-| .. image:: ../_images/euler.png  | .. image:: ../_images/euler2.png | .. image:: ../_images/euler3.png |
-|   :scale: 40%                    |    :scale: 40%                   |    :scale: 40%                   |
-+----------------------------------+----------------------------------+----------------------------------+
-
-.. code-block:: python
-
-	#A succession of 3 rotations : First 30° arround Z axis (Fig. D), then 90° arround the new Y axis (Fig. E)
-	#and finally 60° arround the new X axis. (Fig. F)
-	Axiom: Frame(2) EulerAngles(30,90,60) Frame(2)  
-
-+-----------------------------------+----------------------------------+----------------------------------+
-| .. image:: ../_images/euler4.png  | .. image:: ../_images/euler5.png | .. image:: ../_images/euler6.png |
-|   :scale: 40%                     |    :scale: 40%                   |    :scale: 40%                   |
-+-----------------------------------+----------------------------------+----------------------------------+
 
 Rescaling the Turtle
 ====================
@@ -521,26 +400,6 @@ The same branching system can be augmented with other modules (**Frame**, **@O**
 
     Axiom: F(4)[+F(2)[+F(1);(3)@O(0.2)]F(1);(3)@O(0.2)]F(3)[-F(1);(3)@O(0.2)]F(1);(3)@O(0.2) 	#(Fig. D)
 
-Moving the turtle without drawing
-=================================
-
-The primitive **f** works like **F** except that it doesn't draw anything. The argument defines the number of steps the Turtle will move.
-
-.. code-block:: python
-
-	Axiom: F[+fF]F[-fF]FF 	#(Fig. A)
-
-	Axiom: F[+F(2);@O(0.2)]F[-F[+F(0.5);@O(0.2)]-(30)F(0.5)
-	[-(90)f(1.5);(3)@O(0.3)]F(0.5);@O(0.2)]FF;@O(0.2) 	#(Fig. B)
-	#The f primitive helps to represent the fall of a fruit
-
-Download the example : :download:`f.lpy <../_downloads/f.lpy>`
-
-+-----------------------------+-------------------------------+
-| .. image:: ../_images/f.png |  .. image:: ../_images/f2.png |
-|   :scale: 60%               |     :scale: 60%               |
-+-----------------------------+-------------------------------+
-
 A more complex combined shape
 =============================
 
@@ -559,6 +418,136 @@ Download the example : :download:`harderExample.lpy <../_downloads/harderExample
 
 Advanced primitives
 ===================
+
+Moving the Turtle
+=================
+
+There are some primitives which can be used to change the Turtle's position.
+
+*MoveTo and MoveRel*
+--------------------
+
+**@M** (or **MoveTo**) moves the Turtle's to the given in arguments. It can be three floats or a vector.
+
+.. code-block:: python
+
+	Axiom: @M(0,2,0) Frame 	#(Fig. A)
+
+	import numpy as np
+	v = np.array([0,1,1])
+	Axiom: MoveTo(v)	#(Fig. B)
+
+Download the example : :download:`movement.lpy <../_downloads/movement.lpy>`
+
++---------------------------------------+---------------------------------------+
+| .. image:: ../_images/moveTo1.png     | .. image:: ../_images/moveTo2.png     |
+|    :scale: 60%                        |    :scale: 60%                        |
++---------------------------------------+---------------------------------------+
+
+**MoveRel** works almost in the same way but it moves the Turtle relatively to the current position :
+
+.. code-block:: python
+
+	Axiom: F MoveTo(0,3,0) Frame 	#The Turtle moves to the position (0,3,0) (Fig. A)
+
+	Axiom: F MoveRel(0,3,0) Frame 	#The Turtle moves along the Y axis for 3 units (Fig. B)
+
++----------------------------------------+----------------------------------------+
+| .. image:: ../_images/moveRel1.png     | .. image:: ../_images/moveRel2.png     |
+|    :scale: 60%                         |    :scale: 60%                         |
++----------------------------------------+----------------------------------------+
+
+Orient the Turtle
+=================
+
+The Turtle's orientation can be setted using some primitives.
+
+*Pinpoint and PinpointRel*
+--------------------------
+
+**Pinpoint** orients the Turtle toward x,y and z given in arguments. It means that the H axis (the red arrow) will point to the coordinates given. One can use also a vector.
+
+.. code-block:: python
+
+	Axiom: Pinpoint(1,0,0) Frame	# The H axis point to (1,0,0) (Fig. A)
+
+	import numpy as np
+	v = np.array([0,1,0])
+	Axiom: Pinpoint(v) Frame	# The H axis point to (0,1,0) (Fig. B)
+
+	Axiom: Pinpoint(1,1,0) Frame 	# The H axis point to (1,1,0) (Fig. C)
+
+Download the example : :download:`orientation.lpy <../_downloads/orientation.lpy>`
+
++-------------------------------------+-------------------------------------+-------------------------------------+
+| .. image:: ../_images/pinpoint1.png | .. image:: ../_images/pinpoint2.png | .. image:: ../_images/pinpoint3.png |
+|    :scale: 40%                      |    :scale: 40%                      |    :scale: 40%                      |
++-------------------------------------+-------------------------------------+-------------------------------------+
+
+Such as **MoveRel** for position, **PinpointRel** orients the Turtle relatively to the current position.
+
+.. code-block:: python
+
+	Axiom: Frame MoveTo(0,2,0) Pinpoint(1,0,1) Frame 	#(Fig. A)
+
+	Axiom: Frame MoveTo(0,2,0) PinpointRel(1,0,1) Frame 	#(Fig. B)
+
++----------------------------------------+----------------------------------------+
+| .. image:: ../_images/pinpointRel1.png | .. image:: ../_images/pinpointRel2.png |
+|    :scale: 60%                         |    :scale: 60%                         |
++----------------------------------------+----------------------------------------+
+
+*Setting the HLU axis*
+----------------------
+
+The H and U axis can be set directly using **@R**. The arguments needed are 6 floats (which represent the coordinates of the two axis) or two vectors.
+
+.. code-block:: python
+
+	Axiom: Frame(2) @R(0,0,1,0,1,0) Frame(2) 	#(Fig. A)
+
+	import numpy as np
+	h = np.array([0,1,0])
+	u = np.array([1,0,1])
+	Axiom: Frame(2) @R(h,u) Frame(2)		#(Fig. B)
+
+Download the example : :download:`setHLU.lpy <../_downloads/setHLU.lpy>`
+
+In (Fig. A), the H axis point now to (0,0,1) but it was already the case and the U axis point now to (0,1,0).
+In (Fig. B), the H axis point now to (0,1,0) and the U axis point now to (1,0,1).
+
++-------------------------------------+-------------------------------------+
+| .. image:: ../_images/@R.png        | .. image:: ../_images/@R2.png       |
+|    :scale: 60%                      |    :scale: 60%                      |
++-------------------------------------+-------------------------------------+
+
+Finally, the Turtle’s orientation can at any moment be set using Euler angles with the primitive **EulerAngles**. The Euler angles are defined with respect to the other global reference frame (screen coordinates). By default, the initial Turtle’s frame is defined by the Euler angles (180,90,0) with respect to the original frame.
+
+.. code-block:: python
+
+	Axiom: Frame(2) EulerAngles(0,0,0) Frame(2)  # Turtle’s frame corresponds to the global reference frame. (Fig. A)
+
+	Axiom: Frame(2) EulerAngles(180,0,0) Frame(2)  #180° rotation arround Z axis. (Fig. B)
+
+	Axiom: Frame(2) EulerAngles(180,90,0) Frame(2)  #The 90° rotation arround the new Y axis. (Fig. C)
+	#There is the initial Turtle's frame
+
++----------------------------------+----------------------------------+----------------------------------+
+| .. image:: ../_images/euler.png  | .. image:: ../_images/euler2.png | .. image:: ../_images/euler3.png |
+|   :scale: 40%                    |    :scale: 40%                   |    :scale: 40%                   |
++----------------------------------+----------------------------------+----------------------------------+
+
+.. code-block:: python
+
+	#A succession of 3 rotations : First 30° arround Z axis (Fig. D), then 90° arround the new Y axis (Fig. E)
+	#and finally 60° arround the new X axis. (Fig. F)
+	Axiom: Frame(2) EulerAngles(30,90,60) Frame(2)  
+
++-----------------------------------+----------------------------------+----------------------------------+
+| .. image:: ../_images/euler4.png  | .. image:: ../_images/euler5.png | .. image:: ../_images/euler6.png |
+|   :scale: 40%                     |    :scale: 40%                   |    :scale: 40%                   |
++-----------------------------------+----------------------------------+----------------------------------+
+
 
 *Long path*
 -----------
@@ -740,7 +729,7 @@ Download the example : :download:`resolution.lpy <../_downloads/resolution.lpy>`
 |    :scale: 60%                        |    :scale: 60%                        |
 +---------------------------------------+---------------------------------------+
 
-Screen Projection
+ScreenProjection
 =================
 
 After using **@2D** (or **StartScreenProjection**), the following shapes will be drawn on the screen coordinates system (in two dimensions).
@@ -758,6 +747,78 @@ Download the example : :download:`screen.lpy <../_downloads/screen.lpy>`
 +-------------------------------+-------------------------------+
 
 To switch back to the original coordinates system, **@3D** (or **EndScreenProjection**) can be used.
+
+InterpolateColors
+=================
+
+There is an other way to color shapes using **InterpolateColors**. This method mixes up two colors in one.
+There are three arguments, the first and the second are the index of materials and the last (optional) sets a priority to the first or the second color in order to make the final color.
+There are two examples below.
+
+.. code-block:: python
+
+	Step = 20
+	DIncr = 1.0 / Step
+
+	Axiom:
+	  d = 0.0
+	  for i in range(Step):
+	    nproduce InterpolateColors(3, 5, d) F(2.0/Step) 	#(Fig. A)
+	    d += DIncr
+	  produce ;(2) @O(0.15)
+
+	#Other example
+
+	Step = 4
+	DIncr = 1.0 / Step
+
+	Axiom:
+	  d = 0.0
+	  for i in range(Step):
+	    nproduce InterpolateColors(2, 5, d) F(2.0/Step)      #(Fig. B)
+	    d += DIncr
+	  produce ;(1) @O(0.15)
+
+Download the example : :download:`InterpolateColors.lpy <../_downloads/InterpolateColors.lpy>`
+
++---------------------------------------------+----------------------------------------------+
+| .. image:: ../_images/interpolateColors.png | .. image:: ../_images/interpolateColors2.png | 
+|    :scale: 50%                              |    :scale: 50%                               |
++---------------------------------------------+----------------------------------------------+
+
+Advanced rotation primitives
+============================
+
+There are other primitives that can be used to rotate the Turtle.
+
+**TurnAround** or **|**, turn the Turtle for 180° around the Up vector. It produce the same result as **+(180)** or **(-180)**
+
+.. code-block:: python
+
+	Axiom: Frame(2) | Frame(2)
+
++--------------------------------------+
+| .. image:: ../_images/turnAround.png |
++--------------------------------------+
+
+Requests
+========
+
+These methods allow to get some informations about the Turtle and store it in variables in order to use it after. Except **GetFrame**, 
+it all can take three floats or one vector in arguments. If done, arguments are filled with values requested.
+
+- **GetPos** or **?P**, collect the Turtle's Position vector informations.
+
+- **GetHead** or **?H**, collect the Turtle's Head vector informations.
+
+- **GetUp** or **?U**, collect the Turtle's Head vector informations.
+
+- **GetLeft** or **?L**, collect the Turtle's Left vector informations.
+
+- **GetRight** or **?R**, collect the Turtle's Right vector informations.
+
+**GetFrame** or **?F**, collect the Turtle's Frame vector informations. 
+It can take four vectors in arguments and fill it with the Position vector, the Head vector, the Up vector and the Left vector.
 
 Rewriting shapes
 ~~~~~~~~~~~~~~~~

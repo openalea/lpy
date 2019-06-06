@@ -3,6 +3,7 @@ L = 10
 #L = 15
 L0 = 10
 Axiom: Frame SetGuide(C0,L0) nF(L, 0.1)
+#Axiom: Sweep(C0,C0,7,1)
 
 derivation length: 1
 production:
