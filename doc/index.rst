@@ -32,7 +32,8 @@ Documentation
     ./user/lsystems.rst
     ./user/filesyntax.rst
     ./user/editor.rst
-    ./user/turtle.rst
+    ./user/turtleBasic.rst
+    ./user/turtleAdvanced.rst
     ./user/subtelties.rst
     ./user/helpcard.rst
     ./user/integration.rst
