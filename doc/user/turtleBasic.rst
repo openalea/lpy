@@ -1,9 +1,9 @@
 L-Py Turtle basic primitives
 ############################
 
+There is the list of the primitives explained in this page :
 
-
-.. csv-table:: There is the list of the primitives explained in this page :
+.. csv-table:: Table of primitives
     :header: `Simple Turtle instructions`_, `Some useful tools`_ and `Branching system`_, `Rotating with HLU (Main primitives)`_, `Moving the Turtle`_\, `Orient the Turtle`_ and `Setting the HLU axis`_, `Long path`_\, `Drawing lines`_\, `SetGuide`_ and `Generalized cylinders`_
 
     "F", "_", "/", "MoveTo", "nF"
