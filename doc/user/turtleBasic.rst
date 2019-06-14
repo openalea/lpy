@@ -4,15 +4,14 @@ L-Py Turtle basic primitives
 There is the list of the primitives explained in this page :
 
 .. csv-table:: Table of primitives
-    :header: `Simple Turtle instructions`_, `Some useful tools`_ and `Branching system`_, `Rotating with HLU (Main primitives)`_, `Moving the Turtle`_\, `Orient the Turtle`_ and `Setting the HLU axis`_, `Long path`_\, `Drawing lines`_\, `SetGuide`_ and `Generalized cylinders`_
 
-    "F", "_", "/", "MoveTo", "nF"
-    "f", "!", "\\", "MoveRel", "LineTo"
-    "@O", ";", "^", "Pinpoint", "LineRel"
-    "@o", ",", "&", "PinpointRel", "OLineTo"
-    "@B", "setColor", "\+", "@R", "OLineRel"
-    "@b", "[", "\-", "EulerAngles", "SetGuide and EndGuide"
-    "_", "]", "Frame",, "@Gc and @Ge"
+    F_, width_ (!), rotation_ (/), MoveTo_, nF_
+    f_, color_ (;), rotation_ (\\), MoveRel_, LineTo_
+    @\ O_, color_ (;), rotation_ (^), Pinpoint_, LineRel_
+    @\ o_, setColor_, rotation_ (&), PinpointRel_, OLineTo_
+    @\ B_, branching_ ([]), rotation_ (\+), setHead_ (@R), OLineRel_
+    @\ b_, polygons_ (.), rotation_ (\-), EulerAngles_, SetGuide_
+    width_ (_), Frame_ , , , generalisedCylinders_ (@Gc and @Ge)
 
 Constructing basic shapes with the Turtle
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -45,10 +44,14 @@ In this way, different types of shapes can be constructed :
     Axiom: FF-(90)FF-(90)FF-(90)FF 	#(Fig. B)
     Axiom: FF[-F][+F]F 			#(Fig. C)
 
+
+
 +-------------------------------+----------------------------------+----------------------------------+
 | .. image:: ../_images/F-.png  | .. image:: ../_images/square.png | .. image:: ../_images/branch.png |
 |    :scale: 40%                |    :scale: 40%                   |    :scale: 40%                   |
 +-------------------------------+----------------------------------+----------------------------------+
+
+.. _F:
 
 To resume, the **F** primitive moves the Turtle and draws a cylinder of one unit.
 
@@ -66,6 +69,10 @@ To move the Turtle without drawing something, **f** should be used. The argument
 +-----------------------------+-------------------------------+
 
 Other basic geometric primitives make it possible to draw other predifined shapes :
+
+.. _O:
+
+.. _B:
 
 .. code-block:: python
 
@@ -123,6 +130,8 @@ Some useful tools
 *Changing the width*
 --------------------
 
+.. _width:
+
 The width of the shapes can be increased (resp. decreased) using **_** (resp. **!**). These primitives increment or decrement width by 1. The default width is 0.1.
 
 .. code-block:: python
@@ -146,6 +155,8 @@ Download the example : :download:`width.lpy <../_downloads/width.lpy>`
 *Color System*
 --------------
 
+.. _color:
+
 To use color system, it is necessary to set materials with the **Color Map** window (:ref:`Editor_Color_Map`).
 
 The semicolon (';') is used to increase the current material index (Fig. A) and the comma (',') to decrease it (Fig. B).
@@ -165,6 +176,8 @@ A argument can be set to specify the index of the material to use.
 | .. image:: ../_images/increase_color.png | .. image:: ../_images/decrease_color.png |
 |    :scale: 50%                           |    :scale: 50%                           |
 +------------------------------------------+------------------------------------------+
+
+.. _setColor:
 
 The second manner to set color to an object is to use **SetColor**. There is two way to use it.
 The first way is to specify the index of the material (Fig. A) and the second way is to set the **rgb** (or rgba) values in arguments (Fig. B).
@@ -206,6 +219,9 @@ In order to draw complex shapes, some basic knowledge about the Turtle is requir
 Definition of the Turtle’s reference frame (HLU)
 ================================================
 .. OK
+
+.. _Frame:
+
 In L-Py, screen coordinates are defined in a global reference frame F0 = (X,Y,Z) of L-Py (Fig. A).
 
 The Turtle is defined by a reference frame (H,L,U) with respect to F0 (Fig. B) and can be displayed using the primitive **Frame**
@@ -225,6 +241,8 @@ The Turtle is defined by a reference frame (H,L,U) with respect to F0 (Fig. B) a
 
 Rotating with HLU (Main primitives)
 ===================================
+
+.. _rotation:
 
 Primitives can be used to rotate the Turtle in its current reference frame (H = Head, L = Left, U = Up, angles are expressed by default in degrees).
 These primitives are paired (one and it's opposite) : **/** and **\\**, **^** and **&** and finally **+** and **-**.
@@ -309,6 +327,8 @@ A loop construct can be used to produce the L-string specifying the polygon
 *Filled polygons*
 -----------------
 
+.. _polygons:
+
 Polygon can be drawn by using {} and positioning a series of dots ('.') in space, corresponding to the consecutive vertices of the polygon (Fig. A)
 
 Here, the instruction starts by positioning the first vertex of the polygon at the origin of the reference frame
@@ -365,6 +385,8 @@ Filling concave objects requires to use a smarter filling procedure. This can be
 
 Branching system
 ================
+
+.. _branching:
 
 Bracket makes it possible to specify branches. Before each opening bracket, the Turtle current arguments (position, orientation...) are stored on the Turtle stack. These arguments are then popped back when a closing bracket is found and the drawing restarts from the popped values.
 
@@ -427,6 +449,8 @@ There are some primitives which can be used to change the Turtle's position.
 *MoveTo and MoveRel*
 --------------------
 
+.. _MoveTo:
+
 **@M** (or **MoveTo**) moves the Turtle's to the given in arguments. It can be three floats or a vector.
 
 .. code-block:: python
@@ -443,6 +467,8 @@ Download the example : :download:`movement.lpy <../_downloads/movement.lpy>`
 | .. image:: ../_images/moveTo1.png     | .. image:: ../_images/moveTo2.png     |
 |    :scale: 60%                        |    :scale: 60%                        |
 +---------------------------------------+---------------------------------------+
+
+.. _MoveRel:
 
 **MoveRel** works almost in the same way but it moves the Turtle relatively to the current position :
 
@@ -465,6 +491,8 @@ The Turtle's orientation can be setted using some primitives.
 *Pinpoint and PinpointRel*
 --------------------------
 
+.. _Pinpoint:
+
 **Pinpoint** orients the Turtle toward x,y and z given in arguments. It means that the H axis (the red arrow) will point to the coordinates given. One can use also a vector.
 
 .. code-block:: python
@@ -484,6 +512,8 @@ Download the example : :download:`orientation.lpy <../_downloads/orientation.lpy
 |    :scale: 40%                      |    :scale: 40%                      |    :scale: 40%                      |
 +-------------------------------------+-------------------------------------+-------------------------------------+
 
+.. _PinpointRel:
+
 Such as **MoveRel** for position, **PinpointRel** orients the Turtle relatively to the current position.
 
 .. code-block:: python
@@ -500,7 +530,9 @@ Such as **MoveRel** for position, **PinpointRel** orients the Turtle relatively 
 *Setting the HLU axis*
 ----------------------
 
-The H and U axis can be set directly using **@R**. The arguments needed are 6 floats (which represent the coordinates of the two axis) or two vectors.
+.. _setHead:
+
+The H and U axis can be set directly using **@R** (or **setHead**). The arguments needed are 6 floats (which represent the coordinates of the two axis) or two vectors.
 
 .. code-block:: python
 
@@ -520,6 +552,8 @@ In (Fig. B), the H axis point now to (0,1,0) and the U axis point now to (1,0,1)
 | .. image:: ../_images/@R.png        | .. image:: ../_images/@R2.png       |
 |    :scale: 60%                      |    :scale: 60%                      |
 +-------------------------------------+-------------------------------------+
+
+.. _EulerAngles:
 
 Finally, the Turtle’s orientation can at any moment be set using Euler angles with the primitive **EulerAngles**. The Euler angles are defined with respect to the other global reference frame (screen coordinates). By default, the initial Turtle’s frame is defined by the Euler angles (180,90,0) with respect to the original frame.
 
@@ -552,6 +586,8 @@ Finally, the Turtle’s orientation can at any moment be set using Euler angles 
 *Long path*
 -----------
 
+.. _nF:
+
 The primitive **nF** draws n steps of cylinders (n is the first argument). The size can be passed as a second argument.
 
 .. code-block:: python
@@ -572,6 +608,8 @@ Download the example : :download:`longPath.lpy <../_downloads/longPath.lpy>`
 *Drawing lines*
 ---------------
 
+.. _LineTo:
+
 The primitive **LineTo** allows to draw a cylinder from the current position of the Turtle to coordinates given in arguments. The topdiameter can also be given as a fourth argument.
 Such as other primitives using coordinates, a vector can be used.
 
@@ -590,6 +628,8 @@ Notice that **+**, **-**, **/** and other rotation primitives don't have any inc
 |    :scale: 40%                   |    :scale: 40%                      |
 +----------------------------------+-------------------------------------+
 
+.. _OLineTo:
+
 **LineTo** conserve the Turtle's orientation. To change orientation while drawing, **OLineTo** should be used.
 
 .. code-block:: python
@@ -604,6 +644,10 @@ Download the example : :download:`LineTo.lpy <../_downloads/LineTo.lpy>`
 | .. image:: ../_images/LineTo2.png | .. image:: ../_images/OLineTo.png |
 |    :scale: 40%                    |    :scale: 40%                    |
 +-----------------------------------+-----------------------------------+
+
+.. _LineRel:
+
+.. _OLineRel:
 
 A relative drawing alternative also exists for **LineTo** and **OLineTo**. These primitives are **LineRel** and **OLineRel**
 
@@ -620,6 +664,8 @@ A relative drawing alternative also exists for **LineTo** and **OLineTo**. These
 
 *SetGuide*
 ----------
+
+.. _SetGuide:
 
 Drawing a straight line made of length **l=10** with segments of size **dl = 1.0** (and thus contains n= 10 segments)
 
@@ -689,6 +735,8 @@ To stop using the 2D curve as a guide, **EndGuide** can be used.
 
 *Generalized cylinders*
 -----------------------
+
+.. _generalisedCylinders:
 
 When several rotations are used while drawing, the render at rotation places isn't great. The separation points are really visible. To fix it, **@Gc** (or **StartGC**) can be used.
 Until a **@Ge** (or **"EndGC**") all shapes drawn will be merged that so it becomes only one shape.
