@@ -13,12 +13,12 @@ A special primitive is already predifined : **~l**. It draws a leaf.
 
 .. code-block:: python
 
-	Axiom: ~l 	#(Fig. A)
+	Axiom: ~l 			#(Fig. A)
 
 	Axiom: @g(Sphere(radius=3)) 	#(Fig. B)
 
 	execContext().turtle.setSurface('t',Sphere(radius=3))
-	Axiom: ~t(5) 	#(Fig. C)
+	Axiom: ~t(5) 			#(Fig. C)
 
 +--------------------------------+--------------------------------+--------------------------------+
 | .. image:: ../_images/leaf.png |                                |                                |

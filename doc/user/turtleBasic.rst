@@ -1,6 +1,19 @@
 L-Py Turtle basic primitives
 ############################
 
+
+
+.. csv-table:: There is the list of the primitives explained in this page :
+    :header: `Simple Turtle instructions`_, `Some useful tools`_ and `Branching system`_, `Rotating with HLU (Main primitives)`_, `Moving the Turtle`_\, `Orient the Turtle`_ and `Setting the HLU axis`_, `Long path`_\, `Drawing lines`_\, `SetGuide`_ and `Generalized cylinders`_
+
+    "F", "_", "/", "MoveTo", "nF"
+    "f", "!", "\\", "MoveRel", "LineTo"
+    "@O", ";", "^", "Pinpoint", "LineRel"
+    "@o", ",", "&", "PinpointRel", "OLineTo"
+    "@B", "setColor", "\+", "@R", "OLineRel"
+    "@b", "[", "\-", "EulerAngles", "SetGuide and EndGuide"
+    "_", "]", "Frame",, "@Gc and @Ge"
+
 Constructing basic shapes with the Turtle
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -63,10 +76,10 @@ Other basic geometric primitives make it possible to draw other predifined shape
 	# It can take one argument which is the radius of the circle.
 
 	Axiom: @B(1)	# Draws a box at the Turtle's position.
-	# It can take two argument which are the length of the edges and the topradius.
+	# It can take two arguments which are the length of the edges and the topradius.
 
 	Axiom: @b(1)	# Draws a quad at the Turtle's position.
-	# It can take two argument which are the length of the edges and the topradius.
+	# It can take two arguments which are the length of the edges and the topradius.
 
 +----------------------------------+----------------------------------+
 | .. image:: ../_images/sphere.png | .. image:: ../_images/circle.png |
@@ -170,7 +183,7 @@ The first way is to specify the index of the material (Fig. A) and the second wa
 Primitive combinations
 ======================
 
-All these primitives can be combined together. There are two examples :
+All these primitives can be combined together (**~l** draws a leaf). There are two examples :
 
 .. code-block:: python
 
