@@ -34,6 +34,7 @@ Documentation
     ./user/editor.rst
     ./user/turtleBasic.rst
     ./user/turtleAdvanced.rst
+    ./user/tutorial.rst
     ./user/subtelties.rst
     ./user/helpcard.rst
     ./user/integration.rst
