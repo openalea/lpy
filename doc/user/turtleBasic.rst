@@ -11,7 +11,7 @@ There is the list of the primitives explained in this page :
     @\ o_, setColor_, rotation_ (&), PinpointRel_, OLineTo_
     @\ B_, branching_ ([]), rotation_ (\+), setHead_ (@R), OLineRel_
     @\ b_, polygons_ (.), rotation_ (\-), EulerAngles_, SetGuide_
-    width_ (_), Frame_ , , , generalisedCylinders_ (@Gc and @Ge)
+    width_ (_), Frame_ , Rescaling_, , generalisedCylinders_ (@Gc and @Ge)
 
 Constructing basic shapes with the Turtle
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -274,6 +274,9 @@ Download the example : :download:`rotation.lpy <../_downloads/rotation.lpy>`
 Rescaling the Turtle
 ====================
 .. OK
+
+.. _Rescaling:
+
 Three primitives can be used to rescale the Turtle : **DivScale**, **MultScale** and **SetScale** (shorter symbols are **@Dd**, **@Di** and **@D** respectively)
 **DivScale** (resp. **MultScale**) divides (resp. multiplies) the current scale by the value given in argument. **SetScale** sets the scale to the value in argument. The following examples describe three different ways of decreasing the length of consecutive segments using the previous primitives.
 
