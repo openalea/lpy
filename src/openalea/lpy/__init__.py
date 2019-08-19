@@ -1,6 +1,6 @@
-from __version__ import *
-from __lpy_kernel__ import *
-from parameterset import *
+from .__version__ import *
+from .__lpy_kernel__ import *
+from .parameterset import *
 
 def __mod_getattr__(self,name):
     if self.hasParameter(name): return self.getParameter(name)
@@ -16,7 +16,7 @@ ParamModule.__setattr__ = __mod_setattr__
 del __mod_getattr__
 del __mod_setattr__
 
-from __lpy_kernel__ import __setCythonAvailable,__setPythonExec
+from .__lpy_kernel__ import __setCythonAvailable,__setPythonExec
 
 try:
     import pyximport
@@ -115,7 +115,7 @@ class LsystemIterator:
         self.axiom = self.lsystem.axiom
         self.nbstep = self.lsystem.derivationLength
         self.currentstep = -1
-    def next(self):
+    def __next__(self):
         if self.currentstep == -1:
             self.axiom = self.lsystem.axiom
             self.currentstep += 1
@@ -148,7 +148,7 @@ Lsystem.__call__ = Lsystem__call__
 del Lsystem__call__
 
 def __lsystem_getattribute__(self,name):
-    if self.context().has_key(name): return self.context()[name]
+    if name in self.context(): return self.context()[name]
     else: raise AttributeError(name)
 
 __original_lsystem_setattr__ = Lsystem.__setattr__

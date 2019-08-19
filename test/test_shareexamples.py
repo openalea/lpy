@@ -12,8 +12,8 @@ def exec_share_example(lfile):
         try:
             l = Lsystem(lfile)
             l.iterate()
-        except Exception,e :
-            print 'Example file :',lfile
+        except Exception as e :
+            print('Example file :',lfile)
             raise e
     
     

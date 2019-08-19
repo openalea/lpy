@@ -1,5 +1,5 @@
 from openalea.vpltk.qt import qt
-import svnmanip
+from . import svnmanip
 import os
 
 from openalea.vpltk.qt.QtCore import QObject, Qt, pyqtSignal

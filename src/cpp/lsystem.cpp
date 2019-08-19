@@ -1205,7 +1205,7 @@ Lsystem::__recursiveInterpretation(AxialTree& workingstring,
 
 		PglTurtle& turtle;
 		LsysContext& context;
-		TOOLS::Sequencer timer;
+		PGL_NAMESPACE_NAME::Sequencer timer;
 
 		inline bool earlyReturn() { return context.isEarlyReturnEnabled(); }
 

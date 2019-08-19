@@ -1,1 +1,1 @@
-from __lpy_kernel__ import *
+from .__lpy_kernel__ import *

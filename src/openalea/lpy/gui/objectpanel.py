@@ -5,7 +5,7 @@ from OpenGL.GLU import *
 import sys, traceback, os
 from math import sin, pi
 
-from objectmanagers import get_managers
+from .objectmanagers import get_managers
 
 from openalea.vpltk.qt.QtCore import QObject, QPoint, Qt, pyqtSignal
 from openalea.vpltk.qt.QtGui import QFont, QFontMetrics, QImageWriter, QColor, QPainter
@@ -37,7 +37,7 @@ def renderText(self, x, y, text, font = QFont(), color = None):
 try:
     from openalea.vpltk.qt.QtGui import QOpenGLWidget  
     QGLParentClass = QOpenGLWidget 
-    print 'Use QOpenGLWidget'
+    print('Use QOpenGLWidget')
 
     QGLParentClass.mRenderText = renderText
 
@@ -89,7 +89,7 @@ class TriggerParamFunc:
         self.func(*self.value)
 
         
-from objectdialog import ObjectDialog
+from .objectdialog import ObjectDialog
 
 class ManagerDialogContainer (QObject):
     def __init__(self,panel,manager):
@@ -215,13 +215,13 @@ class ObjectListDisplay(QGLParentClass):
         self.managerDialogs = {} # dialog for editor corresponding to manager
         
         # loading managers
-        for typename, manager in get_managers().items():
+        for typename, manager in list(get_managers().items()):
             try:
                 md = ManagerDialogContainer(self,manager)
                 md.init()
                 self.managers[typename] = manager
                 self.managerDialogs[manager] = md
-            except Exception,e:
+            except Exception as e:
                 exc_info = sys.exc_info()
                 traceback.print_exception(*exc_info)
                 continue
@@ -262,17 +262,17 @@ class ObjectListDisplay(QGLParentClass):
     def setTheme(self,theme):
         self.theme.values.update(theme)
         
-        for name,value in self.theme.values.items():
+        for name,value in list(self.theme.values.items()):
             setattr(self.theme,name,[i/255. for i in value]+[0.5 if 'humbnailBackGround' in name else 1.0])
         
-        for m in self.managers.values():
+        for m in list(self.managers.values()):
             m.setTheme(theme)
     
     def getTheme(self):
         from copy import deepcopy
         theme = deepcopy(self.theme.values)
         
-        for m in self.managers.values():
+        for m in list(self.managers.values()):
             theme.update(m.getTheme())
     
     def applyTheme(self,theme):
@@ -592,9 +592,9 @@ class ObjectListDisplay(QGLParentClass):
             else:
                 return midheigth + ((midheigth - bottomheigth) *sin(pi*2*i/float(nbpoint-1)))
                 
-        points = ([ (self.bgwidth *i / float(nbpoint-1), heigth(i,nbpoint), 0) for i in xrange(nbpoint)]+
-                  [ (self.bgwidth *i / float(nbpoint-1), 0, 0) for i in xrange(nbpoint)])
-        indices = [ (i,i+1,nbpoint+i+1,nbpoint+i) for i in xrange(nbpoint-1)]
+        points = ([ (self.bgwidth *i / float(nbpoint-1), heigth(i,nbpoint), 0) for i in range(nbpoint)]+
+                  [ (self.bgwidth *i / float(nbpoint-1), 0, 0) for i in range(nbpoint)])
+        indices = [ (i,i+1,nbpoint+i+1,nbpoint+i) for i in range(nbpoint-1)]
         self.bgObject = QuadSet(points,indices)
             
     def drawBackGround(self,w,h):
@@ -613,7 +613,7 @@ class ObjectListDisplay(QGLParentClass):
             glTranslatef(0,h,-10)
             glScalef(1,-1,1)
             nb = w/(self.bgwidth)
-        for i in xrange(int(nb)+1):
+        for i in range(int(nb)+1):
             glColor4fv(c)
             self.bgObject.apply(self.renderer)
             glTranslatef(self.bgwidth,0,0)
@@ -791,7 +791,7 @@ class ObjectListDisplay(QGLParentClass):
         self.editAction.setFont(f)
         self.editAction.triggered.connect(self.editSelection)
         self.newItemMenu = QMenu("New item",self)
-        for mname, manager in self.managers.items():
+        for mname, manager in list(self.managers.items()):
             subtypes = manager.defaultObjectTypes()
             if not subtypes is None and len(subtypes) == 1:
                 mname = subtypes[0]
@@ -1009,7 +1009,7 @@ class LpyObjectPanelDock (QDockWidget):
             self.fileDropEvent(str(event.mimeData().urls()[0].toLocalFile()))
 
     def fileDropEvent(self,fname):
-        for manager in self.view.managers.itervalues():
+        for manager in self.view.managers.values():
             if manager.canImportData(fname):
                 objects = manager.importData(fname)
                 self.view.appendObjects([(manager,i) for i in objects])    
@@ -1096,9 +1096,9 @@ class LpyObjectPanelDock (QDockWidget):
         
     def setInfo(self,info):
         self.setName(info['name'])
-        if info.has_key('active'):
+        if 'active' in info:
             self.view.setActive(info['active'])        
-        if info.has_key('visible'):
+        if 'visible' in info:
             self.previousVisibility = info['visible']
             self.setVisible(info['visible'])
 
@@ -1138,14 +1138,14 @@ class ObjectPanelManager(QObject):
             nbunusedpanels = len(self.unusedpanels)
             nbreused = min(nbtoadd,nbunusedpanels)
             if nbreused > 0:
-                for i in xrange(nbreused):
+                for i in range(nbreused):
                     npanel,visible = self.unusedpanels.pop(0)
                     self.panels.append(npanel)
                     if visible:
                         npanel.show()
                     self.vparameterView.addAction(npanel.toggleViewAction())
             if nbtoadd-nbunusedpanels > 0:
-                for i in xrange(nbtoadd-nbunusedpanels):
+                for i in range(nbtoadd-nbunusedpanels):
                     npanel = LpyObjectPanelDock(self.parent,"Panel "+str(i+nbpanel+nbunusedpanels),self)
                     npanel.setStatusBar(self.parent.statusBar())
                     npanel.valueChanged.connect(self.parent.projectEdited)
@@ -1179,7 +1179,7 @@ class ObjectPanelManager(QObject):
         subpanelmenu = QMenu("Theme",menu)
         panelmenu.addSeparator()
         panelmenu.addMenu(subpanelmenu)
-        for themename,value in ObjectListDisplay.THEMES.iteritems():
+        for themename,value in ObjectListDisplay.THEMES.items():
             panelAction = QAction(themename,subpanelmenu)
             
             panelAction.triggered.connect(TriggerParamFunc(panel.view.applyTheme,value))

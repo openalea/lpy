@@ -96,7 +96,7 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
         self.tabviewactivated = value
         self.rehighlight()
     def highlightBlock(self,text):
-      text = unicode(text)
+      text = str(text)
       if self.activated:
         lentxt = len(text)
         prevst = self.currentBlockState() 
@@ -183,7 +183,7 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
             index = self.tabRule.indexIn(text)
             if index >= 0:
                 length = self.tabRule.matchedLength()
-                for i in xrange(index,index+length):
+                for i in range(index,index+length):
                     if text[i] == '\t':
                         self.setFormat(i, 1 , self.tabFormat)
                     else:
@@ -243,15 +243,15 @@ class Margin(QWidget):
         return len(self.markers) != 0
     def setMarkerAt(self,line,id):
         self.markers[line] = id
-        if self.markerStack.has_key(line):
+        if line in self.markerStack:
             del self.markerStack[line]
         self.update()
     def hasMarkerAt(self,line):
-        return self.markers.has_key(line)
+        return line in self.markers
     def hasMarkerTypeAt(self,line,id):
-        if self.markers.has_key(line) :
+        if line in self.markers :
             if self.markers[line] == id: return True
-            if self.markerStack.has_key(line):
+            if line in self.markerStack:
                 if id in self.markerStack[line]:
                     return True
         return False
@@ -259,7 +259,7 @@ class Margin(QWidget):
         return self.markers[line]
     def removeCurrentMarkerAt(self,line):
         del self.markers[line]
-        if self.markerStack.has_key(line):
+        if line in self.markerStack:
             self.markers[line] = self.markerStack[line].pop()
             if len(self.markerStack[line]) == 0:
                 del self.markerStack[line]
@@ -273,9 +273,9 @@ class Margin(QWidget):
                 del self.markerStack[line]
         self.update()
     def removeAllMarkersAt(self,line):
-        if self.marker.has_key(line):
+        if line in self.marker:
             del self.markers[line]
-        if self.markerStack.has_key(line):
+        if line in self.markerStack:
             del self.markerStack[line]        
         self.update()
     def removeAllMarkers(self):
@@ -285,7 +285,7 @@ class Margin(QWidget):
     def addMarkerAt(self,line,id):
         val = self.markers.get(line,None)
         if not val is None:
-            if not self.markerStack.has_key(line):
+            if line not in self.markerStack:
                 self.markerStack[line] = []
             self.markerStack[line].append(val)
         self.markers[line] = id
@@ -293,7 +293,7 @@ class Margin(QWidget):
     def appendMarkerAt(self,line,id):
         val = self.markers.get(line,None)
         if not val is None:
-            if not self.markerStack.has_key(line):
+            if line not in self.markerStack:
                 self.markerStack[line] = []
             self.markerStack[line].append(id)
         else:
@@ -302,28 +302,28 @@ class Margin(QWidget):
     def defineMarker(self,id,pixmap):
         self.markerType[id] = pixmap
     def getAllMarkers(self,id):
-        return set([l for l,lid in self.markers.iteritems() if id == lid]).union(set([l for l,lids in self.markerStack.iteritems() if id in lids]))
+        return set([l for l,lid in self.markers.items() if id == lid]).union(set([l for l,lids in self.markerStack.items() if id in lids]))
     def decalMarkers(self,line,decal = 1):
         markers = {}
         markerStack = {}
         if decal < 0:
-          for l,v in self.markers.iteritems():
+          for l,v in self.markers.items():
             if l <= line+decal:
                 markers[l] = v
             elif l > line:
                 markers[l+decal] = v
-          for l,v in self.markerStack.iteritems():
+          for l,v in self.markerStack.items():
             if l <= line+decal:
                 markerStack[l] = v
             elif l > line:
                 markerStack[l+decal] = v        
         if decal > 0:
-          for l,v in self.markers.iteritems():
+          for l,v in self.markers.items():
             if l < line:
                 markers[l] = v
             else:
                 markers[l+decal] = v
-          for l,v in self.markerStack.iteritems():
+          for l,v in self.markerStack.items():
             if l < line:
                 markerStack[l] = v
             else:
@@ -340,7 +340,7 @@ class Margin(QWidget):
         else:
             self.removeAllMarkers()
         
-ErrorMarker,BreakPointMarker,CodePointMarker = range(3)
+ErrorMarker,BreakPointMarker,CodePointMarker = list(range(3))
 
 class LpyCodeEditor(QTextEdit):
     def __init__(self,parent):
@@ -501,7 +501,7 @@ class LpyCodeEditor(QTextEdit):
             while txtok:
                 ok = cursor.movePosition(QTextCursor.NextCharacter,QTextCursor.KeepAnchor)
                 if not ok: break
-                txt2 = unicode(cursor.selection().toPlainText())
+                txt2 = str(cursor.selection().toPlainText())
                 txtok = (txt2[-1] in ' \t')
                 if txtok:
                     txt = txt2
@@ -514,7 +514,7 @@ class LpyCodeEditor(QTextEdit):
                     while txtok:
                         ok = cursor.movePosition(QTextCursor.PreviousCharacter,QTextCursor.KeepAnchor)
                         if not ok: break
-                        txt2 = unicode(cursor.selection().toPlainText())
+                        txt2 = str(cursor.selection().toPlainText())
                         txtok = (txt2[0] in ' \t')
                         if not txtok:
                             if txt2[0] == ':':
@@ -730,7 +730,7 @@ class LpyCodeEditor(QTextEdit):
             if cursor.selectedText() == '\t':
                 cursor.deleteChar()
             else:
-                for i in xrange(len(self.indentation)-1):
+                for i in range(len(self.indentation)-1):
                     b = cursor.movePosition(QTextCursor.NextCharacter,QTextCursor.KeepAnchor)
                     if not b : break
                 if cursor.selectedText() == self.indentation:
@@ -786,7 +786,7 @@ class LpyCodeEditor(QTextEdit):
     def gotoLineFromEdit(self):
         self.gotoLine(int(self.gotoEdit.text()))
     def setLineInEdit(self):
-        self.gotoEdit.setText(unicode(self.textCursor().blockNumber()+1))
+        self.gotoEdit.setText(str(self.textCursor().blockNumber()+1))
         self.gotoEdit.selectAll()
     def restoreSimuState(self,simu):
         if self.hasError:
@@ -806,7 +806,7 @@ class LpyCodeEditor(QTextEdit):
     def saveSimuState(self,simu):
         simu.code = self.getCode()
         if simu.textdocument is None:
-            print 'custom document clone'
+            print('custom document clone')
             simu.textdocument = self.document().clone()
         simu.cursor = self.textCursor()
         simu.hvalue = self.horizontalScrollBar().value()
@@ -814,7 +814,7 @@ class LpyCodeEditor(QTextEdit):
         self.sidebar.saveState(simu)
 
     def getCode(self):
-        return unicode(self.toPlainText()).encode('iso-8859-1','replace')
+        return str(self.toPlainText()).encode('iso-8859-1','replace')
 
     def codeToExecute(self):
         cursor = self.textCursor()
