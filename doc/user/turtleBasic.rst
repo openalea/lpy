@@ -277,22 +277,21 @@ Rescaling the Turtle
 
 .. _Rescaling:
 
-Three primitives can be used to rescale the Turtle : **DivScale**, **MultScale** and **SetScale** (shorter symbols are **@Dd**, **@Di** and **@D** respectively)
-**DivScale** (resp. **MultScale**) divides (resp. multiplies) the current scale by the value given in argument. **SetScale** sets the scale to the value in argument. The following examples describe three different ways of decreasing the length of consecutive segments using the previous primitives.
+Three primitives can be used to rescale the Turtle : **SetScale**, **DivScale** and **MultScale** (shorter symbols are **@D**, **@Di** and **@D** respectively)
+**SetScale** sets the scale to the value in argument. **DivScale** (resp. **MultScale**) divides (resp. multiplies) the current scale by the value given in argument.
+The first image is the initial shape (Fig. A) and the second one is the same shape where the branches are rescaled (Fig. B).
 
 .. code-block:: python
 
-    Axiom: F-(15)F-(15)@Dd(1.5)F-(15)@Dd(1.5)F 	      		#(Fig. A)
+    Axiom: FF[-F[-F]F]FF	      		#(Fig. A)
 
-    Axiom: F-(15)@Di(.8)F-(15)@Di(.8)F-(15)@Di(.7)F 		#(Fig. B)
-
-    Axiom: @D(1.2)F-(15)@D(0.9)F-(15)@D(0.7)F-(15)@D(0.5)F	#(Fig. C)
+    Axiom: @D(2)FF[@Dd(1.5)-F[@Di(0.5)-F]F]FF		#(Fig. B)
 
 Download the example : :download:`scale.lpy <../_downloads/scale.lpy>`
 
-+------------------------------------+-------------------------------------+------------------------------------+
-| .. image:: ../_images/divScale.png | .. image:: ../_images/multScale.png | .. image:: ../_images/setScale.png |
-+------------------------------------+-------------------------------------+------------------------------------+
++----------------------------------------+-------------------------------------+
+| .. image:: ../_images/initialScale.png | .. image:: ../_images/rescaling.png |
++----------------------------------------+-------------------------------------+
 
 How to draw polygonal shapes ?
 ==============================
