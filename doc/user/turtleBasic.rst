@@ -283,7 +283,7 @@ The first image is the initial shape (Fig. A) and the second one is the same sha
 
 .. code-block:: python
 
-    Axiom: FF[-F[-F]F]FF	      		#(Fig. A)
+    Axiom: FF[-F[-F]F]FF	      		   #(Fig. A)
 
     Axiom: @D(2)FF[@Dd(1.5)-F[@Di(0.5)-F]F]FF		#(Fig. B)
 

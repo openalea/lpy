@@ -29,6 +29,24 @@ Miscellaneous
 
 In this section, several less common tools can be found.
 
+Elasticity and Tropism
+======================
+
+One can add an elasticity property to a branch using **@Ts** or **Elasticity**. The value in argument should be between 0. and 1.
+
+.. code-block:: python
+
+	Axiom: FF[Elasticity(0.5)+F+F]F[-F]F 	#(Fig. A)
+
+A particular tropism can be setted using **@Tp** or **Tropism**. It takes a vector in argument.
+
+.. code-block:: python
+
+	import numpy as np
+	v = np.array([0,1,2])
+	Axiom: FF[Tropism(v)+F+F]F[-F]F 	#(Fig. B)
+
+
 SectionResolution
 =================
 
