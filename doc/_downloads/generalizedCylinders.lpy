@@ -1,0 +1,14 @@
+#Cylinders not generalized
+Axiom: F(2)+(30)F+(30)F+(30)F+(45)F+(45)F@O
+
+#Cylinders generalized
+#Axiom: @GcF(2)+(30)F+(30)F+(30)F+(45)F+(45)F@O@Ge
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem

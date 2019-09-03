@@ -1,0 +1,16 @@
+#Elasticity
+#Axiom: FF[Elasticity(0.5)+F+F]F[-F]F
+
+#Tropism
+import numpy as np
+v = np.array([0,1,2])
+Axiom: FF[@Tp(v)+F+F]F[-F]F
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem

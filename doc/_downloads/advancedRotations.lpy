@@ -1,0 +1,13 @@
+Axiom: Frame(2) | Frame(2)
+#Axiom: Frame(2) UpReflexion Frame(2)
+#Axiom: Frame(2) LeftReflexion Frame(2)
+#Axiom: Frame(2) HeadingReflexion Frame(2)
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem

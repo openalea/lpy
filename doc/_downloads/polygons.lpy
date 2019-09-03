@@ -1,0 +1,18 @@
+#Basic method
+Axiom: Frame(2)+(30)F(5)+(120)F(5)+(120)F(5)
+#Procedural method
+#Axiom: Frame(2)+F(5)+F(5)+F(5)+F(5)+F(5)+F(5)
+# Or equivalently:
+#Axiom:
+#    nproduce Frame(2)
+#    for i in range(6):
+#        nproduce +F(5)
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem
