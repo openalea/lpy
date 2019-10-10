@@ -1,0 +1,21 @@
+Axiom: LineTo(0,0,3)[LineTo(0,1,4)]LineTo(0,0,5)
+
+Axiom: LineTo(0,0,3)[+(90)LineTo(0,1,4)]-(30)LineTo(0,0,5)
+
+#Axiom: LineTo(0,0,2)[LineTo(0,1,3)Frame]LineTo(0,0,3)[LineTo(0,-1,4)Frame]LineTo(0,0,5)
+#Same but change the turtle's orientation on the branches
+#Axiom: LineTo(0,0,2)[OLineTo(0,1,3)Frame]LineTo(0,0,3)[OLineTo(0,-1,4)Frame]LineTo(0,0,5)
+
+#The branch is created from (0,0,2) to (0,1,2)
+#Axiom: LineTo(0,0,2)[LineTo(0,1,2)]LineTo(0,0,4)
+#The branch is created from (0,0,2) to (0,0+1,2+2)
+#Axiom: LineTo(0,0,2)[LineRel(0,1,2)]LineTo(0,0,4)
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem

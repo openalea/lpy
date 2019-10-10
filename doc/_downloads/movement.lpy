@@ -1,0 +1,20 @@
+#MoveTo using coordinates
+Axiom: @M(0,2,0) Frame  
+
+#MoveTo using a vector
+#import numpy as np
+#v = np.array([0,1,1])
+#Axiom: MoveTo(v)        
+
+#MoveRel
+#Axiom: F MoveTo(0,3,0) Frame 
+#Axiom: F MoveRel(0,3,0) Frame
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem

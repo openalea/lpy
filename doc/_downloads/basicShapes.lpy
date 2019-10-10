@@ -1,0 +1,20 @@
+#Draw a sphere of radius 1
+Axiom: @O(1)
+#Draw a circle of radius 1
+#Axiom: @o(1)    
+#Draw a box of length 1
+#Axiom: @B(1)  
+#Draw a quad of length 1 
+#Axiom: @b(1)
+
+#Display some text
+#Axiom: @L("This is some text", 18)
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem

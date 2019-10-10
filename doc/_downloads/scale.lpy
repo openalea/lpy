@@ -1,0 +1,12 @@
+Axiom: FF[-F[-F]F]FF
+
+#Axiom: @D(2)FF[@Dd(1.5)-F[@Di(0.5)-F]F]FF
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem
