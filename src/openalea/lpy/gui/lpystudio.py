@@ -999,6 +999,11 @@ def main():
     if len(args) > 1: toopen = map(os.path.abspath,args[1:])
 
     qapp = QApplication([])
+    try:
+        qapp.setAttribute(Qt.AA_DisableHighDpiScaling)
+        assert qapp.testAttribute(Qt.AA_DisableHighDpiScaling)
+    except:
+        pass
     splash = doc.splashLPy()
     qapp.processEvents()
     w = LPyWindow()
