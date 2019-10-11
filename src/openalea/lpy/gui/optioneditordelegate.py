@@ -1,4 +1,4 @@
-from openalea.vpltk.qt.QtWidgets import QComboBox, QItemDelegate
+from openalea.plantgl.gui.qt.QtWidgets import QComboBox, QItemDelegate
 
 
 class OptionEditorDelegate(QItemDelegate):

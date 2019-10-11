@@ -1,8 +1,8 @@
-from openalea.vpltk.qt.compat import *
-from openalea.vpltk.qt import qt
-from openalea.vpltk.qt.QtCore import QSettings
-from openalea.vpltk.qt.QtGui import QFont
-from openalea.vpltk.qt.QtWidgets import QApplication
+from openalea.plantgl.gui.qt.compat import *
+from openalea.plantgl.gui.qt import qt
+from openalea.plantgl.gui.qt.QtCore import QSettings
+from openalea.plantgl.gui.qt.QtGui import QFont
+from openalea.plantgl.gui.qt.QtWidgets import QApplication
 import os
 
 

@@ -8,7 +8,7 @@ os.environ['QT_API'] = 'pyqt' if QT_VERSION == 4 else 'pyqt'+str(QT_VERSION)
 if QT_VERSION == 4:
     os.environ.setdefault('QT_API_VERSION', '2')
 
-from openalea.vpltk import qt
+from openalea.plantgl.gui import qt
 
 if QT_VERSION == 4:
     import sip

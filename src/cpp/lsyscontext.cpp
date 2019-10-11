@@ -648,8 +648,13 @@ LsysContext::clearNamespace() {
 void 
 LsysContext::namespaceInitialisation()
 {
-   if (!hasObject("__builtins__"))
-		setObjectToGlobals("__builtins__", object(handle<>(borrowed( PyModule_GetDict(PyImport_AddModule("__builtin__"))))));
+   if (!hasObject("__builtins__")){
+        copyObjectToGlobals("__builtins__",globalContext());
+
+        // object builtin = boost::python::import("__builtin__");
+        // setObjectToGlobals("__builtins__", builtin);
+		// setObjectToGlobals("__builtins__", object(handle<>(borrowed( PyModule_GetDict(PyImport_AddModule("__builtin__"))))));
+    }
 
    if (!hasObject("nproduce")){
 	   Compilation::compile("from openalea.lpy import *",globals(),globals());

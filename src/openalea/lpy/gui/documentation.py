@@ -1,11 +1,11 @@
 from openalea.lpy import helpTurtle,LPY_VERSION_STR
-from openalea.vpltk.qt import qt
+from openalea.plantgl.gui.qt import qt
 import os
 
 
-from openalea.vpltk.qt.QtCore import Qt
-from openalea.vpltk.qt.QtGui import QPixmap
-from openalea.vpltk.qt.QtWidgets import QMessageBox, QSplashScreen
+from openalea.plantgl.gui.qt.QtCore import Qt
+from openalea.plantgl.gui.qt.QtGui import QPixmap
+from openalea.plantgl.gui.qt.QtWidgets import QMessageBox, QSplashScreen
 
 vplogofilename = ':/logo/biglogo.png'
 lpylogofilename = ':/logo/flower.png'

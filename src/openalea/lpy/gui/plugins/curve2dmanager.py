@@ -5,7 +5,7 @@ except ImportError as e:
 from openalea.plantgl.scenegraph import Polyline2D, BezierCurve2D, NurbsCurve2D, Point2Array, Point3Array
 from openalea.lpy.gui.abstractobjectmanager import *
 from OpenGL.GL import *
-from openalea.vpltk.qt import QtGui, QtWidgets
+from openalea.plantgl.gui.qt import QtGui, QtWidgets
 
 def displayLineAsThumbnail(manager, obj, i, objectthumbwidth, color = (1,1,0,0), linecolor = (0.5,0.5,0.5,1.0)):
         manager.discretizer.clear()

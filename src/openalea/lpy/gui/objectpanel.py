@@ -1,5 +1,5 @@
 from openalea.plantgl.all import *
-from openalea.vpltk import qt
+from openalea.plantgl.gui import qt
 from OpenGL.GL import *
 from OpenGL.GLU import *
 import sys, traceback, os
@@ -7,9 +7,9 @@ from math import sin, pi
 
 from .objectmanagers import get_managers
 
-from openalea.vpltk.qt.QtCore import QObject, QPoint, Qt, pyqtSignal
-from openalea.vpltk.qt.QtGui import QFont, QFontMetrics, QImageWriter, QColor, QPainter
-from openalea.vpltk.qt.QtWidgets import QAction, QApplication, QDockWidget, QFileDialog, QLineEdit, QMenu, QMessageBox, QScrollArea, QVBoxLayout, QWidget
+from openalea.plantgl.gui.qt.QtCore import QObject, QPoint, Qt, pyqtSignal
+from openalea.plantgl.gui.qt.QtGui import QFont, QFontMetrics, QImageWriter, QColor, QPainter
+from openalea.plantgl.gui.qt.QtWidgets import QAction, QApplication, QDockWidget, QFileDialog, QLineEdit, QMenu, QMessageBox, QScrollArea, QVBoxLayout, QWidget
 
 def renderText(self, x, y, text, font = QFont(), color = None):
     #print 'renderText'
@@ -35,14 +35,15 @@ def renderText(self, x, y, text, font = QFont(), color = None):
     pass
 
 try:
-    from openalea.vpltk.qt.QtGui import QOpenGLWidget  
+    assert False
+    from openalea.plantgl.gui.qt.QtGui import QOpenGLWidget  
     QGLParentClass = QOpenGLWidget 
     print('Use QOpenGLWidget')
 
     QGLParentClass.mRenderText = renderText
 
 except:
-    from openalea.vpltk.qt.QtOpenGL import QGLWidget 
+    from openalea.plantgl.gui.qt.QtOpenGL import QGLWidget 
     QGLParentClass = QGLWidget 
 
     def mRenderText(self, x, y, text, font = QFont(), color = None):

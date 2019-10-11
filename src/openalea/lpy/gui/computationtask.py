@@ -1,11 +1,11 @@
-from openalea.vpltk.qt import qt
-from qt_check import QT_VERSION
+from openalea.plantgl.gui.qt import qt
+from .qt_check import QT_VERSION
 import traceback as tb
 import sys
 
 
-from openalea.vpltk.qt.QtCore import QMutex, QObject, QThread, pyqtSignal
-from openalea.vpltk.qt.QtWidgets import QMessageBox
+from openalea.plantgl.gui.qt.QtCore import QMutex, QObject, QThread, pyqtSignal
+from openalea.plantgl.gui.qt.QtWidgets import QMessageBox
 
 
 class ThreadTransferException (Exception):

@@ -28,7 +28,7 @@ print (pkg_name+': version ='+version)
 
 
 # Scons build directory
-build_prefix = "build-scons"
+build_prefix = "build-cmake"
 
 from setuptools import setup
 from openalea.deploy.binary_deps import binary_deps

@@ -1,7 +1,7 @@
-from openalea.vpltk.qt import qt
-from openalea.vpltk.qt.QtCore import QMimeData, QObject, QPoint, QRegExp, QTimer, Qt, pyqtSignal
-from openalea.vpltk.qt.QtGui import QColor, QFont, QPainter, QPalette, QPen, QPixmap, QSyntaxHighlighter, QTextCharFormat, QTextCursor, QTextDocument, QTextOption
-from openalea.vpltk.qt.QtWidgets import QLabel, QTextEdit, QWidget
+from openalea.plantgl.gui.qt import qt
+from openalea.plantgl.gui.qt.QtCore import QMimeData, QObject, QPoint, QRegExp, QTimer, Qt, pyqtSignal
+from openalea.plantgl.gui.qt.QtGui import QColor, QFont, QPainter, QPalette, QPen, QPixmap, QSyntaxHighlighter, QTextCharFormat, QTextCursor, QTextDocument, QTextOption
+from openalea.plantgl.gui.qt.QtWidgets import QLabel, QTextEdit, QWidget
 
 class LineData:
     def __init__(self,i = None,p = None):

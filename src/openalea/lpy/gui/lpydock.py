@@ -1,12 +1,12 @@
-from openalea.vpltk.qt import qt
-import debugger_ui
-import debugger_right_ui
+from . import debugger_ui
+from . import debugger_right_ui
 from .objectpanel import LpyObjectPanelDock
 from .lpyshell import set_shell_widget
 
-from openalea.vpltk.qt.QtCore import Qt, QCoreApplication
-from openalea.vpltk.qt.QtGui import QIcon, QPixmap
-from openalea.vpltk.qt.QtWidgets import QApplication, QDockWidget, QSplitter, QWidget
+from openalea.plantgl.gui.qt import qt
+from openalea.plantgl.gui.qt.QtCore import Qt, QCoreApplication
+from openalea.plantgl.gui.qt.QtGui import QIcon, QPixmap
+from openalea.plantgl.gui.qt.QtWidgets import QApplication, QDockWidget, QSplitter, QWidget
 _translate = QCoreApplication.translate
 
 class DebugLeftWidget(QWidget,debugger_ui.Ui_Form):

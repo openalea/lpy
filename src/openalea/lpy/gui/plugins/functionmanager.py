@@ -4,7 +4,7 @@ except ImportError as e:
     Curve2DEditor = None
 from openalea.lpy.gui.abstractobjectmanager import *
 from curve2dmanager import displayLineAsThumbnail
-from openalea.vpltk.qt import QtGui, QtWidgets
+from openalea.plantgl.gui.qt import QtGui, QtWidgets
 
 class FunctionManager(AbstractPglObjectManager):
     """see the doc of the objectmanager abtsract class to undesrtand the implementation of the functions"""

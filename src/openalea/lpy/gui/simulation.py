@@ -1,4 +1,4 @@
-from openalea.vpltk.qt import qt
+from openalea.plantgl.gui.qt import qt
 from openalea.lpy import *
 from openalea.plantgl.all import PglTurtle, Viewer, Material, PyStrPrinter, eStatic, eAnimatedPrimitives, eAnimatedScene
 from . import optioneditordelegate as oed
@@ -12,9 +12,9 @@ from .lpytmpfile import *
 from . import pymodulemonitoring as pm
 
 
-from openalea.vpltk.qt.QtCore import QObject, pyqtSignal
-from openalea.vpltk.qt.QtGui import QBrush, QColor, QFont, QIcon, QPainter, QPixmap, QStandardItem, QStandardItemModel
-from openalea.vpltk.qt.QtWidgets import QFileDialog, QLineEdit, QMessageBox
+from openalea.plantgl.gui.qt.QtCore import QObject, pyqtSignal
+from openalea.plantgl.gui.qt.QtGui import QBrush, QColor, QFont, QIcon, QPainter, QPixmap, QStandardItem, QStandardItemModel
+from openalea.plantgl.gui.qt.QtWidgets import QFileDialog, QLineEdit, QMessageBox
 
 
 defaultcode = "Axiom: \n\nderivation length: 1\nproduction:\n\n\ninterpretation:\n\n\nendlsystem\n"
@@ -326,7 +326,7 @@ class AbstractSimulation:
             panel.setEnabled(not self.readonly)
 
     def saveToFile(self,fname):
-        f = file(fname,'w')
+        f = open(fname,'w')
         f.write(self.code)
         initcode = self.getInitialisationCode()
         if len(initcode) > 0 :
@@ -352,7 +352,7 @@ class AbstractSimulation:
             elif answer == QMessageBox.Discard:
                 os.remove(bckupname)     
         os.chdir(os.path.dirname(self.fname))        
-        code = file(readname,'rU').read()
+        code = open(readname,'rU').read()
         self.readonly = (not os.access(fname, os.W_OK))
         self.textedition = recovery
         self.setEdited(recovery)
@@ -364,7 +364,7 @@ class AbstractSimulation:
         self.textedition = True
         self.setEdited(True)
         try:
-            lpycode = file(fname,'rU').read()
+            lpycode = open(fname,'rU').read()
             self.opencode(lpycode)
             self._tmpfname = fname
         except:
@@ -681,6 +681,7 @@ class LpySimulation (AbstractSimulation):
             lpy_code_version = 1.0
             if '__lpy_code_version__' in context:
                 lpy_code_version = ['__lpy_code_version__']
+                print(lpy_code_version)
             if '__functions__' in context and lpy_code_version <= 1.0 :
                 functions = context['__functions__']
                 for n,c in functions: c.name = n

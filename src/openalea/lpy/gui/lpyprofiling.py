@@ -1,6 +1,6 @@
-from openalea.vpltk.qt import qt
-from openalea.vpltk.qt.QtCore import QObject, Qt, pyqtSignal
-from openalea.vpltk.qt.QtGui import QStandardItem, QStandardItemModel
+from openalea.plantgl.gui.qt import qt
+from openalea.plantgl.gui.qt.QtCore import QObject, Qt, pyqtSignal
+from openalea.plantgl.gui.qt.QtGui import QStandardItem, QStandardItemModel
 import os
 
 AnimatedProfiling, ProfilingWithFinalPlot, ProfilingWithNoPlot = list(range(3))

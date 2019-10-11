@@ -27,6 +27,8 @@ if (WIN32)
     set_target_properties(__lpy_kernel__ PROPERTIES SUFFIX ".pyd")
 endif()
 
-set_target_properties(__lpy_kernel__ PROPERTIES SUFFIX ".pyd")
+if (APPLE)
+    set_target_properties(__lpy_kernel__ PROPERTIES SUFFIX ".so")
+endif()
 
 install(TARGETS __lpy_kernel__ DESTINATION "${CMAKE_SOURCE_DIR}/src/openalea/lpy")

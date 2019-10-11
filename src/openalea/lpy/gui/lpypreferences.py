@@ -1,13 +1,13 @@
-from openalea.vpltk.qt import qt
+from openalea.plantgl.gui.qt import qt
 import os
 from .lpyprofiling import AnimatedProfiling, ProfilingWithFinalPlot, ProfilingWithNoPlot
 
-import generate_ui
+from . import generate_ui
 from . import lpyprefwidget
 
 
-from openalea.vpltk.qt.QtCore import QObject, pyqtSignal
-from openalea.vpltk.qt.QtWidgets import QDialog
+from openalea.plantgl.gui.qt.QtCore import QObject, pyqtSignal
+from openalea.plantgl.gui.qt.QtWidgets import QDialog
 
 
 class LpyPreferences:

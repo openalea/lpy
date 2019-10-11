@@ -1,5 +1,5 @@
 import openalea.lpy as lpy
-from openalea.vpltk.qt import qt
+from openalea.plantgl.gui.qt import qt
 from time import clock
 from . lpycodeeditor import CodePointMarker, BreakPointMarker
 
@@ -7,9 +7,9 @@ import sys
 import traceback as tb
 
 
-from openalea.vpltk.qt.QtCore import QCoreApplication, QMutex, QObject, pyqtSignal
-from openalea.vpltk.qt.QtGui import QStandardItem, QStandardItemModel
-from openalea.vpltk.qt.QtWidgets import QMessageBox
+from openalea.plantgl.gui.qt.QtCore import QCoreApplication, QMutex, QObject, pyqtSignal
+from openalea.plantgl.gui.qt.QtGui import QStandardItem, QStandardItemModel
+from openalea.plantgl.gui.qt.QtWidgets import QMessageBox
 
 class AbortDebugger(Exception):
     def __init__(self,txt=''):

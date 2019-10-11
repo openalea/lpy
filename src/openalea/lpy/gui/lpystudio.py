@@ -13,7 +13,7 @@ except:
     py2exe_release = False
 
 from . import qt_check 
-import openalea.vpltk.qt.QtCore
+import openalea.plantgl.gui.qt.QtCore
 try:
    import PyQGLViewer
 except ImportError as e:
@@ -25,7 +25,7 @@ from . import documentation as doc
 from . import settings
 from . import lpypreferences
 from .simulation import LpySimulation
-from .kilsimulationdialog import KillSimulationDialog
+from .killsimulationdialog import KillSimulationDialog
 from .objectpanel import ObjectPanelManager
 
 try:
@@ -38,14 +38,14 @@ from openalea.plantgl.all import Viewer, eStatic, eAnimatedPrimitives, eAnimated
 from openalea.lpy import *
 
 
-from openalea.vpltk.qt.compat import *
-from openalea.vpltk.qt.QtCore import QCoreApplication, QEvent, QMutex, QObject, QThread, QWaitCondition, Qt, pyqtSignal, pyqtSlot
-from openalea.vpltk.qt.QtGui import QIcon, QPixmap, QTextCursor
-from openalea.vpltk.qt.QtWidgets import QAction, QApplication, QDialog, QFileDialog, QInputDialog, QMainWindow, QMessageBox, QTabBar
+from openalea.plantgl.gui.qt.compat import *
+from openalea.plantgl.gui.qt.QtCore import QCoreApplication, QEvent, QMutex, QObject, QThread, QWaitCondition, Qt, pyqtSignal, pyqtSlot
+from openalea.plantgl.gui.qt.QtGui import QIcon, QPixmap, QTextCursor
+from openalea.plantgl.gui.qt.QtWidgets import QAction, QApplication, QDialog, QFileDialog, QInputDialog, QMainWindow, QMessageBox, QTabBar
 try:
-    from openalea.vpltk.qt.QtPrintSupport import QPrintDialog, QPrinter
+    from openalea.plantgl.gui.qt.QtPrintSupport import QPrintDialog, QPrinter
 except:
-    from openalea.vpltk.qt.QtGui import QPrintDialog, QPrinter
+    from openalea.plantgl.gui.qt.QtGui import QPrintDialog, QPrinter
 
 
 # Restore default signal handler for CTRL+C
@@ -54,8 +54,7 @@ except:
 # Add local dir as import dir
 sys.path = ['']+sys.path
 
-import generate_ui
-
+from . import generate_ui
 from . import lpydock
 from . import lpymainwindow as lsmw
 from .computationtask import *
@@ -86,7 +85,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
 
     instances = []
 
-    def __init__(self, parent=None, withinterpreter = True):
+    def __init__(self, parent=None, withinterpreter = False):
         """
         :param parent : parent window
         """
@@ -277,7 +276,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
             self.svnLastDateChecked = time.time()
             officialversion,offverstring = self.retrieve_official_lpy_version()
             if lv.__version_number__ < officialversion:
-                QMessageBox.information(self,"Lpy Update","Your version is "+lv.LPY_VERSION_STR+".\nA new version of lpy seems available on github :"+offverstring+"\nPlease update sources of lpy, plantgl, vpltk and recompile.")
+                QMessageBox.information(self,"Lpy Update","Your version is "+lv.LPY_VERSION_STR+".\nA new version of lpy seems available on github :"+offverstring+"\nPlease update sources of lpy, plantgl, plantgl.gui and recompile.")
             elif not silent:
                 QMessageBox.information(self,"Lpy Update","Your version is "+lv.LPY_VERSION_STR+".\nYou are up-to-date!")
             else:

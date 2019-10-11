@@ -1,5 +1,5 @@
-from openalea.vpltk.qt import qt
-from openalea.vpltk.qt.QtWidgets import QDialog, QMessageBox
+from openalea.plantgl.gui.qt import qt
+from openalea.plantgl.gui.qt.QtWidgets import QDialog, QMessageBox
 
 from .settings import getSettings
 

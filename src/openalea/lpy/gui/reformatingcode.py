@@ -137,7 +137,7 @@ def generate_qt_header(qt_classmap):
     res = ''
     for key, value in list(classmap.items()):
         value.sort()
-        res += 'from openalea.vpltk.qt.'+key+' import '+', '.join(value)+'\n'
+        res += 'from openalea.plantgl.gui.qt.'+key+' import '+', '.join(value)+'\n'
     return res
 
 def qth(text):

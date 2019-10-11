@@ -1,13 +1,13 @@
-from openalea.vpltk.qt import qt
-from .scalar import *
-import generate_ui
+from openalea.plantgl.gui.qt import qt
+from openalea.lpy.gui.scalar import *
+from . import generate_ui
 import sys
 
-from . import scalarmetaedit as sme
+import openalea.lpy.gui.scalarmetaedit as sme
 
-from openalea.vpltk.qt.QtCore import QDataStream, QIODevice, QObject, Qt, pyqtSignal
-from openalea.vpltk.qt.QtGui import QBrush, QColor, QStandardItem, QStandardItemModel
-from openalea.vpltk.qt.QtWidgets import QDialog, QDoubleSpinBox, QHBoxLayout, QItemDelegate, QLabel, QMenu, QPushButton, QSlider, QSpinBox, QTreeView, QWidget
+from openalea.plantgl.gui.qt.QtCore import QDataStream, QIODevice, QObject, Qt, pyqtSignal
+from openalea.plantgl.gui.qt.QtGui import QBrush, QColor, QStandardItem, QStandardItemModel
+from openalea.plantgl.gui.qt.QtWidgets import QDialog, QDoubleSpinBox, QHBoxLayout, QItemDelegate, QLabel, QMenu, QPushButton, QSlider, QSpinBox, QTreeView, QWidget
 
 
 class ScalarDialog(QDialog,sme.Ui_ScalarDialog):
@@ -31,7 +31,7 @@ class ScalarDialog(QDialog,sme.Ui_ScalarDialog):
             self.maxValueEdit.setValue(self.minValueEdit.value()+1)
         self.valueEdit.setRange(self.minValueEdit.value(),self.maxValueEdit.value())
 
-import scalarfloatmetaedit as sfme
+from . import scalarfloatmetaedit as sfme
 
 class FloatScalarDialog(QDialog,sfme.Ui_FloatScalarDialog):
     def __init__(self,*args):
