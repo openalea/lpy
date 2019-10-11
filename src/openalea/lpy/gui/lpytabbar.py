@@ -1,9 +1,9 @@
 from openalea.plantgl.gui.qt import qt
-import openalea.lpy.gui.svnmanip as svnmanip
-import os
-
 from openalea.plantgl.gui.qt.QtCore import QObject, Qt, pyqtSignal
 from openalea.plantgl.gui.qt.QtWidgets import QApplication, QMenu, QMessageBox, QTabBar, QWidget
+
+import openalea.lpy.gui.svnmanip as svnmanip
+import os
 
 class LpyTabBar(QTabBar):
     
