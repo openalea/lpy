@@ -5,7 +5,7 @@ module U,E : scale = 1
 module I,L : scale = 2 
 Axiom: 
   nproduce E L U I I I 
-  for i in xrange(1):
+  for i in range(1):
     nproduce U I I I
   nproduce E L
 '''

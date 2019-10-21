@@ -13,7 +13,7 @@ def exec_lpy_tst(lfile):
             l = Lsystem(lfile)
             l.iterate()
         except Exception as e :
-            print('Test file :',lfile)
+            print(('Test file :',lfile))
             raise e
     
 toavoid = []

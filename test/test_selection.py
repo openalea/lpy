@@ -20,7 +20,7 @@ def test_selection():
     ln = len(l.axiom)
     l.context().makeCurrent()
     assert l.axiom == AxialTree('N[+NN][-N]N') and 'Invalid axiom parsing'
-    print(l.axiom)
+    print((l.axiom))
     res = l.iterate(1)
     print(res)
     assert len(res) == ln+1

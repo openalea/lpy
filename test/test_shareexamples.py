@@ -13,7 +13,7 @@ def exec_share_example(lfile):
             l = Lsystem(lfile)
             l.iterate()
         except Exception as e :
-            print('Example file :',lfile)
+            print(('Example file :',lfile))
             raise e
     
     

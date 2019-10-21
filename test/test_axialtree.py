@@ -76,7 +76,7 @@ def test_successor_at_level():
     a = AxialTree('BA[A[A][CA]][A]B[[[CA]CA]AA]')
     l.setModuleScale('B,C',1)
     l.setModuleScale('A',2)
-    print(a.successor_at_level(0,1))
+    print((a.successor_at_level(0,1)))
     assert a.successor_at_level(0,1) == 15
     
 
@@ -89,7 +89,7 @@ def test_successor_at_scale():
     assert a.successor_at_scale(0,1) == 15
     assert a.successor_at_scale(15,1) == 29
     a = AxialTree('BA[[A][CA][A]A]BA[[[CA]CA]AA]')
-    print(a.directSon(1),a.directSon(15),a.successor_at_scale(1,2))
+    print((a.directSon(1),a.directSon(15),a.successor_at_scale(1,2)))
     assert a.successor_at_scale(1,2) == 16
 
 def test_successor_at_scale2():
@@ -108,7 +108,7 @@ def test_predecessor_at_scale():
     l.setModuleScale('B,C',1)
     l.setModuleScale('A',2)
     assert a.predecessor_at_scale(15,1) == 0
-    print(a.predecessor_at_scale(25,2))
+    print((a.predecessor_at_scale(25,2)))
     assert a.predecessor_at_scale(25,2) == 1
   
 

@@ -2,7 +2,7 @@ module A(x,t)
 
 Axiom: A(1,2,3)
 
-results = [False for i in xrange(22) ]
+results = [False for i in range(22) ]
 
 def validate(i):
   global results

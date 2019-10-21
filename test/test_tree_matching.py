@@ -20,7 +20,7 @@ def matching_run(code,optionvalues = list(range(4))):
         optionvalues = [optionvalues]
     for i in range(4):
         l = Lsystem()
-        print('option =',i)
+        print(('option =',i))
         if i in optionvalues:
             l.set(code)
             l.context().options.setSelection('String matching',i)
@@ -30,7 +30,7 @@ def matching_run(code,optionvalues = list(range(4))):
                 l.set(code)
                 l.context().options.setSelection('String matching',i)
                 l.iterate()
-                print("Test do not fail for unsupported string matching mode : %i." % i)
+                print(("Test do not fail for unsupported string matching mode : %i." % i))
                 warnings.warn("Test do not fail for unsupported string matching mode : %i." % i)
             except:
                 pass
@@ -78,7 +78,7 @@ if __name__ == '__main__':
     test_func = [ (n,v) for n,v in list(globals().items()) if 'test' in n]
     test_func.sort(lambda x,y : cmp(x[1].__code__.co_firstlineno,y[1].__code__.co_firstlineno))
     for tfn,tf in test_func:
-        print('testing func:', tfn)
+        print(('testing func:', tfn))
         try:
             tf()
         except:

@@ -43,7 +43,7 @@ def runmatch(code,optionvalues = list(range(3))):
             try:
                 l.set(lcodebeg+code)
                 l.iterate()
-                print("Test do not fail for unsupported module matching mode : %i." % i)
+                print(("Test do not fail for unsupported module matching mode : %i." % i))
                 warnings.warn("Test do not fail for unsupported module matching mode : %i." % i)
             except:
                 pass
