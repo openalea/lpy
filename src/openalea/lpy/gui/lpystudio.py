@@ -2,6 +2,7 @@ import sys
 import os
 import stat
 import shutil
+import asyncio
 
 # for py2exe
 try:
@@ -39,7 +40,7 @@ from openalea.lpy import *
 
 
 from openalea.plantgl.gui.qt.compat import *
-from openalea.plantgl.gui.qt.QtCore import QCoreApplication, QEvent, QMutex, QObject, QThread, QWaitCondition, Qt, pyqtSignal, pyqtSlot
+from openalea.plantgl.gui.qt.QtCore import QCoreApplication, QEvent, QMutex, QObject, QThread, QWaitCondition, QTimer, Qt, pyqtSignal, pyqtSlot
 from openalea.plantgl.gui.qt.QtGui import QIcon, QPixmap, QTextCursor
 from openalea.plantgl.gui.qt.QtWidgets import QAction, QApplication, QDialog, QFileDialog, QInputDialog, QMainWindow, QMessageBox, QTabBar
 try:
@@ -85,14 +86,13 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
 
     instances = []
 
-    def __init__(self, parent=None, withinterpreter = False):
+    def __init__(self, parent=None, withinterpreter = True):
         """
         :param parent : parent window
         """
         QMainWindow.__init__(self, parent)
         ComputationTaskManager.__init__(self)
         lsmw.Ui_MainWindow.__init__(self)
-
 
         import weakref
         LPyWindow.instances.append(weakref.ref(self))
@@ -101,6 +101,9 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         self.setupUi(self)
         self.editToolBar.hide()
         lpydock.initDocks(self)
+
+        QTimer.singleShot(1000, lambda: lpydock.initShell(self))
+
         self.preferences = lpypreferences.LpyPreferences(self)
         icon = QIcon()
         icon.addPixmap(QPixmap(":/images/icons/history.png"),QIcon.Normal,QIcon.Off)
@@ -843,7 +846,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         iconfile.addPixmap(QPixmap(":/images/icons/codefile.png"),QIcon.Normal,QIcon.Off)
         iconfolder = QIcon()
         iconfolder.addPixmap(QPixmap(":/images/icons/fileopen.png"),QIcon.Normal,QIcon.Off)
-        from openalea.deploy.shared_data import shared_data
+        from openalea.lpy.gui.shared_data import shared_data
         import openalea.lpy
         shared_data_path = shared_data(openalea.lpy.__path__, share_path='share/tutorial')
         if not shared_data_path is None:

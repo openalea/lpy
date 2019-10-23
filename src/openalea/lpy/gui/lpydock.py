@@ -4,7 +4,7 @@ from .objectpanel import LpyObjectPanelDock
 from .lpyshell import set_shell_widget
 
 from openalea.plantgl.gui.qt import qt
-from openalea.plantgl.gui.qt.QtCore import Qt, QCoreApplication
+from openalea.plantgl.gui.qt.QtCore import Qt, QCoreApplication, QTimer
 from openalea.plantgl.gui.qt.QtGui import QIcon, QPixmap
 from openalea.plantgl.gui.qt.QtWidgets import QApplication, QDockWidget, QSplitter, QWidget
 _translate = QCoreApplication.translate
@@ -26,7 +26,7 @@ def showMessage(self,msg,timeout):
         self.statusBar.showMessage(msg,timeout)
     else:
         print(msg)
-        
+
 def initDocks(lpywidget):
     prevdock = None
     st = lpywidget.statusBar()
@@ -86,14 +86,18 @@ def initDocks(lpywidget):
             lpywidget.interpreter = None
             lpywidget.interpreterDock.hide()
 
-        if lpywidget.withinterpreter :
-            action = lpywidget.interpreterDock.toggleViewAction()
-            action.setShortcut(QCoreApplication.translate("MainWindow", "Ctrl+P"))        
-            lpywidget.menuView.addSeparator()
-            lpywidget.menuView.addAction(action)
+    if lpywidget.withinterpreter:
+        action = lpywidget.interpreterDock.toggleViewAction()
+        action.setShortcut(QCoreApplication.translate("MainWindow", "Ctrl+P"))
+        lpywidget.menuView.addSeparator()
+        lpywidget.menuView.addAction(action)
             
-            lpywidget.addDockWidget(Qt.BottomDockWidgetArea,lpywidget.interpreterDock)
-            lpywidget.tabifyDockWidget(lpywidget.debugDock,lpywidget.interpreterDock)
+        lpywidget.addDockWidget(Qt.BottomDockWidgetArea,lpywidget.interpreterDock)
+        lpywidget.tabifyDockWidget(lpywidget.debugDock,lpywidget.interpreterDock)
     else:
         lpywidget.interpreter = None
-         
+
+async def initShell(lpywidget):
+    lpywidget.interpreter.locals['window'] = lpywidget
+    await lpywidget.shell.run_code('from openalea.plantgl.all import *')
+    await lpywidget.shell.run_code('from openalea.lpy import *')
