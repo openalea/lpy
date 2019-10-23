@@ -97,7 +97,7 @@ def initDocks(lpywidget):
     else:
         lpywidget.interpreter = None
 
-async def initShell(lpywidget):
+def initShell(lpywidget):
     lpywidget.interpreter.locals['window'] = lpywidget
-    await lpywidget.shell.run_code('from openalea.plantgl.all import *')
-    await lpywidget.shell.run_code('from openalea.lpy import *')
+    lpywidget.shell.run_code('from openalea.plantgl.all import *')
+    lpywidget.shell.run_code('from openalea.lpy import *')
