@@ -20,6 +20,7 @@ def compile_ui(uifname):
     """ compile a Ui """
     pyfname = get_uifnames_from(uifname)
     fstream = open(pyfname,'w')
+#    compile_args["from_imports"] = ""
     compileUi(uifname, fstream, **compile_args)
     fstream.close()
 

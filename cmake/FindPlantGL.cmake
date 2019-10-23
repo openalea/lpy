@@ -27,7 +27,7 @@ endif()
 # Include Directory
 find_path(PLANTGL_INCLUDE_DIR 
           NAMES "plantgl/plantgl.h" 
-          HINTS ${PLANTGL_INCLUDEDIR} $ENV{PATH})
+          HINTS ${PLANTGL_INCLUDEDIR} $ENV{PATH} $ENV{CONDA_PREFIX}/include)
 
 if (NOT PLANTGL_INCLUDE_DIR)
     set(PLANTGL_FOUND OFF)
@@ -41,7 +41,7 @@ endif()
 # Library Directory
 find_library(PLANTGL_SG_LIBRARY 
              NAMES "pglsg" "libpglsg" 
-             PATHS ${PLANTGL_LIBRARYDIR} $ENV{PATH})
+             PATHS ${PLANTGL_LIBRARYDIR} $ENV{PATH} $ENV{CONDA_PREFIX}/lib $ENV{CONDA_PREFIX}/lib64)
 
 get_filename_component(PLANTGL_LIBRARY_DIR ${PLANTGL_SG_LIBRARY} DIRECTORY)
 
