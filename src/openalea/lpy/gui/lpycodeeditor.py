@@ -814,7 +814,7 @@ class LpyCodeEditor(QTextEdit):
         self.sidebar.saveState(simu)
 
     def getCode(self):
-        return str(self.toPlainText()).encode('iso-8859-1','replace')
+        return str(str(self.toPlainText()).encode('iso-8859-1','replace'))
 
     def codeToExecute(self):
         cursor = self.textCursor()

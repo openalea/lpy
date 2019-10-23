@@ -19,17 +19,20 @@
 import types
 import os
 from os.path import join as pj
-from os.path import realpath, isdir, isfile
-try:
-    from path import Path
-except ImportError:
-    try:
-        from path import path as Path
-    except ImportError:
-        try:
-            from openalea.core.path import path as Path
-        except ImportError:
-            from IPython.external.path import path as Path
+from os.path import realpath, isdir, isfile, dirname
+import glob
+
+
+# try:
+#     from path import Path
+# except ModuleNotFoundError:
+#     try:
+#         from path import path as Path
+#     except ModuleNotFoundError:
+#         try:
+#             from openalea.core.path import path as Path
+#         except ModuleNotFoundError:
+#             from IPython.utils.path import Path
 
 __license__ = "Cecill-C"
 __revision__ = " $Id: gforge.py 2243 2010-02-08 17:08:47Z cokelaer $ "
@@ -83,28 +86,27 @@ def shared_data(package_path, filename=None, pattern=None,
             return None
         else:
             package_path = package_path[0]
-    package_path = Path(package_path)
-    ff = package_path / share_path
-    ff = ff.realpath()
+    ff = pj(package_path, share_path)
+    ff = realpath(ff)
     shared_data_path = None
-    if ff.isdir():
+    if isdir(ff):
         if filename is None:
             shared_data_path = ff
             if pattern:
-                l = ff.glob(pattern)
+                l = glob.glob(pj(ff, pattern))
                 if l:
                     shared_data_path = l
         else:
-            ff = ff / filename
-            ff = ff.realpath()
-            if ff.isfile():
+            ff = pj(ff,filename)
+            ff = realpath(ff)
+            if isfile(ff):
                 shared_data_path = ff
 
-    if shared_data_path is None and (package_path / '__init__.py').isfile():
-        shared_data_path = shared_data(package_path.parent, filename, pattern,
+    if shared_data_path is None and isfile(pj(package_path, '__init__.py')):
+        shared_data_path = shared_data(dirname(package_path), filename, pattern,
                                        share_path)
         if shared_data_path is None:
-            shared_data_path = shared_data(package_path.parent.parent, filename,
+            shared_data_path = shared_data(dirname(dirname(package_path)), filename,
                                            pattern, share_path)
 
     return shared_data_path
