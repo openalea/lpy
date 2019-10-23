@@ -57,13 +57,13 @@ class LpyPreferences:
             self.widget.profilingNoPlotButton.clicked.connect(self.setProfilingNoPlotMode) # QObject.connect(self.widget.profilingNoPlotButton,SIGNAL('clicked(bool)'),self.setProfilingNoPlotMode)
             self.widget.integratedViewEdit.setChecked(self.editor.use_own_view3D)
             self.widget.integratedViewEdit.clicked.connect(self.editor.setIntegratedView3D) # QObject.connect(self.widget.integratedViewEdit,SIGNAL('clicked(bool)'),self.editor.setIntegratedView3D)
-            if not self.editor.withinterpreter:
-                self.widget.textOutputBox.setEnabled(False)
-            else:
-                self.widget.LPyConsoleButton.setChecked(self.editor.shellwidget.isSelfStdOutRedirection() or  self.editor.shellwidget.hasMultipleStdOutRedirection())
-                self.widget.LPyConsoleButton.clicked.connect(self.setOutputRedirection) # QObject.connect(self.widget.LPyConsoleButton,SIGNAL('clicked(bool)'),self.setOutputRedirection)
-                self.widget.systemConsoleButton.setChecked(self.editor.shellwidget.isSysStdOutRedirection() or  self.editor.shellwidget.hasMultipleStdOutRedirection())
-                self.widget.systemConsoleButton.clicked.connect(self.setOutputRedirection) # QObject.connect(self.widget.systemConsoleButton,SIGNAL('clicked(bool)'),self.setOutputRedirection)
+            #if not self.editor.withinterpreter:
+            self.widget.textOutputBox.setEnabled(False)
+            #else:
+            #    self.widget.LPyConsoleButton.setChecked(self.editor.shellwidget.isSelfStdOutRedirection() or  self.editor.shellwidget.hasMultipleStdOutRedirection())
+            #    self.widget.LPyConsoleButton.clicked.connect(self.setOutputRedirection) # QObject.connect(self.widget.LPyConsoleButton,SIGNAL('clicked(bool)'),self.setOutputRedirection)
+            #    self.widget.systemConsoleButton.setChecked(self.editor.shellwidget.isSysStdOutRedirection() or  self.editor.shellwidget.hasMultipleStdOutRedirection())
+            #    self.widget.systemConsoleButton.clicked.connect(self.setOutputRedirection) # QObject.connect(self.widget.systemConsoleButton,SIGNAL('clicked(bool)'),self.setOutputRedirection)
         self.dialog.show()
     def chooseCCompilerPath(self):
         p = QFileDialog.getExistingDirectory(self.editor, "Choose Compiler Path", self.editor.cCompilerPath )
@@ -88,6 +88,6 @@ class LpyPreferences:
             self.widget.profilingFinalPlotButton.setChecked(True)
         else:
             self.widget.profilingNoPlotButton.setChecked(True)
-    def setOutputRedirection(self):
-        self.editor.shellwidget.setOutputRedirection(self.widget.LPyConsoleButton.isChecked(),self.widget.systemConsoleButton.isChecked())
+    #def setOutputRedirection(self):
+    #    self.editor.shellwidget.setOutputRedirection(self.widget.LPyConsoleButton.isChecked(),self.widget.systemConsoleButton.isChecked())
             
