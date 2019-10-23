@@ -197,7 +197,7 @@ class AbstractSimulation:
             if type(editor) == QLineEdit:
                 self.desc_items[key] = editor.text()
             else:
-                self.desc_items[key] = editor.toPlainText().encode('iso-8859-1','replace')
+                self.desc_items[key] = editor.toPlainText().encode('iso-8859-1','replace').decode('iso-8859-1')
         #self.functions = self.lpywidget.functionpanel.getFunctions()
         #self.curves = self.lpywidget.curvepanel.getCurves()
         self.visualparameters = [(panel.getInfo(),panel.getObjects()) for panel in self.lpywidget.getObjectPanels()]
@@ -336,7 +336,7 @@ class AbstractSimulation:
         f.close()
 
     def getStrFname(self):
-        return self.fname.encode('iso-8859-1','replace')
+        return self.fname.encode('iso-8859-1','replace').decode('iso-8859-1')
         
     def open(self,fname):
         self.setFname(fname)
