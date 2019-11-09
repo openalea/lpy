@@ -15,25 +15,30 @@ if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 endif()
 
+
+## ###################################################################
+## Dependencies - Python
+## ###################################################################
+
+find_package (Python3 COMPONENTS Interpreter Development)
+
+include_directories(${Python3_INCLUDE_DIRS})
+
 # --- Libraries
 
 find_package(Threads REQUIRED)
-find_package(Python REQUIRED)
 find_package(Qt5Core CONFIG REQUIRED)
 find_package(Qt5Concurrent CONFIG REQUIRED)
 find_package(PlantGL REQUIRED)
 
-# Boost
-if (DEFINED CONDA_ENV)
-    set(BOOST_ROOT ${CONDA_ENV})
-    set(BOOST_LIBRARYDIR "${BOOST_ROOT}/lib")
-endif()
+set(BOOST_ROOT $ENV{CONDA_PREFIX})
+set(BOOST_LIBRARYDIR "${BOOST_ROOT}/lib")
 
 set(Boost_NO_SYSTEM_PATHS ON)
 set(Boost_USE_MULTITHREAD ON)
 set(Boost_USE_STATIC_LIBS OFF)
 
-find_package(Boost COMPONENTS system ${BOOST_PYTHON_LIB} REQUIRED)
+find_package(Boost COMPONENTS system python37 REQUIRED)
 
 # --- Include Directories
 

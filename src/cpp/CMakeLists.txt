@@ -13,7 +13,7 @@ target_link_libraries(lpy Python3::Python)
 # Disable Boost Auto-Link
 target_compile_definitions(lpy PRIVATE BOOST_ALL_NO_LIB)
 
-target_link_libraries(lpy Boost::${BOOST_PYTHON_LIB})
+target_link_libraries(lpy Boost::python37)
 
 # --- Preprocessor
 
