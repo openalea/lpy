@@ -7,6 +7,7 @@ except:
 
 if not py2exe_release:
     import compile_ui as ui
+#   from . import compile_ui as ui
     print("Generate Ui - imported")
     import os.path
     ldir    = os.path.dirname(__file__)
