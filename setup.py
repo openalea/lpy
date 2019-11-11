@@ -94,12 +94,12 @@ setup(
         "wralea": ["lpy = openalea.lpy_wralea",],
         'gui_scripts': ['lpy = openalea.lpy.gui.lpystudio:main',],
         'console_scripts': ['cpfg2lpy = openalea.lpy.cpfg_compat.cpfg2lpy:main',],
-    },
+    }
 
     # Dependencies
-    setup_requires = ['openalea.deploy'],
-    dependency_links = ['http://openalea.gforge.inria.fr/pi'],
-    install_requires = install_requires,
+    # setup_requires = ['openalea.deploy'],
+    # dependency_links = ['http://openalea.gforge.inria.fr/pi'],
+    # install_requires = install_requires
 
-    pylint_packages = ['src/openalea/lpy/gui']
+    # pylint_packages = ['src/openalea/lpy/gui']
 )

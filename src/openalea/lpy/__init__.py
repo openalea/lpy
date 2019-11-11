@@ -1,5 +1,5 @@
 from .__version__ import *
-from .__lpy_kernel__ import *
+# from .__lpy_kernel__ import *
 from .parameterset import *
 
 def __mod_getattr__(self,name):

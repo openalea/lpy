@@ -1,5 +1,8 @@
-from openalea.plantgl.gui.qt import qt
+print("DEBUG ===== 1")
+# from openalea.plantgl.gui.qt import qt
+print("DEBUG ===== 2")
 from openalea.plantgl.gui.qt.uic import compileUi, compile_args
+print("DEBUG ===== 3")
 
 import os
 import sys
