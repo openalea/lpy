@@ -21,7 +21,6 @@ build:
   track_features:
     - vc9         [win and py27]
     - vc14        [win and py37]
-
 requirements:
   build:
     - cmake >=3.2.0
@@ -68,18 +67,33 @@ requirements:
     - boost-cpp
     - python=3.7
     - py-boost
+    - gmp [unix]
+    #  - cgal [unix]
+    - qhull
+    - ann
+    - eigen
+    - pyqt >=5.6.0
+    - pyopengl
+    - scipy
+    - matplotlib
   run:
-   - python=3.7
-   - openalea.plantgl
-   - boost-cpp
-   - qt >=5.9.0
-   - pyqt
-   - ipython
-#  - qtconsole
-   - pyopengl
-#  - pyqglviewer
-   - vs2008_runtime [win and py27]
-   - vs2015_runtime [win and py37]
+    - python=3.7
+    - openalea.plantgl
+    - boost-cpp
+    - qt >=5.9.0
+    - gmp [unix]
+    #  - cgal [unix]
+    - qhull
+    - ann
+    - eigen
+    - pyqt >=5.6.0
+    - ipython
+    #  - qtconsole
+    - py-boost
+    - pyopengl
+    #  - pyqglviewer
+    - vs2008_runtime [win and py27]
+    - vs2015_runtime [win and py37]
 # test:
 #   requires:
 #     - nose

@@ -11,4 +11,6 @@ make -j${CPU_COUNT}
 make install
 
 cd ..
+sed -i '' '1,1 s/^/#/' $CONDA_PREFIX/lib/python3.7/site-packages/openalea/plantgl/gui/__init__.py
+sed -i '' '1,1 s/^/#/' $BUILD_PREFIX/lib/python3.7/site-packages/openalea/plantgl/gui/__init__.py
 $PYTHON setup.py install --prefix=${PREFIX}

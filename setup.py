@@ -51,9 +51,14 @@ from setuptools import setup
 def compile_interface():
     cwd = os.getcwd()
     os.chdir(pj('src','openalea','lpy','gui'))
+    print("HERE - 1")
     sys.path = ['']+sys.path
+    print(sys.path)
+    print("HERE - 2")
     import generate_ui
+    print("HERE - 3")
     os.chdir(cwd)
+    print("HERE - 4")
 
 compile_interface()
 install_requires = []
