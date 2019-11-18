@@ -9,10 +9,10 @@ derivation length: 1
 production:
 
 A:
-    print 'Find A'
+    print('Find A')
 
 *(name):
-   print 'find',name
+   print('find',name)
 
 interpretation:
 

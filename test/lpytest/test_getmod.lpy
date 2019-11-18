@@ -6,7 +6,7 @@ def StartEach():
 
 def EndEach(lstring):
   global result
-  print result
+  print(result)
   assert result == { 'A' : (0, '[B]'), 'B' : (1, 'None') }
   assert lstring == 'AAAB'
 
@@ -22,7 +22,7 @@ production:
 $A(a) :
     global result
     assert a.name in 'AB'
-    print a.name,'sons[',a.position(),']=',a.sons()
+    print(a.name,'sons[',a.position(),']=',a.sons())
     result[a.name] = (a.position(),str(a.sons()))
     produce A $a 
 

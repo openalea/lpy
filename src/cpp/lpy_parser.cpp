@@ -985,7 +985,16 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 	code+='\n'+addedcode;
   if(pycode) *pycode = code;
   // printf("%s",code.c_str());
-  __context.compile(code);
+  try {
+    __context.compile(code);
+  }
+  catch (const error_already_set& e) {
+    if (PyErr_ExceptionMatches(PyExc_SyntaxError)){
+        // PyErr_SyntaxLocation(getFilename().c_str(), 0);
+    }
+    boost::python::throw_error_already_set();
+  //  boost::python::handle_exception();
+  }
   __importPyFunctions();
   if (__context.hasObject(LsysContext::AxiomVariable)){
       if (!axiom_is_function){

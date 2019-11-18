@@ -922,37 +922,39 @@ LsysContext::func(const std::string& funcname){
   return object();
 }
 
+size_t func_nb_args(boost::python::object function) {
+    char * attrname =
+#if PY_MAJOR_VERSION == 2
+     "func_code"
+#else
+     "__code__"
+#endif
+     ;
+    try {
+        return extract<size_t>(function.attr(attrname).attr("co_argcount"))();
+    }
+    catch (...) { PyErr_Clear(); return 0; }
+}
+
 void 
 LsysContext::check_init_functions()
 {
 	if (hasObject("StartEach")) {
-		try {
-			__nbargs_of_starteach = extract<size_t>(getObject("StartEach").attr("func_code").attr("co_argcount"))();
-		}
-		catch (...) { PyErr_Clear(); __nbargs_of_starteach = 0; }
-	}
+		__nbargs_of_starteach = func_nb_args(getObject("StartEach"));
+    }
 	else __nbargs_of_starteach = 0;
 
 	if (hasObject("Start")) {
-		try {
-			__nbargs_of_start = extract<size_t>(getObject("Start").attr("func_code").attr("co_argcount"))();
-		}
-		catch (...) { PyErr_Clear(); __nbargs_of_start = 0; }
+			__nbargs_of_start = func_nb_args(getObject("Start"));
 	}
 	else __nbargs_of_start = 0;
 
 	if (hasObject("EndEach")) {
-		try {
-			__nbargs_of_endeach = extract<size_t>(getObject("EndEach").attr("func_code").attr("co_argcount"))();
-		}
-		catch (...) { PyErr_Clear(); __nbargs_of_endeach = 0; }
+			__nbargs_of_endeach = func_nb_args(getObject("EndEach"));
 	}
 	else __nbargs_of_endeach = 0;
 	if (hasObject("End")) {
-		try {
-			__nbargs_of_end = extract<size_t>(getObject("End").attr("func_code").attr("co_argcount"))();
-		}
-		catch (...) { PyErr_Clear(); __nbargs_of_end = 0; }
+			__nbargs_of_end = func_nb_args(getObject("End"));
 	}
 	else __nbargs_of_end = 0;
 }

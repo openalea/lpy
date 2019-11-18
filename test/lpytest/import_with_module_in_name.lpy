@@ -1,6 +1,6 @@
 import os
 fname = 'a_module2.py'
-f = file(fname,'w')
+f = open(fname,'w')
 f.write('def test(): pass')
 f.close()
 

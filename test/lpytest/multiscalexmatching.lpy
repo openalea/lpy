@@ -11,8 +11,9 @@ def StartEach():
     multiscalemode = context().options.find('String matching').currentValue() in ['As Multiscale AxialTree','As Multi-level AxialTree']
     resinf = [0,3]
     ressup = [5 if multiscalemode else 3,2]
-    print context().options.find('String matching').currentValue()
+    print(context().options.find('String matching').currentValue())
     context().options.find('String matching').activateSelection()
+    print 'toto'
 
 
 
@@ -37,8 +38,8 @@ A > x($B(b)):
     if (len(b) == res): 
       warnings.warn('Multiscale context and Regular Expression not compatible')
   else:
-    print 'Expect : A >', 'B'*res
-    print 'Found  : A >', 'B'*len(b)
+    print('Expect : A >', 'B'*res)
+    print('Found  : A >', 'B'*len(b))
     assert len(b) == res
 
 x($B(b)) < A:
@@ -48,8 +49,8 @@ x($B(b)) < A:
     if (len(b) == res): 
       warnings.warn('Multiscale context and Regular Expression not compatible')
   else:
-    print 'Expect : ', 'B'*res ,' < A'
-    print 'Found  : ', 'B'*len(b) ,' < A'
+    print('Expect : ', 'B'*res ,' < A')
+    print('Found  : ', 'B'*len(b) ,' < A')
     assert len(b) == res
 
 interpretation:

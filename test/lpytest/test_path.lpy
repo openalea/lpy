@@ -14,13 +14,13 @@ production:
 A(x,lastdir) : 
     u0 = x/l
     u1 = (x+1)/l
-    print x, u0,u1
+    print(x, u0,u1)
     t = path.getPointAt(path.c(u1))-path.getPointAt(path.c(u0))
     t.normalize()
-    print lastdir,t
+    print(lastdir,t)
     a = angle(lastdir,t)
     lastdir = t
-    print a
+    print(a)
     if x == nbpt/2:
         nproduce [+(60)/(180)+(degrees(a))F(1)A(x+1,lastdir)]
     produce +(degrees(a))F(1)A(x+1,lastdir)
