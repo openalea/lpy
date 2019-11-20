@@ -13,7 +13,7 @@ def StartEach():
     ressup = [5 if multiscalemode else 3,2]
     print(context().options.find('String matching').currentValue())
     context().options.find('String matching').activateSelection()
-    print 'toto'
+    print('toto')
 
 
 

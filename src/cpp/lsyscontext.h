@@ -434,15 +434,16 @@ protected:
 
 class LPY_API GlobalContext : public LsysContext {
 public:
-  GlobalContext();
   ~GlobalContext();
 
   virtual PyObject * globals() const ;
   static boost::python::object getFunctionRepr();
-
+  virtual void clearNamespace();
+  static GlobalContext * get();
 protected:
+  GlobalContext();
 
-  boost::python::handle<> __globals;
+  boost::python::object __globals;
   static boost::python::object __reprFunc;
 
 };
