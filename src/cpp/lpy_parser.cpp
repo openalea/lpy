@@ -483,7 +483,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
                 if (LpyParsing::isValidVariableName(itmod->name))
                     code += itmod->name+" = ModuleClass.get('"+itmod->name+"')";
             }
-            code+="# "+std::string(_it2,_it);
+            code+=" # "+std::string(_it2,_it);
 			beg = _it;
 			toendlineA(_it,endpycode);
 		  }
@@ -508,7 +508,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
           if(has_keyword_pattern(_it,begcode,endpycode,"undeclare")){
             code+=std::string(beg,_it2);
 			LpyParsing::ModNameList modules = LpyParsing::parse_modlist(_it,endpycode,false);
-			code+="# "+std::string(_it2,_it);
+			code+=" # "+std::string(_it2,_it);
 			for(LpyParsing::ModNameList::const_iterator itmod = modules.begin(); 
 				 itmod != modules.end(); ++itmod){
 				ModuleClassPtr mod = ModuleClassTable::get().find(*itmod);
@@ -985,7 +985,16 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 	code+='\n'+addedcode;
   if(pycode) *pycode = code;
   // printf("%s",code.c_str());
-  __context.compile(code);
+  try {
+    __context.compile(code);
+  }
+  catch (const error_already_set& e) {
+    if (PyErr_ExceptionMatches(PyExc_SyntaxError)){
+        // PyErr_SyntaxLocation(getFilename().c_str(), 0);
+    }
+    boost::python::throw_error_already_set();
+  //  boost::python::handle_exception();
+  }
   __importPyFunctions();
   if (__context.hasObject(LsysContext::AxiomVariable)){
       if (!axiom_is_function){

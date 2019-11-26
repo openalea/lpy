@@ -680,7 +680,7 @@ class LpySimulation (AbstractSimulation):
             self.visualparameters = []
             lpy_code_version = 1.0
             if '__lpy_code_version__' in context:
-                lpy_code_version = ['__lpy_code_version__']
+                lpy_code_version = context['__lpy_code_version__']
                 print(lpy_code_version)
             if '__functions__' in context and lpy_code_version <= 1.0 :
                 functions = context['__functions__']

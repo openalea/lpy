@@ -2,7 +2,7 @@ from openalea.lpy import *
 
 code = """
 def EndEach(lstring):
-    print 'Lstring [',getIterationNb(),']: ',lstring
+    print ('Lstring [',getIterationNb(),']: ',lstring)
 
 def End(lstring):
     assert len(lstring) == 1 and lstring[0] == 'C'

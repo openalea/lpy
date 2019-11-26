@@ -4,7 +4,7 @@ iterbackup = 1
 
 
 def End(lstring):
-  print 'End', len(lstring),  lstring
+  print('End', len(lstring),  lstring)
   assert len(lstring) == 1
 
 Axiom: A

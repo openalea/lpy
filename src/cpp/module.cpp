@@ -109,10 +109,9 @@ void processArgList(ModuleClassPtr mclass, ParamModule::ParameterList& args, boo
         }
         pgl_hash_set<size_t> missingargs;
 
-        while( true )
-        {
+        
+        do {
             boost::python::object obj = iter_obj.next();
-            if (!iter_obj.is_valid()) break;
 
             std::string pname = extract<std::string>( obj[0] )();
             size_t pposition = mclass->getParameterPosition(pname);
@@ -142,7 +141,8 @@ void processArgList(ModuleClassPtr mclass, ParamModule::ParameterList& args, boo
                     appendParam(args,obj[1]);
                 }
             }
-        }
+        } while( iter_obj.is_valid() );
+
         if (missingargs.size() > 0) {
                 std::stringstream str;
                 str << mclass->name << " takes exactly " << mclass->getNamedParameterNb()<< " (" << missingargs.size() << " missing)";

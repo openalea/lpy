@@ -285,7 +285,8 @@ void export_AxialTree() {
 
   class_<PyAxialTreeIterator >
 	("AxialTreeIterator", init<AxialTree>("AxialTreeIterator(AxialTree)"))
-	.def("next",&PyAxialTreeIterator::next,return_internal_reference<>(), (bp::arg("onlyConsidered")=false))
+    .def("next",&PyAxialTreeIterator::next,return_internal_reference<>(), (bp::arg("onlyConsidered")=false))
+    .def("__next__",&PyAxialTreeIterator::next,return_internal_reference<>(), (bp::arg("onlyConsidered")=false))
 	.def("current",&PyAxialTreeIterator::currentValue,return_internal_reference<>())
 	.def("__length_hint__",&PyAxialTreeIterator::size)
     .def( "__iter__", &py_ati_iter )

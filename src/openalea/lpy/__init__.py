@@ -125,6 +125,7 @@ class LsystemIterator:
             self.axiom = self.lsystem.derive(self.axiom,self.currentstep,1)
             self.currentstep += 1
         return self.axiom
+    next = __next__
     def __iter__(self):
         return self
 

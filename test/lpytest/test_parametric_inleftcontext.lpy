@@ -6,7 +6,7 @@ production:
 B :
   args = {}
   if InLeftContext(A(x), args) :
-    print args['x']
+    print(args['x'])
     
 
 

@@ -65,13 +65,13 @@ static LsysContext * DEFAULT_LSYSCONTEXT = NULL;
 static LsysContext * CURRENT_LSYSCONTEXT = NULL;
 static QMutex CURRENT_LSYSCONTEXT_MUTEX;
 
-
+/*
 class ContextGarbageCollector
 {
 public:
 	ContextGarbageCollector() {}
 	~ContextGarbageCollector() { 
-		// std::cerr  << "context garbage collector" << std::endl;
+		printf("context garbage collector\n");
 		if (GLOBAL_LSYSCONTEXT){
 			LsysContext::cleanContexts();
 		}
@@ -79,25 +79,30 @@ public:
 protected:
 	static ContextGarbageCollector __INSTANCE;
 };
+*/
 
 void LsysContext::cleanContexts(){
+    // VERY STRANGE: Cannot delete global and default context.
     QMutexLocker locker(&CURRENT_LSYSCONTEXT_MUTEX);
 	if (DEFAULT_LSYSCONTEXT){
-		delete DEFAULT_LSYSCONTEXT;
+		// delete DEFAULT_LSYSCONTEXT;
 		DEFAULT_LSYSCONTEXT = NULL;
 	}
 	if (GLOBAL_LSYSCONTEXT)
 	{
-		delete GLOBAL_LSYSCONTEXT;
-		GLOBAL_LSYSCONTEXT = NULL;
+        if(!(LSYSCONTEXT_STACK.empty() && GLOBAL_LSYSCONTEXT->isCurrent()))
+            while(!GLOBAL_LSYSCONTEXT->isCurrent()) currentContext()->done();
+        assert(LSYSCONTEXT_STACK.empty() && GLOBAL_LSYSCONTEXT->isCurrent() && "LsysContext not all done!");
+
+        // delete GLOBAL_LSYSCONTEXT;
+        GLOBAL_LSYSCONTEXT = NULL;
 	}
 }
 
 LsysContext *
 LsysContext::globalContext()
 { 
-    if(!GLOBAL_LSYSCONTEXT)  GLOBAL_LSYSCONTEXT = new GlobalContext();
-	return GLOBAL_LSYSCONTEXT; 
+    return GlobalContext::get();
 }
 
 void createDefaultContext()
@@ -649,10 +654,10 @@ void
 LsysContext::namespaceInitialisation()
 {
    if (!hasObject("__builtins__")){
-        copyObjectToGlobals("__builtins__",globalContext());
+        // copyObjectToGlobals("__builtins__",globalContext());
 
-        // object builtin = boost::python::import("__builtin__");
-        // setObjectToGlobals("__builtins__", builtin);
+        object builtins = boost::python::import("builtins");
+         setObjectToGlobals("__builtins__", builtins);
 		// setObjectToGlobals("__builtins__", object(handle<>(borrowed( PyModule_GetDict(PyImport_AddModule("__builtin__"))))));
     }
 
@@ -922,37 +927,39 @@ LsysContext::func(const std::string& funcname){
   return object();
 }
 
+size_t func_nb_args(boost::python::object function) {
+    const char * attrname =
+#if PY_MAJOR_VERSION == 2
+     "func_code"
+#else
+     "__code__"
+#endif
+     ;
+    try {
+        return extract<size_t>(function.attr(attrname).attr("co_argcount"))();
+    }
+    catch (...) { PyErr_Clear(); return 0; }
+}
+
 void 
 LsysContext::check_init_functions()
 {
 	if (hasObject("StartEach")) {
-		try {
-			__nbargs_of_starteach = extract<size_t>(getObject("StartEach").attr("func_code").attr("co_argcount"))();
-		}
-		catch (...) { PyErr_Clear(); __nbargs_of_starteach = 0; }
-	}
+		__nbargs_of_starteach = func_nb_args(getObject("StartEach"));
+    }
 	else __nbargs_of_starteach = 0;
 
 	if (hasObject("Start")) {
-		try {
-			__nbargs_of_start = extract<size_t>(getObject("Start").attr("func_code").attr("co_argcount"))();
-		}
-		catch (...) { PyErr_Clear(); __nbargs_of_start = 0; }
+			__nbargs_of_start = func_nb_args(getObject("Start"));
 	}
 	else __nbargs_of_start = 0;
 
 	if (hasObject("EndEach")) {
-		try {
-			__nbargs_of_endeach = extract<size_t>(getObject("EndEach").attr("func_code").attr("co_argcount"))();
-		}
-		catch (...) { PyErr_Clear(); __nbargs_of_endeach = 0; }
+			__nbargs_of_endeach = func_nb_args(getObject("EndEach"));
 	}
 	else __nbargs_of_endeach = 0;
 	if (hasObject("End")) {
-		try {
-			__nbargs_of_end = extract<size_t>(getObject("End").attr("func_code").attr("co_argcount"))();
-		}
-		catch (...) { PyErr_Clear(); __nbargs_of_end = 0; }
+			__nbargs_of_end = func_nb_args(getObject("End"));
 	}
 	else __nbargs_of_end = 0;
 }
@@ -1183,12 +1190,18 @@ LocalContext::globals() const
 
 GlobalContext::GlobalContext():
   LsysContext(){
-    __globals = handle<>(borrowed( PyModule_GetDict(PyImport_AddModule("__main__"))));
+   __globals =   object(handle<>(borrowed(PyModule_GetDict(PyImport_AddModule("__main__")))));
 }
+
+GlobalContext * GlobalContext::get()
+{
+    if(!GLOBAL_LSYSCONTEXT)  GLOBAL_LSYSCONTEXT = new GlobalContext();
+    return GLOBAL_LSYSCONTEXT;    
+}
+
 
 GlobalContext::~GlobalContext()
 {
-
 	if(!(LSYSCONTEXT_STACK.empty() && isCurrent()))
 		while(!isCurrent()) currentContext()->done();
 	assert(LSYSCONTEXT_STACK.empty() && isCurrent() && "LsysContext not all done!");
@@ -1197,7 +1210,7 @@ GlobalContext::~GlobalContext()
 
 PyObject * 
 GlobalContext::globals()  const 
-{ return __globals.get(); }
+{ return __globals.ptr(); }
 
 
 boost::python::object GlobalContext::__reprFunc;
@@ -1215,6 +1228,10 @@ GlobalContext::getFunctionRepr() {
 	return __reprFunc;
 }
 
-
+void
+GlobalContext::clearNamespace() {
+  __locals.clear();
+}
 /*---------------------------------------------------------------------------*/
 
+  
