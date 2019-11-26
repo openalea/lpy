@@ -5,12 +5,12 @@ production:
 
 B :
   params = {}
-  print 'A'
+  print('A')
   if inRightContext('A(x)', params) :
     assert params['x'] == 1
-    print 'G'
+    print('G')
     assert InRightContext(G) == False
-    print 'D'
+    print('D')
     assert InRightContext(D) == True
     produce C
   else:

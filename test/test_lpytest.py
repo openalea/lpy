@@ -13,7 +13,7 @@ def exec_lpy_tst(lfile):
             l = Lsystem(lfile)
             l.iterate()
         except Exception as e :
-            print(('Test file :',lfile))
+            print('Test file :',lfile)
             raise e
     
 toavoid = []
@@ -42,4 +42,8 @@ def test_diese_bug():
         
 if __name__ == '__main__':
     for e,f in test_lpy_tests():
-        e(f)
+        try:
+            e(f)
+        except Exception as e:
+            print('****** FAILED:',f)
+            print(e)

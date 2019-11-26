@@ -12,7 +12,7 @@ production:
 
 $A(a)  :
     assert a.name in 'AB'
-    print a.name,'sons[',a.position(),']=' , a.sons()
+    print(a.name,'sons[',a.position(),']=' , a.sons())
     produce new('A' if a.name == 'B' else 'B')[+$a]$a 
 
 

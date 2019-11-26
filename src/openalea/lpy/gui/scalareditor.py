@@ -261,7 +261,7 @@ class ScalarEditor (QTreeView):
         self.editAction = self.menu.addAction("Edit",self.editMetaScalar)
     def selection(self):
         items = list(set([i.row() for i in self.selectedIndexes()]))
-        items.sort(lambda x,y: -cmp(x,y))
+        items.sort(key = lambda x : -x)
         return items
     def deleteScalars(self):
         for i in self.selection():

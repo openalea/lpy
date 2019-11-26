@@ -1,5 +1,5 @@
-print length
-print mybool
+print(length)
+print(mybool)
 
 initial_view = 5
 

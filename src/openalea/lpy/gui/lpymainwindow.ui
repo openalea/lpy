@@ -1765,29 +1765,29 @@
   <customwidget>
    <class>LpyCodeEditor</class>
    <extends>QTextEdit</extends>
-   <header>lpycodeeditor.h</header>
+   <header>openalea/lpy/gui/lpycodeeditor.h</header>
   </customwidget>
   <customwidget>
    <class>LpyTabBar</class>
    <extends>QWidget</extends>
-   <header>lpytabbar.h</header>
+   <header>openalea/lpy/gui/lpytabbar.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>ScalarEditor</class>
    <extends>QTreeView</extends>
-   <header location="global">scalareditor.h</header>
+   <header location="global">openalea/lpy/gui/scalareditor.h</header>
   </customwidget>
   <customwidget>
    <class>LpyTabBarNeighbor</class>
    <extends>QWidget</extends>
-   <header>lpytabbar.h</header>
+   <header>openalea/lpy/gui/lpytabbar.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>LpyView3D</class>
    <extends>QWidget</extends>
-   <header>lpyview3d.h</header>
+   <header>openalea/lpy/gui/lpyview3d.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

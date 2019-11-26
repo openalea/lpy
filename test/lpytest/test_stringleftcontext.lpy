@@ -4,7 +4,7 @@ derivation length: 1
 production:
 
 I(t) < A :
-    print 'ok',t
+    print('ok',t)
     assert t == 1
 
 interpretation:

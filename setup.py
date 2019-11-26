@@ -5,10 +5,25 @@ __revision__ = "$Id$"
 import os, sys
 pj = os.path.join
 
-from openalea.deploy.metainfo import read_metainfo
-metadata = read_metainfo('metainfo.ini', verbose=True)
-for key,value in metadata.items():
-    exec("%s = '%s'" % (key, value))
+# from openalea.deploy.metainfo import read_metainfo
+# metadata = read_metainfo('metainfo.ini', verbose=True)
+# for key,value in metadata.items():
+# exec("%s = '%s'" % (key, value))
+
+version = '2.7.1'
+release = '2.7'
+project = 'openalea'
+package = 'lpy'
+name = 'OpenAlea.Lpy'
+namespace = 'openalea'
+pkg_name = 'openalea.lpy'
+description = 'Lindenmayer Systems in Python package for OpenAlea.'
+long_description= 'L-Py is a simulation software that mixes L-systems construction with the Python high-level modeling language. '
+authors = 'Frederic Boudon'
+authors_email = 'frederic.boudon@cirad.fr'
+url= 'https://github.com/openalea/lpy'
+# LGPL compatible INRIA license
+license = 'Cecill-C'
 
 ##############
 # Setup script
@@ -31,7 +46,7 @@ print (pkg_name+': version ='+version)
 build_prefix = "build-cmake"
 
 from setuptools import setup
-from openalea.deploy.binary_deps import binary_deps
+# from openalea.deploy.binary_deps import binary_deps
 
 def compile_interface():
     cwd = os.getcwd()

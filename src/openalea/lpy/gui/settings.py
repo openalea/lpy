@@ -94,18 +94,18 @@ def restoreState(lpywidget):
         if fstr != 'default' and f.fromString(fstr):
             #print 'read font',fstr
             lpywidget.codeeditor.setEditionFont(f)
-    settings.endGroup()
-    settings.beginGroup('stdout')
-    lc = settings.value('lpyshell',True)=='true'
-    sc = settings.value('sysconsole',False)=='true'
-    lpywidget.shellwidget.setOutputRedirection(lc,sc,1)
-    settings.endGroup()
+    #settings.endGroup()
+    #settings.beginGroup('stdout')
+    #lc = settings.value('lpyshell',True)=='true'
+    #sc = settings.value('sysconsole',False)=='true'
+    #lpywidget.shellwidget.setOutputRedirection(lc,sc,1)
+    #settings.endGroup()
     
-    settings.beginGroup('stderr')
-    lc = settings.value('lpyshell',True)=='true'
-    sc = settings.value('sysconsole',False)=='true'
-    lpywidget.shellwidget.setOutputRedirection(lc,sc,2)
-    settings.endGroup()
+    #settings.beginGroup('stderr')
+    #lc = settings.value('lpyshell',True)=='true'
+    #sc = settings.value('sysconsole',False)=='true'
+    #lpywidget.shellwidget.setOutputRedirection(lc,sc,2)
+    #settings.endGroup()
     
     settings.beginGroup('edition')
     lpywidget.codeeditor.replaceTab = settings.value('replaceTab',lpywidget.codeeditor.replaceTab)=='true'
@@ -179,19 +179,19 @@ def saveState(lpywidget):
     else:
         settings.setValue('editionfont','default')
     settings.endGroup()
-    if not lpywidget.interpreter is None:
-        settings.beginGroup('stdout')
-        outinshell = lpywidget.shellwidget.hasMultipleStdOutRedirection() or lpywidget.shellwidget.isSelfStdOutRedirection()
-        outinsys   = lpywidget.shellwidget.hasMultipleStdOutRedirection() or lpywidget.shellwidget.isSysStdOutRedirection()
-        settings.setValue('lpyshell',to_qvariant(outinshell))
-        settings.setValue('sysconsole',to_qvariant(outinsys))
-        settings.endGroup()
-        settings.beginGroup('stderr')
-        errinshell = lpywidget.shellwidget.hasMultipleStdErrRedirection() or lpywidget.shellwidget.isSelfStdErrRedirection()
-        errinsys   = lpywidget.shellwidget.hasMultipleStdErrRedirection() or lpywidget.shellwidget.isSysStdErrRedirection()
-        settings.setValue('lpyshell',to_qvariant(errinshell))
-        settings.setValue('sysconsole',to_qvariant(errinsys))
-        settings.endGroup()
+    # if not lpywidget.interpreter is None:
+    #     settings.beginGroup('stdout')
+    #     outinshell = lpywidget.shellwidget.hasMultipleStdOutRedirection() or lpywidget.shellwidget.isSelfStdOutRedirection()
+    #     outinsys   = lpywidget.shellwidget.hasMultipleStdOutRedirection() or lpywidget.shellwidget.isSysStdOutRedirection()
+    #     settings.setValue('lpyshell',to_qvariant(outinshell))
+    #     settings.setValue('sysconsole',to_qvariant(outinsys))
+    #     settings.endGroup()
+    #     settings.beginGroup('stderr')
+    #     errinshell = lpywidget.shellwidget.hasMultipleStdErrRedirection() or lpywidget.shellwidget.isSelfStdErrRedirection()
+    #     errinsys   = lpywidget.shellwidget.hasMultipleStdErrRedirection() or lpywidget.shellwidget.isSysStdErrRedirection()
+    #     settings.setValue('lpyshell',to_qvariant(errinshell))
+    #     settings.setValue('sysconsole',to_qvariant(errinsys))
+    #     settings.endGroup()
     settings.beginGroup('syntax')
     settings.setValue('highlighted',to_qvariant(lpywidget.codeeditor.isSyntaxHighLightActivated()))
     settings.setValue('tabview',to_qvariant(lpywidget.codeeditor.isTabHighLightActivated()))

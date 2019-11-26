@@ -1,5 +1,5 @@
 from openalea.lpy.gui.lpystudio import *
-from openalea.vpltk.qt import qt
+from openalea.plantgl.gui import qt
 import sys,os
 
 class TLPyWindow (LPyWindow):

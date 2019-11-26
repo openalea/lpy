@@ -8,7 +8,7 @@ def Start():
   timer = clock()
 
 def End():
-  print 'time=',clock()-timer
+  print('time=',clock()-timer)
 
 
 derivation length: 100

@@ -6,7 +6,7 @@ derivation length: 1
 production:
 
 A < C :
-    print 'matched'
+    print('matched')
 
 interpretation:
 

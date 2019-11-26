@@ -14,7 +14,7 @@ production:
 
 a > ?F(*arg):
     if getIterationNb() % 10 == 0:
-            print arg
+            print(arg)
 
 homomorphism:
 a --> Frame(2,0.8,1.5)

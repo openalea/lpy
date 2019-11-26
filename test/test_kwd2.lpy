@@ -22,7 +22,7 @@ def End():
   failed = []
   for i,v in enumerate(results):
     if not v:
-      print 'Error on test',i
+      print('Error on test',i)
       failed.append(i)
   if len(failed) > 0: raise ValueError(failed)
 
@@ -31,7 +31,7 @@ production:
 
 *(*args):
   validate(0)
-  print '0 : args=',args
+  print('0 : args=',args)
   assert list(args) == ['A', 1, 2, 3]
 
 *(**kwds):
@@ -40,91 +40,91 @@ production:
 
 *(*args,**kwds):
   validate(2)
-  print '2 : kwd=',kwds , 'args=',args
+  print('2 : kwd=',kwds , 'args=',args)
   assert kwds == {'x': 2, 'name': 'A', 't': 3}
   assert args == [1]
 
 *(name,*args,**kwds):
   validate(3)
-  print '3 : name=',name,'kwd=',kwds , 'args=',args
+  print('3 : name=',name,'kwd=',kwds , 'args=',args)
   assert name == 'A'
   assert kwds == {'x': 2, 't': 3}
   assert args == [1]
 
 *(name,*args):
   validate(20)
-  print '20 : name=',name, 'args=',args
+  print('20 : name=',name, 'args=',args)
   assert name == 'A'
   assert args == [1,2,3]
 
 *(name,**kwds):
   unvalidate(21)
-  print '21 : name=',name,'kwd=',kwds 
+  print('21 : name=',name,'kwd=',kwds )
 
 
 *(name, x, *args, **kwds):
   validate(4)
-  print '4 : name=',name,'x=',x,'kwd=',kwds , 'args=',args
+  print('4 : name=',name,'x=',x,'kwd=',kwds , 'args=',args)
   assert name == 'A' and x == 1
   assert kwds == {'x': 2, 't': 3}
   assert args == []
 
 *(name,x,y,*args,**kwds):
   validate(5)
-  print '5 : name=',name,'x=',x,'y=',y,'kwd=',kwds , 'args=',args
+  print('5 : name=',name,'x=',x,'y=',y,'kwd=',kwds , 'args=',args)
   assert name == 'A' and x == 1 and y == 2
   assert kwds == {'t': 3}
   assert args == []
 
 *(name,x,y,z,*args,**kwds):
   validate(6)
-  print '6 : name=',name,'x=',x,'y=',y,'z=',z,'kwd=',kwds , 'args=',args
+  print('6 : name=',name,'x=',x,'y=',y,'z=',z,'kwd=',kwds , 'args=',args)
   assert name == 'A' and x == 1 and y == 2 and z == 3
   assert kwds == {}
   assert args == []
 
 *(name,**kwds):
   unvalidate(7)
-  print '7 : name=',name,'kwd=',kwds 
+  print('7 : name=',name,'kwd=',kwds )
 
 
 *(name,x,**kwds):
   validate(8)
-  print '8 : name=',name,'x=',x,'kwd=',kwds 
+  print('8 : name=',name,'x=',x,'kwd=',kwds )
   assert name == 'A' and x == 1
   assert kwds == {'x': 2, 't': 3}
 
 *(name,x,y,**kwds):
   validate(9)
-  print '9 : name=',name,'x=',x,'y=',y,'kwd=',kwds 
+  print('9 : name=',name,'x=',x,'y=',y,'kwd=',kwds )
   assert name == 'A' and x == 1 and y == 2
   assert kwds == {'t': 3}
 
 *(name,x,y,z,**kwds):
   validate(10)
-  print '10 : name=',name,'x=',x,'y=',y,'z=',z,'kwd=',kwds 
+  print('10 : name=',name,'x=',x,'y=',y,'z=',z,'kwd=',kwds )
   assert name == 'A' and x == 1 and y == 2 and z == 3
   assert kwds == {}
 
 A(*args):
   validate(11)
-  print '11 : args=',args
+  print('11 : args=',args)
   assert list(args) == [ 1, 2,3]
 
 
 A(**kwds):
   unvalidate(12)
-  print '12 : kwd=',kwds
+  print('12 : kwd=',kwds)
 
 A(*args, **kwds):
   validate(13)
-  print '13 : kwd=',kwds, 'args=',repr(args)
+  print('13 : kwd=',kwds, 'args=',repr(args))
   assert kwds == {'x': 2, 't': 3}
   assert args == [1]
 
 A(x,*args,**kwds):
   validate(14)
-  print '14 : x=',x,'kwd=',kwds , 'args=',args
+  print('14 : x=',x,'kwd=',kwds , 'args=',args)
   assert x == 1
   assert kwds == {'x': 2, 't': 3}
   assert args == []
@@ -132,33 +132,33 @@ A(x,*args,**kwds):
 
 A(x,y,*args,**kwds):
   validate(15)
-  print '15 : x=',x,'y=',y,'kwd=',kwds , 'args=',args
+  print('15 : x=',x,'y=',y,'kwd=',kwds , 'args=',args)
   assert x == 1 and y == 2
   assert kwds == {'t': 3}
   assert args == []
 
 A(x,y,z,*args,**kwds):
   validate(16)
-  print '16 : x=',x,'y=',y,'z=',z,'kwd=',kwds , 'args=',args
+  print('16 : x=',x,'y=',y,'z=',z,'kwd=',kwds , 'args=',args)
   assert x == 1 and y == 2 and z == 3
   assert kwds == {}
   assert args == []
   
 A(x,**kwds):
   validate(17)
-  print '17 : x=',x,'kwd=',kwds 
+  print('17 : x=',x,'kwd=',kwds )
   assert x == 1
   assert kwds == {'x': 2, 't': 3}
 
 A(x,y,**kwds):
   validate(18)
-  print '18 : x=',x,'y=',y,'kwd=',kwds 
+  print('18 : x=',x,'y=',y,'kwd=',kwds )
   assert x == 1 and y == 2
   assert kwds == {'t': 3}
 
 A(x,y,z,**kwds):
   validate(19)
-  print '19 :','x=',x,'y=',y,'z=',z,'kwd=',kwds 
+  print('19 :','x=',x,'y=',y,'z=',z,'kwd=',kwds )
   assert x == 1 and y == 2 and z == 3
   assert kwds == {}
 
