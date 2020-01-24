@@ -30,6 +30,27 @@
 
 #include <plantgl/python/boost_python.h>
 
+
+template <class T>
+boost::python::list py_getslice(T * module, boost::python::slice sl) {
+    int beg = 0;
+    if (sl.start() != boost::python::object()) beg = boost::python::extract<int>(sl.start())();
+    int end = module->size();
+    if (sl.stop() != boost::python::object()) end = boost::python::extract<int>(sl.stop())();
+    return module->getSliceItemAt(beg, end);
+
+}
+
+template <class T>
+void py_delslice(T * module, boost::python::slice sl) {
+    int beg = 0;
+    if (sl.start() != boost::python::object()) beg = boost::python::extract<int>(sl.start())();
+    int end = module->size();
+    if (sl.stop() != boost::python::object()) end = boost::python::extract<int>(sl.stop())();
+    return module->delSliceItemAt(beg, end);
+
+}
+
 template<class ParamModule>
 class module_func : public boost::python::def_visitor<module_func<ParamModule> >
 {
@@ -46,8 +67,8 @@ class module_func : public boost::python::def_visitor<module_func<ParamModule> >
 		 .def("__getitem__",&ParamModule::getItemAt)
 		 .def("__setitem__",&ParamModule::setItemAt)
 		 .def("__delitem__",&ParamModule::delItemAt)
-		 .def("__getslice__",&ParamModule::getSliceItemAt)
-		 .def("__delslice__",&ParamModule::delSliceItemAt)
+		 .def("__getitem__",&py_getslice<ParamModule>)
+		 .def("__delitem__",&py_delslice<ParamModule>)
 		 .def("append",&ParamModule::append)
 		 .def("prepend",&ParamModule::prepend)
 

@@ -11,4 +11,4 @@ def test_stringmatching():
     b = a.begin()
     for i in range(15):
         b.nextValues()
-    assert list(b.values()) == (10,15)
+    assert tuple(b.values()) == (10,15)

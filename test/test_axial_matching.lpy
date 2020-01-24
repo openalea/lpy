@@ -19,7 +19,7 @@ production:
 A(a) < B(b) > [C(c)]D(d) :
     global matched
     matched = True
-    print 'a =',a,',b =',b,',c =',c,',d =',d
+    print('a =',a,',b =',b,',c =',c,',d =',d)
     assert d == 5
     produce B(b)
 

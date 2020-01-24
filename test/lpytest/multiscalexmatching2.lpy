@@ -8,7 +8,7 @@ def StartEach():
     multiscalemode = context().options.find('String matching').currentValue() in ['As Multiscale AxialTree','As Multi-level AxialTree']
     resinf = [0,3]
     ressup = [5 if multiscalemode else 3,2]
-    print context().options.find('String matching').currentValue()
+    print(context().options.find('String matching').currentValue())
     context().options.find('String matching').activateSelection()
 
 def End():
@@ -31,8 +31,8 @@ A :
   while InLeftContext(B) : nbleftB += 1
   resL = resinf.pop(0)
   
-  print 'Expect :', 'B'* resL,'< A >' ,'B'*resR
-  print 'Found  :', 'B'* nbleftB,'< A >' ,'B'*nbrightB
+  print('Expect :', 'B'* resL,'< A >' ,'B'*resR)
+  print('Found  :', 'B'* nbleftB,'< A >' ,'B'*nbrightB)
   
   assert nbrightB == resR
   assert nbleftB == resL

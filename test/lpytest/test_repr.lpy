@@ -3,8 +3,8 @@ class A:
     pass
 
 def EndEach(lstring):
-    print lstring
-    print repr(lstring)
+    print(lstring)
+    print(repr(lstring))
 
 Axiom: B(A())
 

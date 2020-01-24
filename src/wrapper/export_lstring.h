@@ -48,6 +48,22 @@ LString& py_lstring_imult(LString* lstring, int i) {
 	return *lstring;
 }
 
+template<class LString>
+size_t normedindex(LString * tree, boost::python::object pos, bool start = true)
+{ 
+  int ipos = 0;   
+  size_t len = tree->size();
+  if (pos == boost::python::object()) {
+    ipos = (start?0:len);
+  }
+  else {
+    ipos = boost::python::extract<int>(pos)();
+  } 
+  while (ipos < 0) ipos += len;
+  while (ipos > len) ipos -= len;
+  return (size_t)ipos;
+}
+
 
 template<class LString>
 boost::python::object iter_to_int(LString * tree, typename LString::const_iterator pos)
@@ -184,6 +200,24 @@ void py_prepend_lstring(LString * first, const std::string& pattern) { first->pr
 template<class LString>
 void py_insert_lstring(LString * first, int i, const std::string& pattern) { first->insertItemAt(i,LString(pattern)); }
 
+
+template<class LString>
+boost::python::object py_getslice(LString * tree, boost::python::slice sl) 
+{ 
+    size_t start = normedindex(tree,sl.start());
+    size_t stop = normedindex(tree,sl.stop(), false);
+    LString result = tree->template getRange<LString>(start, stop); 
+    return boost::python::object(result);
+}
+
+template<class LString>
+void py_delslice(LString * tree, boost::python::slice sl) 
+{ 
+    size_t start = normedindex(tree,sl.start());
+    size_t stop = normedindex(tree,sl.stop(), false);
+    tree->removeRange(start, stop); 
+}
+
 template<class LString>
 class lstring_func : public boost::python::def_visitor<lstring_func<LString> >
 {
@@ -200,10 +234,10 @@ class lstring_func : public boost::python::def_visitor<lstring_func<LString> >
 		 .def("clear",  &LString::clear)
 		 .def("__len__", &LString::size)
 		 .def("__getitem__",&LString::getItemAt, boost::python::return_internal_reference<1>())
+         .def("__getitem__",&py_getslice<LString>)
 		 .def("__setitem__",&LString::setItemAt)
 		 .def("__delitem__",&LString::removeItemAt)
-		 .def("__getslice__",(LString (LString::*)(size_t,size_t)const)&LString::getRange)
-		 .def("__delslice__",&LString::removeRange)
+		 .def("__delitem__",&py_delslice<LString>)
 		 .def("append",(void(LString::*)(const Module&))&LString::append)
 		 .def("append",(void(LString::*)(const LString&))&LString::append)
 		 .def("append",&py_append_lstring<LString>)
