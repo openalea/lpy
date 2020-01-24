@@ -1,12 +1,15 @@
-# --- L-Py Project
+# --- CMake Modules
 
 cmake_minimum_required(VERSION 3.12)
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include("Anaconda")
+include("pywrapper")
+
+# --- L-Py Project
+
 project(lpy_project CXX)
 
 # --- Build setup
-
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_SKIP_BUILD_RPATH FALSE)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
@@ -19,11 +22,14 @@ if("${isSystemDir}" STREQUAL "-1")
    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 endif("${isSystemDir}" STREQUAL "-1")
 
-# --- CMake Modules
 
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-include("Anaconda")
+# ---  CXX11 Compilation
+
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
 
 # --- (Win32) Multithreaded Compilation
 
@@ -33,11 +39,12 @@ endif()
 
 
 ## ###################################################################
-## Dependencies - Python
+## Dependencies 
 ## ###################################################################
 
-find_package (Python3 COMPONENTS Interpreter Development)
+# --- Python
 
+find_package (Python3 COMPONENTS Interpreter Development)
 include_directories(${Python3_INCLUDE_DIRS})
 
 # --- Libraries
@@ -47,14 +54,16 @@ find_package(Qt5Core CONFIG REQUIRED)
 find_package(Qt5Concurrent CONFIG REQUIRED)
 find_package(PlantGL REQUIRED)
 
-set(BOOST_ROOT $ENV{CONDA_PREFIX})
-set(BOOST_LIBRARYDIR "${BOOST_ROOT}/lib")
+if (USE_CONDA)
+    set(BOOST_ROOT ${CONDA_ENV})
+endif()
 
 set(Boost_NO_SYSTEM_PATHS ON)
 set(Boost_USE_MULTITHREAD ON)
 set(Boost_USE_STATIC_LIBS OFF)
+set(BUILD_SHARED_LIBS ON)
 
-find_package(Boost COMPONENTS system python37 REQUIRED)
+find_package(Boost COMPONENTS system python REQUIRED)
 
 # --- Include Directories
 
@@ -64,7 +73,9 @@ include_directories(${Boost_INCLUDE_DIR})
 
 # --- Library Directory
 
-link_directories("${CONDA_ENV}/lib")
+if (DEFINED CONDA_ENV)
+    link_directories("${CONDA_ENV}/lib")
+endif()
 
 # --- Source Directories
 

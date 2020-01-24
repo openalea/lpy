@@ -1,13 +1,9 @@
-print("DEBUG ===== 1")
-# from openalea.plantgl.gui.qt import qt
-print("DEBUG ===== 2")
+from openalea.plantgl.gui.qt import QT_API, PYQT5_API, PYQT4_API, PYSIDE_API
 from openalea.plantgl.gui.qt.uic import compileUi, compile_args
-print("DEBUG ===== 3")
 
 import os
 import sys
 
-from openalea.plantgl.gui.qt import QT_API, PYQT5_API, PYQT4_API, PYSIDE_API
 
 def get_uifnames_from(fname):
     uiprefix = os.path.splitext(fname)[0]

@@ -8,12 +8,12 @@ add_library(lpy SHARED ${SRC_FILES})
 
 target_link_libraries(lpy ${PLANTGL_LIBRARIES})
 target_link_libraries(lpy Qt5::Core Qt5::Concurrent)
-target_link_libraries(lpy Python3::Python)
+pgllib_link_python(lpy)
 
 # Disable Boost Auto-Link
 target_compile_definitions(lpy PRIVATE BOOST_ALL_NO_LIB)
 
-target_link_libraries(lpy Boost::python37)
+target_link_libraries(lpy Boost::python)
 
 # --- Preprocessor
 
@@ -28,4 +28,4 @@ install(TARGETS lpy LIBRARY DESTINATION "lib")
 
 # --- Install Headers
 
-install(DIRECTORY "." DESTINATION "include" FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp")
+install(DIRECTORY "." DESTINATION "include/lpy" FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp")
