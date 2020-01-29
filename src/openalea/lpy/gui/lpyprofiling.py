@@ -1,9 +1,9 @@
-from openalea.vpltk.qt import qt
-from openalea.vpltk.qt.QtCore import QObject, Qt, pyqtSignal
-from openalea.vpltk.qt.QtGui import QStandardItem, QStandardItemModel
+from openalea.plantgl.gui.qt import qt
+from openalea.plantgl.gui.qt.QtCore import QObject, Qt, pyqtSignal
+from openalea.plantgl.gui.qt.QtGui import QStandardItem, QStandardItemModel
 import os
 
-AnimatedProfiling, ProfilingWithFinalPlot, ProfilingWithNoPlot = range(3)
+AnimatedProfiling, ProfilingWithFinalPlot, ProfilingWithNoPlot = list(range(3))
 
 
 class MyItem(QStandardItem):
@@ -22,8 +22,8 @@ def profileItem(st,rule_table=None,timing= None, gfname = None):
         si = MyItem(st.code)
     else:
         n = st.code.co_name
-        p = '('+','.join([st.code.co_varnames[i] for i in xrange(st.code.co_argcount)])+')'
-        if rule_table.has_key(n):
+        p = '('+','.join([st.code.co_varnames[i] for i in range(st.code.co_argcount)])+')'
+        if n in rule_table:
             n = rule_table[n]
             n += ':'+p
         else:
@@ -53,7 +53,7 @@ def sort_stats(stats):
         def __init__(self,entry):
             self.entry = entry
             if hasattr(entry,'calls') and not entry.calls is None:
-                self.calls = map(StEntry,list(entry.calls))
+                self.calls = list(map(StEntry,list(entry.calls)))
             else:
                 self.calls = []
         def __getattr__(self,name):
@@ -63,13 +63,13 @@ def sort_stats(stats):
     statdict = {}
     for s in stats:
         statdict[s.code] = StEntry(s)
-    v = statdict.values()
+    v = list(statdict.values())
     for s in v:
         for subs in s.calls:
-            if statdict.has_key(subs.code) and subs.entry.callcount == statdict[subs.code].entry.callcount:
+            if subs.code in statdict and subs.entry.callcount == statdict[subs.code].entry.callcount:
                 subs.calls = statdict[subs.code].calls
                 del statdict[subs.code]
-    return statdict.values()
+    return list(statdict.values())
 
 class ProfileItemModel (QStandardItemModel):
     def __init__(self,a,b,table,lpywidget,fname):

@@ -167,7 +167,7 @@ void export_LsysRule(){
 	.def("newLeftContext", &LsysRule::newLeftContext, boost::python::return_internal_reference<1>())
 	.def("rightContext", &LsysRule::rightContext, boost::python::return_internal_reference<1>())
 	.def("newRightContext", &LsysRule::newRightContext, boost::python::return_internal_reference<1>())
-	.def("function",   &LsysRule::function, boost::python::return_internal_reference<1>())
+	.def("function",   &LsysRule::function, boost::python::return_value_policy<boost::python::return_by_value>()) //, boost::python::return_internal_reference<1>())
 	.def("definition", &LsysRule::definition, boost::python::return_internal_reference<1>())
 	.def("isCompiled",&LsysRule::isCompiled)
 	.def("compile",(void(LsysRule::*)())&LsysRule::compile)

@@ -14,15 +14,15 @@ maxlength = 3
 
 def test_AT( nb = maxlength, size = maxsize):
     """ Test creation of AxialTree """
-    for i in xrange(nb):
+    for i in range(nb):
         a = AxialTree('F'*size)
         del a
 
 def test_PAT( nb = maxlength, size = maxsize):
     """ Test creation of Parametric AxialTree """
-    for i in xrange(nb):
+    for i in range(nb):
         a = AxialTree()
-        for j in xrange(size):
+        for j in range(size):
             a += 'F('+str(j)+')'
         del a
 
@@ -31,7 +31,7 @@ def test_LsRuleWithGlobalContext():
     l = LsysRule()
     try:
         l.set('F --> F')
-    except NameError,e :
+    except NameError as e :
         import warnings
         warnings.warn("GlobalContext has not lpy symbols")
 
@@ -57,7 +57,7 @@ def lnLs(l = 8):
     else:
         res = 6
         a = 5
-        for i in xrange(l-2):
+        for i in range(l-2):
             res += a*6
             a *= 5
         res += a*11

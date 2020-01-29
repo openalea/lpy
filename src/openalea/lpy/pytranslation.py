@@ -7,7 +7,7 @@ def splitmodules(text):
     last = it
     while it < len(text):
         c = text[it]
-        print it, c
+        print(it, c)
         if c.isspace():
             pot = it
             while c.isspace() and it < len(text):
@@ -42,7 +42,7 @@ def splitmodules(text):
             last = it
         else:
             m = ModuleClass.get(text[last:it+1]) 
-            print repr(text[last:it+1]), m
+            print(repr(text[last:it+1]), m)
             if m is None or m.name == '':
                 it += 1
             elif it < len(text)-1 and text[it+1] == '(':

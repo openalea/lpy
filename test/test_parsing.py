@@ -8,7 +8,7 @@ def test_lstring2py():
 	declare('tralala,toto')
 	lstr = 'FF[+F]tralala(2)[toto]'
 	l = eval(lstring2py(lstr))
-	print l
+	print(l)
 	assert len(l) == 10
 	ax = AxialTree(l)
 	assert len(ax) == 10
@@ -72,9 +72,9 @@ def test_format_reading(verbose = False):
     version = 2.5
     s = LpyParsing.VersionTag % version 
     s+='\n'
-    print s
+    print(s)
     read_version = LpyParsing.getFormatVersion(s)
-    print read_version
+    print(read_version)
     assert read_version == version
     supported_versions = LpyParsing.formats
     for v in supported_versions:
@@ -108,16 +108,16 @@ def test_multi_line_production(verbose = False):
     l.set(lmlcode)
     try:
         l.iterate()
-    except Exception,e:
+    except Exception as e:
         import sys         
         lineno = tb.extract_tb(sys.exc_info()[2])[-1][1]
         assert lineno == 10
         
 if __name__ == '__main__':    
-    test_func = [ (n,v) for n,v in globals().items() if 'test' in n]
-    test_func.sort(lambda x,y : cmp(x[1].func_code.co_firstlineno,y[1].func_code.co_firstlineno))
+    test_func = [ (n,v) for n,v in list(globals().items()) if 'test' in n]
+    test_func.sort(lambda x,y : cmp(x[1].__code__.co_firstlineno,y[1].__code__.co_firstlineno))
     for tfn,tf in test_func:
-        print tfn
+        print(tfn)
         try:
             tf()
         except:

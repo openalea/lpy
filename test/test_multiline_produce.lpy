@@ -1,6 +1,6 @@
 def End(lstring):
     assert len(lstring) == 3
-    for i in xrange(3):
+    for i in range(3):
       n = lstring[i].name
       assert n != '\n'
       assert n != '\r'

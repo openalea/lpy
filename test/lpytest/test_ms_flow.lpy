@@ -9,7 +9,7 @@ unitwidth = 0.3
 nodewidth = 0.4
 
 def EndEach(lstring):
-  #print lstring
+  #print(lstring)
   pass 
 
 Axiom: _(nodewidth)-(90)G
@@ -21,11 +21,11 @@ decomposition:
 
 G :
   nproduce ELU(1)I(1)
-  for i in xrange(nbINode-1):
+  for i in range(nbINode-1):
       nproduce I(0)
-  for i in xrange(nbUnit-1):
+  for i in range(nbUnit-1):
     nproduce U(0)
-    for j in xrange(nbINode):
+    for j in range(nbINode):
       nproduce I(0)
   produce EL
 

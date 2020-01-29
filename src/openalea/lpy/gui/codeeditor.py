@@ -7,7 +7,7 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from openalea.vpltk.qt import qt
+from openalea.plantgl.gui.qt import qt
 
 class Ui_CodeEditor(object):
     def setupUi(self, CodeEditor):

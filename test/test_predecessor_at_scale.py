@@ -5,7 +5,7 @@ module U,E : scale = 1
 module I,L : scale = 2 
 Axiom: 
   nproduce E L U I I I 
-  for i in xrange(1):
+  for i in range(1):
     nproduce U I I I
   nproduce E L
 '''
@@ -33,17 +33,17 @@ def test_predecessor_at_scale(assertion = True):
     l.setCode(lsysbasecode)
     l.makeCurrent()
     lstring = l.axiom
-    print lstring
+    print(lstring)
     for i,m in enumerate(lstring):
         pred = lstring.predecessor_at_scale(i,1)
         pred2 = lstring.predecessor_at_scale(i,2)
-        print i,m,
-        print '\t',pred,
-        if not pred is None: print lstring[pred],
-        print '\t',pred == res_1[i],
-        print '\t',pred2,
-        if not pred2 is None: print lstring[pred2],
-        print '\t',pred2 == res_2[i]
+        print(i,m, end=' ')
+        print('\t',pred, end=' ')
+        if not pred is None: print(lstring[pred], end=' ')
+        print('\t',pred == res_1[i], end=' ')
+        print('\t',pred2, end=' ')
+        if not pred2 is None: print(lstring[pred2], end=' ')
+        print('\t',pred2 == res_2[i])
         if assertion:
             assert pred == res_1[i] and pred2 == res_2[i]
 

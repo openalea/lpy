@@ -16,7 +16,7 @@
 ################################################################################
 
 
-#from openalea.vpltk import qt
+#from openalea.plantgl.gui import qt
 # RedirectionEventId = qt.QtCore.QEvent.User + 100
 
 import sys

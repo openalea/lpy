@@ -603,7 +603,7 @@ void Lsystem::addSubLsystem(const std::string& lfile)
 
 void Lsystem::addSubLsystem(const Lsystem& sublsystem)
 {
-	printf("Add info from sublsystem '%s'",sublsystem.getFilename().c_str());
+	printf("Add info from sublsystem '%s'\n",sublsystem.getFilename().c_str());
 	context()->importContext(*sublsystem.context());
 	size_t groupid = 0;
 	for(std::vector<RuleGroup>::const_iterator itg = sublsystem.__rules.begin(); itg != sublsystem.__rules.end(); ++itg, ++groupid)
@@ -1205,7 +1205,7 @@ Lsystem::__recursiveInterpretation(AxialTree& workingstring,
 
 		PglTurtle& turtle;
 		LsysContext& context;
-		TOOLS::Sequencer timer;
+		PGL_NAMESPACE_NAME::Sequencer timer;
 
 		inline bool earlyReturn() { return context.isEarlyReturnEnabled(); }
 

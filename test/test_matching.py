@@ -13,7 +13,7 @@ def test_matchingmode():
     l = Lsystem()
     modes = { 0: PatternModule.eSimple, 1: PatternModule.eWithStar , 2: PatternModule.eWithStarNValueConstraint }
     l.set(lcode_matchingmode)
-    for key,val in modes.items():        
+    for key,val in list(modes.items()):        
         l.context().options.setSelection('Module matching',key)
         l.context()['mode'] = val
         l.iterate()
@@ -31,7 +31,7 @@ def EndEach():
 """
 
 
-def runmatch(code,optionvalues = range(3)): 
+def runmatch(code,optionvalues = list(range(3))): 
     if type(optionvalues) == int:
         optionvalues = [optionvalues]
     for i in range(3):        
@@ -44,7 +44,7 @@ def runmatch(code,optionvalues = range(3)):
             try:
                 l.set(lcodebeg+code)
                 l.iterate()
-                print "Test do not fail for unsupported module matching mode : %i." % i
+                print(("Test do not fail for unsupported module matching mode : %i." % i))
                 warnings.warn("Test do not fail for unsupported module matching mode : %i." % i)
             except:
                 pass
@@ -162,7 +162,7 @@ A(*args) :
 
 def test_match_mod_with_stararg():
     """ Test matching of module with pattern with a star arg as argument """
-    runmatch(lcodemodwithstararg,range(1,3))
+    runmatch(lcodemodwithstararg,list(range(1,3)))
 
 ########################################################
 
@@ -179,7 +179,7 @@ A(*args) :
 
 def test_match_mod_with_stararg_for_two():
     """ Test matching of module with pattern with a star arg as argument """
-    runmatch(lcodemodwithstararg_for_two,range(1,3))
+    runmatch(lcodemodwithstararg_for_two,list(range(1,3)))
 
 ########################################################
 
@@ -194,7 +194,7 @@ A(*args) :
 
 def test_match_mod_with_stararg_for_zero():
     """ Test matching of module with pattern with a star arg as argument """
-    runmatch(lcodemodwithstararg_for_zero,range(1,3))
+    runmatch(lcodemodwithstararg_for_zero,list(range(1,3)))
 
 ########################################################
 
@@ -461,10 +461,10 @@ def test_simple_match() :
 
 if __name__ == '__main__':
     import traceback as tb
-    test_func = [ (n,v) for n,v in globals().items() if 'test' in n]
-    test_func.sort(lambda x,y : cmp(x[1].func_code.co_firstlineno,y[1].func_code.co_firstlineno))
+    test_func = [ (n,v) for n,v in list(globals().items()) if 'test' in n]
+    test_func.sort(lambda x,y : cmp(x[1].__code__.co_firstlineno,y[1].__code__.co_firstlineno))
     for tfn,tf in test_func:
-        print tfn
+        print(tfn)
         try:
             tf()
         except:

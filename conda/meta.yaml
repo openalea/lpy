@@ -1,13 +1,12 @@
-# do not edit the following line. It will be updated automatically
-{% set version = "2.7.2" %}
+#{% set version = "2.7.2" %}
+{% set data = load_setup_py_data() %}
 
 package:
   name: openalea.lpy
-  version: {{ version }}
+  version: {{ data.get('version') }}
 
 source:
   path: ..
-
 
 about:
   home: https://github.com/openalea/lpy
@@ -16,39 +15,43 @@ about:
 
 build:
   preserve_egg_dir: True
-  number: 1
-
+  number: 3
 requirements:
   build:
-   - python
-   - setuptools
-   - openalea.deploy
-   - scons
-   - openalea.sconsx
-   - openalea.plantgl
-   - boost
-   - qt
-   - pyqt
-   - openalea.vpltk
+    - binutils_impl_linux-64<2.31.0 # [linux]
+    - {{ compiler('cxx') }}
+    - python {{PY_VER}}
+    - cmake >=3.12.0
+    - pkg-config                        # [linux]
+    - make                              # [unix]
+    - menuinst                          # [win]
+  host:
+    - python {{PY_VER}}
+    - setuptools
+    - openalea.plantgl
+    - boost
+    - pyqt
   run:
-   - openalea.plantgl
-   - boost
-   - qt
-   - pyqt
-   - openalea.vpltk
-   - ipython
-   - qtconsole
-   - pyopengl
-   - pyqglviewer
-
-test:
-  requires:
-    - nose
-  imports:
-    - openalea.lpy
-  source_files:
-    - test/
-    - share/
-  commands:
-    - nosetests -v -I test_predecessor_at_scale.py -I test_ui.py [unix]
-    - nosetests -v -I test_predecessor_at_scale.py -I test_ui.py -I test_axialtree.py -I test_successor_at_scale.py [win]
+    - python {{PY_VER}}
+    - setuptools
+    - openalea.plantgl
+    - boost
+    - pyqt
+    - ipython
+    - pyopengl
+    - qtconsole
+    - pyqglviewer
+    # - scipy
+    # - matplotlib
+    # - openalea.mtg
+# test:
+#   requires:
+#     - nose
+#   imports:
+#     - openalea.lpy
+#   source_files:
+#     - test/
+#     - share/
+#   commands:
+#     - nosetests -v -I test_predecessor_at_scale.py -I test_ui.py [unix]
+#     - nosetests -v -I test_predecessor_at_scale.py -I test_ui.py -I test_axialtree.py -I test_successor_at_scale.py [win]

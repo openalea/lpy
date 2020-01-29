@@ -16,9 +16,9 @@ A --> BA
     l.test1 = 2
     assert l.test1 == 2
     assert l.context()['test1'] == 2
-    print 'Axiom:',l.axiom 
+    print(('Axiom:',l.axiom)) 
     l.axiom = 'B'
-    print l.axiom, type(l.axiom)
+    print((l.axiom, type(l.axiom)))
     assert type(l.axiom) == AxialTree and l.axiom == Lstring('B')
         
 if __name__ == '__main__':

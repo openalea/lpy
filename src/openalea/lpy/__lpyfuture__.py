@@ -15,7 +15,7 @@ def __check_discard_string(lstring):
    __last_string = lpy.Lstring(lstring)
 
 def enable_string_discard(endeach):
-    endeach_arg_nb = endeach.func_code.co_argcount
+    endeach_arg_nb = endeach.__code__.co_argcount
     if endeach_arg_nb == 0:
         def wrapped(lstring):
            global __string_discarded, __last_string
@@ -60,13 +60,13 @@ def pushString( stringname ):
 
 def popString( stringname ):
     global __pop_string
-    if not __string_stack.has_key(stringname):
+    if stringname not in __string_stack:
         raise ValueError('Stack of string has not string named '+repr(stringname))
     __pop_string = stringname
     return __string_stack[stringname]
     
 def enable_string_pushpop(endeach):
-    endeach_arg_nb = endeach.func_code.co_argcount
+    endeach_arg_nb = endeach.__code__.co_argcount
     def check_push_pop(lstring, res):
         global __push_string, __pop_string, __string_stack
         if not __push_string is None:

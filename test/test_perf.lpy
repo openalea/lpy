@@ -8,14 +8,14 @@ def Start():
   timer = clock()
 
 def End():
-  print 'time=',clock()-timer
+  print('time=',clock()-timer)
 
 
 derivation length: 100
 production:
 
 A :
-  for i in xrange(1000):
+  for i in range(1000):
     nproduce BC(0)C(0)C(0)C(0)C(0)C(0)C(0)C(0)C(0)C(0)C(0)C(0)C(0)C(0)C(0)C(0)C(0)C(0)C(0)C(0)
 
 C(x) --> C(0)
