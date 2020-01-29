@@ -1,10 +1,9 @@
-from openalea.plantgl.gui.qt import qt
+from openalea.plantgl.gui.qt import QT_API, PYQT5_API, PYQT4_API, PYSIDE_API
 from openalea.plantgl.gui.qt.uic import compileUi, compile_args
 
 import os
 import sys
 
-from openalea.plantgl.gui.qt import QT_API, PYQT5_API, PYQT4_API, PYSIDE_API
 
 def get_uifnames_from(fname):
     uiprefix = os.path.splitext(fname)[0]

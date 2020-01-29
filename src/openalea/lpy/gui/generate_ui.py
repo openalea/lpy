@@ -6,7 +6,9 @@ except:
     py2exe_release = False
 
 if not py2exe_release:
-    import openalea.lpy.gui.compile_ui as ui
+    import compile_ui as ui
+#   from . import compile_ui as ui
+    print("Generate Ui - imported")
     import os.path
     ldir    = os.path.dirname(__file__)
     print("Generate Ui")

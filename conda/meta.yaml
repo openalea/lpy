@@ -1,9 +1,9 @@
-# do not edit the following line. It will be updated automatically
-{% set version = "2.7.2" %}
+#{% set version = "2.7.2" %}
+{% set data = load_setup_py_data() %}
 
 package:
   name: openalea.lpy
-  version: {{ version }}
+  version: {{ data.get('version') }}
 
 source:
   path: ..
@@ -15,44 +15,43 @@ about:
 
 build:
   preserve_egg_dir: True
-  number: 1
-  features:
-    - vc9         [win and py27]
-    - vc14        [win and py37]
-  track_features:
-    - vc9         [win and py27]
-    - vc14        [win and py37]
-
+  number: 3
 requirements:
   build:
-   - python
-   - openalea.plantgl
-   - boost
-   - qt =5
-   - pyqt
-   - openalea.deploy
-   - setuptools
+    - binutils_impl_linux-64<2.31.0 # [linux]
+    - {{ compiler('cxx') }}
+    - python {{PY_VER}}
+    - cmake >=3.12.0
+    - pkg-config                        # [linux]
+    - make                              # [unix]
+    - menuinst                          # [win]
+  host:
+    - python {{PY_VER}}
+    - setuptools
+    - openalea.plantgl
+    - boost
+    - pyqt
   run:
-   - python
-   - openalea.plantgl
-   - boost
-   - qt =5
-   - pyqt
-   - ipython
-   - qtconsole
-   - pyopengl
-   - pyqglviewer
-   - vs2008_runtime [win and py27]
-   - vs2015_runtime [win and py37]
-
-test:
-  requires:
-    - nose
-  imports:
-    - openalea.lpy
-  source_files:
-    - test/
-    - share/
-  commands:
-    - nosetests -v -I test_predecessor_at_scale.py -I test_ui.py [unix]
-    - nosetests -v -I test_predecessor_at_scale.py -I test_ui.py -I test_axialtree.py -I test_successor_at_scale.py [win]
+    - python {{PY_VER}}
+    - setuptools
+    - openalea.plantgl
+    - boost
+    - pyqt
+    - ipython
+    - pyopengl
+    - qtconsole
+    - pyqglviewer
+    # - scipy
+    # - matplotlib
+    # - openalea.mtg
+# test:
+#   requires:
+#     - nose
+#   imports:
+#     - openalea.lpy
+#   source_files:
+#     - test/
+#     - share/
+#   commands:
+#     - nosetests -v -I test_predecessor_at_scale.py -I test_ui.py [unix]
+#     - nosetests -v -I test_predecessor_at_scale.py -I test_ui.py -I test_axialtree.py -I test_successor_at_scale.py [win]

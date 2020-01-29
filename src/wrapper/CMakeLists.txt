@@ -8,12 +8,12 @@ add_library(__lpy_kernel__ SHARED ${SRC_FILES})
 
 target_link_libraries(__lpy_kernel__ lpy)
 target_link_libraries(__lpy_kernel__ ${PLANTGL_LIBRARIES})
-target_link_libraries(__lpy_kernel__ Python3::Python)
+pgllib_link_python(__lpy_kernel__)
 
 # Disable Boost Auto-Link
 target_compile_definitions(__lpy_kernel__ PRIVATE BOOST_ALL_NO_LIB)
 
-target_link_libraries(__lpy_kernel__ Boost::system Boost::${BOOST_PYTHON_LIB})
+target_link_libraries(__lpy_kernel__ Boost::system Boost::python)
 
 # --- Dependencies
 
@@ -21,14 +21,5 @@ add_dependencies(__lpy_kernel__ lpy)
 
 # --- Output Library
 
-set_target_properties(__lpy_kernel__ PROPERTIES PREFIX "")
+pglwrapper_install(__lpy_kernel__)
 
-if (WIN32)
-    set_target_properties(__lpy_kernel__ PROPERTIES SUFFIX ".pyd")
-endif()
-
-if (APPLE)
-    set_target_properties(__lpy_kernel__ PROPERTIES SUFFIX ".so")
-endif()
-
-install(TARGETS __lpy_kernel__ DESTINATION "${CMAKE_SOURCE_DIR}/src/openalea/lpy")
