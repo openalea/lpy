@@ -59,12 +59,13 @@ ${PYTHON} setup.py install --prefix=${PREFIX}
 
 echo
 echo "****** CHECK PYTHON LIB"
-ls -R $PREFIX/lib/python3.7/site-packages/OpenAlea.Lpy-2.7.2-py3.7.egg/
-cat $PREFIX/lib/python3.7/site-packages/OpenAlea.Lpy-2.7.2-py3.7.egg/openalea/__init__.py
 
 # To check if Python lib is not in the dependencies with conda-forge distribution.
 # See https://github.com/conda-forge/boost-feedstock/issues/81
-#if [ `uname` = "Darwin" ]; then
-#    otool -L `${PYTHON} -c "import openalea.lpy.__lpy_kernel__ as lpy ; print(lpy.__file__)"`
-#fi
+if [ `uname` = "Darwin" ]; then
+    alias ldd='otool -L'
+fi
+
+ldd `${PYTHON} -c "import openalea.lpy.__lpy_kernel__ as lpy ; print(lpy.__file__)"`
+
 echo "****** END OF BUILD PROCESS"
