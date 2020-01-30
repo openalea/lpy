@@ -6,7 +6,7 @@ environment:
   matrix:
   # Add here environement variables to control the Travis CI build
     - CONDA_RECIPE: conda
-      CONDA_VERSION: 2
+      CONDA_VERSION: 3
 
 install:
   - git clone https://github.com/OpenAlea/appveyor-ci.git appveyor-ci
