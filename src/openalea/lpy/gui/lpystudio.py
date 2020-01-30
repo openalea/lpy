@@ -2,6 +2,7 @@ import sys
 import os
 import stat
 import shutil
+import asyncio
 
 # for py2exe
 try:
@@ -12,21 +13,21 @@ try:
 except:
     py2exe_release = False
 
-import qt_check 
-import openalea.vpltk.qt.QtCore
+from . import qt_check 
+import openalea.plantgl.gui.qt.QtCore
 try:
    import PyQGLViewer
-except ImportError, e:
+except ImportError as e:
     PyQGLViewer = None
 
 
 import traceback as tb
-import documentation as doc
-import settings
-import lpypreferences
-from simulation import LpySimulation
-from killsimulationdialog import KillSimulationDialog
-from objectpanel import ObjectPanelManager
+from . import documentation as doc
+from . import settings
+from . import lpypreferences
+from .simulation import LpySimulation
+from .killsimulationdialog import KillSimulationDialog
+from .objectpanel import ObjectPanelManager
 
 try:
     import matplotlib
@@ -38,14 +39,14 @@ from openalea.plantgl.all import Viewer, eStatic, eAnimatedPrimitives, eAnimated
 from openalea.lpy import *
 
 
-from openalea.vpltk.qt.compat import *
-from openalea.vpltk.qt.QtCore import QCoreApplication, QEvent, QMutex, QObject, QThread, QWaitCondition, Qt, pyqtSignal, pyqtSlot
-from openalea.vpltk.qt.QtGui import QIcon, QPixmap, QTextCursor
-from openalea.vpltk.qt.QtWidgets import QAction, QApplication, QDialog, QFileDialog, QInputDialog, QMainWindow, QMessageBox, QTabBar
+from openalea.plantgl.gui.qt.compat import *
+from openalea.plantgl.gui.qt.QtCore import QCoreApplication, QEvent, QMutex, QObject, QThread, QWaitCondition, QTimer, Qt, pyqtSignal, pyqtSlot
+from openalea.plantgl.gui.qt.QtGui import QIcon, QPixmap, QTextCursor
+from openalea.plantgl.gui.qt.QtWidgets import QAction, QApplication, QDialog, QFileDialog, QInputDialog, QMainWindow, QMessageBox, QTabBar
 try:
-    from openalea.vpltk.qt.QtPrintSupport import QPrintDialog, QPrinter
+    from openalea.plantgl.gui.qt.QtPrintSupport import QPrintDialog, QPrinter
 except:
-    from openalea.vpltk.qt.QtGui import QPrintDialog, QPrinter
+    from openalea.plantgl.gui.qt.QtGui import QPrintDialog, QPrinter
 
 
 # Restore default signal handler for CTRL+C
@@ -54,13 +55,12 @@ except:
 # Add local dir as import dir
 sys.path = ['']+sys.path
 
-import generate_ui
-
-import lpydock
-import lpymainwindow as lsmw
-from computationtask import *
-from lpystudiodebugger import LpyVisualDebugger
-from lpyprofiling import AnimatedProfiling, ProfilingWithFinalPlot, ProfilingWithNoPlot
+from . import generate_ui
+from . import lpydock
+from . import lpymainwindow as lsmw
+from .computationtask import *
+from .lpystudiodebugger import LpyVisualDebugger
+from .lpyprofiling import AnimatedProfiling, ProfilingWithFinalPlot, ProfilingWithNoPlot
 
 
 class LpyPlotter:
@@ -94,7 +94,6 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         ComputationTaskManager.__init__(self)
         lsmw.Ui_MainWindow.__init__(self)
 
-
         import weakref
         LPyWindow.instances.append(weakref.ref(self))
 
@@ -102,6 +101,9 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         self.setupUi(self)
         self.editToolBar.hide()
         lpydock.initDocks(self)
+
+        QTimer.singleShot(1000, lambda: lpydock.initShell(self))
+
         self.preferences = lpypreferences.LpyPreferences(self)
         icon = QIcon()
         icon.addPixmap(QPixmap(":/images/icons/history.png"),QIcon.Normal,QIcon.Off)
@@ -257,11 +259,11 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         return available
     
     def retrieve_official_lpy_version(self):
-        import urllib2
+        import urllib.request, urllib.error, urllib.parse
         versionurl = 'https://raw.githubusercontent.com/VirtualPlants/lpy/master/src/openalea/lpy/__version__.py'
         try:
-            response = urllib2.urlopen(versionurl)
-        except urllib2.URLError, ue:
+            response = urllib.request.urlopen(versionurl)
+        except urllib.error.URLError as ue:
             import openalea.lpy.__version__ as lv
             return lv.__version_number__, lv.LPY_VERSION_STR
         else:
@@ -277,7 +279,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
             self.svnLastDateChecked = time.time()
             officialversion,offverstring = self.retrieve_official_lpy_version()
             if lv.__version_number__ < officialversion:
-                QMessageBox.information(self,"Lpy Update","Your version is "+lv.LPY_VERSION_STR+".\nA new version of lpy seems available on github :"+offverstring+"\nPlease update sources of lpy, plantgl, vpltk and recompile.")
+                QMessageBox.information(self,"Lpy Update","Your version is "+lv.LPY_VERSION_STR+".\nA new version of lpy seems available on github :"+offverstring+"\nPlease update sources of lpy, plantgl, plantgl.gui and recompile.")
             elif not silent:
                 QMessageBox.information(self,"Lpy Update","Your version is "+lv.LPY_VERSION_STR+".\nYou are up-to-date!")
             else:
@@ -361,7 +363,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
             id = self.currentSimulationId
         if self.simulations[id].close():
             self.documentNames.removeTab(id)
-            for i in xrange(id+1,len(self.simulations)):
+            for i in range(id+1,len(self.simulations)):
                 self.simulations[i].index = i-1
 
             self.textEditionWatch = False
@@ -457,7 +459,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
                 self.killsimudialog.run(self.isRunning,self.killTask)
             else:
                 if self.isRunning():
-                    print "Force release"
+                    print("Force release")
                 self.releaseCR()
     def customEvent(self,event):
         self.viewer_plot(event.scene)
@@ -556,7 +558,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         self.releaseCR()
         self.currentSimulation().restoreState()
     def recoverPreviousFiles(self):
-        import lpytmpfile as tf
+        from . import lpytmpfile as tf
         import os
         torecover = tf.getPreviousTmpLpyFiles()
         nbrecoverfile = len(torecover)
@@ -736,7 +738,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
           self.releaseCR()      
     def debug(self):
       if self.debugMode == True:
-        self.debugger.next()
+        next(self.debugger)
       else:
         self.debugMode = True
         self.acquireCR()
@@ -811,8 +813,8 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         self.releaseCR()
     def appendInHistory(self,fname):
         if fname is None:
-            print 'Wrong added file in history'
-        fname = unicode(fname)
+            print('Wrong added file in history')
+        fname = str(fname)
         if not fname in self.history:
             self.history.insert(0,fname)
         elif fname == self.history[0]:
@@ -822,7 +824,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
             del self.history[self.historymaxsize:]
         self.createRecentMenu()        
     def removeInHistory(self,fname):
-        fname = unicode(fname)
+        fname = str(fname)
         if fname in self.history:
             self.history.remove(fname)
             self.createRecentMenu()
@@ -844,7 +846,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         iconfile.addPixmap(QPixmap(":/images/icons/codefile.png"),QIcon.Normal,QIcon.Off)
         iconfolder = QIcon()
         iconfolder.addPixmap(QPixmap(":/images/icons/fileopen.png"),QIcon.Normal,QIcon.Off)
-        from openalea.deploy.shared_data import shared_data
+        from openalea.lpy.gui.shared_data import shared_data
         import openalea.lpy
         shared_data_path = shared_data(openalea.lpy.__path__, share_path='share/tutorial')
         if not shared_data_path is None:
@@ -866,7 +868,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
                         action.setIcon(iconfile)
                         cmenu.addAction(action)
     def recentMenuAction(self,action):
-        self.openfile(unicode(action.data()))
+        self.openfile(str(action.data()))
     def clearHistory(self):
         self.history = []
         self.createRecentMenu()
@@ -897,7 +899,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         import webbrowser
         webbrowser.open("http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=packages:vplants:lpy:main")
     def initSVNMenu(self):
-        import svnmanip
+        from . import svnmanip
         if not svnmanip.hasSvnSupport() :
             self.menuSVN.setEnabled(False)
         else:
@@ -910,7 +912,8 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
             self.actionSVNIsUpToDate.triggered.connect(self.svnIsUpToDate) # QObject.connect(self.actionSVNIsUpToDate, SIGNAL('triggered(bool)'),self.svnIsUpToDate)
 
     def updateSVNMenu(self):
-        import svnmanip, os
+        from . import svnmanip
+        import os
         if svnmanip.hasSvnSupport() :
             fname = self.currentSimulation().fname
 
@@ -949,20 +952,20 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         
 def versionmessage():
     import openalea.lpy.__version__ as lpyversion
-    print 'L-Py, version '+lpyversion.LPY_VERSION_STR
+    print('L-Py, version '+lpyversion.LPY_VERSION_STR)
 
 def help():
     versionmessage()
-    print 'Frederic Boudon et al., Virtual Plants, CIRAD/INRIA/INRA'
-    print 
-    print 'lpy [OPTIONS] [FILES]'
-    print 'OPTIONS:'
-    print '--help    : print this help'
-    print '--version : print version of the software.'
-    print '--safe | --no-safe: load settings in a safe or no safe mode'
-    print '--run lpyfile: run an lpymodel'
-    print
-    print 'See http://openalea.gforge.inria.fr/wiki/doku.php?id=packages:vplants:lpy:main for more documentation' 
+    print('Frederic Boudon et al., Virtual Plants, CIRAD/INRIA/INRA')
+    print() 
+    print('lpy [OPTIONS] [FILES]')
+    print('OPTIONS:')
+    print('--help    : print this help')
+    print('--version : print version of the software.')
+    print('--safe | --no-safe: load settings in a safe or no safe mode')
+    print('--run lpyfile: run an lpymodel')
+    print()
+    print('See http://openalea.gforge.inria.fr/wiki/doku.php?id=packages:vplants:lpy:main for more documentation') 
 
 def runmodel(fname):
     from openalea.lpy import Lsystem
@@ -996,9 +999,14 @@ def main():
         return
 
     toopen = []
-    if len(args) > 1: toopen = map(os.path.abspath,args[1:])
+    if len(args) > 1: toopen = list(map(os.path.abspath,args[1:]))
 
     qapp = QApplication([])
+    try:
+        qapp.setAttribute(Qt.AA_DisableHighDpiScaling)
+        assert qapp.testAttribute(Qt.AA_DisableHighDpiScaling)
+    except:
+        pass
     splash = doc.splashLPy()
     qapp.processEvents()
     w = LPyWindow()

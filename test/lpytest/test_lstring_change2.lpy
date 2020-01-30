@@ -3,7 +3,7 @@ def EndEach(lstring):
   lstring[0][0] = 2
 
 def End(lstring):
-  print 'End', lstring
+  print('End', lstring)
   assert lstring[0][0] == 2
 
 Axiom: A(1)

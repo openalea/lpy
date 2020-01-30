@@ -1,18 +1,22 @@
 import os
 fname = 'a_module2.py'
-f = file(fname,'w')
+f = open(fname,'w')
 f.write('def test(): pass')
 f.close()
 
 try:
   from a_module2 import test
-except Exception,e:
-  os.remove(fname)
-  os.remove(fname+'c')
+except Exception as e:
+  if os.path.exists(fname) :
+      os.remove(fname)
+  if os.path.exists(fname+'c') :
+    os.remove(fname+'c')
   raise e 
 
-os.remove(fname)
-os.remove(fname+'c')
+if os.path.exists(fname) :
+    os.remove(fname)
+if os.path.exists(fname+'c') :
+    os.remove(fname+'c')
 
 Axiom: 
 

@@ -22,9 +22,9 @@ def __read_manager_plugins():
         listplugins = [ splitext(basename(i))[0] for i in listplugins]
         listplugins = [ i  for i in listplugins if i[:2] != '__']    
     else:
-        import plugins.curve2dmanager as cm
-        import plugins.functionmanager as fm
-        import plugins.nurbspatchmanager as nm
+        from .plugins import curve2dmanager as cm
+        from .plugins import functionmanager as fm
+        from .plugins import nurbspatchmanager as nm
         listplugins = [cm,fm,nm]
     for plugin in listplugins:
         plugname = plugin
@@ -33,7 +33,7 @@ def __read_manager_plugins():
                 mod = __import__(plugname)
             else:
                 mod = plugin
-        except ImportError,e :
+        except ImportError as e :
             exc_info = sys.exc_info()
             traceback.print_exception(*exc_info)
             warnings.warn("Cannot import "+plugin+" : "+str(e))
@@ -48,10 +48,10 @@ def __read_manager_plugins():
             except:
                 managers.append(lmanagers)
                 #print "import manager '"+lmanagers.typename+"' from plugin '"+plugin+"'"
-        except Exception, e:
+        except Exception as e:
             exc_info = sys.exc_info()
             traceback.print_exception(*exc_info)
-            print dir(mod)
+            print(dir(mod))
             warnings.warn("Cannot import "+plugin+" : "+str(e))
     sys.path  = oldpathes
     return managers

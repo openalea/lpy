@@ -7,7 +7,7 @@ derivation length: 1
 production:
 
 A(x) > [[A(y)]] :
-  print x,y
+  print(x,y)
 
 
 homomorphism:

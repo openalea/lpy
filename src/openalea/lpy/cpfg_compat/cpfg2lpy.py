@@ -1,5 +1,5 @@
 import openalea.lpy as lpy
-import vafile_import as vafile
+from . import vafile_import as vafile
 
 
     
@@ -12,7 +12,7 @@ def empty_line(line):
 def empty_end_line(txt,index):
     nbchar = len(txt)
     if nbchar >= index : return True
-    for i in xrange(index,nbchar) :
+    for i in range(index,nbchar) :
         c = txt[i]
         if c in '\n': return True
         if c not in ' \t': return False
@@ -194,7 +194,7 @@ def process_rule(predecessor,conditions,precondition,defs,withlineno = True):
         else:
             result += indent+'from openalea.lpy.cpfg_compat import select_successor_from_prob\n'
             result += indent+'successor = select_successor_from_prob(['+','.join([pb for p,s,pb,l in defs])+'])\n'
-            for i in xrange(len(defs)) :
+            for i in range(len(defs)) :
                 postcondition, successor, prob, lineno = defs[i]             
                 result += indent
                 if i == 0: result +=  'if successor == '+str(i)+' : # see line '+str(lineno)+'\n'
@@ -338,8 +338,8 @@ def translate_l_code(txt, vlpyinitconfig = None):
                     line += nline.strip()
                 try:
                     predecessor, successor = line.split('-->')
-                except Exception, e:
-                    print line
+                except Exception as e:
+                    print(line)
                     raise e
                 if not ':' in predecessor and not ':' in successor: # simplest rules
                     result += convert_lstring(predecessor) + '-->' + convert_lstring(successor) + '\n'
@@ -374,7 +374,7 @@ def translate_l_code(txt, vlpyinitconfig = None):
                         current_rule.append_succ([postcond, successor, prob,lineno])
     if len(allgvar) > 0:
         gvardec =  '# declaration of global variables used in the model\n'
-        gvardec += ','.join(allgvar) + ' = ' + ','.join([str(None) for i in xrange(len(allgvar))])+'\n\n'
+        gvardec += ','.join(allgvar) + ' = ' + ','.join([str(None) for i in range(len(allgvar))])+'\n\n'
         result = result[:proddecposition]+gvardec+result[proddecposition:]
         
     return result
@@ -417,18 +417,18 @@ def translate_obj(fname):
             for sfile in sfiles:
                 sworkspace = splitext(basename(sfile))[0]
                 surfaces = []
-                for manager in managers.itervalues():
+                for manager in managers.values():
                     fname = join(project,sfile)
                     if manager.canImportData(fname):
                         try:
                             objects = manager.importData(fname)
                             surfaces += [(manager,i) for i in objects]
                             groupofpatches[sworkspace] = [i.name for i in objects]
-                        except Exception, e:
+                        except Exception as e:
                             import sys, traceback
                             exc_info = sys.exc_info()
                             traceback.print_exception(*exc_info)
-                            print 'Cannot import file '+repr(sfile)
+                            print('Cannot import file '+repr(sfile))
                         
                         break
                 panels  += [({'name':sworkspace},surfaces)]
@@ -437,17 +437,17 @@ def translate_obj(fname):
         if funcfiles:
             functions = []
             for funcfile in funcfiles:
-                for manager in managers.itervalues():
+                for manager in managers.values():
                     fname = join(project,funcfile)
                     if manager.canImportData(fname):
                         try:
                             objects = manager.importData(fname)
                             functions += [(manager,i) for i in objects]
-                        except Exception, e:
+                        except Exception as e:
                             import sys, traceback
                             exc_info = sys.exc_info()
                             traceback.print_exception(*exc_info)
-                            print 'Cannot import file '+repr(funcfile)
+                            print('Cannot import file '+repr(funcfile))
                         
                         break
             panels  += [({'name':'functions'},functions)]
@@ -457,18 +457,18 @@ def translate_obj(fname):
             if fsetfiles is None: fsetfiles = []
             if csetfiles is None: csetfiles = []
             for fsetfile in fsetfiles+csetfiles:
-                for manager in managers.itervalues():
+                for manager in managers.values():
                     fname = join(project,fsetfile)
                     if manager.canImportData(fname):
                         try:
                             objects = manager.importData(fname)
                             managedobjects = [(manager,i) for i in objects]
                             panels  += [({'name':basename(splitext(fn)[0])}, managedobjects)]
-                        except Exception, e:
+                        except Exception as e:
                             import sys, traceback
                             exc_info = sys.exc_info()
                             traceback.print_exception(*exc_info)
-                            print 'Cannot import file '+repr(fsetfile)
+                            print('Cannot import file '+repr(fsetfile))
                         
                         break
         
@@ -493,7 +493,7 @@ def translate_obj(fname):
             l.turtle.setMaterial(i,mat)
         nbMaterials = l.turtle.getColorListSize()
         if nbMaterials > len(materials):
-            for i in xrange(nbMaterials-1,len(materials)-1,-1):
+            for i in range(nbMaterials-1,len(materials)-1,-1):
                 l.turtle.removeColor(i)
         
         # read desciption
@@ -522,7 +522,7 @@ def help():
 def main():
     import sys
     if len(sys.argv) < 2:
-        print help()
+        print(help())
         return
     lpycode = translate_obj(sys.argv[1])
     if len(sys.argv) == 3:
@@ -530,7 +530,7 @@ def main():
         output.write(lpycode)
         output.close()
     else:
-        print lpycode
+        print(lpycode)
     
 
 if __name__ == '__main__':

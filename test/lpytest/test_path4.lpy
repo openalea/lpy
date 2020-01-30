@@ -15,7 +15,7 @@ Leaf :
     nproduce _(width(0)) SetContour(leaf_profile) ;(2) StartGC()  SetGuide(leaf_path,leaf_size)
     nbstep = int(leaf_size/leaf_step)
     ustep = 1. / nbstep
-    for i in xrange(nbstep+1):
+    for i in range(nbstep+1):
         nproduce _(width(ustep*i)*2) F(leaf_step)
 
 endlsystem

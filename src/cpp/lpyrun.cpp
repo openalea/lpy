@@ -50,9 +50,9 @@ void cleanLpy()
     std::cerr << "****** pre-cleaning *******" << std::endl;
     Tracker::printReport();
 #endif
-    LsysContext::cleanContexts();
     ModuleClassTable::clearModuleClasses ();
     ViewerApplication::exit ();
+    LsysContext::cleanContexts();
 #ifdef TRACKER_ENABLED
     std::cerr << "****** post-cleaning ******" << std::endl;
     Tracker::printReport();

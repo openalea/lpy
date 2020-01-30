@@ -4,10 +4,10 @@ try:
 except:
     py2exe_release = False
 
-from openalea.vpltk.qt import qt
+from openalea.plantgl.gui.qt import qt
 
-from openalea.vpltk.qt.QtCore import QObject, pyqtSignal
-from openalea.vpltk.qt.QtWidgets import QApplication, QCheckBox, QDialog, QHBoxLayout, QLayout, QMenuBar, QPushButton, QSizePolicy, QSpacerItem, QVBoxLayout
+from openalea.plantgl.gui.qt.QtCore import QObject, pyqtSignal
+from openalea.plantgl.gui.qt.QtWidgets import QApplication, QCheckBox, QDialog, QHBoxLayout, QLayout, QMenuBar, QPushButton, QSizePolicy, QSpacerItem, QVBoxLayout
 
     
 class ObjectDialog(QDialog):

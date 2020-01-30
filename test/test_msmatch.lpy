@@ -10,7 +10,7 @@ def Start():
   matched = False
   
 def EndEach(lstring):
-  print lstring
+  print (lstring)
   assert matched == True
 
 derivation length: 1
@@ -19,7 +19,7 @@ production:
 TA(x)B < C:
     global matched
     matched = True
-    print x
+    print (x)
     produce C
 
 homomorphism:

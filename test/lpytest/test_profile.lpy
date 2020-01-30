@@ -16,7 +16,7 @@ production:
 A(x) :
     x = min(0.9999,x)
     a = angle(axis.getTangentAt(x),axis.getTangentAt(x+dt))
-    print x
+    print(x)
     produce &(a)_(leafwidth(x))F(0.1)A(x+dt)
 
 homomorphism:

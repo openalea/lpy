@@ -7,8 +7,11 @@ except:
 
 if not py2exe_release:
     import compile_ui as ui
+#   from . import compile_ui as ui
+    print("Generate Ui - imported")
     import os.path
     ldir    = os.path.dirname(__file__)
+    print("Generate Ui")
     ui.check_ui_generation(os.path.join(ldir, 'lpymainwindow.ui'))
     ui.check_ui_generation(os.path.join(ldir, 'debugger_ui.ui'))
     ui.check_ui_generation(os.path.join(ldir, 'debugger_right_ui.ui'))
