@@ -33,7 +33,7 @@
 #include "lpy_parser.h"
 #include "tracker.h"
 #include "matching.h"
-#include "lpy_python.h"
+#include <plantgl/python/pyseq_iterator.h>
 
 using namespace boost::python;
 

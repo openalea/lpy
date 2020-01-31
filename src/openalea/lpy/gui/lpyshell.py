@@ -3,6 +3,7 @@
 from qtconsole.rich_jupyter_widget import RichJupyterWidget
 from qtconsole.inprocess import QtInProcessKernelManager
 # from .streamredirection import GraphicalStreamRedirection
+import sys, tempfile
 
 class LpyShellWidget(RichJupyterWidget): #, GraphicalStreamRedirection):
 
@@ -12,6 +13,9 @@ class LpyShellWidget(RichJupyterWidget): #, GraphicalStreamRedirection):
         If no parent widget has been specified, it is possible to
         exit the interpreter by Ctrl-D.
         """
+        if sys.executable.endswith('pythonw.exe'):
+            sys.stdout = open(tempfile.gettempdir() + '/lpystdout.txt', 'w')
+            sys.stderr = open(tempfile.gettempdir() + '/lpystderr.txt', 'w')
 
         RichJupyterWidget.__init__(self, parent)
 
