@@ -33,12 +33,12 @@
 #include "patternmodule.h"
 #include "matching.h"
 #include "lsyscontext.h"
-#include "lpy_python.h"
 #include "lpy_parser.h"
 #include "tracker.h"
 #include "packedargs.h"
 #include <strstream>
 #include <plantgl/math/util_vector.h>
+#include <plantgl/python/pyseq_iterator.h>
 
 using namespace boost::python;
 LPY_USING_NAMESPACE

@@ -79,12 +79,12 @@ def initDocks(lpywidget):
     lpywidget.profilerDock.hide()
     #interpreter dock
     if lpywidget.withinterpreter :
-        try:
-            set_shell_widget(lpywidget)
-        except:
-            lpywidget.withinterpreter = False
-            lpywidget.interpreter = None
-            lpywidget.interpreterDock.hide()
+        #try:
+        set_shell_widget(lpywidget)
+        #except:
+        #    lpywidget.withinterpreter = False
+        #    lpywidget.interpreter = None
+        #    lpywidget.interpreterDock.hide()
 
     if lpywidget.withinterpreter:
         action = lpywidget.interpreterDock.toggleViewAction()
@@ -98,6 +98,7 @@ def initDocks(lpywidget):
         lpywidget.interpreter = None
 
 def initShell(lpywidget):
+    return
     lpywidget.interpreter.locals['window'] = lpywidget
     lpywidget.shell.run_code('from openalea.plantgl.all import *')
     lpywidget.shell.run_code('from openalea.lpy import *')
