@@ -31,6 +31,6 @@ def getpropforsubtree(mtg,root,initialmtg,initialroot,matched,rebuildclasses = '
      nbmatched = len(matched)
      return 2*nbmatched/float(nbelements1+nbelements2)
      nbtotelem = nbelements1+nbelements2-nbmatched
-     print root,nbmatched,nbelements1,nbelements2,nbmatched/float(nbtotelem)
+     print (root,nbmatched,nbelements1,nbelements2,nbmatched/float(nbtotelem))
      return nbmatched/float(nbtotelem)
 

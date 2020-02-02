@@ -3,7 +3,7 @@ from openalea.lpy import *
 
 def main():
     lsys = Lsystem("lsystem1.lpy")
-    print lsys.dr  # This would print 0.02
+    print (lsys.dr)  # This would print 0.02
     lsys.axiom = Lstring("Apex(2)",lsys)
     lstring = lsys.axiom
     timer = Sequencer(0.1)
