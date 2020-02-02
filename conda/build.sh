@@ -57,7 +57,7 @@ echo "PYTHON:" ${PYTHON}
 #export PYTHONPATH=${PREFIX}/lib/python${PY_VER}/site-packages/
 ${PYTHON} setup.py install --prefix=${PREFIX} 
 
-cp -r share `python -c "import os, openalea.lpy as lpy ; print(os.path.dirname(lpy.__file__))"`/..
+cp -r share `${PYTHON} -c "import os, openalea.lpy as lpy ; print(os.path.dirname(lpy.__file__))"`/..
 
 echo
 echo "****** CHECK PYTHON LIB"
