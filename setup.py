@@ -33,7 +33,7 @@ with open(versionfile) as fp:
     exec(fp.read(), versioninfo)
 
 version= versioninfo['LPY_VERSION_STR']
-print (pkg_name+': version = '+version)
+#print (pkg_name+': version = '+version)
 
 
 # cmake build directory

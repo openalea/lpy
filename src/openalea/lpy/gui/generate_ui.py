@@ -5,7 +5,7 @@ release = exists(join(ldir,'py2exe_release.py'))
 
 if not release:
     print("Generate Ui - imported")
-    from . import compile_ui as ui
+    import compile_ui as ui
     print("Generate Ui")
     ui.check_rc_generation(join(ldir, 'lpyresources.qrc'))
     ui.check_ui_generation(join(ldir, 'lpymainwindow.ui'))
