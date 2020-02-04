@@ -711,7 +711,7 @@ class ObjectListDisplay(QGLParentClass):
                 tratio = mtw / float(tw)
                 lt = len(text)
                 nbchar = int(lt * tratio) -3
-                text = text[0:nbchar/2]+'...'+text[lt-nbchar/2:]
+                text = text[0:int(nbchar/2)]+'...'+text[int(lt-nbchar/2):]
                 tw = fm.width(text)
             px =  (mtw-tw) / 2
             py = width-1-fm.descent()
