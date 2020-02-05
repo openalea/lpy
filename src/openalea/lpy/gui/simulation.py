@@ -279,8 +279,8 @@ class AbstractSimulation:
 
     def saveas(self):
         bckupname = self.getBackupName()
-        qfname = QFileDialog.getSaveFileName(self.lpywidget,"Save L-Py file",self.fname if self.fname else '.',"Py Lsystems Files (*.lpy);;All Files (*.*)")
-        if qfname:
+        qfname, mfilter = QFileDialog.getSaveFileName(self.lpywidget,"Save L-Py file",self.fname if self.fname else '.',"Py Lsystems Files (*.lpy);;All Files (*.*)")
+        if  qfname :
             fname = str(qfname[0])
             if not os.path.exists(fname):
                 self.readonly = False  

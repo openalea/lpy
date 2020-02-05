@@ -14,8 +14,9 @@ class LpyShellWidget(RichJupyterWidget): #, GraphicalStreamRedirection):
         exit the interpreter by Ctrl-D.
         """
         if sys.executable.endswith('pythonw.exe'):
-            sys.stdout = open(tempfile.gettempdir() + '/lpystdout.txt', 'w')
-            sys.stderr = open(tempfile.gettempdir() + '/lpystderr.txt', 'w')
+            lpylog = open(tempfile.gettempdir() + '/lpylog.txt', 'w')
+            sys.stdout = lpylog 
+            sys.stderr = lpylog
 
         RichJupyterWidget.__init__(self, parent)
 
