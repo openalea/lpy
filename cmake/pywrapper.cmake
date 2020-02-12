@@ -10,15 +10,15 @@ function(pgllib_link_python libwrapname)
     else()
         message(STATUS "Do not link with Python directly : " ${libwrapname})
     endif()
-
-    # Disable Boost Auto-Link
-    #target_compile_definitions(${libwrapname} PRIVATE BOOST_ALL_NO_LIB)
-
-    #target_link_libraries(${libwrapname} Boost::system Boost::thread Boost::python )
-
 endfunction()
 
+function(pgllib_link_boost libwrapname)
+    # Disable Boost Auto-Link
+    target_compile_definitions(${libwrapname} PRIVATE BOOST_ALL_NO_LIB)
 
+    target_link_libraries(${libwrapname} Boost::system Boost::${boost_python} Boost::dynamic_linking Boost::disable_autolinking)
+
+endfunction()
 
 function(pglwrapper_install libwrapname)
     set_target_properties(${libwrapname} PROPERTIES PREFIX "")
@@ -32,4 +32,8 @@ function(pglwrapper_install libwrapname)
     endif()
 
     install(TARGETS ${libwrapname} DESTINATION "${CMAKE_SOURCE_DIR}/src/openalea/lpy")
+endfunction()
+
+function(install_share sharedirectory project)
+    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${sharedirectory}/ DESTINATION "${CMAKE_INSTALL_PREFIX}/share/${project}")
 endfunction()
