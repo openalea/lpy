@@ -1,26 +1,21 @@
 # Generate GUI if necessary
-try:
-    import openalea.lpy.gui.py2exe_release
-    py2exe_release = True
-except:
-    py2exe_release = False
+from os.path import dirname, exists, join
+ldir = dirname(__file__)
+release = exists(join(ldir,'py2exe_release.py'))
 
-if not py2exe_release:
-    import compile_ui as ui
-#   from . import compile_ui as ui
+if not release:
     print("Generate Ui - imported")
-    import os.path
-    ldir    = os.path.dirname(__file__)
+    import compile_ui as ui
     print("Generate Ui")
-    ui.check_ui_generation(os.path.join(ldir, 'lpymainwindow.ui'))
-    ui.check_ui_generation(os.path.join(ldir, 'debugger_ui.ui'))
-    ui.check_ui_generation(os.path.join(ldir, 'debugger_right_ui.ui'))
-    ui.check_ui_generation(os.path.join(ldir, 'logindialog.ui'))
-    ui.check_ui_generation(os.path.join(ldir, 'logdialog.ui'))
-    ui.check_rc_generation(os.path.join(ldir, 'lpyresources.qrc'))
-    ui.check_ui_generation(os.path.join(ldir, 'killsimulationwidget.ui'))
-    ui.check_ui_generation(os.path.join(ldir, 'lpyprefwidget.ui'))    
-    ui.check_ui_generation(os.path.join(ldir, 'scalarmetaedit.ui'))
-    ui.check_ui_generation(os.path.join(ldir, 'scalarfloatmetaedit.ui'))
+    ui.check_rc_generation(join(ldir, 'lpyresources.qrc'))
+    ui.check_ui_generation(join(ldir, 'lpymainwindow.ui'))
+    ui.check_ui_generation(join(ldir, 'debugger_ui.ui'))
+    ui.check_ui_generation(join(ldir, 'debugger_right_ui.ui'))
+    ui.check_ui_generation(join(ldir, 'logindialog.ui'))
+    ui.check_ui_generation(join(ldir, 'logdialog.ui'))
+    ui.check_ui_generation(join(ldir, 'killsimulationwidget.ui'))
+    ui.check_ui_generation(join(ldir, 'lpyprefwidget.ui'))    
+    ui.check_ui_generation(join(ldir, 'scalarmetaedit.ui'))
+    ui.check_ui_generation(join(ldir, 'scalarfloatmetaedit.ui'))
     del ldir
     pass

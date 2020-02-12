@@ -60,7 +60,7 @@ def color_last_year_node(g):
     
     gul = [sum([nodelength(i) for i in ui]) for ui in gu]
     avg_length_gu = mean(gul)
-    print '**', avg_length_gu, min(gul), max(gul)
+    print('**', avg_length_gu, min(gul), max(gul))
     leavesly = [g.parent(i[-1]) for i in gu]
     
     def last_year_ancestors(i):

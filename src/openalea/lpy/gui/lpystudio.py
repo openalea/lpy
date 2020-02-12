@@ -475,11 +475,8 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         fnames = ['<string>',self.currentSimulation().getBaseName()]
         if st[0] in fnames :
             self.codeeditor.hightlightError(st[1])            
-        elif t == SyntaxError:            
-            lst = v.message.split(':')
-            if len(lst) >= 3 and lst[0] in fnames:
-                self.codeeditor.hightlightError(int(lst[1]))
-            elif v.filename in fnames:
+        elif t == SyntaxError:   
+            if v.filename in fnames:
                 self.codeeditor.hightlightError(v.lineno)     
     def endErrorEvent(self,answer):
         if self.debugger.running:
