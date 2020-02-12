@@ -1,4 +1,4 @@
-from vplants.plantgl.math import Vector2,Vector3
+from openalea.plantgl.math import Vector2,Vector3
 
 #Routines needed to direct turtle using surface parameters u,v
 #without the user having to manually keep the turtle on the 
@@ -123,7 +123,7 @@ def unit_coord() :
   """
   global U,u,v
   coords = coord()
-  print 'coords',coords
+  print ('coords',coords)
   _unit = {}
   for i in (u,v) :
     _unit[i] = coords[i].normed()
@@ -134,19 +134,19 @@ def draw_geo(direct,length) :
   with an accuracy of 'inc'.
   """
   global u,v,patchRes
-  print 'called draw_geo'
+  print ('called draw_geo')
   patchSetRes(0.1)
   patchSetHead(direct[u],direct[v])
   while length > 0 :
     print
     _Fpatch(length)
     length -= patchRes
-    print 'length',length
+    print ('length',length)
   return
 #
 #W(1,0.01)A((0.7,.99))G(Vector2((0,-1)),1)
 #B(t) < G(direct,_len) :
-#  print 'G draw_geo',direct
+#  print( 'G draw_geo',direct)
 #  patchSetHead(direct[0],direct[1])
 #  nproduce Fpatch(_len)
 #_pos = coord()
@@ -154,10 +154,10 @@ def draw_geo(direct,length) :
 #_output = (_pos[0],_pos[1])
 #nproduce B(_output)
 #if _len :
-#  print 'B(%f,%f) G()' %(_output[0],_output[1])
+#  print ('B(%f,%f) G()' %(_output[0],_output[1]))
 #  nproduce G(vec,_len-inc,inc)
 #else :
-#  print '_len =',_len
+#  print ('_len =',_len)
 #return
 
 Axiom: J(2)W(3,0.01)A((0,.45))E(0,0.45,Vector2((1,0)),1.5,0.05)A((0,0.5))E(0,0.5,Vector2((1,0)),1.5,0.05)
@@ -169,12 +169,12 @@ derivation length: 60
 production:
 B(upos,vpos) :
   _destination = patch.getPointAt(upos,vpos)  # Vector3 position of destination
-  print 'BB patch.getPointAt',upos,vpos
+  print ('BB patch.getPointAt',upos,vpos)
   produce D(_destination)?H(0,0,0) 
 
 A(t) :
   _origin = patch.getPointAt(t[0],t[1])  # Vector3 position of origin
-  print 'origin in A',_origin
+  print ('origin in A',_origin)
   produce C(_origin)
 
 G(upos,vpos,direct,length) :
@@ -182,28 +182,28 @@ G(upos,vpos,direct,length) :
   with an accuracy of 'inc'.
   """
   global patchRes
-  print 'called draw_geo'
+  print ('called draw_geo')
   upos += direct[0]*patchRes
   vpos += direct[1]*patchRes
   #patchSetHead(direct[u],direct[v])
   nproduce   B(upos,vpos)
   if length > 0 :
     nproduce N(upos,vpos,direct,length)
-    print 'length',length
+    print ('length',length)
 
 ?H(h1,h2,h3) N(upos,vpos,direct,length) :
   """Reorients heading on patch to accomodate its curvature.
   """
   global patchRes
-  #print "Reorienting turtle, heading"
+  #print ("Reorienting turtle, heading")
   heading = Vector3(h1,h2,h3).normed()
-  #print 'utangent'
+  #print ('utangent')
   utangent = patch.getUTangentAt(upos,vpos)
-  #print 'uhead'
+  #print ('uhead')
   uhead = utangent.normed() * heading
-  #print 'vtangent'
+  #print ('vtangent')
   vtangent = patch.getVTangentAt(upos,vpos)
-  #print 'vhead'
+  #print ('vhead')
   vhead = vtangent.normed() * heading
   produce G(upos,vpos,Vector2(uhead,vhead),length-patchRes)
  
@@ -232,8 +232,8 @@ def __initialiseContext__(context):
 	    pgl.Point4Matrix([[(0, -0.5, 0, 1), (0, -0.194826, -0.288638, 1), (0, 0.286346, -0.288638, 1), (0, 0.5, 0, 1)], [(-0.0511597, -1.31723, 0.193582, 1), (1.25518, -0.558116, 0.241131, 1), (1.33418, 0.557144, 0.213018, 1), (0, 0.746398, 0.340373, 1)], [(0, -0.795678, 0.694826, 1), (0.959953, -0.134105, 0.864113, 1), (0.973315, 0.242103, 0.891573, 1), (0, 0.746398, 0.722986, 1)], [(-0.110162, -0.81539, 1.22561, 1), (0.0310232, -0.140779, 1.25123, 1), (0.065397, 0.143161, 1.02033, 1), (0, 0.5, 1, 1)]]) , 
 	    )
 	patch.name = "patch"
-	panel_0 = ({'active': True, 'visible': True, 'name': 'Panel 1'},[('NurbsPatch',patch)])
-	panel_1 = ({'active': True, 'visible': True, 'name': 'Panel 1 2'},[])
+	panel_0 = ({'name': 'Panel 1', 'active': True, 'visible': True},[('NurbsPatch',patch)])
+	panel_1 = ({'name': 'Panel 1 2', 'active': True, 'visible': True},[])
 	parameterset = [panel_0,panel_1,]
 	context["__functions__"] = []
 	context["__curves__"] = []
