@@ -5,13 +5,13 @@ positions = []
 
 def StartEach():  
   useGroup(getGroup()%2 +1)
-  print 'group',getGroup()
+  print('group',getGroup())
   global positions
   positions = []
 
 def EndEach():
   if getGroup() == 2:
-    print len(positions)
+    print(len(positions))
 
 
 Axiom: A

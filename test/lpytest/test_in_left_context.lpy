@@ -9,7 +9,8 @@ B :
     assert InLeftContext(G) == False
     assert InLeftContext(D) == True
     produce C
-  else: raise ValueError('inLeftContext')
+  else: 
+    raise ValueError('inLeftContext')
 
 interpretation:
 

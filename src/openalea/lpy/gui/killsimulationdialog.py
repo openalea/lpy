@@ -4,11 +4,11 @@ try:
 except:
     py2exe_release = False
 
-from openalea.vpltk.qt import qt    
-from killsimulationwidget import Ui_KillSimulationDialog
+from openalea.plantgl.gui.qt import qt    
+from .killsimulationwidget import Ui_KillSimulationDialog
 
-from openalea.vpltk.qt.QtCore import QTimer
-from openalea.vpltk.qt.QtWidgets import QDialog
+from openalea.plantgl.gui.qt.QtCore import QTimer
+from openalea.plantgl.gui.qt.QtWidgets import QDialog
 
 class KillSimulationDialog (QDialog,Ui_KillSimulationDialog):
     def __init__(self,parent):

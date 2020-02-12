@@ -33,11 +33,11 @@
 #include "lpy_parser.h"
 #include "tracker.h"
 #include "matching.h"
+#include <plantgl/python/pyseq_iterator.h>
 
 using namespace boost::python;
 
 LPY_BEGIN_NAMESPACE
-
 
 /*---------------------------------------------------------------------------*/
 
@@ -69,15 +69,16 @@ AxialTree::AxialTree(const ParamModule& m):
 AxialTree::AxialTree(const boost::python::list& l):
   BaseType(){
   IncTracker(AxialTree) 
-  object iter_obj = object( handle<>( PyObject_GetIter( l.ptr() ) ) );
-  while( true )
+  PySeqIterator iter_obj ( l );
+  
+  while(iter_obj.is_valid())
   {
-        object obj;
-        try {  obj = iter_obj.attr( "next" )(); }
-        catch( error_already_set ){ PyErr_Clear(); break; }
+        object obj = iter_obj.next();
+
         extract<size_t> idext(obj);
-		if (idext.check())
-			__string().push_back(idext());
+		if (idext.check()){
+			__string().push_back(ParamModule(idext()));
+        }
 		else {
 			extract<std::string> st(obj);
 			if(st.check())
@@ -92,7 +93,7 @@ AxialTree::AxialTree(const boost::python::list& l):
 					else __string().push_back(extract<ParamModule>(obj)());
 				}
 			}
-		}
+        }
     }
 }
 

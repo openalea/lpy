@@ -1,4 +1,4 @@
-from openalea.vpltk.qt.QtCore import QDir
+from openalea.plantgl.gui.qt.QtCore import QDir
 import os
 
 def getTmpLpyDir():

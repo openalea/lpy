@@ -7,7 +7,7 @@ def StartEach():
   prev = getGroup()
   if getGroup() == 1: useGroup(2)
   else:               useGroup(1)
-  print 'Group:',prev,'-->',getGroup()
+  print ('Group:',prev,'-->',getGroup())
   currentmatch = None
   match0 = False
 

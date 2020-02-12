@@ -212,7 +212,7 @@ public:
    void addSubLsystem(const std::string& lfile);
    void addSubLsystem(const Lsystem& sublsystem);
 
-   class LPY_API Debugger : public TOOLS::RefCountObject {
+   class LPY_API Debugger : public PGL_NAMESPACE_NAME::RefCountObject {
    public:
 	   Debugger() : alwaysStop(true) { }
 	   virtual ~Debugger() ;

@@ -1,11 +1,11 @@
-from openalea.vpltk.qt import qt
-from qt_check import QT_VERSION
+from openalea.plantgl.gui.qt import qt
+from .qt_check import QT_VERSION
 import traceback as tb
 import sys
 
 
-from openalea.vpltk.qt.QtCore import QMutex, QObject, QThread, pyqtSignal
-from openalea.vpltk.qt.QtWidgets import QMessageBox
+from openalea.plantgl.gui.qt.QtCore import QMutex, QObject, QThread, pyqtSignal
+from openalea.plantgl.gui.qt.QtWidgets import QMessageBox
 
 
 class ThreadTransferException (Exception):
@@ -38,7 +38,7 @@ class ComputationTask(QThread):
                 try:
                     self.process(self)
                 except :
-                    self.exception = ThreadTransferException(sys.exc_type,sys.exc_value,sys.exc_traceback)
+                    self.exception = ThreadTransferException(sys.exc_info()[0],sys.exc_info()[1],sys.exc_info()[2])
             else:
                 self.process(self)
     def finalize(self):
@@ -77,7 +77,7 @@ class ComputationTaskManager(QObject):
         if not self.computationThread is None:
             try:
                 self.computationThread.finalize()
-            except ThreadTransferException, e:
+            except ThreadTransferException as e:
                 self.graberror((e.exc_type,e.exc_value,e.exc_traceback))
             except:
                 self.graberror()
@@ -153,7 +153,7 @@ class ComputationTaskManager(QObject):
         else:
             self.endErrorEvent(None)
     def getErrorMessage(self,exc_info):
-        print type(exc_info[1]), exc_info[1]
+        print(type(exc_info[1]), exc_info[1])
         msg = str(exc_info[1])
         if exc_info[0] == SyntaxError and len(msg) == 0:
             msg = exc_info[1].msg

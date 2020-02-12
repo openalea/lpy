@@ -38,6 +38,7 @@
 #include "packedargs.h"
 #include <strstream>
 #include <plantgl/math/util_vector.h>
+#include <plantgl/python/pyseq_iterator.h>
 
 using namespace boost::python;
 LPY_USING_NAMESPACE
@@ -94,13 +95,12 @@ boost::python::object LPY::getFunctionRepr() { return GlobalContext::getFunction
 void processArgList(ModuleClassPtr mclass, ParamModule::ParameterList& args, boost::python::object arg, size_t start = 0){
     extract<boost::python::dict> isdict(arg);
     if (!isdict.check()){
-        object iter_obj = object( handle<>( PyObject_GetIter( arg.ptr() ) ) );
-        for(size_t i = 0; i < start; ++i) iter_obj.attr( "next" )();
-        try { while( true ) appendParam(args,iter_obj.attr( "next" )()); }
-        catch( error_already_set ){ PyErr_Clear(); }
+        PySeqIterator iter_obj( arg);
+        for(size_t i = 0; i < start && iter_obj.is_valid(); ++i) iter_obj.next();
+        while( iter_obj.is_valid() ) appendParam(args,iter_obj.next( ));
     }
     else {
-        boost::python::object iter_obj =  isdict().iteritems();
+        PySeqIterator iter_obj(isdict().items());
         size_t nbstdparam = args.size();
         if (nbstdparam + len(arg) < mclass->getNamedParameterNb()){
                 std::stringstream str;
@@ -109,11 +109,9 @@ void processArgList(ModuleClassPtr mclass, ParamModule::ParameterList& args, boo
         }
         pgl_hash_set<size_t> missingargs;
 
-        while( true )
-        {
-            boost::python::object obj; 
-            try {  obj = iter_obj.attr( "next" )(); }
-            catch( boost::python::error_already_set ){ PyErr_Clear(); break; }
+        
+        do {
+            boost::python::object obj = iter_obj.next();
 
             std::string pname = extract<std::string>( obj[0] )();
             size_t pposition = mclass->getParameterPosition(pname);
@@ -143,7 +141,8 @@ void processArgList(ModuleClassPtr mclass, ParamModule::ParameterList& args, boo
                     appendParam(args,obj[1]);
                 }
             }
-        }
+        } while( iter_obj.is_valid() );
+
         if (missingargs.size() > 0) {
                 std::stringstream str;
                 str << mclass->name << " takes exactly " << mclass->getNamedParameterNb()<< " (" << missingargs.size() << " missing)";
@@ -186,7 +185,8 @@ ParamModule::ParamModule():
 BaseType() {}
 
 ParamModule::ParamModule(size_t classid):
-    BaseType(classid) {}
+    BaseType(classid) {
+    }
 
 ParamModule::ParamModule(const std::string& name) :
     BaseType() 

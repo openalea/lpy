@@ -16,13 +16,13 @@ class ParameterSet:
         assert len(args) == 0 or len(kwd) == 0
         if len(args) > 0:
             if len(args) % 2 != 0  : raise ValueError("Should give a list of parameter name and values")
-            for i in xrange(len(args)/2):
+            for i in range(len(args)/2):
                 attname = args[2*i]
                 defaultvalue = args[2*i+1]
                 if not hasattr(self,attname):
                     setattr(self,attname,defaultvalue)
         elif len(kwd) > 0:
-            for attname, defaultvalue in kwd.items():
+            for attname, defaultvalue in list(kwd.items()):
                 if not hasattr(self,attname):
                     setattr(self,attname,defaultvalue)
 
@@ -42,7 +42,7 @@ class ParameterSet:
     
     def parameter_names(self):
         """ Gives the name of the parameters """
-        return self.__dict__.keys()
+        return list(self.__dict__.keys())
     
     def copy(self, deep = True):
         """ Return a deep copy of self """
@@ -51,7 +51,7 @@ class ParameterSet:
         else: return copy(self)
 
     def __repr__(self):
-        return self.__class__.__name__+'('+','.join([k+'='+repr(v) for k,v in self.__dict__.items()])+')'
+        return self.__class__.__name__+'('+','.join([k+'='+repr(v) for k,v in list(self.__dict__.items())])+')'
 
     def __getitem__(self, attname):
         return getattr(self,attname)

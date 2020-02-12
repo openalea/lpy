@@ -40,7 +40,7 @@ def default_parameters_wrapper(function):
     def wrapper(*args, **kwargs):
         l = LocalsRetriever(function)
         params, res = l(*args,**kwargs)
-        map(get_caller_frame().f_locals.setdefault, params.keys(), params.values())
+        list(map(get_caller_frame().f_locals.setdefault, list(params.keys()), list(params.values())))
         return res
     return wrapper
 
@@ -74,7 +74,7 @@ def defaultparameters(function):
     import inspect
     if len(inspect.getargspec(function).args) == 0:
         params, res = LocalsRetriever(function)()
-        map(get_caller_frame().f_locals.setdefault, params.keys(), params.values())
+        list(map(get_caller_frame().f_locals.setdefault, list(params.keys()), list(params.values())))
         return function
     else:
         return default_parameters_wrapper(function)

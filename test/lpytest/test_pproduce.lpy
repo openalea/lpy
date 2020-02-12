@@ -17,8 +17,8 @@ B(x) :
                A(1,x) 
                B(2/0) 
               )
-  except Exception,e:
-     print e
+  except Exception as e:
+     print (e)
 
 A(x): 
     x /0

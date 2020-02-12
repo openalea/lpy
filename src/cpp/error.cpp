@@ -63,9 +63,10 @@ LPY_API void LsysSyntaxError(const std::string& error)
 LPY_API void LsysSyntaxError(const std::string& error,const std::string& filename, int lineno)
 {
 	if (!filename.empty() || lineno >=0){
-		std::stringstream stream;	
-		stream << (filename.empty()?"<string>":filename) << ':' << lineno << ':' << error;
-		PyErr_SetString(PyExc_SyntaxError, stream.str().c_str());
+		// std::stringstream stream;	
+		// stream << (filename.empty()?"<string>":filename) << ':' << lineno << ':' << error;
+		PyErr_SetString(PyExc_SyntaxError, error.c_str());
+        PyErr_SyntaxLocation(filename.c_str(), lineno);
 		boost::python::throw_error_already_set();
 	}
 	else LsysSyntaxError(error);

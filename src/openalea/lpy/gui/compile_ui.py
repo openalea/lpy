@@ -1,10 +1,9 @@
-from openalea.vpltk.qt import qt
-from openalea.vpltk.qt.uic import compileUi, compile_args
+from openalea.plantgl.gui.qt import QT_API, PYQT5_API, PYQT4_API, PYSIDE_API
+from openalea.plantgl.gui.qt.uic import compileUi, compile_args
 
 import os
 import sys
 
-from openalea.vpltk.qt import QT_API, PYQT5_API, PYQT4_API, PYSIDE_API
 
 def get_uifnames_from(fname):
     uiprefix = os.path.splitext(fname)[0]
@@ -19,7 +18,8 @@ def get_rcfnames_from(fname):
 def compile_ui(uifname):
     """ compile a Ui """
     pyfname = get_uifnames_from(uifname)
-    fstream = file(pyfname,'w')
+    fstream = open(pyfname,'w')
+#    compile_args["from_imports"] = ""
     compileUi(uifname, fstream, **compile_args)
     fstream.close()
 
@@ -33,7 +33,7 @@ def compile_rc (rcfname) :
             exe = 'pyrcc4'+suffix
         return exe
 
-    if os.environ.has_key('CONDA_PREFIX'):
+    if 'CONDA_PREFIX' in os.environ:
         exe = def_exe()        
     elif sys.platform == 'darwin':
         exe = def_exe('-2.7')
@@ -48,8 +48,8 @@ def compile_rc (rcfname) :
 
 def detect_file_api(fname):
     patternapi = {'PyQt5':PYQT5_API, 'PyQt4':PYQT4_API, 'PySide':PYSIDE_API} 
-    txt = file(fname,'r').read()
-    for pattern,api in patternapi.items():
+    txt = open(fname,'r').read()
+    for pattern,api in list(patternapi.items()):
         if pattern in txt: return api
     return None
 
@@ -61,7 +61,7 @@ def check_ui_generation(uifname):
          not os.path.exists(pyfname) or
          (os.access(pyfname,os.F_OK|os.W_OK) and
          os.stat(pyfname).st_mtime < os.stat(uifname).st_mtime or not api in detect_file_api(pyfname))) :
-        print 'Generate Ui', repr(uifname)
+        print('Generate Ui', repr(uifname))
         compile_ui(uifname)
 
 def check_rc_generation(rcfname):
@@ -72,5 +72,5 @@ def check_rc_generation(rcfname):
         not os.path.exists(pyfname) or
         (os.access(pyfname,os.F_OK|os.W_OK) and
         os.stat(pyfname).st_mtime < os.stat(rcfname).st_mtime or not api in detect_file_api(pyfname))) :
-        print 'Generate Rc', repr(rcfname)
+        print('Generate Rc', repr(rcfname))
         compile_rc(rcfname)

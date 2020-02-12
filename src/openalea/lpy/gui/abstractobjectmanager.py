@@ -1,4 +1,4 @@
-from openalea.vpltk.qt.QtCore import QObject
+from openalea.plantgl.gui.qt.QtCore import QObject
 
 MouseFocus, Selection, Actived = 1,2,4
 

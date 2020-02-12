@@ -27,10 +27,10 @@ def test_autodelcontext():
     
 if __name__ == '__main__':
     import traceback as tb
-    test_func = [ (n,v) for n,v in globals().items() if 'test' in n]
-    test_func.sort(lambda x,y : cmp(x[1].func_code.co_firstlineno,y[1].func_code.co_firstlineno))
+    test_func = [ (n,v) for n,v in list(globals().items()) if 'test' in n]
+    test_func.sort(lambda x,y : cmp(x[1].__code__.co_firstlineno,y[1].__code__.co_firstlineno))
     for tfn,tf in test_func:
-        print tfn
+        print(tfn)
         try:
             tf()
         except:

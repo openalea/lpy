@@ -12,7 +12,7 @@ def simulation():
   
   lsystem = ComposedLsystem([a,a2b,b,b2a],[a2c,c])
   lstring = lsystem.axiom
-  print lstring
+  print (lstring)
   lsystem.animate(nbsteps = 10)
 
 
