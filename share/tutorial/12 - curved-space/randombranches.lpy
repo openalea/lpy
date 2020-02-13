@@ -16,7 +16,7 @@ def jitter_a_branch(branch,radius):
     return  NurbsCurve2D([jitter_point(p,radius) for p in branch.ctrlPointList])
 
 def gen_noise_branch(radius,nbp=10):
-    return  NurbsCurve([(uniform(-radius,radius),uniform(-radius,radius),pt/float(nbp-1),1) for pt in xrange(nbp)],degree=min(nbp-1,3))
+    return  NurbsCurve([(uniform(-radius,radius),uniform(-radius,radius),pt/float(nbp-1),1) for pt in range(nbp)],degree=min(nbp-1,3))
 
 
 def End():
@@ -78,40 +78,36 @@ endlsystem
 __lpy_code_version__ = 1.1
 
 def __initialiseContext__(context):
-	scalars = [('with_frame', False, False, True), ('branch_decal', 5, 0, 50), ('with_guide', True, False, True), ('with_tropism', True, False, True), ('jitter_branch', False, False, True), ('jitter_radius', 2, 0, 100), ('ctrl_lines', False, False, True), ('max_order', 6, 0, 100), ('noise_branch', True, False, True), ('noise_freq', 11, 3, 100), ('elasticity', 2, 0, 100)]
+	scalars = [('with_frame', 'Bool', False), ('branch_decal', 'Integer', 5, 0, 50), ('with_guide', 'Bool', True), ('with_tropism', 'Bool', True), ('jitter_branch', 'Bool', False), ('jitter_radius', 'Integer', 2, 0, 100), ('ctrl_lines', 'Bool', False), ('max_order', 'Integer', 6, 0, 100), ('noise_branch', 'Bool', True), ('noise_freq', 'Integer', 11, 3, 100), ('elasticity', 'Integer', 2, 0, 100)]
 	context["__scalars__"] = scalars
-	for n,v,mnv,mxv in scalars:
-		context[n] = v
+	for s in scalars:
+		if not s[1] == "Category" : context[s[0]] = s[2]
 	import openalea.plantgl.all as pgl
-	path = pgl.NurbsCurve2D(
+	path = pgl.NurbsCurve2D(	
 	    ctrlPointList = pgl.Point3Array([(0.00852268, -0.329545, 1),(-0.0501894, -0.0568182, 1),(0.0700758, 0.167614, 1),(0.0170455, 0.46875, 1)]) , 
-)
+	    )
 	path.name = "path"
-	
 	import openalea.plantgl.all as pgl
-	diameter = pgl.NurbsCurve2D(
+	diameter = pgl.NurbsCurve2D(	
 	    ctrlPointList = pgl.Point3Array([(0, 0.680178, 1),(0.326646, 0.244094, 1),(0.675733, 0.262932, 1),(1, 0.0232957, 1)]) , 
-)
+	    )
 	diameter.name = "diameter"
-	
-	branchpath = pgl.NurbsCurve2D(
+	branchpath = pgl.NurbsCurve2D(	
 	    ctrlPointList = pgl.Point3Array([(-0.551136, -0.00284096, 1),(-0.212121, 0.107955, 1),(-0.0719697, 0.0568182, 1),(0.301136, 0.0965909, 1),(0.299465, 0.415776, 1)]) , 
-)
+	    )
 	branchpath.name = "branchpath"
-	
-	node_length = pgl.NurbsCurve2D(
+	node_length = pgl.NurbsCurve2D(	
 	    ctrlPointList = pgl.Point3Array([(0, 0.177573, 1),(0.312253, 0.235342, 1),(0.622119, 0.23631, 1),(1, 0.253742, 1)]) , 
-)
+	    )
 	node_length.name = "node_length"
-	
-	branching_angle = pgl.NurbsCurve2D(
+	branching_angle = pgl.NurbsCurve2D(	
 	    ctrlPointList = pgl.Point3Array([(0, 0.539567, 1),(0.365422, 0.522996, 1),(0.761742, 0.422768, 1),(1, 0.0584769, 1)]) , 
-)
+	    )
 	branching_angle.name = "branching_angle"
-	
-	parameterset = [({'active': True, 'visible': True, 'name': 'Panel 1'},[('Curve2D',path),('Function',diameter),('Curve2D',branchpath),('Function',node_length),('Function',branching_angle)]),]
-	context["__functions__"] = [('diameter',diameter),('node_length',node_length),('branching_angle',branching_angle)]
-	context["__curves__"] = [('path',path),('branchpath',branchpath)]
+	panel_0 = ({'name': 'Panel 1', 'active': True, 'visible': True},[('Curve2D',path),('Function',diameter),('Curve2D',branchpath),('Function',node_length),('Function',branching_angle)])
+	parameterset = [panel_0,]
+	context["__functions__"] = [('diameter',diameter),('node_length',node_length),('branching_angle',branching_angle),]
+	context["__curves__"] = [('path',path),('branchpath',branchpath),]
 	context["__parameterset__"] = parameterset
 	context["path"] = path
 	context["diameter"] = pgl.QuantisedFunction(diameter)

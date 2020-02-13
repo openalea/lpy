@@ -865,7 +865,11 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         iconfolder.addPixmap(QPixmap(":/images/icons/fileopen.png"),QIcon.Normal,QIcon.Off)
         from openalea.lpy.gui.shared_data import shared_data
         import openalea.lpy
-        shared_data_path = shared_data(openalea.lpy.__path__, share_path='share/tutorial')
+        import os
+        if 'CONDA_PREFIX' in os.environ:
+            shared_data_path = os.path.join(os.environ['CONDA_PREFIX'], 'share', 'lpy', 'tutorial')
+        else:
+            shared_data_path = shared_data(openalea.lpy, share_path='share/tutorial')
         if not shared_data_path is None:
             import os
             cpath = os.path.abspath(shared_data_path)
@@ -873,7 +877,9 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
             toprocess = [(cpath,cmenu)]
             while len(toprocess) > 0:
                cpath,cmenu = toprocess.pop(0)
-               for fname in os.listdir(cpath):
+               csubpath = os.listdir(cpath)
+               csubpath.sort()
+               for fname in csubpath:
                     absfname =  os.path.join(cpath,fname)
                     if os.path.isdir(absfname):
                         childmenu = cmenu.addMenu(iconfolder,os.path.basename(str(fname)))
