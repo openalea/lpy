@@ -153,7 +153,7 @@ class ComputationTaskManager(QObject):
         else:
             self.endErrorEvent(None)
     def getErrorMessage(self,exc_info):
-        print(type(exc_info[1]), exc_info[1])
+        exception = exc_info[1] 
         msg = str(exc_info[1])
         if exc_info[0] == SyntaxError and len(msg) == 0:
             msg = exc_info[1].msg

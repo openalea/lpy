@@ -281,10 +281,11 @@ class AbstractSimulation:
         bckupname = self.getBackupName()
         qfname, mfilter = QFileDialog.getSaveFileName(self.lpywidget,"Save L-Py file",self.fname if self.fname else '.',"Py Lsystems Files (*.lpy);;All Files (*.*)")
         if  qfname :
-            fname = str(qfname[0])
+            fname = str(qfname)
             if not os.path.exists(fname):
                 self.readonly = False  
-            else : self.readonly = (not os.access(fname, os.W_OK))
+            else : 
+                self.readonly = (not os.access(fname, os.W_OK))
             self.fname = fname
             os.chdir(os.path.dirname(fname))
             if not self.readonly and bckupname and os.path.exists(bckupname):
@@ -681,7 +682,7 @@ class LpySimulation (AbstractSimulation):
             lpy_code_version = 1.0
             if '__lpy_code_version__' in context:
                 lpy_code_version = context['__lpy_code_version__']
-                print(lpy_code_version)
+                #print(lpy_code_version)
             if '__functions__' in context and lpy_code_version <= 1.0 :
                 functions = context['__functions__']
                 for n,c in functions: c.name = n

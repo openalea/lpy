@@ -46,3 +46,9 @@ def set_shell_widget(lpywidget):
     lpywidget.shellwidget = ipython_widget
     lpywidget.interpreter = kernel
     lpywidget.shell = kernel.shell
+
+    lpywidget.shellstdout = kernel.stdout
+    lpywidget.shellstderr = kernel.stderr
+
+    sys.stdout = kernel.stdout
+    sys.stderr = kernel.stderr

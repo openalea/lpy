@@ -946,6 +946,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         
     def svnCommit(self):
         self.currentSimulation().svnCommit()
+
         
 def versionmessage():
     import openalea.lpy.__version__ as lpyversion
