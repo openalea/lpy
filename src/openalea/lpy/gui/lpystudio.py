@@ -168,67 +168,66 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         self.textEditionWatch = False
         self.documentNames.connectTo(self)
 
-        self.endTask.connect(self.endTaskCheck) # QObject.connect(self,SIGNAL('endTask(PyQt_PyObject)'),self.endTaskCheck)
+        self.endTask.connect(self.endTaskCheck) 
         # self.documentNamesMore.newDocumentRequest = pyqtSignal() # AUTO SIGNAL TRANSLATION in class LPyWindow
-        self.documentNamesMore.newDocumentRequest.connect(self.newfile) # QObject.connect(self.documentNamesMore,SIGNAL('newDocumentRequest()'),self.newfile)
+        self.documentNamesMore.newDocumentRequest.connect(self.newfile) 
         # self.documentNamesMore2.newDocumentRequest = pyqtSignal() # AUTO SIGNAL TRANSLATION in class LPyWindow
-        self.documentNamesMore2.newDocumentRequest.connect(self.newfile) # QObject.connect(self.documentNamesMore2,SIGNAL('newDocumentRequest()'),self.newfile)
-        self.actionNew.triggered.connect(self.newfile) # QObject.connect(self.actionNew,SIGNAL('triggered(bool)'),self.newfile)
-        self.actionOpen.triggered.connect(lambda : self.openfile()) # QObject.connect(self.actionOpen,SIGNAL('triggered(bool)'),lambda : self.openfile())
-        self.actionSave.triggered.connect(lambda : self.savefile()) # QObject.connect(self.actionSave,SIGNAL('triggered(bool)'),lambda : self.savefile())
-        self.actionSaveAll.triggered.connect(lambda : self.saveallfiles()) # QObject.connect(self.actionSaveAll,SIGNAL('triggered(bool)'),lambda : self.saveallfiles())
-        self.actionSaveAs.triggered.connect(self.saveas) # QObject.connect(self.actionSaveAs,SIGNAL('triggered(bool)'),self.saveas)
-        self.actionClose.triggered.connect(self.closeDoc) # QObject.connect(self.actionClose,SIGNAL('triggered(bool)'),self.closeDoc)
-        self.actionImportCpfgProject.triggered.connect(lambda : self.importcpfgproject()) # QObject.connect(self.actionImportCpfgProject,SIGNAL('triggered(bool)'),lambda : self.importcpfgproject())
-        self.actionImportCpfgFile.triggered.connect(lambda : self.importcpfgfile()) # QObject.connect(self.actionImportCpfgFile,SIGNAL('triggered(bool)'),lambda : self.importcpfgfile())
-        self.actionClear.triggered.connect(self.clearHistory) # QObject.connect(self.actionClear,SIGNAL('triggered(bool)'),self.clearHistory)
-        self.actionRun.triggered.connect(self.run) # QObject.connect(self.actionRun, SIGNAL('triggered(bool)'),self.run)
-        self.actionAnimate.triggered.connect(self.animate) # QObject.connect(self.actionAnimate, SIGNAL('triggered(bool)'),self.animate)
-        self.actionStep.triggered.connect(self.step) # QObject.connect(self.actionStep, SIGNAL('triggered(bool)'),self.step)
-        self.actionRewind.triggered.connect(self.rewind) # QObject.connect(self.actionRewind, SIGNAL('triggered(bool)'),self.rewind)
-        self.actionStepInterpretation.triggered.connect(self.stepInterpretation) # QObject.connect(self.actionStepInterpretation, SIGNAL('triggered(bool)'),self.stepInterpretation)
-        self.actionIterateTo.triggered.connect(self.iterateTo) # QObject.connect(self.actionIterateTo, SIGNAL('triggered(bool)'),self.iterateTo)
-        self.actionNextIterate.triggered.connect(self.nextIterate) # QObject.connect(self.actionNextIterate, SIGNAL('triggered(bool)'),self.nextIterate)
-        self.actionAutoRun.triggered.connect(self.projectAutoRun) # QObject.connect(self.actionAutoRun, SIGNAL('triggered(bool)'),self.projectAutoRun)
-        self.actionDebug.triggered.connect(self.debug) # QObject.connect(self.actionDebug, SIGNAL('triggered(bool)'),self.debug)
-        self.actionProfile.triggered.connect(self.profile) # QObject.connect(self.actionProfile, SIGNAL('triggered(bool)'),self.profile)
-        self.actionRecord.triggered.connect(self.record) # QObject.connect(self.actionRecord, SIGNAL('triggered(bool)'),self.record)
-        self.actionStop.triggered.connect(self.cancelTask) # QObject.connect(self.actionStop, SIGNAL('triggered(bool)'),self.cancelTask)
-        self.actionStop.triggered.connect(self.abortViewer) # QObject.connect(self.actionStop, SIGNAL('triggered(bool)'),self.abortViewer)
-        self.actionExecute.triggered.connect(self.executeCode) # QObject.connect(self.actionExecute, SIGNAL('triggered(bool)'),self.executeCode)
-        self.actionComment.triggered.connect(self.codeeditor.comment) # QObject.connect(self.actionComment, SIGNAL('triggered(bool)'),self.codeeditor.comment)
-        self.actionUncomment.triggered.connect(self.codeeditor.uncomment) # QObject.connect(self.actionUncomment, SIGNAL('triggered(bool)'),self.codeeditor.uncomment)
-        self.actionInsertTab.triggered.connect(self.codeeditor.tab) # QObject.connect(self.actionInsertTab, SIGNAL('triggered(bool)'),self.codeeditor.tab)
-        self.actionRemoveTab.triggered.connect(self.codeeditor.untab) # QObject.connect(self.actionRemoveTab, SIGNAL('triggered(bool)'),self.codeeditor.untab)
-        self.actionSyntax.triggered.connect(self.setSyntaxHighLightActivation) # QObject.connect(self.actionSyntax, SIGNAL('triggered(bool)'),self.setSyntaxHighLightActivation)
-        self.actionTabHightlight.triggered.connect(self.setTabHighLightActivation) # QObject.connect(self.actionTabHightlight, SIGNAL('triggered(bool)'),self.setTabHighLightActivation)
-        self.actionPreferences.triggered.connect(self.preferences.show) # QObject.connect(self.actionPreferences, SIGNAL('triggered(bool)'),self.preferences.show)
-        self.animtimestep.valueChanged.connect(self.setTimeStep) # QObject.connect(self.animtimestep, SIGNAL('valueChanged(int)'),self.setTimeStep)
-        self.animtimeSpinBox.valueChanged.connect(self.setTimeStep) # QObject.connect(self.animtimeSpinBox, SIGNAL('valueChanged(double)'),self.setTimeStep)
-        self.codeeditor.textChanged.connect(self.textEdited) # QObject.connect(self.codeeditor, SIGNAL('textChanged()'),self.textEdited)
-        self.descriptionEdit.textChanged.connect(self.projectEdited) # QObject.connect(self.descriptionEdit, SIGNAL('textChanged()'),self.projectEdited)
-        self.referenceEdit.textChanged.connect(self.projectEdited) # QObject.connect(self.referenceEdit, SIGNAL('textChanged()'),self.projectEdited)
-        self.authorsEdit.textChanged.connect(self.projectEdited) # QObject.connect(self.authorsEdit, SIGNAL('textChanged()'),self.projectEdited)
-        self.intitutesEdit.textChanged.connect(self.projectEdited) # QObject.connect(self.intitutesEdit, SIGNAL('textChanged()'),self.projectEdited)
-        self.copyrightEdit.textChanged.connect(self.projectEdited) # QObject.connect(self.copyrightEdit, SIGNAL('textChanged()'),self.projectEdited)
-        self.materialed.valueChanged.connect(self.projectEdited) # QObject.connect(self.materialed, SIGNAL('valueChanged()'),self.projectEdited)
-        self.scalarEditor.valueChanged.connect(self.projectEdited) # QObject.connect(self.scalarEditor, SIGNAL('valueChanged()'),self.projectEdited)
-        self.scalarEditor.valueChanged.connect(self.projectParameterEdited) # QObject.connect(self.scalarEditor, SIGNAL('valueChanged()'),self.projectParameterEdited)
-        self.actionPrint.triggered.connect(self.printCode) # QObject.connect(self.actionPrint, SIGNAL('triggered(bool)'),self.printCode)
+        self.documentNamesMore2.newDocumentRequest.connect(self.newfile) 
+        self.actionNew.triggered.connect(self.newfile) 
+        self.actionOpen.triggered.connect(lambda : self.openfile()) 
+        self.actionSave.triggered.connect(lambda : self.savefile()) 
+        self.actionSaveAll.triggered.connect(lambda : self.saveallfiles()) 
+        self.actionSaveAs.triggered.connect(self.saveas) 
+        self.actionClose.triggered.connect(self.closeDoc) 
+        self.actionImportCpfgProject.triggered.connect(lambda : self.importcpfgproject()) 
+        self.actionImportCpfgFile.triggered.connect(lambda : self.importcpfgfile()) 
+        self.actionClear.triggered.connect(self.clearHistory) 
+        self.actionRun.triggered.connect(self.run) 
+        self.actionAnimate.triggered.connect(self.animate) 
+        self.actionStep.triggered.connect(self.step) 
+        self.actionRewind.triggered.connect(self.rewind) 
+        self.actionStepInterpretation.triggered.connect(self.stepInterpretation) 
+        self.actionIterateTo.triggered.connect(self.iterateTo) 
+        self.actionNextIterate.triggered.connect(self.nextIterate) 
+        self.actionAutoRun.triggered.connect(self.projectAutoRun) 
+        self.actionDebug.triggered.connect(self.debug) 
+        self.actionProfile.triggered.connect(self.profile) 
+        self.actionRecord.triggered.connect(self.record) 
+        self.actionStop.triggered.connect(self.cancelTask) 
+        self.actionStop.triggered.connect(self.abortViewer) 
+        self.actionExecute.triggered.connect(self.executeCode) 
+        self.actionComment.triggered.connect(self.codeeditor.comment) 
+        self.actionUncomment.triggered.connect(self.codeeditor.uncomment) 
+        self.actionInsertTab.triggered.connect(self.codeeditor.tab) 
+        self.actionRemoveTab.triggered.connect(self.codeeditor.untab) 
+        self.actionSyntax.triggered.connect(self.setSyntaxHighLightActivation) 
+        self.actionTabHightlight.triggered.connect(self.setTabHighLightActivation) 
+        self.actionPreferences.triggered.connect(self.preferences.show) 
+        self.animtimestep.valueChanged.connect(self.setTimeStep) 
+        self.animtimeSpinBox.valueChanged.connect(self.setTimeStep) 
+        self.codeeditor.textChanged.connect(self.textEdited) 
+        self.descriptionEdit.textChanged.connect(self.projectEdited) 
+        self.referenceEdit.textChanged.connect(self.projectEdited) 
+        self.authorsEdit.textChanged.connect(self.projectEdited) 
+        self.intitutesEdit.textChanged.connect(self.projectEdited) 
+        self.copyrightEdit.textChanged.connect(self.projectEdited) 
+        self.materialed.valueChanged.connect(self.projectEdited) 
+        self.scalarEditor.valueChanged.connect(self.projectEdited) 
+        self.scalarEditor.valueChanged.connect(self.projectParameterEdited) 
+        self.actionPrint.triggered.connect(self.printCode) 
         self.actionView3D.setEnabled(self.use_own_view3D)
-        self.actionView3D.triggered.connect(self.switchCentralView) # QObject.connect(self.actionView3D, SIGNAL('triggered(bool)'),self.switchCentralView)
+        self.actionView3D.triggered.connect(self.switchCentralView) 
         self.aboutLpy = lambda x : doc.aboutLpy(self)
-        self.actionAbout.triggered.connect(self.aboutLpy) # QObject.connect(self.actionAbout, SIGNAL('triggered(bool)'),self.aboutLpy)
-        self.actionAboutQt.triggered.connect(QApplication.aboutQt) # QObject.connect(self.actionAboutQt, SIGNAL('triggered(bool)'),QApplication.aboutQt)
+        self.actionAbout.triggered.connect(self.aboutLpy) 
+        self.actionAboutQt.triggered.connect(QApplication.aboutQt) 
         self.aboutVPlants = lambda x : doc.aboutVPlants(self)
-        self.actionAboutVPlants.triggered.connect(self.aboutVPlants) # QObject.connect(self.actionAboutVPlants, SIGNAL('triggered(bool)'),self.aboutVPlants)
         self.helpDisplay.setText(doc.getSpecification())        
-        self.actionOnlineHelp.triggered.connect(self.onlinehelp) # QObject.connect(self.actionOnlineHelp, SIGNAL('triggered(bool)'),self.onlinehelp)
-        self.actionSubmitBug.triggered.connect(self.submitBug) # QObject.connect(self.actionSubmitBug, SIGNAL('triggered(bool)'),self.submitBug)
-        self.actionCheckUpdate.triggered.connect(self.check_lpy_update) # QObject.connect(self.actionCheckUpdate, SIGNAL('triggered(bool)'),self.check_lpy_update)
-        self.actionUseThread.triggered.connect(self.toggleUseThread) # QObject.connect(self.actionUseThread,SIGNAL('triggered()'),self.toggleUseThread)
-        self.actionFitAnimationView.triggered.connect(self.toggleFitAnimationView) # QObject.connect(self.actionFitAnimationView,SIGNAL('triggered()'),self.toggleFitAnimationView)
-        self.menuRecents.triggered.connect(self.recentMenuAction) # QObject.connect(self.menuRecents,SIGNAL("triggered(QAction *)"),self.recentMenuAction)
+        self.actionOnlineHelp.triggered.connect(self.onlinehelp) 
+        self.actionSubmitBug.triggered.connect(self.submitBug) 
+        self.actionCheckUpdate.triggered.connect(self.check_lpy_update) 
+        self.actionUseThread.triggered.connect(self.toggleUseThread) 
+        self.actionFitAnimationView.triggered.connect(self.toggleFitAnimationView) 
+        self.menuRecents.triggered.connect(self.recentMenuAction) 
         self.initSVNMenu()
         self.printTitle()
         self.centralViewIsGL = False
@@ -258,9 +257,9 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
             self.actionCheckUpdate.setEnabled(False)
         return available
     
-    def retrieve_official_lpy_version(self):
+    def retrieve_official_lpy_version(self, channel = 'openalea'):
         import urllib.request, urllib.error, urllib.parse
-        versionurl = 'https://raw.githubusercontent.com/VirtualPlants/lpy/master/src/openalea/lpy/__version__.py'
+        versionurl = 'https://raw.githubusercontent.com/'+channel+'/lpy/master/src/openalea/lpy/__version__.py'
         try:
             response = urllib.request.urlopen(versionurl)
         except urllib.error.URLError as ue:
@@ -277,9 +276,12 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         import os, time
         if not silent or ((self.svnLastDateChecked + 24*60*60) < time.time()):
             self.svnLastDateChecked = time.time()
-            officialversion,offverstring = self.retrieve_official_lpy_version()
+            officialversion, offverstring = self.retrieve_official_lpy_version()
+            officialdevversion, offverdevstring = self.retrieve_official_lpy_version('fredboudon')
             if lv.__version_number__ < officialversion:
-                QMessageBox.information(self,"Lpy Update","Your version is "+lv.LPY_VERSION_STR+".\nA new version of lpy seems available on github :"+offverstring+"\nPlease update sources of lpy, plantgl, plantgl.gui and recompile.")
+                QMessageBox.information(self,"Lpy Update","Your version is "+lv.LPY_VERSION_STR+".\nA new release version of lpy seems available on github :"+offverstring+"\n.")
+            elif lv.__version_number__ < officialdevversion:
+                QMessageBox.information(self,"Lpy Update","Your version is "+lv.LPY_VERSION_STR+".\nA new develop version of lpy seems available on github :"+offverdevstring+"\n.")
             elif not silent:
                 QMessageBox.information(self,"Lpy Update","Your version is "+lv.LPY_VERSION_STR+".\nYou are up-to-date!")
             else:
@@ -332,6 +334,11 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
             self.currentSimulation().restoreState()
         if self.documentNames.currentIndex() != id:
             self.documentNames.setCurrentIndex(id)
+    def findDocumentId(self, fname):
+        for i,s in enumerate(self.simulations):
+            if s.fname == fname:
+                return s.index
+
     def showDocumentAt(self,fname,line):
         if self.currentSimulation().fname == fname:
             self.codeeditor.gotoLine(line)
@@ -352,7 +359,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         self.simulations[id2].updateTabName(True)
         self.documentNames.currentChanged.disconnect(self.changeDocument)
         self.documentNames.setCurrentIndex(id1)
-        self.documentNames.currentChanged.connect(self.changeDocument) # QObject.connect(self.documentNames,SIGNAL('currentChanged(int)'),self.changeDocument)
+        self.documentNames.currentChanged.connect(self.changeDocument)
     def focusInEvent ( self, event ):
         self.currentSimulation().monitorfile()
         return QMainWindow.focusInEvent ( self, event )
@@ -471,19 +478,28 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
             self.interpreterDock.show()    
         t,v,trb = exc_info
         st = tb.extract_tb(trb)[-1]
+        errorfile = st[0]
+        lineno = st[1]
         self.lastexception = v
+        if t == SyntaxError:
+            errorfile = v.filename
+            lineno = v.lineno
         fnames = ['<string>',self.currentSimulation().getBaseName()]
-        if st[0] in fnames :
-            self.codeeditor.hightlightError(st[1])            
-        elif t == SyntaxError:   
-            if v.filename in fnames:
-                self.codeeditor.hightlightError(v.lineno)     
+        if errorfile in fnames :
+            self.codeeditor.hightlightError(lineno)
+        else:
+            docid = self.findDocumentId(errorfile)
+            if docid:
+                self.showDocumentAt(errorfile, lineno)
+            else:
+                self.showfilecontent(errorfile)
+            self.codeeditor.hightlightError(lineno)
+
     def endErrorEvent(self,answer):
         if self.debugger.running:
             self.debugger.stopDebugger()
             self.debugMode = False
 
-    #@pyqtSlot('QString')
     def setToolBarApp(self,value):
         if type(value) == int: # hack since pyqtSlot does not seems to work
             value = ['Icons', 'Texts', 'Icons and texts', 'Texts below icons'][value]
@@ -583,6 +599,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
             if sim.fname == fname:
                 return sim.index
         return None
+
     def openfile(self,fname = None):
         if fname is None:
             initialname = os.path.dirname(self.currentSimulation().fname) if self.currentSimulation().fname else '.'
@@ -605,16 +622,19 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
                 self.simulations[ind].makeCurrent()
             else:
                 self.acquireCR()
-                try:
-                    self.currentSimulation().saveState()
-                    self.createNewLsystem(fname)
-                    self.currentSimulation().restoreState()
-                    self.statusBar().showMessage("Load file '"+fname+"'",2000)
-                    if len(self.simulations) == 2 and self.simulations[0].isDefault():
-                        self.closeDocument(0)
-                except:
-                    self.graberror()
+                self.showfilecontent(fname)
                 self.releaseCR()
+    def showfilecontent(self,fname):
+        try:
+            self.currentSimulation().saveState()
+            self.createNewLsystem(fname)
+            self.currentSimulation().restoreState()
+            self.statusBar().showMessage("Load file '"+fname+"'",2000)
+            if len(self.simulations) == 2 and self.simulations[0].isDefault():
+                self.closeDocument(0)
+        except:
+            self.graberror()
+
     def savefile(self):
         self.currentSimulation().save()
     def saveas(self):
@@ -858,7 +878,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
                     if os.path.isdir(absfname):
                         childmenu = cmenu.addMenu(iconfolder,os.path.basename(str(fname)))
                         toprocess.append( (absfname,childmenu) )
-                        childmenu.triggered.connect(self.recentMenuAction) # QObject.connect(childmenu,SIGNAL("triggered(QAction *)"),self.recentMenuAction)
+                        childmenu.triggered.connect(self.recentMenuAction) 
                     elif fname[-4:] == '.lpy':
                         action = QAction(os.path.basename(str(fname)),cmenu)
                         action.setData(to_qvariant(absfname))
@@ -891,22 +911,22 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         self.codeeditor.setTextCursor(cursor)
     def submitBug(self):
         import webbrowser
-        webbrowser.open("https://gforge.inria.fr/tracker/?func=add&group_id=79&atid=13767")
+        webbrowser.open("https://github.com/openalea/lpy/issues")
     def onlinehelp(self):
         import webbrowser
-        webbrowser.open("http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=packages:vplants:lpy:main")
+        webbrowser.open("https://lpy.readthedocs.io/")
     def initSVNMenu(self):
         from . import svnmanip
         if not svnmanip.hasSvnSupport() :
             self.menuSVN.setEnabled(False)
         else:
-            self.menuSVN.aboutToShow.connect(self.updateSVNMenu) # QObject.connect(self.menuSVN, SIGNAL('aboutToShow()'),self.updateSVNMenu)
+            self.menuSVN.aboutToShow.connect(self.updateSVNMenu) 
 
-            self.actionSVNUpdate.triggered.connect(self.svnUpdate) # QObject.connect(self.actionSVNUpdate, SIGNAL('triggered(bool)'),self.svnUpdate)
-            self.actionSVNCommit.triggered.connect(self.svnCommit) # QObject.connect(self.actionSVNCommit, SIGNAL('triggered(bool)'),self.svnCommit)
-            self.actionSVNRevert.triggered.connect(self.svnRevert) # QObject.connect(self.actionSVNRevert, SIGNAL('triggered(bool)'),self.svnRevert)
-            self.actionSVNAdd.triggered.connect(self.svnAdd) # QObject.connect(self.actionSVNAdd, SIGNAL('triggered(bool)'),self.svnAdd)
-            self.actionSVNIsUpToDate.triggered.connect(self.svnIsUpToDate) # QObject.connect(self.actionSVNIsUpToDate, SIGNAL('triggered(bool)'),self.svnIsUpToDate)
+            self.actionSVNUpdate.triggered.connect(self.svnUpdate) 
+            self.actionSVNCommit.triggered.connect(self.svnCommit) 
+            self.actionSVNRevert.triggered.connect(self.svnRevert) 
+            self.actionSVNAdd.triggered.connect(self.svnAdd) 
+            self.actionSVNIsUpToDate.triggered.connect(self.svnIsUpToDate) 
 
     def updateSVNMenu(self):
         from . import svnmanip

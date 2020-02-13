@@ -279,7 +279,7 @@ class AbstractSimulation:
 
     def saveas(self):
         bckupname = self.getBackupName()
-        qfname, mfilter = QFileDialog.getSaveFileName(self.lpywidget,"Save L-Py file",self.fname if self.fname else '.',"Py Lsystems Files (*.lpy);;All Files (*.*)")
+        qfname, mfilter = QFileDialog.getSaveFileName(self.lpywidget,"Save L-Py file",self.fname if self.fname else '.',"L-Py Files (*.lpy);;All Files (*.*)")
         if  qfname :
             fname = str(qfname)
             if not os.path.exists(fname):
@@ -540,110 +540,124 @@ class LpySimulation (AbstractSimulation):
         if not res is None: print(res)
 
     def getInitialisationCode(self,withall=True):
-        code = self.initialisationFunction(withall)
-        code += self.creditsCode()
-        if len(code) > 0:
-            code = LpyParsing.InitialisationBeginTag+'\n\n'+'__lpy_code_version__ = '+str(1.1)+'\n\n'+code
-        return code
+        from openalea.lpy.simu_environ import getInitialisationCode
+        if self.fname and len(self.fname) > 0:
+            reference_dir = os.path.abspath(os.path.dirname(self.getStrFname()))
+        else :
+            reference_dir = None
+        return getInitialisationCode(self.lsystem.context(),
+                                     self.scalars,
+                                     self.visualparameters,
+                                     self.desc_items,
+                                     simplified = not withall,
+                                     keepCode_1_0_Compatibility= self.keepCode_1_0_Compatibility,
+                                     referencedir=reference_dir)
 
-    def initialisationFunction(self, withall=True):
-        header = "def "+LsysContext.InitialisationFunctionName+"(context):\n"
-        init_txt = ''
-        if withall:
-            defaultlist = PglTurtle().getColorList()
-            currentlist = self.lsystem.context().turtle.getColorList()
-            nbdefault = len(defaultlist)
-            nbcurrent = len(currentlist)
-            firstcol = True
-            defaultmat = Material('default')
-            printer = PyStrPrinter()
-            printer.pglnamespace = 'pgl'
-            printer.indentation = '\t'
-            printer.indentation_increment = '\t'
-            printer.line_between_object = 0
-            if self.fname and len(self.fname) > 0:
-                printer.reference_dir = os.path.abspath(os.path.dirname(self.getStrFname()))
-                #print printer.reference_dir
-            for i in range(nbcurrent):
-                cmat = currentlist[i]
-                if ( (i >= nbdefault) or 
-                    (cmat.isTexture()) or
-                    (not cmat.isSimilar(defaultlist[i])) or 
-                    (cmat.name != defaultlist[i].name)):
-                    if cmat.isTexture() or not cmat.isSimilar(defaultmat):
-                        if firstcol :
-                            init_txt += "\timport openalea.plantgl.all as pgl\n"
-                            firstcol = False
-                        cmat.name = 'Color_'+str(i)
-                        cmat.apply(printer)
-                        init_txt += printer.str()
-                        printer.clear()
-                        init_txt += '\tcontext.turtle.setMaterial('+repr(i)+','+str(cmat.name)+')\n'
-            if not self.lsystem.context().is_animation_timestep_to_default():
-                init_txt += '\tcontext.animation_timestep = '+str(self.getTimeStep())+'\n'           
-            options = self.lsystem.context().options
-            for i in range(len(options)):
-                if not options[i].isToDefault():
-                    init_txt += '\tcontext.options.setSelection('+repr(options[i].name)+','+str(options[i].selection)+')\n'
-        if len(self.scalars):
-            init_txt += '\tscalars = '+str([i.tostr() for i in self.scalars])+'\n'
-            init_txt += '\tcontext["__scalars__"] = scalars\n'
-            init_txt += '\tfor s in scalars:\n\t\tif not s[1] == "Category" : context[s[0]] = s[2]\n'
-        def emptyparameterset(params):
-            for panel,data in params:
-                if len(data) > 0: return False
-            return True
-        if not emptyparameterset(self.visualparameters) :
-            intialized_managers = {}
-            panelid = 0
-            for panelinfo,objects in self.visualparameters:
-                if panelinfo.get('active',True) or withall:
-                    for manager,obj in objects:
-                        if manager not in intialized_managers:
-                            intialized_managers[manager] = True
-                            init_txt += manager.initWriting('\t') 
-                        init_txt += manager.writeObject(obj,'\t')
-                    init_txt += '\tpanel_'+str(panelid)+' = ('+repr(panelinfo)+',['+','.join(['('+repr(manager.typename)+','+manager.getName(obj)+')' for manager,obj in objects])+'])\n'
-                panelid += 1    
-            init_txt += '\tparameterset = ['
-            panelid = 0
-            for panelinfo,objects in self.visualparameters:
-                if panelinfo.get('active',True) or withall:
-                    init_txt += 'panel_'+str(panelid)+','
-                panelid += 1
-            init_txt += ']\n'
-            if withall and self.keepCode_1_0_Compatibility:
-                init_txt += '\tcontext["__functions__"] = ['
-                for panelinfo,objects in self.visualparameters:
-                    if panelinfo.get('active',True):
-                        for manager,obj in objects:
-                            if manager.typename == 'Function':
-                                init_txt += '('+repr(manager.getName(obj))+','+manager.getName(obj)+'),'
-                init_txt += ']\n'
-                init_txt += '\tcontext["__curves__"] = ['
-                for panelinfo,objects in self.visualparameters:
-                    if panelinfo.get('active',True):
-                        for manager,obj in objects:
-                            if manager.typename == 'Curve2D':
-                                init_txt += '('+repr(manager.getName(obj))+','+manager.getName(obj)+'),'
-                init_txt += ']\n'
+    # def getOldInitialisationCode(self,withall=True):
+    #     code = self.initialisationFunction(withall)
+    #     code += self.creditsCode()
+    #     if len(code) > 0:
+    #         code = LpyParsing.InitialisationBeginTag+'\n\n'+'__lpy_code_version__ = '+str(1.1)+'\n\n'+code
+    #     return code
+
+    # def initialisationFunction(self, withall=True):
+    #     header = "def "+LsysContext.InitialisationFunctionName+"(context):\n"
+    #     init_txt = ''
+    #     if withall:
+    #         defaultlist = PglTurtle().getColorList()
+    #         currentlist = self.lsystem.context().turtle.getColorList()
+    #         nbdefault = len(defaultlist)
+    #         nbcurrent = len(currentlist)
+    #         firstcol = True
+    #         defaultmat = Material('default')
+    #         printer = PyStrPrinter()
+    #         printer.pglnamespace = 'pgl'
+    #         printer.indentation = '\t'
+    #         printer.indentation_increment = '\t'
+    #         printer.line_between_object = 0
+    #         if self.fname and len(self.fname) > 0:
+    #             printer.reference_dir = os.path.abspath(os.path.dirname(self.getStrFname()))
+    #             #print printer.reference_dir
+    #         for i in range(nbcurrent):
+    #             cmat = currentlist[i]
+    #             if ( (i >= nbdefault) or 
+    #                 (cmat.isTexture()) or
+    #                 (not cmat.isSimilar(defaultlist[i])) or 
+    #                 (cmat.name != defaultlist[i].name)):
+    #                 if cmat.isTexture() or not cmat.isSimilar(defaultmat):
+    #                     if firstcol :
+    #                         init_txt += "\timport openalea.plantgl.all as pgl\n"
+    #                         firstcol = False
+    #                     cmat.name = 'Color_'+str(i)
+    #                     cmat.apply(printer)
+    #                     init_txt += printer.str()
+    #                     printer.clear()
+    #                     init_txt += '\tcontext.turtle.setMaterial('+repr(i)+','+str(cmat.name)+')\n'
+    #         if not self.lsystem.context().is_animation_timestep_to_default():
+    #             init_txt += '\tcontext.animation_timestep = '+str(self.getTimeStep())+'\n'           
+    #         options = self.lsystem.context().options
+    #         for i in range(len(options)):
+    #             if not options[i].isToDefault():
+    #                 init_txt += '\tcontext.options.setSelection('+repr(options[i].name)+','+str(options[i].selection)+')\n'
+    #     if len(self.scalars):
+    #         init_txt += '\tscalars = '+str([i.tostr() for i in self.scalars])+'\n'
+    #         init_txt += '\tcontext["__scalars__"] = scalars\n'
+    #         init_txt += '\tfor s in scalars:\n\t\tif not s[1] == "Category" : context[s[0]] = s[2]\n'
+    #     def emptyparameterset(params):
+    #         for panel,data in params:
+    #             if len(data) > 0: return False
+    #         return True
+    #     if not emptyparameterset(self.visualparameters) :
+    #         intialized_managers = {}
+    #         panelid = 0
+    #         for panelinfo,objects in self.visualparameters:
+    #             if panelinfo.get('active',True) or withall:
+    #                 for manager,obj in objects:
+    #                     if manager not in intialized_managers:
+    #                         intialized_managers[manager] = True
+    #                         init_txt += manager.initWriting('\t') 
+    #                     init_txt += manager.writeObject(obj,'\t')
+    #                 init_txt += '\tpanel_'+str(panelid)+' = ('+repr(panelinfo)+',['+','.join(['('+repr(manager.typename)+','+manager.getName(obj)+')' for manager,obj in objects])+'])\n'
+    #             panelid += 1    
+    #         init_txt += '\tparameterset = ['
+    #         panelid = 0
+    #         for panelinfo,objects in self.visualparameters:
+    #             if panelinfo.get('active',True) or withall:
+    #                 init_txt += 'panel_'+str(panelid)+','
+    #             panelid += 1
+    #         init_txt += ']\n'
+    #         if withall and self.keepCode_1_0_Compatibility:
+    #             init_txt += '\tcontext["__functions__"] = ['
+    #             for panelinfo,objects in self.visualparameters:
+    #                 if panelinfo.get('active',True):
+    #                     for manager,obj in objects:
+    #                         if manager.typename == 'Function':
+    #                             init_txt += '('+repr(manager.getName(obj))+','+manager.getName(obj)+'),'
+    #             init_txt += ']\n'
+    #             init_txt += '\tcontext["__curves__"] = ['
+    #             for panelinfo,objects in self.visualparameters:
+    #                 if panelinfo.get('active',True):
+    #                     for manager,obj in objects:
+    #                         if manager.typename == 'Curve2D':
+    #                             init_txt += '('+repr(manager.getName(obj))+','+manager.getName(obj)+'),'
+    #             init_txt += ']\n'
                 
-            init_txt += '\tcontext["__parameterset__"] = parameterset\n'
-            for panelinfo,objects in self.visualparameters:
-                if panelinfo.get('active',True):
-                    for manager,obj in objects:
-                        init_txt += '\tcontext["'+manager.getName(obj)+'"] = '+manager.writeObjectToLsysContext(obj) + '\n'
-        if len(init_txt) > 0:
-            return header+init_txt
-        else:
-            return '' 
+    #         init_txt += '\tcontext["__parameterset__"] = parameterset\n'
+    #         for panelinfo,objects in self.visualparameters:
+    #             if panelinfo.get('active',True):
+    #                 for manager,obj in objects:
+    #                     init_txt += '\tcontext["'+manager.getName(obj)+'"] = '+manager.writeObjectToLsysContext(obj) + '\n'
+    #     if len(init_txt) > 0:
+    #         return header+init_txt
+    #     else:
+    #         return '' 
 
-    def creditsCode(self):
-        txt = ''
-        for key,value in self.desc_items.items():             
-            if len(value) > 0:
-                txt += key+' = '+repr(str(value))+'\n'
-        return txt
+    # def creditsCode(self):
+    #     txt = ''
+    #     for key,value in self.desc_items.items():             
+    #         if len(value) > 0:
+    #             txt += key+' = '+repr(str(value))+'\n'
+    #     return txt
 
     def importcpfgproject(self,fname):
         from openalea.lpy.cpfg_compat.cpfg2lpy import translate_obj
@@ -682,17 +696,14 @@ class LpySimulation (AbstractSimulation):
             lpy_code_version = 1.0
             if '__lpy_code_version__' in context:
                 lpy_code_version = context['__lpy_code_version__']
-                #print(lpy_code_version)
             if '__functions__' in context and lpy_code_version <= 1.0 :
                 functions = context['__functions__']
                 for n,c in functions: c.name = n
-                # self.functions = [ c for n,c in functions ]
                 funcmanager = managers['Function']
                 self.visualparameters += [ ({'name':'Functions'}, [(funcmanager,func) for n,func in functions]) ]
             if '__curves__' in context and lpy_code_version <= 1.0 :
                 curves = context['__curves__']
                 for n,c in curves: c.name = n
-                # self.curves = [ c for n,c in curves ]
                 curvemanager = managers['Curve2D']
                 self.visualparameters += [ ({'name':'Curve2D'}, [(curvemanager,curve) for n,curve in curves]) ]
             if '__scalars__' in context:

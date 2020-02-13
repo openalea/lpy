@@ -10,8 +10,8 @@ from openalea.plantgl.gui.qt.QtWidgets import QMessageBox, QSplashScreen
 vplogofilename = ':/logo/biglogo.png'
 lpylogofilename = ':/logo/flower.png'
 
-vpInfoTxt = "Virtual Plants Team.\nCIRAD-INRIA-INRA\nSee:http://www-sop.inria.fr/virtualplants/"
-lpyInfoTxt = "L-Py\nVersion:"+LPY_VERSION_STR+"\nF. Boudon\nhttp://openalea.gforge.inria.fr/dokuwiki/doku.php?id=packages:vplants:lpy:main"
+vpInfoTxt = "Fred Boudon et al.\nCIRAD-INRIA-INRA\n"
+lpyInfoTxt = "L-Py\nVersion:"+LPY_VERSION_STR+"\nF. Boudon\nhttps://lpy.rtfd.io/"
 
 aboutTxt = """<b>L-Py</b><br>
 <it>A <b>Lindenmayer Systems</b><br>&nbsp;&nbsp;framework in <b>Python</b></it>.<br><br>Version :"""+LPY_VERSION_STR+"""<br>
@@ -21,7 +21,7 @@ Virtual Plants/UMR AGAP/CIRAD-INRIA-INRA.<br>
 """
 
 specificationheadertxt = """<H1>L-Py</H1>
-L-Py is based on the specification of Lstudio/cpfg-lpfg defined by P. Prusinkiewicz et al. (http://algorithmicbotany.org/lstudio). 
+L-Py module naming is based on the specification of Lstudio/cpfg-lpfg defined by P. Prusinkiewicz et al. (http://algorithmicbotany.org/lstudio). 
 <H2> Predefined Symbols </H2>
 Here is a recap of the predefined symbol used in L-Py with their turtle interpretation: <BR>
 
@@ -97,6 +97,7 @@ All these functions are imported from openalea.lpy module. Other data structures
 <H2> References </H2>
 For More details, see:
 <ul>
+<li>  F. Boudon, T. Cokelaer, C. Pradal, P. Prusinkiewicz and C. Godin, L-Py: an L-system simulation framework for modeling plant architecture development based on a dynamic language, Front. Plant Sci., 30 May 2012.</li>
 <li>  F. Boudon, T. Cokelaer, C. Pradal and C. Godin, L-Py, an open L-systems framework in Python, FSPM 2010.</li>
 <li>  P. Prusinkiewicz et al., 89, The algorithmic Beauty of Plants, Springer-Verlag.</li>
 <li>  P. Prusinkiewicz. Graphical applications of L-systems. Proceedings of Graphics Interface '86, pp. 247-253.</li>
@@ -148,11 +149,6 @@ def aboutLpy(parent):
     lpyDialog(parent)
     #QMessageBox.about(parent,"LPy",aboutTxt)
         
-def aboutVPlants(parent): 
-        #try:
-        vplantsDialog(parent)
-        #except:
-        #QMessageBox.about(parent,"Virtual Plants",infoTxt)
         
 def splashLPy(): 
     try:
@@ -161,19 +157,7 @@ def splashLPy():
         print(e)
         pass
 
-def vplantsDialog(parent = None):
-    if not parent or not hasattr(parent,'vpsplash'):
-        #if not os.path.exists(logofilename): raise Exception('No logo image')
-        pix = QPixmap(vplogofilename)
-        vpsplash = QSplashScreen(pix)
-    else:
-        vpsplash = parent.vpsplash
-    vpsplash.showMessage(vpInfoTxt,Qt.AlignBottom|Qt.AlignLeft)
-    vpsplash.show()
-    if parent:
-        parent.vpsplash = vpsplash
-    return vpsplash
-        
+     
 def lpyDialog(parent = None):
     if not parent or not hasattr(parent,'splash'):
         #if not os.path.exists(logofilename): raise Exception('No logo image')
