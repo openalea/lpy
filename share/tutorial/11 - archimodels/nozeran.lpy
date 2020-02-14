@@ -26,7 +26,7 @@ def branch_angle(nc):
   return 60+ 20*((nbcycle-nc)/float(nbcycle))
 
 #def EndEach(lstr):
-#    print lstr
+#    print(lstr)
 
 module A # represent trunk apical meristem
 module B # represent apical meristem of lateral branches
@@ -47,7 +47,7 @@ A(t,o) :
   if (t % (stagelength + 1)) == 0:
       # produce a verticille of branches.
       nbaxe = rd.randint(minbranches,maxbranches)
-      for i in xrange(nbaxe):
+      for i in range(nbaxe):
         nproduce [/(360*i/nbaxe)&(branch_angle(o))B(0)]
       produce @Ge
   #produces a new shifted apical meristem

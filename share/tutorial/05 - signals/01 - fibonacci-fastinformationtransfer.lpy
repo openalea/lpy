@@ -4,7 +4,7 @@ nbValues = 20
 
 Axiom: 
   nproduce -(90);(3)
-  for i in xrange(nbValues):
+  for i in range(nbValues):
     nproduce I(1)
 
 

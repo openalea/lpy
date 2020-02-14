@@ -19,7 +19,7 @@ def Start():
 Axiom: 
   global sumauxin
   nproduce _(2)
-  for i in xrange(nbEntity):
+  for i in range(nbEntity):
    auxin = uniform(min_level,max_level)
    sumauxin += auxin
    nproduce I(auxin)

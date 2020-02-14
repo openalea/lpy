@@ -11,7 +11,7 @@ def txt(val):
 Axiom: 
   global sumauxin
   nproduce _(2) 
-  for i in xrange(nbEntity-1):
+  for i in range(nbEntity-1):
    nproduce I(min_level)
   nproduce I(max_level)
 

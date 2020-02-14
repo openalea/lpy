@@ -103,7 +103,7 @@ LowerC -->[ ,(9) TextureScale(1,0.12) TextureRotation(180) MyGC(lowerCAxis,lower
 
 
 MyGC(axis,section,width,length,widthfactor,discretization):
-   # print 'myGC'
+   # print ('myGC')
    nproduce  [ SetGuide(axis,length) SetContour(section) _(width(0)) StartGC()
    step = 1/float(discretization)
    for j in range(discretization):

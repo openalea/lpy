@@ -18,7 +18,7 @@ def Start():
   timer = clock()
 
 def End():
-  print 'time=',clock()-timer
+  print ('time=',clock()-timer)
 
 Axiom: [;(0)[_(0.5)F(1)][_(maxrad)F(1)]]A(0)
 
@@ -28,7 +28,7 @@ production:
 A(x) :
   if x < maxparticule:
     nbprod = randint(0,4)
-    for i in xrange(nbprod):
+    for i in range(nbprod):
       nproduce P(Vector3(0,0,0),Vector3((random()/2)-.25,(random()/2)-.25,3+2*random()),0) 
     produce A(x+nbprod)
   else:

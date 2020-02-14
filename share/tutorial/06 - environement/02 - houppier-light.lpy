@@ -40,8 +40,8 @@ from openalea.fractalysis.light.directLight import diffuseInterception
 
 def End():
     if isAnimationEnabled():
-        print minl,maxl
-        f = file('interception.txt','w')
+        print (minl,maxl)
+        f = open('interception.txt','w')
         f.write(str(minl)+'\n')
         f.write(str(maxl)+'\n')
         f.close()
@@ -50,7 +50,7 @@ import os
 def Start():
     global minl, maxl
     if os.path.exists('interception.txt'):
-        f = file('interception.txt','r')
+        f = open('interception.txt','r')
         minl = float(f.readline())
         maxl = float(f.readline())
         f.close()
@@ -79,10 +79,10 @@ def do_houpppier(p,s,c)   :
     p2 = (p[0],p[1])
     t = norm(p2)/1.8 
     maxr = getmaxradius(t)
-    args = [maxr-uniform(0,maxr/3) for i in xrange(4)]
+    args = [maxr-uniform(0,maxr/3) for i in range(4)]
     maxh = getmaxheigth(t)
     midh = maxh*getmidheigth(t)
-    args += [midh+uniform(-0.5,0.5) for i in xrange(4)]
+    args += [midh+uniform(-0.5,0.5) for i in range(4)]
     args += [(0,0,0),(0,0,maxh)]
     ah = AsymmetricHull(*args)
     l = 17 if (c < 0 or maxl <= minl) else 2+(11 * ((c-minl)/(maxl-minl)) )   
@@ -149,7 +149,7 @@ N(x,t) :
     nproduce _(maxwidth*w1)
     nb,reminder = divmod(x,0.2)
     if nb > 0:
-      for i in xrange(nb):
+      for i in range(nb):
         lr = maxwidth*(w1+(w2-w1)*((i+1)/nb))
         #print lr
         nproduce F(0.2,lr)

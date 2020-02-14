@@ -137,11 +137,11 @@ def StartEach():
        g.demand = 0
 
 def EndEach():
-    print time, groupname[getGroup()-1], ResourcePool
+    print (time, groupname[getGroup()-1], ResourcePool)
     if getGroup() == Demand:
       
-      print [g.demand for g in OrganGroups]
-      print ResourcePool
+      print ([g.demand for g in OrganGroups])
+      print (ResourcePool)
       if ResourcePool == 0: Stop()
       
       updateAllocation()

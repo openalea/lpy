@@ -57,10 +57,10 @@ def do_houpppier(p,s,c)   :
     p2 = (p[0],p[1])
     t = norm(p2)/1.8 
     maxr = getmaxradius(t)
-    args = [maxr-uniform(0,maxr/3) for i in xrange(4)]
+    args = [maxr-uniform(0,maxr/3) for i in range(4)]
     maxh = getmaxheigth(t)
     midh = maxh*getmidheigth(t)
-    args += [midh+uniform(-0.5,0.5) for i in xrange(4)]
+    args += [midh+uniform(-0.5,0.5) for i in range(4)]
     args += [(0,0,0),(0,0,maxh)]
     ah = AsymmetricHull(*args)
     l = 17 if (c < 0 or maxl <= minl) else 2+(11 * ((c-minl)/(maxl-minl)) )   
@@ -126,9 +126,9 @@ N(x,t) :
     nproduce _(maxwidth*w1)
     nb,reminder = divmod(x,0.2)
     if nb > 0:
-      for i in xrange(int(nb)):
+      for i in range(int(nb)):
         lr = maxwidth*(w1+(w2-w1)*((i+1)/nb))
-        #print lr
+        #print (lr)
         nproduce F(0.2,lr)
         
     if reminder>0: produce F(reminder,w1) 

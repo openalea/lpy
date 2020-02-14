@@ -12,7 +12,7 @@ def myrandom(radius):
 def gen_noise_branch(radius,nbp=10):
     return  NurbsCurve([(0,0,0,1),(0,0,1/float(nbp-1),1)]+[(myrandom(radius*amplitude(pt/float(nbp-1))),
                                      myrandom(radius*amplitude(pt/float(nbp-1))),
-                                     pt/float(nbp-1),1) for pt in xrange(2,nbp)],
+                                     pt/float(nbp-1),1) for pt in range(2,nbp)],
                         degree=min(nbp-1,3),stride=nbp*100)
 
 length = 10
@@ -41,7 +41,7 @@ A(x):
          bstep = int(x * branch_step / 1000.)
          if bstep < 1: bstep = 1
          print bstep
-    for i in xrange(int(x)+0):
+    for i in range(int(x)+0):
         nproduce F(dis) iRollR(10)
         if with_branches and ((i % bstep) == 0):
             nproduce [+(90) F(dis)]
@@ -52,7 +52,7 @@ B(freq,length):
   if with_ticks:
     ul = length/freq
     nproduce @O(ul/5)
-    for i in xrange(int(freq)):
+    for i in range(int(freq)):
         nproduce F(ul)@O(ul/5)
 
 interpretation:

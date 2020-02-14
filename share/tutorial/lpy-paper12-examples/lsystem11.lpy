@@ -15,8 +15,8 @@ def retrieveCurves():
   
 def ProfileInterpolation(curves,knotlist = None,degree = 3):
     nbcurves = len(curves)
-    if knotlist is None: knotlist = [i/float(nbcurves-1) for i in xrange(nbcurves)]
-    k = [knotlist[0] for i in xrange(degree-1)]+knotlist+[knotlist[-1] for i in xrange(degree-1)]
+    if knotlist is None: knotlist = [i/float(nbcurves-1) for i in range(nbcurves)]
+    k = [knotlist[0] for i in range(degree-1)]+knotlist+[knotlist[-1] for i in range(degree-1)]
     pts = [[(i.x,i.y,0,1) for i in c.ctrlPointList] for c in curves]
     ppts = Point4Matrix(pts)
     p = NurbsPatch(ctrlPointList=ppts,udegree=degree,vdegree=curves[0].degree)

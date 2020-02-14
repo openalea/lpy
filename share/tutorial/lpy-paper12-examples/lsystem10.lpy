@@ -12,7 +12,7 @@ def ProfileInterpolation0(curves,knotlist,degree):
     return p
 
 def ProfileInterpolation1(curves,knotlist,degree):
-    k = [knotlist[0] for i in xrange(degree-1)]+knotlist+[knotlist[-1] for i in xrange(degree-1)]
+    k = [knotlist[0] for i in range(degree-1)]+knotlist+[knotlist[-1] for i in range(degree-1)]
     pts = [[(i.x,i.y,0,1) for i in c.ctrlPointList] for c in curves]
     ppts = Point4Matrix(pts)
     p = NurbsPatch(ctrlPointList=ppts,udegree=degree,vdegree=curves[0].degree)
@@ -53,13 +53,13 @@ for n,v in curves: v.name = n
 curves = [v for n,v in curves]
 curves.sort(lambda x,y : cmp(x.name,y.name))
 nbcurves = len(curves)
-print [n.name for n in curves],nbcurves
+print ([n.name for n in curves],nbcurves)
 
 def knotList(l) : 
-  return [i/float(l-1) for i in xrange(0,l)]
+  return [i/float(l-1) for i in range(0,l)]
 
 
-print knotList(nbcurves)
+print (knotList(nbcurves))
 
 p = ProfileInterpolation(curves, knotList(nbcurves), 2)
 
@@ -88,7 +88,7 @@ M(l,order) :
           
           laterallength = (length - l) * lateral_length(u)
           lateral_l = length - laterallength
-          print u, laterallength, lateral_l, lateral_l/length
+          print (u, laterallength, lateral_l, lateral_l/length)
           nproduce RollR(phyllotaxy) [ &(90) SetGuide(upath,laterallength) _(diameter(lateral_l/length)) 
           nproduce M(lateral_l,order+1)] 
         produce M(l+dl,order)

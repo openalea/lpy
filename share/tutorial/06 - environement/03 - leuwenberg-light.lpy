@@ -13,7 +13,7 @@ nb_axes = lambda order : rd.randint(3,5)  # number of axe at a ramification
 up_angle = lambda t,order : 7        # up angle for lateral branches
 
 # number total of iterations of the system
-archi_steps = [maxduration(o) for o in xrange(maxorder+1)]
+archi_steps = [maxduration(o) for o in range(maxorder+1)]
 nbiter = sum(archi_steps)
 
 initial_view = 1
@@ -43,7 +43,7 @@ A(t,o) :
   else:
       # produce a whorl of sympodial branches
       nbaxe = nb_axes(o)
-      for i in xrange(nbaxe):
+      for i in range(nbaxe):
         nproduce [/(360*i/nbaxe)&(branch_angle(o))B(0,o+1)]
       produce T
 
@@ -57,7 +57,7 @@ L(t1,n,lg) < B(t,o) :
   else:
     # produce a whorl of sympodial branches
     nbaxe = nb_axes(o)
-    for i in xrange(nbaxe):      
+    for i in range(nbaxe):      
       nproduce [/(360*i/nbaxe)&(branch_angle(o))B(0,o+1)]
     produce T
 

@@ -16,4 +16,4 @@ Apex(age) --> ,(2)@O
 endlsystem
 
 def EndEach(lstring):
-   print lstring
+   print(lstring)

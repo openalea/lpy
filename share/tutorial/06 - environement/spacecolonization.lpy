@@ -4,7 +4,7 @@ from math import pi,radians
 
 def generate_points(nbpoints,size):
   pts = []
-  for i in xrange(nbpoints):
+  for i in range(nbpoints):
     angle = uniform(0,2 * pi)
     ok = False
     while not ok:
@@ -62,7 +62,7 @@ def children_dirs(dir, angle = 60, nb = 4):
     rotdir = direction(dir.anOrthogonalVector())
     rotmat = Matrix3.axisRotation(rotdir, radians(angle))
     v0 = rotmat * dir
-    return [dir]+[v0]+[ Matrix3.axisRotation(dir, i * 2* pi/nb) *v0 for i in xrange(1,nb)]
+    return [dir]+[v0]+[ Matrix3.axisRotation(dir, i * 2* pi/nb) *v0 for i in range(1,nb)]
 
 def StartEach():
   global Attractors
