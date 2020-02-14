@@ -236,8 +236,8 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         self.stackedWidget.setCurrentIndex(0)
         settings.restoreState(self)
         self.createRecentMenu()
-        if not py2exe_release:
-            self.createTutorialMenu()
+        #if not py2exe_release:
+        self.createTutorialMenu()
         self.textEditionWatch = True
         self._initialized = False        
         self.lpy_update_enabled = self.check_lpy_update_available()
