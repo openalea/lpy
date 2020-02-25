@@ -15,7 +15,7 @@ about:
 
 build:
   preserve_egg_dir: True
-  number: 7
+  number: 0
 requirements:
   build:
     - binutils_impl_linux-64<2.31.0 # [linux]
@@ -29,7 +29,7 @@ requirements:
     - python {{PY_VER}}
     - setuptools
     - openalea.plantgl
-    - boost
+    # - boost # provided by plantgl
     - pyqt
   run:
     - python {{PY_VER}}
