@@ -94,6 +94,8 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         ComputationTaskManager.__init__(self)
         lsmw.Ui_MainWindow.__init__(self)
 
+        self.setObjectName('LPYMainWindow')
+
         import weakref
         LPyWindow.instances.append(weakref.ref(self))
 
@@ -1026,11 +1028,6 @@ def main():
     if len(args) > 1: toopen = list(map(os.path.abspath,args[1:]))
 
     qapp = QApplication([])
-    try:
-        qapp.setAttribute(Qt.AA_DisableHighDpiScaling)
-        assert qapp.testAttribute(Qt.AA_DisableHighDpiScaling)
-    except:
-        pass
     splash = doc.splashLPy()
     qapp.processEvents()
     w = LPyWindow()
