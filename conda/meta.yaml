@@ -34,24 +34,24 @@ requirements:
   run:
     - python {{PY_VER}}
     - setuptools
-    - openalea.plantgl
-    - boost
+    - {{ pin_compatible('openalea.plantgl', min_pin='x.x', max_pin='x.x') }} 
+    - {{ pin_compatible('boost', min_pin='x.x', max_pin='x.x') }} 
     - pyqt
     - ipython
     - pyopengl
     - qtconsole
     - pyqglviewer
+    # - openalea.mtg
     # - scipy
     # - matplotlib
-    # - openalea.mtg
-# test:
-#   requires:
-#     - nose
-#   imports:
-#     - openalea.lpy
-#   source_files:
-#     - test/
-#     - share/
-#   commands:
-#     - nosetests -v -I test_predecessor_at_scale.py -I test_ui.py [unix]
-#     - nosetests -v -I test_predecessor_at_scale.py -I test_ui.py -I test_axialtree.py -I test_successor_at_scale.py [win]
+test:
+  requires:
+    - nose
+  imports:
+    - openalea.lpy
+  source_files:
+    - test/
+    - share/
+  commands:
+    - nosetests -v -I test_predecessor_at_scale.py -I test_ui.py [unix]
+    - nosetests -v -I test_predecessor_at_scale.py -I test_ui.py -I test_axialtree.py -I test_successor_at_scale.py [win]
