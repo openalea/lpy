@@ -40,6 +40,7 @@ requirements:
     - ipython
     - pyopengl
     - qtconsole
+    - jupyter_client<6
     - pyqglviewer
     # - openalea.mtg
     # - scipy

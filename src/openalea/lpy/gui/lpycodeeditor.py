@@ -32,7 +32,7 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
         self.lpykeywords = ['Axiom:','production','homomorphism','interpretation',
                             'decomposition','endlsystem','group','endgroup',
                             'derivation length','maximum depth','produce','nproduce','nsproduce','makestring','-->',
-                            'consider:','ignore:','forward','backward','isForward',
+                            'consider:','ignore:','forward','backward','isForward','extern',
                             'Start','End','StartEach','EndEach','getGroup','useGroup','getIterationNb',
                             'module','-static->','@static','lpyimport']
         for pattern in self.lpykeywords:

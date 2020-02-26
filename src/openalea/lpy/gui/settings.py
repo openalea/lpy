@@ -3,11 +3,12 @@ from openalea.plantgl.gui.qt import qt
 from openalea.plantgl.gui.qt.QtCore import QSettings
 from openalea.plantgl.gui.qt.QtGui import QFont
 from openalea.plantgl.gui.qt.QtWidgets import QApplication
+from openalea.lpy import LPY_VERSION_MAJOR
 import os
 
 
 def getSettings():
-    settings = QSettings(QSettings.IniFormat, QSettings.UserScope,'OpenAlea','LPy')
+    settings = QSettings(QSettings.IniFormat, QSettings.UserScope,'OpenAlea','LPy'+str(LPY_VERSION_MAJOR))
     return settings
 
 def restoreState(lpywidget):

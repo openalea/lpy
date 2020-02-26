@@ -21,7 +21,6 @@ Virtual Plants/UMR AGAP/CIRAD-INRIA-INRA.<br>
 """
 
 specificationheadertxt = """<H1>L-Py</H1>
-L-Py module naming is based on the specification of Lstudio/cpfg-lpfg defined by P. Prusinkiewicz et al. (http://algorithmicbotany.org/lstudio). 
 <H2> Predefined Symbols </H2>
 Here is a recap of the predefined symbol used in L-Py with their turtle interpretation: <BR>
 
@@ -70,6 +69,7 @@ Here comes the python commands that control the simulation.
 <tr><td><b>InRightContext(pattern, argdict) </b></td><td> test a right context. argdict contains value of all parameter of the pattern</td></tr>
 <tr><td><b>derivation length: <i>value</i> </b></td><td> number of derivation to do (default=1).</td></tr>
 <tr><td><b>initial_view=<i>value</i> </b></td><td> number of derivation for bounding box evaluation (default=derivation length).</td></tr>
+<tr><td><b>extern(<i>var<i>=<i>value<i>) </b></td><td> definition of a global variable and its default value that can be redefined externally.</td></tr>
 <tr><td><b>production:     </b></td><td> start of the production rules declaration.</td></tr>
 <tr><td><b>homomorphism:   </b></td><td> start of the interpretation rules declaration.</td></tr>
 <tr><td><b>interpretation: </b></td><td> start of the interpretation rules declaration.</td></tr>
@@ -95,6 +95,9 @@ Here comes the python commands that control the simulation.
 All these functions are imported from openalea.lpy module. Other data structures and functionnalities are available in the module. You can check them with <b>help(openalea.lpy)</b>.<BR>
 
 <H2> References </H2>
+L-Py module naming is based on the specification of Lstudio/cpfg-lpfg defined by P. Prusinkiewicz et al. (http://algorithmicbotany.org/lstudio). <BR>
+<BR>
+
 For More details, see:
 <ul>
 <li>  F. Boudon, T. Cokelaer, C. Pradal, P. Prusinkiewicz and C. Godin, L-Py: an L-system simulation framework for modeling plant architecture development based on a dynamic language, Front. Plant Sci., 30 May 2012.</li>

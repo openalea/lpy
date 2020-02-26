@@ -266,23 +266,23 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
             response = urllib.request.urlopen(versionurl)
         except urllib.error.URLError as ue:
             import openalea.lpy.__version__ as lv
-            return lv.__version_number__, lv.LPY_VERSION_STR
+            return get_version_majorminor(lv.__version_number__), lv.LPY_VERSION_STR
         else:
             pyversioncode = response.read()
             lvofficial = {}
             exec(pyversioncode, lvofficial)
-            return lvofficial['__version_number__'],lvofficial['LPY_VERSION_STR']
+            return get_version_majorminor(lvofficial['__version_number__']),lvofficial['LPY_VERSION_STR']
 
     def check_lpy_update(self, silent = False):
         import openalea.lpy.__version__ as lv
         import os, time
-        if not silent or ((self.svnLastDateChecked + 24*60*60) < time.time()):
+        if not silent or ((self.svnLastDateChecked + 7*24*60*60) < time.time()):
             self.svnLastDateChecked = time.time()
             officialversion, offverstring = self.retrieve_official_lpy_version()
             officialdevversion, offverdevstring = self.retrieve_official_lpy_version('fredboudon')
-            if lv.__version_number__ < officialversion:
+            if get_version_majorminor(lv.__version_number__) < officialversion:
                 QMessageBox.information(self,"Lpy Update","Your version is "+lv.LPY_VERSION_STR+".\nA new release version of lpy seems available on github :"+offverstring+"\n.")
-            elif lv.__version_number__ < officialdevversion:
+            elif get_version_majorminor(lv.__version_number__) < officialdevversion:
                 QMessageBox.information(self,"Lpy Update","Your version is "+lv.LPY_VERSION_STR+".\nA new develop version of lpy seems available on github :"+offverdevstring+"\n.")
             elif not silent:
                 QMessageBox.information(self,"Lpy Update","Your version is "+lv.LPY_VERSION_STR+".\nYou are up-to-date!")
@@ -922,7 +922,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         webbrowser.open("https://github.com/openalea/lpy/issues")
     def onlinehelp(self):
         import webbrowser
-        webbrowser.open("https://lpy.readthedocs.io/")
+        webbrowser.open("https://lpy-fb.readthedocs.io/")
     def initSVNMenu(self):
         from . import svnmanip
         if not svnmanip.hasSvnSupport() :

@@ -31,8 +31,20 @@ To configure the creation of an Lsystems by setting predefined variables, it is 
     variables = {'VAR1' : VALUE1 , ... }
     l = Lsystem("myfile.lpy", variables)
 
-In such case, the variables contained in the dictionnary may overwrite graphically defined variables if they have similar names. 
+In such case, the variables contained in the dictionnary may overwrite graphically defined variables if they have similar names or variable in the model defined using the ``extern`` command. 
 
+The ``extern`` command can be used to set variables that are defined with default value in the Lsystem but can be redefined externally. For instance, in the following example, the ``VAR1``is redefined externally.
+
+.. code-block:: python
+
+    # myfile.lpy
+    extern(VAR1 = VALUE1)
+    Axiom: F(VAR1)
+
+.. code-block:: python
+    
+    # application of the lsystem
+    l = Lsystem("myfile.lpy", {'VAR1' : VALUE2})
 
 Derivation
 ----------
