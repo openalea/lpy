@@ -239,10 +239,16 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         settings.restoreState(self)
         self.createRecentMenu()
         #if not py2exe_release:
-        self.createTutorialMenu()
+        try:
+            self.createTutorialMenu()
+        except:
+            pass
         self.textEditionWatch = True
         self._initialized = False        
-        self.lpy_update_enabled = self.check_lpy_update_available()
+        try:
+            self.lpy_update_enabled = self.check_lpy_update_available()
+        except:
+            pass
 
     def init(self):
         self.textEditionWatch = False
@@ -869,10 +875,13 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         import openalea.lpy
         import os
         if 'CONDA_PREFIX' in os.environ:
-            shared_data_path = os.path.join(os.environ['CONDA_PREFIX'], 'share', 'lpy', 'tutorial')
+            if sys.platform == 'win32':
+                shared_data_path = os.path.join(os.environ['CONDA_PREFIX'], 'Library','share', 'lpy', 'tutorial')
+            else:
+                shared_data_path = os.path.join(os.environ['CONDA_PREFIX'], 'share', 'lpy', 'tutorial')                
         else:
             shared_data_path = shared_data(openalea.lpy, share_path='share/tutorial')
-        if not shared_data_path is None:
+        if not shared_data_path is None and os.path.exists(shared_data_path):
             import os
             cpath = os.path.abspath(shared_data_path)
             cmenu = self.menuTutorials
@@ -892,6 +901,8 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
                         action.setData(to_qvariant(absfname))
                         action.setIcon(iconfile)
                         cmenu.addAction(action)
+        else:
+            self.menuFile.removeAction(self.menuTutorials.menuAction())
     def recentMenuAction(self,action):
         self.openfile(str(action.data()))
     def clearHistory(self):
