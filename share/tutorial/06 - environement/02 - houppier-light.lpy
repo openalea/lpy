@@ -59,9 +59,7 @@ def Start():
 def EndEach(lstring,scene):
    if isAnimationEnabled():
       global minl, maxl # read from initial simu
-      Viewer.redrawPolicy = False # stop redrawing. do every thing with buffer
       Viewer.display(scene) 
-      pos,h,up = Viewer.camera.getPosition() # save camera position
       shapes = dict([(sh.id,sh) for sh in scene])
       res = diffuseInterception(scene)   # compute light from turtle dome
       for k,v in res.items(): # res contains pair of id, light level
@@ -70,8 +68,6 @@ def EndEach(lstring,scene):
            lstring[k][3] = v         # set ligth level into param 4 
            if minl > v: minl = v
            if maxl < v: maxl = v
-      Viewer.camera.lookAt(pos,pos+h)      # restaure camera
-      Viewer.redrawPolicy = True # redraw normaly
 
 
 def do_houpppier(p,s,c)   :

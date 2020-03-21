@@ -466,10 +466,11 @@ class ObjectListDisplay(QGLParentClass):
         ow, oh = w,h
         pw, ph = self.parent().width(),self.parent().height()
         self._width, self._height = w, h
-        self._scalingfactor = w/float(pw), h/float(ph)
+        dpr = self.window().devicePixelRatio()
+        self._scalingfactor = dpr,dpr # w/float(pw), h/float(ph)
 
         if w == 0 or h == 0: return
-        if w > h+50 :
+        if pw > ph+50 :
             scalingfactor = h/float(ph)
             self.thumbwidth = max(self.minthumbwidth*scalingfactor, min(self.maxthumbwidth*scalingfactor, h*0.95))
             self.objectthumbwidth = self.thumbwidth*0.7
@@ -719,13 +720,13 @@ class ObjectListDisplay(QGLParentClass):
                 py -= (mth-th)/2
             #glPolygonMode(GL_FRONT_AND_BACK,GL_FILL)
             #if not color is None: glColor4fv(color)
-            self.mRenderText(x+px, y+py, str(text), color = color)
+            self.mRenderText((x+px)/self._scalingfactor[0], (y+py)/self._scalingfactor[1], str(text), color = color)
             return 
             
     def itemUnderPos(self,pos):
         """function that will return the object under mouseCursor, if no object is present, this wil return None"""
         w = self.width() if self.orientation == Qt.Vertical else self.height()
-        posx, posy = pos.x(), pos.y()
+        posx, posy = pos.x()*self._scalingfactor[0], pos.y()*self._scalingfactor[1]
         b1, b2 = self.getBorderSize()
         if self.orientation == Qt.Horizontal:
             posx, posy = posy, posx
