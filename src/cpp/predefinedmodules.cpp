@@ -827,6 +827,26 @@ DeclareModuleBegin(Frame,"Draw the current turtle frame as 3 arrows (red=heading
 }
 DeclareModuleEnd
 
+DeclareModuleBegin(Arrow,"Draw an arrow. Params : 'size' (should be positive), 'cap_heigth_ratio' (in [0,1]), 'cap_radius_ratio' (should be positive).",ePrimitive)
+{
+#if PGL_VERSION >= 0x030100
+    size_t nbargs = m.size();
+    switch (nbargs) {
+        case 0:  t.arrow(); break;
+        case 1:  t.arrow(m._getReal(0)); break;
+        case 2:  t.arrow(m._getReal(0), m._getReal(1)); break;
+        default:  t.arrow(m._getReal(0), m._getReal(1), m._getReal(2)); break;
+    }
+#else
+#ifdef _MSC_VER
+#pragma message("Arrow module will be disabled. Upgrade PlantGL.")
+#else
+#warning Arrow module will be disabled. Upgrade PlantGL.
+#endif
+#endif
+}
+DeclareModuleEnd
+
 DeclareModuleBegin(elasticity,"Set Branch Elasticity. Params : 'elasticity' (optional, default= 0.0, should be between [0,1]).",eTropism)
 {
 	size_t nbargs = m.size();
@@ -1200,7 +1220,8 @@ void ModuleClass::createPredefinedClasses() {
 	Surface = new DeclaredModule(surface)("surface");
 	CpfgSurface = new DeclaredModule(surface)("~");
 	PglShape = new DeclaredModule(pglshape)("@g","PglShape");
-	Frame = new DeclaredModule(Frame)("Frame");
+    Frame = new DeclaredModule(Frame)("Frame");
+    Arrow = new DeclaredModule(Arrow)("Arrow");
 	Elasticity = new DeclaredModule(elasticity)("@Ts","Elasticity");
 	Tropism = new DeclaredModule(tropism)("@Tp","Tropism");
 	SetContour = new DeclaredModule(setcontour)("SetContour");
