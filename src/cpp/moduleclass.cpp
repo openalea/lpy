@@ -49,6 +49,8 @@ ModuleClassTable& ModuleClassTable::get() {
 
 ModuleClassTable * ModuleClassTable::__INSTANCE = NULL;
 
+/*
+Update 04/20: No garbage collector is needed as cleanLpy is registered with Py_AtExit and call cleanModuleClasses.
 class ModuleClassTableGarbageCollector
 {
 public:
@@ -63,6 +65,7 @@ protected:
 };
 
 ModuleClassTableGarbageCollector ModuleClassTableGarbageCollector::__INSTANCE;
+*/
 
 void ModuleClassTable::clearModuleClasses()
 {
