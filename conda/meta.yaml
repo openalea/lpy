@@ -15,7 +15,7 @@ about:
 
 build:
   preserve_egg_dir: True
-  number: 1
+  number: 2
 requirements:
   build:
     - binutils_impl_linux-64<2.31.0 # [linux]
@@ -34,17 +34,15 @@ requirements:
   run:
     - python {{PY_VER}}
     - setuptools
-    - {{ pin_compatible('openalea.plantgl', min_pin='x.x', max_pin='x.x') }} 
-    - {{ pin_compatible('boost', min_pin='x.x', max_pin='x.x') }} 
+    - {{ pin_compatible('openalea.plantgl', max_pin='x.x') }} 
+    - {{ pin_compatible('boost',            max_pin='x.x.x') }} 
     - pyqt
     - ipython
-    - pyopengl
     - qtconsole
-    - jupyter_client<6
+    - jupyter_client <6
+    - pyopengl
     - pyqglviewer
-    # - openalea.mtg
-    # - scipy
-    # - matplotlib
+
 test:
   requires:
     - nose

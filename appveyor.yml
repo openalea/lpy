@@ -6,6 +6,10 @@ environment:
   # Add here environement variables to control the Travis CI build
     - CONDA_RECIPE: conda
       CONDA_VERSION: 3
+      CONDA_PY: 37
+    - CONDA_RECIPE: conda
+      CONDA_VERSION: 3
+      CONDA_PY: 38
 
 install:
   - git clone https://github.com/OpenAlea/appveyor-ci.git appveyor-ci
