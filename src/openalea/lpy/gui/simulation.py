@@ -3,7 +3,7 @@ from openalea.lpy import *
 from openalea.plantgl.all import PglTurtle, Viewer, Material, PyStrPrinter, eStatic, eAnimatedPrimitives, eAnimatedScene
 from . import optioneditordelegate as oed
 import os, shutil, sys, traceback
-from time import clock, time
+#from time import time
 from .lpystudiodebugger import AbortDebugger
 from .scalar import *
 import cProfile as profiling

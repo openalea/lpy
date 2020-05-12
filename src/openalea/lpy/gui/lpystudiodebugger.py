@@ -1,6 +1,6 @@
 import openalea.lpy as lpy
 from openalea.plantgl.gui.qt import qt
-from time import clock
+from time import perf_counter
 from . lpycodeeditor import CodePointMarker, BreakPointMarker
 
 import sys
@@ -182,8 +182,8 @@ class LpyVisualDebugger (lpy.LpyDebugger):
     def wait(self):
         self.waitcond.lock()
         if self.animation :
-            t = clock()
-            while (clock()-t) < self.animationTiming and not self.waitcond.tryLock():
+            t = perf_counter()
+            while (perf_counter()-t) < self.animationTiming and not self.waitcond.tryLock():
                 QCoreApplication.instance().processEvents()
         else:
             while not self.waitcond.tryLock():            
