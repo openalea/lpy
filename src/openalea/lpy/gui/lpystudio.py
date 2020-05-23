@@ -117,6 +117,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         self.fileBackupEnabled = True
         self.codeBackupEnabled = True
         self.fitAnimationView = True
+        self.fitRunView = True
         self.with_thread = False
         self.showPyCode = False
         self.displayMetaInfo = False
@@ -184,6 +185,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         self.actionImportCpfgProject.triggered.connect(lambda : self.importcpfgproject()) 
         self.actionImportCpfgFile.triggered.connect(lambda : self.importcpfgfile()) 
         self.actionClear.triggered.connect(self.clearHistory) 
+        self.actionSaveSession.triggered.connect(self.saveSession) 
         self.actionRun.triggered.connect(self.run) 
         self.actionAnimate.triggered.connect(self.animate) 
         self.actionStep.triggered.connect(self.step) 
@@ -236,6 +238,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         self.svnLastRevisionChecked = 0
         self.svnLastDateChecked = 0.0
         self.stackedWidget.setCurrentIndex(0)
+        self.setAnimated(False)
         settings.restoreState(self)
         self.createRecentMenu()
         #if not py2exe_release:
@@ -419,6 +422,8 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
             e.accept()            
         if e.isAccepted():
             self.interpreter.locals.clear()
+    def saveSession(self):
+        settings.saveState(self)        
     def showEvent(self,event):
         if not self._initialized:
             self.init()
@@ -481,21 +486,29 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         self.com_mutex.lock()
         self.com_mutex.unlock()
         self.com_waitcondition.wakeAll()
-    def errorEvent(self,exc_info):
+    def errorEvent(self, exc_info, errmsg,  displayDialog):
         if self.withinterpreter:
             self.interpreterDock.show()    
+
         t,v,trb = exc_info
-        st = tb.extract_tb(trb)[-1]
-        errorfile = st[0]
-        lineno = st[1]
+        stacksummary = list(reversed(tb.extract_tb(trb)))
+        for fid,frame in enumerate(stacksummary):
+            if 'openalea/lpy' in frame.filename:
+                break
+        stacksummary = stacksummary[:fid]
+
+        st = stacksummary[0]
+        errorfile = st.filename
+        lineno = st.lineno
         self.lastexception = v
         if t == SyntaxError:
             errorfile = v.filename
             lineno = v.lineno
         fnames = ['<string>',self.currentSimulation().getBaseName()]
+
         if errorfile in fnames :
             self.codeeditor.hightlightError(lineno)
-        else:
+        def showErrorOnFile():
             docid = self.findDocumentId(errorfile)
             if docid:
                 self.showDocumentAt(errorfile, lineno)
@@ -503,7 +516,18 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
                 self.showfilecontent(errorfile)
             self.codeeditor.hightlightError(lineno)
 
-    def endErrorEvent(self,answer):
+        if displayDialog:
+            dialog = QMessageBox(QMessageBox.Warning, "Exception", os.path.basename(errorfile)+':'+str(lineno)+':'+errmsg, QMessageBox.Ok, self)
+            if not errorfile in fnames :
+                showbutton = dialog.addButton("Show file", QMessageBox.ApplyRole)
+                showbutton.clicked.connect(showErrorOnFile)
+            dialog.setDetailedText(errmsg+'\n\n'+'\n'.join(tb.format_list(stacksummary)))
+            dialog.exec_()
+            #showError = QMessageBox.warning(self,"Exception", msg, QMessageBox.Ok)
+
+
+
+    def endErrorEvent(self):
         if self.debugger.running:
             self.debugger.stopDebugger()
             self.debugMode = False
@@ -653,6 +677,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
             if sim.isEdited():
                 sim.save()
                 nbsaving += 1
+        self.saveSession()
         self.statusBar().showMessage("No file to save." if nbsaving == 0 else "%i file(s) saved." % nbsaving)
     def importcpfgfile(self,fname = None):
         if fname is None:
@@ -710,8 +735,9 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
                 self.viewer.setAnimation(eAnimatedScene)
         simu.updateLsystemCode()
         simu.isTextEdited()
-        task = ComputationTask(simu.run,simu.post_run,cleanupprocess=simu.cleanup)
+        task = ComputationTask(simu.run,simu.post_run,simu.pre_run,cleanupprocess=simu.cleanup)
         task.checkRerun = True
+        task.fitRunView = self.fitRunView
         self.registerTask(task)
       except:
         self.graberror()
@@ -723,6 +749,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         self.viewAbortFunc.reset()
       try:
         task = ComputationTask(simu.step,simu.post_step,simu.pre_step,cleanupprocess=simu.cleanup)
+        task.fitRunView = self.fitRunView
         self.registerTask(task)
       except:
         self.graberror()
@@ -734,6 +761,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         self.viewAbortFunc.reset()
       try:
         task = ComputationTask(simu.stepInterpretation,simu.post_stepInterpretation,simu.pre_stepInterpretation,cleanupprocess=simu.cleanup)
+        task.fitRunView = self.fitRunView
         self.registerTask(task)
       except:
         self.graberror()
@@ -757,6 +785,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         simu = self.currentSimulation()
         try:
           task = ComputationTask(simu.iterate,simu.post_step,simu.pre_step,cleanupprocess=simu.cleanup)
+          task.fitRunView = self.fitRunView
           self.registerTask(task)
         except:
           self.graberror()
@@ -785,6 +814,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
       try:
         task = ComputationTask(simu.profile,simu.post_profile,simu.pre_profile,cleanupprocess=simu.cleanup)
         task.mode = self.profilingMode
+        task.fitRunView = self.fitRunView
         task.profileView = self.profileView
         self.registerTask(task)        
       except:
@@ -1036,16 +1066,16 @@ def main():
         return
 
     toopen = []
-    if len(args) > 1: toopen = list(map(os.path.abspath,args[1:]))
+    if len(args) > 1: toopen = list(map(os.path.abspath,[a for a in args[1:] if not a.startswith('-')]))
 
     qapp = QApplication([])
+    qapp.setAttribute(Qt.AA_DontCreateNativeWidgetSiblings)
     splash = doc.splashLPy()
     qapp.processEvents()
     w = LPyWindow()
     w.show()    
     for f in toopen:
-        if f[0] != '-':            
-            w.openfile(f)
+        w.openfile(f)
     if splash:
         splash.finish(w)
         w.splash = splash

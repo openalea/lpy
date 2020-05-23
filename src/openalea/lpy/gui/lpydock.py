@@ -76,6 +76,7 @@ def initDocks(lpywidget):
     lpywidget.addDockWidget(Qt.BottomDockWidgetArea,lpywidget.profilerDock)    
     action = lpywidget.profilerDock.toggleViewAction()
     lpywidget.menuView.addAction(action)
+    lpywidget.tabifyDockWidget(lpywidget.profilerDock,lpywidget.debugDock)
     lpywidget.profilerDock.hide()
     #interpreter dock
     if lpywidget.withinterpreter :

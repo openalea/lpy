@@ -379,6 +379,8 @@ class AbstractSimulation:
     def opencode(self,txt):
         pass
 
+    def pre_run(self,task):
+        pass
     def run(self, task):
         pass
     def post_run(self,task):
@@ -728,6 +730,10 @@ class LpySimulation (AbstractSimulation):
             self.textdocument.clear()
             self.textdocument.setPlainText(self.code)
             self.lpywidget.textEditionWatch = True
+
+    def pre_run(self,task):
+        self.lpywidget.viewer.start()
+        self.lpywidget.viewer.setAnimation(eStatic if self.firstView and task.fitRunView else eAnimatedPrimitives)
 
     def run(self,task):
         dl = self.lsystem.derivationLength

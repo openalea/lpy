@@ -64,7 +64,8 @@ def retrieveidinname(name,prefix):
         return None
 
 def retrievemaxidname(names,prefix):
-    previousids = [ retrieveidinname(name,prefix) for name in names if len(name) >= len(prefix) and prefix == name[0:len(prefix)]]
+    previousids = [ retrieveidinname(name,prefix) for name in names if name.startswith(prefix)]
+    previousids = [v for v in previousids if not v is None]
     mid = None
     if len(previousids) > 0:
         mid = max(previousids)
@@ -128,12 +129,12 @@ class ManagerDialogContainer (QObject):
                 QMessageBox.warning(self.panel,"Cannot edit","Cannot edit object ! Python module (PyQGLViewer) is certainly missing!")
                 return
         self.manager.setObjectToEditor(self.editor,obj)
-        #try:
-        #    self.editor.updateGL()
-        #except:
-        #    pass
+        self.editorDialog.setWindowTitle(self.manager.typename+' Editor - '+self.manager.getName(obj))
         self.editorDialog.hasChanged = False
         self.editorDialog.show()
+        self.editorDialog.activateWindow()
+        self.editorDialog.raise_()
+
 
     def endObjectEdition(self):
         if self.editor:
@@ -258,7 +259,7 @@ class ObjectListDisplay(QGLParentClass):
         self.theme = self.Theme()
         self.setTheme(self.BLACK_THEME)
         self._width, self._heigth = self.width(), self.height()
-        self._scalingfactor = 1,1
+        self._scalingfactor = 1
 
     def setTheme(self,theme):
         self.theme.values.update(theme)
@@ -467,11 +468,11 @@ class ObjectListDisplay(QGLParentClass):
         pw, ph = self.parent().width(),self.parent().height()
         self._width, self._height = w, h
         dpr = self.window().devicePixelRatio()
-        self._scalingfactor = dpr,dpr # w/float(pw), h/float(ph)
+        self._scalingfactor = dpr # w/float(pw), h/float(ph)
 
         if w == 0 or h == 0: return
         if pw > ph+50 :
-            scalingfactor = h/float(ph)
+            scalingfactor = dpr # h/float(ph)
             self.thumbwidth = max(self.minthumbwidth*scalingfactor, min(self.maxthumbwidth*scalingfactor, h*0.95))
             self.objectthumbwidth = self.thumbwidth*0.7
             if self.orientation == Qt.Vertical:
@@ -479,7 +480,7 @@ class ObjectListDisplay(QGLParentClass):
             else:
                 self.updateFrameView()
         else:
-            scalingfactor = w/float(pw)
+            scalingfactor = dpr # w/float(pw)
             self.thumbwidth = max(self.minthumbwidth*scalingfactor, min(self.maxthumbwidth*scalingfactor, w*0.95))
             self.objectthumbwidth = self.thumbwidth*0.7
             if self.orientation == Qt.Horizontal:
@@ -490,94 +491,106 @@ class ObjectListDisplay(QGLParentClass):
         self.generateDisplayList()
     
     def generateDisplayList(self):
-        if self.borderList is  None:
-            self.borderList = glGenLists(1)
-        cornersize = self.cornersize
-        thumbwidth = self.thumbwidth
-        
-        # list for simple thumbnail
-        glNewList(self.borderList,GL_COMPILE)
-        glPolygonMode(GL_FRONT_AND_BACK,GL_FILL)
-        # activeGreyColor = 0.25
-        # inactiveGreyColor = self.inactiveBgColor + 0.05
-        # selectionGreyColor = 0.4
-        # enhancementColor = 0.3
-        if self.active:
-           bc = self.theme.thumbnailBackGround
-           ec = self.theme.thumbnailBackGround2
-        else:
-           bc = self.theme.inactiveThumbnailBackGround
-           ec = bc
-        #bc[3] = 0.5
-        #ec[3] = 0.5
-        glBegin(GL_QUADS)
-        
-        glColor4fv(bc)
-        glVertex2f(0,0)
-        glVertex2f(thumbwidth-1,0)
-        glColor4fv(ec)
-        glVertex2f(thumbwidth-1,thumbwidth-1)
-        glVertex2f(0,thumbwidth-1)
-        glEnd()
-        glLineWidth(2)
-        glColor4fv(self.theme.thumbnailLine)
-        glBegin(GL_LINE_STRIP)
-        glVertex2f(cornersize,0)
-        glVertex2f(thumbwidth-cornersize-1,0)
-        glVertex2f(thumbwidth-1,cornersize)
-        glVertex2f(thumbwidth-1,thumbwidth-cornersize-1)           
-        glVertex2f(thumbwidth-cornersize-1,thumbwidth-1)           
-        glVertex2f(cornersize,thumbwidth-1)
-        glVertex2f(0,thumbwidth-cornersize-1)
-        glVertex2f(0,cornersize)
-        glVertex2f(cornersize,0)
-        glEnd()
-        glEndList()
-        
-        bc = self.theme.selectedThumbnailBackGround
-        ec = self.theme.selectedThumbnailBackGround2
-        #bc[3] = 0.5
-        #ec[3] = 0.5
-        # list for selected thumbnail
-        if self.selectedBorderList is  None:
-            self.selectedBorderList = glGenLists(1)
-        glNewList(self.selectedBorderList,GL_COMPILE)
-        glBegin(GL_QUADS)
-        glColor4fv(bc)
-        glVertex2f(0,0)
-        glVertex2f(thumbwidth-1,0)
-        glColor4fv(ec)
-        glVertex2f(thumbwidth-1,thumbwidth-1)
-        glVertex2f(0,thumbwidth-1)
-        glEnd()
-        
-        glLineWidth(3)
-        glColor4fv(self.theme.thumbnailLineShadow)
-        glBegin(GL_LINE_STRIP)
-        glVertex2f(0,0)
-        glVertex2f(thumbwidth-1,0)
-        glVertex2f(thumbwidth-1,thumbwidth-1)
-        glVertex2f(0,thumbwidth-1)
-        glVertex2f(0,0)
-        glEnd()
-        glLineWidth(1)
-        glColor4fv(self.theme.thumbnailSelectedLine)
-        glBegin(GL_LINE_STRIP)
-        glVertex2f(0,0)
-        glVertex2f(thumbwidth-1,0)
-        glVertex2f(thumbwidth-1,thumbwidth-1)
-        glVertex2f(0,thumbwidth-1)
-        glVertex2f(0,0)
-        glEnd()
-        glEndList()
+        try:
+            fakeList = glGenLists(1)
+            if self.borderList is  None:
+                self.borderList = glGenLists(1)
+            cornersize = self.cornersize
+            thumbwidth = self.thumbwidth
+            
+            # list for simple thumbnail
+            glNewList(self.borderList,GL_COMPILE)
+            glPolygonMode(GL_FRONT_AND_BACK,GL_FILL)
+            # activeGreyColor = 0.25
+            # inactiveGreyColor = self.inactiveBgColor + 0.05
+            # selectionGreyColor = 0.4
+            # enhancementColor = 0.3
+            if self.active:
+               bc = self.theme.thumbnailBackGround
+               ec = self.theme.thumbnailBackGround2
+            else:
+               bc = self.theme.inactiveThumbnailBackGround
+               ec = bc
 
-        if self.backGroundList is  None:
-            self.backGroundList = glGenLists(1)
-        glNewList(self.backGroundList,GL_COMPILE)
-        glPolygonMode(GL_FRONT_AND_BACK,GL_FILL)
-        if self.isVisible():
-            self.drawBackGround(self._width,self._height)
-        glEndList()
+            glBegin(GL_QUADS)            
+            glColor4fv(bc)
+            glVertex2f(0,0)
+            glVertex2f(thumbwidth-1,0)
+            glColor4fv(ec)
+            glVertex2f(thumbwidth-1,thumbwidth-1)
+            glVertex2f(0,thumbwidth-1)
+            glEnd()
+
+            glLineWidth(2)
+            glColor4fv(self.theme.thumbnailLine)
+
+            glBegin(GL_LINE_STRIP)
+            glVertex2f(cornersize,0)
+            glVertex2f(thumbwidth-cornersize-1,0)
+            glVertex2f(thumbwidth-1,cornersize)
+            glVertex2f(thumbwidth-1,thumbwidth-cornersize-1)           
+            glVertex2f(thumbwidth-cornersize-1,thumbwidth-1)           
+            glVertex2f(cornersize,thumbwidth-1)
+            glVertex2f(0,thumbwidth-cornersize-1)
+            glVertex2f(0,cornersize)
+            glVertex2f(cornersize,0)
+            glEnd()
+            
+            glEndList()
+            
+            bc = self.theme.selectedThumbnailBackGround
+            ec = self.theme.selectedThumbnailBackGround2
+            #bc[3] = 0.5
+            #ec[3] = 0.5
+            # list for selected thumbnail
+            if self.selectedBorderList is  None:
+                self.selectedBorderList = glGenLists(1)
+            glNewList(self.selectedBorderList,GL_COMPILE)
+            
+            glBegin(GL_QUADS)
+            glColor4fv(bc)
+            glVertex2f(0,0)
+            glVertex2f(thumbwidth-1,0)
+            glColor4fv(ec)
+            glVertex2f(thumbwidth-1,thumbwidth-1)
+            glVertex2f(0,thumbwidth-1)
+            glEnd()
+            
+            glLineWidth(3)
+            glColor4fv(self.theme.thumbnailLineShadow)
+            
+            glBegin(GL_LINE_STRIP)
+            glVertex2f(0,0)
+            glVertex2f(thumbwidth-1,0)
+            glVertex2f(thumbwidth-1,thumbwidth-1)
+            glVertex2f(0,thumbwidth-1)
+            glVertex2f(0,0)
+            glEnd()
+
+            glLineWidth(1)
+            glColor4fv(self.theme.thumbnailSelectedLine)
+
+            glBegin(GL_LINE_STRIP)
+            glVertex2f(0,0)
+            glVertex2f(thumbwidth-1,0)
+            glVertex2f(thumbwidth-1,thumbwidth-1)
+            glVertex2f(0,thumbwidth-1)
+            glVertex2f(0,0)
+            glEnd()
+            
+            glEndList()
+
+            if self.backGroundList is  None:
+                self.backGroundList = glGenLists(1)
+            glNewList(self.backGroundList,GL_COMPILE)
+            glPolygonMode(GL_FRONT_AND_BACK,GL_FILL)
+            if self.isVisible():
+                self.drawBackGround(self._width,self._height)
+            glEndList()
+        except:
+            self.borderList = None
+            self.selectedBorderList = None
+            self.backGroundList = None
         
     def computeBackGround(self,w,h):
         if self.orientation == Qt.Vertical:
@@ -634,71 +647,79 @@ class ObjectListDisplay(QGLParentClass):
             bgcol = self.theme.backGroundColor
         else:
             bgcol = self.theme.inactiveBackGroundColor
-        glClearColor(*bgcol)
         try:
-            glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
-        except: # the visible attribute is not correctly set on mac. The widget is not really visible and the initialization failed.
-            return
-        glEnable(GL_BLEND)
-        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA)
-        glViewport(0,0,w,h)
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glOrtho(0,w,h,0,-1000,1000);
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity()
-        #glTranslatef(w*(self._scalingfactor[0]-1)*0.5,-h*(self._scalingfactor[1]-1),0)
-        #glScalef(self._scalingfactor[0],self._scalingfactor[1],1)
-        hscroll = self.scroll.horizontalScrollBar().value()
-        glTranslatef(-hscroll,0,0)
-        glCallList(self.backGroundList)
-        self.drawBackGround(w,h)
-        i=0
-        b1,b2 = self.getBorderSize()
-        for manager,obj in self.objects:
+            glClearColor(*bgcol)
+            try:
+                glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
+            except: # the visible attribute is not correctly set on mac. The widget is not really visible and the initialization failed.
+                return
+            glEnable(GL_BLEND)
+            glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA)
+            glViewport(0,0,w,h)
+            glMatrixMode(GL_PROJECTION);
+            glLoadIdentity();
+            glOrtho(0,w,h,0,-1000,1000);
+            glMatrixMode(GL_MODELVIEW);
+            glLoadIdentity()
+            #glTranslatef(w*(self._scalingfactor-1)*0.5,-h*(self._scalingfactor-1),0)
+            #glScalef(self._scalingfactor,self._scalingfactor,1)
 
-            glPushMatrix()
-            if self.orientation == Qt.Vertical:
-                glTranslatef(b1,(i*self.thumbwidth)+b2,0)
-            else:
-                glTranslatef((i*self.thumbwidth)+b2,b1,0)
-            
-            if (not self.selectionPositionCurrent is None) and (not self.selectionPositionBegin is None) and (self.selection==i):
-                decal = self.selectionPositionCurrent - self.selectionPositionBegin
-                glTranslatef(decal.x(),decal.y(),0)
-            else : decal = QPoint(0,0)
+            #hscroll = self.scroll.horizontalScrollBar().value()
+            #glTranslatef(-hscroll,0,0)
+            hscroll = 0
 
-            if self.selection == i:
-                glCallList(self.selectedBorderList)
-            else:
-                glCallList(self.borderList)
-           
-            glTranslatef(self.thumbwidth/2,self.thumbwidth/2,0)                  
-            manager.displayThumbnail(obj,i,self.cursorselection==i,self.objectthumbwidth)
-            
-            glPopMatrix()
+            if not self.backGroundList is None:
+                glCallList(self.backGroundList)
+            self.drawBackGround(w,h)
+            i=0
+            b1,b2 = self.getBorderSize()
+            for manager,obj in self.objects:
 
-            if not self.active:
-                txtColor = self.theme.inactiveText
-            else:
-                if self.cursorselection == i:
-                    txtColor =  self.theme.selectedBottomText
+                glPushMatrix()
+                if self.orientation == Qt.Vertical:
+                    glTranslatef(b1,(i*self.thumbwidth)+b2,0)
                 else:
-                    txtColor = self.theme.bottomText
-            if self.orientation == Qt.Vertical:
-                tx,ty, ty2 = b1,(i*self.thumbwidth)+b2,((i-1)*self.thumbwidth)+b2+3
-            else:
-                tx,ty, ty2 = (i*self.thumbwidth)+b2,b1, b1-self.thumbwidth+3
-            self.drawTextIn(manager.getName(obj),tx+decal.x()-hscroll,ty+decal.y(),self.thumbwidth, color = txtColor)
-            if self.active:
-                if self.cursorselection == i:
-                    txtColor = self.theme.selectedTopText
-                else:
-                    txtColor = self.theme.topText
-                    pass
-            self.drawTextIn(manager.typename,tx+decal.x()-hscroll,ty2+decal.y(),self.thumbwidth, below = True, color = txtColor)
-            i+=1            
+                    glTranslatef((i*self.thumbwidth)+b2,b1,0)
+                
+                if (not self.selectionPositionCurrent is None) and (not self.selectionPositionBegin is None) and (self.selection==i):
+                    decal = self.selectionPositionCurrent - self.selectionPositionBegin
+                    glTranslatef(decal.x(),decal.y(),0)
+                else : decal = QPoint(0,0)
 
+                if not self.borderList is None:
+                    if self.selection == i:
+                        glCallList(self.selectedBorderList)
+                    else:
+                        glCallList(self.borderList)
+               
+                glTranslatef(self.thumbwidth/2,self.thumbwidth/2,0)                  
+                manager.displayThumbnail(obj,i,self.cursorselection==i,self.objectthumbwidth)
+                
+                glPopMatrix()
+
+                if not self.active:
+                    txtColor = self.theme.inactiveText
+                else:
+                    if self.cursorselection == i:
+                        txtColor =  self.theme.selectedBottomText
+                    else:
+                        txtColor = self.theme.bottomText
+                if self.orientation == Qt.Vertical:
+                    tx,ty, ty2 = b1,(i*self.thumbwidth)+b2,((i-1)*self.thumbwidth)+b2+3
+                else:
+                    tx,ty, ty2 = (i*self.thumbwidth)+b2,b1, b1-self.thumbwidth+3
+                self.drawTextIn(manager.getName(obj),tx+decal.x()-hscroll,ty+decal.y(),self.thumbwidth, color = txtColor)
+                if self.active:
+                    if self.cursorselection == i:
+                        txtColor = self.theme.selectedTopText
+                    else:
+                        txtColor = self.theme.topText
+                        pass
+                self.drawTextIn(manager.typename,tx+decal.x()-hscroll,ty2+decal.y(),self.thumbwidth, below = True, color = txtColor)
+                i+=1 
+        except Exception as e:
+            exc_info = sys.exc_info()
+            traceback.print_exception(*exc_info)
 
     def drawTextIn(self, text, x, y, width, below = False, color = None):
             fm = QFontMetrics(self.font())
@@ -720,13 +741,13 @@ class ObjectListDisplay(QGLParentClass):
                 py -= (mth-th)/2
             #glPolygonMode(GL_FRONT_AND_BACK,GL_FILL)
             #if not color is None: glColor4fv(color)
-            self.mRenderText((x+px)/self._scalingfactor[0], (y+py)/self._scalingfactor[1], str(text), color = color)
+            self.mRenderText((x+px)/self._scalingfactor, (y+py)/self._scalingfactor, str(text), color = color)
             return 
             
     def itemUnderPos(self,pos):
         """function that will return the object under mouseCursor, if no object is present, this wil return None"""
         w = self.width() if self.orientation == Qt.Vertical else self.height()
-        posx, posy = pos.x()*self._scalingfactor[0], pos.y()*self._scalingfactor[1]
+        posx, posy = pos.x()*self._scalingfactor, pos.y()*self._scalingfactor
         b1, b2 = self.getBorderSize()
         if self.orientation == Qt.Horizontal:
             posx, posy = posy, posx
@@ -1104,6 +1125,26 @@ class LpyObjectPanelDock (QDockWidget):
             self.previousVisibility = info['visible']
             self.setVisible(info['visible'])
 
+
+class DockerMover:
+    def __init__(self, mainwindow, position, panel):
+        self.mainwindow = mainwindow
+        self.panel = panel
+        self.position = position
+    def __call__(self):
+        if self.position == 'Floating':
+            if not self.panel.isFloating():
+                self.panel.setFloating(True)
+        else:
+            self.panel.setFloating(False)
+            if self.mainwindow.dockWidgetArea(self.panel) != self.position:
+                visibilitycheck = self.mainwindow.isVisible()
+                parentdock = [dock for dock in self.mainwindow.findChildren(QDockWidget) if dock != self.panel and (not visibilitycheck or not dock.isHidden()) and self.mainwindow.dockWidgetArea(dock) == self.position]
+                self.mainwindow.addDockWidget(self.position, self.panel)
+                #print([p.windowTitle() for p in parentdock])
+                if len(parentdock) > 0:
+                    self.mainwindow.tabifyDockWidget(parentdock[0], self.panel)
+
 class ObjectPanelManager(QObject):
     def __init__(self,parent):
         QObject.__init__(self,parent)
@@ -1153,8 +1194,10 @@ class ObjectPanelManager(QObject):
                     npanel.valueChanged.connect(self.parent.projectEdited)
                     npanel.valueChanged.connect(self.parent.projectParameterEdited)
                     npanel.AutomaticUpdate.connect(self.parent.projectAutoRun)
+                    npanel.setFeatures(QDockWidget.DockWidgetClosable)
                     self.panels.append(npanel)
-                    self.parent.addDockWidget(Qt.LeftDockWidgetArea,npanel)
+                    DockerMover(self.parent, Qt.BottomDockWidgetArea, npanel)()
+                    #self.parent.addDockWidget(Qt.BottomDockWidgetArea,npanel)
                     self.vparameterView.addAction(npanel.toggleViewAction())
                     if new_visible:
                         npanel.show()
@@ -1178,13 +1221,22 @@ class ObjectPanelManager(QObject):
         panelAction = QAction('Disable' if panel.view.isActive() else 'Enable',panelmenu)
         panelAction.triggered.connect(TriggerParamFunc(panel.view.setActive,not panel.view.isActive()))
         panelmenu.addAction(panelAction)
+
         subpanelmenu = QMenu("Theme",menu)
         panelmenu.addSeparator()
         panelmenu.addMenu(subpanelmenu)
         for themename,value in ObjectListDisplay.THEMES.items():
             panelAction = QAction(themename,subpanelmenu)
-            
             panelAction.triggered.connect(TriggerParamFunc(panel.view.applyTheme,value))
+            subpanelmenu.addAction(panelAction)
+
+        subpanelmenu = QMenu("Move To",menu)
+        panelmenu.addSeparator()
+        panelmenu.addMenu(subpanelmenu)
+
+        for position, flag in [('Bottom', Qt.BottomDockWidgetArea), ('Left', Qt.LeftDockWidgetArea), ('Right', Qt.RightDockWidgetArea), ('Top', Qt.TopDockWidgetArea), ('Floating', 'Floating')]:
+            panelAction = QAction(position,subpanelmenu)
+            panelAction.triggered.connect(DockerMover(self.parent.window(),flag, panel))
             subpanelmenu.addAction(panelAction)
             
         return panelmenu
@@ -1197,6 +1249,7 @@ class ObjectPanelManager(QObject):
         npanel.setName(self.computeNewPanelName('Panel'))
         if not above is None:
             self.parent.tabifyDockWidget(above,npanel)
+
     def duplicatePanel(self,source):
         nb = len(self.panels)+1
         self.setObjectPanelNb(nb)
