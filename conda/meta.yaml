@@ -15,7 +15,7 @@ about:
 
 build:
   preserve_egg_dir: True
-  number: 2
+  number: 0
 requirements:
   build:
     - binutils_impl_linux-64<2.31.0 # [linux]
