@@ -733,7 +733,7 @@ class LpySimulation (AbstractSimulation):
 
     def pre_run(self,task):
         self.lpywidget.viewer.start()
-        self.lpywidget.viewer.setAnimation(eStatic if self.firstView and task.fitRunView else eAnimatedPrimitives)
+        self.lpywidget.viewer.setAnimation(eStatic if self.firstView or task.fitRunView else eAnimatedPrimitives)
 
     def run(self,task):
         dl = self.lsystem.derivationLength
@@ -784,7 +784,7 @@ class LpySimulation (AbstractSimulation):
         if self.isTextEdited() or self.lsystem.empty() or self.nbiterations == 0 or self.nbiterations >= self.lsystem.derivationLength:
             self.updateLsystemCode()
         self.lpywidget.viewer.start()
-        self.lpywidget.viewer.setAnimation(eStatic if self.firstView and task.fitAnimationView else eAnimatedPrimitives)
+        self.lpywidget.viewer.setAnimation(eStatic if self.firstView or task.fitAnimationView else eAnimatedPrimitives)
 
     def post_animate(self,task):
         if hasattr(task,'result'):
