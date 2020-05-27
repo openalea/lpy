@@ -7,7 +7,7 @@ from math import sin, pi
 
 from .objectmanagers import get_managers
 
-from openalea.plantgl.gui.qt.QtCore import QObject, QPoint, Qt, pyqtSignal
+from openalea.plantgl.gui.qt.QtCore import QObject, QPoint, Qt, pyqtSignal, QT_VERSION_STR
 from openalea.plantgl.gui.qt.QtGui import QFont, QFontMetrics, QImageWriter, QColor, QPainter
 from openalea.plantgl.gui.qt.QtWidgets import QAction, QApplication, QDockWidget, QFileDialog, QLineEdit, QMenu, QMessageBox, QScrollArea, QVBoxLayout, QWidget
 
@@ -154,7 +154,6 @@ class ManagerDialogContainer (QObject):
         return (not (self.editorDialog is None)) and self.editorDialog.isVisible()
 
 
-
 class ObjectListDisplay(QGLParentClass): 
     """ Display and edit a list of parameter objects """
     class Theme:
@@ -254,6 +253,8 @@ class ObjectListDisplay(QGLParentClass):
         self.borderList = None
         self.selectedBorderList = None
         self.backGroundList = None
+
+        self.with_translation = (int(QT_VERSION_STR.split('.')[1]) < 14)
 
         self.createContextMenuActions()
         self.theme = self.Theme()
@@ -642,6 +643,7 @@ class ObjectListDisplay(QGLParentClass):
         if not self.isVisible(): return
         w = self._width
         h = self._height
+        print(w,h)
         if w == 0 or h == 0: return
         if self.active:
             bgcol = self.theme.backGroundColor
@@ -664,12 +666,15 @@ class ObjectListDisplay(QGLParentClass):
             #glTranslatef(w*(self._scalingfactor-1)*0.5,-h*(self._scalingfactor-1),0)
             #glScalef(self._scalingfactor,self._scalingfactor,1)
 
-            #hscroll = self.scroll.horizontalScrollBar().value()
-            #glTranslatef(-hscroll,0,0)
-            hscroll = 0
+            vscroll, hscroll = 0, 0
+            if self.with_translation:
+                hscroll = self.scroll.horizontalScrollBar().value()
+                vscroll = self.scroll.verticalScrollBar().value()
+                glTranslatef(-hscroll,-vscroll,0)
 
             if not self.backGroundList is None:
                 glCallList(self.backGroundList)
+
             self.drawBackGround(w,h)
             i=0
             b1,b2 = self.getBorderSize()
@@ -708,14 +713,15 @@ class ObjectListDisplay(QGLParentClass):
                     tx,ty, ty2 = b1,(i*self.thumbwidth)+b2,((i-1)*self.thumbwidth)+b2+3
                 else:
                     tx,ty, ty2 = (i*self.thumbwidth)+b2,b1, b1-self.thumbwidth+3
-                self.drawTextIn(manager.getName(obj),tx+decal.x()-hscroll,ty+decal.y(),self.thumbwidth, color = txtColor)
+                self.drawTextIn(manager.getName(obj),tx+decal.x()-hscroll,ty+decal.y()-vscroll,self.thumbwidth, color = txtColor)
+
                 if self.active:
                     if self.cursorselection == i:
                         txtColor = self.theme.selectedTopText
                     else:
                         txtColor = self.theme.topText
                         pass
-                self.drawTextIn(manager.typename,tx+decal.x()-hscroll,ty2+decal.y(),self.thumbwidth, below = True, color = txtColor)
+                self.drawTextIn(manager.typename,tx+decal.x()-hscroll,ty2+decal.y()-vscroll,self.thumbwidth, below = True, color = txtColor)
                 i+=1 
         except Exception as e:
             exc_info = sys.exc_info()
@@ -748,6 +754,12 @@ class ObjectListDisplay(QGLParentClass):
         """function that will return the object under mouseCursor, if no object is present, this wil return None"""
         w = self.width() if self.orientation == Qt.Vertical else self.height()
         posx, posy = pos.x()*self._scalingfactor, pos.y()*self._scalingfactor
+        #if self.with_translation:
+        #    hscroll = self.scroll.horizontalScrollBar().value()
+        #    vscroll = self.scroll.verticalScrollBar().value()
+        #    posx -= hscroll
+        #    posy -= vscroll
+
         b1, b2 = self.getBorderSize()
         if self.orientation == Qt.Horizontal:
             posx, posy = posy, posx
@@ -979,7 +991,7 @@ class ObjectListDisplay(QGLParentClass):
             print(msg)
 
     def saveImage(self):
-        fname = QFileDialog.getSaveFileName(self,'Save Image','.',';;'.join([str(i)+' (*.'+str(i)+')' for i in QImageWriter.supportedImageFormats()]))
+        fname = QFileDialog.getSaveFileName(self,'Save Image','.',';;'.join([str(i.data(), encoding='utf-8').upper()+' files (*.'+str(i.data(), encoding='utf-8')+')' for i in QImageWriter.supportedImageFormats()]))
         if fname:
             self.grabFrameBuffer(True).save(fname[0])
             self.showMessage('Save '+repr(fname[0]),3000)
