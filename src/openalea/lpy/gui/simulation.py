@@ -96,6 +96,8 @@ class AbstractSimulation:
     def getBaseName(self):
         if self._fname is None : return 'New'
         else : return os.path.basename(self.fname)
+    def getFileName(self):
+        return self._fname
     def getTabName(self):
         t = ''
         #if self.textedition:

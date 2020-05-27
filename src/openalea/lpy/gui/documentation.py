@@ -15,9 +15,9 @@ lpyInfoTxt = "L-Py\nVersion:"+LPY_VERSION_STR+"\nF. Boudon\nhttps://lpy.rtfd.io/
 
 aboutTxt = """<b>L-Py</b><br>
 <it>A <b>Lindenmayer Systems</b><br>&nbsp;&nbsp;framework in <b>Python</b></it>.<br><br>Version :"""+LPY_VERSION_STR+"""<br>
-Licence: CeCILL-C<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-Implemented by F. Boudon et al.<br>
-Virtual Plants/UMR AGAP/CIRAD-INRIA-INRA.<br>
+Licence: CeCILL-C<br><br><br><br><br><br><br>
+Implemented by F. Boudon et al. <br>Copyright: CIRAD-INRIA-INRA.<br>
+<br>
 """
 
 specificationheadertxt = """<H1>L-Py</H1>

@@ -95,6 +95,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         lsmw.Ui_MainWindow.__init__(self)
 
         self.setObjectName('LPYMainWindow')
+        self.setWindowIcon(QIcon(":/images/icons/mango.png"))
 
         import weakref
         LPyWindow.instances.append(weakref.ref(self))
@@ -568,9 +569,13 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
                 del self.primitiveChanged
                 self.run(True,primitiveChanged)
     def printTitle(self):
+        fname = self.currentSimulation().getFileName()
+        self.setWindowFilePath(fname)
         t = 'L-Py - '
         t += self.currentSimulation().getTabName()
         self.setWindowTitle(t)
+        self.setWindowIcon(self.currentSimulation().generateIcon())
+        
     def printCode(self):
         printer = QPrinter()
         dialog =  QPrintDialog(printer, self);
@@ -1069,7 +1074,8 @@ def main():
     if len(args) > 1: toopen = list(map(os.path.abspath,[a for a in args[1:] if not a.startswith('-')]))
 
     qapp = QApplication([])
-    qapp.setAttribute(Qt.AA_DontCreateNativeWidgetSiblings)
+    #qapp.setAttribute(Qt.AA_DontCreateNativeWidgetSiblings)
+    qapp.setWindowIcon(QIcon(":/images/icons/mango.png"))
     splash = doc.splashLPy()
     qapp.processEvents()
     w = LPyWindow()
@@ -1079,6 +1085,7 @@ def main():
     if splash:
         splash.finish(w)
         w.splash = splash
+
     qapp.exec_()
 
 if __name__ == '__main__':

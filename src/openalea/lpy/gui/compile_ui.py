@@ -36,7 +36,7 @@ def compile_rc (rcfname) :
     if 'CONDA_PREFIX' in os.environ:
         exe = def_exe()        
     elif sys.platform == 'darwin':
-        exe = def_exe('-2.7')
+        exe = def_exe('-'+str(sys.version_info[0])+'.'+str(sys.version_info[1]))
     elif sys.platform == 'posix':
         exe = def_exe()
     else:
@@ -53,24 +53,26 @@ def detect_file_api(fname):
         if pattern in txt: return api
     return None
 
+def is_generation_required(srcfile, generatedfile):
+    api = os.environ[QT_API]
+    if not os.path.exists(srcfile) : return False
+    if not os.path.exists(generatedfile) : return True
+    if not os.access(generatedfile,os.F_OK|os.W_OK) : return False
+    if len(open(generatedfile).read()) == 0 : return True
+    if os.stat(generatedfile).st_mtime < os.stat(srcfile).st_mtime : return True
+    if not api in detect_file_api(generatedfile) : return True
+    return False
+
 def check_ui_generation(uifname):
     """ check if a py file should regenerated from a ui """
-    api = os.environ[QT_API]
     pyfname = get_uifnames_from(uifname)
-    if ( os.path.exists(uifname) and 
-         not os.path.exists(pyfname) or
-         (os.access(pyfname,os.F_OK|os.W_OK) and
-         os.stat(pyfname).st_mtime < os.stat(uifname).st_mtime or not api in detect_file_api(pyfname))) :
+    if is_generation_required(uifname, pyfname):
         print('Generate Ui', repr(uifname))
         compile_ui(uifname)
 
 def check_rc_generation(rcfname):
     """ check if a py file should regenerated from a ui """
-    api = os.environ[QT_API]
     pyfname = get_rcfnames_from(rcfname)
-    if (os.path.exists(rcfname) and 
-        not os.path.exists(pyfname) or
-        (os.access(pyfname,os.F_OK|os.W_OK) and
-        os.stat(pyfname).st_mtime < os.stat(rcfname).st_mtime or not api in detect_file_api(pyfname))) :
+    if is_generation_required(rcfname, pyfname):
         print('Generate Rc', repr(rcfname))
         compile_rc(rcfname)
