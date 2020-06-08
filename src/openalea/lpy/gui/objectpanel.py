@@ -1145,8 +1145,10 @@ class DockerMover:
     def __call__(self):
         if self.position == 'Floating':
             if not self.panel.isFloating():
+                self.panel.setFeatures(QDockWidget.DockWidgetClosable | QDockWidget.DockWidgetFloatable)
                 self.panel.setFloating(True)
         else:
+            self.panel.setFeatures(QDockWidget.DockWidgetClosable)
             self.panel.setFloating(False)
             if self.mainwindow.dockWidgetArea(self.panel) != self.position:
                 visibilitycheck = self.mainwindow.isVisible()
