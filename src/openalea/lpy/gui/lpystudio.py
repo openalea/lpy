@@ -493,18 +493,21 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
 
         t,v,trb = exc_info
         stacksummary = list(reversed(tb.extract_tb(trb)))
+        print(len(stacksummary))
         for fid,frame in enumerate(stacksummary):
+            print(frame.filename)
             if 'openalea/lpy' in frame.filename:
+                stacksummary = stacksummary[:fid]
                 break
-        stacksummary = stacksummary[:fid]
-
-        st = stacksummary[0]
-        errorfile = st.filename
-        lineno = st.lineno
+        print(len(stacksummary))
         self.lastexception = v
         if t == SyntaxError:
             errorfile = v.filename
             lineno = v.lineno
+        else:
+            st = stacksummary[0]
+            errorfile = st.filename
+            lineno = st.lineno
         fnames = ['<string>',self.currentSimulation().getBaseName()]
 
         if errorfile in fnames :
@@ -522,7 +525,8 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
             if not errorfile in fnames :
                 showbutton = dialog.addButton("Show file", QMessageBox.ApplyRole)
                 showbutton.clicked.connect(showErrorOnFile)
-            dialog.setDetailedText(errmsg+'\n\n'+'\n'.join(tb.format_list(stacksummary)))
+            if len(stacksummary) > 0:
+                dialog.setDetailedText(errmsg+'\n\n'+'\n'.join(tb.format_list(stacksummary)))
             dialog.exec_()
             #showError = QMessageBox.warning(self,"Exception", msg, QMessageBox.Ok)
 
