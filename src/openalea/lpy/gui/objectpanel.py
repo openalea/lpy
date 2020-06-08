@@ -643,7 +643,6 @@ class ObjectListDisplay(QGLParentClass):
         if not self.isVisible(): return
         w = self._width
         h = self._height
-        print(w,h)
         if w == 0 or h == 0: return
         if self.active:
             bgcol = self.theme.backGroundColor

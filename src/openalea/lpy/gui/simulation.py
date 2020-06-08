@@ -764,6 +764,8 @@ class LpySimulation (AbstractSimulation):
             self.lsystem.plot(self.lsystem.derive(nbiter),True)
             self.firstView = False
             self.lpywidget.viewer.setAnimation(eAnimatedPrimitives)
+            print('eAnimatedPrimitives')
+
         timing = time()
         make_animation = self.lsystem.animate 
         if hasattr(task,'recording') :
@@ -786,7 +788,7 @@ class LpySimulation (AbstractSimulation):
         if self.isTextEdited() or self.lsystem.empty() or self.nbiterations == 0 or self.nbiterations >= self.lsystem.derivationLength:
             self.updateLsystemCode()
         self.lpywidget.viewer.start()
-        self.lpywidget.viewer.setAnimation(eStatic if self.firstView or task.fitAnimationView else eAnimatedPrimitives)
+        self.lpywidget.viewer.setAnimation(eStatic if (self.firstView and task.fitAnimationView) else eAnimatedPrimitives)
 
     def post_animate(self,task):
         if hasattr(task,'result'):

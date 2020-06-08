@@ -42,7 +42,7 @@ from openalea.lpy import *
 from openalea.plantgl.gui.qt.compat import *
 from openalea.plantgl.gui.qt.QtCore import QCoreApplication, QEvent, QMutex, QObject, QThread, QWaitCondition, QTimer, Qt, pyqtSignal, pyqtSlot
 from openalea.plantgl.gui.qt.QtGui import QIcon, QPixmap, QTextCursor
-from openalea.plantgl.gui.qt.QtWidgets import QAction, QApplication, QDialog, QFileDialog, QInputDialog, QMainWindow, QMessageBox, QTabBar
+from openalea.plantgl.gui.qt.QtWidgets import QApplication, QAction, QDialog, QFileDialog, QInputDialog, QMainWindow, QMessageBox, QTabBar
 try:
     from openalea.plantgl.gui.qt.QtPrintSupport import QPrintDialog, QPrinter
 except:
@@ -1073,8 +1073,14 @@ def main():
     toopen = []
     if len(args) > 1: toopen = list(map(os.path.abspath,[a for a in args[1:] if not a.startswith('-')]))
 
-    qapp = QApplication([])
+    import sys
+    from openalea.lpy.__version__ import LPY_VERSION_STR
+    qapp = QApplication(sys.argv+['-qwindowtitle','L-Py'])
     #qapp.setAttribute(Qt.AA_DontCreateNativeWidgetSiblings)
+    qapp.setApplicationName('L-Py')
+    qapp.setApplicationDisplayName('L-Py')
+    qapp.setDesktopFileName('L-Py')
+    qapp.setApplicationVersion(LPY_VERSION_STR)
     qapp.setWindowIcon(QIcon(":/images/icons/mango.png"))
     splash = doc.splashLPy()
     qapp.processEvents()

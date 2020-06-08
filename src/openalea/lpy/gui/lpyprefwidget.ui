@@ -459,7 +459,7 @@
           <item>
            <widget class="QCheckBox" name="fitViewRunEdit">
             <property name="text">
-             <string>Fit last view before Run and Step.</string>
+             <string>Fit view before Run and Step.</string>
             </property>
             <property name="checked">
              <bool>true</bool>
