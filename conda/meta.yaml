@@ -43,6 +43,11 @@ requirements:
     - pyopengl
     - pyqglviewer
 
+app:
+  entry: lpy
+  summary: Plant simulation software
+  icon: icon.png
+
 test:
   requires:
     - nose
