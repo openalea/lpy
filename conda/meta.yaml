@@ -46,7 +46,7 @@ requirements:
 app:
   entry: lpy
   summary: Plant simulation software
-  icon: icon.png
+  icon: icon_64x64.png
 
 test:
   requires:
