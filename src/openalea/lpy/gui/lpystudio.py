@@ -505,9 +505,13 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
             errorfile = v.filename
             lineno = v.lineno
         else:
-            st = stacksummary[0]
-            errorfile = st.filename
-            lineno = st.lineno
+            if len(stacksummary) > 0:
+                st = stacksummary[0]
+                errorfile = st.filename
+                lineno = st.lineno
+            else:
+                errorfile = None
+                lineno = None
         fnames = ['<string>',self.currentSimulation().getBaseName()]
 
         if errorfile in fnames :
@@ -521,8 +525,8 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
             self.codeeditor.hightlightError(lineno)
 
         if displayDialog:
-            dialog = QMessageBox(QMessageBox.Warning, "Exception", os.path.basename(errorfile)+':'+str(lineno)+':'+errmsg, QMessageBox.Ok, self)
-            if not errorfile in fnames :
+            dialog = QMessageBox(QMessageBox.Warning, "Exception", (os.path.basename(errorfile)+':' if errorfile else '')+ (str(lineno)+':' if lineno else '')+errmsg, QMessageBox.Ok, self)
+            if errorfile and (not errorfile in fnames) :
                 showbutton = dialog.addButton("Show file", QMessageBox.ApplyRole)
                 showbutton.clicked.connect(showErrorOnFile)
             if len(stacksummary) > 0:
