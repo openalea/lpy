@@ -1097,8 +1097,7 @@ void Lsystem::__gRecursiveInterpretation(AxialTree& workingstring,
   AxialTree::const_iterator _endit = workingstring.end();
   size_t dist = 0;
   if (withid)  {
-      interpreter.init();
-      AxialTree initturtle = __context.startInterpretation();
+      AxialTree initturtle = interpreter.init();
       for(AxialTree::iterator _itl = initturtle.begin(); _itl != initturtle.end(); ++_itl)
             interpreter.interpret(_itl);  
       interpreter.start();
@@ -1119,6 +1118,7 @@ void Lsystem::__gRecursiveInterpretation(AxialTree& workingstring,
               _it2 != mruleset.end(); _it2++){
 				  ArgList args;
                   if((*_it2)->match(workingstring,_it,ltargetstring,_it3,args)){
+                      interpreter.parameters(args);
                       match = (*_it2)->applyTo(ltargetstring,args);
 					  if (match) {
 						dist = distance(_it,_it3);
@@ -1146,8 +1146,7 @@ void Lsystem::__gRecursiveInterpretation(AxialTree& workingstring,
       }
   }
   if (withid)  {
-      interpreter.finalize();
-      AxialTree finishturtle = __context.endInterpretation();
+      AxialTree finishturtle = interpreter.finalize();
       for(AxialTree::iterator _itl = finishturtle.begin(); _itl != finishturtle.end(); ++_itl)
             interpreter.interpret(_itl);  
       interpreter.stop();
@@ -1157,16 +1156,25 @@ void Lsystem::__gRecursiveInterpretation(AxialTree& workingstring,
 	
 
 	struct TurtleInterpreter {
-		TurtleInterpreter(Turtle& t) : turtle(t) {}
+		TurtleInterpreter(Turtle& t, boost::python::object& pyt, LsysContext& c) : turtle(t), pyturtle(pyt), context(c)  {}
 		Turtle& turtle;
+        boost::python::object pyturtle;
+        LsysContext& context;
 
 		static inline bool earlyReturn() { return false; }
 
-        inline void init() 
-        { turtle.start(); turtle.setNoId(); }
+        inline AxialTree init() 
+        { 
+          turtle.start(); 
+          turtle.setNoId(); 
+          return context.startInterpretation(pyturtle);
+        }
 
-        inline void finalize() 
-        { turtle.setNoId(); }
+        inline AxialTree finalize() 
+        { 
+          turtle.setNoId(); 
+          return context.endInterpretation(pyturtle);
+        }
         
         
         inline void start() 
@@ -1186,34 +1194,40 @@ void Lsystem::__gRecursiveInterpretation(AxialTree& workingstring,
 		inline void incId(size_t nb = 1){
               turtle.incId(nb); 
 		}
+
+        inline void parameters(ArgList& args) {
+            args.push_front(pyturtle);
+        }
 	};
 
 void 
 Lsystem::__recursiveInterpretation(AxialTree& workingstring,
 				                const RulePtrMap& ruleset,
                                 Turtle& t,
+                                boost::python::object& pyturtle,
                                 size_t maxdepth)
 {
 
 
-	TurtleInterpreter i (t);
+	TurtleInterpreter i (t, pyturtle,__context);
 	__gRecursiveInterpretation<TurtleInterpreter>(workingstring,ruleset,i,maxdepth);
 }
 
 	struct TurtleStepInterpreter {
-		TurtleStepInterpreter(PglTurtle& t, LsysContext& c) : turtle(t), context(c), timer(c.get_animation_timestep()) {}
+		TurtleStepInterpreter(PglTurtle& t, boost::python::object& pyt, LsysContext& c) : turtle(t), pyturtle(pyt), context(c), timer(c.get_animation_timestep()) {}
 
 		PglTurtle& turtle;
+        boost::python::object pyturtle;
 		LsysContext& context;
-		PGL_NAMESPACE_NAME::Sequencer timer;
+		PGL(Sequencer) timer;
 
 		inline bool earlyReturn() { return context.isEarlyReturnEnabled(); }
 
-        inline void init() 
-        { turtle.start(); turtle.setNoId(); }
+        inline AxialTree init() 
+        { turtle.start(); turtle.setNoId(); return context.startInterpretation(pyturtle); }
 
-        inline void finalize() 
-        { turtle.setNoId(); }
+        inline AxialTree finalize() 
+        { turtle.setNoId(); return context.endInterpretation(pyturtle); }
 
 		inline void start() 
 		{ turtle.setId(0); context.enableEarlyReturn(false); }
@@ -1248,17 +1262,22 @@ Lsystem::__recursiveInterpretation(AxialTree& workingstring,
 		inline void incId(size_t nb = 1){
               turtle.incId(nb); 
 		}
+
+        inline void parameters(ArgList& args) {
+            args.push_front(pyturtle);
+        }  
 	};
 void 
 Lsystem::__recursiveStepInterpretation(AxialTree& workingstring,
 				                const RulePtrMap& ruleset,
                                 PglTurtle& t,
+                                boost::python::object& pyturtle,
                                 size_t maxdepth)
 {
 
 
 
-	TurtleStepInterpreter i(t,__context);
+	TurtleStepInterpreter i(t,pyturtle,__context);
 	__gRecursiveInterpretation<TurtleStepInterpreter>(workingstring,ruleset,i,maxdepth);
 }
 
@@ -1525,7 +1544,7 @@ Lsystem::__apply_post_process(AxialTree& workstring, bool endeach)
 		case 2:
 				// if a frame should be displayed, representation is computed
 				if(__context.isFrameDisplayed()) {
-					__turtle_interpretation(workstring,__context.turtle);
+					__turtle_interpretation(workstring,__context.turtle,__context.pyturtle());
 					rep = __context.turtle.getScene();
 				}
 				result = endeach ? __context.endEach(workstring,rep) : __context.end(workstring,rep);
@@ -1569,7 +1588,7 @@ Lsystem::turtle_interpretation( AxialTree& workstring, PGL::Turtle& t )
 ScenePtr Lsystem::sceneInterpretation( AxialTree& workstring )
 {
   ACQUIRE_RESSOURCE
-  __turtle_interpretation(workstring,__context.turtle);
+  __turtle_interpretation(workstring,__context.turtle,__context.pyturtle());
   return __context.turtle.getScene();
   RELEASE_RESSOURCE
 }
@@ -1580,7 +1599,7 @@ void Lsystem::stepInterpretation(AxialTree& wstring)
   if ( wstring.empty() )return;
   bool homHasQuery = false;
   RulePtrMap interpretation = __getRules(eInterpretation,__currentGroup,eForward,&homHasQuery);
-  __recursiveStepInterpretation(wstring,interpretation,__context.turtle,__interpretation_max_depth);
+  __recursiveStepInterpretation(wstring,interpretation,__context.turtle,__context.pyturtle(),__interpretation_max_depth);
   RELEASE_RESSOURCE
 }
 
@@ -1609,17 +1628,18 @@ Lsystem::__homomorphism(AxialTree& wstring){
 }
 
 void
-Lsystem::__turtle_interpretation(AxialTree& wstring, PGL::Turtle& t){
+Lsystem::__turtle_interpretation(AxialTree& wstring, PGL::Turtle& t, boost::python::object pyturtle){
+    if (pyturtle == boost::python::object()) pyturtle = boost::python::object(boost::cref(t));
     if ( wstring.empty() )return;
     bool homHasQuery = false;
     RulePtrMap interpretation = __getRules(eInterpretation,__currentGroup,eForward,&homHasQuery);
     if (!interpretation.empty()){
-      __recursiveInterpretation(wstring,interpretation,t,__interpretation_max_depth);
+      __recursiveInterpretation(wstring,interpretation,t,pyturtle,__interpretation_max_depth);
     }
     else {
         t.start();
         t.setNoId();
-        AxialTree initturtle = __context.startInterpretation();
+        AxialTree initturtle = __context.startInterpretation(pyturtle);
         for(AxialTree::iterator _itl = initturtle.begin(); _itl != initturtle.end(); ++_itl)
             _itl->interpret(t);  
 
@@ -1627,7 +1647,7 @@ Lsystem::__turtle_interpretation(AxialTree& wstring, PGL::Turtle& t){
   		LPY::turtle_do_interpretation(wstring,t);
 
         t.setNoId();
-        AxialTree finalizeturtle = __context.endInterpretation();
+        AxialTree finalizeturtle = __context.endInterpretation(pyturtle);
         for(AxialTree::iterator _itl = finalizeturtle.begin(); _itl != finalizeturtle.end(); ++_itl)
             _itl->interpret(t);  
     }
@@ -1640,7 +1660,7 @@ Lsystem::__plot( AxialTree& workstring, bool checkLastComputedScene){
 		result = __lastcomputedscene;
 	}
 	if (is_null_ptr(result)) {
-		__turtle_interpretation(workstring,__context.turtle);
+		__turtle_interpretation(workstring,__context.turtle,__context.pyturtle());
 		result = __context.turtle.getScene();
 	}
     LPY::plot(result);

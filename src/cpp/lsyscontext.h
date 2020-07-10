@@ -95,8 +95,8 @@ public:
 
   void postDraw();
 
-  AxialTree startInterpretation();
-  AxialTree endInterpretation();
+  AxialTree startInterpretation(boost::python::object turtle = boost::python::object());
+  AxialTree endInterpretation(boost::python::object turtle = boost::python::object());
 
   inline bool hasStartFunction() const { return hasObject("Start"); }
   inline bool hasStartEachFunction() const { return hasObject("StartEach"); }
@@ -270,6 +270,8 @@ public:
   /** Turtles and interpretation structures */
   PGL(PglTurtle) turtle;
   PGL(Turtle)    envturtle;
+  boost::python::object _pyturtle;
+  boost::python::object& pyturtle();
 
   /** Context options */
   LsysOptions options;

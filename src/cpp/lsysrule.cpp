@@ -419,6 +419,7 @@ LsysRule::parseParameters(){
       LsysError("Ill-formed Rule Header : Multiple definition of parameter "+__formalparameters[rp]+": "+uname());
   }
   __nbParams = __formalparameters.size();
+  if (__prefix == 'h') __nbParams += 1;
 }
 
 int
