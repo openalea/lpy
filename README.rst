@@ -1,14 +1,17 @@
 .. image:: https://img.shields.io/badge/License-GPL-blue.svg
    :target: https://opensource.org/licenses/GPL-3.0
 
-.. image:: https://travis-ci.org/openalea/lpy.svg?branch=master
-    :target: https://travis-ci.org/openalea/lpy
+.. image:: https://travis-ci.org/fredboudon/lpy.svg?branch=master
+    :target: https://travis-ci.org/fredboudon/lpy
+    :alt: Travis Continuous Integration Status
 
-.. image:: https://ci.appveyor.com/api/projects/status/88n43wd5kektlwkf/branch/master?svg=true
+.. image:: https://ci.appveyor.com/api/projects/status/8bd8xhc9wy0bee0k/branch/master?svg=true
    :target: https://ci.appveyor.com/project/fredboudon/lpy
+   :alt: AppVeyor Continuous Integration Status
 
-..  image:: https://readthedocs.org/projects/lpy/badge/?version=latest
-    :target: http://lpy-fb.readthedocs.io/en/latest/
+.. image:: https://readthedocs.org/projects/lpy-fb/badge/?version=latest
+    :target: https://lpy-fb.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
 
 
 =======
@@ -27,8 +30,9 @@ into more complex computational pipelines.
 **L-Py** is released under a **CeCILL** license, which is compatible to the **GNU GPL**.
 
 .. image:: doc/_images/screenshot2-3d.png
+    :scale: 80% 
 
-.. include:: doc/user/installing.txt
+.. include:: doc/user/installing.rst
 
 =============
 Documentation
