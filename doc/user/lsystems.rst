@@ -29,7 +29,7 @@ Lindenmayer developed a string notation that makes it easy to specify production
 simulations. Each components of the system is represented as a module. A module is characterized
 by a by a label, for instance **A**, and possibly a set of parameters. For instance, an apex of age
 10 can thus be represented by the module **A(10)**, an internode of length 20 and radius 3 by **I(20,3)**.
-To represent a linear structure, a *string* can be created as a serie of modules. For branched
+To represent a linear structure, a *string*, called *L-string* can be created as a serie of modules. For branched
 structure such as tree, special module [ and ] are used to represent begin and end of branches.
 After each module in the string, its lateral successors enclosed in square brackets are first given
 followed by its axial successor. For instance in the structure **A[B]C**, **A** carries a lateral module **B**
@@ -114,3 +114,20 @@ Of course, the ``new_left_context`` is only available if the rule are applied fr
 the string and ``new_right_context`` from right to left.
 
 These contexts can then be combined.
+
+Different types of Rules
+------------------
+
+- Production rules are intended to express the development of the modelled structure. They are applied in parallel on the L-string.
+
+- Decomposition rules are intended to decompose recursivelly a module into an L-string using a set of possibly recursive rules. To avoid infinite recursion a maximum depth of recursion can be specified.
+
+- Interpretation rules allows to specify the geometric interpretation of symbols used in a given simulation. For this, a mapping to interpretable symbols can be made. Recursive rules can be used and similarly to decomposition rules, a maximum depth of recursion can be specified.
+A Turtle object is managed by the simulation and L-Py translate automatically some predefined modules into corresponding method call onto the Turtle object. It is also possible to access directly to the Turtle object using the option 'Turtle in Interpretation rules'. In such case, the turtle is accessible using the ``turtle`` variable and any of its methods can be called.
+
+.. code-block:: python
+
+    Internode(t):
+        turtle.F(t)
+
+
