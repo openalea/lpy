@@ -302,6 +302,9 @@ public:
   int optimizationLevel;
   inline void setOptimizationLevel(int level) { optimizationLevel = level; }
 
+  bool turtle_in_interpretation;
+  inline void setTurtleInIntepretation(bool enabled) { turtle_in_interpretation = enabled; }
+
   /** early return */
   void enableEarlyReturn(bool val) ;
   bool isEarlyReturnEnabled() ;
@@ -414,6 +417,7 @@ protected:
   bool __multicore;
 
   int __bracketmapping_optim_level;
+
 };
 
 /*---------------------------------------------------------------------------*/

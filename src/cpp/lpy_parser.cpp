@@ -1245,7 +1245,8 @@ LsysRule::getCoreCode() {
   }
   std::stringstream head;
   head << "def " << functionName() << "(";
-  if(__prefix == 'h'){ head << "turtle," ; } 
+
+  if(__prefix == 'h' && LsysContext::current()->turtle_in_interpretation && !__isStatic){ head << "turtle," ; } 
   if(!__formalparameters.empty())
     for(std::vector<std::string>::const_iterator _it = __formalparameters.begin();
     _it != __formalparameters.end(); ++_it){

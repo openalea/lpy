@@ -267,6 +267,7 @@ LsysContext::LsysContext(const LsysContext& lsys):
   __axiom_decomposition_enabled(lsys.__axiom_decomposition_enabled),
   return_if_no_matching(lsys.return_if_no_matching),
   optimizationLevel(lsys.optimizationLevel),
+  turtle_in_interpretation(false),
   __animation_step(lsys.__animation_step),
   __animation_enabled(lsys.__animation_enabled),
   __iteration_nb(0),
@@ -294,6 +295,7 @@ __warn_with_sharp_module(true),
 __axiom_decomposition_enabled(false),
 return_if_no_matching(true),
 optimizationLevel(DEFAULT_OPTIMIZATION_LEVEL),
+turtle_in_interpretation(false),
 __animation_step(DefaultAnimationTimeStep),
 __animation_enabled(false),
 __iteration_nb(0),
@@ -324,6 +326,7 @@ LsysContext::operator=(const LsysContext& lsys)
   __axiom_decomposition_enabled = lsys.__axiom_decomposition_enabled;
   return_if_no_matching = lsys.return_if_no_matching;
   optimizationLevel = lsys.optimizationLevel;
+  turtle_in_interpretation = lsys.turtle_in_interpretation;
   __animation_step =lsys.__animation_step;
   __animation_enabled =lsys.__animation_enabled;
   __nbargs_of_endeach =lsys.__nbargs_of_endeach;
@@ -438,6 +441,12 @@ void LsysContext::init_options()
     option->addValue<PglTurtle,bool>("Enabled",&turtle,&PglTurtle::enablePathInfoCache,true,"Enable Cache.");
     option->setDefault(turtle.pathInfoCacheEnabled());   
 #endif
+
+    /** warn if turtle has invalid value option */
+    option = options.add("Turtle in Interpretation rules","Set whether the Turtle is given in the interpretation rules.","Processing");
+    option->addValue("Disabled",this,&LsysContext::setTurtleInIntepretation,false,"Disable.");
+    option->addValue("Enabled",this,&LsysContext::setTurtleInIntepretation,true,"Enable.");
+    option->setDefault(1);   
 
 
 #ifdef MULTICORE_ENABLED    

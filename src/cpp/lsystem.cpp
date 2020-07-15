@@ -1196,7 +1196,8 @@ void Lsystem::__gRecursiveInterpretation(AxialTree& workingstring,
 		}
 
         inline void parameters(ArgList& args) {
-            args.push_front(pyturtle);
+            if (context.turtle_in_interpretation)
+                args.push_front(pyturtle);
         }
 	};
 
@@ -1264,7 +1265,8 @@ Lsystem::__recursiveInterpretation(AxialTree& workingstring,
 		}
 
         inline void parameters(ArgList& args) {
-            args.push_front(pyturtle);
+            if (context.turtle_in_interpretation)
+                args.push_front(pyturtle);
         }  
 	};
 void 
