@@ -16,7 +16,7 @@ To install L-Py, you need to create an environment (named lpy in this case) :
 
         conda create -n lpy openalea.lpy -c fredboudon -c conda-forge
 
-The package is retrieved from the ``fredboudon`` channel (developement) and their dependencies will be taken from ``conda-forge`` channel.
+The package is retrieved from the ``fredboudon`` channel (developement) and its dependencies will be taken from ``conda-forge`` channel.
 
 Then, you need to activate the L-Py environment
 

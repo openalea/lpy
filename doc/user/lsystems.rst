@@ -116,14 +116,13 @@ the string and ``new_right_context`` from right to left.
 These contexts can then be combined.
 
 Different types of Rules
-------------------
+------------------------
 
 - Production rules are intended to express the development of the modelled structure. They are applied in parallel on the L-string.
 
 - Decomposition rules are intended to decompose recursivelly a module into an L-string using a set of possibly recursive rules. To avoid infinite recursion a maximum depth of recursion can be specified.
 
-- Interpretation rules allows to specify the geometric interpretation of symbols used in a given simulation. For this, a mapping to interpretable symbols can be made. Recursive rules can be used and similarly to decomposition rules, a maximum depth of recursion can be specified.
-A Turtle object is managed by the simulation and L-Py translate automatically some predefined modules into corresponding method call onto the Turtle object. It is also possible to access directly to the Turtle object using the option 'Turtle in Interpretation rules'. In such case, the turtle is accessible using the ``turtle`` variable and any of its methods can be called.
+- Interpretation rules allows to specify the geometric interpretation of symbols used in a given simulation. For this, a mapping to interpretable symbols can be made. Recursive rules can be used and similarly to decomposition rules, a maximum depth of recursion can be specified. A Turtle object is managed by the simulation and L-Py translate automatically some predefined modules into corresponding method call onto the Turtle object. It is also possible to access directly to the Turtle object using the option 'Turtle in Interpretation rules'. In such case, the turtle is accessible using the ``turtle`` variable and any of its methods can be called.
 
 .. code-block:: python
 

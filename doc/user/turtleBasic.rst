@@ -139,7 +139,7 @@ The width of the shapes can be increased (resp. decreased) using **_** (resp. **
 
 .. code-block:: python
 
-	Axiom: F_ _ _F!F!F 	#At the beginning, the cylinder has a width of 0.1 (default) then 3.1, then 2.1 and finally 1.1 (Fig. A)
+	Axiom: F_ _ _F!F!F 	# At the beginning, the cylinder has a width of 0.1 (default) then 3.1, then 2.1 and finally 1.1 (Fig. A)
 
 +---------------------------------+----------------------------------+
 | .. image:: ../_images/width.png | .. image:: ../_images/width2.png |
@@ -150,7 +150,7 @@ Alternatively, the width can be set using **setWidth** or by giving argument to 
 
 .. code-block:: python
 
-	Axiom: F_(2)F!(3)F!(1)F 	#(Fig. B)
+	Axiom: F_(2)F!(3)F!(1)F 	# (Fig. B)
 
 Download the example : :download:`width.lpy <../_downloads/width.lpy>`
 

@@ -23,23 +23,51 @@ L-Py is a simulation software that mixes L-systems construction with the Python 
 
 In addition to this software module, an integrated visual development environment has been developed that facilitates the creation of plant models.
 In particular, easy to use optimization tools have been integrated. 
-Thanks to Python and its modular approach, this framework makes it possible to integrate a variety of tools defined in different modeling context,
-in particular tools from the OpenAlea platform. Additionally, it can be integrated as a simple growth simulation module 
+Thanks to Python and its modular approach, this framework makes it possible to integrate a variety of tools defined in different modeling context, in particular tools from the OpenAlea platform. Additionally, it can be integrated as a simple growth simulation module 
 into more complex computational pipelines.
 
 **L-Py** is released under a **CeCILL** license, which is compatible to the **GNU GPL**.
 
 .. image:: doc/_images/screenshot2-3d.png
-    :scale: 80% 
+    :scale: 50% 
 
-.. include:: doc/user/installing.rst
+
+=============
+Installation
+=============
+
+
+``L-Py`` distribution is based on the ``conda`` software environment management system.
+To install conda, you may refer to its installation page: https://docs.conda.io/projects/conda/en/latest/user-guide/install/
+
+To install L-Py, you need to create an environment (named for instance lpy) :
+
+.. code-block:: bash
+
+        conda create -n lpy openalea.lpy -c fredboudon -c conda-forge
+
+The package is retrieved from the ``fredboudon`` channel (developement) and its dependencies will be taken from ``conda-forge`` channel.
+
+Then, you need to activate the L-Py environment
+
+.. code-block:: bash
+
+        conda activate lpy
+
+And then run L-Py
+
+.. code-block:: bash
+
+        lpy
 
 =============
 Documentation
 =============
 
 Documentation is available at `<http://lpy-fb.readthedocs.io/en/latest/>`_
-A previous version of the documentation is available at `<http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=packages:vplants:lpy:main>`_
+
+
+A previous version of the documentation was also available on  `OpenAlea website <http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=packages:vplants:lpy:main>`_
 
 Help and Support
 ----------------
@@ -47,15 +75,18 @@ Help and Support
 Please open an **Issue** if you need support or you run into any error (Installation, Runtime, etc.).
 We'll try to resolve it as soon as possible.
 
+=============
 Authors
--------
+=============
 
-* Frédéric Boudon
-
-With contributions of Christophe Godin, Christophe Pradal et al.
+L-Py was mainly developped by Frédéric Boudon with different contributions from Christophe Godin, Christophe Pradal et al.
 
 
+==============
+Citation
+==============
+If you find our work useful in your research, please consider citing:
 
-
+F. Boudon, T. Cokelaer, C. Pradal, P. Prusinkiewicz and C. Godin, L-Py: an L-system simulation framework for modeling plant architecture development based on a dynamic language, Front. Plant Sci., 30 May 2012.
 
 

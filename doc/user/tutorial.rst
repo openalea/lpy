@@ -13,7 +13,7 @@ Massart
 | .. image:: ../_images/massart.png      | .. image:: ../_images/massart_model.png |
 +----------------------------------------+-----------------------------------------+
 
-See the :lpy model:`massart.lpy <../../share/tutorial/11 - archimodels/massart.lpy>`
+See the `massart.lpy <https://github.com/fredboudon/lpy/blob/master/share/tutorial/11%20-%20archimodels/massart.lpy>`_
 
 Leuwenberg
 ------------
@@ -22,7 +22,7 @@ Leuwenberg
 | .. image:: ../_images/leuwenberg.png   | .. image:: ../_images/leuwenberg_model.png |
 +----------------------------------------+--------------------------------------------+
 
-See the :lpy model:`leuwenberg.lpy <../../share/tutorial/11 - archimodels/leuwenberg.lpy>`
+See the `leuwenberg.lpy <https://github.com/fredboudon/lpy/blob/master/share/tutorial/11%20-%20archimodels/leuwenberg.lpy>`_
 
 Schoute
 ------------
@@ -31,7 +31,7 @@ Schoute
 | .. image:: ../_images/schoute.png      | .. image:: ../_images/schoute_model.png |
 +----------------------------------------+-----------------------------------------+
 
-See the :lpy model:`schoute.lpy <../../share/tutorial/11 - archimodels/schoute.lpy>`
+See the `schoute.lpy <https://github.com/fredboudon/lpy/blob/master/share/tutorial/11%20-%20archimodels/schoute.lpy>`_
 
 Nozeran
 ------------
@@ -40,7 +40,7 @@ Nozeran
 | .. image:: ../_images/nozeran.png      | .. image:: ../_images/nozeran_model.png |
 +----------------------------------------+-----------------------------------------+
 
-See the :lpy model:`nozeran.lpy <../../share/tutorial/11 - archimodels/nozeran.lpy>`
+See the `nozeran.lpy <https://github.com/fredboudon/lpy/blob/master/share/tutorial/11%20-%20archimodels/nozeran.lpy>`_
 
 Cook
 ------------
@@ -49,5 +49,5 @@ Cook
 | .. image:: ../_images/cook.png         | .. image:: ../_images/cook_model.png |
 +----------------------------------------+--------------------------------------+
 
-See the :lpy model:`cook.lpy <../../share/tutorial/11 - archimodels/cook.lpy>`
+See the `cook.lpy <https://github.com/fredboudon/lpy/blob/master/share/tutorial/11%20-%20archimodels/cook.lpy>`_
 
