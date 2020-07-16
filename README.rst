@@ -87,6 +87,6 @@ Citation
 ==============
 If you find our work useful in your research, please consider citing:
 
-F. Boudon, T. Cokelaer, C. Pradal, P. Prusinkiewicz and C. Godin, L-Py: an L-system simulation framework for modeling plant architecture development based on a dynamic language, Front. Plant Sci., 30 May 2012.
+- F. Boudon, T. Cokelaer, C. Pradal, P. Prusinkiewicz and C. Godin, L-Py: an L-system simulation framework for modeling plant architecture development based on a dynamic language, Frontiers in Plant Science, 30 May 2012.
 
 
