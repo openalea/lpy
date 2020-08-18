@@ -31,7 +31,7 @@ def getmaxradius(t):
 
 
 from openalea.plantgl.all import Viewer,eStatic,eAnimatedScene, eAnimatedPrimitives
-from openalea.fractalysis.light.directLight import diffuseInterception
+from openalea.plantgl.light.light import diffuseInterception
 
 
 def EndEach(lstring,scene):
@@ -219,7 +219,7 @@ def __initialiseContext__(context):
 	    ctrlPointList = pgl.Point3Array([(0, 0.18073, 1),(0.27434, 0.408218, 1),(0.655226, 0.468072, 1),(1, 0.747973, 1)]) , 
 	    )
 	width.name = "width"
-	panel_0 = ({'active': True, 'visible': True, 'name': 'Panel 1'},[('Function',heigth),('Function',midheigth),('Function',radius),('Function',width)])
+	panel_0 = ({'name': 'Panel 1', 'active': True, 'visible': True},[('Function',heigth),('Function',midheigth),('Function',radius),('Function',width)])
 	parameterset = [panel_0,]
 	context["__functions__"] = [('heigth',heigth),('midheigth',midheigth),('radius',radius),('width',width),]
 	context["__curves__"] = []

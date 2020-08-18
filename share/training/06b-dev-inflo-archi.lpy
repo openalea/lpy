@@ -51,7 +51,7 @@ class ModuleState:
     self.veg = 100 # vegetativeness
 
 def initVegCurve():
-  return [None for i in xrange(steps)]
+  return [None for i in range(steps)]
 
 veg_blue = initVegCurve()
 veg_orange = initVegCurve()
@@ -161,7 +161,7 @@ C:
 
 V:
   it = 10./steps
-  for x in xrange(steps):
+  for x in range(steps):
     nproduce f(it)
     if not veg_blue[x] is None:
       nproduce [+(90);(1)f(veg_blue[x]/10.+0.2)@O(0.1)]
@@ -177,15 +177,27 @@ V:
 endlsystem
 ###### INITIALISATION ######
 
+__lpy_code_version__ = 1.1
+
 def __initialiseContext__(context):
-	from openalea.plantgl.all import Material,Color3
-	context.turtle.setMaterial(0,Material('Green',Color3(30,60,10),3,Color3(40,40,40),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(1,Material('Blue',Color3(0,0,83),1.92771,Color3(40,40,40),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(2,Material('Orange',Color3(72,47,0),3.05556,Color3(40,40,40),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(5,Material('Black',Color3(0,0,0),2,Color3(40,40,40),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(6,Material('White',Color3(100,100,100),1.01,Color3(40,40,40),Color3(0,0,0),1,0))
-__copyright__ = 'open-source GPL'
-__references__ = 'Przemyslaw Prusinkiewicz, Yvette Erasmus, Brendan Lane, LawrenceD. Harder, and Enrico Coen. Evolution and Development of InflorescenceArchitectures. Science 316(5830), pp. 1452-1456.'
-__description__ = '- Try different values for Veg_Decrease_Param, B_Difference and B_Duration = 3 to obtain different architecture\n\n-You can uncomment given sets of values to obtain panicle, raceme or sympodial cyme architecture.\n'
-__institutes__ = 'INRIA - CIRAD Virtual Plants'
+	import openalea.plantgl.all as pgl
+	Color_0 = pgl.Material("Color_0" , ambient = (30,60,10) , diffuse = 3 , )
+	Color_0.name = "Color_0"
+	context.turtle.setMaterial(0,Color_0)
+	Color_1 = pgl.Material("Color_1" , ambient = (0,0,83) , diffuse = 1.92771 , )
+	Color_1.name = "Color_1"
+	context.turtle.setMaterial(1,Color_1)
+	Color_2 = pgl.Material("Color_2" , ambient = (72,47,0) , diffuse = 3.05556 , )
+	Color_2.name = "Color_2"
+	context.turtle.setMaterial(2,Color_2)
+	Color_5 = pgl.Material("Color_5" , ambient = (0,0,0) , )
+	Color_5.name = "Color_5"
+	context.turtle.setMaterial(5,Color_5)
+	Color_6 = pgl.Material("Color_6" , ambient = (100,100,100) , diffuse = 1.01 , )
+	Color_6.name = "Color_6"
+	context.turtle.setMaterial(6,Color_6)
 __authors__ = ' F. Boudon, C. Godin'
+__institutes__ = 'INRIA - CIRAD Virtual Plants'
+__copyright__ = 'open-source GPL'
+__description__ = '- Try different values for Veg_Decrease_Param, B_Difference and B_Duration = 3 to obtain different architecture\n\n-You can uncomment given sets of values to obtain panicle, raceme or sympodial cyme architecture.\n'
+__references__ = 'Przemyslaw Prusinkiewicz, Yvette Erasmus, Brendan Lane, LawrenceD. Harder, and Enrico Coen. Evolution and Development of InflorescenceArchitectures. Science 316(5830), pp. 1452-1456.'

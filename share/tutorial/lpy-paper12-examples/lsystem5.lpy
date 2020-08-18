@@ -1,6 +1,6 @@
 from openalea.plantgl.all import norm,Vector3, dot, angle, direction
 
-import mtgimport as mi
+#import mtgimport as mi
 from openalea.mtg.io import read_mtg_file, axialtree2mtg, mtg2axialtree
 
 
@@ -35,7 +35,7 @@ def Start():
     initialmtg = read_mtg_file('walnut.mtg')
     xx,yy,zz = initialmtg.property('XX'),initialmtg.property('YY'),initialmtg.property('ZZ')
     # recompose the tipposition property from the 3 properties xx,yy,zz
-    tipposition = dict([(i,Vector3(x,yy[i],zz[i])) for i,x in xx.iteritems()])
+    tipposition = dict([(i,Vector3(x,yy[i],zz[i])) for i,x in xx.items()])
     initialmtg.properties()['tipposition'] = tipposition
 
 def End(lstring):
@@ -47,6 +47,7 @@ def End(lstring):
 def StartEach():
     seed(SEED)
 
+exported_symbols = 'SUVWZ'
 
 def export_to_mtg(lstring):
   # Retrieve parameter of modules to export
