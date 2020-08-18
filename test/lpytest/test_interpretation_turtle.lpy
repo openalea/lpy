@@ -1,5 +1,12 @@
+# Help on turtle:
+# from openalea.plantgl.all import *
+# help(PglTurtle)
+
 def StartInterpretation(turtle):
   turtle.add_parameter('toto',0)
+  pass
+
+def EndInterpretation(turtle):
   pass
 
 Axiom: 
@@ -34,9 +41,3 @@ A(i):
   assert turtle.toto == values[i]
 
 endlsystem
-###### INITIALISATION ######
-
-__lpy_code_version__ = 1.1
-
-def __initialiseContext__(context):
-	context.options.setSelection('Turtle in interpretation',1)

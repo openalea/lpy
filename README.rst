@@ -44,21 +44,21 @@ To install L-Py, you need to create an environment (named for instance lpy) :
 
 .. code-block:: bash
 
-        conda create -n lpy openalea.lpy -c fredboudon -c conda-forge
+        >>> conda create -n lpy openalea.lpy -c fredboudon -c conda-forge
 
-The package is retrieved from the ``fredboudon`` channel (developement) and its dependencies will be taken from ``conda-forge`` channel.
+The package ``openalea.lpy`` is retrieved from the ``fredboudon`` channel (developement) and its dependencies will be taken from ``conda-forge`` channel.
 
 Then, you need to activate the L-Py environment
 
 .. code-block:: bash
 
-        conda activate lpy
+        >>> conda activate lpy
 
 And then run L-Py
 
 .. code-block:: bash
 
-        lpy
+        >>> lpy
 
 =============
 Documentation
@@ -87,6 +87,6 @@ Citation
 ==============
 If you find our work useful in your research, please consider citing:
 
-- F. Boudon, T. Cokelaer, C. Pradal, P. Prusinkiewicz and C. Godin, L-Py: an L-system simulation framework for modeling plant architecture development based on a dynamic language, Frontiers in Plant Science, 30 May 2012.
+   - F. Boudon, T. Cokelaer, C. Pradal, P. Prusinkiewicz and C. Godin, L-Py: an L-system simulation framework for modeling plant architecture development based on a dynamic language, Frontiers in Plant Science, 30 May 2012.
 
 

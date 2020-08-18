@@ -1,5 +1,6 @@
 from openalea.plantgl.all import norm,Vector3, dot
 import mtgimport as mi
+from importlib import reload
 reload(mi)
 
 from  random import randint, seed
@@ -47,6 +48,7 @@ production:
 
 Start : 
   myaxiom = mi.construct_walnut_lstring()
+  print(test)
   assert myaxiom.wellBracketed()
   nsproduce(myaxiom)
 
@@ -143,7 +145,7 @@ __lpy_code_version__ = 1.1
 
 def __initialiseContext__(context):
 	context.options.setSelection('Module inheritance',1)
-	scalars = [('WITHLEAF', True, False, True), ('SEED', 1, 0, 100), ('ROTATION', False, False, True)]
+	scalars = [('WITHLEAF', 'Bool', True), ('SEED', 'Integer', 1, 0, 100), ('ROTATION', 'Bool', False)]
 	context["__scalars__"] = scalars
-	for n,v,mnv,mxv in scalars:
-		context[n] = v
+	for s in scalars:
+		if not s[1] == "Category" : context[s[0]] = s[2]

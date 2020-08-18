@@ -6,7 +6,7 @@ from openalea.plantgl.all import norm,Vector3
 from numpy import mean
 
 def flatten(g):
-    microroot = g.component_roots_at_scale_iter(g.root,g.max_scale()).next()
+    microroot = next(g.component_roots_at_scale_iter(g.root,g.max_scale()))
     
     g = g.sub_tree(microroot,True)
     g, props = colored_tree(g,colors={1:list(g.vertices(scale=g.max_scale()))})
@@ -30,7 +30,7 @@ def read_mtg(fn = 'walnut.mtg' ,drf = 'walnut.drf'):
     toppositions = pf.points
     
     g.properties()['TopDiameter']=diameters
-    g.properties()['TopPosition']= dict([ (k,Vector3(v)) for k,v in toppositions.iteritems()])
+    g.properties()['TopPosition']= dict([ (k,Vector3(v)) for k,v in toppositions.items()])
     
     g = flatten(g)
     return g
@@ -90,7 +90,7 @@ def color_last_year_node(g):
 
 
 def construct_lstring(g):
-    idp = dict([(i,i) for i in g.property('TopPosition').iterkeys()])
+    idp = dict([(i,i) for i in g.property('TopPosition').keys()])
     g.properties()['mtgid'] = idp
     paramnames = ['TopPosition','TopDiameter']
     

@@ -14,6 +14,10 @@ def hasSvnSupport():
     return has_svn
 
 if has_svn:
+    
+    for n in ['modified', 'normal', 'conflicted', 'added']:
+        globals()[n] = getattr(pysvn.wc_status_kind,n)
+
     svn_client = None
     svn_client_gui_parent = None
     svn_silent_client = None

@@ -60,14 +60,70 @@ A(x,curve,param) :
 endlsystem
 ###### INITIALISATION ######
 
+__lpy_code_version__ = 1.1
+
 def __initialiseContext__(context):
 	context.animation_timestep = 0.01
-	from openalea.plantgl.all import QuantisedFunction,NurbsCurve2D,Point3Array,Vector3,RealArray
-	functions = [('leafwidth', NurbsCurve2D(Point3Array([Vector3(0,0.0195927,1),Vector3(0.219872,0.279019,1),Vector3(0.711105,0.460335,1),Vector3(1,0.00849109,1)])))]
-	context["__functions__"] = functions
-	for n,c in functions:
-		context[n] = QuantisedFunction(c)
-	curves = [('profile', NurbsCurve2D(Point3Array([Vector3(-0.617641,0.141492,1),Vector3(-0.175383,-0.129256,1),Vector3(0.00813704,0.352579,1),Vector3(0.122072,-0.121707,1),Vector3(0.587932,0.164599,1)]))), ('axis1', NurbsCurve2D(Point3Array([Vector3(-0.5,0,1),Vector3(-0.343628,0.0908472,1),Vector3(-0.294991,-0.0340806,1),Vector3(-0.425858,-0.0642156,1),Vector3(-0.44864,0.0269131,1),Vector3(-0.37165,0.0115342,1)]))), ('axis2', NurbsCurve2D(Point3Array([Vector3(-0.5,0,1),Vector3(-0.343628,0.0908472,1),Vector3(-0.196405,0.093203,1),Vector3(-0.144755,-0.0349069,1),Vector3(-0.244089,-0.114191,1),Vector3(-0.369488,-0.0299906,1)]))), ('axis3', NurbsCurve2D(Point3Array([Vector3(-0.5,0,1),Vector3(-0.343628,0.0908472,1),Vector3(-0.199423,0.0660391,1),Vector3(-0.139163,0.000244081,1),Vector3(-0.201903,-0.0919733,1),Vector3(-0.261797,-0.0726804,1)]))), ('axis4', NurbsCurve2D(Point3Array([Vector3(-0.5,0,1),Vector3(-0.343628,0.0908472,1),Vector3(-0.17612,0.0940398,1),Vector3(-0.0992922,0.071272,1),Vector3(-0.0294287,-0.00263411,1),Vector3(-0.0359671,0.00176892,1)]))), ('axis5', NurbsCurve2D(Point3Array([Vector3(-0.5,0,1),Vector3(-0.343628,0.0908472,1),Vector3(-0.17612,0.0940398,1),Vector3(-0.105034,0.0750999,1),Vector3(-0.0236869,0.0720096,1),Vector3(0.0498644,0.0519054,1)]))), ('axis6', NurbsCurve2D(Point3Array([Vector3(-0.5,0,1),Vector3(-0.28362,-0.0159994,1),Vector3(-0.17612,0.0518123,1),Vector3(-0.168036,0.0814387,1),Vector3(-0.100353,0.130297,1),Vector3(-0.154953,0.240856,1)]))), ('axis7', NurbsCurve2D(Point3Array([Vector3(-0.5,0,1),Vector3(-0.270107,-0.0329435,1),Vector3(-0.153669,0.0629664,1),Vector3(-0.166177,0.1558,1),Vector3(-0.208177,0.174913,1),Vector3(-0.303173,0.147119,1)]))), ('axis8', NurbsCurve2D(Point3Array([Vector3(-0.5,0,1),Vector3(-0.273115,-0.0434201,1),Vector3(-0.173188,0.111014,1),Vector3(-0.23975,0.187331,1),Vector3(-0.358312,0.13139,1),Vector3(-0.295666,0.0885611,1)]))), ('axis9', NurbsCurve2D(Point3Array([Vector3(-0.5,0,1),Vector3(-0.280281,-0.0381676,1),Vector3(-0.269238,0.132025,1),Vector3(-0.43052,0.135627,1),Vector3(-0.40177,0.00840907,1),Vector3(-0.321179,0.076555,1)])))]
-	context["__curves__"] = curves
-	for n,c in curves:
-		context[n] = c
+	import openalea.plantgl.all as pgl
+	leafwidth = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.0195927, 1),(0.219872, 0.279019, 1),(0.711105, 0.460335, 1),(1, 0.00849109, 1)]) , 
+	    )
+	leafwidth.name = "leafwidth"
+	panel_0 = ({'name': 'Functions', 'active': True, 'visible': True},[('Function',leafwidth)])
+	import openalea.plantgl.all as pgl
+	profile = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.617641, 0.141492, 1),(-0.175383, -0.129256, 1),(0.00813704, 0.352579, 1),(0.122072, -0.121707, 1),(0.587932, 0.164599, 1)]) , 
+	    )
+	profile.name = "profile"
+	axis1 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.343628, 0.0908472, 1),(-0.294991, -0.0340806, 1),(-0.425858, -0.0642156, 1),(-0.44864, 0.0269131, 1),(-0.37165, 0.0115342, 1)]) , 
+	    )
+	axis1.name = "axis1"
+	axis2 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.343628, 0.0908472, 1),(-0.196405, 0.093203, 1),(-0.144755, -0.0349069, 1),(-0.244089, -0.114191, 1),(-0.369488, -0.0299906, 1)]) , 
+	    )
+	axis2.name = "axis2"
+	axis3 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.343628, 0.0908472, 1),(-0.199423, 0.0660391, 1),(-0.139163, 0.000244081, 1),(-0.201903, -0.0919733, 1),(-0.261797, -0.0726804, 1)]) , 
+	    )
+	axis3.name = "axis3"
+	axis4 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.343628, 0.0908472, 1),(-0.17612, 0.0940398, 1),(-0.0992922, 0.071272, 1),(-0.0294287, -0.00263411, 1),(-0.0359671, 0.00176892, 1)]) , 
+	    )
+	axis4.name = "axis4"
+	axis5 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.343628, 0.0908472, 1),(-0.17612, 0.0940398, 1),(-0.105034, 0.0750999, 1),(-0.0236869, 0.0720096, 1),(0.0498644, 0.0519054, 1)]) , 
+	    )
+	axis5.name = "axis5"
+	axis6 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.28362, -0.0159994, 1),(-0.17612, 0.0518123, 1),(-0.168036, 0.0814387, 1),(-0.100353, 0.130297, 1),(-0.154953, 0.240856, 1)]) , 
+	    )
+	axis6.name = "axis6"
+	axis7 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.270107, -0.0329435, 1),(-0.153669, 0.0629664, 1),(-0.166177, 0.1558, 1),(-0.208177, 0.174913, 1),(-0.303173, 0.147119, 1)]) , 
+	    )
+	axis7.name = "axis7"
+	axis8 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.273115, -0.0434201, 1),(-0.173188, 0.111014, 1),(-0.23975, 0.187331, 1),(-0.358312, 0.13139, 1),(-0.295666, 0.0885611, 1)]) , 
+	    )
+	axis8.name = "axis8"
+	axis9 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.280281, -0.0381676, 1),(-0.269238, 0.132025, 1),(-0.43052, 0.135627, 1),(-0.40177, 0.00840907, 1),(-0.321179, 0.076555, 1)]) , 
+	    )
+	axis9.name = "axis9"
+	panel_1 = ({'name': 'Curve2D', 'active': True, 'visible': True},[('Curve2D',profile),('Curve2D',axis1),('Curve2D',axis2),('Curve2D',axis3),('Curve2D',axis4),('Curve2D',axis5),('Curve2D',axis6),('Curve2D',axis7),('Curve2D',axis8),('Curve2D',axis9)])
+	parameterset = [panel_0,panel_1,]
+	context["__functions__"] = [('leafwidth',leafwidth),]
+	context["__curves__"] = [('profile',profile),('axis1',axis1),('axis2',axis2),('axis3',axis3),('axis4',axis4),('axis5',axis5),('axis6',axis6),('axis7',axis7),('axis8',axis8),('axis9',axis9),]
+	context["__parameterset__"] = parameterset
+	context["leafwidth"] = pgl.QuantisedFunction(leafwidth)
+	context["profile"] = profile
+	context["axis1"] = axis1
+	context["axis2"] = axis2
+	context["axis3"] = axis3
+	context["axis4"] = axis4
+	context["axis5"] = axis5
+	context["axis6"] = axis6
+	context["axis7"] = axis7
+	context["axis8"] = axis8
+	context["axis9"] = axis9

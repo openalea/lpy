@@ -165,7 +165,7 @@ def __initialiseContext__(context):
 	Color_10 = pgl.Texture2D(image = PGL_140379453062080 , )
 	Color_10.name = "Color_10"
 	context.turtle.setMaterial(10,Color_10)
-	scalars = ['<openalea.lpy.gui.scalar.IntegerScalar object at 0x166cc4f90>', '<openalea.lpy.gui.scalar.IntegerScalar object at 0x166cc4fd0>', '<openalea.lpy.gui.scalar.IntegerScalar object at 0x166cc4e90>', '<openalea.lpy.gui.scalar.BoolScalar object at 0x1672dd750>']
+	scalars = [('NFlowers', 'Integer', 8, 1, 20), ('NFlowerClosed', 'Integer', 2, 0, 20), ('peduncleLength', 'Integer', 8, 1, 100), ('hairy', 'Bool', True)]
 	context["__scalars__"] = scalars
 	for s in scalars:
 		if not s[1] == "Category" : context[s[0]] = s[2]
