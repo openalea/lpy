@@ -44,7 +44,7 @@ endif()
 
 # --- Python
 
-find_package (Python3 COMPONENTS Interpreter Development)
+find_package (Python3 COMPONENTS Interpreter Development REQUIRED)
 include_directories(${Python3_INCLUDE_DIRS})
 
 # --- Libraries
