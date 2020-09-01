@@ -277,7 +277,7 @@ def translate_l_code(txt, vlpyinitconfig = None):
                     lineno += 1
                     restofline = restofline[:-2] + nline[:-2].strip()
                 
-            headdef, restofdef = restofline.split(' ',1)
+            headdef, restofdef = restofline.split(None,1)
             if '(' in headdef:
                 result += 'def ' + headdef + ' : return ' + restofdef + '\n'
             else:
@@ -339,7 +339,7 @@ def translate_l_code(txt, vlpyinitconfig = None):
                 try:
                     predecessor, successor = line.split('-->')
                 except Exception as e:
-                    print(line)
+                    print('Error :',line)
                     raise e
                 if not ':' in predecessor and not ':' in successor: # simplest rules
                     result += convert_lstring(predecessor) + '-->' + convert_lstring(successor) + '\n'
@@ -463,7 +463,7 @@ def translate_obj(fname):
                         try:
                             objects = manager.importData(fname)
                             managedobjects = [(manager,i) for i in objects]
-                            panels  += [({'name':basename(splitext(fn)[0])}, managedobjects)]
+                            panels  += [({'name':basename(splitext(fsetfile)[0])}, managedobjects)]
                         except Exception as e:
                             import sys, traceback
                             exc_info = sys.exc_info()
@@ -497,12 +497,13 @@ def translate_obj(fname):
                 l.turtle.removeColor(i)
         
         # read desciption
+        from codecs import open
         if descfile:
-            description = {'__description__' : open(join(project,descfile)).read() }
+            description = {'__description__' : open(join(project,descfile),'r','iso-8859-1').read() }
         else : description = None
         
         # translate lsystem code
-        lpycode = translate_l_code(file(join(project,lfile)).read(),vlpyinitconfig)
+        lpycode = translate_l_code(open(join(project,lfile),'r','iso-8859-1').read(),vlpyinitconfig)
         
         # add view file
         if vfiles:
@@ -514,7 +515,7 @@ def translate_obj(fname):
         init_txt = se.getInitialisationCode(l,credits = description, visualparameters=panels)
         return lpycode + init_txt
     else:
-        return translate_l_code(file(fname).read())
+        return translate_l_code(open(fname).read())
 
 def help():
     return 'Usage: cpfg2lpy project[.l] [output.lpy]\nHelp: This utility try to translate cpfg code and parameter in lpy. A simple cpfg lsystem file can be passed or an entire directory project.'
@@ -526,7 +527,7 @@ def main():
         return
     lpycode = translate_obj(sys.argv[1])
     if len(sys.argv) == 3:
-        output = file(sys.argv[2],'w')
+        output = open(sys.argv[2],'w')
         output.write(lpycode)
         output.close()
     else:

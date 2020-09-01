@@ -42,7 +42,7 @@ class FunctionManager(AbstractPglObjectManager):
         return  ext == '.fset' or ext == '.func'
     
     def importData(self,fname):
-        from openalea.lpy.gui.lpfg_data_import import import_functions, import_function
+        from openalea.lpy.cpfg_compat.data_import import import_functions, import_function
         from os.path import splitext
         ext = splitext(fname)[1]
         if ext == '.fset':  return import_functions(fname)

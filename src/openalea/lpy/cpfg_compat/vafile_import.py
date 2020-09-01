@@ -32,7 +32,12 @@ def get_view_info(vconfig):
     
     unit = None
     if 'initial line width' in vconfig:
-        val,unit = vconfig['initial line width'].split()
+        try:
+            val, unit = vconfig['initial line width'].split()
+        except:
+            val = vconfig['initial line width']
+            unit = None
+
         vlpyinitconfig['initial_line_width'] = float(val)
         if unit == 'p' or unit == 'pixels':
             vlpyinitconfig['initial_line_width'] /= 10
@@ -110,5 +115,5 @@ def translate_view_code(vtext,groupofpatches = None):
     return generate_view_code(vlpyconfig,groupofpatches), vlpyinitconfig
     
 def translate_view_file(vfile,groupofpatches = None):
-    vtext = file(vfile,'r').read()
+    vtext = open(vfile,'r').read()
     return translate_view_code(vtext,groupofpatches)
