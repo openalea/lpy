@@ -859,6 +859,8 @@ Lsystem::__step(AxialTree& workingstring,
     #include <QtCore/QtConcurrentMap>
 #endif
 
+
+
 AxialTree partialForwardStep(size_t beg, 
                              size_t size,
                              AxialTree& workingstring,
@@ -898,9 +900,9 @@ AxialTree partialForwardStep(size_t beg,
 }
 
 AxialTree partialBackwardStep(size_t beg, 
-                             size_t size,
-                             AxialTree& workingstring,
-                             const RulePtrMap& ruleset)
+                              size_t size,
+                              AxialTree& workingstring,
+                              const RulePtrMap& ruleset)
 {
       AxialTree targetstring;
       targetstring.reserve(size);
@@ -944,6 +946,34 @@ void assemble(AxialTree& result, const AxialTree& second)
 {  
     result += second; 
 }
+
+AxialTree Lsystem::partial_derivation(AxialTree& workingstring,
+                               size_t beg, 
+                               size_t size)
+{
+  eDirection ndir = getDirection();
+  size_t group = __context.getGroup();
+  bool productionHasQuery;
+  bool decompositionHasQuery;
+  RulePtrMap production = __getRules(eProduction,group,ndir,&productionHasQuery);
+  RulePtrMap decomposition = __getRules(eDecomposition,group,ndir,&decompositionHasQuery);
+  AxialTree partialresult;
+  if (!production.empty()){
+    if (ndir == eForward)
+        partialresult = partialForwardStep(beg, size, workingstring, production);
+    else
+        partialresult = partialBackwardStep(beg, size, workingstring, production);
+  }
+  else {
+    partialresult = AxialTree(workingstring.begin()+beg,workingstring.begin()+beg+size);    
+  }
+  if(!decomposition.empty()){
+    bool decmatching;
+    partialresult = __recursiveSteps(partialresult, decomposition, __decomposition_max_depth, decmatching);
+  }
+  return partialresult;
+}
+
 
 AxialTree 
 Lsystem::__parallelStep(AxialTree& workingstring,
@@ -995,6 +1025,8 @@ Lsystem::__parallelStep(AxialTree& workingstring,
     return result.result();
   }
 }
+
+
 AxialTree 
 Lsystem::__stepWithMatching(AxialTree& workingstring,
 				const RulePtrMap& ruleset,
