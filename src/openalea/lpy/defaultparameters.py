@@ -80,21 +80,35 @@ def defaultparameters(function):
         return __default_parameters_wrapper(function)
 
 
-def extern(**params):
+def extern(*paramstocheck, **params):
     """ 
     A function to define in a simple way default values of parameters.
 
     This function insert the parameter define as arguments
     in the global namespace if they do not already exist. 
 
+    If a string name is given without argument, 
+    it will simply check if the name exists in the current namespace.
+
     Example:
 
-    extern(a = 1, b = 2)
+    extern(a = 1, b = 2) # set default value to variable a and b.
+    extern('c') # check existence of variable c.
 
     """
+    caller_frame_locals = get_caller_frame().f_locals
     if len(params) > 0 :
         for key,val in params.items():
-            get_caller_frame().f_locals.setdefault(key,val)
+            caller_frame_locals.setdefault(key,val)
+    if len(paramstocheck) > 0:
+        for val in paramstocheck:
+            print('Check',val)
+            assert(type(val) == str)
+            if not val in caller_frame_locals:
+                raise NameError(val,'should be provided by external parameters.')
+
+
+
 
 
 

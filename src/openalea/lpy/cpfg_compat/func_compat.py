@@ -37,3 +37,11 @@ def atan2(x):
 
 from math import exp, log, sqrt
 fabs = abs
+
+from math import floor, ceil, trunc
+
+from numpy import sign
+
+def func(f,v):
+    print('test',v)
+    return f(min(1,max(0,v)))

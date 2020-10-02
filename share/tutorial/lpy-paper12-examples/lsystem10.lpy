@@ -105,7 +105,7 @@ __lpy_code_version__ = 1.1
 
 def __initialiseContext__(context):
 	import openalea.plantgl.all as pgl
-	Color_1 = pgl.Material("Color_1" , ambient = (88,60,20) , diffuse = 1.27273 , specular = (0,0,0) , )
+	Color_1 = pgl.Material("Color_1" , ambient = (88,60,20) , diffuse = 1.27273 , )
 	Color_1.name = "Color_1"
 	context.turtle.setMaterial(1,Color_1)
 	scalars = [('MAXORDER', 'Integer', 1, 0, 3), ('METHOD', 'Integer', 2, 0, 2)]

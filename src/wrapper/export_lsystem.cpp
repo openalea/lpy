@@ -113,6 +113,7 @@ void export_Lsystem(){
   
   class_<Lsystem,boost::noncopyable>
 	  ("Lsystem", init<optional<std::string,boost::python::dict> >("Lsystem([filename])", args("filename","globals")))
+	.enable_pickling()
 	.add_property("axiom",&lsys_axiom,(void(Lsystem::*)(const AxialTree&))&Lsystem::setAxiom)
 	.add_property("derivationLength",&Lsystem::derivationLength,&Lsystem::setDerivationLength)
 	.add_property("decompositionMaxDepth",&Lsystem::decompositionMaxDepth,&Lsystem::setDecompositionMaxDepth)

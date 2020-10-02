@@ -258,7 +258,7 @@ std::string
 Lsystem::str() const {
   ACQUIRE_RESSOURCE
   std::stringstream s;
-  s << "Lsystem:\n";
+  // s << "Lsystem:\n";
   s << "Axiom: " << __axiom.str() << '\n';
 
   if(!__context.__modules.empty()){
