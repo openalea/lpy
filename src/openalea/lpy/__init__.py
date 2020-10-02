@@ -165,6 +165,21 @@ def __lsystem_setattribute__(self,name,value):
 Lsystem.__getattr__ =  __lsystem_getattribute__
 Lsystem.__setattr__ =  __lsystem_setattribute__
 
+def __lsys_getinitargs__(self):
+    return ()
+
+from types import ModuleType
+
+def __lsys_getstate__(self):
+    return (str(self), dict([(n,v) for n,v in self.context().locals().items() if not isinstance(v,ModuleType) and not isinstance(v,ModuleClass)]))
+
+def __lsys_setstate__(self,state):
+    return self.setCode(state[0], state[1])
+
+Lsystem.__getinitargs__ = __lsys_getinitargs__
+Lsystem.__getstate__ = __lsys_getstate__
+Lsystem.__setstate__ = __lsys_setstate__
+
 def generate_module(mclass, *params):
     return ParamModule(mclass, tuple(params))
 

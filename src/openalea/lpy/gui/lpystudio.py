@@ -467,7 +467,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         self.com_mutex.unlock()
       else:
         self.viewer_plot(scene)
-        QCoreApplication.instance().processEvents()
+        #QCoreApplication.instance().processEvents()
     def cancelTask(self):
         if self.debugMode:
             self.debugger.stop()

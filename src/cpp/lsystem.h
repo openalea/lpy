@@ -152,6 +152,9 @@ public:
                      size_t nb_iter , 
                      bool previouslyinterpreted = false  );
 
+  AxialTree partial_derivation(AxialTree& workingstring,
+                                 size_t beg, 
+                                 size_t size);
 
   AxialTree decompose( const AxialTree& workstring  );
 
