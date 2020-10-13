@@ -20,6 +20,7 @@ env:
 install:
   - git clone https://github.com/openalea/travis-ci.git
   - cd travis-ci
+  - source downloadsdk.sh
   - source install.sh
   - conda config --prepend channels fredboudon
   - conda config --prepend channels conda-forge

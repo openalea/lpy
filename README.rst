@@ -9,8 +9,8 @@
    :target: https://ci.appveyor.com/project/fredboudon/lpy
    :alt: AppVeyor Continuous Integration Status
 
-.. image:: https://readthedocs.org/projects/lpy-fb/badge/?version=latest
-    :target: https://lpy-fb.readthedocs.io/en/latest/?badge=latest
+.. image:: https://readthedocs.org/projects/lpy/badge/?version=latest
+    :target: https://lpy.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
 
