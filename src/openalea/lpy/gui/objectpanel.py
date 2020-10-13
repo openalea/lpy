@@ -1100,7 +1100,7 @@ class LpyObjectPanelDock (QDockWidget):
         else:
             print(msg)    
     def __updateStatus(self,i=None):
-        if not i is None and i >= 0 and self.view.objects[i][0].managePrimitive():
+        if not i is None and 0 <= i < len(self.view.objects) and self.view.objects[i][0].managePrimitive():
             self.valueChanged.emit(True)
         else:
             self.valueChanged.emit(False)
