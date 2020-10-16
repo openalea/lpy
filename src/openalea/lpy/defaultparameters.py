@@ -98,8 +98,10 @@ def extern(*paramstocheck, **params):
     """
     caller_frame_locals = get_caller_frame().f_locals
     if len(params) > 0 :
-        for key,val in params.items():
+        for key,val in params.items():            
             caller_frame_locals.setdefault(key,val)
+            # Mark parameter to be external
+            caller_frame_locals['key'].__externparameter__ = True
     if len(paramstocheck) > 0:
         for val in paramstocheck:
             print('Check',val)
