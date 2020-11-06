@@ -1,3 +1,5 @@
+#from traits.api import HasTraits, Float, Bool
+
 class BaseScalar(object):
     def __init__(self, name):
         super(BaseScalar, self).__init__()
@@ -120,7 +122,7 @@ class CategoryScalar (BaseScalar):
         return (CategoryScalar, self.tostr(),)    
 
 class EnumScalar (BaseScalar):
-    def __init__(self,name,value = 0,values = []):
+    def __init__(self, name, value = 0, values = []):
         BaseScalar.__init__(self,name)
         self.value = value
         self.values = values

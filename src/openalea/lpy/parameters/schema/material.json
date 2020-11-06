@@ -1,0 +1,41 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "material",
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string",
+            "pattern": "^[^\\d\\W]\\w*\\Z"
+        },
+        "index": {
+            "type": "integer",
+            "minimum": 0
+        },
+        "ambient": {
+            "$ref": "color.json"
+        },
+        "specular": {
+            "$ref": "color.json"
+        },
+        "emission": {
+            "$ref": "color.json"
+        },
+        "diffuse": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 3
+        },
+        "transparency": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+        },
+        "shininess": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+        }
+    },
+    "required": ["name", "index", "ambient"],
+    "additionalProperties": false
+}

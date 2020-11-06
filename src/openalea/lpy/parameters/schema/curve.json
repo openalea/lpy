@@ -1,0 +1,43 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "curve",
+    "anyOf": [
+        {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "pattern": "^[^\\d\\W]\\w*\\Z"
+                },
+                "type": {
+                    "enum": ["NurbsCurve2D"]
+                },
+                "points": {
+                    "$ref": "pointarray.json"
+                },
+                "is_function": {
+                    "type": "boolean"
+                }
+            },
+            "required": ["name", "type", "points", "is_function"],
+            "additionalProperties": false
+        },
+        {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "pattern": "^[^\\d\\W]\\w*\\Z"
+                },
+                "type": {
+                    "enum": ["BezierCurve2D", "Polyline2D"]
+                },
+                "points": {
+                    "$ref": "pointarray.json"
+                }
+            },
+            "required": ["name", "type", "points"],
+            "additionalProperties": false
+        }
+    ]
+}

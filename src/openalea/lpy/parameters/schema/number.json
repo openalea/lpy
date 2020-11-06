@@ -1,0 +1,28 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "number",
+    "type": "object",
+    "required": ["name", "type", "value", "min", "max"],
+    "properties": {
+        "name": {
+            "type": "string",
+            "pattern": "^[^\\d\\W]\\w*\\Z"
+        },
+        "type": {
+            "enum": ["Integer", "Float"]
+        },
+        "value": {
+            "type": "number"
+        },
+        "min": {
+            "type": "number"
+        },
+        "max": {
+            "type": "number"
+        },
+        "step": {
+            "type": "number"
+        }
+    },
+    "additionalProperties": false
+}
