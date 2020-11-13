@@ -1,5 +1,5 @@
 from openalea.plantgl.gui.qt import qt
-from openalea.lpy.gui.scalar import *
+from openalea.lpy.parameters.scalar import *
 from . import generate_ui
 import sys
 

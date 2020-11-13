@@ -3,19 +3,12 @@
     "title": "options",
     "type": "object",
     "properties": {
-        "compilation": {
-            "type": "object"
-        },
-        "matching": {
-            "type": "object"
-        },
-        "processing": {
-            "type": "object"
-        },
-        "interaction": {
-            "type": "object"
+        "type": "array",
+        "items": {
+            "name" : "string",
+            "value" : "number"
         }
     },
-    "required": ["compilation", "matching", "processing", "interaction"],
+    "required": [],
     "additionalProperties": false
 }

@@ -25,9 +25,13 @@ class BaseScalar(object):
         cname = classtype.__name__
         return cname.replace('Scalar','')
 
+    def todict(self, **args):
+        return dict(name=self.name, value=self.value, **args)
+
 class BoolScalar (BaseScalar):
-    def __init__(self,name,value = True):
+    def __init__(self, name, value = True):
         BaseScalar.__init__(self,name)
+        assert BoolScalar.is_compatible(value)
         self.value = value
 
     def importValue(self,other):
@@ -48,9 +52,19 @@ class BoolScalar (BaseScalar):
     def __reduce__(self):
         return (BoolScalar, self.tostr(),)
 
+    @staticmethod
+    def is_compatible(value):
+        try:
+            bool(value)
+            return True
+        except:
+            return False
+
+
 class IntegerScalar (BaseScalar):
     def __init__(self, name, value = 1,minvalue = 0, maxvalue = 100):
         BaseScalar.__init__(self,name)
+        assert IntegerScalar.is_compatible(value)
         self.value = value
         self.minvalue = minvalue
         self.maxvalue = maxvalue
@@ -73,10 +87,23 @@ class IntegerScalar (BaseScalar):
         
     def __reduce__(self):
         return (IntegerScalar,  self.tostr(),)
+
+    def todict(self, **args):
+        return dict(name=self.name, value=self.value, type='Integer', min=self.minvalue, max=self.maxvalue, **args)
+
+    @staticmethod
+    def is_compatible(value):
+        try:
+            int(value)
+            return True
+        except:
+            return False
+
        
 class FloatScalar (BaseScalar):
     def __init__(self,name,value = 1.,minvalue = 0., maxvalue = 100., decimals = 2):
         BaseScalar.__init__(self,name)
+        assert FloatScalar.is_compatible(value)
         self.value = value
         self.minvalue = minvalue
         self.maxvalue = maxvalue
@@ -106,7 +133,16 @@ class FloatScalar (BaseScalar):
     def __reduce__(self):
         return (FloatScalar, self.tostr(),)
 
+    def todict(self, **args):
+        return dict(name=self.name, value=self.value, type='Float', min=self.minvalue, max=self.maxvalue, precision=self.decimals, **args)
 
+    @staticmethod
+    def is_compatible(value):
+        try:
+            float(value)
+            return True
+        except:
+            return False
         
 class CategoryScalar (BaseScalar):
     def __init__(self, name):
@@ -145,6 +181,9 @@ class EnumScalar (BaseScalar):
         
     def __reduce__(self):
         return (EnumScalar,self.tostr(),)
+
+    def is_compatible(self, value):
+        return value in self.values
 
 ScalarTypes = [ BoolScalar , IntegerScalar, FloatScalar, CategoryScalar, EnumScalar]
 ScalarTypesDict = dict([(stype.scalartype(),stype) for stype in ScalarTypes])

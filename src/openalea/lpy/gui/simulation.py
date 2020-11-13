@@ -5,7 +5,7 @@ from . import optioneditordelegate as oed
 import os, shutil, sys, traceback
 from time import time
 from .lpystudiodebugger import AbortDebugger
-from .scalar import *
+from openalea.lpy.parameters.scalar import *
 import cProfile as profiling
 from .lpyprofiling import *
 from .lpytmpfile import *

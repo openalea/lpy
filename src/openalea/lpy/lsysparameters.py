@@ -1,4 +1,4 @@
-from openalea.plantgl.all import PglTurtle, PyStrPrinter, Material
+from openalea.plantgl.all import PglTurtle, PyStrPrinter, Material, NurbsCurve2D, BezierCurve2D, Polyline2D, NurbsPatch
 from .__lpy_kernel__ import LpyParsing, LsysContext
 
 default_credits = {'__authors__'    : '' ,
@@ -8,12 +8,30 @@ default_credits = {'__authors__'    : '' ,
                    '__references__'  : '' }
 
 default_lpycode_version = 1.2
+default_lpyjson_version = 1.0
 
 scalartypemap = { int : 'Integer', float :'Float', bool : 'Bool'}
+graphictypemap = { NurbsCurve2D : 'Curve2D', BezierCurve2D : 'Curve2D', Polyline2D : 'Curve2D', NurbsPatch : 'NurbsPatch'}
+
+defaultturtlecolorlist = PglTurtle().getColorList()
+
+def isSimilarToDefaultTurtleMat(cmat, i):
+    if cmat.isTexture() : return False
+    
+    nbdefault = len(defaultturtlecolorlist)
+
+    if i >= nbdefault: 
+        defaultmat = Material('Color_'+str(i))
+    else:
+        defaultmat = Material(defaultturtlecolorlist[i])
+    if cmat.isSimilar(defaultmat) and cmat.name == defaultmat.name:
+        return True
+    else:
+        return False
+
 
 class LsystemParameters:
     def __init__(self, lsystem = None, reference_dir = None):
-        self.code_version = default_lpycode_version
         self.execOptions = {}
         self.animation_timestep = None
 
@@ -23,7 +41,10 @@ class LsystemParameters:
         self.graphicalparameters = [({'name':'default'},[])]
         self.credits = default_credits
 
-        self.import_from(lsystem)
+        self.retrieve_from(lsystem)
+
+    def is_valid(self):
+        return True
 
     def available_parameter_types(self):
         return self.available_scalar_types()+self.available_graphical_types()
@@ -38,7 +59,7 @@ class LsystemParameters:
     def available_graphical_types(self):
         return list(self.get_graphicalparameter_managers().keys())
 
-    def add_parameter(self, name, value, ptype = None, category = None, **params):
+    def add(self, name, value, ptype = None, category = None, **params):
         if ptype is None:
             ptype = scalartypemap[type(value)]
         if ptype in self.available_scalar_types():
@@ -52,6 +73,8 @@ class LsystemParameters:
         from .parameters.scalar import ProduceScalar
         if ptype is None:
             ptype = scalartypemap[type(value)]
+        if category is None:
+            category = 'default'
         assert ptype in self.available_scalar_types()
         scalar = ProduceScalar((name, ptype, value))
         scalar.__dict__.update(**params)
@@ -70,6 +93,8 @@ class LsystemParameters:
 
     def add_graphicalparameter(self, name, value, ptype = None, category = None):
         assert ptype in self.available_graphical_types()
+        if ptype is None:
+            ptype = graphictypemap[type(value)]
         if category is None:
             category = 'default'
         selectedset = []
@@ -83,9 +108,15 @@ class LsystemParameters:
         manager.setName(value, name)
         selectedset.append((manager, value))
 
-    def import_from(self, lsystem):
+    def set_options(self, name, value):
+        self.execOptions[name] = value
+
+    def set_color(self, index, value):
+        self.colorList[index] = value
+
+    def retrieve_from(self, lsystem):
         #self.lsystem = lsystem
-        self.reference_dir = reference_dir
+        #self.reference_dir = reference_dir
         self.retrieve_from_env(lsystem.execContext())
 
     def retrieve_from_env(self, context):
@@ -138,7 +169,7 @@ class LsystemParameters:
         code = self._generate_main_py_code(indentation, reference_dir)
         code += self._generate_credits_py_code(indentation)
         if len(code) > 0:
-            code = LpyParsing.InitialisationBeginTag+'\n\n'+'__lpy_code_version__ = '+str(1.1)+'\n\n'+code
+            code = LpyParsing.InitialisationBeginTag+'\n\n'+'__lpy_code_version__ = '+str(default_lpycode_version)+'\n\n'+code
         return code
 
     def _generate_main_py_code(self, indentation = '', reference_dir = None):
@@ -159,11 +190,6 @@ class LsystemParameters:
         init_txt = ''
         nbcurrent = len(self.colorList)
 
-        defaultlist = PglTurtle().getColorList()
-        nbdefault = len(defaultlist)
-
-        defaultmat = Material('default')
-
         printer = PyStrPrinter()
         printer.pglnamespace = 'pgl'
         printer.indentation = indentation
@@ -173,19 +199,17 @@ class LsystemParameters:
             printer.reference_dir = os.path.abspath(reference_dir)
 
         firstcol = True
-        for i in range(nbcurrent):
-            cmat = self.colorList[i]
-            if ( (i >= nbdefault) or (cmat.isTexture()) or (not cmat.isSimilar(defaultlist[i])) or (cmat.name != defaultlist[i].name)):
-                if cmat.isTexture() or not cmat.isSimilar(defaultmat):
-                    if firstcol :
-                        init_txt += indentation+"import openalea.plantgl.all as pgl\n"
-                        firstcol = False
-                    if cmat.name == '':
-                        cmat.name = 'Color_'+str(i)
-                    cmat.apply(printer)
-                    init_txt += printer.str()
-                    printer.clear()
-                    init_txt += indentation+'context.turtle.setMaterial('+repr(i)+','+str(cmat.name)+')\n'
+        for i, cmat in enumerate(self.colorList):
+            if not isSimilarToDefaultTurtleMat(cmat, i):
+                if firstcol :
+                    init_txt += indentation+"import openalea.plantgl.all as pgl\n"
+                    firstcol = False
+                if cmat.name == '':
+                    cmat.name = 'Color_'+str(i)
+                cmat.apply(printer)
+                init_txt += printer.str()
+                printer.clear()
+                init_txt += indentation+'context.turtle.setMaterial('+repr(i)+','+str(cmat.name)+')\n'
         return init_txt      
 
     def _generate_exec_parameters_py_code(self, indentation = '\t'):
@@ -255,14 +279,36 @@ class LsystemParameters:
                         emission=col2list(mat.emission),
                         transparency=mat.transparency,
                         shininess=mat.shininess)
-        
+
+        scalars = dict(name='scalars', enabled=True, items=[], scalars=[ sc.todict() for sc in self.scalars])
+        parameters = [scalars]
+        for panelinfo,objects in self.graphicalparameters:
+            panel = dict(name=panelinfo['name'], enabled=panelinfo.get('enabled',True), scalars=[])
+            items = []
+            for manager,obj in objects:
+                items.append(manager.jsonRepresentation(obj))
+            panel['items'] = items
+            parameters.append(panel)    
+
+        defaultlist = PglTurtle().getColorList()
+        materials = []
+        for i, cmat in enumerate(self.colorList):
+            if not isSimilarToDefaultTurtleMat(cmat, i):
+                materials.append(mat2dict(m,i))
+
+        if self.animation_timestep is None:
+            options = self.execOptions
+        else:
+            options = self.execOptions.copy()
+            options['animation_timestep'] = self.animation_timestep
+
         result =  dict(
             schema = 'lpy',
-            version = str(self.code_version),
-            options = self.execOptions,
-            materials = [mat2dict(m,i) for i,m in enumerate(self.colorList)],
-            parameters = [],
-            #credits = self.credits
+            version = str(default_lpyjson_version),
+            options = options,
+            materials = materials,
+            parameters = parameters,
+            credits = dict([(key,value) for key,value in self.credits.items() if value != ''])
         )
         assert LsystemParameters.validate_schema(result)
         return result     
@@ -270,6 +316,7 @@ class LsystemParameters:
     @staticmethod
     def validate_schema(obj):
         # TODO: load files only once
+        import io, os, json, jsonschema
         is_valid = False
         schema_path = os.path.join(os.path.dirname(__file__), 'parameters', 'schema')
         with io.open(os.path.join(schema_path, 'lpy.json'), 'r') as schema_file:
@@ -278,11 +325,21 @@ class LsystemParameters:
             except json.JSONDecodeError as e:
                 print(e)
             resolver = jsonschema.RefResolver(f'file:///{schema_path}/', schema)
+            jsonschema.validate(obj, schema, format_checker=jsonschema.draft7_format_checker, resolver=resolver)
             try:
-                jsonschema.validate(obj, schema, format_checker=jsonschema.draft7_format_checker, resolver=resolver)
                 is_valid = True
             except jsonschema.exceptions.ValidationError as e:
                 print('L-Py schema validation failed:', e.message)
             except jsonschema.exceptions.RefResolutionError as e:
                 print('JSON schema $ref file not found:', e)
         return is_valid
+
+    def retrieve_from_json_dict(self, obj):
+        assert LsystemParameters.validate_schema(obj)
+        self.credits.update(obj['credits'])
+        options = obj['options'].copy()
+        if 'animation_timestep' in options:
+            self.animation_timestep = options['animation_timestep']
+            del options['animation_timestep']
+        self.options = options
+        # TOFINISH

@@ -153,6 +153,11 @@ class Curve2DManager(AbstractPglObjectManager):
         else:
             obj.ctrlPointList = [(-i.x,i.y,i.z) for i in obj.ctrlPointList]
         widget.updateGL()
-        
+
+    def jsonRepresentation(self, obj):
+        result = curveJsonRepresentation(obj)
+        result['is_function'] = False
+        return result
+
 def get_managers():
     return Curve2DManager()

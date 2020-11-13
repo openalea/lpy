@@ -54,6 +54,12 @@ class FunctionManager(AbstractPglObjectManager):
         menu.addAction('Black',lambda : editor.applyTheme(editor.BLACK_THEME))
         menu.addAction('White',lambda : editor.applyTheme(editor.WHITE_THEME))
         menubar.addMenu(menu)
+
+    def jsonRepresentation(self, obj):
+        result = curveJsonRepresentation(obj)
+        result['is_function'] = True
+        return result
+
         
 def get_managers():
     return FunctionManager()

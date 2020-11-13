@@ -13,7 +13,11 @@
                     "enum": ["NurbsCurve2D"]
                 },
                 "points": {
-                    "$ref": "pointarray.json"
+                    "$ref": "point3array.json"
+                },
+                "degree": {
+                    "type": "number",
+                    "minimum": 1
                 },
                 "is_function": {
                     "type": "boolean"
@@ -30,10 +34,33 @@
                     "pattern": "^[^\\d\\W]\\w*\\Z"
                 },
                 "type": {
-                    "enum": ["BezierCurve2D", "Polyline2D"]
+                    "enum": ["BezierCurve2D"]
                 },
                 "points": {
-                    "$ref": "pointarray.json"
+                    "$ref": "point3array.json"
+                },
+                "is_function": {
+                    "type": "boolean"
+                }
+            },
+            "required": ["name", "type", "points"],
+            "additionalProperties": false
+        },
+        {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "pattern": "^[^\\d\\W]\\w*\\Z"
+                },
+                "type": {
+                    "enum": ["Polyline2D"]
+                },
+                "points": {
+                    "$ref": "point2array.json"
+                },
+                "is_function": {
+                    "type": "boolean"
                 }
             },
             "required": ["name", "type", "points"],

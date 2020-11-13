@@ -1,0 +1,24 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "creits",
+    "type": "object",
+    "properties": {
+        "authors": {
+            "type": "string"
+        },
+        "institutes": {
+            "type": "string"
+        },
+        "copyright": {
+            "type": "string"
+        },
+        "description": {
+            "type": "string"
+        },
+        "references": {
+            "type": "string"
+        }
+    },
+    "required": [],
+    "additionalProperties": true
+}

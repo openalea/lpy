@@ -20,8 +20,9 @@
         "max": {
             "type": "number"
         },
-        "step": {
-            "type": "number"
+        "precision": {
+            "type": "number",
+            "minimum" : 0
         }
     },
     "additionalProperties": false

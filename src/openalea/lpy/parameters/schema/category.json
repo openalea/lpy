@@ -9,10 +9,17 @@
         "enabled": {
             "type":"boolean"
         },
-        "curves": {
+        "items": {
             "type": "array",
             "items": {
-                "$ref": "curve.json"
+                 "anyOf": [
+                    {
+                        "$ref": "curve.json"
+                    },
+                    {
+                        "$ref": "patch.json"
+                    }
+                ]
             }
         },
         "scalars": {
@@ -29,6 +36,6 @@
             }
         }
     },
-    "required": ["name", "enabled", "curves", "scalars"],
-    "additionalProperties": false
+    "required": ["name", "enabled", "items", "scalars"],
+    "additionalProperties": true
 }

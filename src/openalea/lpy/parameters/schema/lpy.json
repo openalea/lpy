@@ -16,6 +16,10 @@
         "version": {
             "type": "string"
         },
+        "animation_timestep": {
+            "type": "number",
+            "minimum" : 0
+        },
         "options": {
             "$ref": "options.json"
         },
@@ -30,6 +34,9 @@
             "items": {
                 "$ref": "material.json"
             }
+        },
+        "credits" : {
+            "$ref": "credits.json"            
         }
     }
 }
