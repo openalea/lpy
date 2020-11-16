@@ -86,8 +86,9 @@ class AbstractObjectManager(QObject):
         """ get the color theme acccording to the theme dict """
         pass
     
-    def jsonRepresentation(self, obj):
+    def to_json(self, obj):
         raise NotImplementedError('jsonObject')
+
 
 from openalea.plantgl.all import Discretizer, GLRenderer, BBoxComputer, BoundingBox, PyStrPrinter
 
@@ -112,6 +113,10 @@ class AbstractPglObjectManager(AbstractObjectManager):
         obj.apply(printer)
         return printer.str()
         
+    def to_json(self, obj):
+        import openalea.plantgl.algo.jsonrep  as jr
+        return jr.to_json_rep(obj)
+
 
 
 def curveJsonRepresentation(obj):

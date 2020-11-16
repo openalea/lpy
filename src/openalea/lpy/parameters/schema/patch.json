@@ -12,7 +12,7 @@
                 "type": {
                     "enum": ["NurbsPatch"]
                 },
-                "points": {
+                "ctrlPointMatrix": {
                     "$ref": "point4matrix.json"
                 },
                 "udegree": {
@@ -24,22 +24,18 @@
                     "minimum": 1
                 },
                 "uknotList": {
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                        "type": "number"
-                    }
+                    "$ref": "realarray.json"
                 },
                 "vknotList": {
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                        "type": "number"
-                    }
+                   "$ref": "realarray.json"
+                },
+                "id": {
+                    "type": "integer"
                 }
             },
-            "required": ["name", "type", "points","udegree","vdegree"],
+            "required": ["name", "type", "ctrlPointMatrix"],
             "additionalProperties": false
+        
         },
         {
             "type": "object",
@@ -51,8 +47,11 @@
                 "type": {
                     "enum": ["BezierPatch"]
                 },
-                "points": {
+                "ctrlPointMatrix": {
                     "$ref": "point4matrix.json"
+                },
+                "id": {
+                    "type": "integer"
                 }
             },
             "required": ["name", "type", "points"],

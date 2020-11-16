@@ -55,11 +55,12 @@ class FunctionManager(AbstractPglObjectManager):
         menu.addAction('White',lambda : editor.applyTheme(editor.WHITE_THEME))
         menubar.addMenu(menu)
 
-    def jsonRepresentation(self, obj):
-        result = curveJsonRepresentation(obj)
-        result['is_function'] = True
-        return result
+    def to_json(self, obj):
+        import openalea.plantgl.algo.jsonrep  as jr
+        res = jr.to_json_rep(obj)
+        res['is_function'] = True
+        return res
 
-        
+       
 def get_managers():
     return FunctionManager()

@@ -12,7 +12,7 @@
                 "type": {
                     "enum": ["NurbsCurve2D"]
                 },
-                "points": {
+                "ctrlPointList": {
                     "$ref": "point3array.json"
                 },
                 "degree": {
@@ -21,9 +21,15 @@
                 },
                 "is_function": {
                     "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "knotList": {
+                    "$ref": "realarray.json"
                 }
             },
-            "required": ["name", "type", "points", "is_function"],
+            "required": ["name", "type", "ctrlPointList"],
             "additionalProperties": false
         },
         {
@@ -36,14 +42,17 @@
                 "type": {
                     "enum": ["BezierCurve2D"]
                 },
-                "points": {
+                "ctrlPointList": {
                     "$ref": "point3array.json"
                 },
                 "is_function": {
                     "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
                 }
             },
-            "required": ["name", "type", "points"],
+            "required": ["name", "type", "ctrlPointList"],
             "additionalProperties": false
         },
         {
@@ -56,14 +65,17 @@
                 "type": {
                     "enum": ["Polyline2D"]
                 },
-                "points": {
+                "pointList": {
                     "$ref": "point2array.json"
                 },
                 "is_function": {
                     "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
                 }
             },
-            "required": ["name", "type", "points"],
+            "required": ["name", "type", "pointList"],
             "additionalProperties": false
         }
     ]

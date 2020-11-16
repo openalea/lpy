@@ -12,12 +12,12 @@
         "items": {
             "type": "array",
             "items": {
-                 "anyOf": [
-                    {
-                        "$ref": "curve.json"
-                    },
+                "anyOf": [
                     {
                         "$ref": "patch.json"
+                    },
+                    {
+                        "$ref": "curve.json"
                     }
                 ]
             }

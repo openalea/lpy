@@ -1,4 +1,5 @@
 from openalea.plantgl.all import PglTurtle, PyStrPrinter, Material, NurbsCurve2D, BezierCurve2D, Polyline2D, NurbsPatch
+import openalea.plantgl.all as pgl
 from .__lpy_kernel__ import LpyParsing, LsysContext
 
 default_credits = {'__authors__'    : '' ,
@@ -31,20 +32,92 @@ def isSimilarToDefaultTurtleMat(cmat, i):
 
 
 class LsystemParameters:
-    def __init__(self, lsystem = None, reference_dir = None):
+    def __init__(self, lsystem = None):
         self.execOptions = {}
         self.animation_timestep = None
 
-        self.colorList = None
+        self.colorList = []
 
         self.scalars = []
         self.graphicalparameters = [({'name':'default'},[])]
         self.credits = default_credits
 
-        self.retrieve_from(lsystem)
+        if lsystem:
+            self.retrieve_from(lsystem)
+
+    def check_validity(self):
+        from openalea.lpy.gui.abstractobjectmanager import AbstractObjectManager
+        from openalea.lpy.parameters.scalar import BaseScalar
+        assert isinstance(self.execOptions, dict)
+        assert isinstance(self.credits, dict)
+        if not self.animation_timestep is None:
+            assert self.animation_timestep > 0
+        for value in self.colorList:
+            assert isinstance(value, pgl.Appearance)
+        for value in self.scalars:
+            assert isinstance(value, BaseScalar)
+        for pinfo, pvalues in self.graphicalparameters:
+            assert isinstance(pinfo, dict)
+            assert 'name' in pinfo
+            for pmanager, pvalue in pvalues:
+                assert isinstance(pmanager, AbstractObjectManager)
+                assert isinstance(pvalue, pgl.SceneObject) # ??
 
     def is_valid(self):
-        return True
+        try:
+            self.check_validity()
+            return True
+        except:
+            return False
+
+    def is_similar(self, other):
+        try:
+            self.check_similarity()
+            return True
+        except:
+            return False
+
+    def check_similarity(self, other):
+        from itertools import zip_longest
+        import openalea.plantgl.scenegraph.pglinspect as inspect 
+
+        if self.execOptions != other.execOptions: 
+            raise ValueError('execOptions',self.execOptions,other.execOptions)
+        if self.credits != other.credits: 
+            raise ValueError('credits',self.credits,other.credits)
+        if self.animation_timestep != other.animation_timestep: 
+            raise ValueError('animation_timestep',self.animation_timestep,other.animation_timestep)
+        for i,(v1,v2) in enumerate(zip_longest(self.colorList, other.colorList)):
+            if v1 is None and not v2 is None :
+                if not isSimilarToDefaultTurtleMat(v2,i):
+                    raise ValueError(v1,v2)
+            elif v2 is None and not v1 is None :
+                if not isSimilarToDefaultTurtleMat(v1,i):
+                    raise ValueError(v1,v2)
+            elif not  v1.isSimilar(v2): 
+                raise ValueError(v1,v2)
+        for v1,v2 in zip_longest(self.scalars, other.scalars):
+            if v1.scalartype() != v2.scalartype() or v1.value != v2.value:
+                raise ValueError('scalars',v1,v2)
+
+        def similar_pgl_object(v1,v2):
+            attributes = inspect.get_pgl_attributes(v1)            
+            for att in attributes:
+                if getattr(v1,att) != getattr(v2,att):
+                    if not isinstance(getattr(v1,att),pgl.PglObject): # cannot compare easily
+                        raise ValueError(att,getattr(v1,att),getattr(v2,att))
+            return True
+
+        for (i1,v1),(i2,v2) in zip_longest(self.graphicalparameters, other.graphicalparameters):
+            if i1 != i2 :
+                raise ValueError('category',i1,i2)
+            for (m1, v11),(m2,v22) in zip_longest(v1,v2):
+                if m1 != m2 :
+                    raise ValueError('manager',m1.name,m2.name)
+                if type(v11) != type(v22) :
+                    raise ValueError('type',v11,v22)
+                if not similar_pgl_object(v11,v22) :
+                    raise ValueError('object',v11,v22)
 
     def available_parameter_types(self):
         return self.available_scalar_types()+self.available_graphical_types()
@@ -61,7 +134,8 @@ class LsystemParameters:
 
     def add(self, name, value, ptype = None, category = None, **params):
         if ptype is None:
-            ptype = scalartypemap[type(value)]
+            ptype = type(value)
+            ptype = scalartypemap.get(ptype,graphictypemap.get(ptype,ptype))
         if ptype in self.available_scalar_types():
             self.add_scalar(name, value, ptype, category, **params)
         elif ptype in self.available_graphical_types():
@@ -91,6 +165,9 @@ class LsystemParameters:
         else:
                 self.scalars.append(scalar)
 
+    def add_function(self, name, value, category = None):
+        self.add_graphicalparameter(name, value, 'Function', category)
+
     def add_graphicalparameter(self, name, value, ptype = None, category = None):
         assert ptype in self.available_graphical_types()
         if ptype is None:
@@ -103,7 +180,7 @@ class LsystemParameters:
                 selectedset = pset
                 break
         else:
-            self.graphicalparameters.append(({'name' : category}, selectedset))
+            self.graphicalparameters.append(({'name' : category, 'enabled' : True }, selectedset))
         manager = self.get_graphicalparameter_managers()[ptype]
         manager.setName(value, name)
         selectedset.append((manager, value))
@@ -113,6 +190,28 @@ class LsystemParameters:
 
     def set_color(self, index, value):
         self.colorList[index] = value
+
+    def categories(self):
+        return list(set([pinfo['name'] for pinfo, pset in self.graphicalparameters]+[sc.category for sc in self.scalars]))
+
+    def category_info(self, name):
+        for pinfo, pset in self.graphicalparameters:
+            if pinfo['name']== name:
+                return pinfo
+        for sc in scalars:
+            if sc.category == name:
+                return { 'name' : name, 'enabled' : True}
+
+    def category_parameters(self, name):
+        result = []
+        for pinfo, pset in self.graphicalparameters:
+            if pinfo['name']== name:
+                result += pset
+                break
+        for sc in scalars:
+            if sc.category == name:
+                result.append(sc)
+        return result
 
     def retrieve_from(self, lsystem):
         #self.lsystem = lsystem
@@ -146,8 +245,7 @@ class LsystemParameters:
             csc.category = currentcategory
 
     def _retrieve_graphical_parameters_from_env(self, context):
-        from openalea.lpy.gui.objectmanagers import get_managers
-        managers = get_managers()
+        managers = self.get_graphicalparameter_managers()
 
         def checkinfo(info): return {'name':info} if type(info) == str else info
         self.graphicalparameters = context.get('__parameterset__',[])
@@ -269,32 +367,30 @@ class LsystemParameters:
         return txt
 
     def generate_json_parameter_dict(self):
-        def col2list(col): return [col.red,col.green,col.blue]
-        def mat2dict(mat,i):
-            return dict(name=mat.name,
-                        index=i,
-                        ambient=col2list(mat.ambient),
-                        diffuse=mat.diffuse,
-                        specular=col2list(mat.specular),
-                        emission=col2list(mat.emission),
-                        transparency=mat.transparency,
-                        shininess=mat.shininess)
+        import openalea.plantgl.algo.jsonrep as jrep
+        from collections import OrderedDict 
+        parameters = OrderedDict()
 
-        scalars = dict(name='scalars', enabled=True, items=[], scalars=[ sc.todict() for sc in self.scalars])
-        parameters = [scalars]
-        for panelinfo,objects in self.graphicalparameters:
-            panel = dict(name=panelinfo['name'], enabled=panelinfo.get('enabled',True), scalars=[])
+        for panelinfo, objects in self.graphicalparameters:
+            panel = panelinfo.copy()
+            panel.setdefault('enabled',True)
+            panel['scalars'] = []
             items = []
             for manager,obj in objects:
-                items.append(manager.jsonRepresentation(obj))
+                items.append(manager.to_json(obj))
             panel['items'] = items
-            parameters.append(panel)    
+            parameters[panel['name']] = panel
+
+        for sc in self.scalars:
+            if not sc.category in parameters:
+                parameters[sc.category] = dict(name=sc.category, enabled=True, items=[], scalars=[])
+            parameters[sc.category]['scalars'].append(sc.todict())
 
         defaultlist = PglTurtle().getColorList()
         materials = []
         for i, cmat in enumerate(self.colorList):
             if not isSimilarToDefaultTurtleMat(cmat, i):
-                materials.append(mat2dict(m,i))
+                materials.append(jrep.to_json_rep(m,i))
 
         if self.animation_timestep is None:
             options = self.execOptions
@@ -307,7 +403,7 @@ class LsystemParameters:
             version = str(default_lpyjson_version),
             options = options,
             materials = materials,
-            parameters = parameters,
+            parameters = list(parameters.values()),
             credits = dict([(key,value) for key,value in self.credits.items() if value != ''])
         )
         assert LsystemParameters.validate_schema(result)
@@ -325,8 +421,8 @@ class LsystemParameters:
             except json.JSONDecodeError as e:
                 print(e)
             resolver = jsonschema.RefResolver(f'file:///{schema_path}/', schema)
-            jsonschema.validate(obj, schema, format_checker=jsonschema.draft7_format_checker, resolver=resolver)
             try:
+                jsonschema.validate(obj, schema, format_checker=jsonschema.draft7_format_checker, resolver=resolver)
                 is_valid = True
             except jsonschema.exceptions.ValidationError as e:
                 print('L-Py schema validation failed:', e.message)
@@ -335,11 +431,43 @@ class LsystemParameters:
         return is_valid
 
     def retrieve_from_json_dict(self, obj):
+        import openalea.plantgl.algo.jsonrep as jrep
+        from openalea.lpy.parameters.scalar import scalar_from_json_rep
         assert LsystemParameters.validate_schema(obj)
         self.credits.update(obj['credits'])
         options = obj['options'].copy()
         if 'animation_timestep' in options:
             self.animation_timestep = options['animation_timestep']
             del options['animation_timestep']
-        self.options = options
+        self.execOptions = options
+        materials = jrep.from_json_rep(obj['materials'])
+        parameters = obj['parameters']
+        scalars = []
+        gparameters = []
+        managers = self.get_graphicalparameter_managers()
+        for pset in parameters:
+            lscalars = list(map(scalar_from_json_rep,pset['scalars']))
+            for sc in lscalars:
+                sc.category = pset['name']
+            scalars += lscalars
+            lpset = []
+            pinfo = {}
+            for propname in pset.keys():
+                if not propname in ['items','scalars']:
+                    pinfo[propname] = pset[propname]
+            for v in pset['items']:
+                managername = None
+                if 'is_function' in v:
+                    if v['is_function']:
+                        managername = 'Function'
+                    del v['is_function']
+                obj = jrep.from_json_rep(v)
+                if managername is None:
+                    managername = graphictypemap[type(obj)]
+                manager = managers[managername]
+                lpset.append((manager,obj))
+            gparameters.append((pinfo,lpset))
+
+        self.graphicalparameters = gparameters
+        self.scalars = scalars
         # TOFINISH

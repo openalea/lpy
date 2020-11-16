@@ -3,12 +3,11 @@
     "title": "options",
     "type": "object",
     "properties": {
-        "type": "array",
-        "items": {
-            "name" : "string",
-            "value" : "number"
+        "animation_timestep": {
+            "type": "integer",
+            "minimum": 0
         }
     },
     "required": [],
-    "additionalProperties": false
+    "additionalProperties": true
 }

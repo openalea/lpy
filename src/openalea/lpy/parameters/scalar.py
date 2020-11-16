@@ -29,6 +29,8 @@ class BaseScalar(object):
         return dict(name=self.name, value=self.value, **args)
 
 class BoolScalar (BaseScalar):
+    targettype = bool
+
     def __init__(self, name, value = True):
         BaseScalar.__init__(self,name)
         assert BoolScalar.is_compatible(value)
@@ -48,7 +50,7 @@ class BoolScalar (BaseScalar):
         
     def tostr(self):
         return (self.name,self.scalartype(),self.value)
-        
+
     def __reduce__(self):
         return (BoolScalar, self.tostr(),)
 
@@ -62,12 +64,15 @@ class BoolScalar (BaseScalar):
 
 
 class IntegerScalar (BaseScalar):
-    def __init__(self, name, value = 1,minvalue = 0, maxvalue = 100):
+    targettype = int
+
+    def __init__(self, name, value = 1, min = 0, max = 100):
         BaseScalar.__init__(self,name)
         assert IntegerScalar.is_compatible(value)
         self.value = value
-        self.minvalue = minvalue
-        self.maxvalue = maxvalue
+        self.minvalue = min
+        self.maxvalue = max
+        assert self.minvalue <= self.value <= self.maxvalue
 
     def importValue(self,other):
         self.name = other.name
@@ -89,7 +94,7 @@ class IntegerScalar (BaseScalar):
         return (IntegerScalar,  self.tostr(),)
 
     def todict(self, **args):
-        return dict(name=self.name, value=self.value, type='Integer', min=self.minvalue, max=self.maxvalue, **args)
+        return BaseScalar.todict(self, type='Integer', min=self.minvalue, max=self.maxvalue, **args)
 
     @staticmethod
     def is_compatible(value):
@@ -101,20 +106,23 @@ class IntegerScalar (BaseScalar):
 
        
 class FloatScalar (BaseScalar):
-    def __init__(self,name,value = 1.,minvalue = 0., maxvalue = 100., decimals = 2):
+    targettype = float
+
+    def __init__(self,name, value = 1., min = 0., max = 100., precision = 2):
         BaseScalar.__init__(self,name)
         assert FloatScalar.is_compatible(value)
         self.value = value
-        self.minvalue = minvalue
-        self.maxvalue = maxvalue
-        self.decimals = decimals
+        self.minvalue = min
+        self.maxvalue = max
+        self.precision = precision
+        assert self.minvalue <= self.value <= self.maxvalue
         
     def importValue(self,other):
         self.name = other.name
         self.value = other.value
         self.minvalue = other.minvalue
         self.maxvalue = other.maxvalue
-        self.decimals = other.decimals
+        self.precision = other.precision
         
     def __eq__(self,other):
         return (self.name == other.name and self.value == other.value and 
@@ -128,13 +136,13 @@ class FloatScalar (BaseScalar):
         return True
         
     def tostr(self):
-        return (self.name,self.scalartype(),self.value,self.minvalue,self.maxvalue, self.decimals)
+        return (self.name,self.scalartype(),self.value,self.minvalue,self.maxvalue, self.precision)
         
     def __reduce__(self):
         return (FloatScalar, self.tostr(),)
 
     def todict(self, **args):
-        return dict(name=self.name, value=self.value, type='Float', min=self.minvalue, max=self.maxvalue, precision=self.decimals, **args)
+        return BaseScalar.todict(self, type='Float', min=self.minvalue, max=self.maxvalue, precision=self.precision, **args)
 
     @staticmethod
     def is_compatible(value):
@@ -145,6 +153,8 @@ class FloatScalar (BaseScalar):
             return False
         
 class CategoryScalar (BaseScalar):
+    targettype = str
+
     def __init__(self, name):
         BaseScalar.__init__(self,name)
     
@@ -158,6 +168,8 @@ class CategoryScalar (BaseScalar):
         return (CategoryScalar, self.tostr(),)    
 
 class EnumScalar (BaseScalar):
+    targettype = str
+
     def __init__(self, name, value = 0, values = []):
         BaseScalar.__init__(self,name)
         self.value = value
@@ -187,6 +199,7 @@ class EnumScalar (BaseScalar):
 
 ScalarTypes = [ BoolScalar , IntegerScalar, FloatScalar, CategoryScalar, EnumScalar]
 ScalarTypesDict = dict([(stype.scalartype(),stype) for stype in ScalarTypes])
+Type2ScalarTypesDict = dict([(stype.targettype,stype) for stype in ScalarTypes])
 
 def ProduceScalar(v):
     potentialtype = v[1]
@@ -203,3 +216,13 @@ def ProduceScalar(v):
                 v[1] = float(v[1])
                 return FloatScalar(*v)
             return IntegerScalar(*v)
+
+def scalar_from_json_rep(jsonrep):
+    ptype = jsonrep.get('type', None)
+    if ptype is None:
+        scalartype = Type2ScalarTypesDict[type(jsonrep['value'])]
+        return scalartype(**jsonrep)
+    else:
+        jsonrep = jsonrep.copy()
+        del jsonrep['type']
+        return ScalarTypesDict[ptype](**jsonrep)

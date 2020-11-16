@@ -77,10 +77,7 @@ class NurbsPatchManager(AbstractPglObjectManager):
         
     def managePrimitive(self):
         return True
-
-    def jsonRepresentation(self, obj):
-        return dict(name=obj.name, type=obj.__class__.__name__,points=[ list(map(list,row))  for row in obj.ctrlPointMatrix], udegree = obj.udegree, vdegree = obj.vdegree, uknotList = [v for v in obj.uknotList], vknotList = [v for v in obj.vknotList])
-        
+       
 
 def get_managers():
     return NurbsPatchManager()
