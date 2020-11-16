@@ -1,12 +1,14 @@
 from openalea.lpy import *
 from openalea.lpy.lsysparameters import *
-from openalea.plantgl.all import NurbsCurve2D, BezierCurve2D, Polyline2D, NurbsPatch
+from openalea.plantgl.all import NurbsCurve2D, BezierCurve2D, Polyline2D, NurbsPatch, Material, Texture2D, ImageTexture
 
 def test_param_creation():
-    l = Lsystem()
-    l.execContext().options.setSelection('Module declaration',1)
-    l.execContext().options.setSelection('Warning with sharp module',0)
-    lp = LsystemParameters(l)
+    lp = LsystemParameters()
+    lp.set_color(0,Material((255,20,1)))
+    #texture = Texture2D(ImageTexture('image/bjunipc.png'),baseColor=(255,20,1,0))
+    #lp.set_color(1,texture)
+    lp.set_option('Module declaration',1)
+    lp.set_option('Warning with sharp module',0)
     lp.add('test', 1, category='test')
     lp.add('testFloat', 1.2, category='test')
     lp.add('testbool',True,category='test')
@@ -32,12 +34,22 @@ def test_json_retrieve():
 
     lp.check_similarity(lp2)
 
-def test_json_get():
+def test_param_get():
     lp = test_param_creation()
     assert 'test' in lp.categories()
     assert 'test2' in lp.categories()
     assert len(lp.category_parameters('test')) == 5
     assert len(lp.category_parameters('test2')) == 3
+    assert len(lp.execOptions) == 2
+
+def test_param_py_code():
+    lp = test_param_creation()
+    code = lp.generate_py_code()
+    l = Lsystem()
+    l.setCode(code)
+    lp2 = LsystemParameters(l)
+    lp.check_similarity(lp2)
+
 
 if __name__ == '__main__':
     test_json_validate()

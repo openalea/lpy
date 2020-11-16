@@ -32,7 +32,7 @@
         "materials": {
             "type": "array",
             "items": {
-                "$ref": "material.json"
+                "$ref": "appearance.json"
             }
         },
         "credits" : {

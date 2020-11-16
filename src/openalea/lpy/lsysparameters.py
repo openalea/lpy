@@ -36,7 +36,7 @@ class LsystemParameters:
         self.execOptions = {}
         self.animation_timestep = None
 
-        self.colorList = []
+        self.colorList = {}
 
         self.scalars = []
         self.graphicalparameters = [({'name':'default'},[])]
@@ -45,23 +45,6 @@ class LsystemParameters:
         if lsystem:
             self.retrieve_from(lsystem)
 
-    def check_validity(self):
-        from openalea.lpy.gui.abstractobjectmanager import AbstractObjectManager
-        from openalea.lpy.parameters.scalar import BaseScalar
-        assert isinstance(self.execOptions, dict)
-        assert isinstance(self.credits, dict)
-        if not self.animation_timestep is None:
-            assert self.animation_timestep > 0
-        for value in self.colorList:
-            assert isinstance(value, pgl.Appearance)
-        for value in self.scalars:
-            assert isinstance(value, BaseScalar)
-        for pinfo, pvalues in self.graphicalparameters:
-            assert isinstance(pinfo, dict)
-            assert 'name' in pinfo
-            for pmanager, pvalue in pvalues:
-                assert isinstance(pmanager, AbstractObjectManager)
-                assert isinstance(pvalue, pgl.SceneObject) # ??
 
     def is_valid(self):
         try:
@@ -77,6 +60,25 @@ class LsystemParameters:
         except:
             return False
 
+    def check_validity(self):
+        from openalea.lpy.gui.abstractobjectmanager import AbstractObjectManager
+        from openalea.lpy.parameters.scalar import BaseScalar
+        assert isinstance(self.execOptions, dict)
+        assert isinstance(self.credits, dict)
+        if not self.animation_timestep is None:
+            assert self.animation_timestep > 0
+        assert isinstance(self.colorList, dict)
+        for value in self.colorList.values():
+            assert isinstance(value, pgl.Appearance)
+        for value in self.scalars:
+            assert isinstance(value, BaseScalar)
+        for pinfo, pvalues in self.graphicalparameters:
+            assert isinstance(pinfo, dict)
+            assert 'name' in pinfo
+            for pmanager, pvalue in pvalues:
+                assert isinstance(pmanager, AbstractObjectManager)
+                assert isinstance(pvalue, pgl.SceneObject) # ??
+
     def check_similarity(self, other):
         from itertools import zip_longest
         import openalea.plantgl.scenegraph.pglinspect as inspect 
@@ -87,15 +89,24 @@ class LsystemParameters:
             raise ValueError('credits',self.credits,other.credits)
         if self.animation_timestep != other.animation_timestep: 
             raise ValueError('animation_timestep',self.animation_timestep,other.animation_timestep)
-        for i,(v1,v2) in enumerate(zip_longest(self.colorList, other.colorList)):
+        for (i1,v1),(i2,v2) in zip_longest(self.colorList.items(), other.colorList.items()):
+            if i1 != i2:
+                raise ValueError('color',i1,i2)
             if v1 is None and not v2 is None :
-                if not isSimilarToDefaultTurtleMat(v2,i):
-                    raise ValueError(v1,v2)
+                if not isSimilarToDefaultTurtleMat(v2,i2):
+                    raise ValueError('color',v1,v2)
             elif v2 is None and not v1 is None :
-                if not isSimilarToDefaultTurtleMat(v1,i):
+                if not isSimilarToDefaultTurtleMat(v1,i1):
                     raise ValueError(v1,v2)
-            elif not  v1.isSimilar(v2): 
-                raise ValueError(v1,v2)
+            else:
+                if type(v1) != type(v2):
+                    raise ValueError('color',v1,v2)
+                if isinstance(v1, pgl.Material) :
+                    if not  v1.isSimilar(v2): 
+                        raise ValueError('material',v1,v2)
+                else:
+                    if v1.image.filename != v1.image.filename:
+                        raise ValueError('texture',v1.image.filename,v2.image.filename)
         for v1,v2 in zip_longest(self.scalars, other.scalars):
             if v1.scalartype() != v2.scalartype() or v1.value != v2.value:
                 raise ValueError('scalars',v1,v2)
@@ -108,7 +119,11 @@ class LsystemParameters:
                         raise ValueError(att,getattr(v1,att),getattr(v2,att))
             return True
 
-        for (i1,v1),(i2,v2) in zip_longest(self.graphicalparameters, other.graphicalparameters):
+        for iv1,iv2 in zip_longest(self.graphicalparameters, other.graphicalparameters):
+            if iv1 is None or iv2 is None:
+                raise ValueError('category',iv1,iv2)
+            i1,v1 = iv1
+            i2,v2 = iv2
             if i1 != i2 :
                 raise ValueError('category',i1,i2)
             for (m1, v11),(m2,v22) in zip_longest(v1,v2):
@@ -185,11 +200,14 @@ class LsystemParameters:
         manager.setName(value, name)
         selectedset.append((manager, value))
 
-    def set_options(self, name, value):
+    def set_option(self, name, value):
         self.execOptions[name] = value
 
     def set_color(self, index, value):
+        assert isinstance(value, pgl.Appearance)
         self.colorList[index] = value
+        if not value.isNamed():
+            value.name = 'Color_'+str(index)
 
     def categories(self):
         return list(set([pinfo['name'] for pinfo, pset in self.graphicalparameters]+[sc.category for sc in self.scalars]))
@@ -208,7 +226,7 @@ class LsystemParameters:
             if pinfo['name']== name:
                 result += pset
                 break
-        for sc in scalars:
+        for sc in self.scalars:
             if sc.category == name:
                 result.append(sc)
         return result
@@ -240,9 +258,12 @@ class LsystemParameters:
         self.scalars = []
         currentcategory = ''
         for sc in scalars:
-            if sc[1] is None: currentcategory = sc[0]
-            csc = ProduceScalar(v)
-            csc.category = currentcategory
+            if sc[1] is None: 
+                currentcategory = sc[0]
+            else:
+                csc = ProduceScalar(sc)
+                csc.category = currentcategory
+                self.scalars.append(csc)
 
     def _retrieve_graphical_parameters_from_env(self, context):
         managers = self.get_graphicalparameter_managers()
@@ -252,7 +273,9 @@ class LsystemParameters:
         self.graphicalparameters = [ (checkinfo(panelinfo), [(managers[typename],obj) for typename,obj in objects]) for panelinfo,objects in self.graphicalparameters]
 
     def _retrieve_colors_from_env(self, context):
-        self.colorList = context.turtle.getColorList()
+        for i,cmat in enumerate(context.turtle.getColorList()):
+            if not isSimilarToDefaultTurtleMat(cmat,i):
+                self.colorList[i] = cmat
 
     def _retrieve_exec_parameters_from_env(self, context):
         self.animation_timestep = None
@@ -262,6 +285,31 @@ class LsystemParameters:
         for option in context.options:
             if not option.isToDefault():
                 self.execOptions[option.name] = option.selection
+
+    def apply_to(self, lsystem):
+        self.apply_to_env(lsystem.execContext())
+
+    def apply_to_env(self, context):
+        self._apply_exec_parameters_to_env(context)
+        self._apply_colors_to_env(context)
+
+    def _apply_exec_parameters_to_env(self, context):
+        if not self.animation_timestep is None:
+            context.animation_timestep = self.animation_timestep
+        for optname, optvalue in self.execOptions.items():
+            context.options.setSelection(options[i].name,options[i].selection)
+
+    def _apply_colors_to_env(self, context):
+        for i, cmat in enumerate(self.colorList):
+            if not isSimilarToDefaultTurtleMat(cmat, i):
+                context.turtle.setMaterial(i, cmat)
+
+    def _apply_graphical_parameters_to_env(self, context):
+        context["__parameterset__"] = self.graphicalparameters
+        for panelinfo,objects in self.graphicalparameters:
+            if panelinfo.get('enabled',True):
+                for manager,obj in objects:
+                    context[manager.getName(obj)] = manager.getObjectForLsysContext(obj)
 
     def generate_py_code(self, indentation = '', reference_dir = None):
         code = self._generate_main_py_code(indentation, reference_dir)
@@ -297,7 +345,7 @@ class LsystemParameters:
             printer.reference_dir = os.path.abspath(reference_dir)
 
         firstcol = True
-        for i, cmat in enumerate(self.colorList):
+        for i, cmat in self.colorList.items():
             if not isSimilarToDefaultTurtleMat(cmat, i):
                 if firstcol :
                     init_txt += indentation+"import openalea.plantgl.all as pgl\n"
@@ -315,7 +363,7 @@ class LsystemParameters:
         if not self.animation_timestep is None:
             init_txt += indentation+'context.animation_timestep = '+str(self.animation_timestep)+'\n'           
         for optname, optvalue in self.execOptions.items():
-            init_txt += indentation+'context.options.setSelection('+repr(options[i].name)+','+str(options[i].selection)+')\n'
+            init_txt += indentation+'context.options.setSelection('+repr(optname)+','+str(optvalue)+')\n'
         return init_txt
 
     def _generate_graphical_parameters_py_code(self, indentation = '\t'):
@@ -327,26 +375,20 @@ class LsystemParameters:
             return True
         if not emptyparameterset(self.graphicalparameters) :
             intialized_managers = {}
-            panelid = 0
-            for panelinfo,objects in self.graphicalparameters:
-                if panelinfo.get('active',True) or withall:
-                    for manager,obj in objects:
-                        if manager not in intialized_managers:
-                            intialized_managers[manager] = True
-                            init_txt += manager.initWriting('\t') 
-                        init_txt += manager.writeObject(obj,'\t')
-                    init_txt += indentation+'panel_'+str(panelid)+' = ('+repr(panelinfo)+',['+','.join(['('+repr(manager.typename)+','+manager.getName(obj)+')' for manager,obj in objects])+'])\n'
-                panelid += 1    
+            for panelid,(panelinfo,objects) in enumerate(self.graphicalparameters):
+                for manager,obj in objects:
+                    if manager not in intialized_managers:
+                        intialized_managers[manager] = True
+                        init_txt += manager.initWriting('\t') 
+                    init_txt += manager.writeObject(obj,'\t')
+                init_txt += indentation+'panel_'+str(panelid)+' = ('+repr(panelinfo)+',['+','.join(['('+repr(manager.typename)+','+manager.getName(obj)+')' for manager,obj in objects])+'])\n'
             init_txt += indentation+'parameterset = ['
-            panelid = 0
-            for panelinfo,objects in self.graphicalparameters:
-                if panelinfo.get('active',True) or withall:
+            for panelid in range(len(self.graphicalparameters)):
                     init_txt += 'panel_'+str(panelid)+','
-                panelid += 1
             init_txt += ']\n'
             init_txt += indentation+'context["__parameterset__"] = parameterset\n'
             for panelinfo,objects in self.graphicalparameters:
-                if panelinfo.get('active',True):
+                if panelinfo.get('enabled',True):
                     for manager,obj in objects:
                         init_txt += indentation+'context["'+manager.getName(obj)+'"] = '+manager.writeObjectToLsysContext(obj) + '\n'
         return init_txt
@@ -388,9 +430,11 @@ class LsystemParameters:
 
         defaultlist = PglTurtle().getColorList()
         materials = []
-        for i, cmat in enumerate(self.colorList):
+        for i, cmat in self.colorList.items():
             if not isSimilarToDefaultTurtleMat(cmat, i):
-                materials.append(jrep.to_json_rep(m,i))
+                jmat = jrep.to_json_rep(cmat)
+                jmat['index'] = i
+                materials.append(jmat)
 
         if self.animation_timestep is None:
             options = self.execOptions
@@ -406,6 +450,7 @@ class LsystemParameters:
             parameters = list(parameters.values()),
             credits = dict([(key,value) for key,value in self.credits.items() if value != ''])
         )
+        print(result)
         assert LsystemParameters.validate_schema(result)
         return result     
 
@@ -440,7 +485,12 @@ class LsystemParameters:
             self.animation_timestep = options['animation_timestep']
             del options['animation_timestep']
         self.execOptions = options
-        materials = jrep.from_json_rep(obj['materials'])
+
+        materials = {}
+        for jmat in obj['materials']:
+            idx = jmat['index']
+            del jmat['index']
+            materials[idx] = jrep.from_json_rep(jmat)
         parameters = obj['parameters']
         scalars = []
         gparameters = []

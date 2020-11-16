@@ -15,6 +15,9 @@ class AbstractObjectManager(QObject):
     def getName(self,obj):
         return obj.name
 
+    def getObjectForLsysContext(self,obj):
+        return obj
+
     def displayThumbnail(self,obj,id,mode,objectthumbwidth):
         """ display of an object in the Lpy main window Panel, 
             :param obj: the object to display

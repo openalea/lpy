@@ -7,6 +7,13 @@
             "type": "string",
             "pattern": "^[^\\d\\W]\\w*\\Z"
         },
+        "id": {
+            "type": "integer",
+            "minimum": 0
+        },
+        "type": {
+            "enum": ["Material"]
+        },
         "index": {
             "type": "integer",
             "minimum": 0
@@ -39,3 +46,4 @@
     "required": ["name", "index", "ambient"],
     "additionalProperties": false
 }
+
