@@ -30,7 +30,6 @@ def isSimilarToDefaultTurtleMat(cmat, i):
     else:
         return False
 
-
 class LsystemParameters:
     def __init__(self, lsystem = None):
         self.execOptions = {}
@@ -39,7 +38,7 @@ class LsystemParameters:
         self.colorList = {}
 
         self.scalars = []
-        self.graphicalparameters = [({'name':'default'},[])]
+        self.graphicalparameters = []
         self.credits = default_credits
 
         if lsystem:
@@ -81,36 +80,24 @@ class LsystemParameters:
 
     def check_similarity(self, other):
         from itertools import zip_longest
-        import openalea.plantgl.scenegraph.pglinspect as inspect 
-
         if self.execOptions != other.execOptions: 
             raise ValueError('execOptions',self.execOptions,other.execOptions)
         if self.credits != other.credits: 
             raise ValueError('credits',self.credits,other.credits)
         if self.animation_timestep != other.animation_timestep: 
             raise ValueError('animation_timestep',self.animation_timestep,other.animation_timestep)
-        for (i1,v1),(i2,v2) in zip_longest(self.colorList.items(), other.colorList.items()):
-            if i1 != i2:
-                raise ValueError('color',i1,i2)
-            if v1 is None and not v2 is None :
-                if not isSimilarToDefaultTurtleMat(v2,i2):
-                    raise ValueError('color',v1,v2)
-            elif v2 is None and not v1 is None :
-                if not isSimilarToDefaultTurtleMat(v1,i1):
-                    raise ValueError(v1,v2)
-            else:
-                if type(v1) != type(v2):
-                    raise ValueError('color',v1,v2)
-                if isinstance(v1, pgl.Material) :
-                    if not  v1.isSimilar(v2): 
-                        raise ValueError('material',v1,v2)
-                else:
-                    if v1.image.filename != v1.image.filename:
-                        raise ValueError('texture',v1.image.filename,v2.image.filename)
+
+        self.check_similar_colors(other)
+
         for v1,v2 in zip_longest(self.scalars, other.scalars):
             if v1.scalartype() != v2.scalartype() or v1.value != v2.value:
                 raise ValueError('scalars',v1,v2)
 
+        self.check_similar_graphical_parameters(other)
+
+    def check_similar_graphical_parameters(self, other):
+        from itertools import zip_longest
+        import openalea.plantgl.scenegraph.pglinspect as inspect 
         def similar_pgl_object(v1,v2):
             attributes = inspect.get_pgl_attributes(v1)            
             for att in attributes:
@@ -133,6 +120,36 @@ class LsystemParameters:
                     raise ValueError('type',v11,v22)
                 if not similar_pgl_object(v11,v22) :
                     raise ValueError('object',v11,v22)
+
+    def check_similar_colors(self, other):
+        from itertools import zip_longest
+        for iv1,iv2 in zip_longest(self.colorList.items(), other.colorList.items()):
+            if not iv1 is None:
+                i1,v1 = iv1
+            else:
+                v1 = None
+            if not iv2 is None:
+                i2,v2 = iv2
+            else:
+                v2 = None
+            if v1 is None and not v2 is None :
+                if not isSimilarToDefaultTurtleMat(v2,i2):
+                    raise ValueError('color',v1,v2)
+            elif v2 is None and not v1 is None :
+                if not isSimilarToDefaultTurtleMat(v1,i1):
+                    raise ValueError(v1,v2)
+            else:
+                if i1 != i2:
+                    raise ValueError('color',i1,i2)
+                if type(v1) != type(v2):
+                    raise ValueError('color',v1,v2)
+                if isinstance(v1, pgl.Material) :
+                    if not  v1.isSimilar(v2): 
+                        raise ValueError('material',v1,v2)
+                else:
+                    if v1.image.filename != v1.image.filename:
+                        raise ValueError('texture',v1.image.filename,v2.image.filename)        
+
 
     def available_parameter_types(self):
         return self.available_scalar_types()+self.available_graphical_types()
@@ -491,6 +508,7 @@ class LsystemParameters:
             idx = jmat['index']
             del jmat['index']
             materials[idx] = jrep.from_json_rep(jmat)
+        self.colorList = materials
         parameters = obj['parameters']
         scalars = []
         gparameters = []
