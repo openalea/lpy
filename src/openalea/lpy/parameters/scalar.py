@@ -14,11 +14,11 @@ class BaseScalar(object):
     def isCategory(self):
         return False
         
-    def tostr(self):
+    def totuple(self):
         raise 
         
     def __reduce__(self):
-        return (BaseScalar, (self.name,))
+        return (self.__class__, self.totuple(),)
 
     @classmethod
     def scalartype(classtype):
@@ -48,11 +48,12 @@ class BoolScalar (BaseScalar):
     def isBool(self):
         return True
         
-    def tostr(self):
+    def totuple(self):
         return (self.name,self.scalartype(),self.value)
 
-    def __reduce__(self):
-        return (BoolScalar, self.tostr(),)
+    def __repr__(self):
+        return self.__class__.__name__+'('+repr(self.name)+','+repr(self.value)+')'
+
 
     @staticmethod
     def is_compatible(value):
@@ -87,14 +88,14 @@ class IntegerScalar (BaseScalar):
         return (self.name != other.name or self.value != other.value or 
                 self.minvalue != other.minvalue or self.maxvalue != other.maxvalue)
                 
-    def tostr(self):
+    def totuple(self):
         return (self.name,self.scalartype(),self.value,self.minvalue,self.maxvalue)
         
-    def __reduce__(self):
-        return (IntegerScalar,  self.tostr(),)
-
     def todict(self, **args):
         return BaseScalar.todict(self, type='Integer', min=self.minvalue, max=self.maxvalue, **args)
+
+    def __repr__(self):
+        return self.__class__.__name__+'('+repr(self.name)+','+repr(self.value)+','+repr(self.minvalue)+','+repr(self.maxvalue)+')'
 
     @staticmethod
     def is_compatible(value):
@@ -135,14 +136,15 @@ class FloatScalar (BaseScalar):
     def isFloat(self):
         return True
         
-    def tostr(self):
+    def totuple(self):
         return (self.name,self.scalartype(),self.value,self.minvalue,self.maxvalue, self.precision)
         
-    def __reduce__(self):
-        return (FloatScalar, self.tostr(),)
-
     def todict(self, **args):
         return BaseScalar.todict(self, type='Float', min=self.minvalue, max=self.maxvalue, precision=self.precision, **args)
+
+    def __repr__(self):
+        return self.__class__.__name__+'('+repr(self.name)+','+repr(self.value)+','+repr(self.minvalue)+','+repr(self.maxvalue)+','+repr(self.precision)+')'
+
 
     @staticmethod
     def is_compatible(value):
@@ -161,11 +163,8 @@ class CategoryScalar (BaseScalar):
     def isCategory(self):
         return True
         
-    def tostr(self):
+    def totuple(self):
         return (self.name, self.scalartype())
-
-    def __reduce__(self):
-        return (CategoryScalar, self.tostr(),)    
 
 class EnumScalar (BaseScalar):
     targettype = str
@@ -188,12 +187,9 @@ class EnumScalar (BaseScalar):
         return not self.__eq__(other)
         
         
-    def tostr(self):
+    def totuple(self):
         return (self.name,self.scalartype(),self.value,self.values)
         
-    def __reduce__(self):
-        return (EnumScalar,self.tostr(),)
-
     def is_compatible(self, value):
         return value in self.values
 

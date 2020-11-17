@@ -13,7 +13,7 @@ class FunctionManager(AbstractPglObjectManager):
         AbstractPglObjectManager.__init__(self,"Function")
 
     def getObjectForLsysContext(self,obj):
-        return pgl.QuantisedFunction(obj)
+        return QuantisedFunction(obj)
         
     def displayThumbnail(self,obj,i,focus,objectthumbwidth):
         displayLineAsThumbnail(self,obj,i,objectthumbwidth,(1,0,1,1))

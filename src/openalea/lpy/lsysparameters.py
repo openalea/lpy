@@ -30,15 +30,28 @@ def isSimilarToDefaultTurtleMat(cmat, i):
     else:
         return False
 
+class Category:
+    def __init__(self, info, items = None, scalars = None, **params):
+        if type(info) == str:
+            self.info = { 'name' : info, 'enabled' : True}
+        else:
+            self.info = info
+        self.__dict__.update(params)
+        self.items = items if not items is None else []
+        self.scalars = scalars if not scalars is None else []
+    def __repr__(self):
+        return '<Category('+repr(self.info['name'])+') object at '+hex(id(self))+'>'
+
 class LsystemParameters:
     def __init__(self, lsystem = None):
+        from collections import OrderedDict
         self.execOptions = {}
         self.animation_timestep = None
 
         self.colorList = {}
 
-        self.scalars = []
-        self.graphicalparameters = []
+        self.parameters = OrderedDict()
+
         self.credits = default_credits
 
         if lsystem:
@@ -69,14 +82,13 @@ class LsystemParameters:
         assert isinstance(self.colorList, dict)
         for value in self.colorList.values():
             assert isinstance(value, pgl.Appearance)
-        for value in self.scalars:
-            assert isinstance(value, BaseScalar)
-        for pinfo, pvalues in self.graphicalparameters:
-            assert isinstance(pinfo, dict)
-            assert 'name' in pinfo
-            for pmanager, pvalue in pvalues:
+        for category in self.parameters.values():
+            assert isinstance(category.info, dict)
+            assert 'name' in category.info
+            for pmanager, pvalue in category.items:
                 assert isinstance(pmanager, AbstractObjectManager)
-                assert isinstance(pvalue, pgl.SceneObject) # ??
+            for value in category.scalars:
+                assert isinstance(value, BaseScalar)
 
     def check_similarity(self, other):
         from itertools import zip_longest
@@ -89,13 +101,9 @@ class LsystemParameters:
 
         self.check_similar_colors(other)
 
-        for v1,v2 in zip_longest(self.scalars, other.scalars):
-            if v1.scalartype() != v2.scalartype() or v1.value != v2.value:
-                raise ValueError('scalars',v1,v2)
+        self.check_similar_parameters(other)
 
-        self.check_similar_graphical_parameters(other)
-
-    def check_similar_graphical_parameters(self, other):
+    def check_similar_parameters(self, other):
         from itertools import zip_longest
         import openalea.plantgl.scenegraph.pglinspect as inspect 
         def similar_pgl_object(v1,v2):
@@ -106,20 +114,24 @@ class LsystemParameters:
                         raise ValueError(att,getattr(v1,att),getattr(v2,att))
             return True
 
-        for iv1,iv2 in zip_longest(self.graphicalparameters, other.graphicalparameters):
-            if iv1 is None or iv2 is None:
-                raise ValueError('category',iv1,iv2)
-            i1,v1 = iv1
-            i2,v2 = iv2
-            if i1 != i2 :
-                raise ValueError('category',i1,i2)
-            for (m1, v11),(m2,v22) in zip_longest(v1,v2):
+        for cat1,cat2 in zip_longest(self.parameters.values(), other.parameters.values()):
+            if cat1 is None or cat2 is None:
+                raise ValueError('category',cat1,cat2)
+            if cat1.info != cat2.info:
+                raise ValueError('category',cat1.info,cat2.info)
+
+            for (m1, v11),(m2,v22) in zip_longest(cat1.items,cat2.items):
                 if m1 != m2 :
                     raise ValueError('manager',m1.name,m2.name)
                 if type(v11) != type(v22) :
                     raise ValueError('type',v11,v22)
                 if not similar_pgl_object(v11,v22) :
                     raise ValueError('object',v11,v22)
+
+            for v1,v2 in zip_longest(cat1.scalars, cat2.scalars):
+                if v1.scalartype() != v2.scalartype() or v1.value != v2.value:
+                    raise ValueError('scalars',v1,v2)
+
 
     def check_similar_colors(self, other):
         from itertools import zip_longest
@@ -175,6 +187,16 @@ class LsystemParameters:
         else:
             raise TypeError(ptype)
 
+    def add_category(self, name, **params):
+        category = Category({ 'name' : category, 'enabled' : True })
+        category.update(params)
+        self.parameters[name] = category
+
+    def setdefaultcategory(self, name, **params):
+        category = Category({ 'name' : name, 'enabled' : True })
+        category.info.update(params)
+        return self.parameters.setdefault(name,category)
+
     def add_scalar(self, name, value, ptype = None, category = None, **params):
         from .parameters.scalar import ProduceScalar
         if ptype is None:
@@ -185,17 +207,12 @@ class LsystemParameters:
         scalar = ProduceScalar((name, ptype, value))
         scalar.__dict__.update(**params)
         scalar.category = category
-        if len(self.scalars) > 2:
-            found = False
-            for i,(sc,prevc) in enumerate(zip(self.scalars[1:],self.scalars[:-1])):
-                if prevc.category == category and sc.category != category:
-                    self.scalars.insert(i+1,scalar)
-                    found = True
-                    break
-            if not found:
-                self.scalars.append(scalar)
-        else:
-                self.scalars.append(scalar)
+
+        self._add_scalar(category, scalar)
+
+    def _add_scalar(self, category, scalar):
+        categoryobj = self.setdefaultcategory(category)
+        categoryobj.scalars.append(scalar)
 
     def add_function(self, name, value, category = None):
         self.add_graphicalparameter(name, value, 'Function', category)
@@ -206,16 +223,15 @@ class LsystemParameters:
             ptype = graphictypemap[type(value)]
         if category is None:
             category = 'default'
-        selectedset = []
-        for pinfo, pset in self.graphicalparameters:
-            if pinfo['name'] == category:
-                selectedset = pset
-                break
-        else:
-            self.graphicalparameters.append(({'name' : category, 'enabled' : True }, selectedset))
+
         manager = self.get_graphicalparameter_managers()[ptype]
         manager.setName(value, name)
-        selectedset.append((manager, value))
+
+        self._add_graphicalparameter(category, manager, value)
+
+    def _add_graphicalparameter(self, category, manager, value):
+        categoryobj = self.setdefaultcategory(category)
+        categoryobj.items.append((manager, value))
 
     def set_option(self, name, value):
         self.execOptions[name] = value
@@ -227,25 +243,31 @@ class LsystemParameters:
             value.name = 'Color_'+str(index)
 
     def categories(self):
-        return list(set([pinfo['name'] for pinfo, pset in self.graphicalparameters]+[sc.category for sc in self.scalars]))
+        return self.parameters.keys()
 
     def category_info(self, name):
-        for pinfo, pset in self.graphicalparameters:
-            if pinfo['name']== name:
-                return pinfo
-        for sc in scalars:
-            if sc.category == name:
-                return { 'name' : name, 'enabled' : True}
+        return self.parameters[name].info
 
     def category_parameters(self, name):
+        return self.parameters[name].items+self.parameters[name].scalars
+
+    def category_graphicalparameters(self, name):
+        return self.parameters[name].items
+
+    def category_scalars(self, name):
+        return self.parameters[name].scalars
+
+    def scalars(self):
+        return sum([ category.scalars for category in self.parameters ],[])
+
+    def scalarList(self):
+        """ Return the scalar list in the old-fashion with scalar rep of category"""
+        from .parameters.scalar import CategoryScalar
         result = []
-        for pinfo, pset in self.graphicalparameters:
-            if pinfo['name']== name:
-                result += pset
-                break
-        for sc in self.scalars:
-            if sc.category == name:
-                result.append(sc)
+        for category in self.parameters.values():
+            if len(category.scalars) > 0:
+                result.append(CategoryScalar(category.info['name']))
+                result += category.scalars 
         return result
 
     def retrieve_from(self, lsystem):
@@ -254,47 +276,69 @@ class LsystemParameters:
         self.retrieve_from_env(lsystem.execContext())
 
     def retrieve_from_env(self, context):
-        self._retrieve_code_version_from_env(context)
-        self._retrieve_exec_parameters_from_env(context)
-        self._retrieve_colors_from_env(context)
-        self._retrieve_credits_from_env(context)
-        self._retrieve_scalars_from_env(context)
-        self._retrieve_graphical_parameters_from_env(context)
+        code_version = self._retrieve_code_version_from_env(context)
+        self._retrieve_exec_parameters_from_env(context, code_version)
+        self._retrieve_colors_from_env(context, code_version)
+        self._retrieve_credits_from_env(context, code_version)
+        self._retrieve_graphical_parameters_from_env(context, code_version)
+        self._retrieve_scalars_from_env(context, code_version)
 
     def _retrieve_code_version_from_env(self, context):
-        self.code_version = context.get('__lpy_code_version__',default_lpycode_version)
+        return context.get('__lpy_code_version__',default_lpycode_version)
 
-    def _retrieve_credits_from_env(self, context):
+    def _retrieve_credits_from_env(self, context, code_version):
         credits = {}
         for  c in default_credits.keys():
             credits[c] = context.get(c,'')
 
-    def _retrieve_scalars_from_env(self, context):
-        from .parameters.scalar import ProduceScalar
-        scalars = context.get('__scalars__', [])
-        self.scalars = []
-        currentcategory = ''
-        for sc in scalars:
-            if sc[1] is None: 
-                currentcategory = sc[0]
-            else:
-                csc = ProduceScalar(sc)
-                csc.category = currentcategory
-                self.scalars.append(csc)
+    def _retrieve_scalars_from_env(self, context, code_version):
+        if code_version == 1.1:
+            from .parameters.scalar import ProduceScalar
+            scalars = context.get('__scalars__', [])
+            self.scalars = []
+            currentcategory = 'default'
+            for sc in scalars:
+                if sc[1] == 'Category': 
+                    currentcategory = sc[0]
+                else:
+                    csc = ProduceScalar(sc)
+                    csc.category = currentcategory
 
-    def _retrieve_graphical_parameters_from_env(self, context):
+                    self._add_scalar(currentcategory, csc)
+
+    def _retrieve_graphical_parameters_from_env(self, context, code_version):
+        from openalea.lpy.parameters.scalar import scalar_from_json_rep
         managers = self.get_graphicalparameter_managers()
 
-        def checkinfo(info): return {'name':info} if type(info) == str else info
-        self.graphicalparameters = context.get('__parameterset__',[])
-        self.graphicalparameters = [ (checkinfo(panelinfo), [(managers[typename],obj) for typename,obj in objects]) for panelinfo,objects in self.graphicalparameters]
+        def checkinfo(info): 
+            if type(info) == str:
+                return {'name':info , 'enabled':True}  
+            else :
+                if code_version == 1.1:
+                    if 'active' in info:
+                        info['enabled'] = info['active']
+                        del info['active']
+                return info
+        parameters = context.get('__parameterset__',[])
 
-    def _retrieve_colors_from_env(self, context):
+        for category in parameters:
+            if code_version == 1.1:
+                panelinfo, objects = category
+            else :
+                panelinfo, objects, scalars = category
+
+            info = checkinfo(panelinfo)
+            categoryobj = self.parameters.setdefault(info['name'], Category(info))
+            categoryobj.items =[(managers[typename],obj) for typename,obj in objects]
+            if code_version > 1.1:
+                categoryobj.scalars = [scalar_from_json_rep(scalardict) for scalardict in scalars]
+
+    def _retrieve_colors_from_env(self, context, code_version):
         for i,cmat in enumerate(context.turtle.getColorList()):
             if not isSimilarToDefaultTurtleMat(cmat,i):
                 self.colorList[i] = cmat
 
-    def _retrieve_exec_parameters_from_env(self, context):
+    def _retrieve_exec_parameters_from_env(self, context, code_version):
         self.animation_timestep = None
         if not context.is_animation_timestep_to_default():
             self.animation_timestep = context.animation_timestep
@@ -307,46 +351,53 @@ class LsystemParameters:
         self.apply_to_env(lsystem.execContext())
 
     def apply_to_env(self, context):
+        context["__lpy_code_version__"] = default_lpycode_version
         self._apply_exec_parameters_to_env(context)
         self._apply_colors_to_env(context)
+        self._apply_parameters_to_env(context)
 
     def _apply_exec_parameters_to_env(self, context):
         if not self.animation_timestep is None:
             context.animation_timestep = self.animation_timestep
         for optname, optvalue in self.execOptions.items():
-            context.options.setSelection(options[i].name,options[i].selection)
+            context.options.setSelection(optname,optvalue)
 
     def _apply_colors_to_env(self, context):
-        for i, cmat in enumerate(self.colorList):
+        for i, cmat in self.colorList.items():
             if not isSimilarToDefaultTurtleMat(cmat, i):
                 context.turtle.setMaterial(i, cmat)
 
-    def _apply_graphical_parameters_to_env(self, context):
-        context["__parameterset__"] = self.graphicalparameters
-        for panelinfo,objects in self.graphicalparameters:
-            if panelinfo.get('enabled',True):
-                for manager,obj in objects:
+    def _apply_parameters_to_env(self, context):
+        context["__parameterset__"] = [(category.info, 
+                                       [(manager.typename, obj) for manager, obj in category.items], 
+                                       [scalar.todict() for scalar in category.scalars]) for category in self.parameters.values()]
+        for category in self.parameters.values():
+            if category.info.get('enabled',True):
+                for manager,obj in category.items:
                     context[manager.getName(obj)] = manager.getObjectForLsysContext(obj)
+                for scalar in category.scalars:
+                    context[scalar.name] = scalar.value
 
-    def generate_py_code(self, indentation = '', reference_dir = None):
-        code = self._generate_main_py_code(indentation, reference_dir)
+    def generate_py_code(self, indentation = '', reference_dir = None, version = default_lpycode_version):
+        assert version in [1.1,1.2]
+        code = self._generate_main_py_code(indentation, reference_dir,version)
         code += self._generate_credits_py_code(indentation)
         if len(code) > 0:
-            code = LpyParsing.InitialisationBeginTag+'\n\n'+'__lpy_code_version__ = '+str(default_lpycode_version)+'\n\n'+code
+            code = LpyParsing.InitialisationBeginTag+'\n\n'+'__lpy_code_version__ = '+str(version)+'\n\n'+code
         return code
 
-    def _generate_main_py_code(self, indentation = '', reference_dir = None):
+    def _generate_main_py_code(self, indentation = '', reference_dir = None, version = default_lpycode_version):
         header = indentation+"def "+LsysContext.InitialisationFunctionName+"(context):\n"
-        init_txt = self._generate_exec_parameters_py_code(indentation+'\t')
-        init_txt += self._generate_colors_py_code(indentation+'\t', reference_dir)
-        init_txt += self._generate_graphical_parameters_py_code(indentation+'\t')
-        init_txt += self._generate_scalars_py_code(indentation+'\t')
+        init_txt = self._generate_exec_parameters_py_code(indentation+'\t',version)
+        init_txt += self._generate_colors_py_code(indentation+'\t', reference_dir,version)
+        init_txt += self._generate_parameters_py_code(indentation+'\t',version)
+        init_txt += self._generate_scalars_py_code(indentation+'\t',version)
         if len(init_txt) > 0:
             return header+init_txt
         else:
             return ''
 
-    def _generate_colors_py_code(self, indentation = '\t', reference_dir = None):
+    def _generate_colors_py_code(self, indentation = '\t', reference_dir = None, version = default_lpycode_version):
         from openalea.plantgl.all import Material, PglTurtle, PyStrPrinter
         if self.colorList is None: return ''
 
@@ -375,7 +426,7 @@ class LsystemParameters:
                 init_txt += indentation+'context.turtle.setMaterial('+repr(i)+','+str(cmat.name)+')\n'
         return init_txt      
 
-    def _generate_exec_parameters_py_code(self, indentation = '\t'):
+    def _generate_exec_parameters_py_code(self, indentation = '\t', version = default_lpycode_version):
         init_txt = ''
         if not self.animation_timestep is None:
             init_txt += indentation+'context.animation_timestep = '+str(self.animation_timestep)+'\n'           
@@ -383,37 +434,43 @@ class LsystemParameters:
             init_txt += indentation+'context.options.setSelection('+repr(optname)+','+str(optvalue)+')\n'
         return init_txt
 
-    def _generate_graphical_parameters_py_code(self, indentation = '\t'):
+    def _generate_parameters_py_code(self, indentation = '\t', version = default_lpycode_version):
         init_txt = ''
-        if self.graphicalparameters is None: return init_txt
+        if self.parameters is None: return init_txt
         def emptyparameterset(params):
-            for panel,data in params:
-                if len(data) > 0: return False
+            for category in params.values():
+                if len(category.items) > 0: return False
+                if len(category.scalars) > 0: return False
             return True
-        if not emptyparameterset(self.graphicalparameters) :
+        if not emptyparameterset(self.parameters) :
             intialized_managers = {}
-            for panelid,(panelinfo,objects) in enumerate(self.graphicalparameters):
-                for manager,obj in objects:
+            for panelid,category in enumerate(self.parameters.values()):
+                for manager,obj in category.items:
                     if manager not in intialized_managers:
                         intialized_managers[manager] = True
                         init_txt += manager.initWriting('\t') 
                     init_txt += manager.writeObject(obj,'\t')
-                init_txt += indentation+'panel_'+str(panelid)+' = ('+repr(panelinfo)+',['+','.join(['('+repr(manager.typename)+','+manager.getName(obj)+')' for manager,obj in objects])+'])\n'
+                init_txt += indentation+'category_'+str(panelid)+' = ('+repr(category.info)
+                init_txt += ',['+','.join(['('+repr(manager.typename)+','+manager.getName(obj)+')' for manager,obj in category.items])+']\n'
+                if version > 1.1:
+                    init_txt += ',['+','.join([repr(scalar.todict()) for scalar in category.scalars])+']'
+                init_txt += ')\n'
             init_txt += indentation+'parameterset = ['
-            for panelid in range(len(self.graphicalparameters)):
-                    init_txt += 'panel_'+str(panelid)+','
+            init_txt += ','.join(['category_'+str(panelid) for panelid in range(len(self.parameters))])
             init_txt += ']\n'
             init_txt += indentation+'context["__parameterset__"] = parameterset\n'
-            for panelinfo,objects in self.graphicalparameters:
-                if panelinfo.get('enabled',True):
-                    for manager,obj in objects:
+            for category in self.parameters.values():
+                if category.info.get('enabled',True):
+                    for manager,obj in category.items:
                         init_txt += indentation+'context["'+manager.getName(obj)+'"] = '+manager.writeObjectToLsysContext(obj) + '\n'
+                    for scalar in category.scalars:
+                        init_txt += indentation+'context["'+scalar.name+'"] = '+str(scalar.value) + '\n'
         return init_txt
 
-    def _generate_scalars_py_code(self, indentation = '\t'):
+    def _generate_scalars_py_code(self, indentation = '\t', version = default_lpycode_version):
         init_txt = ''
-        if not self.scalars is None and len(self.scalars) > 0:
-            init_txt += indentation+'scalars = '+str([sc.tostr() for sc in self.scalars])+'\n'
+        if version == 1.1:
+            init_txt += indentation+'scalars = ['+','.join([repr(sc.totuple()) for sc in self.scalarList()])+']\n'
             init_txt += indentation+'context["__scalars__"] = scalars\n'
             init_txt += indentation+'for s in scalars:\n'+indentation+'\tif not s[1] == "Category" : context[s[0]] = s[2]\n'
         return init_txt
@@ -428,22 +485,18 @@ class LsystemParameters:
     def generate_json_parameter_dict(self):
         import openalea.plantgl.algo.jsonrep as jrep
         from collections import OrderedDict 
-        parameters = OrderedDict()
 
-        for panelinfo, objects in self.graphicalparameters:
-            panel = panelinfo.copy()
+        parameters = OrderedDict()
+        for category in self.parameters.values():
+            panel = category.info.copy()
+            panel['name']
             panel.setdefault('enabled',True)
-            panel['scalars'] = []
+            panel['scalars'] = [scalar.todict() for scalar in category.scalars]
             items = []
-            for manager,obj in objects:
+            for manager,obj in category.items:
                 items.append(manager.to_json(obj))
             panel['items'] = items
             parameters[panel['name']] = panel
-
-        for sc in self.scalars:
-            if not sc.category in parameters:
-                parameters[sc.category] = dict(name=sc.category, enabled=True, items=[], scalars=[])
-            parameters[sc.category]['scalars'].append(sc.todict())
 
         defaultlist = PglTurtle().getColorList()
         materials = []
@@ -467,12 +520,11 @@ class LsystemParameters:
             parameters = list(parameters.values()),
             credits = dict([(key,value) for key,value in self.credits.items() if value != ''])
         )
-        print(result)
-        assert LsystemParameters.validate_schema(result)
+        assert LsystemParameters.is_valid_schema(result)
         return result     
 
     @staticmethod
-    def validate_schema(obj):
+    def is_valid_schema(obj):
         # TODO: load files only once
         import io, os, json, jsonschema
         is_valid = False
@@ -495,7 +547,7 @@ class LsystemParameters:
     def retrieve_from_json_dict(self, obj):
         import openalea.plantgl.algo.jsonrep as jrep
         from openalea.lpy.parameters.scalar import scalar_from_json_rep
-        assert LsystemParameters.validate_schema(obj)
+        assert LsystemParameters.is_valid_schema(obj)
         self.credits.update(obj['credits'])
         options = obj['options'].copy()
         if 'animation_timestep' in options:
@@ -514,15 +566,15 @@ class LsystemParameters:
         gparameters = []
         managers = self.get_graphicalparameter_managers()
         for pset in parameters:
-            lscalars = list(map(scalar_from_json_rep,pset['scalars']))
-            for sc in lscalars:
-                sc.category = pset['name']
-            scalars += lscalars
-            lpset = []
             pinfo = {}
             for propname in pset.keys():
                 if not propname in ['items','scalars']:
                     pinfo[propname] = pset[propname]
+            pscalars = list(map(scalar_from_json_rep,pset['scalars']))
+            for sc in pscalars:
+                sc.category = pinfo['name']
+
+            pitems = []
             for v in pset['items']:
                 managername = None
                 if 'is_function' in v:
@@ -533,9 +585,27 @@ class LsystemParameters:
                 if managername is None:
                     managername = graphictypemap[type(obj)]
                 manager = managers[managername]
-                lpset.append((manager,obj))
-            gparameters.append((pinfo,lpset))
+                pitems.append((manager,obj))
+            category = Category(pinfo, pitems, pscalars)
+            self.parameters[category.info['name']] = category
 
-        self.graphicalparameters = gparameters
-        self.scalars = scalars
-        # TOFINISH
+    def loads(self, obj):
+        import json
+        schema = json.loads(obj)
+        self.retrieve_from_json_dict(schema)
+
+    def load(self, file):
+        import json
+        schema = json.load(file)
+        self.retrieve_from_json_dict(schema)
+
+    def dumps(self):
+        import json
+        obj = self.generate_json_parameter_dict()
+        return json.dumps(obj)
+
+    def dump(self, file):
+        import json
+        obj = self.generate_json_parameter_dict()
+        json.dump(obj, file)
+
