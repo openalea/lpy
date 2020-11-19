@@ -548,20 +548,21 @@ class LsystemParameters:
         import openalea.plantgl.algo.jsonrep as jrep
         from openalea.lpy.parameters.scalar import scalar_from_json_rep
         assert LsystemParameters.is_valid_schema(obj)
-        self.credits.update(obj['credits'])
-        options = obj['options'].copy()
+        version = obj.get('version',default_lpyjson_version)
+        self.credits.update(obj.get('credits',{}))
+        options = obj.get('options',{}).copy()
         if 'animation_timestep' in options:
             self.animation_timestep = options['animation_timestep']
             del options['animation_timestep']
         self.execOptions = options
 
         materials = {}
-        for jmat in obj['materials']:
+        for jmat in obj.get('materials',[]):
             idx = jmat['index']
             del jmat['index']
             materials[idx] = jrep.from_json_rep(jmat)
         self.colorList = materials
-        parameters = obj['parameters']
+        parameters = obj.get('parameters',[])
         scalars = []
         gparameters = []
         managers = self.get_graphicalparameter_managers()

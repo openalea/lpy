@@ -35,7 +35,8 @@
                     "enum": ["ImageTexture"]
                 },
                 "filename": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The file in which the image is stored"
                 },
                 "repeatS": {
                     "type": "boolean"

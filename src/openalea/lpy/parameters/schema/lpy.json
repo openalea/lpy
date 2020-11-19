@@ -4,10 +4,7 @@
     "type": "object",
     "required": [
         "schema",
-        "version",
-        "options",
-        "parameters",
-        "materials"
+        "version"
     ],
     "properties": {
         "schema": {
@@ -15,10 +12,6 @@
         },
         "version": {
             "type": "string"
-        },
-        "animation_timestep": {
-            "type": "number",
-            "minimum" : 0
         },
         "options": {
             "$ref": "options.json"
