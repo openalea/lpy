@@ -17,8 +17,8 @@ def test_param_creation():
     lp.add('testcurve3',Polyline2D([(0,0),(0,1),(1,1),(1,0)]), category='test2')
     lp.add_function('testfunc',NurbsCurve2D([(0,0,1),(0,1,1),(1,1,1),(1,0,1)]), category='test2')
     lp.add('testpatch',NurbsPatch([[(0,-0.5+j/3.,i/3.,1) for j in range(4)] for i in range(4)]), category='test2')
-    lp.category_info('test')['visible'] = True
-    lp.category_info('test2')['visible'] = True
+    lp.get_category_info('test')['visible'] = True
+    lp.get_category_info('test2')['visible'] = True
     lp.check_validity()
     return lp
 
@@ -47,11 +47,11 @@ def test_json_dump():
 
 def test_param_get():
     lp = test_param_creation()
-    assert 'test' in lp.categories()
-    assert 'test2' in lp.categories()
-    assert len(lp.category_parameters('test')) == 4
-    assert len(lp.category_parameters('test2')) == 4
-    assert len(lp.execOptions) == 2
+    assert 'test' in lp.get_category_names()
+    assert 'test2' in lp.get_category_names()
+    assert len(lp.get_category_parameters('test')) == 4
+    assert len(lp.get_category_parameters('test2')) == 4
+    assert len(lp.get_options()) == 2
 
 def test_param_py_code():
     lp = test_param_creation()

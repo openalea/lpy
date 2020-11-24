@@ -36,7 +36,7 @@
                 },
                 "filename": {
                     "type": "string",
-                    "description": "The file in which the image is stored"
+                    "description": "The file path (relative or absolute) in which the image is stored"
                 },
                 "repeatS": {
                     "type": "boolean"

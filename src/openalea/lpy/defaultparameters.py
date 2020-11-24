@@ -101,13 +101,13 @@ def extern(*paramstocheck, **params):
         for key,val in params.items():            
             caller_frame_locals.setdefault(key,val)
             # Mark parameter to be external
-            caller_frame_locals['key'].__externparameter__ = True
+            caller_frame_locals.setdefault('__externs__',set()).add(key)
     if len(paramstocheck) > 0:
         for val in paramstocheck:
-            print('Check',val)
             assert(type(val) == str)
             if not val in caller_frame_locals:
                 raise NameError(val,'should be provided by external parameters.')
+            caller_frame_locals.setdefault('__externs__',set()).add(val)
 
 
 
