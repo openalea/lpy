@@ -293,7 +293,7 @@ class LsystemParameters:
         return self.get_category(name).scalars
 
     def get_scalars(self):
-        return sum([ category.scalars for category in self.categories],[])
+        return sum([ category.scalars for category in self.categories.values()],[])
 
     def get_scalar_list(self):
         """ Return the scalar list in the old-fashion with scalar rep of category"""
