@@ -48,9 +48,10 @@ def test_json_dump():
 def test_param_get():
     lp = test_param_creation()
     assert 'test' in lp.get_category_names()
-    assert 'test2' in lp.get_category_names()
+    assert not 'does-not-exists' in lp.get_category_names()
     assert len(lp.get_category_parameters('test')) == 4
     assert len(lp.get_category_parameters('test2')) == 4
+    assert len(lp.get_category_parameters('does-not-exists')) == 0
     assert len(lp.get_options()) == 2
 
 def test_param_py_code():
