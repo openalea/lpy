@@ -1,6 +1,7 @@
 from openalea.plantgl.all import PglTurtle, PyStrPrinter, Material, NurbsCurve2D, BezierCurve2D, Polyline2D, NurbsPatch
 import openalea.plantgl.all as pgl
-from .__lpy_kernel__ import LpyParsing, LsysContext
+from .__lpy_kernel__ import LpyParsing, LsysContext, Lsystem
+from collections import OrderedDict 
 
 default_credits = {'__authors__'    : '' ,
                    '__institutes__'  : '' ,
@@ -37,13 +38,24 @@ class Category:
         else:
             self.info = info
         self.__dict__.update(params)
-        self.items = items if not items is None else []
-        self.scalars = scalars if not scalars is None else []
+        self.items = OrderedDict([(m.getName(o),(m,o)) for m,o in items])  if not items is None else OrderedDict()
+        self.scalars = OrderedDict([(sc.name,sc) for sc in scalars]) if not scalars is None else OrderedDict()
     def __repr__(self):
         return '<Category('+repr(self.info['name'])+') object at '+hex(id(self))+'>'
+    def add_scalar(self, value):
+        self.scalars[value.name] = value
+    def add_scalars(self, values):
+        for v in values:
+            self.add_scalar(v)
+    def add_item(self, value):
+        name = value[0].getName(value[1])
+        self.items[name] = value
+    def add_items(self, values):
+        for v in values:
+            self.add_item(v)
 
 class LsystemParameters:
-    def __init__(self, lsystem = None):
+    def __init__(self, lsystem_or_filename = None):
         from collections import OrderedDict
         self.execOptions = {}
         self.animation_timestep = None
@@ -56,9 +68,19 @@ class LsystemParameters:
 
         self.default_category_name = 'default'
 
-        if lsystem:
-            self.retrieve_from(lsystem)
+        if not lsystem_or_filename is None:
+            if isinstance(lsystem_or_filename, Lsystem):
+                self.retrieve_from(lsystem_or_filename)
+            else:
+                self.load(open(lsystem_or_filename))
 
+    def clear(self):
+        self.execOptions = {}
+        self.animation_timestep = None
+        self.color_list = {}
+        self.categories = OrderedDict()
+        self.credits = default_credits
+        self.default_category_name = 'default'
 
     def is_valid(self):
         try:
@@ -87,9 +109,9 @@ class LsystemParameters:
         for category in self.categories.values():
             assert isinstance(category.info, dict)
             assert 'name' in category.info
-            for pmanager, pvalue in category.items:
+            for pmanager, pvalue in category.items.values():
                 assert isinstance(pmanager, AbstractObjectManager)
-            for value in category.scalars:
+            for value in category.scalars.values():
                 assert isinstance(value, BaseScalar)
 
     def check_similarity(self, other):
@@ -123,8 +145,9 @@ class LsystemParameters:
                 raise ValueError('category',cat1,cat2)
             if cat1.info != cat2.info:
                 raise ValueError('category',cat1.info,cat2.info)
-
-            for (m1, v11),(m2,v22) in zip_longest(cat1.items,cat2.items):
+            if len(cat1.items) != len(cat2.items):
+                raise ValueError('category',cat1.items,cat2.items)
+            for (m1, v11),(m2,v22) in zip_longest(cat1.items.values(),cat2.items.values()):
                 if m1 != m2 :
                     raise ValueError('manager',m1.name,m2.name)
                 if type(v11) != type(v22) :
@@ -132,7 +155,7 @@ class LsystemParameters:
                 if not similar_pgl_object(v11,v22) :
                     raise ValueError('object',v11,v22)
 
-            for v1,v2 in zip_longest(cat1.scalars, cat2.scalars):
+            for v1,v2 in zip_longest(cat1.scalars.values(), cat2.scalars.values()):
                 if v1.scalartype() != v2.scalartype() or v1.value != v2.value:
                     raise ValueError('scalars',v1,v2)
 
@@ -214,10 +237,19 @@ class LsystemParameters:
 
     def _add_scalar(self, category, scalar):
         categoryobj = self.get_category(category)
-        categoryobj.scalars.append(scalar)
+        categoryobj.add_scalar(scalar)
 
-    def add_function(self, name, value, category = None):
+    def add_function(self, name, value = None, category = None):
+        """ if value is None a default function value is created """
         self.add_graphicalparameter(name, value, 'Function', category)
+
+    def add_curve(self, name, value = None, category = None):
+        """ if value is None a default function value is created """
+        self.add_graphicalparameter(name, value, 'Curve2D', category)
+
+    def add_patch(self, name, value = None, category = None):
+        """ if value is None a default function value is created """
+        self.add_graphicalparameter(name, value, 'NurbsPatch', category)
 
     def add_graphicalparameter(self, name, value, ptype = None, category = None):
         assert ptype in self.get_available_graphical_types()
@@ -225,15 +257,16 @@ class LsystemParameters:
             ptype = graphictypemap[type(value)]
         if category is None:
             category = self.default_category_name
-
         manager = self.get_graphicalparameter_managers()[ptype]
+        if value is None:
+            value = manager.createDefaultObject()
         manager.setName(value, name)
 
         self._add_graphicalparameter(category, manager, value)
 
     def _add_graphicalparameter(self, category, manager, value):
         categoryobj = self.get_category(category)
-        categoryobj.items.append((manager, value))
+        categoryobj.add_item((manager, value))
 
     def set_option(self, name, value):
         self.execOptions[name] = value
@@ -282,18 +315,18 @@ class LsystemParameters:
 
     def get_category_parameters(self, name = None) :
         """ If no name are given, the default category parameters are returned """
-        return self.get_category(name).items+self.get_category(name).scalars
+        return list(self.get_category(name).items.values())+list(self.get_category(name).scalars.values())
 
     def get_category_graphicalparameters(self, name = None):
         """ If no name are given, the default category graphical parameters are returned """
-        return self.get_category(name).items
+        return list(self.get_category(name).items.values())
 
     def get_category_scalars(self, name = None):
         """ If no name are given, the default category scalars are returned """
-        return self.get_category(name).scalars
+        return list(self.get_category(name).scalars.values())
 
     def get_scalars(self):
-        return sum([ category.scalars for category in self.categories.values()],[])
+        return sum([ list(category.scalars.values()) for category in self.categories.values()],[])
 
     def get_scalar_list(self):
         """ Return the scalar list in the old-fashion with scalar rep of category"""
@@ -302,7 +335,7 @@ class LsystemParameters:
         for category in self.categories.values():
             if len(category.scalars) > 0:
                 result.append(CategoryScalar(category.info['name']))
-                result += category.scalars 
+                result += category.scalars.values()
         return result
 
     def retrieve_from(self, lsystem):
@@ -330,7 +363,6 @@ class LsystemParameters:
         if code_version == 1.1:
             from .parameters.scalar import ProduceScalar
             scalars = context.get('__scalars__', [])
-            self.scalars = []
             currentcategory = self.default_category_name
             for sc in scalars:
                 if sc[1] == 'Category': 
@@ -364,9 +396,11 @@ class LsystemParameters:
 
             info = checkinfo(panelinfo)
             categoryobj = self.categories.setdefault(info['name'], Category(info))
-            categoryobj.items =[(managers[typename],obj) for typename,obj in objects]
+            categoryobj.add_items([(managers[name],obj) for name,obj in objects])
+            assert len(categoryobj.items) == len(objects)
             if code_version > 1.1:
-                categoryobj.scalars = [scalar_from_json_rep(scalardict) for scalardict in scalars]
+                scalars = [scalar_from_json_rep(scalardict) for scalardict in scalars]
+                categoryobj.add_scalars(scalars)
 
     def _retrieve_colors_from_env(self, context, code_version):
         for i,cmat in enumerate(context.turtle.getColorList()):
@@ -405,13 +439,13 @@ class LsystemParameters:
 
     def _apply_parameters_to_env(self, context):
         context["__parameterset__"] = [(category.info, 
-                                       [(manager.typename, obj) for manager, obj in category.items], 
-                                       [scalar.todict() for scalar in category.scalars]) for category in self.categories.values()]
+                                       [(manager.typename, obj) for manager, obj in category.items.values()], 
+                                       [scalar.todict() for scalar in category.scalars.values()]) for category in self.categories.values()]
         for category in self.categories.values():
             if category.info.get('enabled',True):
-                for manager,obj in category.items:
-                    context[manager.getName(obj)] = manager.getObjectForLsysContext(obj)
-                for scalar in category.scalars:
+                for oname, (manager,obj) in category.items.items():
+                    context[oname] = manager.getObjectForLsysContext(obj)
+                for scalar in category.scalars.values():
                     context[scalar.name] = scalar.value
 
     def generate_py_code(self, indentation = '', reference_dir = None, version = default_lpycode_version):
@@ -483,15 +517,15 @@ class LsystemParameters:
         if not emptyparameterset(self.categories) :
             intialized_managers = {}
             for panelid,category in enumerate(self.categories.values()):
-                for manager,obj in category.items:
+                for manager,obj in category.items.values():
                     if manager not in intialized_managers:
                         intialized_managers[manager] = True
                         init_txt += manager.initWriting('\t') 
                     init_txt += manager.writeObject(obj,'\t')
                 init_txt += indentation+'category_'+str(panelid)+' = ('+repr(category.info)
-                init_txt += ',['+','.join(['('+repr(manager.typename)+','+manager.getName(obj)+')' for manager,obj in category.items])+']\n'
+                init_txt += ',['+','.join(['('+repr(manager.typename)+','+manager.getName(obj)+')' for manager,obj in category.items.values()])+']\n'
                 if version > 1.1:
-                    init_txt += ',['+','.join([repr(scalar.todict()) for scalar in category.scalars])+']'
+                    init_txt += ',['+','.join([repr(scalar.todict()) for scalar in category.scalars.values()])+']'
                 init_txt += ')\n'
             init_txt += indentation+'parameterset = ['
             init_txt += ','.join(['category_'+str(panelid) for panelid in range(len(self.categories))])
@@ -499,9 +533,9 @@ class LsystemParameters:
             init_txt += indentation+'context["__parameterset__"] = parameterset\n'
             for category in self.categories.values():
                 if category.info.get('enabled',True):
-                    for manager,obj in category.items:
+                    for manager,obj in category.items.values():
                         init_txt += indentation+'context["'+manager.getName(obj)+'"] = '+manager.writeObjectToLsysContext(obj) + '\n'
-                    for scalar in category.scalars:
+                    for scalar in category.scalars.values():
                         init_txt += indentation+'context["'+scalar.name+'"] = '+str(scalar.value) + '\n'
         return init_txt
 
@@ -522,16 +556,15 @@ class LsystemParameters:
 
     def generate_json_parameter_dict(self):
         import openalea.plantgl.algo.jsonrep as jrep
-        from collections import OrderedDict 
 
         parameters = OrderedDict()
         for category in self.categories.values():
             panel = category.info.copy()
             panel['name']
             panel.setdefault('enabled',True)
-            panel['scalars'] = [scalar.todict() for scalar in category.scalars]
+            panel['scalars'] = [scalar.todict() for scalar in category.scalars.values()]
             items = []
-            for manager,obj in category.items:
+            for manager,obj in category.items.values():
                 items.append(manager.to_json(obj))
             panel['items'] = items
             parameters[panel['name']] = panel

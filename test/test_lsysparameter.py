@@ -61,6 +61,7 @@ def test_param_py_code():
     l = Lsystem()
     l.setCode(code)
     lp2 = LsystemParameters(l)
+    lp2.retrieve_from(l)
     lp.check_similarity(lp2)
 
 def test_param_py_code_11():
@@ -69,14 +70,16 @@ def test_param_py_code_11():
     print(code)
     l = Lsystem()
     l.setCode(code)
-    lp2 = LsystemParameters(l)
+    lp2 = LsystemParameters()
+    lp2.retrieve_from(l)
     lp.check_similarity(lp2)
 
 def test_param_apply():
     lp = test_param_creation()
     l = Lsystem()
     lp.apply_to(l)
-    lp2 = LsystemParameters(l)
+    lp2 = LsystemParameters()
+    lp2.retrieve_from(l)
     lp.check_similarity(lp2)
 
 lpy_code_11 = """
@@ -137,8 +140,18 @@ def test_param_code_11():
     lp = test_param_creation()
     l = Lsystem()
     l.setCode(lpy_code_11)
-    lp2 = LsystemParameters(l)
+    lp2 = LsystemParameters()
+    lp2.retrieve_from(l)
     lp.check_similarity(lp2)
 
+def test_duplicate():
+    lp = LsystemParameters()
+    lp.set_color(0,Material((255,20,1)))
+    lp.set_color(0,Material((20,255,1)))
+    assert len(lp.get_colors()) == 1
+    lp.add('test', 1, category='test')
+    lp.add('test', 1., category='test')
+    assert len(lp.get_category_parameters('test')) == 1
+  
 if __name__ == '__main__':
     test_param_py_code_11()
