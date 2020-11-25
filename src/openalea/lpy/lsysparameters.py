@@ -252,6 +252,10 @@ class LsystemParameters:
         elif not value.isNamed():
             value.name = 'Color_'+str(index)
 
+    def unset_color(self, index):
+        assert index in self.color_list
+        del self.color_list[index]
+
     def get_color(self, index):
         return self.color_list.get(index)
 
