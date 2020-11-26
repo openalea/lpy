@@ -88,6 +88,8 @@ setup(
         pkg_name,
         pkg_name + '_wralea',
         pkg_name + '.gui',
+        pkg_name + '.parameters',
+        pkg_name + '.parameters.schema',
         pkg_name + '.gui.plugins',
         pkg_name + '.cpfg_compat'
     ],
@@ -96,7 +98,7 @@ setup(
     package_dir = { '' : 'src',},
 
     package_data={
-        "": ['*.pyd', '*.so', '*.dylib', '*.lpy','*.ui','*.qrc'],
+        "": ['*.pyd', '*.so', '*.dylib', '*.lpy','*.ui','*.qrc','*.json'],
     },
 
     # Add package platform libraries if any

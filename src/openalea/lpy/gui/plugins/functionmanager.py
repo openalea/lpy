@@ -5,11 +5,15 @@ except ImportError as e:
 from openalea.lpy.gui.abstractobjectmanager import *
 from curve2dmanager import displayLineAsThumbnail
 from openalea.plantgl.gui.qt import QtGui, QtWidgets
+from openalea.plantgl.all import QuantisedFunction
 
 class FunctionManager(AbstractPglObjectManager):
     """see the doc of the objectmanager abtsract class to undesrtand the implementation of the functions"""
     def __init__(self):
         AbstractPglObjectManager.__init__(self,"Function")
+
+    def getObjectForLsysContext(self,obj):
+        return QuantisedFunction(obj)
         
     def displayThumbnail(self,obj,i,focus,objectthumbwidth):
         displayLineAsThumbnail(self,obj,i,objectthumbwidth,(1,0,1,1))
@@ -54,6 +58,13 @@ class FunctionManager(AbstractPglObjectManager):
         menu.addAction('Black',lambda : editor.applyTheme(editor.BLACK_THEME))
         menu.addAction('White',lambda : editor.applyTheme(editor.WHITE_THEME))
         menubar.addMenu(menu)
-        
+
+    def to_json(self, obj):
+        import openalea.plantgl.algo.jsonrep  as jr
+        res = jr.to_json_rep(obj)
+        res['is_function'] = True
+        return res
+
+       
 def get_managers():
     return FunctionManager()

@@ -1,0 +1,27 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "point2array",
+    "type": "object",
+    "required": ["type", "data"],
+    "properties": {
+        "type": {
+            "enum": ["Point2Array"]
+        },
+        "data": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                    "type": "number"
+                }
+            }
+        },
+        "id": {
+            "type": "integer"
+        }
+    },
+    "additionalProperties": false
+}

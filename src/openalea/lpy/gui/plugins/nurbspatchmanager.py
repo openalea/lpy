@@ -77,7 +77,7 @@ class NurbsPatchManager(AbstractPglObjectManager):
         
     def managePrimitive(self):
         return True
-        
+       
 
 def get_managers():
     return NurbsPatchManager()

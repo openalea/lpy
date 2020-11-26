@@ -5,7 +5,7 @@ from . import optioneditordelegate as oed
 import os, shutil, sys, traceback
 from time import time
 from .lpystudiodebugger import AbortDebugger
-from .scalar import *
+from openalea.lpy.parameters.scalar import *
 import cProfile as profiling
 from .lpyprofiling import *
 from .lpytmpfile import *
@@ -604,7 +604,7 @@ class LpySimulation (AbstractSimulation):
                 if not options[i].isToDefault():
                     init_txt += '\tcontext.options.setSelection('+repr(options[i].name)+','+str(options[i].selection)+')\n'
         if len(self.scalars):
-            init_txt += '\tscalars = '+str([i.tostr() for i in self.scalars])+'\n'
+            init_txt += '\tscalars = '+str([i.totuple() for i in self.scalars])+'\n'
             init_txt += '\tcontext["__scalars__"] = scalars\n'
             init_txt += '\tfor s in scalars:\n\t\tif not s[1] == "Category" : context[s[0]] = s[2]\n'
         def emptyparameterset(params):

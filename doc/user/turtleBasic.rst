@@ -1,7 +1,7 @@
 L-Py Turtle basic primitives
 ############################
 
-The L-string can be parsed and its modules can be interpreted as command for a 3D turtle.
+The L-string can be parsed and its modules can be interpreted as commands for a 3D turtle.
 A number of basic primitives that are understood by the turtle are explained in this page :
 
 .. csv-table:: Table of primitives
@@ -54,7 +54,7 @@ The Turtle is a geometric tool defined by a reference frame that can be moved an
 
 The **F** primitive moves the Turtle and draws a cylinder of one unit.
 
-To move the Turtle without drawing something, **f** should be used. 
+To move the Turtle without drawing something, **f** should be used.
 
 
 .. code-block:: python
@@ -69,7 +69,7 @@ To move the Turtle without drawing something, **f** should be used.
 +-----------------------------+-------------------------------+
 
 
-**F** can take arguments (of type float). First argument defines the length of the cylinder (default value = 1). By default, the radius of the cylinder is by set to 0.1.
+**F** can take arguments (of type float). The first argument defines the length of the cylinder (default value = 1). By default, the radius of the cylinder is by set to 0.1.
 
 .. code-block:: python
 
@@ -92,7 +92,7 @@ To change the value of the Turtle's width before applying the F command,  the **
 |    :scale: 40%               |    :scale: 40%                 |    :scale: 40%               |
 +------------------------------+--------------------------------+------------------------------+
 
-Similarly, the **+** symbol specify a rotation whose angle is given by its first parameter.
+Similarly, the **+** symbol specifies a rotation whose angle is given by its first parameter.
 
 Other basic geometric primitives make it possible to draw other predifined shapes :
 
@@ -182,7 +182,7 @@ A argument can be set to specify the index of the material to use.
 
 .. _setColor:
 
-The **SetColor** primitive allow you to specify the appearance of the next primitive drawn by the turtle using either an index in the **Color Map** or directly using **red, green, blue** (or rgba) values as arguments (Fig. B). It is also possible to pass directly a plantgl **Material** object to specify more complex appearance.
+The **SetColor** primitive allow you to specify the appearance of the next primitive drawn by the turtle using either an index in the **Color Map** or directly using **red, green, blue** (or rgba) values as arguments (Fig. B). It is also possible to pass directly a plantgl **Material** object to specify a more complex appearance.
 
 .. code-block:: python
 
@@ -213,9 +213,6 @@ Download the example : :download:`combined.lpy <../_downloads/combined.lpy>`
 | .. image:: ../_images/combined.png | .. image:: ../_images/combined2.png |
 |    :scale: 40%                     |    :scale: 40%                      |
 +------------------------------------+-------------------------------------+
-
-Drawing more complex shapes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In order to draw complex shapes, some basic knowledge about the Turtle is required.
 
@@ -280,7 +277,7 @@ Rescaling the Turtle
 
 .. _Rescaling:
 
-Three primitives can be used to rescale the Turtle : **SetScale**, **DivScale** and **MultScale** (shorter symbols are **@D**, **@Di** and **@D** respectively)
+Three primitives can be used to rescale the Turtle : **SetScale**, **DivScale** and **MultScale** (shorter symbols are **@D**, **@Dd** and **@Di** respectively)
 **SetScale** sets the scale to the value in argument. **DivScale** (resp. **MultScale**) divides (resp. multiplies) the current scale by the value given in argument.
 The first image is the initial shape (Fig. A) and the second one is the same shape where the branches are rescaled (Fig. B).
 
@@ -393,7 +390,7 @@ Branching system
 
 .. _branching:
 
-Bracket makes it possible to specify branches. Before each opening bracket, the Turtle current arguments (position, orientation...) are stored on the Turtle stack. These arguments are then popped back when a closing bracket is found and the drawing restarts from the popped values.
+Brackets makes it possible to specify branches. Before each opening bracket, the Turtle's current arguments (position, orientation...) are stored on the Turtle stack. These arguments are then popped back when a closing bracket is found and the drawing restarts from the popped values.
 
 .. code-block:: python
 
@@ -456,7 +453,7 @@ There are some primitives which can be used to change the Turtle's position.
 
 .. _MoveTo:
 
-**@M** (or **MoveTo**) moves the Turtle's to the given in arguments. It can be three floats or a vector.
+**@M** (or **MoveTo**) moves the Turtle to the position given in by its arguments. It can be three floats or a vector.
 
 .. code-block:: python
 
@@ -491,14 +488,14 @@ Download the example : :download:`movement.lpy <../_downloads/movement.lpy>`
 Orient the Turtle
 =================
 
-The Turtle's orientation can be setted using some primitives.
+The Turtle's orientation can be set using some primitives.
 
 *Pinpoint and PinpointRel*
 --------------------------
 
 .. _Pinpoint:
 
-**Pinpoint** orients the Turtle toward x,y and z given in arguments. It means that the H axis (the red arrow) will point to the coordinates given. One can use also a vector.
+**Pinpoint** orients the Turtle towards x,y and z given in arguments. It means that the H axis (the red arrow) will point to the coordinates given. One can use also a vector.
 
 .. code-block:: python
 
@@ -537,7 +534,7 @@ Such as **MoveRel** for position, **PinpointRel** orients the Turtle relatively 
 
 .. _setHead:
 
-The H and U axis can be set directly using **@R** (or **setHead**). The arguments needed are 6 floats (which represent the coordinates of the two axis) or two vectors.
+The H and U axis can be set directly using **@R** (or **setHead**). The arguments needed are 6 floats (which represent the coordinates of the two axes) or two vectors.
 
 .. code-block:: python
 
@@ -580,7 +577,7 @@ Finally, the Turtle’s orientation can at any moment be set using Euler angles 
 
 	#A succession of 3 rotations : First 30° arround Z axis (Fig. D), then 90° arround the new Y axis (Fig. E)
 	#and finally 60° arround the new X axis. (Fig. F)
-	Axiom: Frame(2) EulerAngles(30,90,60) Frame(2)  
+	Axiom: Frame(2) EulerAngles(30,90,60) Frame(2)
 
 +-----------------------------------+----------------------------------+----------------------------------+
 | .. image:: ../_images/euler4.png  | .. image:: ../_images/euler5.png | .. image:: ../_images/euler6.png |
@@ -743,8 +740,8 @@ To stop using the 2D curve as a guide, **EndGuide** can be used.
 
 .. _generalisedCylinders:
 
-When several rotations are used while drawing, the render at rotation places isn't great. The separation points are really visible. To fix it, **@Gc** (or **StartGC**) can be used.
-Until a **@Ge** (or **"EndGC**") all shapes drawn will be merged that so it becomes only one shape.
+When several rotations are used while drawing, the rendering at rotation places isn't great. The separation points are really visible. To fix it, **@Gc** (or **StartGC**) can be used.
+Until a **@Ge** (or **"EndGC**") all shapes drawn will be merged so that it becomes only one shape.
 
 .. code-block:: python
 
