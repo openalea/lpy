@@ -153,6 +153,12 @@ class Curve2DManager(AbstractPglObjectManager):
         else:
             obj.ctrlPointList = [(-i.x,i.y,i.z) for i in obj.ctrlPointList]
         widget.updateGL()
-        
+
+    def to_json(self, obj):
+        import openalea.plantgl.algo.jsonrep  as jr
+        res = jr.to_json_rep(obj)
+        res['is_function'] = False
+        return res
+
 def get_managers():
     return Curve2DManager()
