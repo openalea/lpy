@@ -4,7 +4,7 @@
     "type": "object",
     "properties": {
         "animation_timestep": {
-            "type": "integer",
+            "type": "number",
             "minimum": 0
         }
     },

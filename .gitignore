@@ -83,3 +83,6 @@ cmake-build-debug/
 
 # PyBuilder
 target/
+
+.vscode
+build-cmake
