@@ -215,8 +215,8 @@ class LsystemParameters:
             raise TypeError(ptype)
 
     def add_category(self, name, **params):
-        category = Category({ 'name' : category, 'enabled' : True })
-        category.update(params)
+        category = Category({ 'name' : name, 'enabled' : True })
+        # category.update(params)
         self.categories[name] = category
 
     def set_defaut_category(self, name):
