@@ -1,7 +1,7 @@
 from openalea.plantgl.all import PglTurtle, PyStrPrinter, Material, NurbsCurve2D, BezierCurve2D, Polyline2D, NurbsPatch
 import openalea.plantgl.all as pgl
 from .__lpy_kernel__ import LpyParsing, LsysContext, Lsystem
-from collections import OrderedDict 
+from collections import OrderedDict
 
 default_credits = {'__authors__'    : '' ,
                    '__institutes__'  : '' ,
@@ -19,10 +19,10 @@ defaultturtlecolorlist = PglTurtle().getColorList()
 
 def isSimilarToDefaultTurtleMat(cmat, i):
     if cmat.isTexture() : return False
-    
+
     nbdefault = len(defaultturtlecolorlist)
 
-    if i >= nbdefault: 
+    if i >= nbdefault:
         defaultmat = Material('Color_'+str(i))
     else:
         defaultmat = Material(defaultturtlecolorlist[i])
@@ -116,13 +116,13 @@ class LsystemParameters:
 
     def check_similarity(self, other):
         from itertools import zip_longest
-        if self.execOptions != other.execOptions: 
+        if self.execOptions != other.execOptions:
             raise ValueError('execOptions',self.execOptions,other.execOptions)
-        if self.credits != other.credits: 
+        if self.credits != other.credits:
             raise ValueError('credits',self.credits,other.credits)
-        if self.animation_timestep != other.animation_timestep: 
+        if self.animation_timestep != other.animation_timestep:
             raise ValueError('animation_timestep',self.animation_timestep,other.animation_timestep)
-        if self.default_category_name != other.default_category_name: 
+        if self.default_category_name != other.default_category_name:
             raise ValueError('default_category',self.default_category_name,other.default_category_name)
 
         self.check_similar_colors(other)
@@ -131,9 +131,9 @@ class LsystemParameters:
 
     def check_similar_parameters(self, other):
         from itertools import zip_longest
-        import openalea.plantgl.scenegraph.pglinspect as inspect 
+        import openalea.plantgl.scenegraph.pglinspect as inspect
         def similar_pgl_object(v1,v2):
-            attributes = inspect.get_pgl_attributes(v1)            
+            attributes = inspect.get_pgl_attributes(v1)
             for att in attributes:
                 if getattr(v1,att) != getattr(v2,att):
                     if not isinstance(getattr(v1,att),pgl.PglObject): # cannot compare easily
@@ -183,11 +183,11 @@ class LsystemParameters:
                 if type(v1) != type(v2):
                     raise ValueError('color',v1,v2)
                 if isinstance(v1, pgl.Material) :
-                    if not  v1.isSimilar(v2): 
+                    if not  v1.isSimilar(v2):
                         raise ValueError('material',v1,v2)
                 else:
                     if v1.image.filename != v1.image.filename:
-                        raise ValueError('texture',v1.image.filename,v2.image.filename)        
+                        raise ValueError('texture',v1.image.filename,v2.image.filename)
 
 
     def get_available_parameter_types(self):
@@ -215,8 +215,7 @@ class LsystemParameters:
             raise TypeError(ptype)
 
     def add_category(self, name, **params):
-        category = Category({ 'name' : category, 'enabled' : True })
-        category.update(params)
+        category = Category({ 'name' : name, 'enabled' : True }, params=params)
         self.categories[name] = category
 
     def set_defaut_category(self, name):
@@ -234,6 +233,7 @@ class LsystemParameters:
         scalar.category = category
 
         self._add_scalar(category, scalar)
+        return scalar
 
     def _add_scalar(self, category, scalar):
         categoryobj = self.get_category(category)
@@ -241,15 +241,15 @@ class LsystemParameters:
 
     def add_function(self, name, value = None, category = None):
         """ if value is None a default function value is created """
-        self.add_graphicalparameter(name, value, 'Function', category)
+        return self.add_graphicalparameter(name, value, 'Function', category)
 
     def add_curve(self, name, value = None, category = None):
         """ if value is None a default function value is created """
-        self.add_graphicalparameter(name, value, 'Curve2D', category)
+        return self.add_graphicalparameter(name, value, 'Curve2D', category)
 
     def add_patch(self, name, value = None, category = None):
         """ if value is None a default function value is created """
-        self.add_graphicalparameter(name, value, 'NurbsPatch', category)
+        return self.add_graphicalparameter(name, value, 'NurbsPatch', category)
 
     def add_graphicalparameter(self, name, value, ptype = None, category = None):
         assert ptype in self.get_available_graphical_types()
@@ -263,6 +263,7 @@ class LsystemParameters:
         manager.setName(value, name)
 
         self._add_graphicalparameter(category, manager, value)
+        return (manager, value)
 
     def _add_graphicalparameter(self, category, manager, value):
         categoryobj = self.get_category(category)
@@ -365,7 +366,7 @@ class LsystemParameters:
             scalars = context.get('__scalars__', [])
             currentcategory = self.default_category_name
             for sc in scalars:
-                if sc[1] == 'Category': 
+                if sc[1] == 'Category':
                     currentcategory = sc[0]
                 else:
                     csc = ProduceScalar(sc)
@@ -377,9 +378,9 @@ class LsystemParameters:
         from openalea.lpy.parameters.scalar import scalar_from_json_rep
         managers = self.get_graphicalparameter_managers()
 
-        def checkinfo(info): 
+        def checkinfo(info):
             if type(info) == str:
-                return {'name':info , 'enabled':True}  
+                return {'name':info , 'enabled':True}
             else :
                 if code_version == 1.1:
                     if 'active' in info:
@@ -438,8 +439,8 @@ class LsystemParameters:
                 context.turtle.setMaterial(i, cmat)
 
     def _apply_parameters_to_env(self, context):
-        context["__parameterset__"] = [(category.info, 
-                                       [(manager.typename, obj) for manager, obj in category.items.values()], 
+        context["__parameterset__"] = [(category.info,
+                                       [(manager.typename, obj) for manager, obj in category.items.values()],
                                        [scalar.todict() for scalar in category.scalars.values()]) for category in self.categories.values()]
         for category in self.categories.values():
             if category.info.get('enabled',True):
@@ -494,14 +495,14 @@ class LsystemParameters:
                 init_txt += printer.str()
                 printer.clear()
                 init_txt += indentation+'context.turtle.setMaterial('+repr(i)+','+str(cmat.name)+')\n'
-        return init_txt      
+        return init_txt
 
     def _generate_exec_parameters_py_code(self, indentation = '\t', version = default_lpycode_version):
         init_txt = ''
         if not self.animation_timestep is None:
-            init_txt += indentation+'context.animation_timestep = '+str(self.animation_timestep)+'\n'           
+            init_txt += indentation+'context.animation_timestep = '+str(self.animation_timestep)+'\n'
         if self.default_category_name != 'default':
-            init_txt += indentation+'context.default_category = '+str(self.default_category)+'\n'           
+            init_txt += indentation+'context.default_category = '+str(self.default_category)+'\n'
         for optname, optvalue in self.execOptions.items():
             init_txt += indentation+'context.options.setSelection('+repr(optname)+','+str(optvalue)+')\n'
         return init_txt
@@ -520,7 +521,7 @@ class LsystemParameters:
                 for manager,obj in category.items.values():
                     if manager not in intialized_managers:
                         intialized_managers[manager] = True
-                        init_txt += manager.initWriting('\t') 
+                        init_txt += manager.initWriting('\t')
                     init_txt += manager.writeObject(obj,'\t')
                 init_txt += indentation+'category_'+str(panelid)+' = ('+repr(category.info)
                 init_txt += ',['+','.join(['('+repr(manager.typename)+','+manager.getName(obj)+')' for manager,obj in category.items.values()])+']\n'
@@ -549,7 +550,7 @@ class LsystemParameters:
 
     def _generate_credits_py_code(self, indentation = '\t'):
         txt = ''
-        for key,value in self.credits.items():             
+        for key,value in self.credits.items():
             if len(value) > 0:
                 txt += indentation+key+' = '+repr(str(value))+'\n'
         return txt
@@ -593,7 +594,7 @@ class LsystemParameters:
             credits = dict([(key,value) for key,value in self.credits.items() if value != ''])
         )
         assert LsystemParameters.is_valid_schema(result)
-        return result     
+        return result
 
     @staticmethod
     def is_valid_schema(obj):
@@ -686,4 +687,3 @@ class LsystemParameters:
         import json
         obj = self.generate_json_parameter_dict()
         json.dump(obj, file)
-
