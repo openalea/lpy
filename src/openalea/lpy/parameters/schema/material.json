@@ -43,7 +43,6 @@
             "maximum": 1
         }
     },
-    "required": ["name", "index", "type", "ambient"],
+    "required": ["name", "index", "type"],
     "additionalProperties": false
 }
-
