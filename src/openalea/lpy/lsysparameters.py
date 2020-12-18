@@ -502,7 +502,7 @@ class LsystemParameters:
         if not self.animation_timestep is None:
             init_txt += indentation+'context.animation_timestep = '+str(self.animation_timestep)+'\n'
         if self.default_category_name != 'default':
-            init_txt += indentation+'context.default_category = '+str(self.default_category)+'\n'
+            init_txt += indentation+'context.default_category = '+str(self.default_category_name)+'\n'
         for optname, optvalue in self.execOptions.items():
             init_txt += indentation+'context.options.setSelection('+repr(optname)+','+str(optvalue)+')\n'
         return init_txt
@@ -681,9 +681,9 @@ class LsystemParameters:
     def dumps(self):
         import json
         obj = self.generate_json_parameter_dict()
-        return json.dumps(obj)
+        return json.dumps(obj, indent=4)
 
     def dump(self, file):
         import json
         obj = self.generate_json_parameter_dict()
-        json.dump(obj, file)
+        json.dump(obj, file, indent=4)
