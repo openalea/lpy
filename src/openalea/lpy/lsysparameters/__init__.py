@@ -1,7 +1,7 @@
-from openalea.plantgl.all import PglTurtle, PyStrPrinter, Material, NurbsCurve2D, BezierCurve2D, Polyline2D, NurbsPatch
 import openalea.plantgl.all as pgl
-from .__lpy_kernel__ import LpyParsing, LsysContext, Lsystem
+from .. import __lpy_kernel__ as lpykernel  
 from collections import OrderedDict
+from .scalar import *
 
 default_credits = {'__authors__'    : '' ,
                    '__institutes__'  : '' ,
@@ -13,9 +13,9 @@ default_lpycode_version = 1.2
 default_lpyjson_version = 1.0
 
 scalartypemap = { int : 'Integer', float :'Float', bool : 'Bool'}
-graphictypemap = { NurbsCurve2D : 'Curve2D', BezierCurve2D : 'Curve2D', Polyline2D : 'Curve2D', NurbsPatch : 'NurbsPatch'}
+graphictypemap = { pgl.NurbsCurve2D : 'Curve2D', pgl.BezierCurve2D : 'Curve2D', pgl.Polyline2D : 'Curve2D', pgl.NurbsPatch : 'NurbsPatch', pgl.NurbsPatch3D : 'NurbsPatch3D'}
 
-defaultturtlecolorlist = PglTurtle().getColorList()
+defaultturtlecolorlist = pgl.PglTurtle().getColorList()
 
 def isSimilarToDefaultTurtleMat(cmat, i):
     if cmat.isTexture() : return False
@@ -23,9 +23,9 @@ def isSimilarToDefaultTurtleMat(cmat, i):
     nbdefault = len(defaultturtlecolorlist)
 
     if i >= nbdefault:
-        defaultmat = Material('Color_'+str(i))
+        defaultmat = pgl.Material('Color_'+str(i))
     else:
-        defaultmat = Material(defaultturtlecolorlist[i])
+        defaultmat = pgl.Material(defaultturtlecolorlist[i])
     if cmat.isSimilar(defaultmat) and cmat.name == defaultmat.name:
         return True
     else:
@@ -56,7 +56,6 @@ class Category:
 
 class LsystemParameters:
     def __init__(self, lsystem_or_filename = None):
-        from collections import OrderedDict
         self.execOptions = {}
         self.animation_timestep = None
 
@@ -69,7 +68,7 @@ class LsystemParameters:
         self.default_category_name = 'default'
 
         if not lsystem_or_filename is None:
-            if isinstance(lsystem_or_filename, Lsystem):
+            if isinstance(lsystem_or_filename, lpykernel.Lsystem):
                 self.retrieve_from(lsystem_or_filename)
             else:
                 self.load(open(lsystem_or_filename))
@@ -98,7 +97,6 @@ class LsystemParameters:
 
     def check_validity(self):
         from openalea.lpy.gui.abstractobjectmanager import AbstractObjectManager
-        from openalea.lpy.parameters.scalar import BaseScalar
         assert isinstance(self.execOptions, dict)
         assert isinstance(self.credits, dict)
         if not self.animation_timestep is None:
@@ -133,11 +131,13 @@ class LsystemParameters:
         from itertools import zip_longest
         import openalea.plantgl.scenegraph.pglinspect as inspect
         def similar_pgl_object(v1,v2):
-            attributes = inspect.get_pgl_attributes(v1)
-            for att in attributes:
-                if getattr(v1,att) != getattr(v2,att):
-                    if not isinstance(getattr(v1,att),pgl.PglObject): # cannot compare easily
-                        raise ValueError(att,getattr(v1,att),getattr(v2,att))
+            if inspect.is_sceneobject_subclass(v1.__class__) and inspect.is_sceneobject_subclass(v2.__class__):
+                attributes = inspect.get_pgl_attributes(v1)
+                for att in attributes:
+                    if getattr(v1,att) != getattr(v2,att):
+                        if not isinstance(getattr(v1,att),pgl.PglObject): # cannot compare easily
+                            raise ValueError(att,getattr(v1,att),getattr(v2,att))
+                return True
             return True
 
         for cat1,cat2 in zip_longest(self.categories.values(), other.categories.values()):
@@ -222,7 +222,6 @@ class LsystemParameters:
         self.default_category_name = name
 
     def add_scalar(self, name, value, ptype = None, category = None, **params):
-        from .parameters.scalar import ProduceScalar
         if ptype is None:
             ptype = scalartypemap[type(value)]
         if category is None:
@@ -331,7 +330,6 @@ class LsystemParameters:
 
     def get_scalar_list(self):
         """ Return the scalar list in the old-fashion with scalar rep of category"""
-        from .parameters.scalar import CategoryScalar
         result = []
         for category in self.categories.values():
             if len(category.scalars) > 0:
@@ -362,7 +360,6 @@ class LsystemParameters:
 
     def _retrieve_scalars_from_env(self, context, code_version):
         if code_version == 1.1:
-            from .parameters.scalar import ProduceScalar
             scalars = context.get('__scalars__', [])
             currentcategory = self.default_category_name
             for sc in scalars:
@@ -375,7 +372,6 @@ class LsystemParameters:
                     self._add_scalar(currentcategory, csc)
 
     def _retrieve_graphical_parameters_from_env(self, context, code_version):
-        from openalea.lpy.parameters.scalar import scalar_from_json_rep
         managers = self.get_graphicalparameter_managers()
 
         def checkinfo(info):
@@ -454,11 +450,11 @@ class LsystemParameters:
         code = self._generate_main_py_code(indentation, reference_dir,version)
         code += self._generate_credits_py_code(indentation)
         if len(code) > 0:
-            code = LpyParsing.InitialisationBeginTag+'\n\n'+'__lpy_code_version__ = '+str(version)+'\n\n'+code
+            code = lpykernel.LpyParsing.InitialisationBeginTag+'\n\n'+'__lpy_code_version__ = '+str(version)+'\n\n'+code
         return code
 
     def _generate_main_py_code(self, indentation = '', reference_dir = None, version = default_lpycode_version):
-        header = indentation+"def "+LsysContext.InitialisationFunctionName+"(context):\n"
+        header = indentation+"def "+lpykernel.LsysContext.InitialisationFunctionName+"(context):\n"
         init_txt = self._generate_exec_parameters_py_code(indentation+'\t',version)
         init_txt += self._generate_colors_py_code(indentation+'\t', reference_dir,version)
         init_txt += self._generate_parameters_py_code(indentation+'\t',version)
@@ -469,13 +465,12 @@ class LsystemParameters:
             return ''
 
     def _generate_colors_py_code(self, indentation = '\t', reference_dir = None, version = default_lpycode_version):
-        from openalea.plantgl.all import Material, PglTurtle, PyStrPrinter
         if self.color_list is None: return ''
 
         init_txt = ''
         nbcurrent = len(self.color_list)
 
-        printer = PyStrPrinter()
+        printer = pgl.PyStrPrinter()
         printer.pglnamespace = 'pgl'
         printer.indentation = indentation
         printer.indentation_increment = '\t'
@@ -570,7 +565,6 @@ class LsystemParameters:
             panel['items'] = items
             parameters[panel['name']] = panel
 
-        defaultlist = PglTurtle().getColorList()
         materials = []
         for i, cmat in self.color_list.items():
             if not isSimilarToDefaultTurtleMat(cmat, i):
@@ -601,7 +595,7 @@ class LsystemParameters:
         # TODO: load files only once
         import io, os, json, jsonschema
         is_valid = False
-        schema_path = os.path.join(os.path.dirname(__file__), 'parameters', 'schema')
+        schema_path = os.path.join(os.path.dirname(__file__), 'schema')
         with io.open(os.path.join(schema_path, 'lpy.json'), 'r') as schema_file:
             try:
                 schema = json.loads(schema_file.read())
@@ -619,7 +613,6 @@ class LsystemParameters:
 
     def retrieve_from_json_dict(self, obj):
         import openalea.plantgl.algo.jsonrep as jrep
-        from openalea.lpy.parameters.scalar import scalar_from_json_rep
         if not LsystemParameters.is_valid_schema(obj):
             return False
         version = obj.get('version',default_lpyjson_version)

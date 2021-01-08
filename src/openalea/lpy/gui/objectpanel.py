@@ -11,13 +11,8 @@ from openalea.plantgl.gui.qt.QtCore import QObject, QPoint, Qt, pyqtSignal, QT_V
 from openalea.plantgl.gui.qt.QtGui import QFont, QFontMetrics, QImageWriter, QColor, QPainter
 from openalea.plantgl.gui.qt.QtWidgets import QAction, QApplication, QDockWidget, QFileDialog, QLineEdit, QMenu, QMessageBox, QScrollArea, QVBoxLayout, QWidget
 
+
 def renderText(self, x, y, text, font = QFont(), color = None):
-    #print 'renderText'
-    # Identify x and y locations to render text within widget
-    #height = self.height()
-    #textPosX, textPosY, textPosZ = gluProject(x, y, 0)
-    #textPosY = height - textPosY; # y is inverted
-    textPosX, textPosY = x, y
 
     # Retrieve last OpenGL color to use as a font color
     if color is None:
@@ -27,11 +22,10 @@ def renderText(self, x, y, text, font = QFont(), color = None):
         fontColor = QColor(*color)
 
     # Render text
-    painter = QPainter(self)
-    painter.setPen(fontColor)
-    painter.setFont(font)
-    painter.drawText(textPosX, textPosY, text)
-    painter.end()
+    self.painter.setPen(fontColor)
+    self.painter.setFont(font)
+    self.painter.drawText(x, y, text)
+
     pass
 
 try:
@@ -39,16 +33,21 @@ try:
     from openalea.plantgl.gui.qt.QtGui import QOpenGLWidget  
     QGLParentClass = QOpenGLWidget 
     print('Use QOpenGLWidget')
+    NewOpenGLClass = True
 
     QGLParentClass.mRenderText = renderText
 
+
+    pass
 except:
     from openalea.plantgl.gui.qt.QtOpenGL import QGLWidget 
     QGLParentClass = QGLWidget 
+    NewOpenGLClass = False
 
     def mRenderText(self, x, y, text, font = QFont(), color = None):
         if not color is None: glColor4fv(color)
-        self.renderText(x,y,text,font)
+        glPolygonMode(GL_FRONT_AND_BACK,GL_FILL)
+        self.renderText( x,y,text,font)
 
     QGLWidget.mRenderText = mRenderText
 
@@ -262,6 +261,14 @@ class ObjectListDisplay(QGLParentClass):
         self._width, self._heigth = self.width(), self.height()
         self._scalingfactor = 1
 
+        self._font = QFont(self.font())
+
+    def doUpdate(self):
+        if NewOpenGLClass:
+            self.update()
+        else:
+            self.updateGL()
+
     def setTheme(self,theme):
         self.theme.values.update(theme)
         
@@ -281,7 +288,7 @@ class ObjectListDisplay(QGLParentClass):
     def applyTheme(self,theme):
         self.setTheme(theme)
         self.generateDisplayList()
-        self.updateGL()
+        self.doUpdate()
         
     def isActive(self):
         return self.active
@@ -309,14 +316,14 @@ class ObjectListDisplay(QGLParentClass):
             self.selection = selection
             self.cursorselection = selection
             self.selectionChanged.emit(selection if not selection is None else -1)
-        self.updateGL()
+        self.doUpdate()
 
 
     def setCursorSelection(self,selection):
         """function setCursorSelection: update the cursorselection parameter of the objectpanel, if the mouse cursor is not placed over an object, it will be None"""
         self.cursorselection = selection
         self.setToolTip('' if selection is None else self.getCursorSelectionObjectName())
-        self.updateGL()     
+        self.doUpdate()     
 
    
     def hasSelection(self):
@@ -449,7 +456,7 @@ class ObjectListDisplay(QGLParentClass):
         object,objectid = managerDialog.getEditedObject()
         if not objectid is None:
             self.objects[objectid] = (managerDialog.manager,object)
-            self.updateGL()
+            self.doUpdate()
             self.valueChanged.emit(objectid)
 
     def sendSelectionTo(self,panelname):
@@ -644,6 +651,10 @@ class ObjectListDisplay(QGLParentClass):
         w = self._width
         h = self._height
         if w == 0 or h == 0: return
+        if NewOpenGLClass:
+            self.painter = QPainter(self)
+            self.painter.setRenderHints(QPainter.Antialiasing | QPainter.TextAntialiasing)
+
         if self.active:
             bgcol = self.theme.backGroundColor
         else:
@@ -725,9 +736,11 @@ class ObjectListDisplay(QGLParentClass):
         except Exception as e:
             exc_info = sys.exc_info()
             traceback.print_exception(*exc_info)
+        if NewOpenGLClass:
+            self.painter.end()
 
     def drawTextIn(self, text, x, y, width, below = False, color = None):
-            fm = QFontMetrics(self.font())
+            fm = QFontMetrics(self._font)
             tw = fm.width(text)
             th = fm.height()
             mtw = width - 3
@@ -746,7 +759,7 @@ class ObjectListDisplay(QGLParentClass):
                 py -= (mth-th)/2
             #glPolygonMode(GL_FRONT_AND_BACK,GL_FILL)
             #if not color is None: glColor4fv(color)
-            self.mRenderText((x+px)/self._scalingfactor, (y+py)/self._scalingfactor, str(text), color = color)
+            self.mRenderText((x+px)/self._scalingfactor, (y+py)/self._scalingfactor, str(text), self._font, color = color)
             return 
             
     def itemUnderPos(self,pos):
@@ -799,7 +812,7 @@ class ObjectListDisplay(QGLParentClass):
                         self.selectionPositionBegin -= QPoint(0,self.thumbwidth*(self.selection-item))
                     else:
                         self.selectionPositionBegin -= QPoint(self.thumbwidth*(self.selection-item),0)
-                    self.updateGL()
+                    self.doUpdate()
                     self.selection = item 
             if not item is None:
                 self.showMessage("Mouse on item "+str(item)+ " : '"+self.objects[item][0].getName(self.objects[item][1])+"'",2000)
@@ -807,8 +820,8 @@ class ObjectListDisplay(QGLParentClass):
     def mouseReleaseEvent(self,event):
         self.selectionPositionBegin = None
         self.selectionPositionCurrent = None
-        QGLWidget.mouseReleaseEvent(self,event)
-        self.updateGL()
+        QGLParentClass.mouseReleaseEvent(self,event)
+        self.doUpdate()
 
     def mouseDoubleClickEvent(self,event):
         """ mouse double-click events, call editSelection() """
@@ -825,7 +838,7 @@ class ObjectListDisplay(QGLParentClass):
         self.editAction.setFont(f)
         self.editAction.triggered.connect(self.editSelection)
         self.newItemMenu = QMenu("New item",self)
-        for mname, manager in list(self.managers.items()):
+        for mname, manager in sorted(list(self.managers.items())):
             subtypes = manager.defaultObjectTypes()
             if not subtypes is None and len(subtypes) == 1:
                 mname = subtypes[0]
@@ -1069,7 +1082,7 @@ class LpyObjectPanelDock (QDockWidget):
         if not self.dockNameEdition :
             if self.view.hasSelection():
                 self.view.setSelectedObjectName(str(self.objectNameEdit.text()))
-                self.view.updateGL()
+                self.view.doUpdate()
                 if self.nameEditorAutoHide : 
                     self.objectNameEdit.hide()
         else :
@@ -1288,8 +1301,11 @@ class ObjectPanelManager(QObject):
             return bn+' '+str(mid+1)
         return bn
 
-if __name__ == '__main__':
+def main():
     qapp = QApplication([])
     m = LpyObjectPanelDock(None,'TestPanel')
     m.show()
     qapp.exec_()
+
+if __name__ == '__main__':
+    main()

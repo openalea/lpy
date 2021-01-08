@@ -1,6 +1,6 @@
 from openalea.lpy import *
 from openalea.lpy.lsysparameters import *
-from openalea.plantgl.all import NurbsCurve2D, BezierCurve2D, Polyline2D, NurbsPatch, Material, Texture2D, ImageTexture
+from openalea.plantgl.all import NurbsCurve2D, BezierCurve2D, Polyline2D, NurbsPatch, NurbsPatch3D, Material, Texture2D, ImageTexture
 
 def test_param_creation():
     lp = LsystemParameters()
@@ -152,6 +152,28 @@ def test_duplicate():
     lp.add('test', 1, category='test')
     lp.add('test', 1., category='test')
     assert len(lp.get_category_parameters('test')) == 1
+
+
+def test_param_patch3d():
+    lp = LsystemParameters()
+    lp.add('testpatch3d',NurbsPatch3D.default(), category='test')
+    lp.check_validity()
+    code = lp.generate_py_code()
+    print(code)
+    l = Lsystem()
+    l.setCode(code)
+    lp2 = LsystemParameters(l)
+    lp2.retrieve_from(l)
+    lp.check_similarity(lp2)
+    p = lp.generate_json_parameter_dict()
+    print(p)
+    p = lp.dumps()
+    lp3 = LsystemParameters()
+    lp3.loads(p)
+    lp3.check_validity()
+
+    lp.check_similarity(lp3)
   
 if __name__ == '__main__':
-    test_param_py_code_11()
+    test_param_patch3d()
+

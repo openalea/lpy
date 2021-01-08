@@ -3,7 +3,6 @@ try:
 except ImportError as e:
     Curve2DEditor = None
 from openalea.lpy.gui.abstractobjectmanager import *
-from curve2dmanager import displayLineAsThumbnail
 from openalea.plantgl.gui.qt import QtGui, QtWidgets
 from openalea.plantgl.all import QuantisedFunction
 
@@ -11,12 +10,19 @@ class FunctionManager(AbstractPglObjectManager):
     """see the doc of the objectmanager abtsract class to undesrtand the implementation of the functions"""
     def __init__(self):
         AbstractPglObjectManager.__init__(self,"Function")
+        self.thumbColor = (1,0,1,1)
+        self.focusThumbColor = (0.8,0,0.8,1)
+
+    def render(self, obj):
+        import OpenGL.GL as ogl
+        pw = obj.width
+        obj.width = 1
+        ogl.glLineWidth(2)
+        obj.apply(self.renderer) 
+        obj.width = pw
 
     def getObjectForLsysContext(self,obj):
         return QuantisedFunction(obj)
-        
-    def displayThumbnail(self,obj,i,focus,objectthumbwidth):
-        displayLineAsThumbnail(self,obj,i,objectthumbwidth,(1,0,1,1))
         
     def createDefaultObject(self,subtype=None):
         import openalea.plantgl.all as pgl
