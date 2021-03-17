@@ -1,18 +1,19 @@
 from openalea.lpy.gui.abstractobjectmanager import *
 try:
-    from openalea.plantgl.gui.nurbspatcheditor import NurbsPatchEditor
+    from openalea.plantgl.gui.nurbspatcheditor import NurbsObjectEditor
     from PyQGLViewer import Vec
 except ImportError as e:
     NurbsPatchEditor = None
 from math import pi
 from openalea.plantgl.all import Scene, Polyline, NurbsPatch3D, Vector4
+from openalea.plantgl.gui.qt import QtGui, QtWidgets
 
 def view(patch):
     import itertools
 
     patchView = Scene()
 
-    opoints = patch.points
+    opoints = patch.ctrlPointMatrix
     for i0,i1 in [(0,1),(1,2),(0,2)]:
         for index in itertools.product(*[list(range(d)) for d in [opoints.shape[i0],opoints.shape[i1]]]):
             i = [slice(None,None),slice(None,None),slice(None,None)]
@@ -43,13 +44,13 @@ class NurbsPatch3DManager(AbstractPglObjectManager):
         
 
     def createDefaultObject(self,subtype=None):
-        res = NurbsPatch3D.default()
+        res = NurbsPatch3D.default(3,3,3)
         res.name = ''
         return res
 
     def getEditor(self,parent):
-        if not NurbsPatchEditor: return None
-        editor = NurbsPatchEditor(parent, 3)
+        if not NurbsObjectEditor: return None
+        editor = NurbsObjectEditor(parent, 3)
         editor.view.camera().setPosition(Vec(1,0,0.5))
         editor.view.camera().setUpVector(Vec(0,0,1))
         editor.view.camera().setViewDirection(Vec(-1,0,0))
@@ -59,12 +60,12 @@ class NurbsPatch3DManager(AbstractPglObjectManager):
     def setObjectToEditor(self,editor,obj):
         """ ask for edition of obj with editor """
         from copy import deepcopy        
-        editor.setNurbsPatch(deepcopy(obj))
+        editor.setNurbsObject(deepcopy(obj))
 
     def retrieveObjectFromEditor(self,editor):
         """ ask for current value of object being edited """
         from copy import deepcopy
-        return deepcopy(editor.getNurbsPatch())
+        return deepcopy(editor.getNurbsObject())
 
          
     def managePrimitive(self):
@@ -77,7 +78,17 @@ class NurbsPatch3DManager(AbstractPglObjectManager):
         res = indentation+obj.name+ ' = pglnp.' +repr(obj)+'\n'
         res += indentation+obj.name+'.name = '+repr(obj.name)+'\n'
         return res
-       
+
+    def fillEditorMenu(self,menubar,editor):
+        """ Function call to fill the menu of the editor """
+        menu = QtWidgets.QMenu('Init',menubar)
+        menu.addAction('3x3x3',lambda : editor.createDefaultObject(3,3,3))
+        menu.addAction('4x4x4',lambda : editor.createDefaultObject(4,4,4))
+        menu.addAction('5x5x5',lambda : editor.createDefaultObject(5,5,5))
+        menu.addAction('Custom',lambda : editor.createCurstomDefaultObject())
+        menu.addSeparator()
+        menu.addAction('rescale',lambda : editor.rescaleObject())
+        menubar.addMenu(menu)       
 
 def get_managers():
     return NurbsPatch3DManager()
