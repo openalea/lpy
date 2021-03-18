@@ -55,7 +55,7 @@
                 "type": {
                     "enum": ["NurbsPatch3D"]
                 },
-                "points": {
+                "ctrlPointMatrix": {
                     "$ref": "point4grid.json"
                 },
                 "udegree": {
@@ -92,7 +92,7 @@
                    "$ref": "realarray.json"
                 }
             },
-            "required": ["name", "type", "points"],
+            "required": ["name", "type", "ctrlPointMatrix"],
             "additionalProperties": false
         
         },
