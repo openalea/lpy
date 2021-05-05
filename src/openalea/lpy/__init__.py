@@ -111,20 +111,30 @@ class Lstring (AxialTree):
 
 class LsystemIterator:
     """ Lsystem iterator """
-    def __init__(self, lsystem):
+    def __init__(self, lsystem, start = 0, stop = None, step = 1):
+        assert step >= 1 
+        assert start >= 0
+        if not stop is None:
+            assert start <= stop 
         self.lsystem = lsystem
         self.axiom = self.lsystem.axiom
-        self.nbstep = self.lsystem.derivationLength
+        self.start = start
+        self.stop = self.lsystem.derivationLength if stop is None else stop
+        self.step = step
         self.currentstep = -1
+        self.step = step
     def __next__(self):
         if self.currentstep == -1:
             self.axiom = self.lsystem.axiom
-            self.currentstep += 1
-        if self.currentstep == self.lsystem.derivationLength:
+            if self.start != 0:
+                self.axiom = self.lsystem.derive(self.axiom,0,self.start)    
+            self.currentstep = self.start
+            return self.axiom
+        if self.currentstep + self.step > self.stop:
             raise StopIteration()
         else:
-            self.axiom = self.lsystem.derive(self.axiom,self.currentstep,1)
-            self.currentstep += 1
+            self.axiom = self.lsystem.derive(self.axiom,self.currentstep,self.step)
+            self.currentstep += self.step
         return self.axiom
     next = __next__
     def __iter__(self):
@@ -135,6 +145,22 @@ def __make_iter(lsystem): return LsystemIterator(lsystem)
 
 Lsystem.__iter__ = __make_iter
 del __make_iter
+
+def lsystem_iter(self, *args): 
+    """
+    Lsystem.derivations(nbiterations) -> LsystemIterator
+    Lsystem.derivations(start, nbiterations[, step]) -> LsystemIterator
+
+    Return an iterator that produces a sequence of Lstring from the Lsystem from start (inclusive)
+    to stop (inclusive) by step.
+    """
+    if len(args) == 0 : return LsystemIterator(self)
+    elif len(args) == 1 : return LsystemIterator(self, 0, args[0])
+    else: return LsystemIterator(self, *args)
+
+Lsystem.derivations = lsystem_iter
+del lsystem_iter
+
 
 @deprecated
 def lsystem_set(self,code,parameters={},debug=False):
