@@ -8,10 +8,10 @@
 :: You should adjust the path to your conda environment in the variable CONDA_PREFIX
 
 :: Initialize build tools
-CALL "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat"
+IF "%VSINSTALLDIR%" == "" CALL "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat"
 
 :: Initialize conda environment
-CALL "%USERPROFILE%\miniconda3\Scripts\activate.bat" "%USERPROFILE%\miniconda3\envs\lpydev"
+IF "%CONDA_PREFIX%" == "" CALL "%USERPROFILE%\miniconda3\Scripts\activate.bat" "%USERPROFILE%\miniconda3\envs\lpydev"
 
 echo %CONDA_PREFIX%
 
@@ -20,7 +20,6 @@ set BUILDDIR=build
 :: using "clean" as an argument will delete the build directory
 if "%1"=="clean" echo "CLEANING BEFORE BUILD."
 if "%1"=="clean" rmdir /s /q %BUILDDIR%
-if "%1"=="clean" mkdir %BUILDDIR%
 
 set PYTHON=%CONDA_PREFIX%\python.exe
 :: BUILD_CONFIG must be Release because conda does not provide debug symbols for Windows.
@@ -31,7 +30,7 @@ set LIBRARY_PREFIX=%CONDA_PREFIX%\Library
 if not exist %BUILDDIR% mkdir %BUILDDIR%
 
 cd %BUILDDIR%
-
+cmake --version
 cmake .. -G "Visual Studio 16 2019" ^
 -Wno-dev ^
 -DCMAKE_INSTALL_PREFIX=%LIBRARY_PREFIX% ^
