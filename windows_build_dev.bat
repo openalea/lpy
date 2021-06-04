@@ -46,4 +46,7 @@ if errorlevel 1 exit /b
 cd ..
 %PYTHON% setup.py install
 
-%PYTHON% %CONDA_PREFIX%\Scripts\lpy-script.pyw
+:: if you want to run the program, you must have your conda environment activated
+:: it won't not be the case if you're running this script in a simple Developer Command Prompt.
+
+:: %PYTHON% %CONDA_PREFIX%\Scripts\lpy-script.pyw
