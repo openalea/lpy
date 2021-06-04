@@ -7,7 +7,14 @@
 :: CHECK THE VERSION IT PULLS. Sometimes Conda decides to pull an older version. In that case, specify openalea.lpy=3.8.0
 :: You should adjust the path to your conda environment in the variable CONDA_PREFIX
 
-set CONDA_PREFIX=%USERPROFILE%\miniconda3\envs\lpydev
+:: Initialize build tools
+CALL "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat"
+
+:: Initialize conda environment
+CALL "%USERPROFILE%\miniconda3\Scripts\activate.bat" "%USERPROFILE%\miniconda3\envs\lpydev"
+
+echo %CONDA_PREFIX%
+
 set BUILDDIR=build
 
 :: using "clean" as an argument will delete the build directory
@@ -20,6 +27,8 @@ set PYTHON=%CONDA_PREFIX%\python.exe
 set BUILD_CONFIG=Release
 set LIBRARY_LIB=%CONDA_PREFIX%\Library\lib
 set LIBRARY_PREFIX=%CONDA_PREFIX%\Library
+
+if not exist %BUILDDIR% mkdir %BUILDDIR%
 
 cd %BUILDDIR%
 
@@ -46,7 +55,5 @@ if errorlevel 1 exit /b
 cd ..
 %PYTHON% setup.py install
 
-:: if you want to run the program, you must have your conda environment activated
-:: it won't not be the case if you're running this script in a simple Developer Command Prompt.
-
+:: You can run the IDE directly by de-commenting this line below.
 :: %PYTHON% %CONDA_PREFIX%\Scripts\lpy-script.pyw
