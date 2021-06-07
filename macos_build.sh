@@ -9,7 +9,6 @@ if ! [[ -d build ]]; then
     echo "creating build directory"
     mkdir build
 fi
-exit
 
 # ld crashes when it sees a symbol it cannot resolve.
 # In this case, we must either mark all incriminated symbols as Undefined (WHICH IS DANGEROUS),
