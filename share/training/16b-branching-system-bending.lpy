@@ -50,7 +50,7 @@ def setMode(m):
   if m == Forward : forward()
   elif m == Backward: backward()
   elif m == Growth : forward()
-  else: print "UNKNOWN MODE !!! "
+  else: print ("UNKNOWN MODE !!! ")
 
 def isFORWARD(): 
   global mode
@@ -77,10 +77,10 @@ def EndEach ():
   elif mode == Backward : 
     setMode(Forward)
   elif mode == Forward and error >= eps : 
-    print ">>> mean error = ", error
+    print (">>> mean error = ", error)
     setMode(Backward)
   elif mode == Forward: 
-    print "EQUILIBRIUM REACHED: mean error = ", error, " < ", eps
+    print ("EQUILIBRIUM REACHED: mean error = ", error, " < ", eps)
     setMode(Growth)
 
 Axiom: T(SegmentData())B(N)[+(30)B(N)[+(30)B(N)A]B(N/2)A]B(N)A
@@ -158,7 +158,7 @@ T(c) << S(a):
 
 S(a) < A:
   if isGROWTH():
-    print "GROWTH ------------------ GROWTH"
+    print ("GROWTH ------------------ GROWTH")
     produce S(deepcopy(a)) A
 
 decomposition:
@@ -187,10 +187,14 @@ S(c)+(angle)<S(a) :
 
 ###### INITIALISATION ######
 
+__lpy_code_version__ = 1.1
+
 def __initialiseContext__(context):
-	from openalea.plantgl.all import Material,Color3
-	context.turtle.setMaterial(4,Material('Yellow',Color3(0,0,50),3.6,Color3(40,40,40),Color3(0,0,0),1,0))
+	import openalea.plantgl.all as pgl
+	Color_4 = pgl.Material("Color_4" , ambient = (0,0,50) , diffuse = 3.6 , )
+	Color_4.name = "Color_4"
+	context.turtle.setMaterial(4,Color_4)
+__authors__ = 'C. Godin, F. Boudon'
+__institutes__ = 'INRIA - CIRAD Virtual Plants'
 __copyright__ = 'open-source GPL'
 __references__ = '1. Jirasek, C., Prusinkiewicz, P., Moulia, B. Integrating biomechanics into developmental plant models expressed using L-systems. Proc. 3rd Biomechanics conf. Plant biomechanics 2000. P615-624.\n2. Prusinkiewicz, P., Karwowski, R, Lane, B. The L+C modelling language.J. Vos et al. Eds, Springer, p27-42, 2007\n3. Costes et al. MappleT: Simulation of apple tree development using mixed statistical and biomechanical model. FSPM07.'
-__institutes__ = 'INRIA - CIRAD Virtual Plants'
-__authors__ = 'C. Godin, F. Boudon'

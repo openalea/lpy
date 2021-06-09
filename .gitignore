@@ -13,12 +13,14 @@ src/openalea/lpy/gui/logdialog.py
 src/openalea/lpy/gui/logindialog.py
 src/openalea/lpy/gui/lpymainwindow.py
 src/openalea/lpy/gui/lpyprefwidget.py
-src/openalea/lpy/gui/lpyresources_rc.py
+#src/openalea/lpy/gui/lpyresources_rc.py
 src/openalea/lpy/gui/scalarfloatmetaedit.py
 src/openalea/lpy/gui/scalarmetaedit.py
 
 # lpy temp file
 *.lpy~
+*.py~
+\#*\#
 
 # C extensions
 build-scons
@@ -29,6 +31,7 @@ build-scons_qt5
 *.dll
 *.dblite
 *.lib
+*.o
 
 # Distribution / packaging
 .Python
@@ -83,3 +86,8 @@ cmake-build-debug/
 
 # PyBuilder
 target/
+
+.vscode
+build-cmake
+
+.DS_Store

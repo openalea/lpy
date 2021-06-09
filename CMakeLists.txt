@@ -44,7 +44,7 @@ endif()
 
 # --- Python
 
-find_package (Python3 COMPONENTS Interpreter Development)
+find_package (Python3 COMPONENTS Interpreter Development REQUIRED)
 include_directories(${Python3_INCLUDE_DIRS})
 
 # --- Libraries
@@ -54,16 +54,18 @@ find_package(Qt5Core CONFIG REQUIRED)
 find_package(Qt5Concurrent CONFIG REQUIRED)
 find_package(PlantGL REQUIRED)
 
-if (USE_CONDA)
-    set(BOOST_ROOT ${CONDA_ENV})
-endif()
-
 set(Boost_NO_SYSTEM_PATHS ON)
 set(Boost_USE_MULTITHREAD ON)
 set(Boost_USE_STATIC_LIBS OFF)
 set(BUILD_SHARED_LIBS ON)
 
-find_package(Boost COMPONENTS system python REQUIRED)
+if (USE_CONDA)
+    set(boost_python python)
+else()
+    set(boost_python python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR})
+endif()
+
+find_package(Boost COMPONENTS system ${boost_python} REQUIRED)
 
 # --- Include Directories
 
@@ -81,3 +83,5 @@ endif()
 
 add_subdirectory("src/cpp")
 add_subdirectory("src/wrapper")
+
+install_share("share" "lpy")

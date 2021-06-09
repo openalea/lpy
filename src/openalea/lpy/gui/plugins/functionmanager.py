@@ -3,16 +3,26 @@ try:
 except ImportError as e:
     Curve2DEditor = None
 from openalea.lpy.gui.abstractobjectmanager import *
-from curve2dmanager import displayLineAsThumbnail
 from openalea.plantgl.gui.qt import QtGui, QtWidgets
+from openalea.plantgl.all import QuantisedFunction
 
 class FunctionManager(AbstractPglObjectManager):
     """see the doc of the objectmanager abtsract class to undesrtand the implementation of the functions"""
     def __init__(self):
         AbstractPglObjectManager.__init__(self,"Function")
-        
-    def displayThumbnail(self,obj,i,focus,objectthumbwidth):
-        displayLineAsThumbnail(self,obj,i,objectthumbwidth,(1,0,1,1))
+        self.thumbColor = (1,0,1,1)
+        self.focusThumbColor = (0.8,0,0.8,1)
+
+    def render(self, obj):
+        import OpenGL.GL as ogl
+        pw = obj.width
+        obj.width = 1
+        ogl.glLineWidth(2)
+        obj.apply(self.renderer) 
+        obj.width = pw
+
+    def getObjectForLsysContext(self,obj):
+        return QuantisedFunction(obj)
         
     def createDefaultObject(self,subtype=None):
         import openalea.plantgl.all as pgl
@@ -42,7 +52,7 @@ class FunctionManager(AbstractPglObjectManager):
         return  ext == '.fset' or ext == '.func'
     
     def importData(self,fname):
-        from openalea.lpy.gui.lpfg_data_import import import_functions, import_function
+        from openalea.lpy.cpfg_compat.data_import import import_functions, import_function
         from os.path import splitext
         ext = splitext(fname)[1]
         if ext == '.fset':  return import_functions(fname)
@@ -54,6 +64,13 @@ class FunctionManager(AbstractPglObjectManager):
         menu.addAction('Black',lambda : editor.applyTheme(editor.BLACK_THEME))
         menu.addAction('White',lambda : editor.applyTheme(editor.WHITE_THEME))
         menubar.addMenu(menu)
-        
+
+    def to_json(self, obj):
+        import openalea.plantgl.algo.jsonrep  as jr
+        res = jr.to_json_rep(obj)
+        res['is_function'] = True
+        return res
+
+       
 def get_managers():
     return FunctionManager()

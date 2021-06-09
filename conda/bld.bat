@@ -3,7 +3,7 @@ mkdir build
 cd build
 
 :: Build
-cmake -G "NMake Makefiles" -DCMAKE_INSTALL_PREFIX=%LIBRARY_PREFIX% -DCMAKE_BUILD_TYPE=Release ..
+cmake -G "NMake Makefiles" -DCMAKE_INSTALL_PREFIX=%LIBRARY_PREFIX% -DCMAKE_BUILD_TYPE=Release -DPython3_EXECUTABLE=%PYTHON% -LAH ..
 if errorlevel 1 exit 1
 nmake
 if errorlevel 1 exit 1

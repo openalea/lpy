@@ -273,6 +273,8 @@ size_t LsysContext::initialiseFrom(const std::string& _lcode)
   return __initialiseFrom(lcode);
 }
 
+#include <fstream>
+
 void 
 Lsystem::set( const std::string&   _rules , std::string * pycode, 
 			  const boost::python::dict& parameters){
@@ -282,15 +284,49 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
   if(!filename.empty())setFilename(filename);
   filename = getShortFilename();
 //  printf("A\n");
-  ContextMaintainer m(&__context);
+  int lineno = 1;
+  std::string _nrules;
+  {
+      std::string::const_iterator lbeg = _rules.begin();
+      for(std::string::const_iterator _it = lbeg; _it != _rules.end(); ++_it){
+        if (*_it == '%'){
+            std::string::const_iterator _it2 = _it;
+            if(has_keyword_pattern(_it,_rules.begin(),_rules.end(),"\%pastefile") ) {
+                _nrules.append(lbeg, _it2);
+                _it++;
+                std::string::const_iterator begname = _it;
+                toendline(_it,_rules.end());
+                if(begname != _rules.end()) {
+                    if (notOnlySpace(begname,_it)){
+                      std::string modulename = LpyParsing::trim(std::string(begname,_it));
+                      std::ifstream subfile(modulename.c_str());
+                      std::stringstream buffer; 
+                      buffer << subfile.rdbuf();
+                      subfile.close();
+                      _nrules += buffer.str();
+                    }
+                    else LsysParserSyntaxError("invalid file to paste");
+                }
+                else LsysParserSyntaxError("invalid file to paste");
+                lbeg = _it;
+            }
+        }
+      }
+      _nrules.append(lbeg, _rules.end());
+  }
+
+
 #ifndef _WIN32
-  std::string _rules_ = _rules;
+  std::string _rules_ = _nrules;
   for(std::string::iterator _itEr = _rules_.begin(); _itEr != _rules_.end(); ++_itEr)
   	if (*_itEr == WindowSpecificEndline) _rules_.erase(_itEr);
   const std::string& rules = _rules_;
 #else
-  const std::string& rules = _rules;
+  const std::string& rules = _nrules;
 #endif
+
+  ContextMaintainer m(&__context);
+
   std::string::const_iterator begcode = rules.begin();
   std::string::const_iterator _it = begcode;
   std::string::const_iterator endcode = rules.end();
@@ -309,7 +345,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
   int homomorphism_max_depth_lineno;
   int omode = -1;
   int mode = -1;
-  int lineno = 1;
+  lineno = 1;
   int group = 0;
   ConsiderFilterPtr currentConsider;
   // Retrieve of lpy format version
@@ -1245,6 +1281,8 @@ LsysRule::getCoreCode() {
   }
   std::stringstream head;
   head << "def " << functionName() << "(";
+
+  if(__prefix == 'h' && LsysContext::current()->turtle_in_interpretation && !__isStatic){ head << "turtle," ; } 
   if(!__formalparameters.empty())
     for(std::vector<std::string>::const_iterator _it = __formalparameters.begin();
     _it != __formalparameters.end(); ++_it){

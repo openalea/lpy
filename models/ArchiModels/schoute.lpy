@@ -12,7 +12,7 @@ nb_axes = lambda order : rd.randint(2,4) if order > 2 else rd.randint(4-int((ord
 up_angle = lambda t,order : -5        # up angle for lateral branches
 
 # number total of iterations of the system
-nbiter = sum([maxduration(o) for o in xrange(maxorder+1)])
+nbiter = sum([maxduration(o) for o in range(maxorder+1)])
 
 module A # represent trunk apical meristem
 module B # represent apical meristem of lateral branches
@@ -32,7 +32,7 @@ A(t,o) :
   else:
       # produce a whorl of sympodial branches
       nbaxe = nb_axes(o)
-      for i in xrange(nbaxe):
+      for i in range(nbaxe):
         nproduce [/(360*i/nbaxe)&(branch_angle(o))B(0,o+1)]
 
 
@@ -44,7 +44,7 @@ B(t,o) :
   else:
       # produce a whorl of sympodial branches
       nbaxe = nb_axes(o)
-      for i in xrange(nbaxe):
+      for i in range(nbaxe):
         nproduce [/(360*i/nbaxe)&(branch_angle(o))B(0,o+1)]
 
 L(t,n) :
@@ -68,7 +68,9 @@ L(t,p) :
 endlsystem
 ###### INITIALISATION ######
 
+__lpy_code_version__ = 1.1
+
 def __initialiseContext__(context):
-	context.options.setSelection("Module declaration",1)
-__description__ = """Schoute architectural model."""
-__authors__ = """E. Costes, F. Boudon"""
+	context.options.setSelection('Module declaration',1)
+__authors__ = 'E. Costes, F. Boudon'
+__description__ = 'Schoute architectural model.'

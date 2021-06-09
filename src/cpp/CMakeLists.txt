@@ -8,12 +8,9 @@ add_library(lpy SHARED ${SRC_FILES})
 
 target_link_libraries(lpy ${PLANTGL_LIBRARIES})
 target_link_libraries(lpy Qt5::Core Qt5::Concurrent)
+
 pgllib_link_python(lpy)
-
-# Disable Boost Auto-Link
-target_compile_definitions(lpy PRIVATE BOOST_ALL_NO_LIB)
-
-target_link_libraries(lpy Boost::python)
+pgllib_link_boost(lpy)
 
 # --- Preprocessor
 

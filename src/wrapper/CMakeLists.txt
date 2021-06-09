@@ -9,11 +9,8 @@ add_library(__lpy_kernel__ SHARED ${SRC_FILES})
 target_link_libraries(__lpy_kernel__ lpy)
 target_link_libraries(__lpy_kernel__ ${PLANTGL_LIBRARIES})
 pgllib_link_python(__lpy_kernel__)
+pgllib_link_boost(__lpy_kernel__)
 
-# Disable Boost Auto-Link
-target_compile_definitions(__lpy_kernel__ PRIVATE BOOST_ALL_NO_LIB)
-
-target_link_libraries(__lpy_kernel__ Boost::system Boost::python)
 
 # --- Dependencies
 

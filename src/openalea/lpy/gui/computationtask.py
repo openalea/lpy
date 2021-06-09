@@ -116,7 +116,7 @@ class ComputationTaskManager(QObject):
                 self.graberror()
               self.computationThread = None
               self.releaseCR()
-              self.endTask.emit(task) # self.emit(SIGNAL('endTask(PyQt_PyObject)'),task) # AUTO SIGNAL TRANSLATION
+              self.endTask.emit(task) 
     def acquireCR(self):
         """ acquire computation ressources """
         if not self.computationMutex.tryLock():
@@ -126,6 +126,7 @@ class ComputationTaskManager(QObject):
         self.isRunning()
     def taskRunningEvent(self):
         raise Exception('A task is already running')
+        pass
     def isRunning(self):
         if self.computationMutex.tryLock():
             self.computationMutex.unlock()
@@ -146,21 +147,23 @@ class ComputationTaskManager(QObject):
             exc_info = sys.exc_info()
         tb.print_exception(*exc_info)
         self.lastexception = exc_info[1]
-        self.errorEvent(exc_info)
         errmsg = self.getErrorMessage(exc_info)
-        if displayDialog:
-            self.endErrorEvent(self.errorMessage(errmsg))
-        else:
-            self.endErrorEvent(None)
+        self.errorEvent(exc_info, errmsg, displayDialog)
+        self.endErrorEvent()
+
+        #if displayDialog:
+        #    self.endErrorEvent(self.errorMessage(errmsg))
+        #else:
+        #    self.endErrorEvent(None)
     def getErrorMessage(self,exc_info):
-        print(type(exc_info[1]), exc_info[1])
+        exception = exc_info[1] 
         msg = str(exc_info[1])
         if exc_info[0] == SyntaxError and len(msg) == 0:
             msg = exc_info[1].msg
-        return 'An error occured:"'+str(exc_info[0].__name__)+':'+str(msg)+'"'
+        return str(exc_info[0].__name__)+':'+str(msg)
     def errorMessage(self,msg):
         return QMessageBox.warning(self,"Exception",msg,QMessageBox.Ok)
-    def errorEvent(self,exc_info):
+    def errorEvent(self, exc_info, errmsg,  displayDialog):
         pass
-    def endErrorEvent(self,answer):
+    def endErrorEvent(self):
         pass

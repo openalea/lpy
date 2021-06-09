@@ -2,15 +2,17 @@ platform:
   - x64
 
 environment:
+  CONDA_RECIPE: conda
+  CONDA_VERSION: 3
+      
   matrix:
-  # Add here environement variables to control the Travis CI build
-    - CONDA_RECIPE: conda
-      CONDA_VERSION: 3
+    - CONDA_PY: 37
+    - CONDA_PY: 38 
+      CONDA_NPY: 116
+    - CONDA_PY: 39 
+      CONDA_NPY: 119
 
 install:
-  - call "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x64
-  - call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86_amd64
-  - if errorlevel 1 exit 1
   - git clone https://github.com/OpenAlea/appveyor-ci.git appveyor-ci
   - cd appveyor-ci
   - call install.bat

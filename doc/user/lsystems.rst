@@ -26,11 +26,11 @@ String Representation
 =====================
 
 Lindenmayer developed a string notation that makes it easy to specify productions and carry out
-simulations. Each components of the system is represented as a module. A module is characterized
-by a by a label, for instance **A**, and possibly a set of parameters. For instance, an apex of age
+simulations. Each component of the system is represented as a module. A module is characterized
+by a label, for instance **A**, and possibly a set of parameters. For instance, an apex of age
 10 can thus be represented by the module **A(10)**, an internode of length 20 and radius 3 by **I(20,3)**.
-To represent a linear structure, a *string* can be created as a serie of modules. For branched
-structure such as tree, special module [ and ] are used to represent begin and end of branches.
+To represent a linear structure, a *string*, called *L-string* can be created as a serie of modules. For branched
+structures such as trees, special modules [ and ] are used to represent begin and end of branches.
 After each module in the string, its lateral successors enclosed in square brackets are first given
 followed by its axial successor. For instance in the structure **A[B]C**, **A** carries a lateral module **B**
 and is followed by module **C**.
@@ -85,11 +85,11 @@ variables for the parameters. A pattern is matched to a module or a set of modul
 if labels and numbers of parameters are the same. If matched, the variables are assigned to the actual
 values in the string of the parameters and the code of the successor is called.
 
-As one can see on the example the production of the successor can be conditional. The successor can
-produce empty string (``produce`` or ``produce *``) meaning that the successor is replace by nothing. The
+As one can see in the example the production of the successor can be conditional. The successor can
+produce an empty string (``produce`` or ``produce *``) meaning that the successor is replaced by nothing. The
 production can also produce nothing. In this case the application will supposed to have failed and
-other rules can be tested. If no rule match a module of the string, then identity rule will be applied
-and the module will be replace by himself.
+other rules can be tested. If no rule matches a module of the string, then identity rule will be applied
+and the module will be replaced by itself.
 
 The replacement of a successor can depend on the neighbours of the modules to replace. In this case,
 the rule is called context sensitive and the successor, now called *strict successor* is augmented with
@@ -114,3 +114,17 @@ Of course, the ``new_left_context`` is only available if the rule are applied fr
 the string and ``new_right_context`` from right to left.
 
 These contexts can then be combined.
+
+Different types of Rules
+------------------------
+
+- Production rules are intended to express the development of the modelled structure. They are applied in parallel on the L-string.
+
+- Decomposition rules are intended to decompose recursivelly a module into an L-string using a set of possibly recursive rules. To avoid infinite recursion a maximum depth of recursion can be specified.
+
+- Interpretation rules allows to specify the geometric interpretation of symbols used in a given simulation. For this, a mapping to interpretable symbols can be made. Recursive rules can be used and similarly to decomposition rules, a maximum depth of recursion can be specified. A Turtle object is managed by the simulation and L-Py translates automatically some predefined modules into the corresponding method call onto the Turtle object. It is also possible to directly access the Turtle object using the option 'Turtle in Interpretation rules'. In such case, the turtle is accessible using the ``turtle`` variable and any of its methods can be called.
+
+.. code-block:: python
+
+    Internode(t):
+        turtle.F(t)

@@ -1,0 +1,16 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "boolean",
+    "type": "object",
+    "required": ["name", "value"],
+    "properties": {
+        "name": {
+            "type": "string",
+            "pattern": "^[^\\d\\W]\\w*\\Z"
+        },
+        "value": {
+            "type": "boolean"
+        }
+    },
+    "additionalProperties": false
+}

@@ -1,0 +1,27 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "point3array",
+    "type": "object",
+    "required": ["type", "data"],
+    "properties": {
+        "type": {
+            "enum": ["Point3Array"]
+        },
+        "data": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                    "type": "number"
+                }
+            }
+        },
+        "id": {
+            "type": "integer"
+        }
+    },
+    "additionalProperties": false
+}

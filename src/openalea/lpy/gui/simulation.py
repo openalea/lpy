@@ -3,9 +3,9 @@ from openalea.lpy import *
 from openalea.plantgl.all import PglTurtle, Viewer, Material, PyStrPrinter, eStatic, eAnimatedPrimitives, eAnimatedScene
 from . import optioneditordelegate as oed
 import os, shutil, sys, traceback
-from time import clock, time
+from time import time
 from .lpystudiodebugger import AbortDebugger
-from .scalar import *
+from openalea.lpy.lsysparameters.scalar import *
 import cProfile as profiling
 from .lpyprofiling import *
 from .lpytmpfile import *
@@ -96,6 +96,8 @@ class AbstractSimulation:
     def getBaseName(self):
         if self._fname is None : return 'New'
         else : return os.path.basename(self.fname)
+    def getFileName(self):
+        return self._fname
     def getTabName(self):
         t = ''
         #if self.textedition:
@@ -279,12 +281,13 @@ class AbstractSimulation:
 
     def saveas(self):
         bckupname = self.getBackupName()
-        qfname, mfilter = QFileDialog.getSaveFileName(self.lpywidget,"Save L-Py file",self.fname if self.fname else '.',"Py Lsystems Files (*.lpy);;All Files (*.*)")
+        qfname, mfilter = QFileDialog.getSaveFileName(self.lpywidget,"Save L-Py file",self.fname if self.fname else '.',"L-Py Files (*.lpy);;All Files (*.*)")
         if  qfname :
-            fname = str(qfname[0])
+            fname = str(qfname)
             if not os.path.exists(fname):
                 self.readonly = False  
-            else : self.readonly = (not os.access(fname, os.W_OK))
+            else : 
+                self.readonly = (not os.access(fname, os.W_OK))
             self.fname = fname
             os.chdir(os.path.dirname(fname))
             if not self.readonly and bckupname and os.path.exists(bckupname):
@@ -378,6 +381,8 @@ class AbstractSimulation:
     def opencode(self,txt):
         pass
 
+    def pre_run(self,task):
+        pass
     def run(self, task):
         pass
     def post_run(self,task):
@@ -538,6 +543,20 @@ class LpySimulation (AbstractSimulation):
         res = self.lsystem.set(lpycode,{},self.lpywidget.showPyCode)
         if not res is None: print(res)
 
+    def getFutureInitialisationCode(self,withall=True):
+        from openalea.lpy.simu_environ import getInitialisationCode
+        if self.fname and len(self.fname) > 0:
+            reference_dir = os.path.abspath(os.path.dirname(self.getStrFname()))
+        else :
+            reference_dir = None
+        return getInitialisationCode(self.lsystem.context(),
+                                     self.scalars,
+                                     self.visualparameters,
+                                     self.desc_items,
+                                     simplified = not withall,
+                                     keepCode_1_0_Compatibility= self.keepCode_1_0_Compatibility,
+                                     referencedir=reference_dir)
+
     def getInitialisationCode(self,withall=True):
         code = self.initialisationFunction(withall)
         code += self.creditsCode()
@@ -585,7 +604,7 @@ class LpySimulation (AbstractSimulation):
                 if not options[i].isToDefault():
                     init_txt += '\tcontext.options.setSelection('+repr(options[i].name)+','+str(options[i].selection)+')\n'
         if len(self.scalars):
-            init_txt += '\tscalars = '+str([i.tostr() for i in self.scalars])+'\n'
+            init_txt += '\tscalars = '+str([i.totuple() for i in self.scalars])+'\n'
             init_txt += '\tcontext["__scalars__"] = scalars\n'
             init_txt += '\tfor s in scalars:\n\t\tif not s[1] == "Category" : context[s[0]] = s[2]\n'
         def emptyparameterset(params):
@@ -681,17 +700,14 @@ class LpySimulation (AbstractSimulation):
             lpy_code_version = 1.0
             if '__lpy_code_version__' in context:
                 lpy_code_version = context['__lpy_code_version__']
-                print(lpy_code_version)
             if '__functions__' in context and lpy_code_version <= 1.0 :
                 functions = context['__functions__']
                 for n,c in functions: c.name = n
-                # self.functions = [ c for n,c in functions ]
                 funcmanager = managers['Function']
                 self.visualparameters += [ ({'name':'Functions'}, [(funcmanager,func) for n,func in functions]) ]
             if '__curves__' in context and lpy_code_version <= 1.0 :
                 curves = context['__curves__']
                 for n,c in curves: c.name = n
-                # self.curves = [ c for n,c in curves ]
                 curvemanager = managers['Curve2D']
                 self.visualparameters += [ ({'name':'Curve2D'}, [(curvemanager,curve) for n,curve in curves]) ]
             if '__scalars__' in context:
@@ -716,6 +732,10 @@ class LpySimulation (AbstractSimulation):
             self.textdocument.clear()
             self.textdocument.setPlainText(self.code)
             self.lpywidget.textEditionWatch = True
+
+    def pre_run(self,task):
+        self.lpywidget.viewer.start()
+        self.lpywidget.viewer.setAnimation(eStatic if self.firstView or task.fitRunView else eAnimatedPrimitives)
 
     def run(self,task):
         dl = self.lsystem.derivationLength
@@ -744,6 +764,8 @@ class LpySimulation (AbstractSimulation):
             self.lsystem.plot(self.lsystem.derive(nbiter),True)
             self.firstView = False
             self.lpywidget.viewer.setAnimation(eAnimatedPrimitives)
+            print('eAnimatedPrimitives')
+
         timing = time()
         make_animation = self.lsystem.animate 
         if hasattr(task,'recording') :
@@ -766,7 +788,7 @@ class LpySimulation (AbstractSimulation):
         if self.isTextEdited() or self.lsystem.empty() or self.nbiterations == 0 or self.nbiterations >= self.lsystem.derivationLength:
             self.updateLsystemCode()
         self.lpywidget.viewer.start()
-        self.lpywidget.viewer.setAnimation(eStatic if self.firstView and task.fitAnimationView else eAnimatedPrimitives)
+        self.lpywidget.viewer.setAnimation(eStatic if (self.firstView and task.fitAnimationView) else eAnimatedPrimitives)
 
     def post_animate(self,task):
         if hasattr(task,'result'):

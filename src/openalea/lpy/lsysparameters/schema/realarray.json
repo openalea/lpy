@@ -1,0 +1,22 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "realarray",
+    "type": "object",
+    "required": ["type", "data"],
+     "properties": {
+        "type": {
+            "enum": ["RealArray"]
+        },
+        "data": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+                "type": "number"
+            }
+        },
+        "id": {
+            "type": "integer"
+        }
+    },
+    "additionalProperties": false
+}

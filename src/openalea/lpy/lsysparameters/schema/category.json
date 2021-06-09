@@ -1,0 +1,41 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "category",
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "enabled": {
+            "type":"boolean"
+        },
+        "items": {
+            "type": "array",
+            "items": {
+                "anyOf": [
+                    {
+                        "$ref": "patch.json"
+                    },
+                    {
+                        "$ref": "curve.json"
+                    }
+                ]
+            }
+        },
+        "scalars": {
+            "type": "array",
+            "items": {
+                "anyOf": [
+                    {
+                        "$ref": "boolean.json"
+                    },
+                    {
+                        "$ref": "number.json"
+                    }
+                ]
+            }
+        }
+    },
+    "required": ["name", "enabled", "items", "scalars"],
+    "additionalProperties": true
+}

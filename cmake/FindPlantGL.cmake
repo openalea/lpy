@@ -50,7 +50,7 @@ if (NOT PLANTGL_LIBRARY_DIR)
     
     if (PlantGL_FIND_REQUIRED)
         # PlantGL not found
-        message(SEND_ERROR "Unable to find PlantGL libraries repository.")
+        message(SEND_ERROR "Unable to find PlantGL libraries repository. Set PLANTGL_ROOT.")
     endif()
 endif()
 

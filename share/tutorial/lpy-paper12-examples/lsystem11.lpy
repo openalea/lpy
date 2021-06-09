@@ -10,13 +10,13 @@ def retrieveCurves():
   # sort curves according to their names
   for n,v in curves: v.name = n
   curves = [v for n,v in curves]
-  curves.sort(lambda x,y : cmp(x.name,y.name))
+  curves.sort(key=lambda x : x.name)
   return curves
   
 def ProfileInterpolation(curves,knotlist = None,degree = 3):
     nbcurves = len(curves)
-    if knotlist is None: knotlist = [i/float(nbcurves-1) for i in xrange(nbcurves)]
-    k = [knotlist[0] for i in xrange(degree-1)]+knotlist+[knotlist[-1] for i in xrange(degree-1)]
+    if knotlist is None: knotlist = [i/float(nbcurves-1) for i in range(nbcurves)]
+    k = [knotlist[0] for i in range(degree-1)]+knotlist+[knotlist[-1] for i in range(degree-1)]
     pts = [[(i.x,i.y,0,1) for i in c.ctrlPointList] for c in curves]
     ppts = Point4Matrix(pts)
     p = NurbsPatch(ctrlPointList=ppts,udegree=degree,vdegree=curves[0].degree)
@@ -93,7 +93,7 @@ def __initialiseContext__(context):
 	    ctrlPointList = pgl.Point3Array([(0, 0.00609611, 1),(0.219872, 0.279019, 1),(0.711105, 0.460335, 1),(1, 0.00849109, 1)]) , 
 	    )
 	leafwidth.name = "leafwidth"
-	panel_0 = ({'active': True, 'visible': True, 'name': 'Curve2D'},[('Curve2D',profile),('Curve2D',axis1),('Curve2D',axis2),('Curve2D',axis3),('Curve2D',axis4),('Curve2D',axis5),('Function',leafwidth)])
+	panel_0 = ({'name': 'Curve2D', 'active': True, 'visible': True},[('Curve2D',profile),('Curve2D',axis1),('Curve2D',axis2),('Curve2D',axis3),('Curve2D',axis4),('Curve2D',axis5),('Function',leafwidth)])
 	axis5_2 = pgl.NurbsCurve2D(	
 	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.343628, 0.0908472, 1),(-0.17612, 0.0940398, 1),(-0.105034, 0.0750999, 1),(-0.0236869, 0.0720096, 1),(0.0498644, 0.0519054, 1)]) , 
 	    )
@@ -118,7 +118,7 @@ def __initialiseContext__(context):
 	    ctrlPointList = pgl.Point3Array([(0, 0.00609611, 1),(0.219872, 0.279019, 1),(0.711105, 0.460335, 1),(1, 0.00849109, 1)]) , 
 	    )
 	leafwidth_2.name = "leafwidth_2"
-	panel_1 = ({'active': False, 'visible': True, 'name': 'Panel 3'},[('Curve2D',axis5_2),('Curve2D',axis1),('Curve2D',axis2),('Curve2D',axis3),('Curve2D',axis4),('Function',leafwidth_2)])
+	panel_1 = ({'name': 'Panel 3', 'active': False, 'visible': True},[('Curve2D',axis5_2),('Curve2D',axis1),('Curve2D',axis2),('Curve2D',axis3),('Curve2D',axis4),('Function',leafwidth_2)])
 	parameterset = [panel_0,panel_1,]
 	context["__functions__"] = [('leafwidth',leafwidth),]
 	context["__curves__"] = [('profile',profile),('axis1',axis1),('axis2',axis2),('axis3',axis3),('axis4',axis4),('axis5',axis5),]

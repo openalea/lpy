@@ -45,9 +45,6 @@ Modules and objects included in Lpy are also described in :ref:`lpy_reference`.
 
    This Guide is still very much in progress. Many aspects of Lpy are not covered.
 
-   Documentation can be found on the
-   `Lpy Readthedocs pages <https://lpy.readthedocs.io/en/latest/>`__
-
 References
 ==========
 

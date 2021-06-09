@@ -100,7 +100,8 @@ typedef pgl_hash_map_string<size_t> ParameterNameDict;
     MACRO(Quad) \
 	MACRO(Circle) \
 	MACRO(Label) \
-	MACRO(Frame) \
+    MACRO(Frame) \
+    MACRO(Arrow) \
 	MACRO(IncWidth) \
 	MACRO(DecWidth) \
 	MACRO(SetWidth) \

@@ -3,11 +3,12 @@ from openalea.plantgl.gui.qt import qt
 from openalea.plantgl.gui.qt.QtCore import QSettings
 from openalea.plantgl.gui.qt.QtGui import QFont
 from openalea.plantgl.gui.qt.QtWidgets import QApplication
+from openalea.lpy import LPY_VERSION_MAJOR
 import os
 
 
 def getSettings():
-    settings = QSettings(QSettings.IniFormat, QSettings.UserScope,'OpenAlea','LPy')
+    settings = QSettings(QSettings.IniFormat, QSettings.UserScope,'OpenAlea','LPy'+str(LPY_VERSION_MAJOR))
     return settings
 
 def restoreState(lpywidget):
@@ -46,6 +47,7 @@ def restoreState(lpywidget):
     settings.endGroup()
     settings.beginGroup('view3D')
     lpywidget.fitAnimationView = settings.value('fitAnimationView',lpywidget.fitAnimationView)=='true' 
+    lpywidget.fitRunView = settings.value('fitRunView',lpywidget.fitRunView)=='true' 
     lpywidget.setIntegratedView3D(settings.value('integratedView',lpywidget.use_own_view3D)=='true')
     lpywidget.displayMetaInfo = settings.value('displayMetaInfoAtRun',lpywidget.displayMetaInfo)=='true'
     settings.endGroup()
@@ -136,7 +138,8 @@ def saveState(lpywidget):
     settings = getSettings()
     settings.beginGroup('history')
     settings.setValue('RecentFiles',to_qvariant(list(lpywidget.history)))
-    settings.setValue('OpenedFiles',to_qvariant(list([i.fname for i in lpywidget.simulations if not i.fname is None])))
+    op = list([str(i.getStrFname()) for i in lpywidget.simulations if not i.fname is None])
+    settings.setValue('OpenedFiles',to_qvariant(op))
     settings.setValue('MaxSize',to_qvariant(lpywidget.historymaxsize))
     settings.setValue('LastFocus',to_qvariant(lpywidget.currentSimulationId))
     settings.endGroup()
@@ -151,6 +154,7 @@ def saveState(lpywidget):
     settings.endGroup()
     settings.beginGroup('view3D')
     settings.setValue('fitAnimationView',to_qvariant(lpywidget.fitAnimationView)) 
+    settings.setValue('fitRunView',to_qvariant(lpywidget.fitRunView)) 
     settings.setValue('integratedView',to_qvariant(lpywidget.use_own_view3D))
     settings.setValue('displayMetaInfoAtRun',to_qvariant(lpywidget.displayMetaInfo))
     settings.endGroup()

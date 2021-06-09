@@ -1,6 +1,6 @@
 import openalea.lpy as lpy
 from openalea.plantgl.gui.qt import qt
-from time import clock
+from time import perf_counter
 from . lpycodeeditor import CodePointMarker, BreakPointMarker
 
 import sys
@@ -35,10 +35,10 @@ class LpyVisualDebugger (lpy.LpyDebugger):
         self.srcView = self.debugWidget.right.srcView
         self.destView = self.debugWidget.right.destView
         self.ruleView = self.debugWidget.right.ruleView
-        self.debugWidget.right.nextDebugButton.clicked.connect(self.__next__) # QObject.connect(self.debugWidget.right.nextDebugButton,SIGNAL('clicked()'),self.next)
-        self.debugWidget.right.animateDebugButton.clicked.connect(self.animate) # QObject.connect(self.debugWidget.right.animateDebugButton,SIGNAL('clicked()'),self.animate)
-        self.debugWidget.right.animationDebugSlider.valueChanged.connect(self.setAnimationTiming) # QObject.connect(self.debugWidget.right.animationDebugSlider,SIGNAL('valueChanged(int)'),self.setAnimationTiming)
-        self.debugWidget.right.endDebugButton.clicked.connect(self.continueDebug) # QObject.connect(self.debugWidget.right.endDebugButton,SIGNAL('clicked()'),self.continueDebug)
+        self.debugWidget.right.nextDebugButton.clicked.connect(self.__next__) 
+        self.debugWidget.right.animateDebugButton.clicked.connect(self.animate) 
+        self.debugWidget.right.animationDebugSlider.valueChanged.connect(self.setAnimationTiming) 
+        self.debugWidget.right.endDebugButton.clicked.connect(self.continueDebug) 
     def setAnimationTiming(self, value):
         self.animationTiming = value /1000.
     def startDebugger(self):
@@ -77,14 +77,14 @@ class LpyVisualDebugger (lpy.LpyDebugger):
         self.lensrc = len(src)
         self.debugWidget.right.progressBar.setRange(0,self.lensrc)
         self.srcView.setText(str(self.src))
-        self.lpywidget.codeeditor.sidebar.lineClicked.connect(self.breakPointChanged) # QObject.connect(self.lpywidget.codeeditor.sidebar,SIGNAL('lineClicked(int)'),self.breakPointChanged)
+        self.lpywidget.codeeditor.sidebar.lineClicked.connect(self.breakPointChanged) 
     def end(self,result):
         self.srcView.setText(str(self.src))
         self.destView.setText(str(result))
         self.ruleView.setText('')
         self.alwaysStop = True
         self.stopDebugger()
-        self.lpywidget.codeeditor.sidebar.lineClicked.disconnect(self.breakPointChanged) # QObject.disconnect(self.lpywidget.codeeditor.sidebar,SIGNAL('lineClicked(int)'),self.breakPointChanged)
+        self.lpywidget.codeeditor.sidebar.lineClicked.disconnect(self.breakPointChanged) 
     def print_src(self,pos_beg,pos_end):
         txt = ''
         nbChar = 0
@@ -182,8 +182,8 @@ class LpyVisualDebugger (lpy.LpyDebugger):
     def wait(self):
         self.waitcond.lock()
         if self.animation :
-            t = clock()
-            while (clock()-t) < self.animationTiming and not self.waitcond.tryLock():
+            t = perf_counter()
+            while (perf_counter()-t) < self.animationTiming and not self.waitcond.tryLock():
                 QCoreApplication.instance().processEvents()
         else:
             while not self.waitcond.tryLock():            

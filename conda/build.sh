@@ -34,6 +34,7 @@ echo "****** CMAKE CONFIG"
 cmake -DCMAKE_INSTALL_PREFIX=${PREFIX} \
       -DCMAKE_PREFIX_PATH=${PREFIX} \
       -DCMAKE_BUILD_TYPE=Release  \
+      -DPython3_EXECUTABLE=${PYTHON} \
        ${SYSTEM_DEPENDENT_ARGS[@]} \
       -LAH .. 
 

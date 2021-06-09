@@ -18,7 +18,7 @@ label = None
 
 
 def StartEach(lstring):
-  #print lstring
+  #print (lstring)
   global label
   if getIterationNb() == 0:
     useGroup(1)
@@ -65,7 +65,7 @@ maximum depth: MAXORDER+1
 A(o):
   if o <= MAXORDER:
     nproduce I(ParameterSet(resistance=RESISTANCE(o/float(MAXORDER)), length=internode_length(o), diameter = internode_diam(o)))
-    for i in xrange(RAMIFORDER):
+    for i in range(RAMIFORDER):
       nproduce /(phylotaxy)[&(branching_angle(o))A(o+1)]
   else:
     produce
@@ -75,7 +75,7 @@ group 2: # eqresistance
 
 consider: I
 I(p) >> x([I(pchildren)]):
-  #print type(pchildren) 
+  #print (type(pchildren))
   #assert len(pchildren) in [0,RAMIFORDER]
   p.eq_resistance = p.resistance
   if len(pchildren) > 0:

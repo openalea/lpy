@@ -1,0 +1,33 @@
+from math import *
+g = 9.81
+m = 1
+dt = 0.1
+
+module P(theta, length)
+
+Axiom: P(radians(INITIAL_ANGLE), 0, 1) 
+
+derivation length: 500
+production:
+
+P(theta, dtheta, length):
+  atheta = -g*sin(theta)/length
+  dtheta += atheta*dt
+  theta  += dtheta*dt
+  produce P(theta, dtheta, length)
+
+interpretation:
+
+P(theta, dtheta, length) --> ,(5)@O(0.1) _(0.01)LineTo(0,cos(theta-pi/2),sin(theta-pi/2)) ,(3) @O(0.1)
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	scalars = [('INITIAL_ANGLE', 'Integer', 90, 0, 179)]
+	context["__scalars__"] = scalars
+	for s in scalars:
+		if not s[1] == "Category" : context[s[0]] = s[2]

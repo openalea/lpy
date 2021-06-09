@@ -36,7 +36,7 @@ class LocalsRetriever:
         return self.mylocals, res
 
 
-def default_parameters_wrapper(function):
+def __default_parameters_wrapper(function):
     def wrapper(*args, **kwargs):
         l = LocalsRetriever(function)
         params, res = l(*args,**kwargs)
@@ -77,10 +77,41 @@ def defaultparameters(function):
         list(map(get_caller_frame().f_locals.setdefault, list(params.keys()), list(params.values())))
         return function
     else:
-        return default_parameters_wrapper(function)
+        return __default_parameters_wrapper(function)
+
+
+def extern(*paramstocheck, **params):
+    """ 
+    A function to define in a simple way default values of parameters.
+
+    This function insert the parameter define as arguments
+    in the global namespace if they do not already exist. 
+
+    If a string name is given without argument, 
+    it will simply check if the name exists in the current namespace.
+
+    Example:
+
+    extern(a = 1, b = 2) # set default value to variable a and b.
+    extern('c') # check existence of variable c.
+
+    """
+    caller_frame_locals = get_caller_frame().f_locals
+    if len(params) > 0 :
+        for key,val in params.items():            
+            caller_frame_locals.setdefault(key,val)
+            # Mark parameter to be external
+            caller_frame_locals.setdefault('__externs__',set()).add(key)
+    if len(paramstocheck) > 0:
+        for val in paramstocheck:
+            assert(type(val) == str)
+            if not val in caller_frame_locals:
+                raise NameError(val,'should be provided by external parameters.')
+            caller_frame_locals.setdefault('__externs__',set()).add(val)
 
 
 
 
 
-__all__ = ['defaultparameters']
+
+__all__ = ['defaultparameters','extern']

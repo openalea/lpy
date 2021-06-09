@@ -26,24 +26,24 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
     def __init__(self,editor):
         QSyntaxHighlighter.__init__(self,editor)
         self.rules = []
-        keywordFormat = QTextCharFormat()
-        keywordFormat.setForeground(Qt.darkMagenta)
-        keywordFormat.setFontWeight(QFont.Bold)
+        self.lpykeywordFormat = QTextCharFormat()
+        self.lpykeywordFormat.setForeground(Qt.darkMagenta)
+        self.lpykeywordFormat.setFontWeight(QFont.Bold)
         self.lpykeywords = ['Axiom:','production','homomorphism','interpretation',
                             'decomposition','endlsystem','group','endgroup',
                             'derivation length','maximum depth','produce','nproduce','nsproduce','makestring','-->',
-                            'consider:','ignore:','forward','backward','isForward',
+                            'consider:','ignore:','forward','backward','isForward','extern',
                             'Start','End','StartEach','EndEach','getGroup','useGroup','getIterationNb',
-                            'module','-static->','@static','lpyimport']
+                            'module','-static->','@static','lpyimport','\%pastefile']
         for pattern in self.lpykeywords:
-            self.rules.append((QRegExp(pattern),keywordFormat))
-        keywordFormat = QTextCharFormat()
-        keywordFormat.setForeground(Qt.blue)
-        keywordFormat.setFontWeight(QFont.Bold)
+            self.rules.append((QRegExp(pattern),self.lpykeywordFormat))
+        self.keywordFormat = QTextCharFormat()
+        self.keywordFormat.setForeground(Qt.blue)
+        self.keywordFormat.setFontWeight(QFont.Bold)
         import keyword
         self.pykeywords = keyword.kwlist + ['None','range','xrange', 'True','False','int','float','str','tuple','list']
         for pattern in self.pykeywords:
-            self.rules.append((QRegExp(pattern),keywordFormat))
+            self.rules.append((QRegExp(pattern),self.keywordFormat))
         self.delimiterFormat = QTextCharFormat()
         self.delimiterFormat.setForeground(Qt.darkBlue)
         self.delimiterFormat.setFontWeight(QFont.Bold)

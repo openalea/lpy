@@ -4,42 +4,8 @@ except ImportError as e:
     Curve2DEditor = None
 from openalea.plantgl.scenegraph import Polyline2D, BezierCurve2D, NurbsCurve2D, Point2Array, Point3Array
 from openalea.lpy.gui.abstractobjectmanager import *
-from OpenGL.GL import *
 from openalea.plantgl.gui.qt import QtGui, QtWidgets
 
-def displayLineAsThumbnail(manager, obj, i, objectthumbwidth, color = (1,1,0,0), linecolor = (0.5,0.5,0.5,1.0)):
-        manager.discretizer.clear()
-        b = manager.getBoundingBox(obj)
-        lsize = b.getSize()
-        msize = lsize[lsize.getMaxAbsCoord()]
-        scaling = objectthumbwidth/(2*msize)
-        x0c = -b.getCenter()[0]*scaling
-        y0c = -b.getCenter()[1]*scaling
-        #display lines
-        if 2*abs(y0c) <= objectthumbwidth:
-            glColor4fv(linecolor)
-            glLineWidth(1)
-            glBegin(GL_LINE_STRIP)                
-            glVertex2f(-objectthumbwidth/2.,-y0c)
-            glVertex2f(objectthumbwidth/2.,-y0c)
-            glEnd()                
-        if 2*abs(x0c) <= objectthumbwidth:
-            glColor4fv(linecolor)
-            glLineWidth(1)
-            glBegin(GL_LINE_STRIP)
-            glVertex2f(x0c,-objectthumbwidth/2.)
-            glVertex2f(x0c,objectthumbwidth/2.)
-            glEnd()                
-        # resize and translate pgl object
-        glScalef(scaling,-scaling,1)
-        glTranslatef(*-b.getCenter())
-        pw = obj.width
-        obj.width = 1
-        glColor4f(*color)
-        glLineWidth(2)
-        # display curve with plantgl tools
-        obj.apply(manager.renderer)
-        obj.width = pw
 
 class TriggerParamFunc:
     def __init__(self,func,*value):
@@ -52,28 +18,30 @@ class Curve2DManager(AbstractPglObjectManager):
     """see the doc of the objectmanager abtsract class to undesrtand the implementation of the functions"""
     def __init__(self):
         AbstractPglObjectManager.__init__(self,"Curve2D")
-        self.focusCurveColor  = (1,1,0,1)
-        self.curveColor  = (0.8,0.8,0,1)
-        self.frameColor = (0.5,0.5,0.5,1.0)
-        
+        self.focusThumbColor  = (1,1,0,1)
+        self.thumbColor  = (0.8,0.8,0,1)
+
+    def render(self, obj):
+        import OpenGL.GL as ogl
+        pw = obj.width
+        obj.width = 1
+        ogl.glLineWidth(2)
+        obj.apply(self.renderer) 
+        obj.width = pw
+         
     def getTheme(self):
-        return { 'Curve2D' : [ int(self.curveColor[i] *255) for i in range(3)],
-                 'FocusCurve2D' : [ int(self.focusCurveColor[i] *255) for i in range(3)],
+        return { 'Curve2D' : [ int(self.thumbColor[i] *255) for i in range(3)],
+                 'FocusCurve2D' : [ int(self.focusThumbColor[i] *255) for i in range(3)],
                  'FrameColor' : [ int(self.frameColor[i] *255) for i in range(3)] } 
         
     def setTheme(self,theme):
         if 'FocusCurve2D' in theme:
-            self.focusCurveColor  =  [ theme['FocusCurve2D'][i] *255 for i in range(3)] + [1]
+            self.focusThumbColor  =  [ theme['FocusCurve2D'][i] *255 for i in range(3)] + [1]
         if 'Curve2D' in theme:
-            self.curveColor  = [ theme['Curve2D'][i] *255 for i in range(3)] + [1]
+            self.thumbColor  = [ theme['Curve2D'][i] *255 for i in range(3)] + [1]
         if 'FrameColor' in theme:
             self.frameColor = [ theme['FrameColor'][i] *255 for i in range(3)] + [1]
                  
-    def displayThumbnail(self, obj, i , focus, objectthumbwidth):
-        if focus : color = self.focusCurveColor
-        else : color = self.curveColor
-        displayLineAsThumbnail(self,obj, i , objectthumbwidth, color, self.frameColor)
-        
     def createDefaultObject(self,subtype = None):
         nbP = 4
         if subtype == 'Polyline': 
@@ -153,6 +121,12 @@ class Curve2DManager(AbstractPglObjectManager):
         else:
             obj.ctrlPointList = [(-i.x,i.y,i.z) for i in obj.ctrlPointList]
         widget.updateGL()
-        
+
+    def to_json(self, obj):
+        import openalea.plantgl.algo.jsonrep  as jr
+        res = jr.to_json_rep(obj)
+        res['is_function'] = False
+        return res
+
 def get_managers():
     return Curve2DManager()

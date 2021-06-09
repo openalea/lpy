@@ -152,6 +152,9 @@ public:
                      size_t nb_iter , 
                      bool previouslyinterpreted = false  );
 
+  AxialTree partial_derivation(AxialTree& workingstring,
+                                 size_t beg, 
+                                 size_t size);
 
   AxialTree decompose( const AxialTree& workstring  );
 
@@ -357,7 +360,7 @@ protected:
 
  AxialTree __homomorphism(AxialTree& workstring);
  void __plot(AxialTree& workstring, bool checkLastComputedScene =  false);
- void __turtle_interpretation(AxialTree& workstring, PGL::Turtle& t);
+ void __turtle_interpretation(AxialTree& workstring, PGL::Turtle& t, boost::python::object pyturtle = boost::python::object());
  AxialTree __derive( size_t starting_iter , 
                       size_t nb_iter , 
                       const AxialTree& workstring, 
@@ -389,11 +392,13 @@ protected:
  void __recursiveInterpretation(AxialTree& workingstring,
 				                const RulePtrMap& ruleset,
                                 PGL::Turtle& turtle,
+                                boost::python::object& pyturtle,
                                 size_t maxdepth);
 
  void __recursiveStepInterpretation(AxialTree& workingstring,
 				                const RulePtrMap& ruleset,
                                 PGL::PglTurtle& turtle,
+                                boost::python::object& pyturtle,
                                 size_t maxdepth);
 
  template<class Interpreter>

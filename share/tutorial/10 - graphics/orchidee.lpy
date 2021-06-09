@@ -74,25 +74,25 @@ Flower(d) -->  ^(-90)f(d/2.)^(90) /(110) Peduncle(d) +(60)  Sepals /(90) F(0.5) 
 
 Peduncle(d):
   nproduce SetGuide(peduncleStem,peduncleLength) F(0.1,0.1)
-  for i in xrange(peduncleLength):
+  for i in range(peduncleLength):
         nproduce F(1,d)
   produce /(90)
   
 ClosedSepals :
     nproduce [ ,(5) /(phyllo)
-    for i in xrange(3):
+    for i in range(3):
         nproduce /(120) [&(25) MyGC (sepalaxis,sepalsection, sepalwidth, 10, 10, 100) ]
     produce ]
     
 Sepals :
     nproduce [ ,(5) /(phyllo)
-    for i in xrange(3):
+    for i in range(3):
         nproduce /(120) [&(60) MyGC (sepalaxis,sepalsection, sepalwidth, 10, 10, 100) ]
     produce ]
 
 Petals:    
     nproduce [ ,(2)  /(0) 
-    for i in xrange(2):
+    for i in range(2):
         nproduce /(120)  [&(80) MyGC (petalaxis,petalsection, petalwidth, 4, 10, 100) ]
     produce ]
 
@@ -103,10 +103,10 @@ LowerC -->[ ,(9) TextureScale(1,0.12) TextureRotation(180) MyGC(lowerCAxis,lower
 
 
 MyGC(axis,section,width,length,widthfactor,discretization):
-   # print 'myGC'
+   # print ('myGC')
    nproduce  [ SetGuide(axis,length) SetContour(section) _(width(0)) StartGC()
    step = 1/float(discretization)
-   for j in xrange(discretization):
+   for j in range(discretization):
        nproduce F(step*length,widthfactor*width((j+1)*step))
    nproduce ]
 
@@ -116,7 +116,7 @@ OnGC(axis,section,width,length,widthfactor,discretization):
    d = Discretizer()
    section.apply(d)
    dsection = d.result
-   for j in xrange(discretization):
+   for j in range(discretization):
        t = (j+1)*step
        nproduce f(step*length)
        if 0.9 <= t <= 1.0 or 0.2 <= t <= 0.4:
@@ -157,14 +157,12 @@ def __initialiseContext__(context):
 	Color_8 = pgl.Material("Color_8" , ambient = (139,139,139) , diffuse = 1.38849 , )
 	Color_8.name = "Color_8"
 	context.turtle.setMaterial(8,Color_8)
-	PGL_140420067759184 = pgl.ImageTexture("PGL_140420067759184" , "leaftexture3.png" , )
-	PGL_140420067759184.name = "PGL_140420067759184"
-	Color_9 = pgl.Texture2D(image = PGL_140420067759184 , )
+	PGL_140379562270944 = pgl.ImageTexture("PGL_140379562270944" , "leaftexture3.png" , )
+	Color_9 = pgl.Texture2D(image = PGL_140379562270944 , )
 	Color_9.name = "Color_9"
 	context.turtle.setMaterial(9,Color_9)
-	PGL_140420067759280 = pgl.ImageTexture("PGL_140420067759280" , "leaf1.jpg" , )
-	PGL_140420067759280.name = "PGL_140420067759280"
-	Color_10 = pgl.Texture2D(image = PGL_140420067759280 , )
+	PGL_140379453062080 = pgl.ImageTexture("PGL_140379453062080" , "leaf1.jpg" , )
+	Color_10 = pgl.Texture2D(image = PGL_140379453062080 , )
 	Color_10.name = "Color_10"
 	context.turtle.setMaterial(10,Color_10)
 	scalars = [('NFlowers', 'Integer', 8, 1, 20), ('NFlowerClosed', 'Integer', 2, 0, 20), ('peduncleLength', 'Integer', 8, 1, 100), ('hairy', 'Bool', True)]
@@ -221,7 +219,7 @@ def __initialiseContext__(context):
 	    ctrlPointList = pgl.Point3Array([(0, 1.00216, 1),(0.608086, 0.766856, 1),(0.836851, 0.489074, 1),(1, 0.351994, 1)]) , 
 	    )
 	diamFunc.name = "diamFunc"
-	panel_0 = ({'active': True, 'visible': True, 'name': 'Panel 1'},[('Curve2D',sepalaxis),('Curve2D',sepalsection),('Function',sepalwidth),('Curve2D',petalaxis),('Curve2D',petalsection),('Function',petalwidth),('Curve2D',peduncleStem),('Curve2D',stem),('Curve2D',leafSection),('Function',leafWidth),('Curve2D',leafAxis),('Function',diamFunc)])
+	panel_0 = ({'name': 'Panel 1', 'active': True, 'visible': True},[('Curve2D',sepalaxis),('Curve2D',sepalsection),('Function',sepalwidth),('Curve2D',petalaxis),('Curve2D',petalsection),('Function',petalwidth),('Curve2D',peduncleStem),('Curve2D',stem),('Curve2D',leafSection),('Function',leafWidth),('Curve2D',leafAxis),('Function',diamFunc)])
 	upperCAxis = pgl.NurbsCurve2D(	
 	    ctrlPointList = pgl.Point3Array([(-0.5, 0, 1),(-0.277339, 0.110672, 1),(0.0217391, 0.112648, 1),(0.127141, 0.0474308, 1),(0.306324, 0.124506, 1),(0.5, 0, 1),(0.472332, -0.0612648, 1),(0.488142, -0.124506, 1),(0.547431, -0.100791, 1),(0.650198, -0.175889, 1),(0.650198, -0.250988, 1)]) , 
 	    )
@@ -246,7 +244,7 @@ def __initialiseContext__(context):
 	    ctrlPointList = pgl.Point3Array([(0, 0.299702, 1),(0.169198, 0.311377, 1),(0.212547, 0.612565, 1),(0.375597, 0.664768, 1),(0.422486, 0.284138, 1),(0.556811, 0.287901, 1),(0.561204, 0.627223, 1),(0.916115, 0.649919, 1),(0.951128, 0.401654, 1),(1, 0.0392458, 1)]) , 
 	    )
 	lowerCWidth.name = "lowerCWidth"
-	panel_1 = ({'active': True, 'visible': True, 'name': 'InternalLeafPanel'},[('Curve2D',upperCAxis),('Curve2D',upperCSection),('Function',upperCWidth),('Curve2D',lowerCAxis),('Curve2D',lowerCSection),('Function',lowerCWidth)])
+	panel_1 = ({'name': 'InternalLeafPanel', 'active': True, 'visible': True},[('Curve2D',upperCAxis),('Curve2D',upperCSection),('Function',upperCWidth),('Curve2D',lowerCAxis),('Curve2D',lowerCSection),('Function',lowerCWidth)])
 	parameterset = [panel_0,panel_1,]
 	context["__functions__"] = [('sepalwidth',sepalwidth),('petalwidth',petalwidth),('leafWidth',leafWidth),('diamFunc',diamFunc),('upperCWidth',upperCWidth),('lowerCWidth',lowerCWidth),]
 	context["__curves__"] = [('sepalaxis',sepalaxis),('sepalsection',sepalsection),('petalaxis',petalaxis),('petalsection',petalsection),('peduncleStem',peduncleStem),('stem',stem),('leafSection',leafSection),('leafAxis',leafAxis),('upperCAxis',upperCAxis),('upperCSection',upperCSection),('lowerCAxis',lowerCAxis),('lowerCSection',lowerCSection),]

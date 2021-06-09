@@ -1,7 +1,8 @@
 L-Py Turtle basic primitives
 ############################
 
-There is the list of the primitives explained in this page :
+The L-string can be parsed and its modules can be interpreted as commands for a 3D turtle.
+A number of basic primitives that are understood by the turtle are explained in this page :
 
 .. csv-table:: Table of primitives
 
@@ -19,7 +20,7 @@ Constructing basic shapes with the Turtle
 Simple Turtle instructions
 ==========================
 
-The Turtle is a geometric tool defined by a reference frame (usually not visible) that can be moved using geometric instructions.
+The Turtle is a geometric tool defined by a reference frame that can be moved and oriented in space using a number of instructions. As an illustration the following examples shows how the ``F`` primitive can be used to draw cylinders and ``+`` to rotate counterclockwise.
 
 .. code-block:: python
 
@@ -36,8 +37,6 @@ The Turtle is a geometric tool defined by a reference frame (usually not visible
 |    :scale: 40%                     |    :scale: 40%                    |
 +------------------------------------+-----------------------------------+
 
-In this way, different types of shapes can be constructed :
-
 .. code-block:: python
 
     Axiom: F+F-F 			#(Fig. A)
@@ -53,9 +52,10 @@ In this way, different types of shapes can be constructed :
 
 .. _F:
 
-To resume, the **F** primitive moves the Turtle and draws a cylinder of one unit.
+The **F** primitive moves the Turtle and draws a cylinder of one unit.
 
-To move the Turtle without drawing something, **f** should be used. The argument defines the number of steps the Turtle will move.
+To move the Turtle without drawing something, **f** should be used.
+
 
 .. code-block:: python
 
@@ -68,45 +68,20 @@ To move the Turtle without drawing something, **f** should be used. The argument
 |   :scale: 60%               |     :scale: 60%               |
 +-----------------------------+-------------------------------+
 
-Other basic geometric primitives make it possible to draw other predifined shapes :
 
-.. _O:
-
-.. _B:
-
-.. code-block:: python
-
-	Axiom: @O(1) 	# Draws a sphere at the Turtle's position.
-	# It can take one argument which is the radius of the sphere.
-
-	Axiom: @o(1)	# Draws a circle at the Turtle's position.
-	# It can take one argument which is the radius of the circle.
-
-	Axiom: @B(1)	# Draws a box at the Turtle's position.
-	# It can take two arguments which are the length of the edges and the topradius.
-
-	Axiom: @b(1)	# Draws a quad at the Turtle's position.
-	# It can take two arguments which are the length of the edges and the topradius.
-
-+----------------------------------+----------------------------------+
-| .. image:: ../_images/sphere.png | .. image:: ../_images/circle.png |
-+----------------------------------+----------------------------------+
-|.. image:: ../_images/box.png     | .. image:: ../_images/quad.png   |
-+----------------------------------+----------------------------------+
-
-**F** can take one or two arguments (of type float). If only one argument is given, it defines the length of the cylinder drawn (default value = 1). The diameter is by set by default to 0.1.
+**F** can take arguments (of type float). The first argument defines the length of the cylinder (default value = 1). By default, the radius of the cylinder is by set to 0.1.
 
 .. code-block:: python
 
     Axiom: F(3)			#(Fig. A)
 
-If a second argument is given, it redefines the topradius of the cylinder (but the bottom radius is defined by the value of radius in the current Turtle state)
+Second argument defines the radius at the top of the cylinder (the bottom radius being defined by the current width value of the Turtle state)
 
 .. code-block:: python
 
     Axiom: F(3, 2.5) 		#(Fig. B)
 
-To change the value of the Turtle's radius before applying the F command, one can use the **_** command:
+To change the value of the Turtle's width before applying the F command,  the **_** primitive can be used:
 
 .. code-block:: python
 
@@ -117,15 +92,43 @@ To change the value of the Turtle's radius before applying the F command, one ca
 |    :scale: 40%               |    :scale: 40%                 |    :scale: 40%               |
 +------------------------------+--------------------------------+------------------------------+
 
-Text can be displayed using the **@L** primitive but it doesn't appear on screenshots
+Similarly, the **+** symbol specifies a rotation whose angle is given by its first parameter.
+
+Other basic geometric primitives make it possible to draw other predifined shapes :
+
+.. _O:
+
+.. _B:
+
+.. code-block:: python
+
+    Axiom: @O(1)    # Draws a sphere at the Turtle's position.
+    # It can take one argument which is the radius of the sphere.
+
+    Axiom: @o(1)    # Draws a circle at the Turtle's position.
+    # It can take one argument which is the radius of the circle.
+
+    Axiom: @B(1)    # Draws a box at the Turtle's position.
+    # It can take two arguments which are the length of the edges and the topradius.
+
+    Axiom: @b(1)    # Draws a quad at the Turtle's position.
+    # It can take two arguments which are the length of the edges and the topradius.
+
++----------------------------------+----------------------------------+
+| .. image:: ../_images/sphere.png | .. image:: ../_images/circle.png |
++----------------------------------+----------------------------------+
+|.. image:: ../_images/box.png     | .. image:: ../_images/quad.png   |
++----------------------------------+----------------------------------+
+
+Text can be displayed using the **@L** primitive.
 
 .. code-block:: python
 
 	Axiom: @L("Some text", 18)	# Draws a text Label at the Turtle's position.
 	# It can take two arguments which are the text to display and it's size.
 
-Some useful tools
-=================
+Controling width and color of primitives
+===================================================
 
 *Changing the width*
 --------------------
@@ -136,7 +139,7 @@ The width of the shapes can be increased (resp. decreased) using **_** (resp. **
 
 .. code-block:: python
 
-	Axiom: F_ _ _F!F!F 	#At the beginning, the cylinder has a width of 0.1 (default) then 3.1, then 2.1 and finally 1.1 (Fig. A)
+	Axiom: F_ _ _F!F!F 	# At the beginning, the cylinder has a width of 0.1 (default) then 3.1, then 2.1 and finally 1.1 (Fig. A)
 
 +---------------------------------+----------------------------------+
 | .. image:: ../_images/width.png | .. image:: ../_images/width2.png |
@@ -147,7 +150,7 @@ Alternatively, the width can be set using **setWidth** or by giving argument to 
 
 .. code-block:: python
 
-	Axiom: F_(2)F!(3)F!(1)F 	#(Fig. B)
+	Axiom: F_(2)F!(3)F!(1)F 	# (Fig. B)
 
 Download the example : :download:`width.lpy <../_downloads/width.lpy>`
 
@@ -179,8 +182,7 @@ A argument can be set to specify the index of the material to use.
 
 .. _setColor:
 
-The second manner to set color to an object is to use **SetColor**. There is two way to use it.
-The first way is to specify the index of the material (Fig. A) and the second way is to set the **rgb** (or rgba) values in arguments (Fig. B).
+The **SetColor** primitive allow you to specify the appearance of the next primitive drawn by the turtle using either an index in the **Color Map** or directly using **red, green, blue** (or rgba) values as arguments (Fig. B). It is also possible to pass directly a plantgl **Material** object to specify a more complex appearance.
 
 .. code-block:: python
 
@@ -193,10 +195,11 @@ The first way is to specify the index of the material (Fig. A) and the second wa
 |    :scale: 50%                      |    :scale: 50%                      |
 +-------------------------------------+-------------------------------------+
 
-Primitive combinations
-======================
+Drawing more complex shapes
+=================================
 
-All these primitives can be combined together (**~l** draws a leaf). There are two examples :
+Specific shapes can be drawn using **~**. A predefined leaf shape is availabled using **~l**.
+
 
 .. code-block:: python
 
@@ -210,9 +213,6 @@ Download the example : :download:`combined.lpy <../_downloads/combined.lpy>`
 | .. image:: ../_images/combined.png | .. image:: ../_images/combined2.png |
 |    :scale: 40%                     |    :scale: 40%                      |
 +------------------------------------+-------------------------------------+
-
-Drawing more complex shapes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In order to draw complex shapes, some basic knowledge about the Turtle is required.
 
@@ -277,7 +277,7 @@ Rescaling the Turtle
 
 .. _Rescaling:
 
-Three primitives can be used to rescale the Turtle : **SetScale**, **DivScale** and **MultScale** (shorter symbols are **@D**, **@Di** and **@D** respectively)
+Three primitives can be used to rescale the Turtle : **SetScale**, **DivScale** and **MultScale** (shorter symbols are **@D**, **@Dd** and **@Di** respectively)
 **SetScale** sets the scale to the value in argument. **DivScale** (resp. **MultScale**) divides (resp. multiplies) the current scale by the value given in argument.
 The first image is the initial shape (Fig. A) and the second one is the same shape where the branches are rescaled (Fig. B).
 
@@ -390,7 +390,7 @@ Branching system
 
 .. _branching:
 
-Bracket makes it possible to specify branches. Before each opening bracket, the Turtle current arguments (position, orientation...) are stored on the Turtle stack. These arguments are then popped back when a closing bracket is found and the drawing restarts from the popped values.
+Brackets makes it possible to specify branches. Before each opening bracket, the Turtle's current arguments (position, orientation...) are stored on the Turtle stack. These arguments are then popped back when a closing bracket is found and the drawing restarts from the popped values.
 
 .. code-block:: python
 
@@ -453,7 +453,7 @@ There are some primitives which can be used to change the Turtle's position.
 
 .. _MoveTo:
 
-**@M** (or **MoveTo**) moves the Turtle's to the given in arguments. It can be three floats or a vector.
+**@M** (or **MoveTo**) moves the Turtle to the position given in by its arguments. It can be three floats or a vector.
 
 .. code-block:: python
 
@@ -488,14 +488,14 @@ Download the example : :download:`movement.lpy <../_downloads/movement.lpy>`
 Orient the Turtle
 =================
 
-The Turtle's orientation can be setted using some primitives.
+The Turtle's orientation can be set using some primitives.
 
 *Pinpoint and PinpointRel*
 --------------------------
 
 .. _Pinpoint:
 
-**Pinpoint** orients the Turtle toward x,y and z given in arguments. It means that the H axis (the red arrow) will point to the coordinates given. One can use also a vector.
+**Pinpoint** orients the Turtle towards x,y and z given in arguments. It means that the H axis (the red arrow) will point to the coordinates given. One can use also a vector.
 
 .. code-block:: python
 
@@ -534,7 +534,7 @@ Such as **MoveRel** for position, **PinpointRel** orients the Turtle relatively 
 
 .. _setHead:
 
-The H and U axis can be set directly using **@R** (or **setHead**). The arguments needed are 6 floats (which represent the coordinates of the two axis) or two vectors.
+The H and U axis can be set directly using **@R** (or **setHead**). The arguments needed are 6 floats (which represent the coordinates of the two axes) or two vectors.
 
 .. code-block:: python
 
@@ -577,7 +577,7 @@ Finally, the Turtle’s orientation can at any moment be set using Euler angles 
 
 	#A succession of 3 rotations : First 30° arround Z axis (Fig. D), then 90° arround the new Y axis (Fig. E)
 	#and finally 60° arround the new X axis. (Fig. F)
-	Axiom: Frame(2) EulerAngles(30,90,60) Frame(2)  
+	Axiom: Frame(2) EulerAngles(30,90,60) Frame(2)
 
 +-----------------------------------+----------------------------------+----------------------------------+
 | .. image:: ../_images/euler4.png  | .. image:: ../_images/euler5.png | .. image:: ../_images/euler6.png |
@@ -740,8 +740,8 @@ To stop using the 2D curve as a guide, **EndGuide** can be used.
 
 .. _generalisedCylinders:
 
-When several rotations are used while drawing, the render at rotation places isn't great. The separation points are really visible. To fix it, **@Gc** (or **StartGC**) can be used.
-Until a **@Ge** (or **"EndGC**") all shapes drawn will be merged that so it becomes only one shape.
+When several rotations are used while drawing, the rendering at rotation places isn't great. The separation points are really visible. To fix it, **@Gc** (or **StartGC**) can be used.
+Until a **@Ge** (or **"EndGC**") all shapes drawn will be merged so that it becomes only one shape.
 
 .. code-block:: python
 

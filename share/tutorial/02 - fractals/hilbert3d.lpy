@@ -1,0 +1,15 @@
+Axiom: A
+context().turtle.setAngleIncrement(90)
+
+derivation length: 2
+production:
+
+A --> B-F+CFC+F-D&F^D-F+&&CFC+F+B//
+B --> A&F^CFB^F^D^^-F-D^|F^B|FC^FA//
+C --> |D^|F^B-F+C^F^A&&FA&F^C+F+B^F^D//
+D --> |CFB-F+B|FA&FA&&FB-F+B|FC//
+
+interpretation:
+
+
+endlsystem

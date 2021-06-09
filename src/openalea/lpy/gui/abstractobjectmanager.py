@@ -15,6 +15,9 @@ class AbstractObjectManager(QObject):
     def getName(self,obj):
         return obj.name
 
+    def getObjectForLsysContext(self,obj):
+        return obj
+
     def displayThumbnail(self,obj,id,mode,objectthumbwidth):
         """ display of an object in the Lpy main window Panel, 
             :param obj: the object to display
@@ -86,6 +89,10 @@ class AbstractObjectManager(QObject):
         """ get the color theme acccording to the theme dict """
         pass
     
+    def to_json(self, obj):
+        raise NotImplementedError('jsonObject')
+
+
 from openalea.plantgl.all import Discretizer, GLRenderer, BBoxComputer, BoundingBox, PyStrPrinter
 
 class AbstractPglObjectManager(AbstractObjectManager):
@@ -94,6 +101,11 @@ class AbstractPglObjectManager(AbstractObjectManager):
         self.discretizer = Discretizer()
         self.renderer = GLRenderer(self.discretizer)
         self.renderer.renderingMode = GLRenderer.Dynamic
+        self.frameColor = (0.5,0.5,0.5,1.0)
+        self.focusThumbColor  = (1,1,0,1)
+        self.thumbColor  = (0.8,0.8,0,1)
+        self.viewAxis = [0,1]
+
      
     def getBoundingBox(self,obj):
         return BoundingBox(obj)
@@ -109,3 +121,62 @@ class AbstractPglObjectManager(AbstractObjectManager):
         obj.apply(printer)
         return printer.str()
         
+    def to_json(self, obj):
+        import openalea.plantgl.algo.jsonrep  as jr
+        return jr.to_json_rep(obj)
+
+    def displayThumbnail(self,obj,id,focus,objectthumbwidth):
+        import OpenGL.GL as ogl
+        self.discretizer.clear()
+        b = self.getBoundingBox(obj)
+        lsize = b.getSize()
+        msize = lsize[lsize.getMaxAbsCoord()]
+        scaling = objectthumbwidth/(2*msize)
+        x0c = -b.getCenter()[self.viewAxis[0]]*scaling
+        y0c = -b.getCenter()[self.viewAxis[1]]*scaling
+        if 2*abs(y0c) <= objectthumbwidth:
+            ogl.glColor4f(*self.frameColor)
+            ogl.glLineWidth(1)
+            ogl.glBegin(ogl.GL_LINE_STRIP)                
+            ogl.glVertex2f(-objectthumbwidth/2.,-y0c)
+            ogl.glVertex2f(objectthumbwidth/2.,-y0c)
+            ogl.glEnd()                
+        if 2*abs(x0c) <= objectthumbwidth:
+            ogl.glColor4f(*self.frameColor)
+            ogl.glLineWidth(1)
+            ogl.glBegin(ogl.GL_LINE_STRIP)
+            ogl.glVertex2f(x0c,-objectthumbwidth/2.)
+            ogl.glVertex2f(x0c,objectthumbwidth/2.)
+            ogl.glEnd()
+        if self.viewAxis[1] == 2:
+            ogl.glRotatef(90,1,0,0)
+            ogl.glRotatef(-90,0,0,1)
+            ogl.glScalef(scaling,scaling,scaling)
+        else:
+            ogl.glScalef(scaling,-scaling,scaling)
+        ogl.glTranslatef(*-b.getCenter())
+        if focus:
+            ogl.glColor4f(*self.focusThumbColor)
+        else:
+            ogl.glColor4f(*self.thumbColor)
+        ogl.glPushAttrib(ogl.GL_POLYGON_BIT)
+        ogl.glPolygonMode(ogl.GL_FRONT_AND_BACK,ogl.GL_LINE)
+        ogl.glLineWidth(1)
+        self.render(obj)
+        ogl.glPopAttrib()
+
+    def render(self, obj):
+        obj.apply(self.renderer) 
+
+
+def curveJsonRepresentation(obj):
+    result = dict(name=obj.name, type=obj.__class__.__name__)
+    if hasattr(obj,'pointList'):
+        result['points'] = list(map(list,obj.pointList))
+    else:
+        result['points'] = list(map(list,obj.ctrlPointList))
+    
+    if hasattr(obj,'degree') and not obj.isDegreeToDefault():
+        result['degree'] = obj.degree
+
+    return result

@@ -1,71 +1,44 @@
 from openalea.plantgl.all import NurbsPatch
 from openalea.lpy.gui.abstractobjectmanager import *
 try:
-    from openalea.plantgl.gui.nurbspatcheditor import NurbsPatchEditor
+    from openalea.plantgl.gui.nurbspatcheditor import NurbsObjectEditor
     from PyQGLViewer import Vec
 except ImportError as e:
-    NurbsPatchEditor = None
-from OpenGL.GL import *
+    NurbsObjectEditor = None
 from math import pi
+from openalea.plantgl.gui.qt import QtGui, QtWidgets
 
 class NurbsPatchManager(AbstractPglObjectManager):
     """see the doc of the objectmanager abtsract class to undesrtand the implementation of the functions"""
     def __init__(self):
         AbstractPglObjectManager.__init__(self,"NurbsPatch")
-
-    def displayThumbnail(self,obj,id,focus,objectthumbwidth):
-        b = self.getBoundingBox(obj)
-        lsize = b.getSize()
-        msize = lsize[lsize.getMaxAbsCoord()]
-        scaling = objectthumbwidth/(2*msize)
-        x0c = -b.getCenter()[0]*scaling
-        z0c = -b.getCenter()[2]*scaling
-        glPolygonMode(GL_FRONT_AND_BACK,GL_LINE)
-        if 2*abs(z0c) <= objectthumbwidth:
-            glColor4f(0.5,0.5,0.5,0)
-            glLineWidth(1)
-            glBegin(GL_LINE_STRIP)                
-            glVertex2f(-objectthumbwidth/2.,-z0c)
-            glVertex2f(objectthumbwidth/2.,-z0c)
-            glEnd()                
-        if 2*abs(x0c) <= objectthumbwidth:
-            glColor4f(0.5,0.5,0.5,0)
-            glLineWidth(1)
-            glBegin(GL_LINE_STRIP)
-            glVertex2f(x0c,-objectthumbwidth/2.)
-            glVertex2f(x0c,objectthumbwidth/2.)
-            glEnd()                
-        glRotatef(90,1,0,0)
-        glRotatef(-90,0,0,1)
-        glScalef(scaling,scaling,scaling)
-        glTranslatef(*-b.getCenter())
-        if focus:
-            glColor4f(0.0,0.5,1.0,1.0)
-        else:
-            glColor4f(0.0,0.4,0.8,1.0)
-        glLineWidth(1)
-        obj.apply(self.renderer)
+        self.focusThumbColor  = (0.0,0.5,1.0,1.0)
+        self.thumbColor  = (0.0,0.4,0.8,1.0)
+        self.viewAxis = [0,2]
 
     def createDefaultObject(self,subtype=None):
-        return NurbsPatch([[(0,-0.5+j/3.,i/3.,1) for j in range(4)] for i in range(4)])
+        du = 1/3.
+        dv = 1/3.
+        return NurbsPatch([[(0,i*du-0.5,j*dv-0.5,1) for j in range(4)] for i in range(4)], 
+                            ustride=10,vstride=10)
 
     def getEditor(self,parent):
-        if not NurbsPatchEditor: return None
-        editor = NurbsPatchEditor(parent)
-        editor.camera().setPosition(Vec(1,0,0.5))
-        editor.camera().setUpVector(Vec(0,0,1))
-        editor.camera().setViewDirection(Vec(-1,0,0))
-        editor.camera().fitSphere(Vec(0,0,0.5),0.8)
+        if not NurbsObjectEditor: return None
+        editor = NurbsObjectEditor(parent)
+        editor.view.camera().setPosition(Vec(1,0,0.5))
+        editor.view.camera().setUpVector(Vec(0,0,1))
+        editor.view.camera().setViewDirection(Vec(-1,0,0))
+        editor.view.camera().fitSphere(Vec(0,0,0.5),0.8)
         return editor
 
     def setObjectToEditor(self,editor,obj):
         """ ask for edition of obj with editor """
         from copy import deepcopy        
-        editor.setNurbsPatch(deepcopy(obj))
+        editor.setNurbsObject(deepcopy(obj))
 
     def retrieveObjectFromEditor(self,editor):
         """ ask for current value of object being edited """
-        return editor.getNurbsPatch()
+        return editor.getNurbsObject()
 
     def canImportData(self,fname):
         from os.path import splitext
@@ -77,7 +50,17 @@ class NurbsPatchManager(AbstractPglObjectManager):
         
     def managePrimitive(self):
         return True
-        
+
+    def fillEditorMenu(self,menubar,editor):
+        """ Function call to fill the menu of the editor """
+        menu = QtWidgets.QMenu('Init',menubar)
+        menu.addAction('3x3',lambda : editor.createDefaultObject(3,3))
+        menu.addAction('4x4',lambda : editor.createDefaultObject(4,4))
+        menu.addAction('5x5',lambda : editor.createDefaultObject(5,5))
+        menu.addAction('Custom',lambda : editor.createCurstomDefaultObject())
+        menu.addSeparator()
+        menu.addAction('rescale',lambda : editor.rescaleObject())
+        menubar.addMenu(menu)          
 
 def get_managers():
     return NurbsPatchManager()

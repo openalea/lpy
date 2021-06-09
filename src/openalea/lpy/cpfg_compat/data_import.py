@@ -96,7 +96,7 @@ def import_patch(fn):
     up = vec3inline(next(f),2,4,6)
     up.normalize()
     # SIZE: x
-    size = float(f.next().split()[1])
+    size = float(next(f).split()[1])
     patchlist = []
     while True :
         try :
@@ -127,7 +127,7 @@ def import_patch(fn):
         #m = Matrix3(-left, -heading, up)
         m = m.inverse()
         for i in range(4):
-            v = f.next().split()
+            v = next(f).split()
             row = []
             for j in range(4):
                 p = Vector3(float(v[j*3]),float(v[j*3+1]),float(v[j*3+2]))
@@ -145,8 +145,11 @@ def import_patch(fn):
 def import_colormap(fn):
     import array
     a = array.array('B')
-    a.fromfile(open(fn,'rb'),256*3)
-    return [Material('Color_'+str(i),Color3(a[3*i],a[3*i+1],a[3*i+2]),diffuse=0) for i in range(256)]
+    try:
+        a.fromfile(open(fn,'rb'),256*3)
+    except EOFError as eoferror:
+        assert len(a) / 3 == len(a) // 3
+    return [Material('Color_'+str(i),Color3(a[3*i],a[3*i+1],a[3*i+2]),diffuse=0) for i in range(len(a) // 3)]
 
 def import_materialmap(fn):
     import array
@@ -170,7 +173,7 @@ def import_materialmap(fn):
         sambient = sum(ambient)
         if sdiffuse > 0 and sambient > 0:
             ambient_ratio = sambient/float(sdiffuse)
-            m = Material('Color_'+str(id),Color3(*(int(i * ambient_ratio) for i in diffuse)),1./ambient_ratio,specular,emission,shininess,transparency)
+            m = Material('Color_'+str(id),Color3(*(min(255,int(i * ambient_ratio)) for i in diffuse)),1./ambient_ratio,specular,emission,shininess,transparency)
         else:
             m = Material('Color_'+str(id),Color3(*ambient),0,specular,emission,shininess,transparency)
             

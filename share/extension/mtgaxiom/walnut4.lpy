@@ -1,10 +1,11 @@
 from openalea.plantgl.all import norm,Vector3, dot, angle, direction
+from importlib import reload
 
 import mtgimport as mi
 reload(mi)
 
-import mtgcompare as mc
-reload(mc)
+#import mtgcompare as mc
+#reload(mc)
 
 from openalea.mtg.io import axialtree2mtg
 
@@ -74,7 +75,7 @@ def StartEach():
       groupChanged = {1 : 1, 2 :2, 3 : 3}
       try:      
         useGroup(groupChanged[getIterationNb()])
-        print getIterationNb(),groupChanged[getIterationNb()]
+        print (getIterationNb(),groupChanged[getIterationNb()])
       except:
         pass
     #print getIterationNb()
@@ -87,7 +88,7 @@ def EndEach(lstring):
       compare(lstring)
     else:
       mtg = export_to_mtg(lstring)
-      print len(initialmtg),len(mtg)
+      print (len(initialmtg),len(mtg))
 
 comparison_fname = 'comparison.pkl'
 comparisoni_fname = 'comparisoncache/ncomparison%i.pkl'%RAMIF
@@ -107,25 +108,25 @@ def check_dump(fname = comparisoni_fname):
    return os.path.exists(fname)
 
 def compare(lstring):
-  print 'compare'
+  print ('compare')
   mtg = export_to_mtg(lstring)
-  print 'MTG:',len(initialmtg),len(mtg)
+  print ('MTG:',len(initialmtg),len(mtg))
   if check_dump() and not FORCE_COMPARE:
     val,map = load()
   else:
     val,map = compute_comparison(mtg,lstring)
     dump((val,map))
-  print 'Comparison : ',val,len(mtg)-len(map)
+  print ('Comparison : ',val,len(mtg)-len(map))
   if PROP_VIEW:
     set_matching_proportion_tag(lstring,mtg,map)
   else:
     set_matching_tag(lstring,map)
-  print 'done'
+  print ('done')
 
 def compute_comparison(resultingmtg,lstring):
   MainBranchRoots = getmainbranches(lstring)
   idmap = resultingmtg.property('_axial_id')
-  idmap1 = dict([(j,i) for i,j in idmap.iteritems()])
+  idmap1 = dict([(j,i) for i,j in idmap.items()])
   MainBranchRoots = [idmap1[i] for i in MainBranchRoots]
   InitialMainBranchRoots = getinitialmainbranches(initialmtg)
   
@@ -155,9 +156,9 @@ def set_matching_proportion_tag(lstring,mtg,map):
   mtgrootids = [idmap[i] for i in MainBranchRoots]
   propmap = mc.getproportion(mtg,mtgrootids,initialmtg,InitialMainBranchRoots,map2)
   propmap = dict([(mtg.property('_axial_id')[i],j) for i,j in propmap.iteritems()])
-  print propmap
+  print (propmap)
   result = propmap
-  print 'Tot prop:',mean(propmap.values())
+  print ('Tot prop:',mean(propmap.values()))
   for r in MainBranchRoots:
     p = propmap[r]
     mp = MatchingProp(p)
@@ -255,11 +256,11 @@ Init :
     myaxiom = myaxiom[nroot:es]
     for m in myaxiom:
       if len(m) > 1 and type(m[0]) == Vector3: m[0] -= ppos
-    print len(myaxiom),
+    print (len(myaxiom))
     subcut = 130
     es = myaxiom.endBracket(subcut)
     del myaxiom[subcut:es+1]
-    print len(myaxiom)
+    print (len(myaxiom))
     
   assert myaxiom.wellBracketed()
   nsproduce(myaxiom)
@@ -315,15 +316,15 @@ Bud(vinfo,uinfo) :
   nproduce @Ge   _(d/2) PinpointRel(ndir[0],ndir[1],ndir[2])
   bdiam = d
   prob = RAMIF/100.
-  for i in xrange(nbdsons):
+  for i in range(nbdsons):
     lgth = uniform(l*0.8,l*1.2)
     tpdiam = d+i*(tdiam-d)/(nbdsons-1)
     nproduce  W(ndir, lgth,tpdiam,bdiam)
     bdiam = tpdiam
     if random() < prob:
-       nb = round(avglatnb*.9)
+       nb = int(round(avglatnb*.9))
        nproduce  [ /(137.5*i) +(60) 
-       for i in xrange(nb):
+       for i in range(nb):
          nproduce Z(ndir, uniform(avglatl/(2*nb), 3*avglatl/(2*nb)) ,tdiam/2,bdiam/2)
        nproduce ]
   ndir,l,d,tdiam,nbdsons,avglatsons = uinfo
@@ -331,7 +332,7 @@ Bud(vinfo,uinfo) :
   l = l / nbdsons
   bdiam = tpdiam
   nproduce @Ge @Gc   PinpointRel(ndir[0],ndir[1],ndir[2])
-  for i in xrange(nbdsons*.9):
+  for i in range(int(nbdsons*.9)):
     lgth = uniform(l*0.8,l*1.2)
     tpdiam = d+i*(tdiam-d)/(nbdsons-1)
     nproduce  Z(ndir, lgth,tpdiam,bdiam)
@@ -339,7 +340,7 @@ Bud(vinfo,uinfo) :
     if random() < avglats:
        nb = round(avglatnb)
        nproduce  [ /(137.5*i) +(60) 
-       for i in xrange(nb):
+       for i in range(nb):
          nproduce Z(ndir, uniform(avglatl/(2*nb), 3*avglatl/(2*nb)) ,tdiam/2,bdiam/2)
        nproduce ]
 
@@ -428,7 +429,7 @@ LeafSet(l,topdiameter,basediameter,tropism) :
     nbsegment,lastseg = divmod(l,dseg)
     if WITHLEAF:
       nproduce [ @Ge SectionResolution(4) _(0.1)
-      for i in xrange(int(nbsegment)):
+      for i in range(int(nbsegment)):
         nproduce f(dseg)/(137)[&(60) 
         nproduce F(2)[+(60) ^(10) ~l(5)][-(60) ^(10) ~l(5)]
         nproduce F(5)[+(60)~l(5)][-(60)~l(5)]
@@ -439,7 +440,7 @@ LeafSet(l,topdiameter,basediameter,tropism) :
     if tropism:
           basediam = basediameter/2
           ddiam = (topdiameter - basediameter) / (2 * l)
-          for i in xrange(int(nbsegment)): nproduce F(dseg,basediam+ddiam*dseg*i)
+          for i in range(int(nbsegment)): nproduce F(dseg,basediam+ddiam*dseg*i)
           if lastseg > 0: produce F(lastseg,topdiameter/2)
     else:	
           produce F(l,topdiameter/2)
@@ -454,7 +455,7 @@ __lpy_code_version__ = 1.1
 
 def __initialiseContext__(context):
 	import openalea.plantgl.all as pgl
-	Color_1 = pgl.Material("Color_1" , ambient = (65,45,15) , diffuse = 3 , )
+	Color_1 = pgl.Material("Color_1" , ambient = (0,0,0) , diffuse = 3 , specular = (0,0,0) , shininess = 0 , )
 	Color_1.name = "Color_1"
 	context.turtle.setMaterial(1,Color_1)
 	Color_4 = pgl.Material("Color_4" , ambient = (0,0,127) , diffuse = 1.09449 , )
@@ -509,7 +510,7 @@ def __initialiseContext__(context):
 	Color_21.name = "Color_21"
 	context.turtle.setMaterial(21,Color_21)
 	context.options.setSelection('Module inheritance',1)
-	scalars = [('WITHLEAF', False, False, True), ('SEED', 1, 0, 100), ('WITH_TROPISM', False, False, True), ('TROPISM', 60, 0, 100), ('OLDSTRUCTURE', False, False, True), ('GENERATED_WITH_TROPISM', True, False, True), ('REGENERATE', True, False, True), ('COMPARE', True, False, True), ('FORCE_COMPARE', False, False, True), ('PROP_VIEW', True, False, True), ('RAMIF', 77, 0, 200), ('DETAILS', False, False, True)]
+	scalars = [('WITHLEAF', 'Bool', False), ('SEED', 'Integer', 1, 0, 100), ('WITH_TROPISM', 'Bool', False), ('TROPISM', 'Integer', 60, 0, 100), ('OLDSTRUCTURE', 'Bool', False), ('GENERATED_WITH_TROPISM', 'Bool', True), ('REGENERATE', 'Bool', True), ('COMPARE', 'Bool', True), ('FORCE_COMPARE', 'Bool', False), ('PROP_VIEW', 'Bool', True), ('RAMIF', 'Integer', 77, 0, 200), ('DETAILS', 'Bool', False)]
 	context["__scalars__"] = scalars
-	for n,v,mnv,mxv in scalars:
-		context[n] = v
+	for s in scalars:
+		if not s[1] == "Category" : context[s[0]] = s[2]

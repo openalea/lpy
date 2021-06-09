@@ -15,7 +15,7 @@ about:
 
 build:
   preserve_egg_dir: True
-  number: 6
+  number: 0
 requirements:
   build:
     - binutils_impl_linux-64<2.31.0 # [linux]
@@ -29,29 +29,34 @@ requirements:
     - python {{PY_VER}}
     - setuptools
     - openalea.plantgl
-    - boost
+    # - boost # provided by plantgl
     - pyqt
   run:
     - python {{PY_VER}}
     - setuptools
-    - openalea.plantgl
-    - boost
+    - {{ pin_compatible('openalea.plantgl', max_pin='x.x') }} 
+    - {{ pin_compatible('boost',            max_pin='x.x.x') }} 
     - pyqt
     - ipython
-    - pyopengl
     - qtconsole
+    - jupyter_client # <6
+    - pyopengl
     - pyqglviewer
-    # - scipy
-    # - matplotlib
-    # - openalea.mtg
-# test:
-#   requires:
-#     - nose
-#   imports:
-#     - openalea.lpy
-#   source_files:
-#     - test/
-#     - share/
-#   commands:
-#     - nosetests -v -I test_predecessor_at_scale.py -I test_ui.py [unix]
-#     - nosetests -v -I test_predecessor_at_scale.py -I test_ui.py -I test_axialtree.py -I test_successor_at_scale.py [win]
+    - jsonschema
+
+app:
+  entry: lpy
+  summary: Plant simulation software
+  icon: icon_64x64.png
+
+test:
+  requires:
+    - nose
+  imports:
+    - openalea.lpy
+  source_files:
+    - test/
+    - share/
+  commands:
+    - nosetests -v -I test_predecessor_at_scale.py -I test_ui.py [unix]
+    - nosetests -v -I test_predecessor_at_scale.py -I test_ui.py -I test_axialtree.py -I test_successor_at_scale.py [win]

@@ -65,6 +65,20 @@ static LsysContext * DEFAULT_LSYSCONTEXT = NULL;
 static LsysContext * CURRENT_LSYSCONTEXT = NULL;
 static QMutex CURRENT_LSYSCONTEXT_MUTEX;
 
+
+size_t func_nb_args(boost::python::object function) {
+    const char * attrname =
+#if PY_MAJOR_VERSION == 2
+     "func_code"
+#else
+     "__code__"
+#endif
+     ;
+    try {
+        return extract<size_t>(function.attr(attrname).attr("co_argcount"))();
+    }
+    catch (...) { PyErr_Clear(); return 0; }
+}
 /*
 class ContextGarbageCollector
 {
@@ -237,6 +251,12 @@ __bracketmapping_optim_level(0)
 	init_options();
 }
 
+boost::python::object&
+LsysContext::pyturtle() {
+    if (_pyturtle == boost::python::object()) _pyturtle = boost::python::object(boost::cref(turtle));
+    return _pyturtle;
+}
+
 LsysContext::LsysContext(const LsysContext& lsys):
   __direction(lsys.__direction),
   __group(lsys.__group),
@@ -247,6 +267,7 @@ LsysContext::LsysContext(const LsysContext& lsys):
   __axiom_decomposition_enabled(lsys.__axiom_decomposition_enabled),
   return_if_no_matching(lsys.return_if_no_matching),
   optimizationLevel(lsys.optimizationLevel),
+  turtle_in_interpretation(false),
   __animation_step(lsys.__animation_step),
   __animation_enabled(lsys.__animation_enabled),
   __iteration_nb(0),
@@ -274,6 +295,7 @@ __warn_with_sharp_module(true),
 __axiom_decomposition_enabled(false),
 return_if_no_matching(true),
 optimizationLevel(DEFAULT_OPTIMIZATION_LEVEL),
+turtle_in_interpretation(false),
 __animation_step(DefaultAnimationTimeStep),
 __animation_enabled(false),
 __iteration_nb(0),
@@ -304,6 +326,7 @@ LsysContext::operator=(const LsysContext& lsys)
   __axiom_decomposition_enabled = lsys.__axiom_decomposition_enabled;
   return_if_no_matching = lsys.return_if_no_matching;
   optimizationLevel = lsys.optimizationLevel;
+  turtle_in_interpretation = lsys.turtle_in_interpretation;
   __animation_step =lsys.__animation_step;
   __animation_enabled =lsys.__animation_enabled;
   __nbargs_of_endeach =lsys.__nbargs_of_endeach;
@@ -418,6 +441,12 @@ void LsysContext::init_options()
     option->addValue<PglTurtle,bool>("Enabled",&turtle,&PglTurtle::enablePathInfoCache,true,"Enable Cache.");
     option->setDefault(turtle.pathInfoCacheEnabled());   
 #endif
+
+    /** warn if turtle has invalid value option */
+    option = options.add("Turtle in Interpretation rules","Set whether the Turtle is given in the interpretation rules.","Processing");
+    option->addValue("Disabled",this,&LsysContext::setTurtleInIntepretation,false,"Disable.");
+    option->addValue("Enabled",this,&LsysContext::setTurtleInIntepretation,true,"Enable.");
+    option->setDefault(1);   
 
 
 #ifdef MULTICORE_ENABLED    
@@ -662,7 +691,8 @@ LsysContext::namespaceInitialisation()
     }
 
    if (!hasObject("nproduce")){
-	   Compilation::compile("from openalea.lpy import *",globals(),globals());
+       Compilation::compile("from openalea.lpy import *",globals(),globals());
+       Compilation::compile("from openalea.plantgl.all import *",globals(),globals());
 
 	   /* handle<>  lpymodule (borrowed( PyModule_GetDict(PyImport_AddModule("openalea.lpy"))));
 		PyDict_Update(globals(),lpymodule.get());
@@ -793,9 +823,11 @@ LsysContext::endEach(AxialTree& lstring, const PGL::ScenePtr& scene)
 { return controlMethod("EndEach",lstring,scene); }
 
 AxialTree
-LsysContext::startInterpretation(){
+LsysContext::startInterpretation(boost::python::object pyturtle){
     if(hasStartInterpretationFunction()){
-          func("StartInterpretation");
+          size_t nbargs = func_nb_args(getObject("StartInterpretation"));
+          if (nbargs == 0) func("StartInterpretation");
+          else getObject("StartInterpretation")(pyturtle);
           AxialTree nprod = LsysContext::currentContext()->get_nproduction(); 
           if (nprod.empty())  {
             return AxialTree();
@@ -810,9 +842,11 @@ LsysContext::startInterpretation(){
 
 
 AxialTree
-LsysContext::endInterpretation(){
+LsysContext::endInterpretation(boost::python::object pyturtle){
     if(hasEndInterpretationFunction()){
-          func("EndInterpretation");
+          size_t nbargs = func_nb_args(getObject("EndInterpretation"));
+          if (nbargs == 0) func("EndInterpretation");
+          else getObject("EndInterpretation")(pyturtle);
           AxialTree nprod = LsysContext::currentContext()->get_nproduction(); 
           if (nprod.empty())  return AxialTree();
           else { 
@@ -927,19 +961,6 @@ LsysContext::func(const std::string& funcname){
   return object();
 }
 
-size_t func_nb_args(boost::python::object function) {
-    const char * attrname =
-#if PY_MAJOR_VERSION == 2
-     "func_code"
-#else
-     "__code__"
-#endif
-     ;
-    try {
-        return extract<size_t>(function.attr(attrname).attr("co_argcount"))();
-    }
-    catch (...) { PyErr_Clear(); return 0; }
-}
 
 void 
 LsysContext::check_init_functions()

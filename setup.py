@@ -36,9 +36,6 @@ version= versioninfo['LPY_VERSION_STR']
 #print (pkg_name+': version = '+version)
 
 
-# cmake build directory
-build_prefix = "build-cmake"
-
 def compile_interface():
     cwd = os.getcwd()
     os.chdir(pj(lpydir,'gui'))
@@ -56,6 +53,25 @@ if 'install' in sys.argv:
 
 from setuptools import setup
 
+
+# Scons build directory
+build_prefix= "build-cmake"
+
+if 'CONDA_PREFIX' in os.environ or 'PREFIX' in os.environ :
+    deploy_args = {}
+else:
+    currentdir = os.path.dirname(__file__)
+    deploy_args = dict(
+        # Specific options of openalea.deploy
+        lib_dirs = {'lib' : pj(currentdir, build_prefix, 'lib'),},
+        bin_dirs = {'bin':  pj(currentdir, build_prefix, 'bin'),},
+        inc_dirs = { 'include' : pj(currentdir, build_prefix, 'include') },
+        share_dirs = { 'share' : 'share'},
+        postinstall_scripts = ['pgl_postinstall',],
+        namespace_packages = [namespace],
+        create_namespaces = False,
+    )
+
 setup(
     name=name,
     version=version,
@@ -66,15 +82,14 @@ setup(
     url=url,
     license=license,
 
-    namespace_packages = [namespace],
-    create_namespaces = False,
-
     # pure python  packages
     packages = [
         namespace,
         pkg_name,
         pkg_name + '_wralea',
         pkg_name + '.gui',
+        pkg_name + '.lsysparameters',
+        pkg_name + '.lsysparameters.schema',
         pkg_name + '.gui.plugins',
         pkg_name + '.cpfg_compat'
     ],
@@ -83,7 +98,7 @@ setup(
     package_dir = { '' : 'src',},
 
     package_data={
-        "": ["share/*","share/*/*","share/*/*/*","share/*/*/*/*", '*.pyd', '*.so', '*.dylib', '*.lpy','*.ui','*.qrc'],
+        "": ['*.pyd', '*.so', '*.dylib', '*.lpy','*.ui','*.qrc','*.json'],
     },
 
     # Add package platform libraries if any
@@ -96,6 +111,7 @@ setup(
         "wralea": ["lpy = openalea.lpy_wralea",],
         'gui_scripts': ['lpy = openalea.lpy.gui.lpystudio:main',],
         'console_scripts': ['cpfg2lpy = openalea.lpy.cpfg_compat.cpfg2lpy:main',],
-    }
+    },
 
+    **deploy_args
 )

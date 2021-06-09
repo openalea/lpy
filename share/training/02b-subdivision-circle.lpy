@@ -3,7 +3,7 @@ from math import *
 il = 10.
 rl = 0.5
 #rl = 1./(sqrt(2)+1)
-print rl
+print (rl)
 assert 0 < rl < 1
 
 Axiom: F(il/2)+(90.)F(il/2)F(il/2)+(90.)F(il/2)F(il/2)+(90.)F(il/2)F(il/2)+(90.)F(il/2)

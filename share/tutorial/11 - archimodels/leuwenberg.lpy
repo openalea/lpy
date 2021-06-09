@@ -2,7 +2,7 @@ import random as rd
 
 leafduration = 3 # life time of a leaf
 leafold =      2 # age at which a leaf is considered as old
-maxorder =     4 # maximum number of branching order
+maxorder =     5 # maximum number of branching order
 radinc =    0.01 # increment of radius through time
 
 maxduration = lambda order : int(10./(order+1))+3  # life time of an apex
@@ -11,7 +11,7 @@ nb_axes = lambda order : rd.randint(3,5)  # number of axe at a ramification
 up_angle = lambda t,order : 7        # up angle for lateral branches
 
 # number total of iterations of the system
-nbiter = sum([maxduration(o) for o in xrange(maxorder+1)])
+nbiter = sum([maxduration(o) for o in range(maxorder+1)])
 
 module A # represent trunk apical meristem
 module B # represent apical meristem of lateral branches
@@ -31,7 +31,7 @@ A(t,o) :
   else:
       # produce a whorl of sympodial branches
       nbaxe = nb_axes(o)
-      for i in xrange(nbaxe):
+      for i in range(nbaxe):
         nproduce [/(360*i/nbaxe)&(branch_angle(o))B(0,o+1)]
       produce T
 
@@ -44,7 +44,7 @@ B(t,o) :
   else:
     # produce a whorl of sympodial branches
     nbaxe = nb_axes(o)
-    for i in xrange(nbaxe):
+    for i in range(nbaxe):
       nproduce [/(360*i/nbaxe)&(branch_angle(o))B(0,o+1)]
     produce T
 
@@ -70,9 +70,11 @@ L(t,p) :
 endlsystem
 ###### INITIALISATION ######
 
+__lpy_code_version__ = 1.1
+
 def __initialiseContext__(context):
 	context.animation_timestep = 0.153
-	context.options.setSelection("Module declaration",1)
-__references__ = """Halle, 71"""
-__description__ = """Leuwenberg architectural model. """
-__authors__ = """F. Boudon"""
+	context.options.setSelection('Module declaration',1)
+__authors__ = 'F. Boudon'
+__description__ = 'Leuwenberg architectural model. '
+__references__ = 'Halle, 71'

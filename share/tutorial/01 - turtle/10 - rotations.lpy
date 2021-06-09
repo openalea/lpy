@@ -1,0 +1,27 @@
+execContext().turtle.setAngleIncrement(90)
+Axiom: ,(7) A
+
+derivation length: 3
+production:
+
+A  --> B-F+CFC+F-D&F^D-F+&&CFC+F+B// 
+B  --> A&F^CFB^F^D^^-F-D^|F^B|FC^F^A// 
+C  --> |D^|F^B-F+C^F^A&&FA&F^C+F+B^F^D// 
+D  --> |CFB-F+B|FA&F^A&&FB-F+B|FC// 
+
+
+interpretation:
+A --> ,(4)
+B --> ,(3)
+C --> ,(2)
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	import openalea.plantgl.all as pgl
+	Color_7 = pgl.Material("Color_7" , ambient = (15,15,15) , diffuse = 7 , )
+	Color_7.name = "Color_7"
+	context.turtle.setMaterial(7,Color_7)

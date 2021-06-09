@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/images">
+    <file>icons/mango.png</file>
     <file>icons/svn-modified.png</file>
     <file>icons/svn-normal.png</file>
     <file>icons/svn-conflict.png</file>

@@ -4,18 +4,24 @@ os:
   - linux
   - osx
 
-sudo: required
-
 services:
   - docker
 
 env:
- - CONDA_RECIPE=conda
-   CONDA_VERSION=3
+  global:
+      - CONDA_RECIPE=conda CONDA_VERSION=3 
+  jobs:
+      - CONDA_PY=37   
+      - CONDA_PY=38 CONDA_NPY=116
+      - CONDA_PY=39 CONDA_NPY=119
+jobs :
+    allow_failures:
+    - env : CONDA_PY=39 CONDA_NPY=119
 
 install:
   - git clone https://github.com/openalea/travis-ci.git
   - cd travis-ci
+  - source downloadsdk.sh
   - source install.sh
   - conda config --prepend channels fredboudon
   - conda config --prepend channels conda-forge
