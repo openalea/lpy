@@ -8,6 +8,7 @@ add_library(lpy SHARED ${SRC_FILES})
 
 target_link_libraries(lpy ${PLANTGL_LIBRARIES})
 target_link_libraries(lpy Qt5::Core Qt5::Concurrent)
+target_link_libraries(lpy ${Python3_LIBRARIES})
 
 pgllib_link_python(lpy)
 pgllib_link_boost(lpy)
