@@ -10,14 +10,6 @@ if ! [[ -d build ]]; then
     mkdir build
 fi
 
-# ld crashes when it sees a symbol it cannot resolve.
-# In this case, we must either mark all incriminated symbols as Undefined (WHICH IS DANGEROUS),
-# or tell ld to shut up about this. I chose the 2nd option here out of laz
-# More on this: https://stackoverflow.com/questions/36662920/xcode-clang-link-build-dynamic-framework-or-dylib-not-embed-dependencies
-# More on this: https://stackoverflow.com/questions/17281901/ignoring-an-undefined-symbol-in-a-dynamic-library-from-xcode
-# More on this: https://developer.apple.com/forums/thread/17630
-export LDFLAGS="-undefined dynamic_lookup ${LDFLAGS}"
-
 export PREFIX=${CONDA_PREFIX}
 export PYTHON=${CONDA_PREFIX}/bin/python
 

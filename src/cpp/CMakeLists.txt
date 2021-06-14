@@ -8,7 +8,6 @@ add_library(lpy SHARED ${SRC_FILES})
 
 target_link_libraries(lpy ${PLANTGL_LIBRARIES})
 target_link_libraries(lpy Qt5::Core Qt5::Concurrent)
-target_link_libraries(lpy ${Python3_LIBRARIES})
 
 pgllib_link_python(lpy)
 pgllib_link_boost(lpy)
@@ -18,6 +17,10 @@ pgllib_link_boost(lpy)
 if (WIN32)
     # Export DLL on Windows
     target_compile_definitions(lpy PRIVATE LPY_MAKEDLL)
+endif()
+
+if (APPLE)
+    SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -undefined dynamic_lookup")
 endif()
 
 # --- Output Library
