@@ -64,7 +64,7 @@ And then run L-Py
 Documentation
 =============
 
-Documentation is available at `<http://lpy-fb.readthedocs.io/en/latest/>`_
+Documentation is available at `<http://lpy.readthedocs.io/en/latest/>`_
 
 
 A previous version of the documentation was also available on  `OpenAlea website <http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=packages:vplants:lpy:main>`_
