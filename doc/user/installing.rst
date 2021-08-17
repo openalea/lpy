@@ -49,7 +49,13 @@ You should clone the lpy project into your computer
     
     git clone https://github.com/fredboudon/lpy.git
 
-You need then to compile lpy with the following command
+
+Compiling on macOS and Linux
+=================
+
+This assumes you installed the usual build tools on Linux, or the Xcode Build Tools on macOS.
+
+You need then to compile lpy with the following command, on macOS and Linux:
 
 .. code-block:: bash
         
@@ -80,6 +86,63 @@ To run test,
 To launch the visual editor, you can type in your shell
 
 .. code-block:: bash
+
+        lpy
+
+Compiling on Windows
+=======
+
+On Windows you must install **Visual Studio 2019** with Desktop C++ tools.
+
+For your convenience a build script called `windows_build_dev.bat` has been written. If you installed **Visual Studio 2019** with Desktop C++ tools and **miniconda3** at the default location, with your environment called **lpydev**, running the script from the Windows Command Prompt should compile lpy.
+
+If you want to compile manually, open the **Developer Command Prompt for VS 2019** (search for the shortcut in the Start Menu).
+
+Then you should activate **conda** manually in that prompt. If you installed **miniconda3** in the default directory `C:\\Users\\YourName\\miniconda3` and if your environment is named `lpydev`, you can use the command:
+
+.. code-block:: command
+
+        %USERPROFILE%\miniconda3\Scripts\activate.bat %USERPROFILE%\miniconda3\envs\lpydev
+
+Otherwise, adapt the command to the path where you installed miniconda3.
+
+Then you can compile with the following commands:
+
+.. code-block:: command
+        
+        mkdir build
+        cd build
+        cmake .. -G "Visual Studio 16 2019" ^
+        -Wno-dev ^
+        -DCMAKE_INSTALL_PREFIX=%CONDA_PREFIX%\Library ^
+        -DCMAKE_PREFIX_PATH=%CONDA_PREFIX%\Library ^
+        -DCMAKE_INSTALL_RPATH:STRING=%CONDA_PREFIX%\Library\lib ^
+        -DCMAKE_INSTALL_NAME_DIR=%CONDA_PREFIX%\Library\lib ^
+        -DPython3_EXECUTABLE=%CONDA_PREFIX%\python.exe
+        
+        cmake --build . --parallel %NUMBER_OF_PROCESSORS% --config Release --target install
+        cd ..
+
+Note: you can only compile using the config **Release** and the target **install** on Windows.
+
+To install L-Py on your environment
+
+.. code-block:: command
+
+        python setup.py install
+
+to install it into you python system.
+
+To run test,
+
+.. code-block:: command
+
+        cd test/
+        nosetests
+
+To launch the visual editor, you can type in your shell
+
+.. code-block:: command
 
         lpy
 
