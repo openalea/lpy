@@ -1093,6 +1093,7 @@
     <addaction name="actionSave"/>
     <addaction name="actionSaveAs"/>
     <addaction name="actionSaveAll"/>
+    <addaction name="actionSaveSession"/>
     <addaction name="actionClose"/>
     <addaction name="menuSVN"/>
     <addaction name="separator"/>
@@ -1197,6 +1198,7 @@
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
    <addaction name="actionSaveAll"/>
+   <addaction name="actionSaveSession"/>
    <addaction name="actionClose"/>
   </widget>
   <widget class="QToolBar" name="LsytemBar">
@@ -1382,6 +1384,15 @@
    </property>
    <property name="text">
     <string>Save As</string>
+   </property>
+  </action>
+  <action name="actionSaveSession">
+   <property name="icon">
+    <iconset resource="lpyresources.qrc">
+     <normaloff>:/images/icons/filesave.png</normaloff>:/images/icons/filesave.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save Session</string>
    </property>
   </action>
   <action name="actionExit">
