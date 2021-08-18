@@ -121,7 +121,7 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
                 lid = self.currentBlockState()
                 self.setCurrentBlockState(st.previousProductionState)
             else:
-                self.setFormat(0,text.size(),self.prodFormat)
+                self.setFormat(0,len(text),self.prodFormat)
                 lid = self.currentBlockState()
                 if lid < 0 or (lid & 2) == 0 :
                     lid = self.genlineid()
