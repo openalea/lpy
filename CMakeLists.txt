@@ -37,6 +37,13 @@ if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 endif()
 
+## When linking, Python libs are required, so I advised I could use: "target_library_link(targetname ${Python3_LIBRARIES})"
+## But AppleClang has difficulties linking with Python3_LIBRARIES, I don't know why.
+## It DOES link with it, but when running it crashes mysteriously on a Python Malloc (what???)
+## instead, I use this undefined dynamic_lookup flag to let the dynamic libraries be found when run.
+if (APPLE)
+    SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -undefined dynamic_lookup")
+endif()
 
 ## ###################################################################
 ## Dependencies 

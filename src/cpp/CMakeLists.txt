@@ -19,6 +19,10 @@ if (WIN32)
     target_compile_definitions(lpy PRIVATE LPY_MAKEDLL)
 endif()
 
+if (APPLE)
+    SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -undefined dynamic_lookup")
+endif()
+
 # --- Output Library
 
 install(TARGETS lpy LIBRARY DESTINATION "lib")
