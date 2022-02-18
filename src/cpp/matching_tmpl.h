@@ -512,6 +512,9 @@ struct TreeLeftMatcher
 
 				argtype lmp; 
 				if(it2->isGetModule()){ if(!process_get_module(it2,it,string_begin,string_end,lmp, filter)) return false;  }
+				else if(it2->isGetIterator()){ 
+					process_get_iterator(it2,it,string_end,lmp);
+				}
 				else if(!MatchingEngine::module_match(*it,*it2,lmp)) return false; 
 				ArgsCollector::prepend_args(lp,lmp);
 				++it2;

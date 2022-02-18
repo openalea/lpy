@@ -84,7 +84,8 @@ public:
 			   __mclass == ModuleClass::QueryUp || 
 			   __mclass == ModuleClass::QueryLeft || 
 		       __mclass == ModuleClass::QueryRigth || 
-		       __mclass == ModuleClass::QueryFrame; }
+		       __mclass == ModuleClass::QueryFrame|| 
+		       (name().size() > 0 && name()[0] == '?'); }
   inline bool isCut() const { return __mclass == ModuleClass::Cut; }
   inline bool isNone() const { return __mclass == ModuleClass::None; }
   inline bool isNull() const { return __mclass == ModuleClass::None || __mclass == ModuleClass::Star; }

@@ -213,10 +213,12 @@ class LsystemParameters:
             self.add_graphicalparameter(name, value, ptype, category, **params)
         else:
             raise TypeError(ptype)
+        return
 
     def add_category(self, name, **params):
         category = Category({ 'name' : name, 'enabled' : True }, params=params)
         self.categories[name] = category
+        return self
 
     def set_defaut_category(self, name):
         self.default_category_name = name
@@ -232,7 +234,7 @@ class LsystemParameters:
         scalar.category = category
 
         self._add_scalar(category, scalar)
-        return scalar
+        return self
 
     def _add_scalar(self, category, scalar):
         categoryobj = self.get_category(category)
@@ -240,15 +242,18 @@ class LsystemParameters:
 
     def add_function(self, name, value = None, category = None):
         """ if value is None a default function value is created """
-        return self.add_graphicalparameter(name, value, 'Function', category)
+        self.add_graphicalparameter(name, value, 'Function', category)
+        return self
 
     def add_curve(self, name, value = None, category = None):
         """ if value is None a default function value is created """
-        return self.add_graphicalparameter(name, value, 'Curve2D', category)
+        self.add_graphicalparameter(name, value, 'Curve2D', category)
+        return self
 
     def add_patch(self, name, value = None, category = None):
         """ if value is None a default function value is created """
-        return self.add_graphicalparameter(name, value, 'NurbsPatch', category)
+        self.add_graphicalparameter(name, value, 'NurbsPatch', category)
+        return self
 
     def add_graphicalparameter(self, name, value, ptype = None, category = None):
         assert ptype in self.get_available_graphical_types()
