@@ -1,9 +1,9 @@
 .. image:: https://img.shields.io/badge/License-GPL-blue.svg
    :target: https://opensource.org/licenses/GPL-3.0
 
-.. image:: https://travis-ci.org/fredboudon/lpy.svg?branch=master
-    :target: https://travis-ci.org/fredboudon/lpy
-    :alt: Travis Continuous Integration Status
+.. image:: https://github.com/fredboudon/lpy/actions/workflows/conda-package-build.yml/badge.svg
+    :target: https://github.com/fredboudon/lpy/actions/workflows/conda-package-build.yml
+    :alt: Github Actions Continuous Integration Status
 
 .. image:: https://ci.appveyor.com/api/projects/status/8bd8xhc9wy0bee0k/branch/master?svg=true
    :target: https://ci.appveyor.com/project/fredboudon/lpy
@@ -31,6 +31,14 @@ into more complex computational pipelines.
 .. image:: doc/_images/screenshot2-3d.png
     :scale: 50% 
 
+=======
+Gallery
+=======
+
+.. image:: doc/_images/gallery/gallery.png
+    :scale: 50% 
+
+Examples of models created with L-Py. Images credits: C. Godin, J. Chopard, F. Boudon. Models credits: C. Godin, F. Boudon, F. Normand, I. Grechi, E. Costes, M. Beziz, Y. Caraglio et al.
 
 =============
 Installation
