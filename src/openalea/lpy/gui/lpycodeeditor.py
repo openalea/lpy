@@ -744,17 +744,18 @@ class LpyCodeEditor(QTextEdit):
         if self.editor : self.editor.textEditionWatch = False
         if self.hasError:
             self.clearErrorHightlight()
-        self.sidebar.addMarkerAt(lineno,ErrorMarker)
-        self.errorLine = lineno
-        cursor = self.textCursor()
-        cursor.setPosition(0)
-        cursor.movePosition(QTextCursor.NextBlock,QTextCursor.MoveAnchor,lineno-1)
-        cursor.movePosition(QTextCursor.EndOfBlock,QTextCursor.KeepAnchor)
-        errorformat = QTextCharFormat() 
-        errorformat.setBackground(Qt.yellow)
-        cursor.setCharFormat(errorformat)
-        self.gotoLine(lineno)
-        self.hasError = True
+        if lineno < self.document().lineCount() :
+            self.sidebar.addMarkerAt(lineno,ErrorMarker)
+            self.errorLine = lineno
+            cursor = self.textCursor()
+            cursor.setPosition(0)
+            cursor.movePosition(QTextCursor.NextBlock,QTextCursor.MoveAnchor,lineno-1)
+            cursor.movePosition(QTextCursor.EndOfBlock,QTextCursor.KeepAnchor)
+            errorformat = QTextCharFormat() 
+            errorformat.setBackground(Qt.yellow)
+            cursor.setCharFormat(errorformat)
+            self.gotoLine(lineno)
+            self.hasError = True
         if self.editor : self.editor.textEditionWatch = True
     def clearErrorHightlight(self):
         cursor = self.textCursor()
