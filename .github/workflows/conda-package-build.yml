@@ -37,7 +37,7 @@ jobs:
       run: |
         # Setup conda
         sudo conda config --add channels conda-forge
-        sudo conda config --add channels fredboudon
+        sudo conda config --add channels openalea3
         sudo conda config --set always_yes yes
         sudo conda config --set remote_read_timeout_secs 600
         sudo conda config --set auto_update_conda False
