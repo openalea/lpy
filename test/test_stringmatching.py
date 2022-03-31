@@ -9,6 +9,6 @@ def test_stringmatching():
     a.addIdentity(1)
     a.append(1,2)
     b = a.begin()
-    for i in xrange(15):
+    for i in range(15):
         b.nextValues()
-    assert b.values() == (10,15)
+    assert tuple(b.values()) == (10,15)

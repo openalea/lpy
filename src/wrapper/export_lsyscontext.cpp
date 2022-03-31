@@ -40,10 +40,6 @@ using namespace boost::python;
 LPY_USING_NAMESPACE
 PGL_USING_NAMESPACE
 
-PglTurtle * lsc_turtle(LsysContext * l){
-  return &(l->turtle);
-}
-
 void py_backward() { LsysContext::currentContext()->backward(); }
 void py_forward() { LsysContext::currentContext()->forward(); }
 bool py_isForward() { return LsysContext::currentContext()->isForward(); }
@@ -110,12 +106,14 @@ bool py_in_right_context2(const std::string& pattern, boost::python::dict& param
 	return LsysContext::currentContext()->inRightContext(PatternString(pattern),param);
 }
 
+boost::python::object py_turtle(LsysContext * lc) { return lc->pyturtle(); }
+
 void export_LsysContext(){
 
     class_<LsysContext,boost::noncopyable>
 	("LsysContext", "Lsystem Execution Context", no_init ) // <>("LsysContext()"))
 	.def( "__init__", make_constructor( &create_a_context ), "LsysContext()" ) 
-	.add_property("turtle",make_getter(&LsysContext::turtle,return_value_policy<reference_existing_object>()))
+	.add_property("turtle",&py_turtle)
 	.add_static_property("InitialisationFunctionName",&getInitialisationFunctionName)
 	.add_property("animation_timestep",&LsysContext::get_animation_timestep,&LsysContext::set_animation_timestep)
 	.add_property("options",make_getter(&LsysContext::options,return_value_policy<reference_existing_object>()))

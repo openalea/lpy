@@ -10,15 +10,15 @@ cdef int maxtime = 500
 cdef int maxcol = 35
 cdef int maxrad = 8
 
-from time import clock
+from time import perf_counter
 timer = 0
 
 def Start():
   global timer
-  timer = clock()
+  timer = perf_counter()
 
 def End():
-  print 'time=',clock()-timer
+  print ('time=',perf_counter()-timer)
 
 Axiom: [;(0)[_(0.5)F(1)][_(maxrad)F(1)]]A(0)
 
@@ -51,48 +51,122 @@ P(pos,speed,t):
 homomorphism:
 
 
-P(pos,speed,t) --> [;(min(35,1+maxcol*t/200))@M(pos.x,pos.y,pos.z)@O(max(0.1,0.3-0.001*t))]
+P(pos,speed,t) --> [;(int(min(35,1+maxcol*t/200)))@M(pos.x,pos.y,pos.z)@O(max(0.1,0.3-0.001*t))]
 
 endlsystem
 ###### INITIALISATION ######
 
+__lpy_code_version__ = 1.1
+
 def __initialiseContext__(context):
-	from openalea.plantgl.all import Material,Color3
-	context.turtle.setMaterial(0,Material('default',Color3(26,0,0),6.15385,Color3(40,40,40),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(1,Material('Brown',Color3(2,0,22),10.7727,Color3(40,40,40),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(2,Material('APPID_206',Color3(2,0,22),10.6878,Color3(40,40,40),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(3,Material('APPID_22',Color3(3,1,22),10.6028,Color3(40,40,40),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(4,Material('APPID_14',Color3(3,1,22),10.5179,Color3(40,40,40),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(5,Material('APPID_310',Color3(4,2,22),10.4329,Color3(40,40,40),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(6,Material('APPID_214',Color3(4,2,22),10.348,Color3(41,41,41),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(7,Material('APPID_146',Color3(5,3,22),10.2631,Color3(41,41,41),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(8,Material('APPID_94',Color3(5,4,22),10.1781,Color3(41,41,41),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(9,Material('APPID_286',Color3(6,4,22),10.0932,Color3(41,41,41),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(10,Material('APPID_182',Color3(6,5,23),10.0082,Color3(42,42,42),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(11,Material('APPID_358',Color3(7,5,23),9.92328,Color3(42,42,42),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(12,Material('APPID_54',Color3(7,6,23),9.83834,Color3(42,42,42),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(13,Material('APPID_6',Color3(8,7,23),9.75339,Color3(42,42,42),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(14,Material('APPID_78',Color3(8,7,23),9.66845,Color3(43,43,43),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(15,Material('APPID_122',Color3(9,8,23),9.5835,Color3(43,43,43),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(16,Material('APPID_186',Color3(9,8,23),9.49856,Color3(43,43,43),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(17,Material('APPID_114',Color3(10,9,23),9.41362,Color3(43,43,43),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(18,Material('APPID_58',Color3(11,10,24),9.32867,Color3(44,44,44),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(19,Material('APPID_194',Color3(11,10,24),9.24373,Color3(44,44,44),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(20,Material('APPID_86',Color3(12,11,24),9.15878,Color3(44,44,44),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(21,Material('APPID_38',Color3(12,11,24),9.07384,Color3(44,44,44),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(22,Material('APPID_2',Color3(13,12,24),8.98889,Color3(44,44,44),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(23,Material('APPID_338',Color3(13,12,24),8.90395,Color3(45,45,45),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(24,Material('APPID_170',Color3(14,13,24),8.819,Color3(45,45,45),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(25,Material('APPID_90',Color3(14,14,24),8.73406,Color3(45,45,45),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(26,Material('APPID_10',Color3(15,14,24),8.64912,Color3(45,45,45),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(27,Material('APPID_42',Color3(15,15,25),8.56417,Color3(46,46,46),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(28,Material('APPID_50',Color3(16,15,25),8.47923,Color3(46,46,46),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(29,Material('APPID_250',Color3(16,16,25),8.39428,Color3(46,46,46),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(30,Material('APPID_34',Color3(17,17,25),8.30934,Color3(46,46,46),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(31,Material('APPID_30',Color3(17,17,25),8.22439,Color3(47,47,47),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(32,Material('APPID_74',Color3(18,18,25),8.13945,Color3(47,47,47),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(33,Material('APPID_426',Color3(18,18,25),8.0545,Color3(47,47,47),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(34,Material('APPID_18',Color3(19,19,25),7.96956,Color3(47,47,47),Color3(0,0,0),1,0))
-	context.turtle.setMaterial(35,Material('Default',Color3(20,20,26),7.88462,Color3(48,48,48),Color3(0,0,0),1,0))
+	import openalea.plantgl.all as pgl
+	Color_0 = pgl.Material("Color_0" , ambient = (26,0,0) , diffuse = 6.15385 , )
+	Color_0.name = "Color_0"
+	context.turtle.setMaterial(0,Color_0)
+	Color_1 = pgl.Material("Color_1" , ambient = (2,0,22) , diffuse = 10.7727 , )
+	Color_1.name = "Color_1"
+	context.turtle.setMaterial(1,Color_1)
+	Color_2 = pgl.Material("Color_2" , ambient = (2,0,22) , diffuse = 10.6878 , )
+	Color_2.name = "Color_2"
+	context.turtle.setMaterial(2,Color_2)
+	Color_3 = pgl.Material("Color_3" , ambient = (3,1,22) , diffuse = 10.6028 , )
+	Color_3.name = "Color_3"
+	context.turtle.setMaterial(3,Color_3)
+	Color_4 = pgl.Material("Color_4" , ambient = (3,1,22) , diffuse = 10.5179 , )
+	Color_4.name = "Color_4"
+	context.turtle.setMaterial(4,Color_4)
+	Color_5 = pgl.Material("Color_5" , ambient = (4,2,22) , diffuse = 10.4329 , )
+	Color_5.name = "Color_5"
+	context.turtle.setMaterial(5,Color_5)
+	Color_6 = pgl.Material("Color_6" , ambient = (4,2,22) , diffuse = 10.348 , specular = (41,41,41) , )
+	Color_6.name = "Color_6"
+	context.turtle.setMaterial(6,Color_6)
+	Color_7 = pgl.Material("Color_7" , ambient = (5,3,22) , diffuse = 10.2631 , specular = (41,41,41) , )
+	Color_7.name = "Color_7"
+	context.turtle.setMaterial(7,Color_7)
+	Color_8 = pgl.Material("Color_8" , ambient = (5,4,22) , diffuse = 10.1781 , specular = (41,41,41) , )
+	Color_8.name = "Color_8"
+	context.turtle.setMaterial(8,Color_8)
+	Color_9 = pgl.Material("Color_9" , ambient = (6,4,22) , diffuse = 10.0932 , specular = (41,41,41) , )
+	Color_9.name = "Color_9"
+	context.turtle.setMaterial(9,Color_9)
+	Color_10 = pgl.Material("Color_10" , ambient = (6,5,23) , diffuse = 10.0082 , specular = (42,42,42) , )
+	Color_10.name = "Color_10"
+	context.turtle.setMaterial(10,Color_10)
+	Color_11 = pgl.Material("Color_11" , ambient = (7,5,23) , diffuse = 9.92328 , specular = (42,42,42) , )
+	Color_11.name = "Color_11"
+	context.turtle.setMaterial(11,Color_11)
+	Color_12 = pgl.Material("Color_12" , ambient = (7,6,23) , diffuse = 9.83834 , specular = (42,42,42) , )
+	Color_12.name = "Color_12"
+	context.turtle.setMaterial(12,Color_12)
+	Color_13 = pgl.Material("Color_13" , ambient = (8,7,23) , diffuse = 9.75339 , specular = (42,42,42) , )
+	Color_13.name = "Color_13"
+	context.turtle.setMaterial(13,Color_13)
+	Color_14 = pgl.Material("Color_14" , ambient = (8,7,23) , diffuse = 9.66845 , specular = (43,43,43) , )
+	Color_14.name = "Color_14"
+	context.turtle.setMaterial(14,Color_14)
+	Color_15 = pgl.Material("Color_15" , ambient = (9,8,23) , diffuse = 9.5835 , specular = (43,43,43) , )
+	Color_15.name = "Color_15"
+	context.turtle.setMaterial(15,Color_15)
+	Color_16 = pgl.Material("Color_16" , ambient = (9,8,23) , diffuse = 9.49856 , specular = (43,43,43) , )
+	Color_16.name = "Color_16"
+	context.turtle.setMaterial(16,Color_16)
+	Color_17 = pgl.Material("Color_17" , ambient = (10,9,23) , diffuse = 9.41362 , specular = (43,43,43) , )
+	Color_17.name = "Color_17"
+	context.turtle.setMaterial(17,Color_17)
+	Color_18 = pgl.Material("Color_18" , ambient = (11,10,24) , diffuse = 9.32867 , specular = (44,44,44) , )
+	Color_18.name = "Color_18"
+	context.turtle.setMaterial(18,Color_18)
+	Color_19 = pgl.Material("Color_19" , ambient = (11,10,24) , diffuse = 9.24373 , specular = (44,44,44) , )
+	Color_19.name = "Color_19"
+	context.turtle.setMaterial(19,Color_19)
+	Color_20 = pgl.Material("Color_20" , ambient = (12,11,24) , diffuse = 9.15878 , specular = (44,44,44) , )
+	Color_20.name = "Color_20"
+	context.turtle.setMaterial(20,Color_20)
+	Color_21 = pgl.Material("Color_21" , ambient = (12,11,24) , diffuse = 9.07384 , specular = (44,44,44) , )
+	Color_21.name = "Color_21"
+	context.turtle.setMaterial(21,Color_21)
+	Color_22 = pgl.Material("Color_22" , ambient = (13,12,24) , diffuse = 8.98889 , specular = (44,44,44) , )
+	Color_22.name = "Color_22"
+	context.turtle.setMaterial(22,Color_22)
+	Color_23 = pgl.Material("Color_23" , ambient = (13,12,24) , diffuse = 8.90395 , specular = (45,45,45) , )
+	Color_23.name = "Color_23"
+	context.turtle.setMaterial(23,Color_23)
+	Color_24 = pgl.Material("Color_24" , ambient = (14,13,24) , diffuse = 8.819 , specular = (45,45,45) , )
+	Color_24.name = "Color_24"
+	context.turtle.setMaterial(24,Color_24)
+	Color_25 = pgl.Material("Color_25" , ambient = (14,14,24) , diffuse = 8.73406 , specular = (45,45,45) , )
+	Color_25.name = "Color_25"
+	context.turtle.setMaterial(25,Color_25)
+	Color_26 = pgl.Material("Color_26" , ambient = (15,14,24) , diffuse = 8.64912 , specular = (45,45,45) , )
+	Color_26.name = "Color_26"
+	context.turtle.setMaterial(26,Color_26)
+	Color_27 = pgl.Material("Color_27" , ambient = (15,15,25) , diffuse = 8.56417 , specular = (46,46,46) , )
+	Color_27.name = "Color_27"
+	context.turtle.setMaterial(27,Color_27)
+	Color_28 = pgl.Material("Color_28" , ambient = (16,15,25) , diffuse = 8.47923 , specular = (46,46,46) , )
+	Color_28.name = "Color_28"
+	context.turtle.setMaterial(28,Color_28)
+	Color_29 = pgl.Material("Color_29" , ambient = (16,16,25) , diffuse = 8.39428 , specular = (46,46,46) , )
+	Color_29.name = "Color_29"
+	context.turtle.setMaterial(29,Color_29)
+	Color_30 = pgl.Material("Color_30" , ambient = (17,17,25) , diffuse = 8.30934 , specular = (46,46,46) , )
+	Color_30.name = "Color_30"
+	context.turtle.setMaterial(30,Color_30)
+	Color_31 = pgl.Material("Color_31" , ambient = (17,17,25) , diffuse = 8.22439 , specular = (47,47,47) , )
+	Color_31.name = "Color_31"
+	context.turtle.setMaterial(31,Color_31)
+	Color_32 = pgl.Material("Color_32" , ambient = (18,18,25) , diffuse = 8.13945 , specular = (47,47,47) , )
+	Color_32.name = "Color_32"
+	context.turtle.setMaterial(32,Color_32)
+	Color_33 = pgl.Material("Color_33" , ambient = (18,18,25) , diffuse = 8.0545 , specular = (47,47,47) , )
+	Color_33.name = "Color_33"
+	context.turtle.setMaterial(33,Color_33)
+	Color_34 = pgl.Material("Color_34" , ambient = (19,19,25) , diffuse = 7.96956 , specular = (47,47,47) , )
+	Color_34.name = "Color_34"
+	context.turtle.setMaterial(34,Color_34)
+	Color_35 = pgl.Material("Color_35" , ambient = (20,20,26) , diffuse = 7.88462 , specular = (48,48,48) , )
+	Color_35.name = "Color_35"
+	context.turtle.setMaterial(35,Color_35)
 	context.animation_timestep = 0.001
-	context.options.setSelection('Compiler',1)
+	context.options.setSelection('Compiler',2)

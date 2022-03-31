@@ -12,7 +12,7 @@ def test_matchingmode():
     l = Lsystem()
     modes = { 0: PatternModule.eSimple, 1: PatternModule.eWithStar , 2: PatternModule.eWithStarNValueConstraint }
     l.set(lcode_matchingmode)
-    for key,val in modes.items():        
+    for key,val in list(modes.items()):        
         l.context().options.setSelection('Module matching',key)
         l.context()['mode'] = val
         l.iterate()
@@ -30,7 +30,7 @@ def EndEach():
 """
 
 
-def runmatch(code,optionvalues = range(3)): 
+def runmatch(code,optionvalues = list(range(3))): 
     if type(optionvalues) == int:
         optionvalues = [optionvalues]
     for i in range(3):        
@@ -43,7 +43,7 @@ def runmatch(code,optionvalues = range(3)):
             try:
                 l.set(lcodebeg+code)
                 l.iterate()
-                print "Test do not fail for unsupported module matching mode : %i." % i
+                print(("Test do not fail for unsupported module matching mode : %i." % i))
                 warnings.warn("Test do not fail for unsupported module matching mode : %i." % i)
             except:
                 pass
@@ -63,7 +63,7 @@ production:
 
 def test_match_mod_with_starmod():
     """ Test matching of module with pattern with a star module """
-    runmatch(lcodemodwithstarmod,range(1,3))
+    runmatch(lcodemodwithstarmod,list(range(1,3)))
 
 ########################################################
 
@@ -80,7 +80,7 @@ production:
 
 def test_match_mod_with_starmod_withnamearg():
     """ Test matching of module with pattern with a star module and name arg """
-    runmatch(lcodemodwithstarmod_withnamearg,range(1,3))
+    runmatch(lcodemodwithstarmod_withnamearg,list(range(1,3)))
 
 ########################################################
 
@@ -100,7 +100,7 @@ production:
 
 def test_match_mod_with_starmod_onearg():
     """ Test matching of module with one arg with pattern with a star module """
-    runmatch(lcodemodwithstarmod_onearg,range(1,3))
+    runmatch(lcodemodwithstarmod_onearg,list(range(1,3)))
     
 ########################################################
 
@@ -118,7 +118,7 @@ production:
 
 def test_match_mod_with_starmod_onearg_staronly():
     """ Test matching of module with one arg with pattern with a star module only """
-    runmatch(lcodemodwithstarmod_onearg_staronly,range(1,3))
+    runmatch(lcodemodwithstarmod_onearg_staronly,list(range(1,3)))
 
 ########################################################
 
@@ -139,7 +139,7 @@ production:
 
 def test_match_mod_with_starmod_two():
     """ Test matching of module with two arg with pattern with a star module """
-    runmatch(lcodemodwithstarmod_two,range(1,3))
+    runmatch(lcodemodwithstarmod_two,list(range(1,3)))
 
 ########################################################
 
@@ -159,7 +159,7 @@ production:
 
 def test_match_mod_with_starmod_two_staronly():
     """ Test matching of module with two arg with pattern with a star module only """
-    runmatch(lcodemodwithstarmod_two_staronly,range(1,3))
+    runmatch(lcodemodwithstarmod_two_staronly,list(range(1,3)))
 
 ########################################################
 
@@ -174,7 +174,7 @@ production:
 
 def test_match_mod_with_starmod_stararg():
     """ Test matching of module with two arg with pattern with a star module with star args"""
-    runmatch(lcodemodwithstarmod_stararg,range(1,3))
+    runmatch(lcodemodwithstarmod_stararg,list(range(1,3)))
 
 ########################################################
 
@@ -189,7 +189,7 @@ production:
 
 def test_match_mod_with_starmod_stararg_name():
     """ Test matching of module with two arg with pattern with a star module with args name and star args """
-    runmatch(lcodemodwithstarmod_stararg_name,range(1,3))
+    runmatch(lcodemodwithstarmod_stararg_name,list(range(1,3)))
 
 ########################################################
 
@@ -204,7 +204,7 @@ production:
 
 def test_match_mod_with_starmod_args_and_stararg():
     """ Test matching of module with two arg with pattern with a star module with 2 args and star args """
-    runmatch(lcodemodwithstarmod_args_and_stararg,range(1,3))
+    runmatch(lcodemodwithstarmod_args_and_stararg,list(range(1,3)))
 
 ########################################################
 
@@ -221,7 +221,7 @@ production:
 
 def test_match_mod_with_starmod_enoughargs_and_stararg():
     """ Test matching of module with two arg with pattern with a star module with enough args and star args """
-    runmatch(lcodemodwithstarmod_enoughargs_and_stararg,range(1,3))
+    runmatch(lcodemodwithstarmod_enoughargs_and_stararg,list(range(1,3)))
 
 ########################################################
 
@@ -417,10 +417,10 @@ C :
 
 if __name__ == '__main__':
     import traceback as tb
-    test_func = [ (n,v) for n,v in globals().items() if 'test' in n]
-    test_func.sort(lambda x,y : cmp(x[1].func_code.co_firstlineno,y[1].func_code.co_firstlineno))
+    test_func = [ (n,v) for n,v in list(globals().items()) if 'test' in n]
+    test_func.sort(lambda x,y : cmp(x[1].__code__.co_firstlineno,y[1].__code__.co_firstlineno))
     for tfn,tf in test_func:
-        print tfn
+        print(tfn)
         try:
             tf()
         except:

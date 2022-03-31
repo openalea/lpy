@@ -10,13 +10,13 @@ derivation length: 1
 production:
 
 A(*args):
-    print 'A(',args,')'
+    print('A(',args,')')
 
 B(*args):
-    print 'B(',args,')'
+    print('B(',args,')')
 
 C(*args):
-    print 'C(',args,')'
+    print('C(',args,')')
 
 interpretation:
 

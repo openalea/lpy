@@ -1,13 +1,14 @@
-from openalea.vpltk.qt.compat import *
-from openalea.vpltk.qt import qt
-from openalea.vpltk.qt.QtCore import QSettings
-from openalea.vpltk.qt.QtGui import QFont
-from openalea.vpltk.qt.QtWidgets import QApplication
+from openalea.plantgl.gui.qt.compat import *
+from openalea.plantgl.gui.qt import qt
+from openalea.plantgl.gui.qt.QtCore import QSettings
+from openalea.plantgl.gui.qt.QtGui import QFont
+from openalea.plantgl.gui.qt.QtWidgets import QApplication
+from openalea.lpy import LPY_VERSION_MAJOR
 import os
 
 
 def getSettings():
-    settings = QSettings(QSettings.IniFormat, QSettings.UserScope,'OpenAlea','LPy')
+    settings = QSettings(QSettings.IniFormat, QSettings.UserScope,'OpenAlea','LPy'+str(LPY_VERSION_MAJOR))
     return settings
 
 def restoreState(lpywidget):
@@ -15,9 +16,9 @@ def restoreState(lpywidget):
     settings = getSettings()
     settings.beginGroup('history')
 
-    lpywidget.history = [ unicode(i) for i in list(settings.value('RecentFiles')) if not i is None and len(i) > 0]
+    lpywidget.history = [ str(i) for i in list(settings.value('RecentFiles')) if not i is None and len(i) > 0]
     try:
-        openedfiles = [ unicode(i) for i in list(settings.value('OpenedFiles')) if not i is None and len(i) > 0]
+        openedfiles = [ str(i) for i in list(settings.value('OpenedFiles')) if not i is None and len(i) > 0]
     except:
         openedfiles = ''
     try:
@@ -46,6 +47,7 @@ def restoreState(lpywidget):
     settings.endGroup()
     settings.beginGroup('view3D')
     lpywidget.fitAnimationView = settings.value('fitAnimationView',lpywidget.fitAnimationView)=='true' 
+    lpywidget.fitRunView = settings.value('fitRunView',lpywidget.fitRunView)=='true' 
     lpywidget.setIntegratedView3D(settings.value('integratedView',lpywidget.use_own_view3D)=='true')
     lpywidget.displayMetaInfo = settings.value('displayMetaInfoAtRun',lpywidget.displayMetaInfo)=='true'
     settings.endGroup()
@@ -94,18 +96,18 @@ def restoreState(lpywidget):
         if fstr != 'default' and f.fromString(fstr):
             #print 'read font',fstr
             lpywidget.codeeditor.setEditionFont(f)
-    settings.endGroup()
-    settings.beginGroup('stdout')
-    lc = settings.value('lpyshell',True)=='true'
-    sc = settings.value('sysconsole',False)=='true'
-    lpywidget.shellwidget.setOutputRedirection(lc,sc,1)
-    settings.endGroup()
+    #settings.endGroup()
+    #settings.beginGroup('stdout')
+    #lc = settings.value('lpyshell',True)=='true'
+    #sc = settings.value('sysconsole',False)=='true'
+    #lpywidget.shellwidget.setOutputRedirection(lc,sc,1)
+    #settings.endGroup()
     
-    settings.beginGroup('stderr')
-    lc = settings.value('lpyshell',True)=='true'
-    sc = settings.value('sysconsole',False)=='true'
-    lpywidget.shellwidget.setOutputRedirection(lc,sc,2)
-    settings.endGroup()
+    #settings.beginGroup('stderr')
+    #lc = settings.value('lpyshell',True)=='true'
+    #sc = settings.value('sysconsole',False)=='true'
+    #lpywidget.shellwidget.setOutputRedirection(lc,sc,2)
+    #settings.endGroup()
     
     settings.beginGroup('edition')
     lpywidget.codeeditor.replaceTab = settings.value('replaceTab',lpywidget.codeeditor.replaceTab)=='true'
@@ -117,7 +119,7 @@ def restoreState(lpywidget):
     settings.endGroup()
 
     if settings.status() != QSettings.NoError:
-        raise 'settings error'
+        raise Exception('settings error')
     del settings
     
     if lpywidget.reloadAtStartup and len(openedfiles) > 0:
@@ -129,14 +131,15 @@ def restoreState(lpywidget):
                 lpywidget.openfile(openedfiles[lastfocus])
             except:
                 pass
-  except Exception, e:
-    print "cannot restore correctly state from ini file:", e
+  except Exception as e:
+    print("cannot restore correctly state from ini file:", e)
 
 def saveState(lpywidget):
     settings = getSettings()
     settings.beginGroup('history')
     settings.setValue('RecentFiles',to_qvariant(list(lpywidget.history)))
-    settings.setValue('OpenedFiles',to_qvariant(list([i.fname for i in lpywidget.simulations if not i.fname is None])))
+    op = list([str(i.getStrFname()) for i in lpywidget.simulations if not i.fname is None])
+    settings.setValue('OpenedFiles',to_qvariant(op))
     settings.setValue('MaxSize',to_qvariant(lpywidget.historymaxsize))
     settings.setValue('LastFocus',to_qvariant(lpywidget.currentSimulationId))
     settings.endGroup()
@@ -151,6 +154,7 @@ def saveState(lpywidget):
     settings.endGroup()
     settings.beginGroup('view3D')
     settings.setValue('fitAnimationView',to_qvariant(lpywidget.fitAnimationView)) 
+    settings.setValue('fitRunView',to_qvariant(lpywidget.fitRunView)) 
     settings.setValue('integratedView',to_qvariant(lpywidget.use_own_view3D))
     settings.setValue('displayMetaInfoAtRun',to_qvariant(lpywidget.displayMetaInfo))
     settings.endGroup()
@@ -179,19 +183,19 @@ def saveState(lpywidget):
     else:
         settings.setValue('editionfont','default')
     settings.endGroup()
-    if not lpywidget.interpreter is None:
-        settings.beginGroup('stdout')
-        outinshell = lpywidget.shellwidget.hasMultipleStdOutRedirection() or lpywidget.shellwidget.isSelfStdOutRedirection()
-        outinsys   = lpywidget.shellwidget.hasMultipleStdOutRedirection() or lpywidget.shellwidget.isSysStdOutRedirection()
-        settings.setValue('lpyshell',to_qvariant(outinshell))
-        settings.setValue('sysconsole',to_qvariant(outinsys))
-        settings.endGroup()
-        settings.beginGroup('stderr')
-        errinshell = lpywidget.shellwidget.hasMultipleStdErrRedirection() or lpywidget.shellwidget.isSelfStdErrRedirection()
-        errinsys   = lpywidget.shellwidget.hasMultipleStdErrRedirection() or lpywidget.shellwidget.isSysStdErrRedirection()
-        settings.setValue('lpyshell',to_qvariant(errinshell))
-        settings.setValue('sysconsole',to_qvariant(errinsys))
-        settings.endGroup()
+    # if not lpywidget.interpreter is None:
+    #     settings.beginGroup('stdout')
+    #     outinshell = lpywidget.shellwidget.hasMultipleStdOutRedirection() or lpywidget.shellwidget.isSelfStdOutRedirection()
+    #     outinsys   = lpywidget.shellwidget.hasMultipleStdOutRedirection() or lpywidget.shellwidget.isSysStdOutRedirection()
+    #     settings.setValue('lpyshell',to_qvariant(outinshell))
+    #     settings.setValue('sysconsole',to_qvariant(outinsys))
+    #     settings.endGroup()
+    #     settings.beginGroup('stderr')
+    #     errinshell = lpywidget.shellwidget.hasMultipleStdErrRedirection() or lpywidget.shellwidget.isSelfStdErrRedirection()
+    #     errinsys   = lpywidget.shellwidget.hasMultipleStdErrRedirection() or lpywidget.shellwidget.isSysStdErrRedirection()
+    #     settings.setValue('lpyshell',to_qvariant(errinshell))
+    #     settings.setValue('sysconsole',to_qvariant(errinsys))
+    #     settings.endGroup()
     settings.beginGroup('syntax')
     settings.setValue('highlighted',to_qvariant(lpywidget.codeeditor.isSyntaxHighLightActivated()))
     settings.setValue('tabview',to_qvariant(lpywidget.codeeditor.isTabHighLightActivated()))

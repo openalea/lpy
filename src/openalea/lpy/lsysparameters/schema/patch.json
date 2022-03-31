@@ -1,0 +1,128 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "patch",
+    "anyOf": [
+        {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "pattern": "^[^\\d\\W]\\w*\\Z"
+                },
+                "type": {
+                    "enum": ["NurbsPatch"]
+                },
+                "ctrlPointMatrix": {
+                    "$ref": "point4matrix.json"
+                },
+                "udegree": {
+                    "type": "number",
+                    "minimum": 1
+                },
+                "vdegree": {
+                    "type": "number",
+                    "minimum": 1
+                },
+                "uknotList": {
+                    "$ref": "realarray.json"
+                },
+                "vknotList": {
+                   "$ref": "realarray.json"
+                },
+                "ustride": {
+                    "type": "number",
+                    "minimum": 1
+                },
+                "vstride": {
+                    "type": "number",
+                    "minimum": 1
+                },
+                "id": {
+                    "type": "integer"
+                }
+            },
+            "required": ["name", "type", "ctrlPointMatrix"],
+            "additionalProperties": false
+        
+        },
+        {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "pattern": "^[^\\d\\W]\\w*\\Z"
+                },
+                "type": {
+                    "enum": ["NurbsPatch3D"]
+                },
+                "ctrlPointMatrix": {
+                    "$ref": "point4grid.json"
+                },
+                "udegree": {
+                    "type": "number",
+                    "minimum": 1
+                },
+                "vdegree": {
+                    "type": "number",
+                    "minimum": 1
+                },
+                "wdegree": {
+                    "type": "number",
+                    "minimum": 1
+                },
+                "ustride": {
+                    "type": "number",
+                    "minimum": 1
+                },
+                "vstride": {
+                    "type": "number",
+                    "minimum": 1
+                },
+                "wstride": {
+                    "type": "number",
+                    "minimum": 1
+                },
+                "uknotList": {
+                    "$ref": "realarray.json"
+                },
+                "vknotList": {
+                   "$ref": "realarray.json"
+                },
+                "wknotList": {
+                   "$ref": "realarray.json"
+                }
+            },
+            "required": ["name", "type", "ctrlPointMatrix"],
+            "additionalProperties": false
+        
+        },
+        {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "pattern": "^[^\\d\\W]\\w*\\Z"
+                },
+                "type": {
+                    "enum": ["BezierPatch"]
+                },
+                "ctrlPointMatrix": {
+                    "$ref": "point4matrix.json"
+                },
+                "ustride": {
+                    "type": "number",
+                    "minimum": 1
+                },
+                "vstride": {
+                    "type": "number",
+                    "minimum": 1
+                },
+                "id": {
+                    "type": "integer"
+                }
+            },
+            "required": ["name", "type", "ctrlPointMatrix"],
+            "additionalProperties": false
+        }
+    ]
+}

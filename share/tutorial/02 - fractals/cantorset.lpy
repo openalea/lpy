@@ -1,4 +1,4 @@
-Axiom: +(90)_(0.01)F(1)
+Axiom: ,(7) +(90)_(0.1)F(1)
 
 derivation length: 5
 production:
@@ -9,3 +9,12 @@ interpretation:
 
 
 endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	import openalea.plantgl.all as pgl
+	Color_7 = pgl.Material("Color_7" , ambient = (0,0,0) , diffuse = 12.3077 , )
+	Color_7.name = "Color_7"
+	context.turtle.setMaterial(7,Color_7)

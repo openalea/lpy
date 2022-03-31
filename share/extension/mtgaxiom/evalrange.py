@@ -52,7 +52,7 @@ def plotresult(i=0, j=101,step = 1):
         for i,v in enumerate(lres):
             nres[i].append(v[1])
         mres.append(sum([j for i,j in lres])/nbcurve)
-    print maxofmin
+    print(maxofmin)
     for y in nres:
        mpl.plot(x,y)
     mpl.plot(x,mres,linewidth=2)

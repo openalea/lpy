@@ -1,0 +1,22 @@
+from openalea.plantgl.all import Polyline2D
+from numpy import arange
+
+def f(u):
+  return (u,u**2)
+
+C0 = Polyline2D([f(u) for u in arange(0,1,0.1)])  # (B)
+
+L = 10
+#L = 6
+#L = 15
+L0 = 10
+Axiom: SetGuide(C0,L0) nF(L, 0.1)
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem

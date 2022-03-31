@@ -1,6 +1,6 @@
 import random as rd
 from openalea.plantgl.all import *
-from openalea.fractalysis.light.directLight import diffuseInterception
+from openalea.plantgl.light.light import diffuseInterception
 
 leafduration = 3 # life time of a leaf
 leafold =      2 # age at which a leaf is considered as old
@@ -13,7 +13,7 @@ nb_axes = lambda order : rd.randint(3,5)  # number of axe at a ramification
 up_angle = lambda t,order : 7        # up angle for lateral branches
 
 # number total of iterations of the system
-archi_steps = [maxduration(o) for o in xrange(maxorder+1)]
+archi_steps = [maxduration(o) for o in range(maxorder+1)]
 nbiter = sum(archi_steps)
 
 initial_view = 1
@@ -36,14 +36,14 @@ ignore: /&[
 production:
 
 A(t,o) :
-  print t
+  print (t)
   if t < maxduration(o):
      # simply produces a metamer and ages the apex
      produce I(1,0.1)L(0,t,0)A(t+1,o) 
   else:
       # produce a whorl of sympodial branches
       nbaxe = nb_axes(o)
-      for i in xrange(nbaxe):
+      for i in range(nbaxe):
         nproduce [/(360*i/nbaxe)&(branch_angle(o))B(0,o+1)]
       produce T
 
@@ -57,7 +57,7 @@ L(t1,n,lg) < B(t,o) :
   else:
     # produce a whorl of sympodial branches
     nbaxe = nb_axes(o)
-    for i in xrange(nbaxe):      
+    for i in range(nbaxe):      
       nproduce [/(360*i/nbaxe)&(branch_angle(o))B(0,o+1)]
     produce T
 
@@ -111,16 +111,10 @@ def StartEach():
 def EndEach(lstring,scene):
    if getIterationNb() % test_step == 0:
       #print 'computing star'
-      Viewer.redrawPolicy = False
-      Viewer.display(scene)
-      pos,h,up = Viewer.camera.getPosition()
       res = diffuseInterception(scene)
       for k,v in res.items():
          if lstring[k].name == 'L':
            lstring[k][2] = v
-      Viewer.redrawPolicy = False
-      Viewer.camera.lookAt(pos,pos+h)      
-      Viewer.redrawPolicy = True
 ###### INITIALISATION ######
 
 __lpy_code_version__ = 1.1
@@ -134,7 +128,7 @@ def __initialiseContext__(context):
 	Color_6.name = "Color_6"
 	context.turtle.setMaterial(6,Color_6)
 	context.animation_timestep = 0.001
-__references__ = 'Halle, 71'
-__description__ = 'Leuwenberg architectural model. '
-__institutes__ = 'CIRAD\nINRIA'
 __authors__ = 'F. Boudon\nD. Da SILVA'
+__institutes__ = 'CIRAD\nINRIA'
+__description__ = 'Leuwenberg architectural model. '
+__references__ = 'Halle, 71'

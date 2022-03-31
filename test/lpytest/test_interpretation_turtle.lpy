@@ -1,0 +1,43 @@
+# Help on turtle:
+# from openalea.plantgl.all import *
+# help(PglTurtle)
+
+def StartInterpretation(turtle):
+  turtle.add_parameter('toto',0)
+  pass
+
+def EndInterpretation(turtle):
+  pass
+
+Axiom: 
+  for i in range(5):
+    nproduce K
+  nproduce A(0)
+  nproduce [
+  for i in range(5):
+      nproduce K
+  nproduce A(1) ]
+  nproduce [
+  for i in range(10):
+      nproduce K
+  nproduce A(2) ]
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+K :
+  turtle.toto += 1
+  
+  turtle.left(60)
+  turtle.nF(3,0.1)
+  turtle.sphere(0.5)
+
+A(i):
+  values = { 0 : 5, 1 : 10, 2 : 15 }
+  print(turtle.toto)
+  assert turtle.toto == values[i]
+
+endlsystem

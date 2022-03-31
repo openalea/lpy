@@ -1,0 +1,14 @@
+#Equivalent to FF+(20)FF+(20)@D(0.8)FFF
+Axiom: nF(2,1)+(20)nF(2,1)+(20)@D(0.8)nF(3,1)
+
+#Branching shape
+#Axiom: nF(2,1)[+(45)nF(2,1)]nF(1,1)[-(45)nF(2,1)]nF(2,1)
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem

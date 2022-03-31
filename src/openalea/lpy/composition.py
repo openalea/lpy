@@ -37,7 +37,7 @@ class ComposedLsystem:
         from openalea.plantgl.all import Sequencer
         s = Sequencer(dt)
         clstring = lstring
-        for i in xrange(nbsteps):
+        for i in range(nbsteps):
             clstring = self.derive(clstring)
             self.plot(clstring)
             s.touch()

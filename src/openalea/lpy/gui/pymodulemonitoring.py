@@ -1,3 +1,4 @@
+import importlib
 
 class ModuleMonitor:
     def __init__(self):
@@ -6,7 +7,7 @@ class ModuleMonitor:
         self.sysmodules = sys.modules
 
     def _get_current_modules(self):
-        return set([k for k,m in self.sysmodules.items() if not m is None])
+        return set([k for k,m in list(self.sysmodules.items()) if not m is None])
 
     def start(self):
         self.modules = set()
@@ -24,8 +25,8 @@ class ModuleMonitor:
         for m in self.modules:
             module = self.sysmodules[m]
             if module:
-                if verbose: print 'Reload',repr(m)
-                reload(module)
+                if verbose: print('Reload',repr(m))
+                importlib.reload(module)
 
 class ModuleMonitorWatcher:
     def __init__(self, modulemonitor):
@@ -72,7 +73,7 @@ def check_local_modules(dir = '.'):
     pylocalmodules = glob.glob('*.pyc')
     pylocalmodules = set([op.join(op.abspath(dir),f) for f in pylocalmodules])
     result = []
-    for modname, module in sys.modules.items():
+    for modname, module in list(sys.modules.items()):
         if not module is None and ('__file__' in module.__dict__) and (op.abspath(module.__file__) in pylocalmodules):
             result.append(modname)
     return result
@@ -80,5 +81,5 @@ def check_local_modules(dir = '.'):
 def reload_local_modules(dir = '.', verbose = False):
     import sys
     for mod in check_local_modules(dir):
-        if verbose: print 'Reload', mod
-        reload(sys.modules[mod])
+        if verbose: print('Reload', mod)
+        importlib.reload(sys.modules[mod])

@@ -1,4 +1,4 @@
-__version_number__ = 0x020701
+__version_number__ = 0x030901
 __revision_str__=""
 
 
@@ -10,6 +10,9 @@ def get_minor(version):
 
 def get_revision(version): 
     return (__version_number__ & 0x0000ff)
+
+def get_version_majorminor(version):
+    return float(str(get_major(version))+'.'+str(get_minor(version)))
 
 def version_string(version, gitrev = ''):
     num_version_str = str(get_major(version))+'.'+str(get_minor(version))+'.'+str(get_revision(version))

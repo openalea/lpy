@@ -26,18 +26,18 @@ module K    # flower/fruit: age
 module I    # internode: age, area
 module S    # internode's segment: length	
 
-from time import clock
+from time import perf_counter
 timer = 0
 
 def Start():
-  print 'start'
+  print ('start')
   global Phase,timer
   Phase = ProduceMetamers
   backward()
-  timer = clock()
+  timer = perf_counter()
 
 def End():
-  print 'time=',clock()-timer
+  print ('time=',perf_counter()-timer)
 
 #def StartEach():
 #  pass #useGroup(Phase)
@@ -72,7 +72,7 @@ A(t,o) :
   if (t>=PL) :
     t -= PL
     nproduce Elasticity(0.0035 *  ( o ** 1.2 )) I(t,0) 
-    for i in xrange(randint(0,6)):
+    for i in range(randint(0,6)):
       nproduce RollR(137.5) [ -(ANG) A(t-random()*4*PL,o+1) ] 
     produce RollR(137.5) K(t)
   else: produce A(t+dt,o)
@@ -117,60 +117,37 @@ __lpy_code_version__ = 1.1
 
 def __initialiseContext__(context):
 	import openalea.plantgl.all as pgl
-	Color_1 = pgl.Material("Color_1" , 		ambient = (22,15,5) , 
-		diffuse = 3.18182 , 
-)
+	Color_1 = pgl.Material("Color_1" , ambient = (22,15,5) , diffuse = 3.18182 , )
 	Color_1.name = "Color_1"
 	context.turtle.setMaterial(1,Color_1)
-	Color_2 = pgl.Material("Color_2" , 		ambient = (26,18,6) , 
-		diffuse = 3.16162 , 
-)
+	Color_2 = pgl.Material("Color_2" , ambient = (26,18,6) , diffuse = 3.16162 , )
 	Color_2.name = "Color_2"
 	context.turtle.setMaterial(2,Color_2)
-	Color_3 = pgl.Material("Color_3" , 		ambient = (31,21,7) , 
-		diffuse = 3.14141 , 
-)
+	Color_3 = pgl.Material("Color_3" , ambient = (31,21,7) , diffuse = 3.14141 , )
 	Color_3.name = "Color_3"
 	context.turtle.setMaterial(3,Color_3)
-	Color_4 = pgl.Material("Color_4" , 		ambient = (36,25,8) , 
-		diffuse = 3.12121 , 
-)
+	Color_4 = pgl.Material("Color_4" , ambient = (36,25,8) , diffuse = 3.12121 , )
 	Color_4.name = "Color_4"
 	context.turtle.setMaterial(4,Color_4)
-	Color_5 = pgl.Material("Color_5" , 		ambient = (41,28,9) , 
-		diffuse = 3.10101 , 
-)
+	Color_5 = pgl.Material("Color_5" , ambient = (41,28,9) , diffuse = 3.10101 , )
 	Color_5.name = "Color_5"
 	context.turtle.setMaterial(5,Color_5)
-	Color_6 = pgl.Material("Color_6" , 		ambient = (45,31,10) , 
-		diffuse = 3.08081 , 
-)
+	Color_6 = pgl.Material("Color_6" , ambient = (45,31,10) , diffuse = 3.08081 , )
 	Color_6.name = "Color_6"
 	context.turtle.setMaterial(6,Color_6)
-	Color_7 = pgl.Material("Color_7" , 		ambient = (50,35,11) , 
-		diffuse = 3.06061 , 
-)
+	Color_7 = pgl.Material("Color_7" , ambient = (50,35,11) , diffuse = 3.06061 , )
 	Color_7.name = "Color_7"
 	context.turtle.setMaterial(7,Color_7)
-	Color_8 = pgl.Material("Color_8" , 		ambient = (55,38,12) , 
-		diffuse = 3.0404 , 
-)
+	Color_8 = pgl.Material("Color_8" , ambient = (55,38,12) , diffuse = 3.0404 , )
 	Color_8.name = "Color_8"
 	context.turtle.setMaterial(8,Color_8)
-	Color_9 = pgl.Material("Color_9" , 		ambient = (60,41,13) , 
-		diffuse = 3.0202 , 
-)
+	Color_9 = pgl.Material("Color_9" , ambient = (60,41,13) , diffuse = 3.0202 , )
 	Color_9.name = "Color_9"
 	context.turtle.setMaterial(9,Color_9)
-	Color_10 = pgl.Material("Color_10" , 		ambient = (65,45,15) , 
-		diffuse = 3 , 
-)
+	Color_10 = pgl.Material("Color_10" , ambient = (65,45,15) , diffuse = 3 , )
 	Color_10.name = "Color_10"
 	context.turtle.setMaterial(10,Color_10)
-	Color_11 = pgl.Material("Color_11" , 		ambient = (30,60,10) , 
-		diffuse = 3 , 
-)
+	Color_11 = pgl.Material("Color_11" , ambient = (30,60,10) , diffuse = 3 , )
 	Color_11.name = "Color_11"
 	context.turtle.setMaterial(11,Color_11)
 	context.options.setSelection('Optimization',2)
-	context.options.setSelection('Early return when no matching',0)

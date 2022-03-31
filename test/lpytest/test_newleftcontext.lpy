@@ -1,5 +1,5 @@
 def EndEach(lstring):
-  print lstring
+  print(lstring)
   assert lstring == 'BSABSA'
 
 Axiom: B A B A

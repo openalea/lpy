@@ -95,8 +95,8 @@ public:
 
   void postDraw();
 
-  AxialTree startInterpretation();
-  AxialTree endInterpretation();
+  AxialTree startInterpretation(boost::python::object turtle = boost::python::object());
+  AxialTree endInterpretation(boost::python::object turtle = boost::python::object());
 
   inline bool hasStartFunction() const { return hasObject("Start"); }
   inline bool hasStartEachFunction() const { return hasObject("StartEach"); }
@@ -270,6 +270,8 @@ public:
   /** Turtles and interpretation structures */
   PGL(PglTurtle) turtle;
   PGL(Turtle)    envturtle;
+  boost::python::object _pyturtle;
+  boost::python::object& pyturtle();
 
   /** Context options */
   LsysOptions options;
@@ -299,6 +301,9 @@ public:
   static const int DEFAULT_OPTIMIZATION_LEVEL;
   int optimizationLevel;
   inline void setOptimizationLevel(int level) { optimizationLevel = level; }
+
+  bool turtle_in_interpretation;
+  inline void setTurtleInIntepretation(bool enabled) { turtle_in_interpretation = enabled; }
 
   /** early return */
   void enableEarlyReturn(bool val) ;
@@ -412,6 +417,7 @@ protected:
   bool __multicore;
 
   int __bracketmapping_optim_level;
+
 };
 
 /*---------------------------------------------------------------------------*/
@@ -434,15 +440,16 @@ protected:
 
 class LPY_API GlobalContext : public LsysContext {
 public:
-  GlobalContext();
   ~GlobalContext();
 
   virtual PyObject * globals() const ;
   static boost::python::object getFunctionRepr();
-
+  virtual void clearNamespace();
+  static GlobalContext * get();
 protected:
+  GlobalContext();
 
-  boost::python::handle<> __globals;
+  boost::python::object __globals;
   static boost::python::object __reprFunc;
 
 };

@@ -66,12 +66,26 @@ static LsysContext * CURRENT_LSYSCONTEXT = NULL;
 static QMutex CURRENT_LSYSCONTEXT_MUTEX;
 
 
+size_t func_nb_args(boost::python::object function) {
+    const char * attrname =
+#if PY_MAJOR_VERSION == 2
+     "func_code"
+#else
+     "__code__"
+#endif
+     ;
+    try {
+        return extract<size_t>(function.attr(attrname).attr("co_argcount"))();
+    }
+    catch (...) { PyErr_Clear(); return 0; }
+}
+/*
 class ContextGarbageCollector
 {
 public:
 	ContextGarbageCollector() {}
 	~ContextGarbageCollector() { 
-		// std::cerr  << "context garbage collector" << std::endl;
+		printf("context garbage collector\n");
 		if (GLOBAL_LSYSCONTEXT){
 			LsysContext::cleanContexts();
 		}
@@ -79,25 +93,30 @@ public:
 protected:
 	static ContextGarbageCollector __INSTANCE;
 };
+*/
 
 void LsysContext::cleanContexts(){
+    // VERY STRANGE: Cannot delete global and default context.
     QMutexLocker locker(&CURRENT_LSYSCONTEXT_MUTEX);
 	if (DEFAULT_LSYSCONTEXT){
-		delete DEFAULT_LSYSCONTEXT;
+		// delete DEFAULT_LSYSCONTEXT;
 		DEFAULT_LSYSCONTEXT = NULL;
 	}
 	if (GLOBAL_LSYSCONTEXT)
 	{
-		delete GLOBAL_LSYSCONTEXT;
-		GLOBAL_LSYSCONTEXT = NULL;
+        if(!(LSYSCONTEXT_STACK.empty() && GLOBAL_LSYSCONTEXT->isCurrent()))
+            while(!GLOBAL_LSYSCONTEXT->isCurrent()) currentContext()->done();
+        assert(LSYSCONTEXT_STACK.empty() && GLOBAL_LSYSCONTEXT->isCurrent() && "LsysContext not all done!");
+
+        // delete GLOBAL_LSYSCONTEXT;
+        GLOBAL_LSYSCONTEXT = NULL;
 	}
 }
 
 LsysContext *
 LsysContext::globalContext()
 { 
-    if(!GLOBAL_LSYSCONTEXT)  GLOBAL_LSYSCONTEXT = new GlobalContext();
-	return GLOBAL_LSYSCONTEXT; 
+    return GlobalContext::get();
 }
 
 void createDefaultContext()
@@ -232,6 +251,12 @@ __bracketmapping_optim_level(0)
 	init_options();
 }
 
+boost::python::object&
+LsysContext::pyturtle() {
+    if (_pyturtle == boost::python::object()) _pyturtle = boost::python::object(boost::cref(turtle));
+    return _pyturtle;
+}
+
 LsysContext::LsysContext(const LsysContext& lsys):
   __direction(lsys.__direction),
   __group(lsys.__group),
@@ -242,6 +267,7 @@ LsysContext::LsysContext(const LsysContext& lsys):
   __axiom_decomposition_enabled(lsys.__axiom_decomposition_enabled),
   return_if_no_matching(lsys.return_if_no_matching),
   optimizationLevel(lsys.optimizationLevel),
+  turtle_in_interpretation(false),
   __animation_step(lsys.__animation_step),
   __animation_enabled(lsys.__animation_enabled),
   __iteration_nb(0),
@@ -269,6 +295,7 @@ __warn_with_sharp_module(true),
 __axiom_decomposition_enabled(false),
 return_if_no_matching(true),
 optimizationLevel(DEFAULT_OPTIMIZATION_LEVEL),
+turtle_in_interpretation(false),
 __animation_step(DefaultAnimationTimeStep),
 __animation_enabled(false),
 __iteration_nb(0),
@@ -299,6 +326,7 @@ LsysContext::operator=(const LsysContext& lsys)
   __axiom_decomposition_enabled = lsys.__axiom_decomposition_enabled;
   return_if_no_matching = lsys.return_if_no_matching;
   optimizationLevel = lsys.optimizationLevel;
+  turtle_in_interpretation = lsys.turtle_in_interpretation;
   __animation_step =lsys.__animation_step;
   __animation_enabled =lsys.__animation_enabled;
   __nbargs_of_endeach =lsys.__nbargs_of_endeach;
@@ -413,6 +441,12 @@ void LsysContext::init_options()
     option->addValue<PglTurtle,bool>("Enabled",&turtle,&PglTurtle::enablePathInfoCache,true,"Enable Cache.");
     option->setDefault(turtle.pathInfoCacheEnabled());   
 #endif
+
+    /** warn if turtle has invalid value option */
+    option = options.add("Turtle in Interpretation rules","Set whether the Turtle is given in the interpretation rules.","Processing");
+    option->addValue("Disabled",this,&LsysContext::setTurtleInIntepretation,false,"Disable.");
+    option->addValue("Enabled",this,&LsysContext::setTurtleInIntepretation,true,"Enable.");
+    option->setDefault(1);   
 
 
 #ifdef MULTICORE_ENABLED    
@@ -648,11 +682,17 @@ LsysContext::clearNamespace() {
 void 
 LsysContext::namespaceInitialisation()
 {
-   if (!hasObject("__builtins__"))
-		setObjectToGlobals("__builtins__", object(handle<>(borrowed( PyModule_GetDict(PyImport_AddModule("__builtin__"))))));
+   if (!hasObject("__builtins__")){
+        // copyObjectToGlobals("__builtins__",globalContext());
+
+        object builtins = boost::python::import("builtins");
+         setObjectToGlobals("__builtins__", builtins);
+		// setObjectToGlobals("__builtins__", object(handle<>(borrowed( PyModule_GetDict(PyImport_AddModule("__builtin__"))))));
+    }
 
    if (!hasObject("nproduce")){
-	   Compilation::compile("from openalea.lpy import *",globals(),globals());
+       Compilation::compile("from openalea.lpy import *",globals(),globals());
+       Compilation::compile("from openalea.plantgl.all import *",globals(),globals());
 
 	   /* handle<>  lpymodule (borrowed( PyModule_GetDict(PyImport_AddModule("openalea.lpy"))));
 		PyDict_Update(globals(),lpymodule.get());
@@ -783,9 +823,11 @@ LsysContext::endEach(AxialTree& lstring, const PGL::ScenePtr& scene)
 { return controlMethod("EndEach",lstring,scene); }
 
 AxialTree
-LsysContext::startInterpretation(){
+LsysContext::startInterpretation(boost::python::object pyturtle){
     if(hasStartInterpretationFunction()){
-          func("StartInterpretation");
+          size_t nbargs = func_nb_args(getObject("StartInterpretation"));
+          if (nbargs == 0) func("StartInterpretation");
+          else getObject("StartInterpretation")(pyturtle);
           AxialTree nprod = LsysContext::currentContext()->get_nproduction(); 
           if (nprod.empty())  {
             return AxialTree();
@@ -800,9 +842,11 @@ LsysContext::startInterpretation(){
 
 
 AxialTree
-LsysContext::endInterpretation(){
+LsysContext::endInterpretation(boost::python::object pyturtle){
     if(hasEndInterpretationFunction()){
-          func("EndInterpretation");
+          size_t nbargs = func_nb_args(getObject("EndInterpretation"));
+          if (nbargs == 0) func("EndInterpretation");
+          else getObject("EndInterpretation")(pyturtle);
           AxialTree nprod = LsysContext::currentContext()->get_nproduction(); 
           if (nprod.empty())  return AxialTree();
           else { 
@@ -917,37 +961,26 @@ LsysContext::func(const std::string& funcname){
   return object();
 }
 
+
 void 
 LsysContext::check_init_functions()
 {
 	if (hasObject("StartEach")) {
-		try {
-			__nbargs_of_starteach = extract<size_t>(getObject("StartEach").attr("func_code").attr("co_argcount"))();
-		}
-		catch (...) { PyErr_Clear(); __nbargs_of_starteach = 0; }
-	}
+		__nbargs_of_starteach = func_nb_args(getObject("StartEach"));
+    }
 	else __nbargs_of_starteach = 0;
 
 	if (hasObject("Start")) {
-		try {
-			__nbargs_of_start = extract<size_t>(getObject("Start").attr("func_code").attr("co_argcount"))();
-		}
-		catch (...) { PyErr_Clear(); __nbargs_of_start = 0; }
+			__nbargs_of_start = func_nb_args(getObject("Start"));
 	}
 	else __nbargs_of_start = 0;
 
 	if (hasObject("EndEach")) {
-		try {
-			__nbargs_of_endeach = extract<size_t>(getObject("EndEach").attr("func_code").attr("co_argcount"))();
-		}
-		catch (...) { PyErr_Clear(); __nbargs_of_endeach = 0; }
+			__nbargs_of_endeach = func_nb_args(getObject("EndEach"));
 	}
 	else __nbargs_of_endeach = 0;
 	if (hasObject("End")) {
-		try {
-			__nbargs_of_end = extract<size_t>(getObject("End").attr("func_code").attr("co_argcount"))();
-		}
-		catch (...) { PyErr_Clear(); __nbargs_of_end = 0; }
+			__nbargs_of_end = func_nb_args(getObject("End"));
 	}
 	else __nbargs_of_end = 0;
 }
@@ -1178,12 +1211,18 @@ LocalContext::globals() const
 
 GlobalContext::GlobalContext():
   LsysContext(){
-    __globals = handle<>(borrowed( PyModule_GetDict(PyImport_AddModule("__main__"))));
+   __globals =   object(handle<>(borrowed(PyModule_GetDict(PyImport_AddModule("__main__")))));
 }
+
+GlobalContext * GlobalContext::get()
+{
+    if(!GLOBAL_LSYSCONTEXT)  GLOBAL_LSYSCONTEXT = new GlobalContext();
+    return GLOBAL_LSYSCONTEXT;    
+}
+
 
 GlobalContext::~GlobalContext()
 {
-
 	if(!(LSYSCONTEXT_STACK.empty() && isCurrent()))
 		while(!isCurrent()) currentContext()->done();
 	assert(LSYSCONTEXT_STACK.empty() && isCurrent() && "LsysContext not all done!");
@@ -1192,7 +1231,7 @@ GlobalContext::~GlobalContext()
 
 PyObject * 
 GlobalContext::globals()  const 
-{ return __globals.get(); }
+{ return __globals.ptr(); }
 
 
 boost::python::object GlobalContext::__reprFunc;
@@ -1210,6 +1249,10 @@ GlobalContext::getFunctionRepr() {
 	return __reprFunc;
 }
 
-
+void
+GlobalContext::clearNamespace() {
+  __locals.clear();
+}
 /*---------------------------------------------------------------------------*/
 
+  

@@ -1,12 +1,12 @@
-from openalea.vpltk.qt import qt
-import debugger_ui
-import debugger_right_ui
-from objectpanel import LpyObjectPanelDock
-from lpyshell import set_shell_widget
+from . import debugger_ui
+from . import debugger_right_ui
+from .objectpanel import LpyObjectPanelDock
+from .lpyshell import set_shell_widget
 
-from openalea.vpltk.qt.QtCore import Qt, QCoreApplication
-from openalea.vpltk.qt.QtGui import QIcon, QPixmap
-from openalea.vpltk.qt.QtWidgets import QApplication, QDockWidget, QSplitter, QWidget
+from openalea.plantgl.gui.qt import qt
+from openalea.plantgl.gui.qt.QtCore import Qt, QCoreApplication, QTimer
+from openalea.plantgl.gui.qt.QtGui import QIcon, QPixmap
+from openalea.plantgl.gui.qt.QtWidgets import QApplication, QDockWidget, QSplitter, QWidget
 _translate = QCoreApplication.translate
 
 class DebugLeftWidget(QWidget,debugger_ui.Ui_Form):
@@ -26,7 +26,7 @@ def showMessage(self,msg,timeout):
         self.statusBar.showMessage(msg,timeout)
     else:
         print(msg)
-        
+
 def initDocks(lpywidget):
     prevdock = None
     st = lpywidget.statusBar()
@@ -76,24 +76,30 @@ def initDocks(lpywidget):
     lpywidget.addDockWidget(Qt.BottomDockWidgetArea,lpywidget.profilerDock)    
     action = lpywidget.profilerDock.toggleViewAction()
     lpywidget.menuView.addAction(action)
+    lpywidget.tabifyDockWidget(lpywidget.profilerDock,lpywidget.debugDock)
     lpywidget.profilerDock.hide()
     #interpreter dock
     if lpywidget.withinterpreter :
-        try:
-            set_shell_widget(lpywidget)
-        except:
-            lpywidget.withinterpreter = False
-            lpywidget.interpreter = None
-            lpywidget.interpreterDock.hide()
+        #try:
+        set_shell_widget(lpywidget)
+        #except:
+        #    lpywidget.withinterpreter = False
+        #    lpywidget.interpreter = None
+        #    lpywidget.interpreterDock.hide()
 
-        if lpywidget.withinterpreter :
-            action = lpywidget.interpreterDock.toggleViewAction()
-            action.setShortcut(QCoreApplication.translate("MainWindow", "Ctrl+P"))        
-            lpywidget.menuView.addSeparator()
-            lpywidget.menuView.addAction(action)
+    if lpywidget.withinterpreter:
+        action = lpywidget.interpreterDock.toggleViewAction()
+        action.setShortcut(QCoreApplication.translate("MainWindow", "Ctrl+P"))
+        lpywidget.menuView.addSeparator()
+        lpywidget.menuView.addAction(action)
             
-            lpywidget.addDockWidget(Qt.BottomDockWidgetArea,lpywidget.interpreterDock)
-            lpywidget.tabifyDockWidget(lpywidget.debugDock,lpywidget.interpreterDock)
+        lpywidget.addDockWidget(Qt.BottomDockWidgetArea,lpywidget.interpreterDock)
+        lpywidget.tabifyDockWidget(lpywidget.debugDock,lpywidget.interpreterDock)
     else:
         lpywidget.interpreter = None
-         
+
+def initShell(lpywidget):
+    return
+    lpywidget.interpreter.locals['window'] = lpywidget
+    lpywidget.shell.run_code('from openalea.plantgl.all import *')
+    lpywidget.shell.run_code('from openalea.lpy import *')

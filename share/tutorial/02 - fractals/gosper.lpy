@@ -1,0 +1,14 @@
+Axiom: A
+
+derivation length: 4
+production:
+
+A --> A-B--B+A++AA+B-
+B --> +A-BB--B-A++A+B
+
+interpretation:
+
+A --> F
+B --> F
+
+endlsystem

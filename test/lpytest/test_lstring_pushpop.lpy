@@ -1,5 +1,6 @@
+import importlib
 import openalea.lpy.__lpyfuture__
-reload (openalea.lpy.__lpyfuture__)
+importlib.reload (openalea.lpy.__lpyfuture__)
 from openalea.lpy.__lpyfuture__ import *
 
 iterbackupcreation  = 1
@@ -8,13 +9,13 @@ iterbackupretrieval = 9
 @enable_string_pushpop
 def EndEach(lstring):
     if getIterationNb() == iterbackupcreation:
-        print 'push', lstring
+        print('push', lstring)
         pushString('test')
     elif getIterationNb() == iterbackupretrieval:
-        print 'pop', popString('test'), 'instead of',lstring
+        print('pop', popString('test'), 'instead of',lstring)
 
 def End(lstring):
-  print 'End', len(lstring),  lstring
+  print('End', len(lstring),  lstring)
   assert len(lstring) == 1
 
 Axiom: A

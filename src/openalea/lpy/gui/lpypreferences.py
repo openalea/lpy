@@ -1,13 +1,13 @@
-from openalea.vpltk.qt import qt
+from openalea.plantgl.gui.qt import qt
 import os
-from lpyprofiling import AnimatedProfiling, ProfilingWithFinalPlot, ProfilingWithNoPlot
+from .lpyprofiling import AnimatedProfiling, ProfilingWithFinalPlot, ProfilingWithNoPlot
 
-import generate_ui
-import lpyprefwidget
+from . import generate_ui
+from . import lpyprefwidget
 
 
-from openalea.vpltk.qt.QtCore import QObject, pyqtSignal
-from openalea.vpltk.qt.QtWidgets import QDialog
+from openalea.plantgl.gui.qt.QtCore import QObject, pyqtSignal
+from openalea.plantgl.gui.qt.QtWidgets import QDialog
 
 
 class LpyPreferences:
@@ -44,8 +44,10 @@ class LpyPreferences:
             self.widget.pycodeDebugEdit.clicked.connect(lambda x : setattr(self.editor,'showPyCode',x)) # QObject.connect(self.widget.pycodeDebugEdit,SIGNAL('clicked(bool)'),lambda x : setattr(self.editor,'showPyCode',x))
             self.widget.useThreadEdit.setChecked(self.editor.with_thread)
             self.widget.useThreadEdit.clicked.connect(lambda x : setattr(self.editor,'with_thread',x)) # QObject.connect(self.widget.useThreadEdit,SIGNAL('clicked(bool)'),lambda x : setattr(self.editor,'with_thread',x))
-            self.widget.fitViewEdit.setChecked(self.editor.fitAnimationView)
-            self.widget.fitViewEdit.clicked.connect(lambda x : setattr(self.editor,'fitAnimationView',x)) # QObject.connect(self.widget.fitViewEdit,SIGNAL('clicked(bool)'),lambda x : setattr(self.editor,'fitAnimationView',x))
+            self.widget.fitViewAnimateEdit.setChecked(self.editor.fitAnimationView)
+            self.widget.fitViewAnimateEdit.clicked.connect(lambda x : setattr(self.editor,'fitAnimationView',x)) # QObject.connect(self.widget.fitViewEdit,SIGNAL('clicked(bool)'),lambda x : setattr(self.editor,'fitAnimationView',x))
+            self.widget.fitViewRunEdit.setChecked(self.editor.fitRunView)
+            self.widget.fitViewRunEdit.clicked.connect(lambda x : setattr(self.editor,'fitRunView',x)) # QObject.connect(self.widget.fitViewEdit,SIGNAL('clicked(bool)'),lambda x : setattr(self.editor,'fitAnimationView',x))
             self.widget.visuInfoEdit.setChecked(self.editor.displayMetaInfo)
             self.widget.visuInfoEdit.clicked.connect(lambda x : setattr(self.editor,'displayMetaInfo',x)) # QObject.connect(self.widget.visuInfoEdit,SIGNAL('clicked(bool)'),lambda x : setattr(self.editor,'displayMetaInfo',x))
             self.widget.gccPathButton.clicked.connect(self.chooseCCompilerPath) # QObject.connect(self.widget.gccPathButton,SIGNAL('clicked(bool)'),self.chooseCCompilerPath)
@@ -57,13 +59,13 @@ class LpyPreferences:
             self.widget.profilingNoPlotButton.clicked.connect(self.setProfilingNoPlotMode) # QObject.connect(self.widget.profilingNoPlotButton,SIGNAL('clicked(bool)'),self.setProfilingNoPlotMode)
             self.widget.integratedViewEdit.setChecked(self.editor.use_own_view3D)
             self.widget.integratedViewEdit.clicked.connect(self.editor.setIntegratedView3D) # QObject.connect(self.widget.integratedViewEdit,SIGNAL('clicked(bool)'),self.editor.setIntegratedView3D)
-            if not self.editor.withinterpreter:
-                self.widget.textOutputBox.setEnabled(False)
-            else:
-                self.widget.LPyConsoleButton.setChecked(self.editor.shellwidget.isSelfStdOutRedirection() or  self.editor.shellwidget.hasMultipleStdOutRedirection())
-                self.widget.LPyConsoleButton.clicked.connect(self.setOutputRedirection) # QObject.connect(self.widget.LPyConsoleButton,SIGNAL('clicked(bool)'),self.setOutputRedirection)
-                self.widget.systemConsoleButton.setChecked(self.editor.shellwidget.isSysStdOutRedirection() or  self.editor.shellwidget.hasMultipleStdOutRedirection())
-                self.widget.systemConsoleButton.clicked.connect(self.setOutputRedirection) # QObject.connect(self.widget.systemConsoleButton,SIGNAL('clicked(bool)'),self.setOutputRedirection)
+            #if not self.editor.withinterpreter:
+            self.widget.textOutputBox.setEnabled(False)
+            #else:
+            #    self.widget.LPyConsoleButton.setChecked(self.editor.shellwidget.isSelfStdOutRedirection() or  self.editor.shellwidget.hasMultipleStdOutRedirection())
+            #    self.widget.LPyConsoleButton.clicked.connect(self.setOutputRedirection) # QObject.connect(self.widget.LPyConsoleButton,SIGNAL('clicked(bool)'),self.setOutputRedirection)
+            #    self.widget.systemConsoleButton.setChecked(self.editor.shellwidget.isSysStdOutRedirection() or  self.editor.shellwidget.hasMultipleStdOutRedirection())
+            #    self.widget.systemConsoleButton.clicked.connect(self.setOutputRedirection) # QObject.connect(self.widget.systemConsoleButton,SIGNAL('clicked(bool)'),self.setOutputRedirection)
         self.dialog.show()
     def chooseCCompilerPath(self):
         p = QFileDialog.getExistingDirectory(self.editor, "Choose Compiler Path", self.editor.cCompilerPath )
@@ -88,6 +90,6 @@ class LpyPreferences:
             self.widget.profilingFinalPlotButton.setChecked(True)
         else:
             self.widget.profilingNoPlotButton.setChecked(True)
-    def setOutputRedirection(self):
-        self.editor.shellwidget.setOutputRedirection(self.widget.LPyConsoleButton.isChecked(),self.widget.systemConsoleButton.isChecked())
+    #def setOutputRedirection(self):
+    #    self.editor.shellwidget.setOutputRedirection(self.widget.LPyConsoleButton.isChecked(),self.widget.systemConsoleButton.isChecked())
             

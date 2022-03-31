@@ -1,0 +1,82 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "curve",
+    "anyOf": [
+        {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "pattern": "^[^\\d\\W]\\w*\\Z"
+                },
+                "type": {
+                    "enum": ["NurbsCurve2D"]
+                },
+                "ctrlPointList": {
+                    "$ref": "point3array.json"
+                },
+                "degree": {
+                    "type": "number",
+                    "minimum": 1
+                },
+                "is_function": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "knotList": {
+                    "$ref": "realarray.json"
+                }
+            },
+            "required": ["name", "type", "ctrlPointList"],
+            "additionalProperties": false
+        },
+        {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "pattern": "^[^\\d\\W]\\w*\\Z"
+                },
+                "type": {
+                    "enum": ["BezierCurve2D"]
+                },
+                "ctrlPointList": {
+                    "$ref": "point3array.json"
+                },
+                "is_function": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                }
+            },
+            "required": ["name", "type", "ctrlPointList"],
+            "additionalProperties": false
+        },
+        {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "pattern": "^[^\\d\\W]\\w*\\Z"
+                },
+                "type": {
+                    "enum": ["Polyline2D"]
+                },
+                "pointList": {
+                    "$ref": "point2array.json"
+                },
+                "is_function": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                }
+            },
+            "required": ["name", "type", "pointList"],
+            "additionalProperties": false
+        }
+    ]
+}

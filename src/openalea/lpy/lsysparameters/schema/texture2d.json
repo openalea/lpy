@@ -1,0 +1,58 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "texture2d",
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string",
+            "pattern": "^[^\\d\\W]\\w*\\Z"
+        },
+        "id": {
+            "type": "integer",
+            "minimum": 0
+        },
+        "type": {
+            "enum": ["Texture2D"]
+        },
+        "index": {
+            "type": "integer",
+            "minimum": 0
+        },
+        "image" : {
+            "type": "object",
+            "required": ["filename", "type"],
+            "additionalProperties": true,
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "pattern": "^[^\\d\\W]\\w*\\Z"
+                },
+                "id": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "type": {
+                    "enum": ["ImageTexture"]
+                },
+                "filename": {
+                    "type": "string",
+                    "description": "The file path (relative or absolute) in which the image is stored"
+                },
+                "repeatS": {
+                    "type": "boolean"
+                },
+                "repeatT": {
+                    "type": "boolean"
+                },
+                "mipmaping": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "baseColor": {
+            "$ref": "color4.json"
+        }
+    },
+    "required": ["name", "index", "image", "type"],
+    "additionalProperties": true
+}

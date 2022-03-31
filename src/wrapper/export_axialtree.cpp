@@ -215,7 +215,7 @@ boost::python::object py_varnames(AxialTree * tree)
 
 struct axialtree_from_str {
   static void* convertible(PyObject* py_obj){
-    if( !PyString_Check( py_obj ) ) return 0; 
+    if( !PyUnicode_Check( py_obj ) ) return 0;
     return py_obj; 
   } 
   static void construct( PyObject* obj, boost::python::converter::rvalue_from_python_stage1_data* data){ 
@@ -285,7 +285,8 @@ void export_AxialTree() {
 
   class_<PyAxialTreeIterator >
 	("AxialTreeIterator", init<AxialTree>("AxialTreeIterator(AxialTree)"))
-	.def("next",&PyAxialTreeIterator::next,return_internal_reference<>(), (bp::arg("onlyConsidered")=false))
+    .def("next",&PyAxialTreeIterator::next,return_internal_reference<>(), (bp::arg("onlyConsidered")=false))
+    .def("__next__",&PyAxialTreeIterator::next,return_internal_reference<>(), (bp::arg("onlyConsidered")=false))
 	.def("current",&PyAxialTreeIterator::currentValue,return_internal_reference<>())
 	.def("__length_hint__",&PyAxialTreeIterator::size)
     .def( "__iter__", &py_ati_iter )

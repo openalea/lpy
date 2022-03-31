@@ -36,12 +36,12 @@ def StartEach():
 
 from openalea.plantgl.all import Viewer,eStatic,eAnimatedScene, eAnimatedPrimitives
 
-from openalea.fractalysis.light.directLight import diffuseInterception
+from openalea.plantgl.light.light import diffuseInterception
 
 def End():
     if isAnimationEnabled():
-        print minl,maxl
-        f = file('interception.txt','w')
+        print (minl,maxl)
+        f = open('interception.txt','w')
         f.write(str(minl)+'\n')
         f.write(str(maxl)+'\n')
         f.close()
@@ -50,7 +50,7 @@ import os
 def Start():
     global minl, maxl
     if os.path.exists('interception.txt'):
-        f = file('interception.txt','r')
+        f = open('interception.txt','r')
         minl = float(f.readline())
         maxl = float(f.readline())
         f.close()
@@ -59,9 +59,7 @@ def Start():
 def EndEach(lstring,scene):
    if isAnimationEnabled():
       global minl, maxl # read from initial simu
-      Viewer.redrawPolicy = False # stop redrawing. do every thing with buffer
       Viewer.display(scene) 
-      pos,h,up = Viewer.camera.getPosition() # save camera position
       shapes = dict([(sh.id,sh) for sh in scene])
       res = diffuseInterception(scene)   # compute light from turtle dome
       for k,v in res.items(): # res contains pair of id, light level
@@ -70,8 +68,6 @@ def EndEach(lstring,scene):
            lstring[k][3] = v         # set ligth level into param 4 
            if minl > v: minl = v
            if maxl < v: maxl = v
-      Viewer.camera.lookAt(pos,pos+h)      # restaure camera
-      Viewer.redrawPolicy = True # redraw normaly
 
 
 def do_houpppier(p,s,c)   :
@@ -79,10 +75,10 @@ def do_houpppier(p,s,c)   :
     p2 = (p[0],p[1])
     t = norm(p2)/1.8 
     maxr = getmaxradius(t)
-    args = [maxr-uniform(0,maxr/3) for i in xrange(4)]
+    args = [maxr-uniform(0,maxr/3) for i in range(4)]
     maxh = getmaxheigth(t)
     midh = maxh*getmidheigth(t)
-    args += [midh+uniform(-0.5,0.5) for i in xrange(4)]
+    args += [midh+uniform(-0.5,0.5) for i in range(4)]
     args += [(0,0,0),(0,0,maxh)]
     ah = AsymmetricHull(*args)
     l = 17 if (c < 0 or maxl <= minl) else 2+(11 * ((c-minl)/(maxl-minl)) )   
@@ -149,7 +145,7 @@ N(x,t) :
     nproduce _(maxwidth*w1)
     nb,reminder = divmod(x,0.2)
     if nb > 0:
-      for i in xrange(nb):
+      for i in range(int(nb)):
         lr = maxwidth*(w1+(w2-w1)*((i+1)/nb))
         #print lr
         nproduce F(0.2,lr)
@@ -233,10 +229,10 @@ def __initialiseContext__(context):
 	Color_18 = pgl.Material("Color_18" , ambient = (60,60,15) , diffuse = 3 , )
 	Color_18.name = "Color_18"
 	context.turtle.setMaterial(18,Color_18)
-	scalars = [('SAVE_ANIM', False, False, True), ('ROTATION', False, False, True)]
+	scalars = [('SAVE_ANIM', 'Bool', False), ('ROTATION', 'Bool', False)]
 	context["__scalars__"] = scalars
-	for n,v,mnv,mxv in scalars:
-		context[n] = v
+	for s in scalars:
+		if not s[1] == "Category" : context[s[0]] = s[2]
 	import openalea.plantgl.all as pgl
 	heigth = pgl.NurbsCurve2D(	
 	    ctrlPointList = pgl.Point3Array([(0, 0.823531, 1),(0.40992, 1.05523, 1),(0.708241, 1.01986, 1),(1, 1.18804, 1)]) , 
@@ -254,7 +250,7 @@ def __initialiseContext__(context):
 	    ctrlPointList = pgl.Point3Array([(0, 0.18073, 1),(0.27434, 0.408218, 1),(0.655226, 0.468072, 1),(1, 0.747973, 1)]) , 
 	    )
 	width.name = "width"
-	panel_0 = ({'active': True, 'visible': True, 'name': 'Panel 1'},[('Function',heigth),('Function',midheigth),('Function',radius),('Function',width)])
+	panel_0 = ({'name': 'Panel 1', 'active': True, 'visible': True},[('Function',heigth),('Function',midheigth),('Function',radius),('Function',width)])
 	parameterset = [panel_0,]
 	context["__functions__"] = [('heigth',heigth),('midheigth',midheigth),('radius',radius),('width',width),]
 	context["__curves__"] = []

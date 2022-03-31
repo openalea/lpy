@@ -19,7 +19,7 @@ M(l,order) :
   nproduce _(diameter(l)) F(dl)
   newl = l + dl
   if newl % internodelength < dl:
-    nproduce iRollL(phyllotaxy) [ &(60) @v SetGuide(branchpath,length-newl) M(newl,order+1) ]
+    nproduce iRollL(phyllotaxy) [ &(60)  SetGuide(branchpath,length-newl) M(newl,order+1) ]
   produce M(newl,order)
 
 interpretation:
@@ -37,7 +37,7 @@ def __initialiseContext__(context):
 	    ctrlPointList = pgl.Point3Array([(-0.558642, 0.0459491, 1),(-0.212121, 0.107955, 1),(-0.0719697, 0.0568182, 1),(0.301136, 0.0965909, 1),(0.333243, 0.243134, 1)]) , 
 	    )
 	branchpath.name = "branchpath"
-	panel_0 = ({'active': True, 'visible': True, 'name': 'Panel 1'},[('Curve2D',branchpath)])
+	panel_0 = ({'name': 'Panel 1', 'active': True, 'visible': True},[('Curve2D',branchpath)])
 	parameterset = [panel_0,]
 	context["__functions__"] = []
 	context["__curves__"] = [('branchpath',branchpath),]

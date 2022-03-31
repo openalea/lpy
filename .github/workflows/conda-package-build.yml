@@ -1,0 +1,105 @@
+name: Building Package using Conda
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      #max-parallel: 5
+      matrix:
+        os: [ macos-latest, ubuntu-latest]
+        env:
+          - CONDA_PY: "37"
+            CONDA_NPY: "111" 
+          - CONDA_PY: "38" 
+            CONDA_NPY: "116"
+          - CONDA_PY: "39" 
+            CONDA_NPY: "119"
+
+    environment: anaconda_build
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Add conda to system path
+      run: |
+        # Add conda to system path
+        # $CONDA is an environment variable pointing to the root of the miniconda directory
+        echo $CONDA/bin >> $GITHUB_PATH
+
+    - name: Setup conda
+      run: |
+        # Setup conda
+        sudo conda config --add channels conda-forge
+        sudo conda config --add channels fredboudon
+        sudo conda config --set always_yes yes
+        sudo conda config --set remote_read_timeout_secs 600
+        sudo conda config --set auto_update_conda False
+        sudo conda install conda-build anaconda-client
+
+    - name: Build 
+      env:
+          CONDA_PY: ${{ matrix.env.CONDA_PY }}
+          CONDA_NPY: ${{ matrix.env.CONDA_NPY }}
+      run: |
+        # Build
+        if [[ "$CONDA_PY" = "" ]]; then
+          echo "CONDA_PY is not defined"
+          exit -1
+        fi
+        if [[ "$CONDA_NPY" = "" ]]; then
+          echo "CONDA_NPY is not defined"
+          exit -1
+        fi
+        export PYTHON_VERSION=${CONDA_PY:0:1}.${CONDA_PY:1:1}
+        export NUMPY_VERSION=${CONDA_NPY:0:1}.${CONDA_NPY:1:2}
+
+        export BUILD_CMD="sudo conda build . --python=$PYTHON_VERSION"
+        export BUILD_OUTPUT=`$BUILD_CMD --output`
+
+        if [[ "$BUILD_OUTPUT" = "" ]]; then
+          echo "PACKAGE NAME is not defined"
+          exit -1
+        fi
+        echo "BUILD_OUTPUT=$BUILD_OUTPUT" >> $GITHUB_ENV
+
+        $BUILD_CMD
+
+
+    - name: Login
+      env:
+          ANACONDA_LOGIN: ${{ secrets.ANACONDA_LOGIN }}
+          ANACONDA_PASSWORD: ${{ secrets.ANACONDA_PASSWORD }}
+      run: |
+        # Login
+        if [[ "$ANACONDA_LOGIN" = "" ]]; then
+          echo "ANACONDA_LOGIN is not defined"
+          exit -1
+        fi
+        SESSION_UID=$(uuidgen)
+        anaconda login --username $ANACONDA_LOGIN --password $ANACONDA_PASSWORD --hostname $SESSION_UID
+
+    - name: Deploy
+      env:
+          ANACONDA_OWNER: ${{ secrets.ANACONDA_OWNER }}
+          BUILD_OUTPUT: ${{ env.BUILD_OUTPUT }}
+      run: |
+        # Deploy
+        if [[ "$ANACONDA_OWNER" = "" ]]; then
+          echo "ANACONDA_OWNER is not defined"
+          exit -1
+        fi
+
+        echo "PACKAGE NAME:" $BUILD_OUTPUT
+        if [[ "$BUILD_OUTPUT" = "" ]]; then
+          echo "PACKAGE NAME is not defined"
+          exit -1
+        fi
+        anaconda upload --skip-existing $BUILD_OUTPUT -u $ANACONDA_OWNER --no-progress
+

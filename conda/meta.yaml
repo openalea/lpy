@@ -1,13 +1,12 @@
-# do not edit the following line. It will be updated automatically
-{% set version = "2.7.1" %}
+#{% set version = "2.7.2" %}
+{% set data = load_setup_py_data() %}
 
 package:
   name: openalea.lpy
-  version: {{ version }}
+  version: {{ data.get('version') }}
 
 source:
   path: ..
-
 
 about:
   home: https://github.com/openalea/lpy
@@ -16,30 +15,39 @@ about:
 
 build:
   preserve_egg_dir: True
-  number: 2
-
+  number: 0
 requirements:
   build:
-   - python
-   - setuptools
-   - openalea.deploy
-   - scons
-   - openalea.sconsx
-   - openalea.plantgl
-   - boost
-   - qt
-   - pyqt
-   - openalea.vpltk
+    - binutils_impl_linux-64<2.31.0 # [linux]
+    - {{ compiler('cxx') }}
+    - python {{PY_VER}}
+    - cmake >=3.12.0
+    - pkg-config                        # [linux]
+    - make                              # [unix]
+    - menuinst                          # [win]
+  host:
+    - python {{PY_VER}}
+    - setuptools
+    - openalea.plantgl
+    # - boost # provided by plantgl
+    - pyqt
   run:
-   - openalea.plantgl
-   - boost
-   - qt
-   - pyqt
-   - openalea.vpltk
-   - ipython
-   - qtconsole
-   - pyopengl
-   - pyqglviewer
+    - python {{PY_VER}}
+    - setuptools
+    - {{ pin_compatible('openalea.plantgl', max_pin='x.x') }} 
+    - {{ pin_compatible('boost',            max_pin='x.x.x') }} 
+    - pyqt
+    - ipython
+    - qtconsole
+    - jupyter_client # <6
+    - pyopengl
+    - pyqglviewer
+    - jsonschema
+
+app:
+  entry: lpy
+  summary: Plant simulation software
+  icon: icon_64x64.png
 
 test:
   requires:
@@ -51,4 +59,4 @@ test:
     - share/
   commands:
     - nosetests -v -I test_predecessor_at_scale.py -I test_ui.py [unix]
-    - nosetests -v -I test_predecessor_at_scale.py -I test_ui.py -I test_axialtree.py -I test_debugger.py -I test_fibonacci.py -I test_lpytest.py -I test_matching.py -I test_starmatching.py -I test_successor_at_scale.py [win]
+    - nosetests -v -I test_predecessor_at_scale.py -I test_ui.py -I test_axialtree.py -I test_successor_at_scale.py [win]

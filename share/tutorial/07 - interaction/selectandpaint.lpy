@@ -21,7 +21,7 @@ derivation length: 7
 production:
 
 X S : 
-  print 'Stop'
+  print ('Stop')
   Stop()
 
 group 1:

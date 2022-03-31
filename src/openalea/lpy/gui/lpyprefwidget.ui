@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>315</width>
-    <height>306</height>
+    <width>424</width>
+    <height>368</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="prefTab">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tabAppearance">
       <attribute name="title">
@@ -107,7 +107,7 @@
            <widget class="QFontComboBox" name="fontFamilyEdit">
             <property name="currentFont">
              <font>
-              <family>MS Sans Serif</family>
+              <family>Abadi MT Condensed Extra Bold</family>
              </font>
             </property>
            </widget>
@@ -447,9 +447,19 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_9">
           <item>
-           <widget class="QCheckBox" name="fitViewEdit">
+           <widget class="QCheckBox" name="fitViewAnimateEdit">
             <property name="text">
-             <string>Fit last view before animation.</string>
+             <string>Fit last view before Animation.</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="fitViewRunEdit">
+            <property name="text">
+             <string>Fit view before Run and Step.</string>
             </property>
             <property name="checked">
              <bool>true</bool>

@@ -1,0 +1,31 @@
+L = 10
+#L = 6
+#L = 15
+L0 = 10
+Axiom: Frame SetGuide(C0,L0) nF(L, 0.1)
+#Axiom: Sweep(C0,C0,7,1)
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	import openalea.plantgl.all as pgl
+	C0 = pgl.BezierCurve2D(	
+	    pgl.Point3Array([(-0.5, 0, 1),(-0.171072, 0.38326, 1),(0.00367107, -0.317181, 1),(0.5, 0, 1)]) , 
+	    )
+	C0.name = "C0"
+	panel_0 = ({'active': True, 'visible': True, 'name': 'Panel 1'},[('Curve2D',C0)])
+	parameterset = [panel_0,]
+	context["__functions__"] = []
+	context["__curves__"] = [('C0',C0),]
+	context["__parameterset__"] = parameterset
+	context["C0"] = C0

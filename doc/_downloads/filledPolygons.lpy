@@ -1,0 +1,27 @@
+#Drawing filled polygons
+
+#Using f.
+Axiom: Frame _(0.05),(2){.f(3).-(90)f(3).-(90)f(3).-(90)f(3)}
+#Using F
+#Axiom: Frame _(0.05),(2){.F(3)-(90)F(3)-(90)F(3)-(90)F(3)}
+#With number of edges different than number of vertices
+#Axiom: Frame _(0.05),(2){.F(3)-(90)F(3)-(90)F(3)}
+#Not closed because the first . is missing
+#Axiom: Frame _(0.05),(2){F(3)-(90)F(3)-(90)F(3)}
+
+#Smart filling procedure
+
+#Without smart procedure
+#Axiom: _(0.01),(2) {.F+(95)F(0.7)-(120)F(0.2)+(80)F-(120)F(0.2)+(80)F(0.5)-120)F(0.5)+(80)F(0.2)-(120)F(0.5)+(150)F-(120)F(0.3)+(80)F -(120)F+(80)F(0.3)-(120)F +(150)F(0.5)-(120)F(0.2)+(80)F(0.5)-(120)F(0.5)+(80)F(0.2)-(120)F+(20)F(0.2)-(150)F(0.7)+(95)F}(False)
+
+#With smart procedure
+#Axiom: _(0.01),(2) {.F+(95)F(0.7)-(120)F(0.2)+(80)F-(120)F(0.2)+(80)F(0.5)-(120)F(0.5)+(80)F(0.2)-(120)F(0.5)+(150)F-(120)F(0.3)+(80)F -(120)F+(80)F(0.3)-(120)F +(150)F(0.5)-(120)F(0.2)+(80)F(0.5)-(120)F(0.5)+(80)F(0.2)-(120)F+(120)F(0.2)-(150)F(0.7)+(95)F}(True)
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem

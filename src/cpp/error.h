@@ -40,6 +40,12 @@ LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
+typedef void (*PrintCallbackType)(const std::string &);
+
+LPY_API void SetLsysErrorCallback(PrintCallbackType callback);
+
+LPY_API void SetLsysWarningCallback(PrintCallbackType callback);
+
 LPY_API void LsysError(const std::string& error);
 
 LPY_API void LsysError(const std::string& error,const std::string& filename, int lineno);

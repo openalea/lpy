@@ -1,6 +1,6 @@
 from openalea.plantgl.all import norm,Vector3, dot, angle, direction
 
-import mtgimport as mi
+#import mtgimport as mi
 from openalea.mtg.io import read_mtg_file, axialtree2mtg, mtg2axialtree
 
 
@@ -35,18 +35,19 @@ def Start():
     initialmtg = read_mtg_file('walnut.mtg')
     xx,yy,zz = initialmtg.property('XX'),initialmtg.property('YY'),initialmtg.property('ZZ')
     # recompose the tipposition property from the 3 properties xx,yy,zz
-    tipposition = dict([(i,Vector3(x,yy[i],zz[i])) for i,x in xx.iteritems()])
+    tipposition = dict([(i,Vector3(x,yy[i],zz[i])) for i,x in xx.items()])
     initialmtg.properties()['tipposition'] = tipposition
 
 def End(lstring):
       # compute resulting mtg
       global resultmtg
       resultmtg = export_to_mtg(lstring)
-      print len(initialmtg),len(resultmtg)
+      print (len(initialmtg),len(resultmtg))
 
 def StartEach():
     seed(SEED)
 
+exported_symbols = 'SUVWZ'
 
 def export_to_mtg(lstring):
   # Retrieve parameter of modules to export
@@ -154,7 +155,7 @@ Bud(vinfo,uinfo) :
   nproduce @Ge   _(d/2) PinpointRel(ndir[0],ndir[1],ndir[2])
   bdiam = d
   prob = RAMIF/100.
-  for i in xrange(nbdsons):
+  for i in range(nbdsons):
     lgth = uniform(l*0.8,l*1.2)
     tpdiam = d+i*(tdiam-d)/(nbdsons-1)
     nproduce  W(ndir, lgth,tpdiam,bdiam)
@@ -162,7 +163,7 @@ Bud(vinfo,uinfo) :
     if random() < prob:
        nb = round(avglatnb*.9)
        nproduce  [ /(137.5*i) +(60) 
-       for i in xrange(nb):
+       for i in range(nb):
          nproduce Z(ndir, uniform(avglatl/(2*nb), 3*avglatl/(2*nb)) ,tdiam/2,bdiam/2)
        nproduce ]
   ndir,l,d,tdiam,nbdsons,avglatsons = uinfo
@@ -170,7 +171,7 @@ Bud(vinfo,uinfo) :
   l = l / nbdsons
   bdiam = tpdiam
   nproduce @Ge @Gc   PinpointRel(ndir[0],ndir[1],ndir[2])
-  for i in xrange(nbdsons*.9):
+  for i in range(nbdsons*.9):
     lgth = uniform(l*0.8,l*1.2)
     tpdiam = d+i*(tdiam-d)/(nbdsons-1)
     nproduce  Z(ndir, lgth,tpdiam,bdiam)
@@ -178,7 +179,7 @@ Bud(vinfo,uinfo) :
     if random() < avglats:
        nb = round(avglatnb)
        nproduce  [ /(137.5*i) +(60) 
-       for i in xrange(nb):
+       for i in range(nb):
          nproduce Z(ndir, uniform(avglatl/(2*nb), 3*avglatl/(2*nb)) ,tdiam/2,bdiam/2)
        nproduce ]
 

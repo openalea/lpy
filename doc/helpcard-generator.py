@@ -1,4 +1,3 @@
-from openalea.lpy import helpTurtle
 import sys
 
 def getMaxCharByCol(table):
@@ -186,7 +185,11 @@ def interpretHelpTurtle(outfile):
 
 outfile = open(sys.argv[1], "w")
 
-interpretFile(outfile, "header.helpcard")
-interpretHelpTurtle(outfile)
-interpretFile(outfile, "predef_com.helpcard")
+try:
+    from openalea.lpy import helpTurtle
+    interpretFile(outfile, "header.helpcard")
+    interpretHelpTurtle(outfile)
+    interpretFile(outfile, "predef_com.helpcard")
+except:
+    pass
 

@@ -1,0 +1,38 @@
+from openalea.plantgl.all import *
+
+target = Vector3(5,0,5)
+
+def StartEach():
+  useGroup(0)
+  if getIterationNb() == 2:
+    useGroup(1)
+
+
+module T,I,R
+
+Axiom: 
+  nproduce T 
+  for i in range(10):
+    nproduce  I(ParameterSet(diameter=0.01*(10-i)+0.1)) ?P R(None, 0) 
+
+derivation length: 10
+production:
+
+group 1:
+
+I(par) ?P(p) < R(d,e) :
+  if p.z < target.z :
+   nproduce  R(target-p,0.06-(par.diameter/10))
+  else:
+   nproduce R(None, 0)
+
+interpretation:
+group 0:
+
+R(d,e) --> [,(2)@O(0.2)] @Tp(d if d is not None else (0,0,1)) @Ts(e)
+
+T --> [,(3) @M(target) @O(0.2)]
+
+I(p) --> _(p.diameter) nF(1,0.1)
+
+endlsystem

@@ -1,13 +1,13 @@
 from openalea.plantgl.all import *
-from openalea.vpltk.qt import qt
+from openalea.plantgl.gui.qt import qt
 try:
     from PyQGLViewer import QGLViewer, Vec
     from openalea.plantgl.gui.pglnqgl import *
     ParentClass = QGLViewer
     hasPyQGLViewer = True
-except ImportError, e:
+except ImportError as e:
     ParentClass = qt.QtOpenGL.QGLWidget
-    print 'Missing PyQGLViewer !!!!!! Unstable Lpy !!!!!!!!!'
+    print('Missing PyQGLViewer !!!!!! Unstable Lpy !!!!!!!!!')
     hasPyQGLViewer = False
 
 class LpyView3D (ParentClass):
@@ -37,7 +37,7 @@ class LpyView3D (ParentClass):
                     self.camera().setSceneBoundingBox(*bbx2qgl(bbx))
                     self.showEntireScene()
                     self.updateGL()
-                else: print 'error computing bbox'
+                else: print('error computing bbox')
         else :
             self.updateGL()
     def draw(self):        

@@ -1,10 +1,11 @@
-# test special character: é è §
-Axiom: A('é') é
+#coding: utf-8
+# test special character: Ã© Ã¨ Â§
+Axiom: A(u'Ã©') Ã©
 
 derivation length: 1
 production:
 
-é --> é
+Ã© --> Ã©
 
 interpretation:
 

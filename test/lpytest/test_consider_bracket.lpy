@@ -1,7 +1,7 @@
 from openalea.plantgl.all import *
 
 def EndEach(lstring): 
-  print lstring
+  print(lstring)
   assert lstring == Lstring("M(4) [ M(1) ] M(2) M(1)")
 
 backward()

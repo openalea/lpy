@@ -1,5 +1,5 @@
 from openalea.core import *
-#from lpy_nodes import WithLpyGui
+#from .lpy_nodes import WithLpyGui
 
 __name__ = "vplants.l-py"
 __version__ = '0.0.1'

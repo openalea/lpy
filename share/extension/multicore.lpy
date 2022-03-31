@@ -1,17 +1,8 @@
-from time import time, clock
-t = None
 
-tf = time
 
-def Start():
-  global t
-  t = tf()
-
-def End():
-  print 'Time:',tf()-t
 
 Axiom: 
-  for i in xrange(500000): nproduce A B
+  for i in range(500000): nproduce A B
 
 derivation length: 2
 production:

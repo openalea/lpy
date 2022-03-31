@@ -1,0 +1,19 @@
+from openalea.plantgl.all import *
+from math import sin,pi
+
+def py2qf(function, start = 0, stop = 1., step = 0.1):
+  import numpy as np
+  p = [(u,function(u)) for u in np.arange(start,stop+step,step)]
+  return QuantisedFunction(p)
+    
+
+Axiom: Sweep(Polyline2D([(0,0),(1,0)]), Polyline2D([(-1,0),(1,0)]),1, 0.1, 0.2, py2qf(sin, 0, pi, pi/10.))
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem

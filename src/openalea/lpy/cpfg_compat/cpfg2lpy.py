@@ -1,6 +1,6 @@
 import openalea.lpy as lpy
-import vafile_import as vafile
-
+from . import vafile_import as vafile
+import sys
 
     
 def empty_line(line):
@@ -12,27 +12,31 @@ def empty_line(line):
 def empty_end_line(txt,index):
     nbchar = len(txt)
     if nbchar >= index : return True
-    for i in xrange(index,nbchar) :
+    for i in range(index,nbchar) :
         c = txt[i]
         if c in '\n': return True
         if c not in ' \t': return False
     return True
 
-def find_code_limit(txt,index):
-    nbchar = len(txt)
-    begcode = index
-    i = index
+def find_code_limit(code, lines, lineno):
+    nbchar = len(code)
+    begcode = 0
+    i = 0
     nbparenthesis = 0
     while i < nbchar:
-        if txt[i] == '{' : 
+        if code[i] == '{' : 
             nbparenthesis += 1
             if nbparenthesis == 1 : 
                 begcode = i
-        if txt[i] == '}' : 
+        if code[i] == '}' : 
             nbparenthesis -= 1
             if nbparenthesis <= 0 : break
         i += 1
-    return begcode, i
+        while i == nbchar and nbparenthesis > 0:
+            code += '\n'+lines.pop(0)
+            lineno += 1
+            nbchar = len(code)
+    return code[:i+1], i+1, lineno
     
 def add_sharp_to_line(txt):
     result = '# '
@@ -45,8 +49,22 @@ def translate_comments(txt):
     nextendcomment = 0
     result = ''
     while nxtcomment != -1:
+        nxtprod = txt.find("-->",nextendcomment)
         nxtcomment = txt.find("/*",nextendcomment)
         if nxtcomment != -1:
+            while 0 <= nxtprod < nxtcomment:
+                begprod = nxtprod
+                endprod = txt.find('\n',begprod)
+                while txt[endprod+1].startswith('\t'):
+                    endprod = txt.find('\n',endprod+1)
+                if nxtcomment < endprod:
+                    nxtcomment = txt.find("/*",endprod+1)
+                    nxtprod = txt.find("-->",endprod+1)
+                    if nxtcomment == -1:
+                        break
+                else:
+                    nxtprod = txt.find("-->",endprod+1)
+
             result += txt[nextendcomment:nxtcomment]
             nextendcomment = txt.find("*/",nxtcomment+2)
             nextendcomment += 2
@@ -69,7 +87,27 @@ def convert_symbols(txt):
     return result
 
 def convert_lstring(txt):
-    return txt.replace('#','_')
+    return txt.replace('#','_').replace('/*','#').replace('*/','#')
+
+def produce_lstring(txt, indent):
+    toproduce = convert_lstring(txt)
+    if '\n' in toproduce:
+        lines = toproduce.splitlines()
+        result = indent+'nproduce '+lines[0]+'\n'
+        for il,l in enumerate(lines[1:]):
+            if len(l) > 0:
+                for i,c in enumerate(l):
+                    if c in '\t ':
+                        pass
+                    else:
+                        break
+                if il == len(lines)-2:
+                    result+=indent+'produce '+l[i:]+'\n'
+                else:
+                    result+=indent+'nproduce '+l[i:]+'\n'
+        return result
+    else:
+        return indent+'produce '+toproduce+'\n'
 
     
 def check_assignement(code):
@@ -86,52 +124,105 @@ def check_assignement(code):
         return [var]
     else:
         return []
-    
-def translate_c_code(txt,indentation = 1):
-    vars = []
-    indent = '\t'*indentation
-    txt = txt.strip()
-    assert txt[0] == '{' and txt[-1] == '}'
-    txt = txt[1:-1]
-    commands = txt.split(';')
-    commands = [ c.strip() for c in commands]
-    commands = [ c for c in commands if len(c) > 0]    
-    result = ''
-    for command in commands:
-        if '{' in command or '}' in command:
-            if '}' in command:
-                comparts = command.split('}')
-                command = comparts[-1]
-                comparts = comparts[:-1]
-                for part in comparts:
-                    part = part.strip()
-                    if len(part) > 0:
-                        result += indent + part +'\n'
-                        vars += check_assignement(part)
-                    indent = indent[:-1]
-            if '{' in command:
-                comparts = command.split('{')
-                command = comparts[-1]
-                comparts = comparts[:-1]
-                for part in comparts:
-                    result+= indent
-                    if 'do' in part:
-                        result += 'while True'
-                        import warnings
-                        warnings.warn('do command not supported for translation in line %s.' % lineno)
-                    else:
-                        part = part.strip()
-                        result += part
-                        vars += check_assignement(part)
-                    result+= ':\n'
-                    indent += '\t'
-                command = command.strip()
-                result+= indent + command +'\n'
-                vars += check_assignement(command)
+
+def split_code(txt):
+    pid = 0
+    result = []
+    cid = pid
+    while cid < len(txt):
+        c = txt[cid]
+        if c == ';':
+            result.append( (txt[pid:cid].strip(), None) )
+            pid=cid+1
+            cid +=1
+        if c == '#':
+            lcid = txt.find('\n',cid)
+            result.append( (txt[pid:lcid+1].strip(), None) )
+            pid = cid = lcid+1
+        if c == '{':
+            nbpar = 0
+            lcid = cid+1
+            while lcid < len(txt) and (nbpar > 0 or txt[lcid] != '}'):
+                if txt[lcid] == '{' : nbpar += 1
+                if txt[lcid] == '}' : nbpar -= 1
+                lcid += 1
+            result.append( (txt[pid:cid].strip()+':', split_code(txt[cid+1:lcid+1]) ) )
+            pid = cid = lcid + 1
         else:
-            vars += check_assignement(command)
-            result += indent + command +'\n'
-    return result, vars
+            cid +=1
+    return result
+
+def translate_c_code(code, indentation=1):
+    code = code.strip()
+    assert code[0] == '{' and code[-1] == '}'
+    code = code[1:-1]
+    def process_commands(commands, indentation):
+        indent = '\t'*indentation
+        result = ''
+        vars = set()
+        for command,n in commands:
+            if not n:
+                vars |= set(check_assignement(command))
+                result += indent+command+'\n'
+            if n:
+                if 'do' in command:
+                    result += 'while True'
+                    import warnings
+                    warnings.warn('do command not supported for translation.')
+                else:
+                    result += indent+command+'\n'
+                lres, lvars = process_commands(n,indentation+1)
+                result += lres
+                vars |= set(lvars)
+        return result, vars    
+    return process_commands(split_code(code),indentation)
+
+# def translate_c_code(txt,indentation = 1):
+#     vars = []
+#     indent = '\t'*indentation
+#     txt = txt.strip()
+#     assert txt[0] == '{' and txt[-1] == '}'
+#     txt = txt[1:-1]
+#     commands = txt.split(';')
+#     commands = [ c.strip().replace('\n','\n'+indent) for c in commands]
+#     commands = [ c for c in commands if len(c) > 0]
+
+#     result = ''
+#     for command in commands:
+#         if '{' in command or '}' in command:
+#             if '}' in command:
+#                 comparts = command.split('}')
+#                 command = comparts[-1]
+#                 comparts = comparts[:-1]
+#                 for part in comparts:
+#                     part = part.strip()
+#                     if len(part) > 0:
+#                         result += indent + part +'\n'
+#                         vars += check_assignement(part)
+#                     indent = indent[:-1]
+#             if '{' in command:
+#                 comparts = command.split('{')
+#                 command = comparts[-1]
+#                 comparts = comparts[:-1]
+#                 for part in comparts:
+#                     result+= indent
+#                     if 'do' in part:
+#                         result += 'while True'
+#                         import warnings
+#                         warnings.warn('do command not supported for translation in line %s.' % lineno)
+#                     else:
+#                         part = part.strip()
+#                         result += part
+#                         vars += check_assignement(part)
+#                     result+= ':\n'
+#                     indent += '\t'
+#                 command = command.strip()
+#                 result+= indent + command +'\n'
+#                 vars += check_assignement(command)
+#         else:
+#             vars += check_assignement(command)
+#             result += indent + command +'\n'
+#     return result, set(vars)
 
 def get_local_var(predecessor):
     c = lpy.LsysContext()
@@ -166,7 +257,7 @@ def process_rule(predecessor,conditions,precondition,defs,withlineno = True):
             gvar += glvar
         if withlineno:
             result += indent+'# see line '+str(lineno)+'\n'
-        result += indent+'produce '+convert_lstring(successor)+'\n'
+        result += produce_lstring(successor,indent)
     else:
         nbrules = len(defs)
         assert len([pb for p,s,pb,l in defs if not pb is None]) ==  nbrules and "multiple successor with no probabilities"
@@ -187,14 +278,14 @@ def process_rule(predecessor,conditions,precondition,defs,withlineno = True):
             postcondition, successor, prob, lineno = defs[1]
             if postcondition:
                 result += translate_c_code(postcondition,len(indent))
-            result += indent+'produce '+convert_lstring(successor)+'\n'
+            result += produce_lstring(successor, indent)
             indent = indent[:-1]
             
         
         else:
             result += indent+'from openalea.lpy.cpfg_compat import select_successor_from_prob\n'
             result += indent+'successor = select_successor_from_prob(['+','.join([pb for p,s,pb,l in defs])+'])\n'
-            for i in xrange(len(defs)) :
+            for i in range(len(defs)) :
                 postcondition, successor, prob, lineno = defs[i]             
                 result += indent
                 if i == 0: result +=  'if successor == '+str(i)+' : # see line '+str(lineno)+'\n'
@@ -239,12 +330,19 @@ class CurrentRule:
     def empty(self):
         return self.predecessor is None
 
+def check_next_line_tab(lines):
+    for l in lines:
+        if len(l) == 0:
+            continue
+        return l[0] == '\t'
+    return False
     
 def translate_l_code(txt, vlpyinitconfig = None):
     txt = convert_symbols(txt)
     txt = translate_comments(txt)
     allgvar = set()
     result = 'from openalea.lpy.cpfg_compat.func_compat import *\n'
+    result += 'from  numpy import array\n'
     current_rule = CurrentRule()
     proddec = False
     proddecposition = None
@@ -275,13 +373,37 @@ def translate_l_code(txt, vlpyinitconfig = None):
                 while len(lines) > 0 and restofline[-2:] == '\\\\':
                     nline = lines.pop(0)
                     lineno += 1
-                    restofline = restofline[:-2] + nline[:-2].strip()
+                    restofline = restofline[:-2] + nline.strip()
                 
-            headdef, restofdef = restofline.split(' ',1)
+            headdef, restofdef = restofline.split(None,1)
             if '(' in headdef:
-                result += 'def ' + headdef + ' : return ' + restofdef + '\n'
+                result += 'def ' + headdef + ' :\n\treturn ' + restofdef + '\n'
             else:
                 result += headdef + ' = ' + restofdef + '\n'
+        elif fword == 'Define:': # define
+            if line[-2:] == '\\\\':
+                while len(lines) > 0 and restofline[-2:] == '\\\\':
+                    nline = lines.pop(0)
+                    lineno += 1
+                    restofline = restofline[:-2] + nline.strip()
+            restofline = restofline.strip()
+            if restofline[0] == '{':
+                restofline = restofline[1:]
+            if restofline[-1] == '}':
+                restofline = restofline[:-1]
+            restofline = restofline.strip()
+            arraydec, arrayval = restofline.split(' ',1)
+            assert arraydec == 'array'
+            anamedec, avalues = arrayval.split('=')
+            aname, aconfig = anamedec.split('[',1)
+            avalcomponents = avalues.split('#',1)
+            avalues = avalcomponents[0]
+            acomments = '' if len(avalcomponents) == 1 else '#'+ avalcomponents[1]
+            avalues = avalues.split('}',1)[0]+']'
+            avalues = avalues.replace('{','[')
+            aconfig = aconfig.replace('][',',')
+            result += aname.strip() + ' = array('+avalues+').reshape(['+aconfig+') '+acomments+'\n'
+
         elif fword == 'Lsystem:' : 
             result += '# ' + line + '\n'
         elif fword == 'Axiom:' : 
@@ -313,8 +435,7 @@ def translate_l_code(txt, vlpyinitconfig = None):
             result, allgvar = process_current_rule(result, allgvar)
             result += line + '\n'
         elif fword == 'Start:' or fword == 'StartEach:' or fword == 'End:' or fword == 'EndEach:': 
-            be, ce = find_code_limit(restofline,0)
-            code = restofline[be:ce+1]
+            code, nextindex, lineno = find_code_limit(restofline,lines, lineno)
             tcode, gvar = translate_c_code(code,1)
             if len(gvar) > 0:
                 gvar = set(gvar)
@@ -324,38 +445,38 @@ def translate_l_code(txt, vlpyinitconfig = None):
                 result += '\tglobal '+','.join(gvar)+'\n'
             result += tcode
         else:
-            if line.strip()[0] == '#': # comment
-                result += line + '\n'
+            if line.strip().startswith('#'): # comment
+                result, allgvar = process_current_rule(result, allgvar)
+                result += line.strip() + '\n'
             else: # rules are processed here
                 if proddec == False:
                     proddecposition = len(result)
                     result += 'production:\n\n'
                     proddec = True
                 # if next line is the following of the current rule
-                while len(lines) > 0 and len(lines[0]) > 0 and lines[0][0] == '\t':
+                while len(lines) > 0 and check_next_line_tab(lines):
                     nline = lines.pop(0)
                     lineno += 1
-                    line += nline.strip()
+                    line += nline.strip()+'\n'
                 try:
                     predecessor, successor = line.split('-->')
-                except Exception, e:
-                    print line
-                    raise e
+                except Exception as e:
+                    print('Error :',line)
+                    raise ValueError(lineno, repr(line))
                 if not ':' in predecessor and not ':' in successor: # simplest rules
                     result += convert_lstring(predecessor) + '-->' + convert_lstring(successor) + '\n'
                 else:
                     prob = None
                     if ':' in successor :
-                        successor, prob = successor.split(':')
+                        successor, prob = successor.split(':',1)
                     if ':' in predecessor:
-                        predecessor, conditions = predecessor.split(':')
+                        predecessor, conditions = predecessor.split(':',1)
                         predecessor = predecessor.strip()
                         conditions = conditions.strip()
                         precond = None
                         if conditions[0] == '{': # a pred condition computation exists
-                            bprec, eprec = find_code_limit(conditions,0)
-                            precond = conditions[bprec:eprec+1]
-                            conditions = conditions[eprec+1:]
+                            precond, nextindex, lineno = find_code_limit(conditions,  lines, lineno)
+                            conditions = conditions[nextindex+1:]
                         postcond = None
                         if conditions[-1] == '}': # a post condition computation exists
                             bpostc = conditions.index('{')
@@ -374,7 +495,7 @@ def translate_l_code(txt, vlpyinitconfig = None):
                         current_rule.append_succ([postcond, successor, prob,lineno])
     if len(allgvar) > 0:
         gvardec =  '# declaration of global variables used in the model\n'
-        gvardec += ','.join(allgvar) + ' = ' + ','.join([str(None) for i in xrange(len(allgvar))])+'\n\n'
+        gvardec += ','.join(allgvar) + ' = ' + ','.join([str(None) for i in range(len(allgvar))])+'\n\n'
         result = result[:proddecposition]+gvardec+result[proddecposition:]
         
     return result
@@ -417,18 +538,18 @@ def translate_obj(fname):
             for sfile in sfiles:
                 sworkspace = splitext(basename(sfile))[0]
                 surfaces = []
-                for manager in managers.itervalues():
+                for manager in managers.values():
                     fname = join(project,sfile)
                     if manager.canImportData(fname):
                         try:
                             objects = manager.importData(fname)
                             surfaces += [(manager,i) for i in objects]
                             groupofpatches[sworkspace] = [i.name for i in objects]
-                        except Exception, e:
+                        except Exception as e:
                             import sys, traceback
                             exc_info = sys.exc_info()
                             traceback.print_exception(*exc_info)
-                            print 'Cannot import file '+repr(sfile)
+                            print('Cannot import file '+repr(sfile))
                         
                         break
                 panels  += [({'name':sworkspace},surfaces)]
@@ -437,17 +558,17 @@ def translate_obj(fname):
         if funcfiles:
             functions = []
             for funcfile in funcfiles:
-                for manager in managers.itervalues():
+                for manager in managers.values():
                     fname = join(project,funcfile)
                     if manager.canImportData(fname):
                         try:
                             objects = manager.importData(fname)
                             functions += [(manager,i) for i in objects]
-                        except Exception, e:
+                        except Exception as e:
                             import sys, traceback
                             exc_info = sys.exc_info()
                             traceback.print_exception(*exc_info)
-                            print 'Cannot import file '+repr(funcfile)
+                            print('Cannot import file '+repr(funcfile))
                         
                         break
             panels  += [({'name':'functions'},functions)]
@@ -457,18 +578,18 @@ def translate_obj(fname):
             if fsetfiles is None: fsetfiles = []
             if csetfiles is None: csetfiles = []
             for fsetfile in fsetfiles+csetfiles:
-                for manager in managers.itervalues():
+                for manager in managers.values():
                     fname = join(project,fsetfile)
                     if manager.canImportData(fname):
                         try:
                             objects = manager.importData(fname)
                             managedobjects = [(manager,i) for i in objects]
-                            panels  += [({'name':basename(splitext(fn)[0])}, managedobjects)]
-                        except Exception, e:
+                            panels  += [({'name':basename(splitext(fsetfile)[0])}, managedobjects)]
+                        except Exception as e:
                             import sys, traceback
                             exc_info = sys.exc_info()
                             traceback.print_exception(*exc_info)
-                            print 'Cannot import file '+repr(fsetfile)
+                            print('Cannot import file '+repr(fsetfile))
                         
                         break
         
@@ -493,16 +614,17 @@ def translate_obj(fname):
             l.turtle.setMaterial(i,mat)
         nbMaterials = l.turtle.getColorListSize()
         if nbMaterials > len(materials):
-            for i in xrange(nbMaterials-1,len(materials)-1,-1):
+            for i in range(nbMaterials-1,len(materials)-1,-1):
                 l.turtle.removeColor(i)
         
         # read desciption
+        from codecs import open
         if descfile:
-            description = {'__description__' : open(join(project,descfile)).read() }
+            description = {'__description__' : open(join(project,descfile),'r','iso-8859-1').read() }
         else : description = None
         
         # translate lsystem code
-        lpycode = translate_l_code(file(join(project,lfile)).read(),vlpyinitconfig)
+        lpycode = translate_l_code(open(join(project,lfile),'r','iso-8859-1').read().replace('\r\n','\n'),vlpyinitconfig)
         
         # add view file
         if vfiles:
@@ -514,7 +636,7 @@ def translate_obj(fname):
         init_txt = se.getInitialisationCode(l,credits = description, visualparameters=panels)
         return lpycode + init_txt
     else:
-        return translate_l_code(file(fname).read())
+        return translate_l_code(open(fname).read())
 
 def help():
     return 'Usage: cpfg2lpy project[.l] [output.lpy]\nHelp: This utility try to translate cpfg code and parameter in lpy. A simple cpfg lsystem file can be passed or an entire directory project.'
@@ -522,15 +644,15 @@ def help():
 def main():
     import sys
     if len(sys.argv) < 2:
-        print help()
+        print(help())
         return
     lpycode = translate_obj(sys.argv[1])
     if len(sys.argv) == 3:
-        output = file(sys.argv[2],'w')
+        output = open(sys.argv[2],'w')
         output.write(lpycode)
         output.close()
     else:
-        print lpycode
+        print(lpycode)
     
 
 if __name__ == '__main__':

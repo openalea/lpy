@@ -12,7 +12,7 @@ def ProfileInterpolation0(curves,knotlist,degree):
     return p
 
 def ProfileInterpolation1(curves,knotlist,degree):
-    k = [knotlist[0] for i in xrange(degree-1)]+knotlist+[knotlist[-1] for i in xrange(degree-1)]
+    k = [knotlist[0] for i in range(degree-1)]+knotlist+[knotlist[-1] for i in range(degree-1)]
     pts = [[(i.x,i.y,0,1) for i in c.ctrlPointList] for c in curves]
     ppts = Point4Matrix(pts)
     p = NurbsPatch(ctrlPointList=ppts,udegree=degree,vdegree=curves[0].degree)
@@ -51,15 +51,15 @@ phyllotaxy = 137
 curves = [(n,v) for n,v in globals().items() if 'branchpath' in n and type(v) == NurbsCurve2D ]
 for n,v in curves: v.name = n
 curves = [v for n,v in curves]
-curves.sort(lambda x,y : cmp(x.name,y.name))
+curves.sort(key = lambda x : x.name)
 nbcurves = len(curves)
-print [n.name for n in curves],nbcurves
+print ([n.name for n in curves],nbcurves)
 
 def knotList(l) : 
-  return [i/float(l-1) for i in xrange(0,l)]
+  return [i/float(l-1) for i in range(0,l)]
 
 
-print knotList(nbcurves)
+print (knotList(nbcurves))
 
 p = ProfileInterpolation(curves, knotList(nbcurves), 2)
 
@@ -88,7 +88,7 @@ M(l,order) :
           
           laterallength = (length - l) * lateral_length(u)
           lateral_l = length - laterallength
-          print u, laterallength, lateral_l, lateral_l/length
+          print (u, laterallength, lateral_l, lateral_l/length)
           nproduce RollR(phyllotaxy) [ &(90) SetGuide(upath,laterallength) _(diameter(lateral_l/length)) 
           nproduce M(lateral_l,order+1)] 
         produce M(l+dl,order)
@@ -105,13 +105,13 @@ __lpy_code_version__ = 1.1
 
 def __initialiseContext__(context):
 	import openalea.plantgl.all as pgl
-	Color_1 = pgl.Material("Color_1" , ambient = (88,60,20) , diffuse = 1.27273 , specular = (0,0,0) , )
+	Color_1 = pgl.Material("Color_1" , ambient = (88,60,20) , diffuse = 1.27273 , )
 	Color_1.name = "Color_1"
 	context.turtle.setMaterial(1,Color_1)
-	scalars = [('MAXORDER', 1, 0, 3), ('METHOD', 2, 0, 2)]
+	scalars = [('MAXORDER', 'Integer', 1, 0, 3), ('METHOD', 'Integer', 2, 0, 2)]
 	context["__scalars__"] = scalars
-	for n,v,mnv,mxv in scalars:
-		context[n] = v
+	for s in scalars:
+		if not s[1] == "Category" : context[s[0]] = s[2]
 	import openalea.plantgl.all as pgl
 	path = pgl.NurbsCurve2D(	
 	    ctrlPointList = pgl.Point3Array([(0.00852268, -0.329545, 1),(-0.0501894, -0.0568182, 1),(0.0700758, 0.167614, 1),(0.0170455, 0.46875, 1)]) , 
@@ -126,7 +126,7 @@ def __initialiseContext__(context):
 	    ctrlPointList = pgl.Point3Array([(0, 0.83302, 1),(0.431782, 0.836569, 1),(0.752635, 0.804729, 1),(1, 0.797598, 1)]) , 
 	    )
 	branching_angle.name = "branching_angle"
-	panel_0 = ({'active': True, 'visible': True, 'name': 'Panel 1'},[('Curve2D',path),('Function',diameter),('Function',branching_angle)])
+	panel_0 = ({'name': 'Panel 1', 'active': True, 'visible': True},[('Curve2D',path),('Function',diameter),('Function',branching_angle)])
 	branchpath3 = pgl.NurbsCurve2D(	
 	    ctrlPointList = pgl.Point3Array([(-0.558642, 0.0909861, 1),(-0.233307, 0.199865, 1),(-0.141477, 0.212796, 1),(0.301136, 0.0665662, 1),(0.258239, 0.543359, 1)]) , 
 	    )
@@ -147,7 +147,7 @@ def __initialiseContext__(context):
 	    ctrlPointList = pgl.Point3Array([(0, 0.99198, 1),(0.366937, 0.989282, 1),(0.700382, 0.999216, 1),(1, 0.993167, 1)]) , 
 	    )
 	node_length.name = "node_length"
-	panel_1 = ({'active': False, 'visible': True, 'name': 'Panel 3'},[('Curve2D',branchpath3),('Curve2D',branchpath2),('Curve2D',branchpath1),('Function',lateral_length),('Function',node_length)])
+	panel_1 = ({'name': 'Panel 3', 'active': False, 'visible': True},[('Curve2D',branchpath3),('Curve2D',branchpath2),('Curve2D',branchpath1),('Function',lateral_length),('Function',node_length)])
 	branchpath3 = pgl.NurbsCurve2D(	
 	    ctrlPointList = pgl.Point3Array([(-0.558642, 0.0909861, 1),(-0.525009, 0.256838, 1),(-0.435037, 0.318281, 1),(-0.33152, 0.35613, 1),(-0.247993, 0.346406, 1)]) , 
 	    )
@@ -172,7 +172,7 @@ def __initialiseContext__(context):
 	    ctrlPointList = pgl.Point3Array([(0, 0.284022, 1),(0.362964, 0.465919, 1),(0.654606, 0.289696, 1),(1, 0.604076, 1)]) , 
 	    )
 	node_length_2.name = "node_length_2"
-	panel_2 = ({'active': True, 'visible': True, 'name': 'Panel 6'},[('Curve2D',branchpath3),('Curve2D',branchpath2),('Curve2D',branchpath1),('Function',lateral_length),('Function',node_length),('Function',node_length_2)])
+	panel_2 = ({'name': 'Panel 6', 'active': True, 'visible': True},[('Curve2D',branchpath3),('Curve2D',branchpath2),('Curve2D',branchpath1),('Function',lateral_length),('Function',node_length),('Function',node_length_2)])
 	branchpath3 = pgl.NurbsCurve2D(	
 	    ctrlPointList = pgl.Point3Array([(-0.558642, 0.0909861, 1),(-0.291499, 0.0842051, 1),(-0.292529, 0.203407, 1),(-0.296643, 0.338692, 1),(-0.302861, 0.67153, 1)]) , 
 	    )
@@ -193,7 +193,7 @@ def __initialiseContext__(context):
 	    ctrlPointList = pgl.Point3Array([(0, 0.99198, 1),(0.366937, 0.989282, 1),(0.700382, 0.999216, 1),(1, 0.993167, 1)]) , 
 	    )
 	node_length.name = "node_length"
-	panel_3 = ({'active': False, 'visible': True, 'name': 'Panel 4'},[('Curve2D',branchpath3),('Curve2D',branchpath2),('Curve2D',branchpath1),('Function',lateral_length),('Function',node_length)])
+	panel_3 = ({'name': 'Panel 4', 'active': False, 'visible': True},[('Curve2D',branchpath3),('Curve2D',branchpath2),('Curve2D',branchpath1),('Function',lateral_length),('Function',node_length)])
 	branchpath3 = pgl.NurbsCurve2D(	
 	    ctrlPointList = pgl.Point3Array([(-0.558642, 0.0909861, 1),(-0.460902, 0.126556, 1),(-0.352319, 0.283126, 1),(-0.33152, 0.35613, 1),(-0.317808, 0.56939, 1)]) , 
 	    )
@@ -214,7 +214,7 @@ def __initialiseContext__(context):
 	    ctrlPointList = pgl.Point3Array([(0, 1.33686, 1),(0.436205, 1.17544, 1),(0.700382, 0.999216, 1),(1, 0.993167, 1)]) , 
 	    )
 	node_length.name = "node_length"
-	panel_4 = ({'active': False, 'visible': True, 'name': 'Panel 5'},[('Curve2D',branchpath3),('Curve2D',branchpath2),('Curve2D',branchpath1),('Function',lateral_length),('Function',node_length)])
+	panel_4 = ({'name': 'Panel 5', 'active': False, 'visible': True},[('Curve2D',branchpath3),('Curve2D',branchpath2),('Curve2D',branchpath1),('Function',lateral_length),('Function',node_length)])
 	parameterset = [panel_0,panel_1,panel_2,panel_3,panel_4,]
 	context["__functions__"] = [('diameter',diameter),('branching_angle',branching_angle),('lateral_length',lateral_length),('node_length',node_length),('node_length_2',node_length_2),]
 	context["__curves__"] = [('path',path),('branchpath3',branchpath3),('branchpath2',branchpath2),('branchpath1',branchpath1),]

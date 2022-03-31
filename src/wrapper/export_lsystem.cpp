@@ -113,6 +113,7 @@ void export_Lsystem(){
   
   class_<Lsystem,boost::noncopyable>
 	  ("Lsystem", init<optional<std::string,boost::python::dict> >("Lsystem([filename])", args("filename","globals")))
+	.enable_pickling()
 	.add_property("axiom",&lsys_axiom,(void(Lsystem::*)(const AxialTree&))&Lsystem::setAxiom)
 	.add_property("derivationLength",&Lsystem::derivationLength,&Lsystem::setDerivationLength)
 	.add_property("decompositionMaxDepth",&Lsystem::decompositionMaxDepth,&Lsystem::setDecompositionMaxDepth)
@@ -136,7 +137,8 @@ void export_Lsystem(){
 	.def("derive", (AxialTree(Lsystem::*)(size_t))&Lsystem::derive)
 	.def("derive", (AxialTree(Lsystem::*)(const AxialTree&))&Lsystem::derive)
 	.def("derive", (AxialTree(Lsystem::*)(const AxialTree&,size_t))&Lsystem::derive)
-	.def("derive", (AxialTree(Lsystem::*)(const AxialTree&,size_t,size_t,bool))&Lsystem::derive,(bp::arg("workstring"),bp::arg("starting_iter"),bp::arg("nb_iter"),bp::arg("previouslyinterpreted")=false))
+    .def("derive", (AxialTree(Lsystem::*)(const AxialTree&,size_t,size_t,bool))&Lsystem::derive,(bp::arg("workstring"),bp::arg("starting_iter"),bp::arg("nb_iter"),bp::arg("previouslyinterpreted")=false))
+    .def("partial_derivation", &Lsystem::partial_derivation,(bp::arg("workstring"),bp::arg("starting_position"),bp::arg("length")))
 	.def("turtle_interpretation", (void(Lsystem::*)(AxialTree&))&Lsystem::turtle_interpretation,"Apply interpretation with execContext().turtle.")
 	.def("turtle_interpretation", (void(Lsystem::*)(AxialTree& , PGL::Turtle&))&Lsystem::turtle_interpretation,"Apply interpretation with given turtle.")
 	.def("sceneInterpretation", &Lsystem::sceneInterpretation,"Apply interpretation with execContext().turtle and return resulting scene.")

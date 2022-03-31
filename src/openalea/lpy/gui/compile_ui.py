@@ -1,10 +1,9 @@
-from openalea.vpltk.qt import qt
-from openalea.vpltk.qt.uic import compileUi, compile_args
+from openalea.plantgl.gui.qt import QT_API, PYQT5_API, PYQT4_API, PYSIDE_API
+from openalea.plantgl.gui.qt.uic import compileUi, compile_args
 
 import os
 import sys
 
-from openalea.vpltk.qt import QT_API, PYQT5_API, PYQT4_API, PYSIDE_API
 
 def get_uifnames_from(fname):
     uiprefix = os.path.splitext(fname)[0]
@@ -19,7 +18,8 @@ def get_rcfnames_from(fname):
 def compile_ui(uifname):
     """ compile a Ui """
     pyfname = get_uifnames_from(uifname)
-    fstream = file(pyfname,'w')
+    fstream = open(pyfname,'w')
+#    compile_args["from_imports"] = ""
     compileUi(uifname, fstream, **compile_args)
     fstream.close()
 
@@ -33,10 +33,10 @@ def compile_rc (rcfname) :
             exe = 'pyrcc4'+suffix
         return exe
 
-    if os.environ.has_key('CONDA_PREFIX'):
+    if 'CONDA_PREFIX' in os.environ:
         exe = def_exe()        
     elif sys.platform == 'darwin':
-        exe = def_exe('-2.7')
+        exe = def_exe('-'+str(sys.version_info[0])+'.'+str(sys.version_info[1]))
     elif sys.platform == 'posix':
         exe = def_exe()
     else:
@@ -48,29 +48,31 @@ def compile_rc (rcfname) :
 
 def detect_file_api(fname):
     patternapi = {'PyQt5':PYQT5_API, 'PyQt4':PYQT4_API, 'PySide':PYSIDE_API} 
-    txt = file(fname,'r').read()
-    for pattern,api in patternapi.items():
+    txt = open(fname,'r').read()
+    for pattern,api in list(patternapi.items()):
         if pattern in txt: return api
     return None
 
+def is_generation_required(srcfile, generatedfile):
+    api = os.environ[QT_API]
+    if not os.path.exists(srcfile) : return False
+    if not os.path.exists(generatedfile) : return True
+    if not os.access(generatedfile,os.F_OK|os.W_OK) : return False
+    if len(open(generatedfile).read()) == 0 : return True
+    if os.stat(generatedfile).st_mtime < os.stat(srcfile).st_mtime : return True
+    if not api in detect_file_api(generatedfile) : return True
+    return False
+
 def check_ui_generation(uifname):
     """ check if a py file should regenerated from a ui """
-    api = os.environ[QT_API]
     pyfname = get_uifnames_from(uifname)
-    if ( os.path.exists(uifname) and 
-         not os.path.exists(pyfname) or
-         (os.access(pyfname,os.F_OK|os.W_OK) and
-         os.stat(pyfname).st_mtime < os.stat(uifname).st_mtime or not api in detect_file_api(pyfname))) :
-        print 'Generate Ui', repr(uifname)
+    if is_generation_required(uifname, pyfname):
+        print('Generate Ui', repr(uifname))
         compile_ui(uifname)
 
 def check_rc_generation(rcfname):
     """ check if a py file should regenerated from a ui """
-    api = os.environ[QT_API]
     pyfname = get_rcfnames_from(rcfname)
-    if (os.path.exists(rcfname) and 
-        not os.path.exists(pyfname) or
-        (os.access(pyfname,os.F_OK|os.W_OK) and
-        os.stat(pyfname).st_mtime < os.stat(rcfname).st_mtime or not api in detect_file_api(pyfname))) :
-        print 'Generate Rc', repr(rcfname)
+    if is_generation_required(rcfname, pyfname):
+        print('Generate Rc', repr(rcfname))
         compile_rc(rcfname)

@@ -17,7 +17,7 @@ def Start():
 	timing = t.time()
 
 def End():
-	print 'Execution time :',t.time()-timing
+	print ('Execution time :',t.time()-timing)
 
 def txt(val):
 	return str(round(val,2))[:5]
@@ -95,9 +95,13 @@ R(r) :
 endlsystem
 ###### INITIALISATION ######
 
+__lpy_code_version__ = 1.1
+
 def __initialiseContext__(context):
-	from openalea.plantgl.all import Material,Color3
-	context.turtle.setMaterial(1,Material('Brown',Color3(33,22,6),2.72727,Color3(40,40,40),Color3(0,0,0),1,0))
-__copyright__ = 'open-source GPL'
-__institutes__ = 'INRIA - CIRAD Virtual Plants'
+	import openalea.plantgl.all as pgl
+	Color_1 = pgl.Material("Color_1" , ambient = (33,22,6) , diffuse = 2.72727 , )
+	Color_1.name = "Color_1"
+	context.turtle.setMaterial(1,Color_1)
 __authors__ = 'F. Boudon, C. Godin'
+__institutes__ = 'INRIA - CIRAD Virtual Plants'
+__copyright__ = 'open-source GPL'
