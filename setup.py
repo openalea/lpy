@@ -58,7 +58,7 @@ from setuptools import setup
 build_prefix= "build-cmake"
 
 if 'CONDA_PREFIX' in os.environ or 'PREFIX' in os.environ :
-    deploy_args = dict(namespace_packages = [namespace])
+    deploy_args = {}
 else:
     currentdir = os.path.dirname(__file__)
     deploy_args = dict(
