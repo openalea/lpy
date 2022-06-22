@@ -57,8 +57,7 @@ include_directories(${Python3_INCLUDE_DIRS})
 # --- Libraries
 
 find_package(Threads REQUIRED)
-find_package(Qt5Core CONFIG REQUIRED)
-find_package(Qt5Concurrent CONFIG REQUIRED)
+find_package(Qt6 REQUIRED COMPONENTS Core Concurrent)
 find_package(PlantGL REQUIRED)
 
 set(Boost_NO_SYSTEM_PATHS ON)

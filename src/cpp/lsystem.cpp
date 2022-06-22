@@ -38,6 +38,8 @@
 #include <plantgl/tool/sequencer.h>
 #include "debug_tool.h"
 
+#include <boost/bind/bind.hpp> 
+
 using namespace boost::python;
 TOOLS_USING_NAMESPACE
 PGL_USING_NAMESPACE
@@ -60,7 +62,7 @@ LPY_USING_NAMESPACE
 /*---------------------------------------------------------------------------*/
 
 #ifdef MULTI_THREADED_LSYSTEM
-Lsystem::LsysRessource::LsysRessource() : mutex(QMutex::NonRecursive) {}
+Lsystem::LsysRessource::LsysRessource() : mutex() {}
 Lsystem::LsysAcquirer::LsysAcquirer(const Lsystem * lsys) : __lsys(lsys) { lsys->acquire(); }
 Lsystem::LsysAcquirer::~LsysAcquirer() { __lsys->release(); }
 #endif
@@ -1006,7 +1008,7 @@ Lsystem::__parallelStep(AxialTree& workingstring,
         startmoduleid.push_back(threadid * nbsymbolperthread);        
 
     QFuture<AxialTree> result = QtConcurrent::mappedReduced(startmoduleid, 
-        boost::bind(partialForwardStep, _1, nbsymbolperthread, workingstring, ruleset),
+        boost::bind(partialForwardStep, boost::placeholders::_1, nbsymbolperthread, workingstring, ruleset),
         assemble, QtConcurrent::OrderedReduce|QtConcurrent::SequentialReduce);
 
     result.waitForFinished();
@@ -1018,7 +1020,7 @@ Lsystem::__parallelStep(AxialTree& workingstring,
         startmoduleid.push_back(threadid * nbsymbolperthread);        
 
     QFuture<AxialTree> result = QtConcurrent::mappedReduced(startmoduleid, 
-        boost::bind(partialBackwardStep, _1, nbsymbolperthread, workingstring, ruleset),
+        boost::bind(partialBackwardStep, boost::placeholders::_1, nbsymbolperthread, workingstring, ruleset),
         assemble, QtConcurrent::OrderedReduce|QtConcurrent::SequentialReduce);
 
     result.waitForFinished();
