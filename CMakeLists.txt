@@ -11,6 +11,8 @@ project(lpy_project CXX)
 
 # --- Build setup
 
+set(CMAKE_INCLUDE_PATH "$ENV{CONDA_PREFIX}/include" ${CMAKE_INCLUDE_PATH})
+set(CMAKE_LIBRARY_PATH "$ENV{CONDA_PREFIX}/lib" ${CMAKE_LIBRARY_PATH})
 set(CMAKE_SKIP_BUILD_RPATH FALSE)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
@@ -65,10 +67,13 @@ set(Boost_USE_MULTITHREAD ON)
 set(Boost_USE_STATIC_LIBS OFF)
 set(BUILD_SHARED_LIBS ON)
 
-if (USE_CONDA)
+
+set(boost_python python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR})
+find_package(Boost 1.69 COMPONENTS system ${boost_python} REQUIRED)
+if (NOT Boost_FOUND)
+    message("Boost not found, trying again")
     set(boost_python python)
-else()
-    set(boost_python python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR})
+    find_package(Boost 1.69 COMPONENTS system ${boost_python} REQUIRED)
 endif()
 
 find_package(Boost COMPONENTS system ${boost_python} REQUIRED)
