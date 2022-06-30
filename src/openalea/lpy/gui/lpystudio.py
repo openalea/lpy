@@ -53,7 +53,7 @@ except:
 #import signal; signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 # Add local dir as import dir
-sys.path = ['']+sys.path
+sys.path.append(os.path.dirname(__file__))
 
 from . import generate_ui
 from . import lpydock

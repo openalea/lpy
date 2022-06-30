@@ -1,11 +1,10 @@
-from openalea.plantgl.gui.qt import qtSignalSignalSignalSignalSignalSignal
 from openalea.lpy.lsysparameters.scalar import *
 from . import generate_ui
 import sys
 
 import openalea.lpy.gui.scalarmetaedit as sme
 
-from openalea.plantgl.gui.qt.QtCore import QDataStream, QIODevice, QObject, Qt, pyqtSignal
+from openalea.plantgl.gui.qt.QtCore import QDataStream, QIODevice, QObject, Qt, Signal
 from openalea.plantgl.gui.qt.QtGui import QBrush, QColor, QStandardItem, QStandardItemModel
 from openalea.plantgl.gui.qt.QtWidgets import QDialog, QDoubleSpinBox, QHBoxLayout, QItemDelegate, QLabel, QMenu, QPushButton, QSlider, QSpinBox, QTreeView, QWidget
 
@@ -62,7 +61,7 @@ class FloatScalarDialog(QDialog,sfme.Ui_FloatScalarDialog):
 if True : #not sys.platform == 'darwin':        
     class ItemSlider(QWidget):
         
-        valueChanged = pyqtSignal('PyQt_PyObject') 
+        valueChanged = Signal('PyQt_PyObject') 
 
         def __init__(self,orientation,parent,item):
             QWidget.__init__(self,parent)
@@ -154,7 +153,7 @@ if True : #not sys.platform == 'darwin':
 else:
     class ItemSlider(QSpinBox):
         
-        valueChanged = pyqtSignal('PyQt_PyObject') 
+        valueChanged = Signal('PyQt_PyObject') 
 
         def __init__(self,orientation, parent, item):
             QSpinBox.__init__(self, parent)
@@ -203,7 +202,7 @@ class ScalarEditorDelegate(QItemDelegate):
         
 class MyItemModel(QStandardItemModel):
     
-    moveRequest = pyqtSignal(int,int)
+    moveRequest = Signal(int,int)
 
     def __init__(self,a,b,scalarmap):
         QStandardItemModel.__init__(self,a,b)
@@ -222,8 +221,8 @@ class MyItemModel(QStandardItemModel):
 #window.scalarEditor.scalarModel
 
 class ScalarEditor (QTreeView):
-    valueChanged = pyqtSignal()
-    itemValueChanged = pyqtSignal('PyQt_PyObject')
+    valueChanged = Signal()
+    itemValueChanged = Signal('PyQt_PyObject')
     def __init__(self,parent):
         QTreeView.__init__(self,parent)
         self.scalars = []
