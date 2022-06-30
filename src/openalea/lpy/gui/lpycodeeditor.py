@@ -1,5 +1,5 @@
 from openalea.plantgl.gui.qt import qt
-from openalea.plantgl.gui.qt.QtCore import QMimeData, QObject, QPoint, QRegExp, QTimer, Qt, pyqtSignal
+from openalea.plantgl.gui.qt.QtCore import QMimeData, QObject, QPoint, QRegularExpression, QTimer, Qt, Signal
 from openalea.plantgl.gui.qt.QtGui import QColor, QFont, QPainter, QPalette, QPen, QPixmap, QSyntaxHighlighter, QTextCharFormat, QTextCursor, QTextDocument, QTextOption
 from openalea.plantgl.gui.qt.QtWidgets import QLabel, QTextEdit, QWidget
 
@@ -36,14 +36,14 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
                             'Start','End','StartEach','EndEach','getGroup','useGroup','getIterationNb',
                             'module','-static->','@static','lpyimport','\%pastefile']
         for pattern in self.lpykeywords:
-            self.rules.append((QRegExp(pattern),self.lpykeywordFormat))
+            self.rules.append((QRegularExpression(pattern),self.lpykeywordFormat))
         self.keywordFormat = QTextCharFormat()
         self.keywordFormat.setForeground(Qt.blue)
         self.keywordFormat.setFontWeight(QFont.Bold)
         import keyword
         self.pykeywords = keyword.kwlist + ['None','range','xrange', 'True','False','int','float','str','tuple','list']
         for pattern in self.pykeywords:
-            self.rules.append((QRegExp(pattern),self.keywordFormat))
+            self.rules.append((QRegularExpression(pattern),self.keywordFormat))
         self.delimiterFormat = QTextCharFormat()
         self.delimiterFormat.setForeground(Qt.darkBlue)
         self.delimiterFormat.setFontWeight(QFont.Bold)
@@ -54,28 +54,28 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
         self.prodFormat.setFontWeight(QFont.Bold)
         self.prodkeywords = ['Axiom:','module','produce','nproduce','nsproduce','makestring','-->','-static->','ignore:','consider:']
         for pattern in self.prodkeywords:
-            self.exprules.append((QRegExp(pattern+'.*$'),len(pattern),self.prodFormat,0))
+            self.exprules.append((QRegularExpression(pattern+'.*$'),len(pattern),self.prodFormat,0))
         self.funcFormat = QTextCharFormat()
         self.funcFormat.setForeground(Qt.magenta)
-        self.exprules.append((QRegExp('def[ \t]+.*\('),3,self.funcFormat,1))
+        self.exprules.append((QRegularExpression('def[ \t]+.*\('),3,self.funcFormat,1))
         self.stringFormat = QTextCharFormat()
         self.stringFormat.setForeground(Qt.darkGray)
-        self.exprules.append((QRegExp('\"[^\"]*\"'),0,self.stringFormat,0))
-        self.exprules.append((QRegExp("\'[^\']*\'"),0,self.stringFormat,0))
+        self.exprules.append((QRegularExpression('\"[^\"]*\"'),0,self.stringFormat,0))
+        self.exprules.append((QRegularExpression("\'[^\']*\'"),0,self.stringFormat,0))
         self.tabFormat = QTextCharFormat()
         self.tabFormat.setBackground(QColor(220,220,220))
         self.spaceFormat = QTextCharFormat()
         self.spaceFormat.setBackground(QColor(240,240,240))
-        self.tabRule = QRegExp("^[ \t]+")
+        self.tabRule = QRegularExpression("^[ \t]+")
         self.numberFormat = QTextCharFormat()
         self.numberFormat.setForeground(Qt.red)
-        self.exprules.append((QRegExp('\d+(\.\d+)?(e[\+\-]?\d+)?'),0,self.numberFormat,0))        
+        self.exprules.append((QRegularExpression('\d+(\.\d+)?(e[\+\-]?\d+)?'),0,self.numberFormat,0))        
         self.commentFormat = QTextCharFormat()
         self.commentFormat.setForeground(Qt.darkGreen)
-        self.lsysruleExp = [QRegExp('.+:'),QRegExp('.+\-\->'), QRegExp('.+\-static\->')]
-        self.commentExp = QRegExp('#.+$')
-        self.ruleCommentExp = QRegExp('[ \t]+#.+$')
-        self.prodbegExp =  QRegExp('[n]produce[ \t]*.')
+        self.lsysruleExp = [QRegularExpression('.+:'),QRegularExpression('.+\-\->'), QRegularExpression('.+\-static\->')]
+        self.commentExp = QRegularExpression('#.+$')
+        self.ruleCommentExp = QRegularExpression('[ \t]+#.+$')
+        self.prodbegExp =  QRegularExpression('[n]produce[ \t]*.')
         self.setCurrentBlockState(0)
         self.activated = True
         self.tabviewactivated = True
@@ -197,7 +197,7 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
     
 class Margin(QWidget):
     
-    lineClicked = pyqtSignal(int)
+    lineClicked = Signal(int)
 
     def __init__(self,parent,editor):
         QWidget.__init__(self,parent)

@@ -4,7 +4,7 @@ import traceback as tb
 import sys
 
 
-from openalea.plantgl.gui.qt.QtCore import QMutex, QObject, QThread, pyqtSignal
+from openalea.plantgl.gui.qt.QtCore import QMutex, QObject, QThread, Signal
 from openalea.plantgl.gui.qt.QtWidgets import QMessageBox
 
 
@@ -16,7 +16,7 @@ class ThreadTransferException (Exception):
 
 class ComputationTask(QThread):
 
-    killed = pyqtSignal()
+    killed = Signal()
 
     def __init__(self, process = None, 
                        postprocess = None, 
@@ -61,8 +61,8 @@ class ComputationTask(QThread):
 
 
 class ComputationTaskManager(QObject):
-    endTask = pyqtSignal('PyQt_PyObject')
-    killedTask = pyqtSignal('PyQt_PyObject')
+    endTask = Signal('PyQt_PyObject')
+    killedTask = Signal('PyQt_PyObject')
 
     def __init__(self):
         self.computationThread = None

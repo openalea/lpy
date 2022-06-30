@@ -40,7 +40,7 @@ from openalea.lpy import *
 
 
 from openalea.plantgl.gui.qt.compat import *
-from openalea.plantgl.gui.qt.QtCore import QCoreApplication, QEvent, QMutex, QObject, QThread, QWaitCondition, QTimer, Qt, pyqtSignal, pyqtSlot
+from openalea.plantgl.gui.qt.QtCore import QCoreApplication, QEvent, QMutex, QObject, QThread, QWaitCondition, QTimer, Qt, Signal
 from openalea.plantgl.gui.qt.QtGui import QIcon, QPixmap, QTextCursor
 from openalea.plantgl.gui.qt.QtWidgets import QApplication, QAction, QDialog, QFileDialog, QInputDialog, QMainWindow, QMessageBox, QTabBar
 try:
@@ -81,8 +81,8 @@ class LpyPlotter:
         
 class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
 
-    endTask = pyqtSignal('PyQt_PyObject')
-    killedTask = pyqtSignal('PyQt_PyObject')
+    endTask = Signal('PyQt_PyObject')
+    killedTask = Signal('PyQt_PyObject')
 
     instances = []
 
@@ -173,9 +173,9 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         self.documentNames.connectTo(self)
 
         self.endTask.connect(self.endTaskCheck) 
-        # self.documentNamesMore.newDocumentRequest = pyqtSignal() # AUTO SIGNAL TRANSLATION in class LPyWindow
+        # self.documentNamesMore.newDocumentRequest = Signal() # AUTO SIGNAL TRANSLATION in class LPyWindow
         self.documentNamesMore.newDocumentRequest.connect(self.newfile) 
-        # self.documentNamesMore2.newDocumentRequest = pyqtSignal() # AUTO SIGNAL TRANSLATION in class LPyWindow
+        # self.documentNamesMore2.newDocumentRequest = Signal() # AUTO SIGNAL TRANSLATION in class LPyWindow
         self.documentNamesMore2.newDocumentRequest.connect(self.newfile) 
         self.actionNew.triggered.connect(self.newfile) 
         self.actionOpen.triggered.connect(lambda : self.openfile()) 

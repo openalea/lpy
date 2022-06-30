@@ -6,15 +6,15 @@ except:
 
 from openalea.plantgl.gui.qt import qt
 
-from openalea.plantgl.gui.qt.QtCore import QObject, pyqtSignal
+from openalea.plantgl.gui.qt.QtCore import QObject, Signal
 from openalea.plantgl.gui.qt.QtWidgets import QApplication, QCheckBox, QDialog, QHBoxLayout, QLayout, QMenuBar, QPushButton, QSizePolicy, QSpacerItem, QVBoxLayout
 
     
 class ObjectDialog(QDialog):
     """the class that will create dialog between the panel and the editor window"""
-    valueChanged = pyqtSignal()
-    hidden = pyqtSignal()
-    AutomaticUpdate = pyqtSignal(bool)
+    valueChanged = Signal()
+    hidden = Signal()
+    AutomaticUpdate = Signal(bool)
 
     def __init__(self, *args):
         """during the init of the dialog we have to know the editor we want to open, the typ variable will allow us to know that"""
