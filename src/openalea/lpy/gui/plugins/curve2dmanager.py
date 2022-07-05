@@ -1,7 +1,7 @@
-try:
-    from openalea.plantgl.gui.curve2deditor import Curve2DEditor,Curve2DConstraint
-except ImportError as e:
-    Curve2DEditor = None
+#try:
+#    from openalea.plantgl.gui.curve2deditor import Curve2DEditor,Curve2DConstraint
+#except ImportError as e:
+#    Curve2DEditor = None
 from openalea.plantgl.scenegraph import Polyline2D, BezierCurve2D, NurbsCurve2D, Point2Array, Point3Array
 from openalea.lpy.gui.abstractobjectmanager import *
 from openalea.plantgl.gui.qt import QtGui, QtWidgets
@@ -59,9 +59,10 @@ class Curve2DManager(AbstractPglObjectManager):
             subtype = 'BezierCurve'
         return self.createDefaultObject(subtype)
     def getEditor(self,parent):
-        if Curve2DEditor:
-            return Curve2DEditor(parent,Curve2DConstraint())
-        else : return None
+        #if Curve2DEditor:
+        #    return Curve2DEditor(parent,Curve2DConstraint())
+        #else : return None
+        return None
 
     def setObjectToEditor(self,editor,obj):
         """ ask for edition of obj with editor """

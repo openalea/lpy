@@ -4,10 +4,12 @@ import stat
 import shutil
 import asyncio
 
+# Add local dir as import dir
+sys.path.append(os.path.dirname(__file__))
+
 # for py2exe
 try:
     import openalea.lpy.gui.py2exe_release
-    import os
     sys.path.insert(0, os.path.join(sys.prefix))
     py2exe_release = True
 except:
@@ -51,9 +53,6 @@ except:
 
 # Restore default signal handler for CTRL+C
 #import signal; signal.signal(signal.SIGINT, signal.SIG_DFL)
-
-# Add local dir as import dir
-sys.path.append(os.path.dirname(__file__))
 
 from . import generate_ui
 from . import lpydock

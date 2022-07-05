@@ -1,7 +1,7 @@
-try:
-    from openalea.plantgl.gui.curve2deditor import Curve2DEditor,FuncConstraint
-except ImportError as e:
-    Curve2DEditor = None
+#try:
+#    from openalea.plantgl.gui.curve2deditor import Curve2DEditor,FuncConstraint
+#except ImportError as e:
+#    Curve2DEditor = None
 from openalea.lpy.gui.abstractobjectmanager import *
 from openalea.plantgl.gui.qt import QtGui, QtWidgets
 from openalea.plantgl.all import QuantisedFunction
@@ -30,9 +30,10 @@ class FunctionManager(AbstractPglObjectManager):
         return pgl.NurbsCurve2D(pgl.Point3Array([(float(i)/(nbP-1),0) for i in range(nbP)],1) )
 
     def getEditor(self,parent):
-        if Curve2DEditor:
-            return Curve2DEditor(parent,FuncConstraint())
-        else: return None
+        #if Curve2DEditor:
+        #    return Curve2DEditor(parent,FuncConstraint())
+        #else: return None
+        return None
 
     def setObjectToEditor(self,editor,obj):
         """ ask for edition of obj with editor """
