@@ -19,8 +19,7 @@ src/openalea/lpy/gui/scalarfloatmetaedit.py
 src/openalea/lpy/gui/scalarmetaedit.py
 
 # lpy temp file
-*.lpy~
-*.py~
+*.*~
 \#*\#
 
 # C extensions

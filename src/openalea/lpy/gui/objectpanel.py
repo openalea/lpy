@@ -47,7 +47,7 @@ except:
     def mRenderText(self, x, y, text, font = QFont(), color = None):
         if not color is None: glColor4fv(color)
         glPolygonMode(GL_FRONT_AND_BACK,GL_FILL)
-        self.renderText( x,y,text,font)
+        self.renderText( int(x), int(y),text,font)
 
     QGLWidget.mRenderText = mRenderText
 
@@ -370,7 +370,7 @@ class ObjectListDisplay(QGLParentClass):
     def updateFrameView(self):
         if self.orientation == Qt.Vertical:
             b1,b2 = self.getBorderSize()
-            self.setMinimumSize(self.minthumbwidth,(self.thumbwidth*len(self.objects))+b2)
+            self.setMinimumSize(self.minthumbwidth,int((self.thumbwidth*len(self.objects))+b2))
         else:
             b1,b2 = self.getBorderSize()
             self.setMinimumSize(int((self.thumbwidth*len(self.objects))+b2),self.minthumbwidth)

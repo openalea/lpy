@@ -603,7 +603,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
             self.currentSimulation().timestep = val*1000
         t = self.currentSimulation().timestep
         if t != self.animtimestep:
-            self.animtimestep.setValue(t)
+            self.animtimestep.setValue(int(t))
         if t*0.001 != self.animtimeSpinBox:
             self.animtimeSpinBox.setValue(t*0.001)
         if self.currentSimulation().lsystem:
