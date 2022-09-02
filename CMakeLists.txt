@@ -53,13 +53,20 @@ endif()
 
 # --- Python
 
-find_package (Python3 COMPONENTS Interpreter Development REQUIRED)
+set(Python3_FIND_VIRTUALENV FIRST)
+if (WIN32)
+  # needed when we run cmake in a conda environment
+  set(Python3_FIND_REGISTRY LAST)
+endif()
+
+find_package (Python3 3.9 EXACT COMPONENTS Interpreter Development NumPy REQUIRED)
 include_directories(${Python3_INCLUDE_DIRS})
 
 # --- Libraries
 
 find_package(Threads REQUIRED)
-find_package(Qt6 REQUIRED COMPONENTS Core Concurrent)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Concurrent)
 find_package(PlantGL REQUIRED)
 
 set(Boost_NO_SYSTEM_PATHS ON)
