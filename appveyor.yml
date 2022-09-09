@@ -6,7 +6,6 @@ environment:
   CONDA_VERSION: 3
       
   matrix:
-    - CONDA_PY: 37
     - CONDA_PY: 38 
       CONDA_NPY: 116
     - CONDA_PY: 39 
