@@ -15,7 +15,7 @@ about:
 
 build:
   preserve_egg_dir: True
-  number: 0
+  number: 1
 requirements:
   build:
     - binutils_impl_linux-64<2.31.0 # [linux]
@@ -41,7 +41,7 @@ requirements:
     - qtconsole
     - jupyter_client # <6
     - pyopengl
-    - pyqglviewer
+    - pyqglviewer >=1.3
     - jsonschema
 
 app:

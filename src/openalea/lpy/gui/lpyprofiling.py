@@ -1,5 +1,5 @@
 from openalea.plantgl.gui.qt import qt
-from openalea.plantgl.gui.qt.QtCore import QObject, Qt, pyqtSignal
+from openalea.plantgl.gui.qt.QtCore import QObject, Qt, Signal
 from openalea.plantgl.gui.qt.QtGui import QStandardItem, QStandardItemModel
 import os
 

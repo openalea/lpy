@@ -61,8 +61,9 @@ class Curve2DManager(AbstractPglObjectManager):
     def getEditor(self,parent):
         if Curve2DEditor:
             return Curve2DEditor(parent,Curve2DConstraint())
-        else : return None
-
+        else : 
+            return None
+        
     def setObjectToEditor(self,editor,obj):
         """ ask for edition of obj with editor """
         from copy import deepcopy        

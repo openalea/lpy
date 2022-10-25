@@ -21,6 +21,8 @@ jobs:
             CONDA_NPY: "116"
           - CONDA_PY: "39" 
             CONDA_NPY: "119"
+          - CONDA_PY: "310" 
+            CONDA_NPY: "121"
 
     environment: anaconda_build
 
@@ -57,8 +59,8 @@ jobs:
           echo "CONDA_NPY is not defined"
           exit -1
         fi
-        export PYTHON_VERSION=${CONDA_PY:0:1}.${CONDA_PY:1:1}
-        export NUMPY_VERSION=${CONDA_NPY:0:1}.${CONDA_NPY:1:2}
+        export PYTHON_VERSION=${CONDA_PY:0:1}.${CONDA_PY:1:3}
+        export NUMPY_VERSION=${CONDA_NPY:0:1}.${CONDA_NPY:1:3}
 
         export BUILD_CMD="sudo conda build . --python=$PYTHON_VERSION"
         export BUILD_OUTPUT=`$BUILD_CMD --output`
@@ -69,7 +71,7 @@ jobs:
         fi
         echo "BUILD_OUTPUT=$BUILD_OUTPUT" >> $GITHUB_ENV
 
-        $BUILD_CMD
+        $BUILD_CMD --no-test
 
 
     - name: Login

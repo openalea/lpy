@@ -1,4 +1,4 @@
-from openalea.plantgl.gui.qt import QT_API, PYQT5_API, PYQT4_API, PYSIDE_API
+from openalea.plantgl.gui.qt import QT_API, PYQT5_API, PYQT4_API, PYSIDE_API, PYSIDE6_API
 from openalea.plantgl.gui.qt.uic import compileUi, compile_args
 
 import os
@@ -18,10 +18,12 @@ def get_rcfnames_from(fname):
 def compile_ui(uifname):
     """ compile a Ui """
     pyfname = get_uifnames_from(uifname)
-    fstream = open(pyfname,'w')
-#    compile_args["from_imports"] = ""
-    compileUi(uifname, fstream, **compile_args)
-    fstream.close()
+    if os.environ[QT_API] in PYSIDE6_API:
+        compileUi(uifname, pyfname)
+    else:
+        fstream = open(pyfname,'w')
+        compileUi(uifname, fstream, **compile_args)
+        fstream.close()
 
 def compile_rc (rcfname) :
     """ compile a Ressource file """

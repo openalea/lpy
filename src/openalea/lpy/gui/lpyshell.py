@@ -50,5 +50,8 @@ def set_shell_widget(lpywidget):
     lpywidget.shellstdout = kernel.stdout
     lpywidget.shellstderr = kernel.stderr
 
-    sys.stdout = kernel.stdout
-    sys.stderr = kernel.stderr
+    try:
+        sys.stdout = kernel.stdout
+        sys.stderr = kernel.stderr
+    except Exception:
+        print("cannot redirect sys.stdout to kernel.stdout")

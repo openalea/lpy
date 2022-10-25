@@ -7,7 +7,7 @@ from math import sin, pi
 
 from .objectmanagers import get_managers
 
-from openalea.plantgl.gui.qt.QtCore import QObject, QPoint, Qt, pyqtSignal, QT_VERSION_STR
+from openalea.plantgl.gui.qt.QtCore import QObject, QPoint, Qt, Signal
 from openalea.plantgl.gui.qt.QtGui import QFont, QFontMetrics, QImageWriter, QColor, QPainter
 from openalea.plantgl.gui.qt.QtWidgets import QAction, QApplication, QDockWidget, QFileDialog, QLineEdit, QMenu, QMessageBox, QScrollArea, QVBoxLayout, QWidget
 
@@ -29,15 +29,12 @@ def renderText(self, x, y, text, font = QFont(), color = None):
     pass
 
 try:
-    assert False
     from openalea.plantgl.gui.qt.QtGui import QOpenGLWidget  
     QGLParentClass = QOpenGLWidget 
     print('Use QOpenGLWidget')
     NewOpenGLClass = True
 
     QGLParentClass.mRenderText = renderText
-
-
     pass
 except:
     from openalea.plantgl.gui.qt.QtOpenGL import QGLWidget 
@@ -198,10 +195,10 @@ class ObjectListDisplay(QGLParentClass):
     
     THEMES = { "Black" : BLACK_THEME, "White": WHITE_THEME }
 
-    valueChanged = pyqtSignal(int)
-    selectionChanged = pyqtSignal(int)
-    AutomaticUpdate = pyqtSignal()
-    renameRequest = pyqtSignal(int)
+    valueChanged = Signal(int)
+    selectionChanged = Signal(int)
+    AutomaticUpdate = Signal()
+    renameRequest = Signal(int)
     
     def __init__(self,parent, panelmanager = None):
         QGLParentClass.__init__(self,parent)
@@ -253,7 +250,7 @@ class ObjectListDisplay(QGLParentClass):
         self.selectedBorderList = None
         self.backGroundList = None
 
-        self.with_translation = (int(QT_VERSION_STR.split('.')[1]) < 14)
+        self.with_translation = False # (int(QT_VERSION_STR.split('.')[1]) < 14)
 
         self.createContextMenuActions()
         self.theme = self.Theme()
@@ -1009,8 +1006,8 @@ class ObjectListDisplay(QGLParentClass):
             self.showMessage('Save '+repr(fname[0]),3000)
 
 class LpyObjectPanelDock (QDockWidget):
-    valueChanged = pyqtSignal(bool)
-    AutomaticUpdate = pyqtSignal()
+    valueChanged = Signal(bool)
+    AutomaticUpdate = Signal()
 
     def __init__(self,parent,name,panelmanager = None):    
         QDockWidget.__init__(self,parent)

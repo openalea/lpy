@@ -54,10 +54,10 @@ def detect_signals(filetext):
                 sigparam = gd['sigparam']
                 if 'PyQt_PyObject' in sigparam: sigparam.replace("PyQt_PyObject","'PyQt_PyObject'")
                 if gd['sender'] == 'self' : 
-                    toinsert[(cclass, cline,clinelength)].append(gd['signalname']+' = pyqtSignal('+sigparam+') # AUTO SIGNAL DEFINITION')
+                    toinsert[(cclass, cline,clinelength)].append(gd['signalname']+' = Signal('+sigparam+') # AUTO SIGNAL DEFINITION')
                 else :
                     res += oline[:m.regs[0][0]]
-                    res += "#" + gd['sender']+'.'+gd['signalname']+' = pyqtSignal('+sigparam+') # AUTO SIGNAL TRANSLATION in class '+ cclass +'\n'
+                    res += "#" + gd['sender']+'.'+gd['signalname']+' = Signal('+sigparam+') # AUTO SIGNAL TRANSLATION in class '+ cclass +'\n'
                 res += oline[:m.regs[0][0]]
                 res +=gd['sender']+'.'+gd['signalname']+'.emit('+gd['param']+')'+ oline[m.regs[0][1]:-1].rstrip() + " # " + oline[m.regs[0][0]:m.regs[0][1]] +" # AUTO SIGNAL TRANSLATION\n"
             else:
@@ -77,10 +77,10 @@ def detect_signals(filetext):
                 sigparam = gd['sigparam']
                 if 'PyQt_PyObject' in sigparam: sigparam.replace("PyQt_PyObject","'PyQt_PyObject'")
                 if gd['sender'] == 'self' : 
-                    toinsert[(cclass, cline, clinelength)].append(gd['signalname']+' = pyqtSignal('+sigparam+') # AUTO SIGNAL DEFINITION')
+                    toinsert[(cclass, cline, clinelength)].append(gd['signalname']+' = Signal('+sigparam+') # AUTO SIGNAL DEFINITION')
                 else :
                     res += oline[:m.regs[0][0]]
-                    res += '#'+gd['sender']+'.'+gd['signalname']+' = pyqtSignal('+sigparam+') # AUTO SIGNAL TRANSLATION in class '+ cclass +'\n'
+                    res += '#'+gd['sender']+'.'+gd['signalname']+' = Signal('+sigparam+') # AUTO SIGNAL TRANSLATION in class '+ cclass +'\n'
                 res += oline[:m.regs[0][0]]
                 res += gd['sender']+'.'+gd['signalname']+'.connect('+gd['slot']+')'+ oline[m.regs[0][1]:].rstrip() + " # " + oline[m.regs[0][0]:m.regs[0][1]] + '\n'
             else:
@@ -117,15 +117,17 @@ def generate_qt_classmap(filetext):
     return found
 
 def generate_qt_header(qt_classmap):
-    import PyQt5.QtWidgets as qwmodule
-    import PyQt5.QtPrintSupport as qpmodule
+    import PySide6.QtWidgets as qwmodule
+    import PySide6.QtGui as qpmodule
+    #import PyQt5.QtWidgets as qwmodule
+    #import PyQt5.QtPrintSupport as qpmodule
     qw = set(qwmodule.__dict__.keys())
     qp = set(qpmodule.__dict__.keys())
     classmap = {}
     for key, value in list(qt_classmap.items()):
         nvalue = value.split('.')
         if key == 'SIGNAL':
-            key = 'pyqtSignal'
+            key = 'Signal'
             nvalue[2] = key
         if nvalue[1] == 'QtGui':
             if nvalue[2] in qw:
