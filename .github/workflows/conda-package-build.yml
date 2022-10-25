@@ -59,7 +59,7 @@ jobs:
           echo "CONDA_NPY is not defined"
           exit -1
         fi
-        export PYTHON_VERSION=${CONDA_PY:0:1}.${CONDA_PY:1:1}
+        export PYTHON_VERSION=${CONDA_PY:0:1}.${CONDA_PY:1:3}
         export NUMPY_VERSION=${CONDA_NPY:0:1}.${CONDA_NPY:1:3}
 
         export BUILD_CMD="sudo conda build . --python=$PYTHON_VERSION"
