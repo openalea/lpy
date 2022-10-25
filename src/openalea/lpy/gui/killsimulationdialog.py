@@ -29,7 +29,7 @@ class KillSimulationDialog (QDialog,Ui_KillSimulationDialog):
         self.killer = killer
         self.timeout = timeout
         if self.condition():
-            QTimer.singleShot(1000*initialtimeout,self.initTiming)
+            QTimer.singleShot(int(1000*initialtimeout),self.initTiming)
     def initTiming(self):
         if self.condition():
             self.step()
