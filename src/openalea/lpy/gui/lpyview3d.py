@@ -6,7 +6,7 @@ try:
     ParentClass = QGLViewer
     hasPyQGLViewer = True
 except ImportError as e:
-    ParentClass = qt.QtOpenGL.QGLWidget
+    ParentClass = qt.QtOpenGL.QOpenGLWidget
     print('Missing PyQGLViewer !!!!!! Unstable Lpy !!!!!!!!!')
     hasPyQGLViewer = False
 

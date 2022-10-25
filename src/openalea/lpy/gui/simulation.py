@@ -12,7 +12,7 @@ from .lpytmpfile import *
 from . import pymodulemonitoring as pm
 
 
-from openalea.plantgl.gui.qt.QtCore import QObject, pyqtSignal
+from openalea.plantgl.gui.qt.QtCore import QObject, Signal
 from openalea.plantgl.gui.qt.QtGui import QBrush, QColor, QFont, QIcon, QPainter, QPixmap, QStandardItem, QStandardItemModel
 from openalea.plantgl.gui.qt.QtWidgets import QFileDialog, QLineEdit, QMessageBox
 

@@ -7,7 +7,7 @@ import sys
 import traceback as tb
 
 
-from openalea.plantgl.gui.qt.QtCore import QCoreApplication, QMutex, QObject, pyqtSignal
+from openalea.plantgl.gui.qt.QtCore import QCoreApplication, QMutex, QObject, Signal
 from openalea.plantgl.gui.qt.QtGui import QStandardItem, QStandardItemModel
 from openalea.plantgl.gui.qt.QtWidgets import QMessageBox
 

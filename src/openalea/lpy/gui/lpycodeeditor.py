@@ -1,5 +1,5 @@
 from openalea.plantgl.gui.qt import qt
-from openalea.plantgl.gui.qt.QtCore import QMimeData, QObject, QPoint, QRegExp, QTimer, Qt, pyqtSignal
+from openalea.plantgl.gui.qt.QtCore import QMimeData, QObject, QPoint, QRegularExpression, QTimer, Qt, Signal
 from openalea.plantgl.gui.qt.QtGui import QColor, QFont, QPainter, QPalette, QPen, QPixmap, QSyntaxHighlighter, QTextCharFormat, QTextCursor, QTextDocument, QTextOption
 from openalea.plantgl.gui.qt.QtWidgets import QLabel, QTextEdit, QWidget
 
@@ -36,14 +36,14 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
                             'Start','End','StartEach','EndEach','getGroup','useGroup','getIterationNb',
                             'module','-static->','@static','lpyimport','\%pastefile']
         for pattern in self.lpykeywords:
-            self.rules.append((QRegExp(pattern),self.lpykeywordFormat))
+            self.rules.append((QRegularExpression(pattern),self.lpykeywordFormat))
         self.keywordFormat = QTextCharFormat()
         self.keywordFormat.setForeground(Qt.blue)
         self.keywordFormat.setFontWeight(QFont.Bold)
         import keyword
         self.pykeywords = keyword.kwlist + ['None','range','xrange', 'True','False','int','float','str','tuple','list']
         for pattern in self.pykeywords:
-            self.rules.append((QRegExp(pattern),self.keywordFormat))
+            self.rules.append((QRegularExpression(pattern),self.keywordFormat))
         self.delimiterFormat = QTextCharFormat()
         self.delimiterFormat.setForeground(Qt.darkBlue)
         self.delimiterFormat.setFontWeight(QFont.Bold)
@@ -54,28 +54,28 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
         self.prodFormat.setFontWeight(QFont.Bold)
         self.prodkeywords = ['Axiom:','module','produce','nproduce','nsproduce','makestring','-->','-static->','ignore:','consider:']
         for pattern in self.prodkeywords:
-            self.exprules.append((QRegExp(pattern+'.*$'),len(pattern),self.prodFormat,0))
+            self.exprules.append((QRegularExpression(pattern+'.*$'),len(pattern),self.prodFormat,0))
         self.funcFormat = QTextCharFormat()
         self.funcFormat.setForeground(Qt.magenta)
-        self.exprules.append((QRegExp('def[ \t]+.*\('),3,self.funcFormat,1))
+        self.exprules.append((QRegularExpression('def[ \t]+.*\('),3,self.funcFormat,1))
         self.stringFormat = QTextCharFormat()
         self.stringFormat.setForeground(Qt.darkGray)
-        self.exprules.append((QRegExp('\"[^\"]*\"'),0,self.stringFormat,0))
-        self.exprules.append((QRegExp("\'[^\']*\'"),0,self.stringFormat,0))
+        self.exprules.append((QRegularExpression('\"[^\"]*\"'),0,self.stringFormat,0))
+        self.exprules.append((QRegularExpression("\'[^\']*\'"),0,self.stringFormat,0))
         self.tabFormat = QTextCharFormat()
         self.tabFormat.setBackground(QColor(220,220,220))
         self.spaceFormat = QTextCharFormat()
         self.spaceFormat.setBackground(QColor(240,240,240))
-        self.tabRule = QRegExp("^[ \t]+")
+        self.tabRule = QRegularExpression("^[ \t]+")
         self.numberFormat = QTextCharFormat()
         self.numberFormat.setForeground(Qt.red)
-        self.exprules.append((QRegExp('\d+(\.\d+)?(e[\+\-]?\d+)?'),0,self.numberFormat,0))        
+        self.exprules.append((QRegularExpression('\d+(\.\d+)?(e[\+\-]?\d+)?'),0,self.numberFormat,0))        
         self.commentFormat = QTextCharFormat()
         self.commentFormat.setForeground(Qt.darkGreen)
-        self.lsysruleExp = [QRegExp('.+:'),QRegExp('.+\-\->'), QRegExp('.+\-static\->')]
-        self.commentExp = QRegExp('#.+$')
-        self.ruleCommentExp = QRegExp('[ \t]+#.+$')
-        self.prodbegExp =  QRegExp('[n]produce[ \t]*.')
+        self.lsysruleExp = [QRegularExpression('.+:'),QRegularExpression('.+\-\->'), QRegularExpression('.+\-static\->')]
+        self.commentExp = QRegularExpression('#.+$')
+        self.ruleCommentExp = QRegularExpression('[ \t]+#.+$')
+        self.prodbegExp =  QRegularExpression('[n]produce[ \t]*.')
         self.setCurrentBlockState(0)
         self.activated = True
         self.tabviewactivated = True
@@ -141,33 +141,55 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
         if self.currentBlockState() == 1:
             if lentxt > 0 and not text[0] in " \t":
                 for ruleExp in self.lsysruleExp:
-                    index = ruleExp.indexIn(text)
+                    match = ruleExp.match(text)
+                    index = match.capturedStart()
                     if index >= 0:
-                        length = ruleExp.matchedLength()
+                        length = match.capturedLength()
                         self.setFormat(index, length, self.prodFormat)
                         break
         for rule in self.rules:
             expression = rule[0]
-            index = expression.indexIn(text)
-            while index >= 0:
-                length = expression.matchedLength()
-                if ((index == 0 or not text[index-1].isalnum()) and 
-                   (index+length == lentxt or not text[index+length].isalnum())):
+            matches = expression.globalMatch(text)
+            while(matches.hasNext()):
+                match = matches.next()
+                index = match.capturedStart()
+                index_end = match.capturedEnd()
+                length = match.capturedLength()
+                if ((index==0 or not text[index-1].isalnum()) and 
+                   (index_end == lentxt or not text[index_end].isalnum())):
                     self.setFormat(index, length, rule[1])
-                index = expression.indexIn(text, index + length)
+
+            #index = expression.indexIn(text)
+            #while index >= 0:
+            #    length = expression.matchedLength()
+            #    if ((index == 0 or not text[index-1].isalnum()) and 
+            #       (index+length == lentxt or not text[index+length].isalnum())):
+            #        self.setFormat(index, length, rule[1])
+            #    index = expression.indexIn(text, index + length)
         for rule in self.exprules:
             expression = rule[0]
-            index = expression.indexIn(text)
-            while index >= 0:
-                length = expression.matchedLength()
+            #index = expression.indexIn(text)
+            matches = expression.globalMatch(text)
+            #while index >= 0:
+            while(matches.hasNext()):
+                match = matches.next()
+                index = match.capturedStart()
+                index_end = match.capturedEnd()
+                length = index_end - index
+                #length = expression.matchedLength()
                 if index == 0 or not text[index-1].isalnum():
                     self.setFormat(index+rule[1], length-rule[1]-rule[3], rule[2])
-                    mt = expression.cap(0)
-                    ei = self.prodbegExp.indexIn(mt)
-                    if ei >= 0 and str(self.prodbegExp.cap(0))[-1] == '(':
+                    #mt = expression.cap(0)
+                    mt = match.capturedTexts()[0]
+                    ei_m = self.prodbegExp.match(mt)
+                    #ei = self.prodbegExp.indexIn(mt)
+                    ei = ei_m.capturedStart()
+                    if ei >= 0 and str(ei_m.captured(0))[-1] == '(':
+                    #if ei >= 0 and str(self.prodbegExp.cap(0))[-1] == '(':
                         previousProductionState = self.previousBlockState()
                         imbricatedParanthesis = 1
-                        for c in mt[ei+len(self.prodbegExp.cap(0))+1:]:
+                        for c in mt[ei_m.capturedEnd() +1:]:
+                        #for c in mt[ei+len(self.prodbegExp.cap(0))+1:]:
                           if c == '(': imbricatedParanthesis += 1
                           if c == ')': 
                             imbricatedParanthesis -= 1
@@ -178,26 +200,35 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
                             lid = self.genlineid()
                             self.setCurrentBlockState(lid)
                             self.linedata[lid] = LineData(imbricatedParanthesis,previousProductionState)                        
-                index = expression.indexIn(text, index + length)
+                #index = expression.indexIn(text, index + length)
         if self.tabviewactivated:
-            index = self.tabRule.indexIn(text)
+            match = self.tabRule.match(text)
+            #index = self.tabRule.indexIn(text)
+            index = match.capturedStart()
             if index >= 0:
-                length = self.tabRule.matchedLength()
-                for i in range(index,index+length):
+                end_m = match.capturedEnd()
+                #length = self.tabRule.matchedLength()
+                #for i in range(index,index+length):
+                for i in range(index, end_m):
                     if text[i] == '\t':
                         self.setFormat(i, 1 , self.tabFormat)
                     else:
                         self.setFormat(i, 1 , self.spaceFormat)
         commentExp = self.commentExp #if self.currentBlockState() == 0 else self.ruleCommentExp
-        index = commentExp.indexIn(text)
-        while index >= 0:
-            length = commentExp.matchedLength()
+        matches = commentExp.globalMatch(text)
+        #index = commentExp.indexIn(text)
+        #while index >= 0:
+        while matches.hasNext():
+            m = matches.next()
+            index = m.capturedStart()
+            length = m.capturedEnd()
+            #length = commentExp.matchedLength()
             self.setFormat(index, length, self.commentFormat)
-            index = commentExp.indexIn(text,index+length+2)
+            #index = commentExp.indexIn(text,index+length+2)
     
 class Margin(QWidget):
     
-    lineClicked = pyqtSignal(int)
+    lineClicked = Signal(int)
 
     def __init__(self,parent,editor):
         QWidget.__init__(self,parent)
