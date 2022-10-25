@@ -21,6 +21,8 @@ jobs:
             CONDA_NPY: "116"
           - CONDA_PY: "39" 
             CONDA_NPY: "119"
+          - CONDA_PY: "310" 
+            CONDA_NPY: "121"
 
     environment: anaconda_build
 
@@ -69,7 +71,7 @@ jobs:
         fi
         echo "BUILD_OUTPUT=$BUILD_OUTPUT" >> $GITHUB_ENV
 
-        $BUILD_CMD
+        $BUILD_CMD --not-test
 
 
     - name: Login
