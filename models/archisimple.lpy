@@ -1,0 +1,245 @@
+from random import gauss, uniform, seed
+from openalea.plantgl.all import *
+import numpy as np
+from math import degrees, exp, pi, ceil, log
+import sys, os
+
+soilpath = os.path.join(os.getcwd(),os.path.pardir,'soil')
+if not soilpath in sys.path:
+  sys.path += [soilpath]
+import soil as sl ; reload(sl)
+
+module Segment(diameter, length)
+module Pointe (age, diameter, length, rolling) # coord direction
+
+seed(SEED)
+np.random.seed(SEED)
+
+
+def tocm(mmvalue):
+  """ Convert dimension of the model expressed in mm into cm for grid communication """
+  return mmvalue/10.
+
+# A implementer: Elagage, Croissance Radiale.
+
+Duree = 30
+dt = 1
+Elong = 20
+DIR = 10
+TropismElasticity = 0.03
+MinPointeLength = 3
+
+DurDevPrim = 5
+CoefDurCroissancePointe = 80
+
+
+DMin = 0.25
+DMax = 1.2
+DlDm = 0.4 # Diametre lateral Diametre mere
+CVD = 0.0 # Coeficient de variation de diametre
+MinRamifDiameter = DMin + 0.05
+
+InsertionAngle = 90
+ReorientationMecaMax = 30
+
+Alpha = 1
+Beta = 10
+
+normtime = 0
+
+UptakeCoef = 0.1
+UptakenN = 0
+
+PRIM_CARBON_RESPONSE.clamped = False
+PLOT_PROPERTY = 'root_density'
+
+if SUPPLY_PROFILE > 0:
+  SUPPLY = globals()['SUPPLY'+str(SUPPLY_PROFILE)]
+else:
+  SUPPLY = lambda t : 1
+
+def Start():
+  global normtime
+  normtime = 0
+
+def StartEach():
+  global normtime, UptakeCoef, soil
+  normtime = getIterationNb()*dt/float(Duree)
+  UptakeCoef = 0
+  soil.add_property('root_density',0)
+
+def dl(diameter, dt):
+  if CARBON_MODULATION:
+    #print normtime, (1-exp(-Beta*SUPPLY(normtime)))
+    return  Elong * pow(diameter,Alpha) * dt * SUPPLY(normtime)
+    #(1-exp(-Beta*SUPPLY(normtime)))/(1-exp(-Beta))
+  else:
+    return  Elong * pow(diameter,Alpha) * dt
+
+
+def diameter_daughter(diameter):
+  mu =  DMin + (DlDm*(diameter-DMin))
+  sigma = mu * CVD
+  res = gauss(mu, sigma)
+  res = min(res,diameter*0.95)
+  #nbattempt = 0
+  #while (res < 0 or res > diameter*0.95) and nbattempt < 10:
+  #  res = gauss(mu, sigma)
+  #  nbattempt += 1
+  #if nbattempt == 100:
+  #  return 0
+  return res
+
+def duree_croissance(diameter):
+  return CoefDurCroissancePointe*(diameter**2)
+
+def tropism(diameter):
+  return TropismElasticity * diameter / DMax
+
+def reorientation_meca(diameter):
+  return ReorientationMecaMax * (0.2 + 0.8*(DMax - diameter)/(DMax - DMin))
+
+res = 50
+maxdepth = Duree*Elong*DMax*1.2
+zsize = int(ceil(maxdepth/res))+1
+radius = 400
+rsize = int(ceil(radius*2./res))
+
+if not 'soil' in globals():
+  soil = sl.Soil3D(origin=(-radius,-radius,10), dxyz = (res,res,res), size=(rsize,rsize,zsize))
+  soil.add_property('vresistance',0.0)
+  soil.add_property('hresistance',0.5)
+  soil.setLayerValue('hresistance',2, range(soil.iindex(2,tocm(-100)),soil.iindex(2,tocm(1))+1), 0.0)
+
+
+def apply_resistance(p, h, l):
+      hresistance = soil.getValueAt('hresistance',p)
+      vresistance = soil.getValueAt('vresistance',p)
+      ev = h[2]
+      eh = norm(h[0],h[1])
+      ndir = (l*(1-hresistance)*eh,l*(1-vresistance)*ev)
+      lndir = (l*eh,l*ev)
+      ndirL = norm(ndir)
+      ndirA = degrees(angle(ndir,lndir))
+      #print h, ev, eh, ndir, lndir, ndirA
+      return ndirL, ndirA
+
+module Grid, Supply
+
+Axiom:  Supply [@Tp(0,0,-1) @Ts(TropismElasticity) _(DMax) &(170)  @M(0,0,-0.5) Pointe(0, DMax, MinPointeLength, 0) ?P ?H] Grid
+
+derivation length: Duree/dt
+production:
+
+Pointe(age, d, l, r) ?P(p) ?H(h):
+  age += dt
+  ndirA = 0
+  ndl = 0
+  ipos = p - h * l
+  global UptakenN, soil
+  UptakenN += DIR*pi*d*UptakeCoef
+  if age < 0:
+    if CARBON_MODULATION:
+      d *= PRIM_CARBON_RESPONSE(SUPPLY(normtime))
+      if d < DMin: produce %
+  if 0 < age < duree_croissance(d) :
+    ndl = dl(d, dt)
+    l += ndl
+    if GRID and GRIDRESISTANCE:
+      nl, ndirA = apply_resistance(p, h, l)
+    npos = p+h*ndl
+    if npos[2] > 0:
+      ndirA = 90-degrees(angle(h,(0,0,1)))
+    if abs(ndirA) > 0:
+      nproduce  &(ndirA)
+    ipos += h*DIR/2
+    while l > DIR + MinPointeLength:
+      nproduce ?P Segment(d, DIR) ?P
+      if GRID:
+        soil.incValueAt('root_density',tocm(ipos),DIR)
+        ipos += h*DIR
+      if STEREOTYPED:
+        r += 180
+      else:
+        r += uniform(0,360)
+        reorient = reorientation_meca(d)
+        nproduce &(uniform(-reorient,reorient))
+      if d >= MinRamifDiameter:
+        diam =  diameter_daughter(d)
+        if DMin <= diam :
+          nproduce [/(r) +(InsertionAngle) @Ts(tropism(d))_(diam) @v
+          nproduce Pointe(-DurDevPrim,diam, 0, 0)  ?P ?H
+          nproduce ]
+      l -= DIR
+  if GRID:
+    soil.incValueAt('root_density',tocm(p+h*ndl), l)
+  produce Pointe(age, d, l, r % 360) ?P ?H
+
+?P(p0) Segment(d,l) ?P(p)  :
+  global UptakenN, soil
+  surface = pi*d*UptakeCoef
+  UptakenN += DIR*surface
+  if GRID:
+    soil.incValueAt('root_density',tocm((p0+p)/2), norm(p-p0))
+  produce ?P Segment(d,l) ?P
+  
+
+interpretation:
+
+Segment(d,l) -->  F(l, d)
+Pointe(a,d,l,r) --> ,(3) F(l,d) @O()
+
+Grid :
+  if GRID and GRIDVIEW: 
+    if PLOT_PROPERTY == 'root_density':
+      sc = soil.pgl_representation(property_name=PLOT_PROPERTY, sizeratio = 1, transparency = 0.5,  minvalue = 0.01, maxvalue = 7, cmview=True, scalefunc = lambda x : log(x +1), scaling = 10 )
+    else:
+      sc = soil.pgl_representation(property_name=PLOT_PROPERTY, sizeratio = 1, transparency = 0.5,  cmview=True, scalefunc = lambda x : 1-x, scaling = 10 )
+    produce @g(sc)
+
+Supply :
+  nproduce  [f(80) _(10),(5) [+(90)  F(UptakenN/2)][-(90)  F(UptakenN/2)]]
+  if CARBON_MODULATION:
+    produce [f(50) _(10),(2) [+(90)  F(SUPPLY(normtime)*100)][-(90)  F(SUPPLY(normtime)*100)]]
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	scalars = [('GRID', 'Bool', True), ('GRIDRESISTANCE', 'Bool', False), ('GRIDVIEW', 'Bool', True), ('SEED', 'Integer', 1, 0, 100), ('CARBON_MODULATION', 'Bool', False), ('STEREOTYPED', 'Bool', False), ('SUPPLY_PROFILE', 'Integer', 1, 0, 4)]
+	context["__scalars__"] = scalars
+	for s in scalars:
+		if not s[1] == "Category" : context[s[0]] = s[2]
+	import openalea.plantgl.all as pgl
+	SUPPLY1 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 1.0189, 1),(0.243807, 1.00611, 1),(0.243807, 0.981314, 1),(0.295748, 0.0694825, 1),(0.51745, 0.0375273, 1),(0.573846, 0.977421, 1),(0.607606, 0.953631, 1),(1, 1.01463, 1)]) , 
+	    )
+	SUPPLY1.name = "SUPPLY1"
+	SUPPLY2 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.0901563, 1),(0.164654, 0.991439, 1),(0.176287, 1.04116, 1),(0.657942, 1.04407, 1),(1, 0.0959728, 1)]) , 
+	    )
+	SUPPLY2.name = "SUPPLY2"
+	SUPPLY3 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.0843397, 1),(0.225727, 0.299551, 1),(0.244968, 0.974269, 1),(1, 1.00917, 1)]) , 
+	    )
+	SUPPLY3.name = "SUPPLY3"
+	SUPPLY4 = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.997535, 1),(0.286801, 0.136689, 1),(0.657942, 0.043624, 1),(1, 0.0785232, 1)]) , 
+	    )
+	SUPPLY4.name = "SUPPLY4"
+	PRIM_CARBON_RESPONSE = pgl.NurbsCurve2D(	
+	    ctrlPointList = pgl.Point3Array([(0, 0.49711, 1),(0.162813, 0.810694, 1),(0.63921, 1.01734, 1),(1, 1.00578, 1)]) , 
+	    )
+	PRIM_CARBON_RESPONSE.name = "PRIM_CARBON_RESPONSE"
+	panel_0 = ({'active': True, 'visible': True, 'name': 'Panel 2'},[('Function',SUPPLY1),('Function',SUPPLY2),('Function',SUPPLY3),('Function',SUPPLY4),('Function',PRIM_CARBON_RESPONSE)])
+	parameterset = [panel_0,]
+	context["__functions__"] = [('SUPPLY1',SUPPLY1),('SUPPLY2',SUPPLY2),('SUPPLY3',SUPPLY3),('SUPPLY4',SUPPLY4),('PRIM_CARBON_RESPONSE',PRIM_CARBON_RESPONSE),]
+	context["__curves__"] = []
+	context["__parameterset__"] = parameterset
+	context["SUPPLY1"] = pgl.QuantisedFunction(SUPPLY1)
+	context["SUPPLY2"] = pgl.QuantisedFunction(SUPPLY2)
+	context["SUPPLY3"] = pgl.QuantisedFunction(SUPPLY3)
+	context["SUPPLY4"] = pgl.QuantisedFunction(SUPPLY4)
+	context["PRIM_CARBON_RESPONSE"] = pgl.QuantisedFunction(PRIM_CARBON_RESPONSE)

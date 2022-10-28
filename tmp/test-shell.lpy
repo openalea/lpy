@@ -1,0 +1,15 @@
+
+def f(x):
+    return x+1
+    
+
+Axiom: 
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem

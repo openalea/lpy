@@ -1,0 +1,7 @@
+newmtl APPID_2_140592763701232
+	Ka 0.0 0.0 0.705882352941
+	Kd 0.0 0.0 0.705882352941
+	Ks 0.0 0.0 0.705882352941
+	Tr 0.0 
+\map_Ka "/Users/fboudon/Develop/vplants/branches/mangosim/share/textures/leaf.png" 
+	illum 2

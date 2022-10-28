@@ -1,0 +1,19 @@
+D = 1
+R = 1.5
+
+Axiom: _(0.01) ,(2) A(0)
+
+
+derivation length: 16
+production:
+
+A(d):
+  if d > 0 : produce A(d-1)
+  produce F(1)-(5)[+(60)A(D)]F(1)-(5)[/(180)+(60)A(D)]F(1)A(0)
+
+F(a) --> F(a*R)
+
+interpretation:
+
+
+endlsystem

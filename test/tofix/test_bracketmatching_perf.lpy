@@ -1,0 +1,83 @@
+from openalea.plantgl.all import *
+
+MAXORDER = 5
+RAMIFORDER = 4
+phylotaxy = 360 / RAMIFORDER
+
+def branching_angle(o):
+  return 50 - 40*(o/float(MAXORDER))
+
+def internode_length(o):
+  return 5 - 3*(o/float(MAXORDER))
+
+def internode_diam(o):
+  return 1 - 0.8*(o/float(MAXORDER))
+
+label = None
+
+
+def StartEach(lstring):
+  #print lstring
+  global label
+  if getIterationNb() == 0:
+    useGroup(1)
+    label = 'Decompose'
+  elif (getIterationNb()) % 2:
+    useGroup(2)
+    backward()
+    label = 'Backward'
+  else:
+    useGroup(3)
+    forward()
+    label = 'Forward'
+    
+
+module Legend
+
+Axiom:  Legend /(90) A(0)
+
+derivation length: 10
+production:
+group 1:
+decomposition:
+maximum depth: MAXORDER+1
+A(o):
+  if o <= MAXORDER:
+    nproduce I
+    for i in xrange(RAMIFORDER):
+      nproduce /(phylotaxy)[&(branching_angle(o))A(o+1)]
+  else:
+    produce
+
+production:
+group 2: # eqresistance
+
+consider: I
+I >[I][I][I][I]:
+  pass
+
+group 3: # flow
+I <  I(p):
+  pass
+
+I : # root
+  pass
+
+group 0:
+interpretation:
+maximum depth: 2
+
+I : 
+  # couleur comme simple interpolation
+  # afficher les arbres avec checkbox.
+  nproduce _(0.1) F(1)
+
+Legend --> [@2D @M(-0.8,0.8) SetColor(0,0,0) @L('Step '+str(getIterationNb())+' : '+(label if label else ''), 12) ]
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	context.options.setSelection('Bracket mapping optimization',2)

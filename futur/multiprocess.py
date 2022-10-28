@@ -1,0 +1,55 @@
+from openalea.lpy import *
+from string import ascii_uppercase
+
+lsystem = Lsystem()
+code = '''
+Axiom:
+
+production:
+'''
+for l,nl in zip(ascii_uppercase, ascii_uppercase[1:]+ascii_uppercase[0]):
+    #code += l+' --> '+nl+'\n'
+    code += l+''' : 
+    for i in range(100):
+        i+1
+    produce '''+nl+'\n'
+code += '\n'
+#print(code)
+
+lsystem.setCode(code)
+
+#print(lstring)
+
+def partial_application(lstring):
+    return str(lsystem.iterate(Lstring(lstring)))
+
+def sequential_application(lstring, length):
+    res = list(map(partial_application,[lstring[i*length:i*length+length] for i in range(len(ascii_uppercase))]))
+    return res
+
+def parallel_application(lstring, length):
+    from multiprocessing import Pool, cpu_count
+    with Pool(cpu_count()) as p:
+        res = list(p.imap(partial_application,[lstring[i*length:i*length+length] for i in range(len(ascii_uppercase))]))
+        return res
+
+if __name__ == '__main__':
+    import sys
+    if len(sys.argv) > 1:
+        length = int(sys.argv[1])
+        lstring = ''.join([l*length for l in ascii_uppercase])
+    else:
+        length = 100000
+        lstring = ''.join([l*length for l in ascii_uppercase])
+
+    import time
+    c = time.perf_counter()
+    res1 = sequential_application(lstring, length)
+    print('Sequential :',time.perf_counter()-c)
+    c = time.perf_counter()
+    res2 = parallel_application(lstring, length)
+    from multiprocessing import cpu_count
+    print('Parallel ('+str(cpu_count())+') :',time.perf_counter()-c)
+    #print(res1)
+    #print(res2)
+    assert res1 == res2

@@ -59,7 +59,7 @@ if (WIN32)
   set(Python3_FIND_REGISTRY LAST)
 endif()
 
-find_package (Python3 3.9 EXACT COMPONENTS Interpreter Development NumPy REQUIRED)
+find_package (Python3 COMPONENTS Interpreter Development NumPy REQUIRED)
 include_directories(${Python3_INCLUDE_DIRS})
 
 # --- Libraries

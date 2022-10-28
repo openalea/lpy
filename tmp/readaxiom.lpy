@@ -1,0 +1,8 @@
+Axiom:
+    ls = Lstring(file('axiom.txt').read())
+    nsproduce(ls)
+
+production:
+
+interpretation:
+A(x) --> @O

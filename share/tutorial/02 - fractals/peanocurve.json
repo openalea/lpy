@@ -1,0 +1,57 @@
+{
+    "schema": "lpy",
+    "version": "1.1",
+    "options": {
+        "compilation": {},
+        "matching": {},
+        "processing": {},
+        "interaction": {}
+    },
+    "parameters": [],
+    "materials": [
+        {
+            "index": 1,
+            "name": "Color_1",
+            "ambient": [
+                0,
+                0,
+                0
+            ],
+            "specular": [
+                0,
+                0,
+                0
+            ],
+            "emission": [
+                0,
+                0,
+                0
+            ],
+            "diffuse": 3.0,
+            "transparency": 0.0,
+            "shininess": 0.2
+        },
+        {
+            "index": 3,
+            "name": "Color_3",
+            "ambient": [
+                175,
+                0,
+                0
+            ],
+            "specular": [
+                0,
+                0,
+                0
+            ],
+            "emission": [
+                0,
+                0,
+                0
+            ],
+            "diffuse": 1.02857,
+            "transparency": 0.0,
+            "shininess": 0.2
+        }
+    ]
+}

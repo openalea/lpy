@@ -1,0 +1,20 @@
+c = 1
+p = 0.3
+q = c - p
+h = (p*q) ** 0.5
+a = 86
+
+Axiom: _(0.002) -(90) G(1,0)
+
+derivation length: 10
+production:
+
+G(x,t):
+    if t == 0: produce G(x*p,2) +(a) G(x*h,1) -(2*a) G(x*h,1) +(a) G(x*q,0)
+    else: produce G(x,t-1)
+
+interpretation:
+
+G(x,t) --> F(x)
+
+endlsystem

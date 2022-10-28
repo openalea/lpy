@@ -1,0 +1,14 @@
+lpyimport flower
+
+dt = 0.2
+
+Axiom: Flower(0.1)
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem

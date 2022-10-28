@@ -1,0 +1,20 @@
+k = 20
+l = 20
+
+Axiom: A(0)
+
+derivation length: 40
+production:
+
+A(i) :
+    if i < k:
+        produce  B(0,i) A(i+1)
+
+B(j,i) :
+    if j < l:
+        produce B(j+1,i) F(0.01)
+
+interpretation:
+B(j,i) --> ,(2 if i % 2 else 3)
+
+endlsystem

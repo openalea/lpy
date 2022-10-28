@@ -1,0 +1,182 @@
+======L-Py======
+
+===== Predefined Symbols =====
+Here is a recap of the predefined symbol used in L-Py with their turtle interpretation: <BR>
+
+|'' ''|'' None ''| None Module.|
+|**__Structure__**|||
+|''[ ''|'' SB ''| Push the state in the stack.|
+|''] ''|'' EB ''| Pop last state from turtle stack and make it the its current state.|
+|**__Rotation__**|||
+|''Pinpoint ''|| Orient turtle toward (x,y,z) . Params : 'x, y, z' or 'v' (optionals, default = 0).|
+|''PinpointRel ''|| Orient turtle toward pos+(x,y,z) . Params : 'x, y, z' or 'v' (optionals, default = 0).|
+|''@R ''|'' SetHead ''| Set the turtle Heading and Up vector. Params: 'hx, hy, hz, ux, uy, uz' or 'h,v' (optionals, default=0,0,1, 1,0,0).|
+|''EulerAngles ''|| Set the orientation of the turtle from the absolute euler angles. Params: 'azimuth, elevation, roll' (optionals, default=180,90,0).|
+|''+ ''|'' Left ''| Turn left  around Up vector. Params : 'angle' (optional, in degrees).|
+|''- ''|'' Right ''| Turn right around Up vector. Params : 'angle' (optional, in degrees).|
+|''^ ''|'' Up ''| Pitch up around Left vector. Params : 'angle' (optional, in degrees).|
+|''& ''|'' Down ''| Pitch down around Left vector. Params : 'angle' (optional, in degrees).|
+|''/ ''|'' RollL ''| Roll left  around Heading vector. Params : 'angle' (optional, in degrees).|
+|''\ ''|'' RollR ''| Roll right  around Heading vector. Params : 'angle' (optional, in degrees).|
+|''iRollL ''|| Roll left intrinsically around Heading vector. Params : 'angle' (optional, in degrees).|
+|''iRollR ''|| Roll right intrinsically around Heading vector. Params : 'angle' (optional, in degrees).|
+|''| ''|'' TurnAround ''| Turn around 180deg the Up vector.|
+|''@v ''|'' RollToVert ''| Roll to Vertical : Roll the turtle around the H axis so that H and U lie in a common vertical plane with U closest to up|
+|''LeftReflection ''|| The turtle change the left vector to have a symmetric behavior.|
+|''UpReflection ''|| The turtle change the up vector to have a symmetric behavior.|
+|''HeadingReflection ''|| The turtle change the heading vector to have a symmetric behavior.|
+|**__Position__**|||
+|''@M ''|'' MoveTo ''| Set the turtle position. Params : 'x, y, z' or 'v' (optionals, default = 0).|
+|''MoveRel ''|| Move relatively from current the turtle position. Params : 'x, y, z' or 'v'(optionals, default = 0).|
+|''@2D ''|'' StartScreenProjection ''| The turtle will create geometry in the screen coordinates system.|
+|''@3D ''|'' EndScreenProjection ''| The turtle will create geometry in the world system (default behaviour).|
+|**__Scale__**|||
+|''@Dd ''|'' DivScale ''| Divides the current turtle scale by a scale factor, Params : 'scale_factor' (optional, default = 1.0).|
+|''@Di ''|'' MultScale ''| Multiplies the current turtle scale by a scale factor, Params : 'scale_factor' (optional, default = 1.0).|
+|''@D ''|'' SetScale ''| Set the current turtle scale, Params : 'scale' (optional, default = 1.0).|
+|**__Primitive__**|||
+|''F ''|| Move forward and draw. Params: 'length , topradius'.|
+|''f ''|| Move forward and without draw. Params: 'length'.|
+|''nF ''|| Produce a n steps path of a given length and varying radius. Params : 'length, dlength [, radius = 1, radiusvariation = None]'.|
+|''@Gc ''|'' StartGC ''| Start a new generalized cylinder.|
+|''@Ge ''|'' EndGC ''| Pop generalized cylinder from the stack and render it.|
+|''{ ''|'' BP ''| Start a new polygon.|
+|''} ''|'' EP ''| Pop a polygon from the stack and render it. Params : concavetest (default=False).|
+|''. ''|'' PP ''| Add a point for polygon.|
+|''LineTo ''|| Trace line to (x,y,z) without changing the orientation. Params : 'x, y, z, topdiameter' or 'v, topdiameter' (optionals, default = 0).|
+|''OLineTo ''|| Trace line toward (x,y,z) and change the orientation. Params : 'x, y, z, topdiameter' or 'v, topdiameter' (optionals, default = 0).|
+|''LineRel ''|| Trace line to pos+(x,y,z) without changing the orientation. Params : 'x, y, z, topdiameter' or 'v, topdiameter'(optionals, default = 0).|
+|''OLineRel ''|| Trace line toward pos+(x,y,z) and change the orientation. Params : 'x, y, z, topdiameter' or 'v, topdiameter' (optionals, default = 0).|
+|''@O ''|'' Sphere ''| Draw a sphere. Params : 'radius' (optional, should be positive, default = line width).|
+|''@B ''|'' Box ''| Draw a box. Params : 'length','topradius'.|
+|''@b ''|'' Quad ''| Draw a quad. Params : 'length','topradius'.|
+|''@o ''|'' Circle ''| Draw a circle. Params : 'radius' (optional, should be positive, default = line width).|
+|''@L ''|'' Label ''| Draw a text label. Params : 'text','size'.|
+|''surface ''|| Draw the predefined surface at the turtle's current location and orientation. Params : 'surface_name' (by default, 'l' exists), 'scale_factor' (optional, default= 1.0, should be positive).|
+|''~ ''|| Draw the predefined surface at the turtle's current location and orientation. Params : 'surface_name' (by default, 'l' exists), 'scale_factor' (optional, default= 1.0, should be positive).|
+|''@g ''|'' PglShape ''| Draw a geometry at the turtle's current location and orientation. Params : 'geometric_model', 'scale_factor' (optional, should be positive) or 'shape' or 'scene' or 'material'.|
+|''Frame ''|| Draw the current turtle frame as 3 arrows (red=heading,blue=up,green=left). Params : 'size' (should be positive), 'cap_heigth_ratio' (in [0,1]), 'cap_radius_ratio' (should be positive).|
+|''SetContour ''|| Set Cross Section of Generalized Cylinder. Params : 'Curve2D [, ccw]'.|
+|''SectionResolution ''|| Set Resolution of Section of Cylinder. Params : 'resolution' (int).|
+|''SetGuide ''|| Set Guide for turtle tracing. Params : 'Curve[2D|3D], length [,yorientation, ccw]'.|
+|''EndGuide ''|| End Guide for turtle tracing.|
+|''Sweep ''|| Produce a sweep surface. Params : 'path, section, length, dlength [, radius = 1, radiusvariation = None]'.|
+|''PositionOnGuide ''|| Set position on Guide for turtle tracing.|
+|**__Width__**|||
+|''_ ''|'' IncWidth ''| Increase the current line width or set it if a parameter is given. Params : 'width' (optional).|
+|''! ''|'' DecWidth ''| Decrease the current line width or set it if a parameter is given. Params : 'width' (optional).|
+|''SetWidth ''|| Set current line width. Params : 'width'.|
+|**__Color__**|||
+|''; ''|'' IncColor ''| Increase the current material index or set it if a parameter is given. Params : 'index' (optional, positive int).|
+|'', ''|'' DecColor ''| Decrease the current material index or set it if a parameter is given. Params : 'index' (optional, positive int).|
+|''SetColor ''|| Set the current material. Params : 'index' (positive int) or 'r,g,b[,a]' or 'material'.|
+|''InterpolateColors ''|| Set the current material. Params : 'index1', 'index2', 'alpha' .|
+|**__Tropism__**|||
+|''@Ts ''|'' Elasticity ''| Set Branch Elasticity. Params : 'elasticity' (optional, default= 0.0, should be between [0,1]).|
+|''@Tp ''|'' Tropism ''| Set Tropism. Params : 'tropism' (optional, Vector3, default= (1,0,0)).|
+|**__Request__**|||
+|''?P ''|'' GetPos ''| Request position vector information. Params : 'x,y,z' or 'v' (optional, default=Vector3, filled by Turtle).|
+|''?H ''|'' GetHead ''| Request heading vector information. Params : 'x,y,z' or 'v' (optional, default=Vector3, filled by Turtle).|
+|''?U ''|'' GetUp ''| Request up vector information. Params : 'x,y,z' or 'v' (optional, default=Vector3, filled by Turtle).|
+|''?L ''|'' GetLeft ''| Request left vector information. Params : 'x,y,z' or 'v' (optional, default=Vector3, filled by Turtle).|
+|''?R ''|'' GetRight ''| Request right vector information. Params : 'x,y,z' or 'v' (optional, default=Vector3, filled by Turtle).|
+|''?F ''|'' GetFrame ''| Request turtle frame information. Params : 'p,h,u,l' (optional, filled by Turtle).|
+|**__Texture__**|||
+|''TextureScale ''|| Set the scale coefficient for texture application. Params : 'uscale, vscale' (default = 1,1) or 'scale'.|
+|''TextureUScale ''|| Set the u-scale coefficient for texture application. Params : 'uscale' (default = 1).|
+|''TextureVScale ''|'' TextureVCoeff ''| Set the v-scale coefficient for texture application. Params : 'vscale' (default = 1).|
+|''TextureTranslation ''|| Set the translation for texture application. Params : 'utranslation, vtranslation' (default = 0,0) or 'translation'.|
+|''TextureRotation ''|| Set the rotation for texture application. Params : 'angle, urotcenter, vrotcenter' (default = 0,0.5,0.5) or 'angle, rotcenter'.|
+|''TextureTransformation ''|| Set the transformation for texture application. Params : 'uscale, vscale, utranslation, vtranslation, angle, urotcenter, vrotcenter' (default = 1,1,0,0,0,0.5,0.5) or 'scale, translation, angle, rotcenter'.|
+|**__String Manipulation__**|||
+|''X ''|'' MouseIns ''| Module inserted just before module selected by user in visualisation.|
+|''% ''|'' Cut ''| Cut the remainder of the current branch in the string.|
+|''new ''|'' newmodule ''| Create a new module whose name is given by first argument.|
+|**__Pattern Matching__**|||
+|''=] ''|| Match exactly a closing bracket|
+|''* ''|'' any ''| Used to match any module in rules predecessor. First argument will become name of the module.|
+|''x ''|'' repexp, all ''| Used to specify matching of a repetition of modules.|
+|''or ''|'' || ''| Used to specify an alternative matching of modules.|
+|''?I ''|'' GetIterator ''| Request an iterator over the current Lstring.|
+|''$ ''|'' GetModule ''| Request a module of the current Lstring.|
+
+===== Predefined commands =====
+Here comes the python commands that control the simulation.
+The following commands can be redefined to initialize simulation state:
+
+|''def Start([lstring])   ''| is called at the beginning of the simulation. One argument can be optionally defined to receive the input lstring. A modified lstring can be returned by the function to modify the axiom of the simulation.|
+|''def End([lstring,geometries])     ''| is called at the end of the simulation. One or two arguments can be optionally defined to receive the final lstring and its geometric interpretation. A modified lstring or scene can be returned by the function to change output of the simulation.|
+|''def StartEach([lstring]) ''| is called before each derivation step. One argument can be optionally defined to receive the input lstring. A modified lstring can be returned by the function to modify input lstring of the current iteration.|
+|''def EndEach([lstring,geometries]) ''| is called after each derivation step. One or two arguments can be optionally defined to receive the current lstring and its geometric interpretation. Returning an lstring or (lstring, geometries) will be used for next iterations and display. If frameDisplayed() is False, geometries is None.|
+|''def StartInterpretation()   ''| is called at the beginning of the interpretation. Interpretable modules can be produced to generate extra graphical elements|
+|''def EndInterpretation()   ''| is called at the end of the interpretation. Interpretable modules can be produced to generate extra graphical elements|
+|''def PostDraw() ''| is called after drawing the representation of a new lstring.  |
+
+Python commands that control the rule application:
+
+|''Stop()     ''| Stop simlation at the end of this iteration.|
+|''forward()     ''| Next iteration will be done in forward direction.|
+|''backward()    ''| Next iteration will be done in backward direction.|
+|''isForward()   ''| Test whether direction is forward.|
+|''getIterationNb() ''| Return the id of the current iteration.|
+|''useGroup(int)    ''| Next iteration will use rules of given group and default group 0.|
+|''getGroup()       ''| Gives which group will be used.|
+|''frameDisplay(bool)''| Set whether a frame will be displayed at the end of the iteration. default is True in animation and False except for last iteration in run mode.|
+|''isFrameDisplayed() ''| Tell whether a frame will be displayed at the end of the iteration.|
+|''isAnimationEnabled() ''| Return the current simulation is in an animation.|
+|''requestSelection(caption) ''| Wait selection in the viewer before next iteration. Set frameDisplay to True.|
+
+
+Lpy specific declaration: 
+
+|''module //name//    ''| declaration of module name.|
+|''consider: //name// ''| symbol to consider.|
+|''ignore: //name//   ''| symbol to ignore.|
+|''group //id//:      ''| following rules will be associated to group //id//.|
+|''Axiom: //Lstring// ''| declaration of the axiom of the Lsystem|
+|''produce //Lstring// ''| produce an //Lstring// and return.|
+|''nproduce //Lstring// ''| produce an //Lstring// whithout returning.|
+|''nsproduce(//LstringStruct//) ''| produce a given //Lstring// data structure whithout returning.|
+|''makestring(//Lstring//) ''| create an //LstringStruct// from //Lstring//.|
+|''InLeftContext(pattern, argdict) ''| test a left context. argdict contains value of all parameter of the pattern|
+|''InRightContext(pattern, argdict) ''| test a right context. argdict contains value of all parameter of the pattern|
+|''derivation length: //value// ''| number of derivation to do (default=1).|
+|''initial_view=//value// ''| number of derivation for bounding box evaluation (default=derivation length).|
+|''extern(//var//=//value//) ''| definition of a global variable and its default value that can be redefined externally.|
+|''production:     ''| start of the production rules declaration.|
+|''homomorphism:   ''| start of the interpretation rules declaration.|
+|''interpretation: ''| start of the interpretation rules declaration.|
+|''decomposition:  ''| start of the decomposition rules declaration.|
+|''maximum depth:  ''| number of decomposition or interpretation recursive call to do (default=1).|
+|''endgroup        ''| reactivate default group 0.|
+|''endlsystem      ''| end of lsystem rules declaration.|
+
+
+These commands have been added to the original cpfg-lpfg specification:
+
+|''context()     ''| Get context of execution of the L-system. To use with care.|
+
+
+The following objects and commands are also accessible from within the lpy shell:
+
+|''lstring     ''| contains the last computed lsystem string of the current simulation.|
+|''lsystem     ''| reference to the internal lsystem object representing the current simulation.|
+|''window   ''| reference to lpy widget object.|
+|''clear()   ''| to clear the shell.|
+
+<BR><BR>
+All these functions are imported from openalea.lpy module. Other data structures and functionnalities are available in the module. You can check them with ''help(openalea.lpy)''.<BR>
+
+===== References =====
+
+L-Py is based on the specification of Lstudio/cpfg-lpfg defined by P. Prusinkiewicz et al. (http://algorithmicbotany.org/lstudio). 
+
+For More details, see:
+<ul>
+<li>  F. Boudon, T. Cokelaer, C. Pradal and C. Godin, L-Py, an open L-systems framework in Python, FSPM 2010.</li>
+<li>  P. Prusinkiewicz et al., 89, The algorithmic Beauty of Plants, Springer-Verlag.</li>
+<li>  P. Prusinkiewicz. Graphical applications of L-systems. Proceedings of Graphics Interface '86, pp. 247-253.</li>
+<li>  P. Prusinkiewicz, R. Karwowski, and B. Lane. The L+C plant modelling language. In Functional-Structural Plant Modelling in Crop Production, J. Vos et al. (eds.), Springer, 2007.</li>
+</ul>
+
+

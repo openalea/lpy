@@ -1,0 +1,88 @@
+{
+  "metadata": {
+    "type": "tree",
+    "origin": "treex",
+    "axial": true,
+    "size": 10
+  },
+  "object": {
+    "4487040192": {
+      "children id": [
+        "4487040360",
+        "4772492456",
+        "4772492904",
+        "112193085736",
+        "112193141560"
+      ],
+      "parent id": "None",
+      "successor": true,
+      "test_json1": "abc",
+      "test_json2": 3.25,
+      "test_json3": {
+        "cle": 3
+      },
+      "test_json4": [
+        "abc",
+        3.25,
+        {
+          "cle": [
+            1,
+            "abc"
+          ]
+        }
+      ]
+    },
+    "4487040360": {
+      "children id": [
+        "4772492288"
+      ],
+      "parent id": "4487040192",
+      "successor": true
+    },
+    "4772492288": {
+      "children id": [],
+      "parent id": "4487040360",
+      "successor": true
+    },
+    "4772492456": {
+      "children id": [],
+      "parent id": "4487040192",
+      "successor": false
+    },
+    "4772492904": {
+      "children id": [],
+      "parent id": "4487040192",
+      "successor": false
+    },
+    "112193085736": {
+      "children id": [
+        "112193141448",
+        "112193141504"
+      ],
+      "parent id": "4487040192",
+      "successor": false
+    },
+    "112193141448": {
+      "children id": [],
+      "parent id": "112193085736",
+      "successor": true
+    },
+    "112193141504": {
+      "children id": [],
+      "parent id": "112193085736",
+      "successor": false
+    },
+    "112193141560": {
+      "children id": [
+        "112193141616"
+      ],
+      "parent id": "4487040192",
+      "successor": false
+    },
+    "112193141616": {
+      "children id": [],
+      "parent id": "112193141560",
+      "successor": true
+    }
+  }
+}

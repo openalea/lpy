@@ -1,0 +1,140 @@
+import numpy as np
+import openalea.plantgl.all  as pgl
+from imp import reload
+import grid as mgrid; reload(mgrid)
+from math import pi, cos, sin
+
+nb_steps = 100
+initial_view = 2
+
+maxvalue = 10
+xdim = 1
+ydim = 5
+zdim = 10
+grid = mgrid.WaterSoilGrid(origin = (-xdim/2.,-ydim,-zdim), upper = (xdim/2.-0.01,ydim,-0.01), default_value = 1)
+
+rootgrid = mgrid.Grid3D(origin = (-xdim/2.,-ydim,-zdim), upper = (xdim/2.-0.01,ydim,-0.01), default_value = False)
+
+
+#grid.values = np.random.random(grid.size())*maxvalue+1
+def sinshape(pos):
+  return 1 - abs(sin(pos.z*2*pi/zdim)/1.5 - pos.y/ydim)
+  
+grid.values = np.array([sinshape(grid.getVoxelCenterFromId(i))*maxvalue for i in range(grid.size())])
+
+dn = 1
+dw = 0.2
+dnw = 0.05
+dr = 0.001
+
+def nbgs(idx):
+    ref = list(idx)
+    res = []
+    dim = grid.dimensions()
+    for d in range(3):
+      if ref[d] > 0 : 
+        lres = list(ref)
+        lres[d] -= 1
+        res.append(lres)
+      if ref[d] < dim[d]-1 : 
+        lres = list(ref)
+        lres[d] += 1
+        res.append(lres)
+    return res
+
+dt = 0.01
+
+def StartEach():
+  backward()
+
+def EndEach():
+  #newvalues = np.ones(grid.size())
+  #for i,v in enumerate(grid.values):
+  #    idx = grid.index(i)
+  #    lnbg = nbgs(idx)
+  #    delta = sum([grid.values[grid.cellId(ng)] for ng in lnbg]) - v * len(lnbg)
+  #    newvalues[i] = v + delta * dt
+  #grid.values = newvalues
+  pass
+
+pexp = 0.4
+initdelay = 3
+
+def getMaxGradient( pos, direction, radius, angle = 180):
+    from math import radians
+    cid = grid.cellIdFromPoint(pos)
+    nbgs = grid.query_voxels_in_cone(pos, direction, radius, radians(angle))
+    nbgs = [nbg for nbg in nbgs if rootgrid.values[nbg] == False]
+    if len(nbgs) == 0 : return None
+    refval = grid.values[cid]
+    maxgrad = None
+    bestnbg = None
+    for nidx in nbgs:
+       print (nidx)
+       lval = grid.values[nidx]
+       if maxgrad is None or lval - refval > maxgrad :
+         maxgrad = lval - refval
+         bestnbg = nidx
+    return (grid.getVoxelCenterFromId(bestnbg) - pos).normed()
+
+Axiom: [ @Tp(0,0,-1) @Ts(0.01) @M(0,0.5,0)| N(0.5,(0,0.5,0),1) A(dn,0) ?P ?H ] G(grid)
+
+derivation length: nb_steps
+production:
+
+A(dn, o) ?P(v) ?H(h) :
+     w = grid.getValueAt(v)
+     if  w > 0.5 :
+         optdir = getMaxGradient(v,h,3,120 if o == 0 else 30)
+         if optdir:
+           nv= v+optdir*dn
+           nproduce PinpointRel(optdir)
+         else:
+           nv = v + h*dn           
+         if nv in grid : #and rootgrid.getValueAt(nv) == False:
+           if o == 0 and w > 2:
+               nproduce [ +(90) B(initdelay, dn/5.,o+1) ?P ?H ] 
+               nproduce /(180) [ +(90) B(initdelay, dn/5.,o+1) ?P ?H ] 
+           nproduce N(dn, nv, 1)
+           produce A(dn,o) ?P ?H
+         else: 
+           print ('not in grid', nv in grid, rootgrid.getValueAt(nv) == False)
+           print (optdir, rootgrid.cellIdFromPoint(nv), rootgrid.cellIdFromPoint(v))
+           produce 
+     else: 
+       produce 
+
+
+B(delay, dn,o) ?P(v) ?H(h) :
+   if delay > 0:
+      produce B(delay-1, dn,o) ?P ?H
+   nv = v + h*dn
+   if nv in grid : #and rootgrid.getValueAt(nv) == False:
+     w = grid.getValueAt(v)
+     rootgrid.setValueAt(v, True)
+     if  w > 0 :
+         produce N(dn, nv, 1) A(dn,o) ?P ?H
+     else:
+         produce 
+   else: produce
+
+
+
+consider: N
+N(dnv,p,d) >> x([ N(dnv3,p3,d3)]) N(dnv2,p2,d2):
+     w = grid.getValueAt(p)
+     if  w > 0 :
+       grid.setValueAt(p, w-dnw)
+       #r+= dnw
+     d = sum(d3,0)+d2+1
+     produce N(dnv,p,d)
+
+interpretation:
+
+G(grid) --> @g(grid.representation())
+
+N(l,o,d) --> _(0.05*pow(d,pexp)) F(l)
+
+A(dn,o) --> [,(4)@O(0.1)]
+B(delay, dn,o) --> [,(3)@O(0.1)]
+endlsystem

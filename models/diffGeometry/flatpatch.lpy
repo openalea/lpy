@@ -1,0 +1,43 @@
+print(patch.getUTangentAt(0,0))
+print(patch.getVTangentAt(0,0))
+
+Axiom: 
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+    import openalea.plantgl.all as pgl
+    patch = pgl.NurbsPatch( 
+        pgl.Point4Matrix([[(0, -0.5, 0, 1), (0, -0.166667, 0, 1), (0, 0.166667, 0, 1), (0, 0.5, 0, 1)], [(0, -0.5, 0.333333, 1), (0, -0.166667, 0.333333, 1), (0, 0.166667, 0.333333, 1), (0, 0.5, 0.333333, 1)], [(0, -0.5, 0.666667, 1), (0, -0.166667, 0.666667, 1), (0, 0.166667, 0.666667, 1), (0, 0.5, 0.666667, 1)], [(0, -0.5, 1, 1), (0, -0.166667, 1, 1), (0, 0.166667, 1, 1), (0, 0.5, 1, 1)]]) , 
+        )
+    patch.name = "patch"
+    patch2 = pgl.NurbsPatch( 
+        pgl.Point4Matrix([[(0, -0.5, -0.5, 1), (0, -0.166667, -0.5, 1), (0, 0.166667, -0.5, 1), (0, 0.5, -0.5, 1)], 
+                          [(0, -0.5, -0.166667, 1), (0, -0.166667, -0.166667, 1), (0, 0.166667, -0.166667, 1), (0, 0.5, -0.166667, 1)], 
+                          [(0, -0.5, 0.166667, 1), (0, -0.166667, 0.166667, 1), (0, 0.166667, 0.166667, 1), (0, 0.5, 0.166667, 1)], 
+                          [(0, -0.5, 0.5, 1), (0, -0.166667, 0.5, 1), (0, 0.166667, 0.5, 1), (0, 0.5, 0.5, 1)]]) , 
+        )
+    patch2.name = "patch2"
+    patch3 = pgl.NurbsPatch( 
+        pgl.Point4Matrix([[(0, 0, 0, 1), (0, 0.333333, 0, 1), (0, 0.666667, 0, 1), (0, 1, 0, 1)], 
+                          [(0, 0, 0.333333, 1), (0, 0.333333, 0.333333, 1), (0, 0.666667, 0.333333, 1), (0, 1, 0.333333, 1)], 
+                          [(0, 0, 0.666667, 1), (0, 0.333333, 0.666667, 1), (0, 0.666667, 0.666667, 1), (0, 1, 0.666667, 1)], 
+                          [(0, 0, 1, 1), (0, 0.333333, 1, 1), (0, 0.666667, 1, 1), (0, 1, 1, 1)]]) , 
+        )
+    patch3.name = "patch3"
+    panel_0 = ({'active': True, 'visible': True, 'name': 'Panel 1'},[('NurbsPatch',patch),('NurbsPatch',patch2),('NurbsPatch',patch3)])
+    parameterset = [panel_0,]
+    context["__functions__"] = []
+    context["__curves__"] = []
+    context["__parameterset__"] = parameterset
+    context["patch"] = patch

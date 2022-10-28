@@ -1,0 +1,54 @@
+from math import sin,degrees
+from random import uniform
+from openalea.plantgl.all import norm
+
+N = 2500
+R = 1. 
+
+pitch = 10. #~30 steps to close the loop
+#pitch = 0. #~60 steps to close the loop; consistent up to 10,000 steps
+
+dl = 0.1
+alpha = dl/2.0/R
+alphadeg = degrees(alpha)
+print alphadeg
+h = 2.0*R*sin(alpha)
+
+def StartEach():
+    if getIterationNb() == N-1:
+        useGroup(1)
+
+def End(lstring):
+    print lstring[-1]
+    print norm(lstring[-1][0])
+
+Axiom: _(0.002) G(1) ?H
+
+production:
+
+derivation length: N
+
+G(n) : 
+  produce S(n)G(n+1)
+
+group 1:
+?H(h): pass
+
+
+interpretation:
+
+S(x):
+  produce -(pitch)&(alphadeg)F(h)&(alphadeg)
+  #produce ;(2)F(h)
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	context.animation_timestep = 0.001
+__copyright__ = 'open-source GPL'
+__description__ = '- change the number of sides of the polygon\n\n- compute the length of the polygone using production rules\n'
+__institutes__ = 'INRIA - CIRAD Virtual Plants'
+__authors__ = 'C. Godin, F. Boudon'

@@ -1,0 +1,16 @@
+R = 1.8
+
+Axiom: _(0.01) ,(2) A(1)
+
+
+derivation length: 10
+production:
+
+A(s):
+  produce F(s/5)-(5)[+(45)A(s/R)]F(s/10)-(5)[/(180)+(45)A(s/R)]F(s/5)A(s/R)
+
+
+interpretation:
+
+
+endlsystem

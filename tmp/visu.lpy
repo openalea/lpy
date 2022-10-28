@@ -1,0 +1,31 @@
+Axiom: L
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+L --> ,(2)F@g(leaf)
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	scalars = [('default_scalar', 'Integer', 1, 0, 100)]
+	context["__scalars__"] = scalars
+	for s in scalars:
+		if not s[1] == "Category" : context[s[0]] = s[2]
+	import openalea.plantgl.all as pgl
+	leaf = pgl.NurbsPatch(	
+	    pgl.Point4Matrix([[(0, -0.5, 0, 1), (0, -0.166667, 0, 1), (0, 0.166667, 0, 1), (0, 0.5, 0, 1)], [(0, -0.5, 0.333333, 1), (0, -0.166667, 0.333333, 1), (0, 0.166667, 0.333333, 1), (0, 0.5, 0.333333, 1)], [(0, -0.5, 0.666667, 1), (0, -0.166667, 0.666667, 1), (0, 0.166667, 0.666667, 1), (0, 0.5, 0.666667, 1)], [(0, -0.5, 1, 1), (0, -0.166667, 1, 1), (0, 0.166667, 1, 1), (0, 0.5, 1, 1)]]) , 
+	    )
+	leaf.name = "leaf"
+	panel_0 = ({'name': 'Panel 1', 'active': True, 'visible': True},[('NurbsPatch',leaf)])
+	parameterset = [panel_0,]
+	context["__functions__"] = []
+	context["__curves__"] = []
+	context["__parameterset__"] = parameterset
+	context["leaf"] = leaf

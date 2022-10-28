@@ -1,0 +1,16 @@
+def End():
+  assert getIterationNb() == 9
+
+Axiom: A(0)
+
+derivation length: 5
+production:
+
+A(x):
+  if x == 3:
+    __lsystem__.derivationLength = 10
+
+interpretation:
+
+
+endlsystem

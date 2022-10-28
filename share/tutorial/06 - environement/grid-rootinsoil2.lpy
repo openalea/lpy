@@ -1,0 +1,115 @@
+import numpy as np
+import openalea.plantgl.all  as pgl
+import grid as mgrid
+from math import pi, cos, sin
+
+nb_steps = 100
+initial_view = 2
+
+maxvalue = 10
+xdim = 1
+ydim = 5
+zdim = 10
+grid = mgrid.WaterSoilGrid(origin = (-xdim/2.,-ydim,-zdim), upper = (xdim/2.-0.01,ydim,-0.01), default_value = 1)
+
+
+#grid.values = np.random.random(grid.size())*maxvalue+1
+def sinshape(pos):
+  return 1 - abs(sin(pos.z*2*pi/zdim)/1.5 - pos.y/ydim)
+  
+grid.values = np.array([sinshape(grid.getVoxelCenterFromId(i))*maxvalue for i in range(grid.size())])
+
+dn = 1
+dw = 0.05
+
+dt = 0.01
+
+def StartEach():
+  backward()
+
+
+pexp = 0.4
+initdelay = 3
+
+def getGradient( pos, direction, radius, angle = 180):
+    from math import radians
+    cid = grid.cellIdFromPoint(pos)
+    nbgs = grid.query_voxels_in_cone(pos, direction, radius, radians(angle))
+    if len(nbgs) == 0 or ( len(nbgs) == 1 and nbgs[0] == cid): return None
+    refval = grid.values[cid]
+    totdir = (0,0,0)
+    totw = 0
+    for nidx in nbgs:
+      if nidx != cid:
+       lval = grid.values[nidx]
+       lpos = grid.getVoxelCenterFromId(nidx)
+       totdir = (lpos - pos).normed() * lval + totdir
+       totw += lval
+    res = totdir / totw
+    if res.z > 0 :
+      #if direction != (0,0,-1):
+      #  return  getGradient( pos, (0,0,-1), radius, angle)     
+      #else :
+      #  return None
+      res.z = 0
+    else:
+      return res
+
+Axiom: [ @Tp(0,0,-1) @Ts(0.01) @M(0,0.5,0) +(180) N(0.5,(0,0.5,0),1) A(dn,0) ?P ?H ] G(grid)
+
+derivation length: nb_steps
+production:
+
+A(dn, o) ?P(v) ?H(h) :
+     w = grid.getValueAt(v)
+     if  w > 0.5 :
+         optdir = getGradient(v,h,3,180 if o == 0 else 30)
+         if optdir:
+           nv= v+optdir*dn
+           nproduce PinpointRel(optdir)
+         else:
+           nv = v + h*dn           
+         if nv in grid : #and rootgrid.getValueAt(nv) == False:
+           if o == 0 and w > 2:
+               nproduce [ +(90) B(initdelay, dn/5.,o+1) ?P ?H ] 
+               nproduce /(180) [ +(90) B(initdelay, dn/5.,o+1) ?P ?H ] 
+           nproduce N(dn, nv, 1)
+           produce A(dn,o) ?P ?H
+         else: 
+
+           produce 
+     else: 
+       produce 
+
+
+B(delay, dn,o) ?P(v) ?H(h) :
+   if delay > 0:
+      produce B(delay-1, dn,o) ?P ?H
+   nv = v + h*dn
+   if nv in grid : 
+     w = grid.getValueAt(v)
+     if  w > 0 :
+         produce N(dn, nv, 1) A(dn,o) ?P ?H
+     else:
+         produce 
+   else: produce
+
+
+
+consider: N
+N(dnv,p,d) >> x([ N(dnv3,p3,d3)]) N(dnv2,p2,d2):
+     w = grid.getValueAt(p)
+     if  w > 0 :
+       grid.setValueAt(p, w-dw)
+     d = sum(d3,0)+d2+1
+     produce N(dnv,p,d)
+
+interpretation:
+
+G(grid) --> @g(grid.representation())
+
+N(l,o,d) --> _(0.05*pow(d,pexp)) F(l)
+
+A(dn,o) --> [,(4)@O(0.1)]
+B(delay, dn,o) --> [,(3)@O(0.1)]
+endlsystem
