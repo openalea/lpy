@@ -10,6 +10,8 @@ environment:
       CONDA_NPY: 116
     - CONDA_PY: 39 
       CONDA_NPY: 119
+    - CONDA_PY: 310 
+      CONDA_NPY: 121
 
 install:
   - git clone https://github.com/OpenAlea/appveyor-ci.git appveyor-ci

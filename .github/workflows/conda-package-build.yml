@@ -43,7 +43,7 @@ jobs:
         sudo conda config --set always_yes yes
         sudo conda config --set remote_read_timeout_secs 600
         sudo conda config --set auto_update_conda False
-        sudo conda install conda-build anaconda-client
+        sudo conda install conda-build anaconda-client boa
 
     - name: Build 
       env:
@@ -62,7 +62,7 @@ jobs:
         export PYTHON_VERSION=${CONDA_PY:0:1}.${CONDA_PY:1:3}
         export NUMPY_VERSION=${CONDA_NPY:0:1}.${CONDA_NPY:1:3}
 
-        export BUILD_CMD="sudo conda build . --python=$PYTHON_VERSION"
+        export BUILD_CMD="sudo conda mambabuild . --python=$PYTHON_VERSION"
         export BUILD_OUTPUT=`$BUILD_CMD --output`
 
         if [[ "$BUILD_OUTPUT" = "" ]]; then
