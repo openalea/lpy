@@ -15,8 +15,8 @@ jobs:
       matrix:
         os: [ macos-latest, ubuntu-latest]
         env:
-          - CONDA_PY: "37"
-            CONDA_NPY: "111" 
+          #- CONDA_PY: "37"
+          #  CONDA_NPY: "111" 
           - CONDA_PY: "38" 
             CONDA_NPY: "116"
           - CONDA_PY: "39" 
