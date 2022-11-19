@@ -9,44 +9,19 @@ from .objectmanagers import get_managers
 
 from openalea.plantgl.gui.qt.QtCore import QObject, QPoint, Qt, Signal
 from openalea.plantgl.gui.qt.QtGui import QFont, QFontMetrics, QImageWriter, QColor, QPainter
-from openalea.plantgl.gui.qt.QtWidgets import QAction, QApplication, QDockWidget, QFileDialog, QLineEdit, QMenu, QMessageBox, QScrollArea, QVBoxLayout, QWidget
+from openalea.plantgl.gui.qt.QtWidgets import QAction, QApplication, QDockWidget, QFileDialog, QLineEdit, QMenu, QMessageBox, QScrollArea, QVBoxLayout, QWidget, QGLTextRenderer
 
 
-def renderText(self, x, y, text, font = QFont(), color = None):
-
-    # Retrieve last OpenGL color to use as a font color
-    if color is None:
-        glColor = glGetDoublev(GL_CURRENT_COLOR)
-        fontColor = QColor(glColor[0], glColor[1], glColor[2], glColor[3])
-    else:
-        fontColor = QColor(*color)
-
-    # Render text
-    self.painter.setPen(fontColor)
-    self.painter.setFont(font)
-    self.painter.drawText(x, y, text)
-
-    pass
 
 try:
-    from openalea.plantgl.gui.qt.QtGui import QOpenGLWidget  
+    from openalea.plantgl.gui.qt.QtWidgets import QOpenGLWidget  
     QGLParentClass = QOpenGLWidget 
-    print('Use QOpenGLWidget')
     NewOpenGLClass = True
-
-    QGLParentClass.mRenderText = renderText
     pass
 except:
     from openalea.plantgl.gui.qt.QtOpenGL import QGLWidget 
     QGLParentClass = QGLWidget 
     NewOpenGLClass = False
-
-    def mRenderText(self, x, y, text, font = QFont(), color = None):
-        if not color is None: glColor4fv(color)
-        glPolygonMode(GL_FRONT_AND_BACK,GL_FILL)
-        self.renderText( int(x), int(y),text,font)
-
-    QGLWidget.mRenderText = mRenderText
 
 
 def retrieveidinname(name,prefix):
@@ -638,19 +613,27 @@ class ObjectListDisplay(QGLParentClass):
             self.bgObject.apply(self.renderer)
             glTranslatef(self.bgwidth,0,0)
         glPopMatrix()
+
+    def initializeGL(self):
+        for mname, manager in self.managers.items():
+            manager.initializeGL()        
+
+    def paintEvent(self, event):
+        QGLParentClass.paintEvent(self, event)
+
         
     def paintGL(self):
         """ Paint the different object.
             First it traces the edges of the thumbnail outlines and the name of the object, 
             It also call the function 'displayThumbnail' to draw the thumbnail of the object 
             take into account the orientation of the panel (vertical or horizontal)"""
+
         if not self.isVisible(): return
         w = self._width
         h = self._height
         if w == 0 or h == 0: return
-        if NewOpenGLClass:
-            self.painter = QPainter(self)
-            self.painter.setRenderHints(QPainter.Antialiasing | QPainter.TextAntialiasing)
+
+        txr = QGLTextRenderer(self)
 
         if self.active:
             bgcol = self.theme.backGroundColor
@@ -720,7 +703,7 @@ class ObjectListDisplay(QGLParentClass):
                     tx,ty, ty2 = b1,(i*self.thumbwidth)+b2,((i-1)*self.thumbwidth)+b2+3
                 else:
                     tx,ty, ty2 = (i*self.thumbwidth)+b2,b1, b1-self.thumbwidth+3
-                self.drawTextIn(manager.getName(obj),tx+decal.x()-hscroll,ty+decal.y()-vscroll,self.thumbwidth, color = txtColor)
+                self.drawTextIn(txr,  manager.getName(obj),tx+decal.x()-hscroll,ty+decal.y()-vscroll,self.thumbwidth, color = txtColor)
 
                 if self.active:
                     if self.cursorselection == i:
@@ -728,15 +711,13 @@ class ObjectListDisplay(QGLParentClass):
                     else:
                         txtColor = self.theme.topText
                         pass
-                self.drawTextIn(manager.typename,tx+decal.x()-hscroll,ty2+decal.y()-vscroll,self.thumbwidth, below = True, color = txtColor)
+                self.drawTextIn(txr, manager.typename,tx+decal.x()-hscroll,ty2+decal.y()-vscroll,self.thumbwidth, below = True, color = txtColor)
                 i+=1 
         except Exception as e:
             exc_info = sys.exc_info()
             traceback.print_exception(*exc_info)
-        if NewOpenGLClass:
-            self.painter.end()
 
-    def drawTextIn(self, text, x, y, width, below = False, color = None):
+    def drawTextIn(self, txr, text, x, y, width, below = False, color = None):
             fm = QFontMetrics(self._font)
             tw = fm.width(text)
             th = fm.height()
@@ -754,9 +735,7 @@ class ObjectListDisplay(QGLParentClass):
             py = width-1-fm.descent()
             if mth > th:
                 py -= (mth-th)/2
-            #glPolygonMode(GL_FRONT_AND_BACK,GL_FILL)
-            #if not color is None: glColor4fv(color)
-            self.mRenderText((x+px)/self._scalingfactor, (y+py)/self._scalingfactor, str(text), self._font, color = color)
+            txr.renderText((x+px), (y+py), str(text), self._font, color = color)
             return 
             
     def itemUnderPos(self,pos):

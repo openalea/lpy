@@ -8,6 +8,9 @@ class AbstractObjectManager(QObject):
         """We need the name of the object managed by the editor to link the manager with the right Editor"""
         QObject.__init__(self)
         self.typename =  typename
+
+    def initializeGL(self):
+        pass
         
     def setName(self,obj,name):
         obj.name=name
@@ -106,7 +109,9 @@ class AbstractPglObjectManager(AbstractObjectManager):
         self.thumbColor  = (0.8,0.8,0,1)
         self.viewAxis = [0,1]
 
-     
+    def initializeGL(self):
+        self.renderer.init()
+             
     def getBoundingBox(self,obj):
         return BoundingBox(obj)
 
