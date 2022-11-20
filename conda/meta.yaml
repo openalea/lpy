@@ -28,7 +28,7 @@ requirements:
   host:
     - python {{PY_VER}}
     - setuptools
-    - openalea.plantgl
+    - openalea.plantgl >=3.17
     # - boost # provided by plantgl
     - pyqt
   run:
