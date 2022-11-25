@@ -15,14 +15,10 @@ jobs:
       matrix:
         os: [ macos-latest, ubuntu-latest]
         env:
-          #- CONDA_PY: "37"
-          #  CONDA_NPY: "111" 
+
           - CONDA_PY: "38" 
-            CONDA_NPY: "116"
           - CONDA_PY: "39" 
-            CONDA_NPY: "119"
           - CONDA_PY: "310" 
-            CONDA_NPY: "121"
 
     environment: anaconda_build
 
@@ -41,28 +37,21 @@ jobs:
         sudo conda config --add channels conda-forge
         sudo conda config --add channels fredboudon
         sudo conda config --set always_yes yes
-        sudo conda config --set remote_read_timeout_secs 600
         sudo conda config --set auto_update_conda False
         sudo conda install conda-build anaconda-client boa
 
-    - name: Build 
+    - name: Build Setup
       env:
           CONDA_PY: ${{ matrix.env.CONDA_PY }}
-          CONDA_NPY: ${{ matrix.env.CONDA_NPY }}
       run: |
-        # Build
+        # Build Setup
         if [[ "$CONDA_PY" = "" ]]; then
           echo "CONDA_PY is not defined"
           exit -1
         fi
-        if [[ "$CONDA_NPY" = "" ]]; then
-          echo "CONDA_NPY is not defined"
-          exit -1
-        fi
         export PYTHON_VERSION=${CONDA_PY:0:1}.${CONDA_PY:1:3}
-        export NUMPY_VERSION=${CONDA_NPY:0:1}.${CONDA_NPY:1:3}
 
-        export BUILD_CMD="sudo conda mambabuild . --python=$PYTHON_VERSION --no-test"
+        export BUILD_CMD="sudo conda build . --python=$PYTHON_VERSION  --no-test"
         export BUILD_OUTPUT=`$BUILD_CMD --output`
 
         if [[ "$BUILD_OUTPUT" = "" ]]; then
@@ -70,9 +59,18 @@ jobs:
           exit -1
         fi
         echo "BUILD_OUTPUT=$BUILD_OUTPUT" >> $GITHUB_ENV
+        echo "BUILD_CMD=$BUILD_CMD" >> $GITHUB_ENV
 
-        $BUILD_CMD --no-test
-
+    - name: Build 
+      env:
+          BUILD_CMD: ${{ env.BUILD_CMD }}
+      run: |
+        # Build
+        if [[ "$BUILD_CMD" = "" ]]; then
+          echo "Build command is not defined"
+          exit -1
+        fi
+        $BUILD_CMD
 
     - name: Login
       env:
