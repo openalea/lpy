@@ -52,6 +52,7 @@ app:
 test:
   requires:
     - nose
+    - pandas
   imports:
     - openalea.lpy
   source_files:

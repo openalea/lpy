@@ -15,7 +15,6 @@ jobs:
       matrix:
         os: [ macos-latest, ubuntu-latest]
         env:
-
           - CONDA_PY: "38" 
           - CONDA_PY: "39" 
           - CONDA_PY: "310" 
@@ -38,7 +37,7 @@ jobs:
         sudo conda config --add channels fredboudon
         sudo conda config --set always_yes yes
         sudo conda config --set auto_update_conda False
-        sudo conda install conda-build anaconda-client boa
+        sudo conda install conda-build anaconda-client
 
     - name: Build Setup
       env:
