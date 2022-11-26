@@ -5,7 +5,7 @@ from openalea.plantgl.all import NurbsCurve2D, BezierCurve2D, Polyline2D, NurbsP
 code = """
 ###### INITIALISATION ######
 
-_lpy_code_version_ = 1.1
+__lpy_code_version__ = 1.1
 
 def __initialiseContext__(context):
     import openalea.plantgl.all as pgl
@@ -215,7 +215,7 @@ def test_complex11():
     lp1 = LsystemParameters()
     lp1.loads(lp.dumps())
 
-    lp1.dumps()
+    #lp1.dumps()
 
    
 
