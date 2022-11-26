@@ -17,25 +17,25 @@ build:
   preserve_egg_dir: True
   number: 1
 requirements:
+  host:
+    - python x.x
+    - setuptools
+    - openalea.plantgl >=3.17
+    - boost x.x
+    - pyqt
   build:
-    - binutils_impl_linux-64<2.31.0 # [linux]
+    - binutils_impl_linux-64           # [linux]
     - {{ compiler('cxx') }}
-    - python {{PY_VER}}
-    - cmake >=3.12.0
+    - python x.x
+    - cmake 
     - pkg-config                        # [linux]
     - make                              # [unix]
     - menuinst                          # [win]
-  host:
-    - python {{PY_VER}}
-    - setuptools
-    - openalea.plantgl >=3.17
-    # - boost # provided by plantgl
-    - pyqt
   run:
-    - python {{PY_VER}}
+    - python x.x
     - setuptools
     - {{ pin_compatible('openalea.plantgl', max_pin='x.x') }} 
-    - {{ pin_compatible('boost',            max_pin='x.x.x') }} 
+    - boost x.x
     - pyqt
     - ipython
     - qtconsole
