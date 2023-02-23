@@ -1345,7 +1345,7 @@ Lsystem::__recursiveInterpretationString(AxialTree& workingstring,
 		TurtleStepInterpreter(PglTurtle& t, boost::python::object& pyt, LsysContext& c) : turtle(t), pyturtle(pyt), context(c), timer(c.get_animation_timestep()) {}
 
 		PglTurtle& turtle;
-        boost::python::object pyturtle;
+    boost::python::object pyturtle;
 		LsysContext& context;
 		PGL(Sequencer) timer;
 
