@@ -47,12 +47,16 @@ class Category:
     def add_scalars(self, values):
         for v in values:
             self.add_scalar(v)
-    def add_item(self, value):
-        name = value[0].getName(value[1])
-        self.items[name] = value
-    def add_items(self, values):
-        for v in values:
+    def update_scalar(self, name, value):
+        self.scalars[name].value = value
+    def add_item(self, manager, value):
+        name = manager.getName(value)
+        self.items[name] = (manager,value)
+    def add_items(self, pairvalues):
+        for v in pairvalues:
             self.add_item(v)
+    def update_item(self, name, value):
+        self.items[name] = (self.items[name][0],value)
 
 class LsystemParameters:
     def __init__(self, lsystem_or_filename = None):
@@ -240,6 +244,9 @@ class LsystemParameters:
         categoryobj = self.get_category(category)
         categoryobj.add_scalar(scalar)
 
+    def update_scalar(self, name, value, category = None)
+        categoryobj = self.get_category(category).update_scalar(name, value)
+
     def add_function(self, name, value = None, category = None):
         """ if value is None a default function value is created """
         self.add_graphicalparameter(name, value, 'Function', category)
@@ -271,7 +278,10 @@ class LsystemParameters:
 
     def _add_graphicalparameter(self, category, manager, value):
         categoryobj = self.get_category(category)
-        categoryobj.add_item((manager, value))
+        categoryobj.add_item(manager, value)
+
+    def update_graphicalparameter(self, name, value, category = None)
+        categoryobj = self.get_category(category).update_item(name, value)
 
     def set_option(self, name, value):
         self.execOptions[name] = value
