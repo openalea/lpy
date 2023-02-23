@@ -1,0 +1,27 @@
+
+def StartInterpretation(turtle):
+  turtle.clear_parameters()
+  print('SI',hasattr(turtle,'test'), len(turtle._pystack))
+
+Axiom: [ A [ C D(False) ] D(True) ] D(False) A [ E D(False) ] D(True)
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+A:
+  turtle.add_parameter('test',True)
+
+C:
+  turtle.remove_parameter('test')
+
+D(expected):
+  print(hasattr(turtle,'test'), len(turtle._pystack))
+  assert hasattr(turtle,'test') == expected
+
+E:
+  turtle.clear_parameters()
+
+endlsystem
