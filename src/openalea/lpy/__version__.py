@@ -1,4 +1,4 @@
-__version_number__ = 0x030B01
+__version_number__ = 0x030C00
 __revision_str__=""
 
 
