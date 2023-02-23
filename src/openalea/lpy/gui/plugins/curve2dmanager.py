@@ -11,8 +11,8 @@ class TriggerParamFunc:
     def __init__(self,func,*value):
         self.func = func
         self.value= value
-    def __call__(self):
-        self.func(*self.value)
+    def __call__(self, *newval):
+        self.func(*(self.value+newval))
 
 class Curve2DManager(AbstractPglObjectManager):
     """see the doc of the objectmanager abtsract class to undesrtand the implementation of the functions"""
@@ -58,6 +58,7 @@ class Curve2DManager(AbstractPglObjectManager):
         elif isinstance(obj,BezierCurve2D): 
             subtype = 'BezierCurve'
         return self.createDefaultObject(subtype)
+
     def getEditor(self,parent):
         if Curve2DEditor:
             return Curve2DEditor(parent,Curve2DConstraint())
@@ -89,6 +90,15 @@ class Curve2DManager(AbstractPglObjectManager):
         menu = QtWidgets.QMenu('Curve',menubar)
         menu.addAction('Flip Horizontally',TriggerParamFunc(self.flipHorizontallyEditor,editor))
         menu.addAction('Flip Vertically',TriggerParamFunc(self.flipVerticallyEditor,editor))
+        menu.addAction('Flip Point Order',TriggerParamFunc(self.flipPointOrderEditor,editor))
+        menu.addSeparator()
+        action = menu.addAction('Closed Curve',TriggerParamFunc(self.closeCurveEditor,editor))
+        action.setCheckable(True)
+        action.setChecked(hasattr(editor,"closeCurveEnabled") and editor.closeCurveEnabled())
+        menu.addSeparator()
+        menu.addAction('Default',TriggerParamFunc(self.initDefault,editor))
+        menu.addAction('Circle',TriggerParamFunc(self.initCircle,editor))
+        menu.addAction('Half Circle',TriggerParamFunc(self.initHalfCircle,editor))
         menubar.addMenu(menu)
         menu = QtWidgets.QMenu('Theme',menubar)
         menu.addAction('Black',lambda : editor.applyTheme(editor.BLACK_THEME))
@@ -102,6 +112,7 @@ class Curve2DManager(AbstractPglObjectManager):
     def completeContextMenu(self,menu,obj,widget):
         menu.addAction('Flip Horizontally',TriggerParamFunc(self.flipHorizontally,obj,widget))
         menu.addAction('Flip Vertically',TriggerParamFunc(self.flipVertically,obj,widget))
+        menu.addAction('Flip Point Order',TriggerParamFunc(self.flipPointOrder,obj,widget))
         
     def flipHorizontallyEditor(self,editor):
         self.flipHorizontally(editor.getCurve(),editor)
@@ -111,7 +122,7 @@ class Curve2DManager(AbstractPglObjectManager):
             obj.pointList = [(i.x,-i.y) for i in obj.pointList]
         else:
             obj.ctrlPointList = [(i.x,-i.y,i.z) for i in obj.ctrlPointList]
-        widget.updateGL()
+        widget.setCurve(obj)
         
     def flipVerticallyEditor(self,editor):
         self.flipVertically(editor.getCurve(),editor)
@@ -121,7 +132,39 @@ class Curve2DManager(AbstractPglObjectManager):
             obj.pointList = [(-i.x,i.y) for i in obj.pointList]
         else:
             obj.ctrlPointList = [(-i.x,i.y,i.z) for i in obj.ctrlPointList]
-        widget.updateGL()
+        widget.setCurve(obj)
+
+    def flipPointOrderEditor(self,editor):
+        self.flipPointOrder(editor.getCurve(),editor)
+        
+    def flipPointOrder(self,obj,widget):
+        if isinstance(obj,Polyline2D): 
+            obj.pointList = list(reversed(obj.pointList))
+        else:
+            obj.ctrlPointList = list(reversed(obj.ctrlPointList))
+        widget.setCurve(obj)
+
+    def closeCurveEditor(self, widget):
+        widget.toggleCurveClosing()
+        
+    def initDefault(self,widget):
+        obj = self.reset(widget.getCurve())
+        obj.name = widget.getCurve().name
+        widget.setCurve(obj)
+
+    def initHalfCircle(self,widget):
+        from openalea.plantgl.scenegraph.nurbsshape import nurbHalfCircle
+        obj = nurbHalfCircle()
+        obj.name = widget.getCurve().name
+        widget.setCurve(obj)
+        self.flipVertically(obj, widget)
+
+    def initCircle(self,widget):
+        from openalea.plantgl.scenegraph.nurbsshape import nurbCircle
+        obj = nurbCircle()
+        obj.name = widget.getCurve().name
+        widget.setCurve(obj, closed=True)
+        self.flipVertically(obj, widget)
 
     def to_json(self, obj):
         import openalea.plantgl.algo.jsonrep  as jr
