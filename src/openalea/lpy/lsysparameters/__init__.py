@@ -244,7 +244,7 @@ class LsystemParameters:
         categoryobj = self.get_category(category)
         categoryobj.add_scalar(scalar)
 
-    def update_scalar(self, name, value, category = None)
+    def update_scalar(self, name, value, category = None):
         categoryobj = self.get_category(category).update_scalar(name, value)
 
     def add_function(self, name, value = None, category = None):
@@ -280,7 +280,7 @@ class LsystemParameters:
         categoryobj = self.get_category(category)
         categoryobj.add_item(manager, value)
 
-    def update_graphicalparameter(self, name, value, category = None)
+    def update_graphicalparameter(self, name, value, category = None):
         categoryobj = self.get_category(category).update_item(name, value)
 
     def set_option(self, name, value):
