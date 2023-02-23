@@ -487,19 +487,31 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         self.com_mutex.lock()
         self.com_mutex.unlock()
         self.com_waitcondition.wakeAll()
+    def findFileNLineno(self, lineno):
+        code = self.codeeditor.getCode()
+        pastefilecmd = '%pastefile'
+        for i,l in enumerate(code.splitlines(),1):
+            if i < lineno:
+                if l.startswith(pastefilecmd):
+                    fname = l[len(pastefilecmd)+1:].strip()
+                    if os.path.exists(fname):
+                        flen = len(list(open(fname,'r').readlines()))-1
+                        if flen + i > lineno:
+                            return fname, lineno-i
+                        else:
+                            lineno -= flen
+            else:
+                return None, lineno
     def errorEvent(self, exc_info, errmsg,  displayDialog):
         if self.withinterpreter:
             self.interpreterDock.show()    
 
         t,v,trb = exc_info
         stacksummary = list(reversed(tb.extract_tb(trb)))
-        print(len(stacksummary))
         for fid,frame in enumerate(stacksummary):
-            print(frame.filename)
             if 'openalea/lpy' in frame.filename:
                 stacksummary = stacksummary[:fid]
                 break
-        print(len(stacksummary))
         self.lastexception = v
         if t == SyntaxError:
             errorfile = v.filename
@@ -515,7 +527,11 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         fnames = ['<string>',self.currentSimulation().getBaseName()]
 
         if errorfile in fnames :
-            self.codeeditor.hightlightError(lineno)
+            lerrorfile, lineno = self.findFileNLineno(lineno)
+            if lerrorfile is None:
+                self.codeeditor.hightlightError(lineno)
+            else:
+                errorfile = lerrorfile
         def showErrorOnFile():
             docid = self.findDocumentId(errorfile)
             if docid:

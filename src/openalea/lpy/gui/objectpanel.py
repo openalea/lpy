@@ -448,20 +448,18 @@ class ObjectListDisplay(QGLParentClass):
         pw, ph = self.parent().width(),self.parent().height()
         self._width, self._height = w, h
         dpr = self.window().devicePixelRatio()
-        self._scalingfactor = dpr # w/float(pw), h/float(ph)
+        self._scalingfactor = dpr 
 
         if w == 0 or h == 0: return
-        if pw > ph+50 :
-            scalingfactor = dpr # h/float(ph)
-            self.thumbwidth = max(self.minthumbwidth*scalingfactor, min(self.maxthumbwidth*scalingfactor, h*0.95))
+        if pw > ph+(50/self._scalingfactor) :
+            self.thumbwidth = max(self.minthumbwidth, min(self.maxthumbwidth, h*0.95))
             self.objectthumbwidth = self.thumbwidth*0.7
             if self.orientation == Qt.Vertical:
                 self.setOrientation(Qt.Horizontal)
             else:
                 self.updateFrameView()
         else:
-            scalingfactor = dpr # w/float(pw)
-            self.thumbwidth = max(self.minthumbwidth*scalingfactor, min(self.maxthumbwidth*scalingfactor, w*0.95))
+            self.thumbwidth = max(self.minthumbwidth, min(self.maxthumbwidth, w*0.95))
             self.objectthumbwidth = self.thumbwidth*0.7
             if self.orientation == Qt.Horizontal:
                 self.setOrientation(Qt.Vertical)
@@ -608,6 +606,7 @@ class ObjectListDisplay(QGLParentClass):
             glTranslatef(0,h,-10)
             glScalef(1,-1,1)
             nb = w/(self.bgwidth)
+        #glScalef(self._scalingfactor,self._scalingfactor,1)
         for i in range(int(nb)+1):
             glColor4fv(c)
             self.bgObject.apply(self.renderer)
@@ -647,7 +646,7 @@ class ObjectListDisplay(QGLParentClass):
                 return
             glEnable(GL_BLEND)
             glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA)
-            glViewport(0,0,w,h)
+            glViewport(0,0,w*self._scalingfactor,h*self._scalingfactor)
             glMatrixMode(GL_PROJECTION);
             glLoadIdentity();
             glOrtho(0,w,h,0,-1000,1000);
@@ -735,13 +734,14 @@ class ObjectListDisplay(QGLParentClass):
             py = width-1-fm.descent()
             if mth > th:
                 py -= (mth-th)/2
-            txr.renderText((x+px), (y+py), str(text), self._font, color = color)
+            txr.renderText((x+px)*self._scalingfactor, (y+py)*self._scalingfactor, str(text), self._font, color = color)
             return 
             
     def itemUnderPos(self,pos):
         """function that will return the object under mouseCursor, if no object is present, this wil return None"""
         w = self.width() if self.orientation == Qt.Vertical else self.height()
-        posx, posy = pos.x()*self._scalingfactor, pos.y()*self._scalingfactor
+        #posx, posy = pos.x()*self._scalingfactor, pos.y()*self._scalingfactor
+        posx, posy = pos.x(), pos.y()
         #if self.with_translation:
         #    hscroll = self.scroll.horizontalScrollBar().value()
         #    vscroll = self.scroll.verticalScrollBar().value()
@@ -785,9 +785,9 @@ class ObjectListDisplay(QGLParentClass):
                 if not item is None and not self.selection is None and item != self.selection:
                     self.objects[item],self.objects[self.selection] = self.objects[self.selection],self.objects[item]
                     if self.orientation == Qt.Vertical:
-                        self.selectionPositionBegin -= QPoint(0,self.thumbwidth*(self.selection-item))
+                        self.selectionPositionBegin -= QPoint(0,int(self.thumbwidth*(self.selection-item)))
                     else:
-                        self.selectionPositionBegin -= QPoint(self.thumbwidth*(self.selection-item),0)
+                        self.selectionPositionBegin -= QPoint(int(self.thumbwidth*(self.selection-item)),0)
                     self.doUpdate()
                     self.selection = item 
             if not item is None:

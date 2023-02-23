@@ -41,7 +41,7 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
         self.keywordFormat.setForeground(Qt.blue)
         self.keywordFormat.setFontWeight(QFont.Bold)
         import keyword
-        self.pykeywords = keyword.kwlist + ['None','range','xrange', 'True','False','int','float','str','tuple','list']
+        self.pykeywords = keyword.kwlist + keyword.softkwlist + ['None','range','xrange', 'True','False','int','float','str','tuple','list']
         for pattern in self.pykeywords:
             self.rules.append((QRegularExpression(pattern),self.keywordFormat))
         self.delimiterFormat = QTextCharFormat()
@@ -774,7 +774,7 @@ class LpyCodeEditor(QTextEdit):
     def hightlightError(self,lineno):
         if self.editor : self.editor.textEditionWatch = False
         if self.hasError:
-            self.clearErrorHightlight()
+            self.clearErrorHightlight()        
         if lineno < self.document().lineCount() :
             self.sidebar.addMarkerAt(lineno,ErrorMarker)
             self.errorLine = lineno
