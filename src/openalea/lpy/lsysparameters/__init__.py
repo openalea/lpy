@@ -54,9 +54,10 @@ class Category:
         self.items[name] = (manager,value)
     def add_items(self, pairvalues):
         for v in pairvalues:
-            self.add_item(v)
+            self.add_item(v[0], v[1])
     def update_item(self, name, value):
-        self.items[name] = (self.items[name][0],value)
+        self.items[name][0].setName(value, name)
+        self.items[name] = (self.items[name][0], value)
 
 class LsystemParameters:
     def __init__(self, lsystem_or_filename = None):
@@ -94,7 +95,7 @@ class LsystemParameters:
 
     def is_similar(self, other):
         try:
-            self.check_similarity()
+            self.check_similarity(other)
             return True
         except:
             return False
