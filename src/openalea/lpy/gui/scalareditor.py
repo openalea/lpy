@@ -132,7 +132,7 @@ if True : #not sys.platform == 'darwin':
                 a = 10**self.item.scalar.precision
                 nv = int(value * a)
                 if self.slider.value() != nv:
-                    self.slider.setValue(value * a)
+                    self.slider.setValue(nv)
             else:
                 if self.slider.value() != value:
                     self.slider.setValue(value)
