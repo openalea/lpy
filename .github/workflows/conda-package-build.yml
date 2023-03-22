@@ -1,104 +1,18 @@
-name: Building Package using Conda
+name: Building Package
 
 on:
   push:
-    branches: [ master ]
+    branches: 
+      - '**'
+    tags:
+      - 'v*'
   pull_request:
-    branches: [ master ]
+    branches: 
+      - '**'
 
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      #max-parallel: 5
-      matrix:
-        os: [ macos-latest, ubuntu-latest]
-        env:
-          - CONDA_PY: "38" 
-          - CONDA_PY: "39" 
-          - CONDA_PY: "310" 
-
-    environment: anaconda_build
-
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Add conda to system path
-      run: |
-        # Add conda to system path
-        # $CONDA is an environment variable pointing to the root of the miniconda directory
-        echo $CONDA/bin >> $GITHUB_PATH
-
-    - name: Setup conda
-      run: |
-        # Setup conda
-        sudo conda config --add channels conda-forge
-        sudo conda config --add channels fredboudon
-        sudo conda config --set always_yes yes
-        sudo conda config --set auto_update_conda False
-        sudo conda install conda-build anaconda-client
-
-    - name: Build Setup
-      env:
-          CONDA_PY: ${{ matrix.env.CONDA_PY }}
-      run: |
-        # Build Setup
-        if [[ "$CONDA_PY" = "" ]]; then
-          echo "CONDA_PY is not defined"
-          exit -1
-        fi
-        export PYTHON_VERSION=${CONDA_PY:0:1}.${CONDA_PY:1:3}
-
-        export BUILD_CMD="sudo conda build . --python=$PYTHON_VERSION  --no-test"
-        export BUILD_OUTPUT=`$BUILD_CMD --output`
-
-        if [[ "$BUILD_OUTPUT" = "" ]]; then
-          echo "PACKAGE NAME is not defined"
-          exit -1
-        fi
-        echo "BUILD_OUTPUT=$BUILD_OUTPUT" >> $GITHUB_ENV
-        echo "BUILD_CMD=$BUILD_CMD" >> $GITHUB_ENV
-
-    - name: Build 
-      env:
-          BUILD_CMD: ${{ env.BUILD_CMD }}
-      run: |
-        # Build
-        if [[ "$BUILD_CMD" = "" ]]; then
-          echo "Build command is not defined"
-          exit -1
-        fi
-        $BUILD_CMD
-
-    - name: Login
-      env:
-          ANACONDA_LOGIN: ${{ secrets.ANACONDA_LOGIN }}
-          ANACONDA_PASSWORD: ${{ secrets.ANACONDA_PASSWORD }}
-      run: |
-        # Login
-        if [[ "$ANACONDA_LOGIN" = "" ]]; then
-          echo "ANACONDA_LOGIN is not defined"
-          exit -1
-        fi
-        SESSION_UID=$(uuidgen)
-        anaconda login --username $ANACONDA_LOGIN --password $ANACONDA_PASSWORD --hostname $SESSION_UID
-
-    - name: Deploy
-      env:
-          ANACONDA_OWNER: ${{ secrets.ANACONDA_OWNER }}
-          BUILD_OUTPUT: ${{ env.BUILD_OUTPUT }}
-      run: |
-        # Deploy
-        if [[ "$ANACONDA_OWNER" = "" ]]; then
-          echo "ANACONDA_OWNER is not defined"
-          exit -1
-        fi
-
-        echo "PACKAGE NAME:" $BUILD_OUTPUT
-        if [[ "$BUILD_OUTPUT" = "" ]]; then
-          echo "PACKAGE NAME is not defined"
-          exit -1
-        fi
-        anaconda upload --skip-existing $BUILD_OUTPUT -u $ANACONDA_OWNER --no-progress
-
+    uses: fredboudon/github-action-conda-build/.github/workflows/conda-package-build.yml@main
+    secrets: 
+      token: ${{ secrets.ANACONDA_TOKEN }}
