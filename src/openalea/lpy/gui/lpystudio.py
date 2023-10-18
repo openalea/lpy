@@ -232,6 +232,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         self.actionUseThread.triggered.connect(self.toggleUseThread) 
         self.actionFitAnimationView.triggered.connect(self.toggleFitAnimationView) 
         self.menuRecents.triggered.connect(self.recentMenuAction) 
+        self.actionClearShellWidget.triggered.connect(self.clearShell)
         self.initSVNMenu()
         self.printTitle()
         self.centralViewIsGL = False
@@ -261,6 +262,9 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
             self.check_lpy_update(True)
         self.documentNames.show()
         self.currentSimulation().updateTabName()
+
+    def clearShell(self):
+        self.shell.system('clear')
 
     def check_lpy_update_available(self):
         available = True
@@ -981,7 +985,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
             os.environ['PATH']+=';'+self.cCompilerPath
     def executeCode(self):
         cmd = self.codeeditor.codeToExecute()
-        #print '... '+'\n... '.join(cmd.splitlines())
+        #print ('... '+'\n... '.join(cmd.splitlines()))
         #self.interpreter.runcode(cmd)
         self.shellwidget.execute(cmd)
         cursor = self.codeeditor.textCursor()

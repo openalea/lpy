@@ -406,7 +406,7 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>124</width>
+             <width>139</width>
              <height>176</height>
             </rect>
            </property>
@@ -475,7 +475,7 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>124</width>
+             <width>98</width>
              <height>284</height>
             </rect>
            </property>
@@ -1023,7 +1023,7 @@
      <x>0</x>
      <y>0</y>
      <width>1063</width>
-     <height>22</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuL_systems">
@@ -1093,7 +1093,6 @@
     <addaction name="actionSave"/>
     <addaction name="actionSaveAs"/>
     <addaction name="actionSaveAll"/>
-    <addaction name="actionSaveSession"/>
     <addaction name="actionClose"/>
     <addaction name="menuSVN"/>
     <addaction name="separator"/>
@@ -1122,6 +1121,7 @@
     <addaction name="actionSelect_All"/>
     <addaction name="separator"/>
     <addaction name="actionExecute"/>
+    <addaction name="actionClearShellWidget"/>
     <addaction name="separator"/>
     <addaction name="actionComment"/>
     <addaction name="actionUncomment"/>
@@ -1872,6 +1872,11 @@
   <action name="actionSVNAdd">
    <property name="text">
     <string>Add</string>
+   </property>
+  </action>
+  <action name="actionClearShellWidget">
+   <property name="text">
+    <string>Clear Shell</string>
    </property>
   </action>
  </widget>
