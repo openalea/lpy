@@ -21,7 +21,7 @@ requirements:
     - python x.x
     - setuptools
     - openalea.plantgl >=3.17
-    - boost x.x
+    - boost
     - pyqt
   build:
     - binutils_impl_linux-64           # [linux]
@@ -35,7 +35,7 @@ requirements:
     - python x.x
     - setuptools
     - {{ pin_compatible('openalea.plantgl', max_pin='x.x') }} 
-    - boost x.x
+    - boost
     - pyqt
     - ipython
     - qtconsole
