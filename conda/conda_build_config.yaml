@@ -1,7 +1,3 @@
-boost:
-  - 1.74                   # [win]
-  - 1.78                   # [osx]
-  - 1.78                   # [linux]
 cxx_compiler:
   - gxx                        # [linux]
   - clangxx                    # [osx]
