@@ -13,6 +13,6 @@ on:
 
 jobs:
   build:
-    uses: fredboudon/github-action-conda-build/.github/workflows/conda-package-build.yml@main
+    uses: openalea/github-action-conda-build/.github/workflows/conda-package-build.yml@main
     secrets: 
-      token: ${{ secrets.ANACONDA_TOKEN }}
+      anaconda_token: ${{ secrets.ANACONDA_TOKEN }}
