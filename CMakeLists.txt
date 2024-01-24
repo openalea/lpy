@@ -37,6 +37,9 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
 
 if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+
+    # To fix compilation error with vc14 and boost
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /DHAVE_SNPRINTF")
 endif()
 
 ## When linking, Python libs are required, so I advised I could use: "target_library_link(targetname ${Python3_LIBRARIES})"
