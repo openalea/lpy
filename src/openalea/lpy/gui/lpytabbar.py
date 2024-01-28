@@ -1,5 +1,5 @@
 from openalea.plantgl.gui.qt import qt
-from openalea.plantgl.gui.qt.QtCore import QObject, Qt, pyqtSignal
+from openalea.plantgl.gui.qt.QtCore import QObject, Qt, Signal
 from openalea.plantgl.gui.qt.QtWidgets import QApplication, QMenu, QMessageBox, QTabBar, QWidget
 
 import openalea.lpy.gui.svnmanip as svnmanip
@@ -7,8 +7,8 @@ import os
 
 class LpyTabBar(QTabBar):
     
-    switchDocument = pyqtSignal(int,int)
-    newDocumentRequest = pyqtSignal()
+    switchDocument = Signal(int,int)
+    newDocumentRequest = Signal()
 
     def __init__(self,parent):
         QTabBar.__init__(self,parent)
@@ -157,7 +157,7 @@ class LpyTabBar(QTabBar):
         
 class LpyTabBarNeighbor(QWidget):
     
-    newDocumentRequest = pyqtSignal()
+    newDocumentRequest = Signal()
 
     def __init__(self,parent):
         QWidget.__init__(self,parent)

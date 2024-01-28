@@ -395,6 +395,12 @@ protected:
                                 boost::python::object& pyturtle,
                                 size_t maxdepth);
 
+ AxialTree __recursiveInterpretationString(AxialTree& workingstring,
+				                const RulePtrMap& ruleset,
+                                PGL::Turtle& turtle,
+                                boost::python::object& pyturtle,
+                                size_t maxdepth);
+
  void __recursiveStepInterpretation(AxialTree& workingstring,
 				                const RulePtrMap& ruleset,
                                 PGL::PglTurtle& turtle,
@@ -403,6 +409,13 @@ protected:
 
  template<class Interpreter>
  void __gRecursiveInterpretation(AxialTree& workingstring,
+				                const RulePtrMap& ruleset,
+                                Interpreter& interpreter,
+                                size_t maxdepth,
+								bool withid = true);
+
+template<class Interpreter>
+AxialTree __gRecursiveInterpretationString(AxialTree& workingstring,
 				                const RulePtrMap& ruleset,
                                 Interpreter& interpreter,
                                 size_t maxdepth,

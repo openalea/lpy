@@ -1,0 +1,33 @@
+from openalea.plantgl.all import *
+
+Axiom: P(Vector2(0,0),0) E P(Vector2(0,1),0) E P(Vector2(1,1),0) E P(Vector2(1,0),0) E P(Vector2(2,0),0)
+
+derivation length: DERIVATION
+production:
+
+P(vl,o1) < E > P(vr,o2) --> E P(vl*1/2. + vr*1/2.,max(o1,o2)+1) E 
+
+
+interpretation:
+
+P(vl,o1) < E > P(vr,o2) --> ,(0) _(0.02) OLineTo(0,vr[0],vr[1])
+P(v,o) --> ,(2+o)@O(0.04)
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	import openalea.plantgl.all as pgl
+	Color_0 = pgl.Material("Color_0" , ambient = (0,0,0) , diffuse = 40 , )
+	Color_0.name = "Color_0"
+	context.turtle.setMaterial(0,Color_0)
+	Color_5 = pgl.Material("Color_5" , ambient = (60,0,60) , diffuse = 3 , )
+	Color_5.name = "Color_5"
+	context.turtle.setMaterial(5,Color_5)
+	scalars = [('POINTS', 'Bool', True), ('DERIVATION', 'Integer', 3, 1, 20)]
+	context["__scalars__"] = scalars
+	for s in scalars:
+		if not s[1] == "Category" : context[s[0]] = s[2]
+__references__ = 'Przemyslaw Prusinkiewicz, Mitra Shirmohammadi, and Faramarz Samavati. L-systems in Geometric Modeling. Proceedings of the Twelfth Annual Worskshop on Descriptional Complexity of Formal Systems, pp. 3-12, 2010. '

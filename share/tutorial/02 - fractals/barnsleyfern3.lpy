@@ -1,0 +1,21 @@
+D = 1
+R = 1.5
+
+R *= R
+
+Axiom: _(0.01) ,(2) A(0,1)
+
+
+derivation length: 16
+production:
+
+A(d,s):
+  if d > 0 : produce A(d-1,s)
+  produce F(s)-(5)[+(60)A(D,s/R)]F(s)-(5)[/(180)+(60)A(D,s/R)]F(s)A(0,s/R)
+
+
+
+interpretation:
+
+
+endlsystem

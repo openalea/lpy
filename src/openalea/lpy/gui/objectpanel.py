@@ -7,49 +7,21 @@ from math import sin, pi
 
 from .objectmanagers import get_managers
 
-from openalea.plantgl.gui.qt.QtCore import QObject, QPoint, Qt, pyqtSignal, QT_VERSION_STR
+from openalea.plantgl.gui.qt.QtCore import QObject, QPoint, Qt, Signal
 from openalea.plantgl.gui.qt.QtGui import QFont, QFontMetrics, QImageWriter, QColor, QPainter
-from openalea.plantgl.gui.qt.QtWidgets import QAction, QApplication, QDockWidget, QFileDialog, QLineEdit, QMenu, QMessageBox, QScrollArea, QVBoxLayout, QWidget
+from openalea.plantgl.gui.qt.QtWidgets import QAction, QApplication, QDockWidget, QFileDialog, QLineEdit, QMenu, QMessageBox, QScrollArea, QVBoxLayout, QWidget, QGLTextRenderer
 
 
-def renderText(self, x, y, text, font = QFont(), color = None):
-
-    # Retrieve last OpenGL color to use as a font color
-    if color is None:
-        glColor = glGetDoublev(GL_CURRENT_COLOR)
-        fontColor = QColor(glColor[0], glColor[1], glColor[2], glColor[3])
-    else:
-        fontColor = QColor(*color)
-
-    # Render text
-    self.painter.setPen(fontColor)
-    self.painter.setFont(font)
-    self.painter.drawText(x, y, text)
-
-    pass
 
 try:
-    assert False
-    from openalea.plantgl.gui.qt.QtGui import QOpenGLWidget  
+    from openalea.plantgl.gui.qt.QtWidgets import QOpenGLWidget  
     QGLParentClass = QOpenGLWidget 
-    print('Use QOpenGLWidget')
     NewOpenGLClass = True
-
-    QGLParentClass.mRenderText = renderText
-
-
     pass
 except:
     from openalea.plantgl.gui.qt.QtOpenGL import QGLWidget 
     QGLParentClass = QGLWidget 
     NewOpenGLClass = False
-
-    def mRenderText(self, x, y, text, font = QFont(), color = None):
-        if not color is None: glColor4fv(color)
-        glPolygonMode(GL_FRONT_AND_BACK,GL_FILL)
-        self.renderText( x,y,text,font)
-
-    QGLWidget.mRenderText = mRenderText
 
 
 def retrieveidinname(name,prefix):
@@ -198,10 +170,10 @@ class ObjectListDisplay(QGLParentClass):
     
     THEMES = { "Black" : BLACK_THEME, "White": WHITE_THEME }
 
-    valueChanged = pyqtSignal(int)
-    selectionChanged = pyqtSignal(int)
-    AutomaticUpdate = pyqtSignal()
-    renameRequest = pyqtSignal(int)
+    valueChanged = Signal(int)
+    selectionChanged = Signal(int)
+    AutomaticUpdate = Signal()
+    renameRequest = Signal(int)
     
     def __init__(self,parent, panelmanager = None):
         QGLParentClass.__init__(self,parent)
@@ -253,7 +225,7 @@ class ObjectListDisplay(QGLParentClass):
         self.selectedBorderList = None
         self.backGroundList = None
 
-        self.with_translation = (int(QT_VERSION_STR.split('.')[1]) < 14)
+        self.with_translation = False # (int(QT_VERSION_STR.split('.')[1]) < 14)
 
         self.createContextMenuActions()
         self.theme = self.Theme()
@@ -370,7 +342,7 @@ class ObjectListDisplay(QGLParentClass):
     def updateFrameView(self):
         if self.orientation == Qt.Vertical:
             b1,b2 = self.getBorderSize()
-            self.setMinimumSize(self.minthumbwidth,(self.thumbwidth*len(self.objects))+b2)
+            self.setMinimumSize(self.minthumbwidth,int((self.thumbwidth*len(self.objects))+b2))
         else:
             b1,b2 = self.getBorderSize()
             self.setMinimumSize(int((self.thumbwidth*len(self.objects))+b2),self.minthumbwidth)
@@ -476,20 +448,18 @@ class ObjectListDisplay(QGLParentClass):
         pw, ph = self.parent().width(),self.parent().height()
         self._width, self._height = w, h
         dpr = self.window().devicePixelRatio()
-        self._scalingfactor = dpr # w/float(pw), h/float(ph)
+        self._scalingfactor = dpr 
 
         if w == 0 or h == 0: return
-        if pw > ph+50 :
-            scalingfactor = dpr # h/float(ph)
-            self.thumbwidth = max(self.minthumbwidth*scalingfactor, min(self.maxthumbwidth*scalingfactor, h*0.95))
+        if pw > ph+(50/self._scalingfactor) :
+            self.thumbwidth = max(self.minthumbwidth, min(self.maxthumbwidth, h*0.95))
             self.objectthumbwidth = self.thumbwidth*0.7
             if self.orientation == Qt.Vertical:
                 self.setOrientation(Qt.Horizontal)
             else:
                 self.updateFrameView()
         else:
-            scalingfactor = dpr # w/float(pw)
-            self.thumbwidth = max(self.minthumbwidth*scalingfactor, min(self.maxthumbwidth*scalingfactor, w*0.95))
+            self.thumbwidth = max(self.minthumbwidth, min(self.maxthumbwidth, w*0.95))
             self.objectthumbwidth = self.thumbwidth*0.7
             if self.orientation == Qt.Horizontal:
                 self.setOrientation(Qt.Vertical)
@@ -636,24 +606,33 @@ class ObjectListDisplay(QGLParentClass):
             glTranslatef(0,h,-10)
             glScalef(1,-1,1)
             nb = w/(self.bgwidth)
+        #glScalef(self._scalingfactor,self._scalingfactor,1)
         for i in range(int(nb)+1):
             glColor4fv(c)
             self.bgObject.apply(self.renderer)
             glTranslatef(self.bgwidth,0,0)
         glPopMatrix()
+
+    def initializeGL(self):
+        for mname, manager in self.managers.items():
+            manager.initializeGL()        
+
+    def paintEvent(self, event):
+        QGLParentClass.paintEvent(self, event)
+
         
     def paintGL(self):
         """ Paint the different object.
             First it traces the edges of the thumbnail outlines and the name of the object, 
             It also call the function 'displayThumbnail' to draw the thumbnail of the object 
             take into account the orientation of the panel (vertical or horizontal)"""
+
         if not self.isVisible(): return
         w = self._width
         h = self._height
         if w == 0 or h == 0: return
-        if NewOpenGLClass:
-            self.painter = QPainter(self)
-            self.painter.setRenderHints(QPainter.Antialiasing | QPainter.TextAntialiasing)
+
+        txr = QGLTextRenderer(self)
 
         if self.active:
             bgcol = self.theme.backGroundColor
@@ -667,7 +646,7 @@ class ObjectListDisplay(QGLParentClass):
                 return
             glEnable(GL_BLEND)
             glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA)
-            glViewport(0,0,w,h)
+            glViewport(0,0,w*self._scalingfactor,h*self._scalingfactor)
             glMatrixMode(GL_PROJECTION);
             glLoadIdentity();
             glOrtho(0,w,h,0,-1000,1000);
@@ -723,7 +702,7 @@ class ObjectListDisplay(QGLParentClass):
                     tx,ty, ty2 = b1,(i*self.thumbwidth)+b2,((i-1)*self.thumbwidth)+b2+3
                 else:
                     tx,ty, ty2 = (i*self.thumbwidth)+b2,b1, b1-self.thumbwidth+3
-                self.drawTextIn(manager.getName(obj),tx+decal.x()-hscroll,ty+decal.y()-vscroll,self.thumbwidth, color = txtColor)
+                self.drawTextIn(txr,  manager.getName(obj),tx+decal.x()-hscroll,ty+decal.y()-vscroll,self.thumbwidth, color = txtColor)
 
                 if self.active:
                     if self.cursorselection == i:
@@ -731,15 +710,13 @@ class ObjectListDisplay(QGLParentClass):
                     else:
                         txtColor = self.theme.topText
                         pass
-                self.drawTextIn(manager.typename,tx+decal.x()-hscroll,ty2+decal.y()-vscroll,self.thumbwidth, below = True, color = txtColor)
+                self.drawTextIn(txr, manager.typename,tx+decal.x()-hscroll,ty2+decal.y()-vscroll,self.thumbwidth, below = True, color = txtColor)
                 i+=1 
         except Exception as e:
             exc_info = sys.exc_info()
             traceback.print_exception(*exc_info)
-        if NewOpenGLClass:
-            self.painter.end()
 
-    def drawTextIn(self, text, x, y, width, below = False, color = None):
+    def drawTextIn(self, txr, text, x, y, width, below = False, color = None):
             fm = QFontMetrics(self._font)
             tw = fm.width(text)
             th = fm.height()
@@ -757,15 +734,14 @@ class ObjectListDisplay(QGLParentClass):
             py = width-1-fm.descent()
             if mth > th:
                 py -= (mth-th)/2
-            #glPolygonMode(GL_FRONT_AND_BACK,GL_FILL)
-            #if not color is None: glColor4fv(color)
-            self.mRenderText((x+px)/self._scalingfactor, (y+py)/self._scalingfactor, str(text), self._font, color = color)
+            txr.renderText((x+px)*self._scalingfactor, (y+py)*self._scalingfactor, str(text), self._font, color = color)
             return 
             
     def itemUnderPos(self,pos):
         """function that will return the object under mouseCursor, if no object is present, this wil return None"""
         w = self.width() if self.orientation == Qt.Vertical else self.height()
-        posx, posy = pos.x()*self._scalingfactor, pos.y()*self._scalingfactor
+        #posx, posy = pos.x()*self._scalingfactor, pos.y()*self._scalingfactor
+        posx, posy = pos.x(), pos.y()
         #if self.with_translation:
         #    hscroll = self.scroll.horizontalScrollBar().value()
         #    vscroll = self.scroll.verticalScrollBar().value()
@@ -809,9 +785,9 @@ class ObjectListDisplay(QGLParentClass):
                 if not item is None and not self.selection is None and item != self.selection:
                     self.objects[item],self.objects[self.selection] = self.objects[self.selection],self.objects[item]
                     if self.orientation == Qt.Vertical:
-                        self.selectionPositionBegin -= QPoint(0,self.thumbwidth*(self.selection-item))
+                        self.selectionPositionBegin -= QPoint(0,int(self.thumbwidth*(self.selection-item)))
                     else:
-                        self.selectionPositionBegin -= QPoint(self.thumbwidth*(self.selection-item),0)
+                        self.selectionPositionBegin -= QPoint(int(self.thumbwidth*(self.selection-item)),0)
                     self.doUpdate()
                     self.selection = item 
             if not item is None:
@@ -1009,8 +985,8 @@ class ObjectListDisplay(QGLParentClass):
             self.showMessage('Save '+repr(fname[0]),3000)
 
 class LpyObjectPanelDock (QDockWidget):
-    valueChanged = pyqtSignal(bool)
-    AutomaticUpdate = pyqtSignal()
+    valueChanged = Signal(bool)
+    AutomaticUpdate = Signal()
 
     def __init__(self,parent,name,panelmanager = None):    
         QDockWidget.__init__(self,parent)

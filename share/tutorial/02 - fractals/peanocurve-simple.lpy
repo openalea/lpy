@@ -1,0 +1,28 @@
+Axiom:  -(90)F(1) 
+context().turtle.setAngleIncrement(90)
+dl = 0.0
+dt = 0.0
+derivation length: 3
+production:
+
+F(x) --> F(x) +  F(x) - F(x) - F(x) -  F(x) + F(x)  + F(x) + F(x) - F(x)
+
+
+
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	import openalea.plantgl.all as pgl
+	Color_1 = pgl.Material("Color_1" , ambient = (0,0,0) , diffuse = 3 , )
+	Color_1.name = "Color_1"
+	context.turtle.setMaterial(1,Color_1)
+	Color_3 = pgl.Material("Color_3" , ambient = (175,0,0) , diffuse = 1.02857 , )
+	Color_3.name = "Color_3"
+	context.turtle.setMaterial(3,Color_3)

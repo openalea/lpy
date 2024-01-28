@@ -1,0 +1,22 @@
+module Flower
+
+Axiom: Flower(0.1)
+
+name ='flower'
+
+dt = 0.1
+
+derivation length: 10
+production:
+
+Flower(t) --> Flower(t+dt)
+
+interpretation:
+
+Flower(t) :
+  nproduce F(t)f(t) ;(4) @O(t) [;(3) 
+  for i in range(12):
+    nproduce /(30)[&(80) f(t) ~l(2*t)]
+  nproduce ]
+
+endlsystem

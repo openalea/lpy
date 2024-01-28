@@ -4,10 +4,12 @@ import stat
 import shutil
 import asyncio
 
+# Add local dir as import dir
+sys.path.append(os.path.dirname(__file__))
+
 # for py2exe
 try:
     import openalea.lpy.gui.py2exe_release
-    import os
     sys.path.insert(0, os.path.join(sys.prefix))
     py2exe_release = True
 except:
@@ -40,7 +42,7 @@ from openalea.lpy import *
 
 
 from openalea.plantgl.gui.qt.compat import *
-from openalea.plantgl.gui.qt.QtCore import QCoreApplication, QEvent, QMutex, QObject, QThread, QWaitCondition, QTimer, Qt, pyqtSignal, pyqtSlot
+from openalea.plantgl.gui.qt.QtCore import QCoreApplication, QEvent, QMutex, QObject, QThread, QWaitCondition, QTimer, Qt, Signal
 from openalea.plantgl.gui.qt.QtGui import QIcon, QPixmap, QTextCursor
 from openalea.plantgl.gui.qt.QtWidgets import QApplication, QAction, QDialog, QFileDialog, QInputDialog, QMainWindow, QMessageBox, QTabBar
 try:
@@ -51,9 +53,6 @@ except:
 
 # Restore default signal handler for CTRL+C
 #import signal; signal.signal(signal.SIGINT, signal.SIG_DFL)
-
-# Add local dir as import dir
-sys.path = ['']+sys.path
 
 from . import generate_ui
 from . import lpydock
@@ -81,8 +80,8 @@ class LpyPlotter:
         
 class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
 
-    endTask = pyqtSignal('PyQt_PyObject')
-    killedTask = pyqtSignal('PyQt_PyObject')
+    endTask = Signal('PyQt_PyObject')
+    killedTask = Signal('PyQt_PyObject')
 
     instances = []
 
@@ -173,9 +172,9 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         self.documentNames.connectTo(self)
 
         self.endTask.connect(self.endTaskCheck) 
-        # self.documentNamesMore.newDocumentRequest = pyqtSignal() # AUTO SIGNAL TRANSLATION in class LPyWindow
+        # self.documentNamesMore.newDocumentRequest = Signal() # AUTO SIGNAL TRANSLATION in class LPyWindow
         self.documentNamesMore.newDocumentRequest.connect(self.newfile) 
-        # self.documentNamesMore2.newDocumentRequest = pyqtSignal() # AUTO SIGNAL TRANSLATION in class LPyWindow
+        # self.documentNamesMore2.newDocumentRequest = Signal() # AUTO SIGNAL TRANSLATION in class LPyWindow
         self.documentNamesMore2.newDocumentRequest.connect(self.newfile) 
         self.actionNew.triggered.connect(self.newfile) 
         self.actionOpen.triggered.connect(lambda : self.openfile()) 
@@ -233,6 +232,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         self.actionUseThread.triggered.connect(self.toggleUseThread) 
         self.actionFitAnimationView.triggered.connect(self.toggleFitAnimationView) 
         self.menuRecents.triggered.connect(self.recentMenuAction) 
+        self.actionClearShellWidget.triggered.connect(self.clearShell)
         self.initSVNMenu()
         self.printTitle()
         self.centralViewIsGL = False
@@ -262,6 +262,9 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
             self.check_lpy_update(True)
         self.documentNames.show()
         self.currentSimulation().updateTabName()
+
+    def clearShell(self):
+        self.shell.system('clear')
 
     def check_lpy_update_available(self):
         available = True
@@ -488,19 +491,31 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         self.com_mutex.lock()
         self.com_mutex.unlock()
         self.com_waitcondition.wakeAll()
+    def findFileNLineno(self, lineno):
+        code = self.codeeditor.getCode()
+        pastefilecmd = '%pastefile'
+        for i,l in enumerate(code.splitlines(),1):
+            if i < lineno:
+                if l.startswith(pastefilecmd):
+                    fname = l[len(pastefilecmd)+1:].strip()
+                    if os.path.exists(fname):
+                        flen = len(list(open(fname,'r').readlines()))-1
+                        if flen + i > lineno:
+                            return fname, lineno-i
+                        else:
+                            lineno -= flen
+            else:
+                return None, lineno
     def errorEvent(self, exc_info, errmsg,  displayDialog):
         if self.withinterpreter:
             self.interpreterDock.show()    
 
         t,v,trb = exc_info
         stacksummary = list(reversed(tb.extract_tb(trb)))
-        print(len(stacksummary))
         for fid,frame in enumerate(stacksummary):
-            print(frame.filename)
             if 'openalea/lpy' in frame.filename:
                 stacksummary = stacksummary[:fid]
                 break
-        print(len(stacksummary))
         self.lastexception = v
         if t == SyntaxError:
             errorfile = v.filename
@@ -516,7 +531,11 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
         fnames = ['<string>',self.currentSimulation().getBaseName()]
 
         if errorfile in fnames :
-            self.codeeditor.hightlightError(lineno)
+            lerrorfile, lineno = self.findFileNLineno(lineno)
+            if lerrorfile is None:
+                self.codeeditor.hightlightError(lineno)
+            else:
+                errorfile = lerrorfile
         def showErrorOnFile():
             docid = self.findDocumentId(errorfile)
             if docid:
@@ -603,7 +622,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
             self.currentSimulation().timestep = val*1000
         t = self.currentSimulation().timestep
         if t != self.animtimestep:
-            self.animtimestep.setValue(t)
+            self.animtimestep.setValue(int(t))
         if t*0.001 != self.animtimeSpinBox:
             self.animtimeSpinBox.setValue(t*0.001)
         if self.currentSimulation().lsystem:
@@ -966,7 +985,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
             os.environ['PATH']+=';'+self.cCompilerPath
     def executeCode(self):
         cmd = self.codeeditor.codeToExecute()
-        #print '... '+'\n... '.join(cmd.splitlines())
+        #print ('... '+'\n... '.join(cmd.splitlines()))
         #self.interpreter.runcode(cmd)
         self.shellwidget.execute(cmd)
         cursor = self.codeeditor.textCursor()

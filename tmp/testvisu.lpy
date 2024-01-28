@@ -1,0 +1,24 @@
+interpretations = Lsystem('visu.lpy')
+def EndEach(lstring):
+	return lstring, interpretations.sceneInterpretation(lstring)
+		
+
+Axiom: L
+
+derivation length: 1
+production:
+
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	import openalea.plantgl.all as pgl
+	Color_7 = pgl.Material("Color_7" , ambient = (87,13,19) , diffuse = 1.83908 , )
+	Color_7.name = "Color_7"
+	context.turtle.setMaterial(7,Color_7)

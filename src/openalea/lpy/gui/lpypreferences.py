@@ -6,7 +6,7 @@ from . import generate_ui
 from . import lpyprefwidget
 
 
-from openalea.plantgl.gui.qt.QtCore import QObject, pyqtSignal
+from openalea.plantgl.gui.qt.QtCore import QObject, Signal
 from openalea.plantgl.gui.qt.QtWidgets import QDialog
 
 

@@ -1,0 +1,75 @@
+# But : Introduire des ensembles de règles nommées qui peuvent être appliqués pour simuler un aspect du modèle
+# Deux types d'ensembles de règles sont introduits. Les productions qui modifient la structure ou ses propriétés et 
+# les interpretations qui transforment la structure en structure équivalente pour un calcul donné.
+# Dans le premier cas, la chaine résultante est retournée. Dans le deuxième cas, la chaine transformée est oubliée.
+# Des paramètres sont mis à jour et doivent être restitués à la chaîne originale.
+
+
+# Growth Unit
+module U(length, auxinconcentration, mecaproperty)
+# Leaf
+module L(size, lightproperty)
+# Apical and Lateral Bud
+module A(age), B(age)
+
+Axiom:  A(0)
+
+interpretation Meca(eBackward, MecaSolver(method=eRungeKutta, tolerance=1e-5)) :
+# Un ensemble de productions qui permettent d'interpreter mécaniquement la structure.
+# La structure résultantes sera donnée à un solver qui mettra à jour les structures BeamMecaProperty contenu dans la variable 'm'.
+
+U(l,a,m) --> Beam(length=l,diameter=0.1, m)
+
+interpretation Light(LightSolver(method=eZBuffer)): 
+# require Meca to be computed
+# Un ensemble de productions qui permettent d'interpreter geometriquement la structure pour calculer son interception de la lumière.
+# On introduit le symbole GetLight qui récupère le cumul des interceptions de tous les symboles apres lui jusqua la fin du systeme ramifié ou un autre symbole GetLight.
+# On introduit également le symbole BeamShape equivalent du F mais avec potentiellement une torsion
+
+L(s,l) --> GetLigth(l) ~l(s)
+U(l,a,m) --> _(0.1) BeamShape(l,m)
+
+production AuxinDiffusion (ODESolver(dt = dt, tolerance=1e-5)):
+# Calcul de la diffusion de l'auxine.
+# Il nous faut définir une fonction pour définir l'identification de la variable et sa dérivée.
+# Puis la production résultante apres l'integration.
+# Pas completement sur que cela soit consistant.
+
+U(ll, al, ml) < U(l,a,m) > U(lr, ar, mr) -integrate(a, (2*a-al-ar))-> U(l,a, m)
+
+production Organogenesis : 
+# require Light to be computed
+# des règles assez classiques qui dépendent des attributs calculés précédemment.
+
+U(l,a,m) [ L(s,l) < B(t) :
+    if l.light > LIGHT_THRESHOLD and a < AUXIN_THRESHOLD:
+        nproduce U(0, BeamMecaProperty()) /(144)[ &(80) L(5, LightProperty())] A(t)
+    else:
+        produce B(t+dt)
+
+A(t) :
+    if t % PHYLOCHRONE == 0 :
+        nproduce U(0, BeamMecaProperty()) /(144)[ &(80) L(5, LightProperty()) B(0)] 
+    produce A(t+dt)
+
+interpretation :
+# des règles d'interpretation
+# Utilise des symboles pour représenter des cylindres avec torsion
+
+L(s,l) --> ~l(s)
+U(l,a,m) --> _(0.1) BeamShape(l,m)
+
+enlsystem
+
+def Step(lstring, lscene):
+    # Une fonction step qui précise les différents étapes d'un calcul d'un pas de simulation (qui peut comprendre plus d'un pas de dérivation)
+    ls = lstring
+    # Meca et light ne génére pas une nouvelle lstring puisque ce sont des interpretations.
+    Meca(ls) 
+    Light(ls)
+    ls = AuxinDiffusion(ls)
+    ls = Organogenesis(ls)
+    return ls
+
+
+# Question : Il y a des redondances entre les interprétations (lumière et géométrique et partiellement mecanique). Faut il organiser cela différement ?

@@ -15,33 +15,33 @@ about:
 
 build:
   preserve_egg_dir: True
-  number: 0
+  number: 1
 requirements:
+  host:
+    - python x.x
+    - setuptools
+    - openalea.plantgl >=3.17
+    - boost
+    - pyqt
   build:
-    - binutils_impl_linux-64<2.31.0 # [linux]
+    - binutils_impl_linux-64           # [linux]
     - {{ compiler('cxx') }}
-    - python {{PY_VER}}
-    - cmake >=3.12.0
+    - python x.x
+    - cmake 
     - pkg-config                        # [linux]
     - make                              # [unix]
     - menuinst                          # [win]
-  host:
-    - python {{PY_VER}}
-    - setuptools
-    - openalea.plantgl
-    # - boost # provided by plantgl
-    - pyqt
   run:
-    - python {{PY_VER}}
+    - python x.x
     - setuptools
     - {{ pin_compatible('openalea.plantgl', max_pin='x.x') }} 
-    - {{ pin_compatible('boost',            max_pin='x.x.x') }} 
+    - boost
     - pyqt
     - ipython
     - qtconsole
     - jupyter_client # <6
     - pyopengl
-    - pyqglviewer
+    - pyqglviewer >=1.3
     - jsonschema
 
 app:
@@ -52,11 +52,12 @@ app:
 test:
   requires:
     - nose
+    - pandas
   imports:
     - openalea.lpy
   source_files:
     - test/
     - share/
   commands:
-    - nosetests -v -I test_predecessor_at_scale.py -I test_ui.py [unix]
-    - nosetests -v -I test_predecessor_at_scale.py -I test_ui.py -I test_axialtree.py -I test_successor_at_scale.py [win]
+    - nosetests -v -I test_predecessor_at_scale.py -I test_ui.py -I test_pickle.py [unix]
+    - nosetests -v -I test_predecessor_at_scale.py -I test_ui.py -I test_axialtree.py -I test_successor_at_scale.py -I test_pickle.py [win]

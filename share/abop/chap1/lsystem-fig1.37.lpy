@@ -1,0 +1,17 @@
+c = 1
+p = 0.3
+q = c - p
+h = (p*q) ** 0.5
+a = 86
+
+Axiom: _(0.002) -(90) F(1)
+
+derivation length: 5
+production:
+
+F(x) --> F(x*p) +(a) F(x*h) -(2*a) F(x*h) +(a) F(x*q)
+
+interpretation:
+
+
+endlsystem

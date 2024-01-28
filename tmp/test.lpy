@@ -1,0 +1,38 @@
+depth = 4
+Axiom: 
+    nproduce I(depth) [B(depth)] [B(depth)] I(depth)
+
+derivation length: 1
+production:
+decomposition:
+maximum depth:depth+1
+B(x) : 
+    nproduce I(x)
+    if x > 0 : produce [B(x-1)] [B(x-1)]
+
+production:
+
+I(v) > x([I(p)]) or(I(a),None):
+    print '+',v, p,a
+
+I(v)  : 
+    p,a = [], None
+    params = {}
+    while InRightContext([I(p)], params):
+        p.append(params['p'])
+    if InRightContext(I(a), params):
+        a = params['a']
+    print '>',v, p,a
+
+
+
+interpretation:
+
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	context.options.setSelection('Axiom decomposition',1)

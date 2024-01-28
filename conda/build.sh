@@ -58,7 +58,7 @@ echo "PYTHON:" ${PYTHON}
 #export PYTHONPATH=${PREFIX}/lib/python${PY_VER}/site-packages/
 ${PYTHON} setup.py install --prefix=${PREFIX} 
 
-cp -r share `${PYTHON} -c "import os, openalea.lpy as lpy ; print(os.path.dirname(lpy.__file__))"`/..
+#cp -r share `${PYTHON} -c "import os, openalea.lpy as lpy ; print(os.path.dirname(lpy.__file__))"`/..
 
 echo
 echo "****** CHECK PYTHON LIB"
@@ -71,6 +71,6 @@ else
     export LDD='ldd'    
 fi
 
-${LDD} `${PYTHON} -c "import openalea.lpy.__lpy_kernel__ as lpy ; print(lpy.__file__)"`
+echo `${PYTHON} -c "import openalea.lpy.__lpy_kernel__ as lpy ; print(lpy.__file__)"`
 
 echo "****** END OF BUILD PROCESS"

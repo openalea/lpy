@@ -32,7 +32,8 @@ class FunctionManager(AbstractPglObjectManager):
     def getEditor(self,parent):
         if Curve2DEditor:
             return Curve2DEditor(parent,FuncConstraint())
-        else: return None
+        else:
+            return None
 
     def setObjectToEditor(self,editor,obj):
         """ ask for edition of obj with editor """

@@ -35,8 +35,8 @@ Here comes the python commands that control the simulation.
 <tr><td><b>def End([lstring,geometries])     </b></td><td> is called at the end of the simulation. One or two arguments can be optionally defined to receive the final lstring and its geometric interpretation. A modified lstring or scene can be returned by the function to change output of the simulation.</td></tr>
 <tr><td><b>def StartEach([lstring]) </b></td><td> is called before each derivation step. One argument can be optionally defined to receive the input lstring. A modified lstring can be returned by the function to modify input lstring of the current iteration.</td></tr>
 <tr><td><b>def EndEach([lstring,geometries]) </b></td><td> is called after each derivation step. One or two arguments can be optionally defined to receive the current lstring and its geometric interpretation. Returning an lstring or (lstring, geometries) will be used for next iterations and display. If frameDisplayed() is False, geometries is None.</td></tr>
-<tr><td><b>def StartInterpretation()   </b></td><td> is called at the beginning of the interpretation. Interpretable modules can be produced to generate extra graphical elements</td></tr>
-<tr><td><b>def EndInterpretation()   </b></td><td> is called at the end of the interpretation. Interpretable modules can be produced to generate extra graphical elements</td></tr>
+<tr><td><b>def StartInterpretation([turtle])   </b></td><td> is called at the beginning of the interpretation. Interpretable modules can be produced to generate extra graphical elements</td></tr>
+<tr><td><b>def EndInterpretation([turtle])   </b></td><td> is called at the end of the interpretation. Interpretable modules can be produced to generate extra graphical elements</td></tr>
 <tr><td><b>def PostDraw() </b></td><td> is called after drawing the representation of a new lstring.  </td></tr></table>
 
 <H3>Python commands that control the rule application:</H3>

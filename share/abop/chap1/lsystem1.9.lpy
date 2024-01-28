@@ -1,0 +1,13 @@
+R = 1.456
+a = 85
+
+Axiom: _(0.01) A(1)
+
+derivation length: 11
+production:
+A(s) --> F(s)[+(a)A(s/R)][-(a)A(s/R)]
+
+interpretation:
+
+
+endlsystem

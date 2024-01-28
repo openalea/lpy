@@ -82,12 +82,8 @@ def restoreState(lpywidget):
     if not lpywidget.safeLaunch and settings.contains('state'):
         ba = bytearray(settings.value('state'))
         if ba : lpywidget.restoreState(ba,0);
-    if settings.contains('geometry'):
-        rect = settings.value('geometry')
-        if rect:
-            maxrect = QApplication.desktop().geometry()
-            if maxrect.contains(rect) :
-                lpywidget.setGeometry(rect)
+    if settings.contains('geometryState'):
+        lpywidget.restoreGeometry(settings.value('geometryState'))
     tbapp = str(settings.value('toolbarStyle',to_qvariant(lpywidget.getToolBarApp()[1])))
     lpywidget.setToolBarApp(tbapp)
     if settings.contains('editionfont'):
@@ -96,7 +92,8 @@ def restoreState(lpywidget):
         if fstr != 'default' and f.fromString(fstr):
             #print 'read font',fstr
             lpywidget.codeeditor.setEditionFont(f)
-    #settings.endGroup()
+    settings.endGroup()
+    
     #settings.beginGroup('stdout')
     #lc = settings.value('lpyshell',True)=='true'
     #sc = settings.value('sysconsole',False)=='true'
@@ -135,6 +132,7 @@ def restoreState(lpywidget):
     print("cannot restore correctly state from ini file:", e)
 
 def saveState(lpywidget):
+    print('Save state')
     settings = getSettings()
     settings.beginGroup('history')
     settings.setValue('RecentFiles',to_qvariant(list(lpywidget.history)))
@@ -176,7 +174,7 @@ def saveState(lpywidget):
     settings.beginGroup('appearance')
     settings.setValue('nbMaxDocks',to_qvariant(lpywidget.getMaxObjectPanelNb()))    
     settings.setValue('state',to_qvariant(lpywidget.saveState(0))) 
-    settings.setValue('geometry',to_qvariant(lpywidget.geometry())) 
+    settings.setValue('geometryState',to_qvariant(lpywidget.saveGeometry())) 
     settings.setValue('toolbarStyle',to_qvariant(lpywidget.getToolBarApp()[1]))
     if not lpywidget.codeeditor.isFontToDefault():
         settings.setValue('editionfont',to_qvariant(lpywidget.codeeditor.editionFont.toString()))
@@ -205,3 +203,4 @@ def saveState(lpywidget):
     settings.endGroup()
     if settings.status() != QSettings.NoError:
             raise Exception('settings error')
+    settings.sync()

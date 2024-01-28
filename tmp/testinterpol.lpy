@@ -1,0 +1,30 @@
+Axiom: A(0)
+
+derivation length: 100
+production:
+
+A(i) --> A(i+1)
+
+interpretation:
+
+A(i) --> InterpolateColors(20,21,i/99.) Sphere()
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	import openalea.plantgl.all as pgl
+	Color_10 = pgl.Material("Color_10" , ambient = (30,60,10) , diffuse = 3 , )
+	Color_10.name = "Color_10"
+	context.turtle.setMaterial(10,Color_10)
+	Color_11 = pgl.Material("Color_11" , ambient = (60,0,60) , diffuse = 3 , )
+	Color_11.name = "Color_11"
+	context.turtle.setMaterial(11,Color_11)
+	Color_20 = pgl.Material("Color_20" , ambient = (59,49,16) , diffuse = 1.76271 , specular = (0,0,0) , )
+	Color_20.name = "Color_20"
+	context.turtle.setMaterial(20,Color_20)
+	Color_21 = pgl.Material("Color_21" , ambient = (2,2,2) , diffuse = 0 , )
+	Color_21.name = "Color_21"
+	context.turtle.setMaterial(21,Color_21)

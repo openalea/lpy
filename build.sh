@@ -1,1 +1,1 @@
-conda build . -c conda-forge -c fredboudon -c defaults  --python=3.7
+conda mambabuild . -c conda-forge -c fredboudon  --python=3.10 --no-test

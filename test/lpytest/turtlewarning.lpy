@@ -1,0 +1,19 @@
+
+Axiom: A ?H(0)
+
+derivation length: 10
+production:
+
+?H(v) --> ?H(v)
+
+interpretation:
+
+A --> SetColor(getIterationNb() % 7)
+
+endlsystem
+###### INITIALISATION ######
+
+__lpy_code_version__ = 1.1
+
+def __initialiseContext__(context):
+	context.options.setSelection('Warning with Turtle inconsistency',0)

@@ -11,6 +11,8 @@ project(lpy_project CXX)
 
 # --- Build setup
 
+set(CMAKE_INCLUDE_PATH "$ENV{CONDA_PREFIX}/include" ${CMAKE_INCLUDE_PATH})
+set(CMAKE_LIBRARY_PATH "$ENV{CONDA_PREFIX}/lib" ${CMAKE_LIBRARY_PATH})
 set(CMAKE_SKIP_BUILD_RPATH FALSE)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
@@ -35,6 +37,9 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
 
 if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+
+    # To fix compilation error with vc14 and boost
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /DHAVE_SNPRINTF")
 endif()
 
 ## When linking, Python libs are required, so I advised I could use: "target_library_link(targetname ${Python3_LIBRARIES})"
@@ -51,14 +56,20 @@ endif()
 
 # --- Python
 
-find_package (Python3 COMPONENTS Interpreter Development REQUIRED)
+set(Python3_FIND_VIRTUALENV FIRST)
+if (WIN32)
+  # needed when we run cmake in a conda environment
+  set(Python3_FIND_REGISTRY LAST)
+endif()
+
+find_package (Python3 COMPONENTS Interpreter Development NumPy REQUIRED)
 include_directories(${Python3_INCLUDE_DIRS})
 
 # --- Libraries
 
 find_package(Threads REQUIRED)
-find_package(Qt5Core CONFIG REQUIRED)
-find_package(Qt5Concurrent CONFIG REQUIRED)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Concurrent)
 find_package(PlantGL REQUIRED)
 
 set(Boost_NO_SYSTEM_PATHS ON)
@@ -66,10 +77,13 @@ set(Boost_USE_MULTITHREAD ON)
 set(Boost_USE_STATIC_LIBS OFF)
 set(BUILD_SHARED_LIBS ON)
 
-if (USE_CONDA)
+
+set(boost_python python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR})
+find_package(Boost 1.69 COMPONENTS system ${boost_python} REQUIRED)
+if (NOT Boost_FOUND)
+    message("Boost not found, trying again")
     set(boost_python python)
-else()
-    set(boost_python python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR})
+    find_package(Boost 1.69 COMPONENTS system ${boost_python} REQUIRED)
 endif()
 
 find_package(Boost COMPONENTS system ${boost_python} REQUIRED)
