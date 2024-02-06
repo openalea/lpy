@@ -14,8 +14,6 @@ on:
 jobs:
   build:
     uses: openalea/github-action-conda-build/.github/workflows/conda-package-build.yml@main
-    with:
-      conda-channels: openalea3, conda-forge
     secrets: 
       anaconda_token: ${{ secrets.ANACONDA_TOKEN }}
       
