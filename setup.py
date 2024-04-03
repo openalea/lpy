@@ -58,7 +58,7 @@ from setuptools import setup
 build_prefix= "build-cmake"
 
 if 'CONDA_PREFIX' in os.environ or 'PREFIX' in os.environ :
-    deploy_args = {}
+    deploy_args = dict(namespace_packages = [namespace])
 else:
     currentdir = os.path.dirname(__file__)
     deploy_args = dict(
@@ -68,8 +68,8 @@ else:
         inc_dirs = { 'include' : pj(currentdir, build_prefix, 'include') },
         share_dirs = { 'share' : 'share'},
         postinstall_scripts = ['pgl_postinstall',],
-        namespace_packages = [namespace],
-        create_namespaces = False,
+        # namespace_packages = [namespace],
+        # create_namespaces = False,
     )
 
 setup(
@@ -84,7 +84,6 @@ setup(
 
     # pure python  packages
     packages = [
-        namespace,
         pkg_name,
         pkg_name + '_wralea',
         pkg_name + '.gui',
