@@ -494,10 +494,16 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
     def findFileNLineno(self, lineno):
         code = self.codeeditor.getCode()
         pastefilecmd = '%pastefile'
+        pastemodulecmd = '%pastemodule'
         for i,l in enumerate(code.splitlines(),1):
             if i < lineno:
-                if l.startswith(pastefilecmd):
-                    fname = l[len(pastefilecmd)+1:].strip()
+                if l.startswith(pastefilecmd) or l.startswith(pastemodulecmd):
+                    if l.startswith(pastefilecmd):
+                        fname = l[len(pastefilecmd)+1:].strip()
+                    elif l.startswith(pastemodulecmd):
+                        fname = l[len(pastemodulecmd)+1:].strip()
+                        from openalea.lpy import determine_lpymodule_path
+                        fname = determine_lpymodule_path(fname)
                     if os.path.exists(fname):
                         flen = len(list(open(fname,'r').readlines()))-1
                         if flen + i > lineno:

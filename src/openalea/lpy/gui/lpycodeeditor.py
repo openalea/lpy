@@ -34,7 +34,7 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
                             'derivation length','maximum depth','produce','nproduce','nsproduce','makestring','-->',
                             'consider:','ignore:','forward','backward','isForward','extern',
                             'Start','End','StartEach','EndEach','getGroup','useGroup','getIterationNb',
-                            'module','-static->','@static','lpyimport','\%pastefile']
+                            'module','-static->','@static','lpyimport','\%pastefile','\%pastemodule']
         for pattern in self.lpykeywords:
             self.rules.append((QRegularExpression(pattern),self.lpykeywordFormat))
         self.keywordFormat = QTextCharFormat()
