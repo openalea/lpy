@@ -82,6 +82,8 @@ Here comes the python commands that control the simulation.
 <H3>These commands have been added to the original cpfg-lpfg specification:</H3>
 <table>
 <tr><td><b>context()     </b></td><td> Get context of execution of the L-system. To use with care.</td></tr>
+<tr><td><b>%pastefile  model.lpy   </b></td><td> Paste the content of the file model.lpy to the current file.</td></tr>
+<tr><td><b>%pastemodule  package.model   </b></td><td> Paste the content of the lpy module model to the current file.</td></tr>
 </table>
 
 <H3>The following objects and commands are also accessible from within the lpy shell:</H3>
