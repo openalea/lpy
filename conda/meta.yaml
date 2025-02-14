@@ -20,7 +20,7 @@ requirements:
   host:
     - python x.x
     - setuptools
-    - openalea.plantgl >=3.17
+    - openalea.plantgl # 
     - boost
     - pyqt
   build:
@@ -41,7 +41,7 @@ requirements:
     - qtconsole
     - jupyter_client # <6
     - pyopengl
-    - pyqglviewer >=1.3
+    - pyqglviewer #>=1.3
     - jsonschema
 
 app:
