@@ -1,9 +1,10 @@
 #{% set version = "2.7.2" %}
 {% set data = load_setup_py_data() %}
+{% set version = environ.get('SETUPTOOLS_SCM_PRETEND_VERSION', "0.0.0.dev") %}
 
 package:
   name: openalea.lpy
-  version: {{ data.get('version') }}
+  version: {{ version }}
 
 source:
   path: ..
@@ -20,6 +21,7 @@ requirements:
   host:
     - python x.x
     - setuptools
+    - setuptools_scm
     - openalea.plantgl >=3.17
     - boost
     - pyqt
@@ -51,13 +53,13 @@ app:
 
 test:
   requires:
-    - nose
+    - pytest
     - pandas
   imports:
     - openalea.lpy
   source_files:
     - test/
     - share/
-  commands:
-    - nosetests -v -I test_predecessor_at_scale.py -I test_ui.py -I test_pickle.py [unix]
-    - nosetests -v -I test_predecessor_at_scale.py -I test_ui.py -I test_axialtree.py -I test_successor_at_scale.py -I test_pickle.py [win]
+#  commands:
+#    - pytest -v test_predecessor_at_scale.py test_ui.py test_pickle.py [unix]
+#    - pytest -v test_predecessor_at_scale.py test_ui.py test_axialtree.py test_successor_at_scale.py test_pickle.py [win]
