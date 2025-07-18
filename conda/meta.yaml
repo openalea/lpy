@@ -1,23 +1,22 @@
-#{% set version = "2.7.2" %}
 {% set data = load_setup_py_data() %}
 {% set version = environ.get('SETUPTOOLS_SCM_PRETEND_VERSION', "0.0.0.dev") %}
 
 package:
-  name: openalea.lpy
+  name: openalea.plantgl
   version: {{ version }}
 
 source:
   path: ..
 
 about:
-  home: https://github.com/openalea/lpy
+  home: https://github.com/openalea/plantgl
   license: Cecill-C
-  summary: L-Py is a simulation software that mixes L-systems construction with the Python high-level modeling language.
+  summary: An open-source graphic toolkit for the creation, simulation and analysis of 3D virtual plants.
 
 build:
   string: py{{ PY_VER }}
+  number: 0
   preserve_egg_dir: True
-  number: 1
 
 requirements:
   host:
@@ -31,14 +30,14 @@ requirements:
     - binutils_impl_linux-64           # [linux]
     - {{ compiler('cxx') }}
     - python x.x
-    - cmake 
+    - cmake
     - pkg-config                        # [linux]
     - make                              # [unix]
     - menuinst                          # [win]
   run:
     - python x.x
     - setuptools
-    - {{ pin_compatible('openalea.plantgl', max_pin='x.x') }} 
+    - {{ pin_compatible('openalea.plantgl', max_pin='x.x') }}
     - boost
     - pyqt
     - ipython
