@@ -15,6 +15,7 @@ about:
   summary: L-Py is a simulation software that mixes L-systems construction with the Python high-level modeling language.
 
 build:
+  string: py{{ PY_VER }}
   preserve_egg_dir: True
   number: 1
 requirements:
