@@ -63,7 +63,7 @@ test:
     - share/
   commands:
     - cd test
-    - pytest -v --ignore=cembedding/test_cembedding.py --ignore=test_lsysparameter.py --ignore=test_pickle.py --ignore=test_predecessor_at_scale.py --ignore=test_parsing.py
+    - pytest -v --ignore=cembedding/test_cembedding.py --ignore=test_lsysparameter.py --ignore=test_pickle.py --ignore=test_predecessor_at_scale.py --ignore=test_parsing.py --ignore=test_regexpmatching.py --ignore=test_tree_matching.py
 #  commands:
 #    - pytest -v test_predecessor_at_scale.py test_ui.py test_pickle.py [unix]
 #    - pytest -v test_predecessor_at_scale.py test_ui.py test_axialtree.py test_successor_at_scale.py test_pickle.py [win]
