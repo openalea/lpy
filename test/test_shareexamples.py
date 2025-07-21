@@ -20,7 +20,7 @@ def exec_share_example(lfile):
 def test_share_examples():
     """ Test all lpy examples from share/ repository """
     for lfile in get_share_examples():
-        yield exec_share_example, lfile
+        return exec_share_example, lfile
 
 if __name__ == '__main__':
     for e,f in test_share_examples():
