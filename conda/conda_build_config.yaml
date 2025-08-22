@@ -1,17 +1,3 @@
-cxx_compiler:
-  - gxx                        # [linux]
-  - clangxx                    # [osx]
-  - vs2019                     # [win]
-compiler_version:
-  - 11                         # [osx]
-  - 11.2.0                     # [linux]
-cxx_compiler_version:
-  - 11                         # [osx]
-  - 11.2.0                     # [linux]
-MACOSX_DEPLOYMENT_TARGET:  # [osx]
-  - '10.12'                # [osx]
-MACOSX_SDK_VERSION:        # [osx and x86_64]
-  - '10.12'                # [osx and x86_64]
 pin_run_as_build:
   boost: x.x
   openalea.plantgl: x.x

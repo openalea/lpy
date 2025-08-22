@@ -1,4 +1,3 @@
-{% set data = load_setup_py_data() %}
 {% set version = environ.get('SETUPTOOLS_SCM_PRETEND_VERSION', "0.0.0.dev") %}
 
 package:
@@ -23,7 +22,7 @@ requirements:
     - python x.x
     - setuptools
     - setuptools_scm
-    - openalea.plantgl >=3.17
+    - openalea.plantgl
     - boost
     - pyqt
   build:
