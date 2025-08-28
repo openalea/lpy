@@ -19,7 +19,7 @@ build:
 
 requirements:
   host:
-    - python x.x
+    - python
     - setuptools
     - setuptools_scm
     - openalea.plantgl
@@ -28,15 +28,15 @@ requirements:
   build:
     - binutils_impl_linux-64           # [linux]
     - {{ compiler('cxx') }}
-    - python x.x
+    - python
     - cmake
     - pkg-config                        # [linux]
     - make                              # [unix]
     - menuinst                          # [win]
   run:
-    - python x.x
+    - python
     - setuptools
-    - {{ pin_compatible('openalea.plantgl', max_pin='x.x') }}
+    - openalea.plantgl
     - boost
     - pyqt
     - ipython
