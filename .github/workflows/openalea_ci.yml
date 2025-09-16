@@ -1,0 +1,33 @@
+name: OpenAlea CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    tags:
+      - 'v*'
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+  release:
+    types:
+      - published
+  workflow_dispatch:
+    inputs:
+      check_before_tag:
+        description: "Run OpenAlea CI pre-tag build"
+        required: false
+        default: "true"
+        type: boolean
+
+run-name: >
+  ${{ github.event_name == 'workflow_dispatch' && 'OpenAlea CI pre-tag build' || 'OpenAlea CI' }}
+
+jobs:
+  build:
+    uses: openalea/action-build-publish-anaconda/.github/workflows/openalea_ci.yml@main
+    secrets:
+      anaconda_token: ${{ secrets.ANACONDA_TOKEN }}
