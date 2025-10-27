@@ -1,0 +1,10 @@
+name: lpy_dev
+channels:
+  - openalea3/label/dev
+  - openalea3/label/rc
+  - conda-forge
+dependencies:
+  - openalea.plantgl
+  - pip
+  - pip:
+      - -e .."[doc, test]"
