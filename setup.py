@@ -12,7 +12,7 @@ namespace = 'openalea'
 pkg_name = 'openalea.lpy'
 description = 'Lindenmayer Systems in Python package for OpenAlea.'
 long_description= 'L-Py is a simulation software that mixes L-systems construction with the Python high-level modeling language. '
-authors = 'Frédéric Boudon'
+authors = 'Frederic Boudon'
 authors_email = 'frederic.boudon@cirad.fr'
 url= 'https://github.com/openalea/lpy'
 # LGPL compatible INRIA license
