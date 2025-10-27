@@ -11,8 +11,7 @@ project(lpy_project CXX)
 
 # --- Build setup
 
-set(CMAKE_INCLUDE_PATH "$ENV{CONDA_PREFIX}/include" ${CMAKE_INCLUDE_PATH})
-set(CMAKE_LIBRARY_PATH "$ENV{CONDA_PREFIX}/lib" ${CMAKE_LIBRARY_PATH})
+
 set(CMAKE_SKIP_BUILD_RPATH FALSE)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
@@ -56,14 +55,14 @@ endif()
 
 # --- Python
 
-set(Python3_FIND_VIRTUALENV FIRST)
+set(Python_FIND_VIRTUALENV FIRST)
 if (WIN32)
   # needed when we run cmake in a conda environment
-  set(Python3_FIND_REGISTRY LAST)
+  set(Python_FIND_REGISTRY LAST)
 endif()
 
-find_package (Python3 COMPONENTS Interpreter Development NumPy REQUIRED)
-include_directories(${Python3_INCLUDE_DIRS})
+find_package (Python COMPONENTS Interpreter Development REQUIRED)
+include_directories(${Python_INCLUDE_DIRS})
 
 # --- Libraries
 

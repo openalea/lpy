@@ -22,9 +22,9 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
   "Topic :: Scientific/Engineering",
 ]
-license-files = ["LICEN[CS]E*", "src/cpp/LICENSE"]
+license-files = ["LICEN[CS]E*"]
 # version = "1.0.2"
-readme = "README.md"
+readme = "README.rst"
 dynamic = ["version"]
 dependencies = [
   "pandas",
@@ -67,7 +67,7 @@ local_scheme = "no-local-version"
 
 [tool.scikit-build]
 metadata.version.provider = "scikit_build_core.metadata.setuptools_scm"
-build-dir="./build/{wheel_tag}"
+build-dir="./build/"
 sdist.include = ["*.so", "*.dylib", "*.dll", "*.pyd", '*.lpy','*.ui','*.qrc','*.json','*.png']
 sdist.exclude = ["*.pyc", "*.pyo"]
 logging.level = "WARNING"
@@ -78,9 +78,8 @@ experimental = true
 build-type="Release"
 source-dir="."
 
-[tool.scikit-build.wheel]
-packages = ["src/openalea"]
-
+[tool.scikit-build.wheel.packages]
+"openalea/lpy" = "src/openalea/lpy"
 
 [project.urls]
 Homepage = "https://github.com/openalea/lpy"
