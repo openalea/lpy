@@ -7,7 +7,7 @@ pj = os.path.join
 
 project = 'openalea'
 package = 'lpy'
-name = 'OpenAlea.Lpy'
+name = 'openalea.Lpy'
 namespace = 'openalea'
 pkg_name = 'openalea.lpy'
 description = 'Lindenmayer Systems in Python package for OpenAlea.'

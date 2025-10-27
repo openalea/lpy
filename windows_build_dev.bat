@@ -8,7 +8,7 @@
 :: You should adjust the path to your conda environment in the variable CONDA_PREFIX
 
 :: Initialize build tools
-IF "%VSINSTALLDIR%" == "" CALL "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat"
+IF "%VSINSTALLDIR%" == "" CALL "C:\Program Files (x86)\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat"
 
 :: Initialize conda environment
 IF "%CONDA_PREFIX%" == "" CALL "%USERPROFILE%\miniconda3\Scripts\activate.bat" "%USERPROFILE%\miniconda3\envs\lpydev"
@@ -31,7 +31,7 @@ if not exist %BUILDDIR% mkdir %BUILDDIR%
 
 cd %BUILDDIR%
 cmake --version
-cmake .. -G "Visual Studio 16 2019" ^
+cmake .. -G "Visual Studio 17 2022" ^
 -Wno-dev ^
 -DCMAKE_INSTALL_PREFIX=%LIBRARY_PREFIX% ^
 -DCMAKE_PREFIX_PATH=%LIBRARY_PREFIX% ^
