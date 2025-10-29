@@ -25,7 +25,7 @@ endif()
 
 # --- Output Library
 
-install(TARGETS lpy LIBRARY DESTINATION "lib")
+install_pgllib(lpy)
 
 # --- Install Headers
 

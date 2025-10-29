@@ -41,7 +41,6 @@ requirements:
     - setuptools
     - openalea.plantgl
     - boost
-    - pyqt
     - ipython
     - qtconsole
     - jupyter_client # <6

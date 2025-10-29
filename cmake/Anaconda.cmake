@@ -109,3 +109,11 @@ else()
     message(STATUS "Install Prefix: " ${CMAKE_INSTALL_PREFIX})
 endif()
 
+function(install_pgllib libname)
+    message("Installing ${libname} in ${CONDA_ENV}lib/")
+    install(TARGETS ${libname}
+            RUNTIME DESTINATION "${CONDA_ENV}bin/"
+            LIBRARY DESTINATION "${CONDA_ENV}lib/"
+            ARCHIVE DESTINATION "${CONDA_ENV}lib/"
+     )
+endfunction()

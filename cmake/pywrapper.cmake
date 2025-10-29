@@ -1,15 +1,11 @@
 
 
 function(pgllib_link_python libwrapname)
-    if(NOT APPLE OR NOT USE_CONDA)
-        if (Python3_FOUND)
-             target_link_libraries(${libwrapname} Python3::Python)
-        elseif (Python2_FOUND)
-            target_link_libraries(${libwrapname} Python2::Python)
+        if (APPLE)
+            target_link_libraries(${libwrapname} "-undefined dynamic_lookup")
+        else()
+            target_link_libraries(${libwrapname} Python3::Python)
         endif()
-    else()
-        message(STATUS "Do not link with Python directly : " ${libwrapname})
-    endif()
 endfunction()
 
 function(pgllib_link_boost libwrapname)

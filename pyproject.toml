@@ -78,8 +78,8 @@ experimental = true
 build-type="Release"
 source-dir="."
 
-[tool.scikit-build.wheel.packages]
-"openalea/lpy" = "src/openalea/lpy"
+[tool.scikit-build.wheel]
+packages = ["src/openalea/"]
 
 [project.urls]
 Homepage = "https://github.com/openalea/lpy"
