@@ -18,6 +18,8 @@ build:
   preserve_egg_dir: True
   script:
     - {{ PYTHON }} -m pip install --prefix={{ PREFIX }} . --no-deps --no-build-isolation -vv
+  entry_points:
+    - lpy = openalea.lpy.gui.lpystudio:main
 
 requirements:
   host:
