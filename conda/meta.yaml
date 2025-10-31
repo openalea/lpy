@@ -8,20 +8,26 @@ source:
   path: ..
 
 about:
-  home: https://github.com/openalea/plantgl
+  home: https://github.com/openalea/lpy
   license: Cecill-C
-  summary: An open-source graphic toolkit for the creation, simulation and analysis of 3D virtual plants.
+  summary: Lindenmayer Systems in Python package for OpenAlea.
 
 build:
   string: py{{ PY_VER }}
   number: 0
   preserve_egg_dir: True
+  script:
+    - {{ PYTHON }} -m pip install --prefix={{ PREFIX }} . --no-deps --no-build-isolation -vv
+  entry_points:
+    - lpy = openalea.lpy.gui.lpystudio:main
+    - cpfg2lpy = openalea.lpy.cpfg_compat.cpfg2lpy:main
 
 requirements:
   host:
     - python
     - setuptools
     - setuptools_scm
+    - scikit-build-core
     - openalea.plantgl
     - boost
     - pyqt
@@ -38,7 +44,6 @@ requirements:
     - setuptools
     - openalea.plantgl
     - boost
-    - pyqt
     - ipython
     - qtconsole
     - jupyter_client # <6

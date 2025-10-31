@@ -1120,7 +1120,7 @@ def main():
         splash.finish(w)
         w.splash = splash
 
-    qapp.exec_()
+    return qapp.exec_()
 
 if __name__ == '__main__':
     main()

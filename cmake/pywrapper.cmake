@@ -1,15 +1,11 @@
 
 
 function(pgllib_link_python libwrapname)
-    if(NOT APPLE OR NOT USE_CONDA)
-        if (Python3_FOUND)
-             target_link_libraries(${libwrapname} Python3::Python)
-        elseif (Python2_FOUND)
-            target_link_libraries(${libwrapname} Python2::Python)
+        if (APPLE)
+            target_link_libraries(${libwrapname} "-undefined dynamic_lookup")
+        else()
+            target_link_libraries(${libwrapname} Python3::Python)
         endif()
-    else()
-        message(STATUS "Do not link with Python directly : " ${libwrapname})
-    endif()
 endfunction()
 
 function(pgllib_link_boost libwrapname)
@@ -35,5 +31,5 @@ function(pglwrapper_install libwrapname)
 endfunction()
 
 function(install_share sharedirectory project)
-    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${sharedirectory}/ DESTINATION "${CMAKE_INSTALL_PREFIX}/share/${project}")
+    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${sharedirectory}/ DESTINATION "${CONDA_ENV}/share/${project}")
 endfunction()
