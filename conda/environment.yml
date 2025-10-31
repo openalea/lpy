@@ -5,6 +5,7 @@ channels:
   - conda-forge
 dependencies:
   - openalea.plantgl
+  - qtconsole
   - pip
   - pip:
       - -e .."[doc, test]"

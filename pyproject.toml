@@ -57,6 +57,7 @@ channels = [
 ]
 dependencies = [
     "openalea.plantgl",
+    "qtconsole",
 ]
 
 [tool.setuptools_scm]
