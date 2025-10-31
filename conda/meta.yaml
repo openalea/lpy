@@ -20,6 +20,7 @@ build:
     - {{ PYTHON }} -m pip install --prefix={{ PREFIX }} . --no-deps --no-build-isolation -vv
   entry_points:
     - lpy = openalea.lpy.gui.lpystudio:main
+    - cpfg2lpy = openalea.lpy.cpfg_compat.cpfg2lpy:main
 
 requirements:
   host:
