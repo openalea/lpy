@@ -62,7 +62,7 @@ if (WIN32)
 endif()
 
 set(Python_ROOT_DIR "$ENV{CONDA_PREFIX}")
-find_package (Python3 COMPONENTS Interpreter Development REQUIRED)
+find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
 
 include_directories(${Python_INCLUDE_DIRS})
 
