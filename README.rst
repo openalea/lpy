@@ -52,9 +52,9 @@ To install L-Py, you need to create an environment (named for instance lpy) :
 
 .. code-block:: bash
 
-        >>> conda create -n lpy openalea.lpy -c fredboudon -c conda-forge
+        >>> conda create -n lpy openalea.lpy -c openalea3 -c conda-forge
 
-The package ``openalea.lpy`` is retrieved from the ``fredboudon`` channel (developement) and its dependencies will be taken from ``conda-forge`` channel.
+The package ``openalea.lpy`` is retrieved from the ``openalea3`` channel (developement) and its dependencies will be taken from ``conda-forge`` channel.
 
 Then, you need to activate the L-Py environment
 
@@ -73,9 +73,6 @@ Documentation
 =============
 
 Documentation is available at `<http://lpy.readthedocs.io/en/latest/>`_
-
-
-A previous version of the documentation was also available on  `OpenAlea website <http://openalea.gforge.inria.fr/dokuwiki/doku.php?id=packages:vplants:lpy:main>`_
 
 Help and Support
 ----------------
