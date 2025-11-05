@@ -64,7 +64,7 @@ endif()
 set(Python_ROOT_DIR "$ENV{CONDA_PREFIX}")
 find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
 
-include_directories(${Python_INCLUDE_DIRS})
+include_directories(${Python3_INCLUDE_DIRS})
 
 # --- Libraries
 

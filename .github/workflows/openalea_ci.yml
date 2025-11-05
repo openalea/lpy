@@ -31,7 +31,3 @@ jobs:
     uses: openalea/action-build-publish-anaconda/.github/workflows/openalea_ci.yml@main
     secrets:
       anaconda_token: ${{ secrets.ANACONDA_TOKEN }}
-    with:
-      python-minor-version: "[ 13 ]"
-      operating-system: '["ubuntu-latest", "windows-latest"]'
-      build-options: "--no-test"
