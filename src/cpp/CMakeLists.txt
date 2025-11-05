@@ -25,8 +25,8 @@ endif()
 
 # --- Output Library
 
-install(TARGETS lpy LIBRARY DESTINATION "lib")
+install_pgllib(lpy)
 
 # --- Install Headers
 
-install(DIRECTORY "." DESTINATION "include/lpy" FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp")
+install(DIRECTORY "." DESTINATION "${CONDA_ENV}include/lpy" FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp")

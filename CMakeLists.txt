@@ -1,6 +1,6 @@
 # --- CMake Modules
 
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.20)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include("Anaconda")
 include("pywrapper")
@@ -11,8 +11,7 @@ project(lpy_project CXX)
 
 # --- Build setup
 
-set(CMAKE_INCLUDE_PATH "$ENV{CONDA_PREFIX}/include" ${CMAKE_INCLUDE_PATH})
-set(CMAKE_LIBRARY_PATH "$ENV{CONDA_PREFIX}/lib" ${CMAKE_LIBRARY_PATH})
+
 set(CMAKE_SKIP_BUILD_RPATH FALSE)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
@@ -56,13 +55,15 @@ endif()
 
 # --- Python
 
-set(Python3_FIND_VIRTUALENV FIRST)
+set(Python_FIND_VIRTUALENV FIRST)
 if (WIN32)
   # needed when we run cmake in a conda environment
-  set(Python3_FIND_REGISTRY LAST)
+  set(Python_FIND_REGISTRY LAST)
 endif()
 
-find_package (Python3 COMPONENTS Interpreter Development NumPy REQUIRED)
+set(Python_ROOT_DIR "$ENV{CONDA_PREFIX}")
+find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
+
 include_directories(${Python3_INCLUDE_DIRS})
 
 # --- Libraries
@@ -72,6 +73,10 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Concurrent)
 find_package(PlantGL REQUIRED)
 
+if(POLICY CMP0167) # Removes find boost warning
+  cmake_policy(SET CMP0167 NEW)
+endif()
+
 set(Boost_NO_SYSTEM_PATHS ON)
 set(Boost_USE_MULTITHREAD ON)
 set(Boost_USE_STATIC_LIBS OFF)
@@ -79,12 +84,6 @@ set(BUILD_SHARED_LIBS ON)
 
 
 set(boost_python python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR})
-find_package(Boost 1.69 COMPONENTS system ${boost_python} REQUIRED)
-if (NOT Boost_FOUND)
-    message("Boost not found, trying again")
-    set(boost_python python)
-    find_package(Boost 1.69 COMPONENTS system ${boost_python} REQUIRED)
-endif()
 
 find_package(Boost COMPONENTS system ${boost_python} REQUIRED)
 
