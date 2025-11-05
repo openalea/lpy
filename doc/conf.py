@@ -98,9 +98,9 @@ html_theme_options = {
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
-html_logo = "_static/openalea_web.svg"
-html_favicon = "_static/openalea_web.svg"
+html_static_path = ['_images']
+html_logo = "_images/openalea_web.svg"
+html_favicon = "_images/openalea_web.svg"
 # If false, no module index is generated.
 html_domain_indices = True
 # If false, no index is generated.
