@@ -1,0 +1,18 @@
+name: lpy-doc
+channels:
+  - openalea3/label/dev
+  - openalea3/label/rc
+  - openalea3
+  - conda-forge
+dependencies:
+  - openalea.lpy
+  - openalea.widgets
+  - pip
+  - pip:
+    - sphinx
+    - sphinx-autoapi
+    - sphinx-copybutton
+    - nbsphinx
+    - pydata-sphinx-theme
+    - myst-parser
+    - sphinx-favicon
