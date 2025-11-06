@@ -1,8 +1,8 @@
 .. image:: https://img.shields.io/badge/License-GPL-blue.svg
    :target: https://opensource.org/licenses/GPL-3.0
 
-.. image:: https://github.com/openalea/lpy/actions/workflows/conda-package-build.yml/badge.svg
-    :target: https://github.com/openalea/lpy/actions/workflows/conda-package-build.yml
+.. image:: https://github.com/openalea/lpy/actions/workflows/openalea_ci.yml/badge.svg
+    :target: https://github.com/openalea/lpy/actions/workflows/openalea_ci.yml
     :alt: Github Actions Continuous Integration Status
 
 .. image:: https://ci.appveyor.com/api/projects/status/8bd8xhc9wy0bee0k/branch/master?svg=true
