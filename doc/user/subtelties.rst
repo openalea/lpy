@@ -18,6 +18,7 @@ It can then be instantiated in the axiom and modified during the simulation::
        Axiom: Apex(ApexParameters(age=0))
        dt = 1
        derivation length: 2
+       production:
        Apex(p) : 
           p.age += dt
           produce Node() Apex(p)
@@ -26,12 +27,12 @@ Creating the lsystem and running it the first time will produce the expected res
 
     >>> l = Lsystem('mycode.lpy')
     >>> lstring = l.derive()
-    >>> print lstring
+    >>> print(lstring)
     Node()Node()Apex(ApexParameters(age=2))
 
 However, a strange behavior occurs when asking for the axiom.::
 
-    >>> print l.axiom
+    >>> print(l.axiom)
     Apex(ApexParameters(age=2))
 
 In fact, this behavior is due to the way python manage object. By default, complex objects
@@ -40,7 +41,7 @@ are not copied but simply shared between variables.::
     >>> a = ApexParameters(age=0)
     >>> b = a
     >>> b.age = 2
-    >>> print a.age
+    >>> print(a.age)
     2
 
 The variables ``b`` and ``a`` point toward the same object in memory. This one will be destroyed only when no variable
