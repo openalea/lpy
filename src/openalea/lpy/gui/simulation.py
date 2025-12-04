@@ -355,7 +355,7 @@ class AbstractSimulation:
             elif answer == QMessageBox.Discard:
                 os.remove(bckupname)     
         os.chdir(os.path.dirname(self.fname))        
-        code = open(readname,'rU').read()
+        code = open(readname,'r').read()
         self.readonly = (not os.access(fname, os.W_OK))
         self.textedition = recovery
         self.setEdited(recovery)
@@ -367,7 +367,7 @@ class AbstractSimulation:
         self.textedition = True
         self.setEdited(True)
         try:
-            lpycode = open(fname,'rU').read()
+            lpycode = open(fname,'r').read()
             self.opencode(lpycode)
             self._tmpfname = fname
         except:
