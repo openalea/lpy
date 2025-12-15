@@ -2,7 +2,7 @@ import os
 
 from openalea.lpy import Lsystem,AxialTree,generateScene
 from openalea.plantgl.all import Viewer,PglTurtle
-from openalea.vpltk.qt import QtCore
+from qtpy import QtCore
 
 def is_file(str):
     return os.path.isfile(str)
