@@ -2,12 +2,12 @@ from openalea.core import *
 #from .lpy_nodes import WithLpyGui
 
 __name__ = "openalea.l-py"
-__version__ = '0.1.0'
+__version__ = '1.0.0'
 __license__ = 'CECILL-C'
 __authors__ = 'Frederic Boudon'
 __institutes__ =  'INRIA/CIRAD'
 __description__ = "An L-system engine providing a python interface."
-__url__ = 'http://openalea.gforge.inria.fr'
+__url__ = 'https://lpy.readthedocs.io'
 __alias__ = ['vplants.l-py']
 
 __all__ = []
