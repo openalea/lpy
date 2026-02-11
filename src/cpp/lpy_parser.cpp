@@ -310,6 +310,27 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
                 else LsysParserSyntaxError("invalid file to paste");
                 lbeg = _it;
             }
+			else if(has_keyword_pattern(_it,_rules.begin(),_rules.end(),"\%pastemodule") ) {
+                _nrules.append(lbeg, _it2);
+                _it++;
+                std::string::const_iterator begname = _it;
+                toendline(_it,_rules.end());
+                if(begname != _rules.end()) {
+                    if (notOnlySpace(begname,_it)){
+                      std::string modulename = LpyParsing::trim(std::string(begname,_it));
+					  boost::python::object lpymodulefinder = boost::python::import("openalea.lpy").attr("determine_lpymodule_path");
+					  modulename = boost::python::call<std::string>(lpymodulefinder.ptr(), boost::python::object(modulename));
+                      std::ifstream subfile(modulename.c_str());
+                      std::stringstream buffer; 
+                      buffer << subfile.rdbuf();
+                      subfile.close();
+                      _nrules += buffer.str();
+                    }
+                    else LsysParserSyntaxError("invalid file to paste");
+                }
+                else LsysParserSyntaxError("invalid file to paste");
+                lbeg = _it;
+            }				
         }
       }
       _nrules.append(lbeg, _rules.end());

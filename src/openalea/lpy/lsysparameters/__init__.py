@@ -638,7 +638,7 @@ class LsystemParameters:
             self.animation_timestep = options['animation_timestep']
             del options['animation_timestep']
         if 'default_category' in options:
-            self.animation_timestep = options['default_category']
+            self.default_category = options['default_category']
             del options['default_category']
         self.execOptions = options
 

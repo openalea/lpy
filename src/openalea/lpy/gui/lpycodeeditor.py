@@ -34,7 +34,7 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
                             'derivation length','maximum depth','produce','nproduce','nsproduce','makestring','-->',
                             'consider:','ignore:','forward','backward','isForward','extern',
                             'Start','End','StartEach','EndEach','getGroup','useGroup','getIterationNb',
-                            'module','-static->','@static','lpyimport','\%pastefile']
+                            'module','-static->','@static','lpyimport','%pastefile','%pastemodule']
         for pattern in self.lpykeywords:
             self.rules.append((QRegularExpression(pattern),self.lpykeywordFormat))
         self.keywordFormat = QTextCharFormat()
@@ -57,7 +57,7 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
             self.exprules.append((QRegularExpression(pattern+'.*$'),len(pattern),self.prodFormat,0))
         self.funcFormat = QTextCharFormat()
         self.funcFormat.setForeground(Qt.magenta)
-        self.exprules.append((QRegularExpression('def[ \t]+.*\('),3,self.funcFormat,1))
+        self.exprules.append((QRegularExpression('def[ \t]+.*\\('),3,self.funcFormat,1))
         self.stringFormat = QTextCharFormat()
         self.stringFormat.setForeground(Qt.darkGray)
         self.exprules.append((QRegularExpression('\"[^\"]*\"'),0,self.stringFormat,0))
@@ -69,10 +69,10 @@ class LpySyntaxHighlighter(QSyntaxHighlighter):
         self.tabRule = QRegularExpression("^[ \t]+")
         self.numberFormat = QTextCharFormat()
         self.numberFormat.setForeground(Qt.red)
-        self.exprules.append((QRegularExpression('\d+(\.\d+)?(e[\+\-]?\d+)?'),0,self.numberFormat,0))        
+        self.exprules.append((QRegularExpression('\\d+(\\.\\d+)?(e[\\+\\-]?\\d+)?'),0,self.numberFormat,0))        
         self.commentFormat = QTextCharFormat()
         self.commentFormat.setForeground(Qt.darkGreen)
-        self.lsysruleExp = [QRegularExpression('.+:'),QRegularExpression('.+\-\->'), QRegularExpression('.+\-static\->')]
+        self.lsysruleExp = [QRegularExpression('.+:'),QRegularExpression('.+\\-\\->'), QRegularExpression('.+\\-static\\->')]
         self.commentExp = QRegularExpression('#.+$')
         self.ruleCommentExp = QRegularExpression('[ \t]+#.+$')
         self.prodbegExp =  QRegularExpression('[n]produce[ \t]*.')
