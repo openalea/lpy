@@ -211,3 +211,17 @@ def generate_module(mclass, *params):
 
 ModuleClass.__call__ = generate_module
 del generate_module
+
+def determine_lpymodule_path(fn):
+    if fn.endswith('.lpy'):
+        fn = fn[:-4]
+    splittedfn = fn.split('.')
+    package, modfname = '.'.join(splittedfn[:-1]), splittedfn[-1]+'.lpy'
+    import importlib
+    from os.path import join, exists
+    paths = importlib.import_module(package).__path__
+    for p in paths:
+        fnpath = join(p,modfname)
+        if exists(fnpath):
+            return fnpath
+    raise ModuleNotFoundError(fn)
