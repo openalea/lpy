@@ -36,10 +36,10 @@ class LpyView3D (ParentClass):
                 if bbx and hasPyQGLViewer: 
                     self.camera().setSceneBoundingBox(*bbx2qgl(bbx))
                     self.showEntireScene()
-                    self.updateGL()
+                    self.update()
                 else: print('error computing bbox')
         else :
-            self.updateGL()
+            self.update()
     def draw(self):        
         if self.scene and self.glrenderer.beginSceneList():
             self.glrenderer.beginProcess()
