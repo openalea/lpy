@@ -42,7 +42,7 @@ requirements:
   run:
     - python
     - setuptools
-    - openalea.plantgl
+    - {{ pin_compatible('openalea.plantgl', max_pin='x.x') }}
     - boost
     - ipython
     - qtconsole
