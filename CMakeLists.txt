@@ -85,7 +85,7 @@ set(BUILD_SHARED_LIBS ON)
 
 set(boost_python python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR})
 
-find_package(Boost COMPONENTS system ${boost_python} REQUIRED)
+find_package(Boost COMPONENTS filesystem ${boost_python} REQUIRED)
 
 # --- Include Directories
 
