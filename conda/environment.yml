@@ -1,8 +1,10 @@
 name: lpy_dev
 channels:
   - openalea3
+  - openalea3/label/dev
   - conda-forge
 dependencies:
+  - python
   - openalea.plantgl
   - qtconsole
   - pip

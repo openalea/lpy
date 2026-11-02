@@ -2,6 +2,8 @@ import openalea.plantgl.all as pgl
 from .. import __lpy_kernel__ as lpykernel  
 from collections import OrderedDict
 from .scalar import *
+import functools
+import operator
 
 default_credits = {'__authors__'    : '' ,
                    '__institutes__'  : '' ,
@@ -26,10 +28,7 @@ def isSimilarToDefaultTurtleMat(cmat, i):
         defaultmat = pgl.Material('Color_'+str(i))
     else:
         defaultmat = pgl.Material(defaultturtlecolorlist[i])
-    if cmat.isSimilar(defaultmat) and cmat.name == defaultmat.name:
-        return True
-    else:
-        return False
+    return bool(cmat.isSimilar(defaultmat) and cmat.name == defaultmat.name)
 
 class Category:
     def __init__(self, info, items = None, scalars = None, **params):
@@ -118,7 +117,6 @@ class LsystemParameters:
                 assert isinstance(value, BaseScalar)
 
     def check_similarity(self, other):
-        from itertools import zip_longest
         if self.execOptions != other.execOptions:
             raise ValueError('execOptions',self.execOptions,other.execOptions)
         if self.credits != other.credits:
@@ -218,7 +216,6 @@ class LsystemParameters:
             self.add_graphicalparameter(name, value, ptype, category, **params)
         else:
             raise TypeError(ptype)
-        return
 
     def add_category(self, name, **params):
         category = Category({ 'name' : name, 'enabled' : True }, params=params)
@@ -342,7 +339,7 @@ class LsystemParameters:
         return list(self.get_category(name).scalars.values())
 
     def get_scalars(self):
-        return sum([ list(category.scalars.values()) for category in self.categories.values()],[])
+        return functools.reduce(operator.iadd, [ list(category.scalars.values()) for category in self.categories.values()], [])
 
     def get_scalar_list(self):
         """ Return the scalar list in the old-fashion with scalar rep of category"""
@@ -371,7 +368,7 @@ class LsystemParameters:
 
     def _retrieve_credits_from_env(self, context, code_version):
         credits = {}
-        for  c in default_credits.keys():
+        for  c in default_credits:
             credits[c] = context.get(c,'')
 
     def _retrieve_scalars_from_env(self, context, code_version):
@@ -394,10 +391,9 @@ class LsystemParameters:
             if type(info) == str:
                 return {'name':info , 'enabled':True}
             else :
-                if code_version == 1.1:
-                    if 'active' in info:
-                        info['enabled'] = info['active']
-                        del info['active']
+                if code_version == 1.1 and 'active' in info:
+                    info['enabled'] = info['active']
+                    del info['active']
                 return info
         parameters = context.get('__parameterset__',[])
 
@@ -595,36 +591,36 @@ class LsystemParameters:
             options['animation_timestep'] = self.animation_timestep
             options['default_category'] = self.default_category_name
 
-        result =  dict(
-            schema = 'lpy',
-            version = str(default_lpyjson_version),
-            options = options,
-            materials = materials,
-            parameters = list(parameters.values()),
-            credits = dict([(key,value) for key,value in self.credits.items() if value != ''])
-        )
+        result =  {
+            'schema': 'lpy',
+            'version': str(default_lpyjson_version),
+            'options': options,
+            'materials': materials,
+            'parameters': list(parameters.values()),
+            'credits': {key: value for key,value in self.credits.items() if value != ''}
+        }
         assert LsystemParameters.is_valid_schema(result)
         return result
 
     @staticmethod
     def is_valid_schema(obj):
         # TODO: load files only once
-        import io, os, json, jsonschema
+        import os, json, jsonschema
         is_valid = False
         schema_path = os.path.join(os.path.dirname(__file__), 'schema')
-        with io.open(os.path.join(schema_path, 'lpy.json'), 'r') as schema_file:
+        with open(os.path.join(schema_path, 'lpy.json'), 'r') as schema_file:
             try:
                 schema = json.loads(schema_file.read())
             except json.JSONDecodeError as e:
                 print(e)
             resolver = jsonschema.RefResolver(f'file:///{schema_path}/', schema)
             try:
-                jsonschema.validate(obj, schema, format_checker=jsonschema.draft7_format_checker, resolver=resolver)
+                jsonschema.validate(obj, schema, format_checker=jsonschema.Draft7Validator.FORMAT_CHECKER, resolver=resolver)
                 is_valid = True
             except jsonschema.exceptions.ValidationError as e:
                 print('L-Py schema validation failed:', e.message)
-            except jsonschema.exceptions.RefResolutionError as e:
-                print('JSON schema $ref file not found:', e)
+            except Exception as e:
+                print('JSON schema resolution or validation error:', e)
         return is_valid
 
     def retrieve_from_json_dict(self, obj):
@@ -649,12 +645,10 @@ class LsystemParameters:
             materials[idx] = jrep.from_json_rep(jmat)
         self.color_list = materials
         parameters = obj.get('parameters',[])
-        scalars = []
-        gparameters = []
         managers = self.get_graphicalparameter_managers()
         for pset in parameters:
             pinfo = {}
-            for propname in pset.keys():
+            for propname in pset:
                 if not propname in ['items','scalars']:
                     pinfo[propname] = pset[propname]
             pscalars = list(map(scalar_from_json_rep,pset['scalars']))
