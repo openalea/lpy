@@ -38,6 +38,7 @@ requirements:
   build:
     - binutils_impl_linux-64           # [linux]
     - {{ compiler('cxx') }}
+    - {{ stdlib('c') }}
     - python
     - cmake
     - pkg-config                        # [linux]
@@ -46,12 +47,10 @@ requirements:
   run:
     - python
     - setuptools
-    - openalea.plantgl
-    - libboost
-    - libboost-devel
-    - libboost-headers
-    - libboost-python
-    - libboost-python-devel
+    - {{ pin_compatible('openalea.plantgl', max_pin='x.x') }}
+    - {{ pin_compatible('libboost', max_pin='x.x') }}
+    - {{ pin_compatible('libboost-headers', max_pin='x.x') }}
+    - {{ pin_compatible('libboost-python', max_pin='x.x') }}
     - ipython
     - qtconsole
     - jupyter_client # <6
