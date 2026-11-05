@@ -37,24 +37,24 @@ def export_attribute(module, indentation = '        '):
 
 def export_to_json(lstring, fname, toignore = '+-/\\', toconsider = None):
     from openalea.lpy import ConsiderFilter
-    stream = open(fname, 'w')
-    stream.write(template_beg % len(lstring))
-    c = ConsiderFilter.consider(toconsider) if not toconsider is None else ConsiderFilter.ignore(toignore)
+    with open(fname, 'w') as stream:
+        stream.write(template_beg % len(lstring))
+        c = ConsiderFilter.consider(toconsider) if not toconsider is None else ConsiderFilter.ignore(toignore)
 
-    for i,module in enumerate(lstring):
-        if not module.isBracket() :
-            parent = lstring.parent(i, c)
-            children = lstring.children(i, c)
-            if children is None : children = []
-            elif type(children) is int : children = [children]
-            stream.write(template_unit % (i, 
-                        repr(children), repr(parent), 'true' if parent is None or lstring.direct_child(parent, c) == i else 'false', export_attribute(module) ))
+        for i,module in enumerate(lstring):
+            if not module.isBracket() :
+                parent = lstring.parent(i, c)
+                children = lstring.children(i, c)
+                if children is None : children = []
+                elif type(children) is int : children = [children]
+                stream.write(template_unit % (i, 
+                            repr(children), repr(parent), 'true' if parent is None or lstring.direct_child(parent, c) == i else 'false', export_attribute(module) ))
 
-    stream.write(template_end)
+        stream.write(template_end)
 
 
 def test():
-    import openalea.lpy as lpy
+    from openalea import lpy
     l = lpy.Lstring('FF(3)[+F][-(80)F]F')
     export_to_json(l, 'test.json')
 
