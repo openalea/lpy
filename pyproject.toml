@@ -76,7 +76,7 @@ build.verbose = true
 experimental = true
 
 [tool.scikit-build.cmake]
-build-type="Debug"
+build-type="Release"
 source-dir="."
 
 [tool.scikit-build.wheel]
