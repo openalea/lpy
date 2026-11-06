@@ -43,29 +43,6 @@ LPY_USING_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
-void cleanLpy() 
-{
-    // Check if python is still alive before deleting objects
-    if (!Py_IsInitialized()) { 
-        return;
-    }
-    // printf("Clean LPy ... \n");
-#ifdef TRACKER_ENABLED
-    std::cerr << "****** pre-cleaning *******" << std::endl;
-    Tracker::printReport();
-#endif
-    ModuleClassTable::clearModuleClasses ();
-    ViewerApplication::exit ();
-    GlobalContext::cleanup();
-    LsysContext::cleanContexts();
-#ifdef TRACKER_ENABLED
-    std::cerr << "****** post-cleaning ******" << std::endl;
-    Tracker::printReport();
-#endif
-    // printf("Clean LPy ... done\n");
-}
-
-
 void LPY(Lpy_Initialize)()
 {
     if (!Py_IsInitialized()) {
