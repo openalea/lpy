@@ -43,9 +43,7 @@ def splitmodules(text):
         else:
             m = ModuleClass.get(text[last:it+1]) 
             print(repr(text[last:it+1]), m)
-            if m is None or m.name == '':
-                it += 1
-            elif it < len(text)-1 and text[it+1] == '(':
+            if m is None or m.name == '' or it < len(text)-1 and text[it+1] == '(':
                 it += 1
             else:
                 result.append(text[last:it+1])

@@ -1,8 +1,8 @@
 #from traits.api import HasTraits, Float, Bool
 
-class BaseScalar(object):
+class BaseScalar():
     def __init__(self, name):
-        super(BaseScalar, self).__init__()
+        super().__init__()
         self.name = name
         
     def isBool(self):
@@ -194,8 +194,8 @@ class EnumScalar (BaseScalar):
         return value in self.values
 
 ScalarTypes = [ BoolScalar , IntegerScalar, FloatScalar, CategoryScalar, EnumScalar]
-ScalarTypesDict = dict([(stype.scalartype(),stype) for stype in ScalarTypes])
-Type2ScalarTypesDict = dict([(stype.targettype,stype) for stype in ScalarTypes])
+ScalarTypesDict = {stype.scalartype(): stype for stype in ScalarTypes}
+Type2ScalarTypesDict = {stype.targettype: stype for stype in ScalarTypes}
 
 def ProduceScalar(v):
     potentialtype = v[1]

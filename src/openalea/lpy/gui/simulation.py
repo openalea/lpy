@@ -87,8 +87,7 @@ class AbstractSimulation:
             if len(i) > 0:
                 return False
         ini = self.getInitialisationCode()
-        if len(ini) > 0: return False
-        return True  
+        return not len(ini) > 0  
                   
     def getShortName(self):
         if self._fname is None : return 'New'
@@ -141,7 +140,7 @@ class AbstractSimulation:
     def registerTab(self):
         #self.tabbar().insertTab(self.index, self.getTabName())
         self.tabbar().insertTab(self.index,self.generateIcon(),self.getTabName())
-        pass
+        
     def updateTabName(self, force = False):
         if self._oldedited != self._edited or self._oldreadonly != self.readonly:
             self._oldedited = self._edited
@@ -687,7 +686,7 @@ class LpySimulation (AbstractSimulation):
                 init = None
             if context.InitialisationFunctionName in context:
                 del context[context.InitialisationFunctionName]
-            for key in self.desc_items.keys():
+            for key in self.desc_items:
                 if key in context:
                     self.desc_items[key] = context[key]
                     if init is None:
@@ -725,7 +724,7 @@ class LpySimulation (AbstractSimulation):
                 import warnings
                 warnings.warn('initialisation failed')
         else:
-            for key in self.desc_items.keys():
+            for key in self.desc_items:
                 self.desc_items[key] = ''
         if self.textdocument:
             self.lpywidget.textEditionWatch = False

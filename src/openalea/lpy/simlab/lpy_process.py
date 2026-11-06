@@ -11,7 +11,7 @@ def get_caller_namespace():
  
 def gen_param_structs(modules, process):
     """ Generate Parameter structure, based on ArrayParameterSet,  for the given modules """
-    return dict([(module+'Params', type(module+'Params', (ArrayParameterSet,), {'table' : ParamTable(process, module) })) for module in modules])
+    return {module+'Params': type(module+'Params', (ArrayParameterSet,), {'table' : ParamTable(process, module) }) for module in modules}
 
 class AbstractLpyProcess:
 
@@ -30,9 +30,10 @@ class AbstractLpyProcess:
             parameters[n]=getattr(self, n)
         parameters.update(gen_param_structs(self.modules, self))
         if not self.graphicalparameters is None:
-            code = open(self.lpyfile,'r').read()
-            self.lsystem = lpy.Lsystem()
-            self.lsystem.set(code+self.graphicalparameters.generate_py_code(), parameters)
+            with open(self.lpyfile,'r') as lf:
+                code = lf.read()
+                self.lsystem = lpy.Lsystem()
+                self.lsystem.set(code+self.graphicalparameters.generate_py_code(), parameters)
         else:
             self.lsystem = lpy.Lsystem(self.lpyfile, parameters)
         self.lstring = self.lsystem.axiom
@@ -63,7 +64,8 @@ class AbstractLpyProcess:
 
 def parse_extern_modules(lpyfile):
     """ Parse an lpyfile to retrieve its modules and expected extern parameters """
-    lines = list(open(lpyfile).readlines())
+    with open(lpyfile) as lf:
+        lines = list(lf.readlines())
     externs = set()
     def f(**kwd):
         nonlocal externs
@@ -98,7 +100,7 @@ def gen_properties(externs, modules, modulestoconsider = None, globaldependencie
     import numpy as np
     externs = externs.difference(predefined_variables)
     if not modulestoconsider is None:
-        mmodules = dict()
+        mmodules = {}
         for name, pnames in modules.items():
             if name in modulestoconsider:
                 mmodules[name] = pnames
@@ -152,4 +154,4 @@ def xs_lpydisplay_hook(processname, scale = 1, delay = 0.02):
 
     return [hook, ProgressBar()]
 
-__all__ = ['xs_lpyprocess', 'xs_lpydisplay_hook']
+__all__ = ['xs_lpydisplay_hook', 'xs_lpyprocess']

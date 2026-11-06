@@ -36,7 +36,7 @@ class ParamTable:
     def get_new_id(self, att):
         id = self.id
         self.id += 1
-        self.data = concat([self.data, DataFrame(dict([(n,[v]) for n,v in att.items()]))], ignore_index=True)
+        self.data = concat([self.data, DataFrame({n: [v] for n,v in att.items()})], ignore_index=True)
         return id
 
     def hasattr(self, uid, attname):
