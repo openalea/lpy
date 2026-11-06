@@ -29,11 +29,16 @@ requirements:
     - setuptools_scm
     - scikit-build-core
     - openalea.plantgl
-    - boost
+    - libboost
+    - libboost-devel
+    - libboost-headers
+    - libboost-python
+    - libboost-python-devel
     - pyqt
   build:
     - binutils_impl_linux-64           # [linux]
     - {{ compiler('cxx') }}
+    - {{ stdlib('c') }}
     - python
     - cmake
     - pkg-config                        # [linux]
@@ -43,7 +48,9 @@ requirements:
     - python
     - setuptools
     - {{ pin_compatible('openalea.plantgl', max_pin='x.x') }}
-    - boost
+    - {{ pin_compatible('libboost', max_pin='x.x') }}
+    - {{ pin_compatible('libboost-headers', max_pin='x.x') }}
+    - {{ pin_compatible('libboost-python', max_pin='x.x') }}
     - ipython
     - qtconsole
     - jupyter_client # <6

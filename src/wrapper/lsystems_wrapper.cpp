@@ -34,11 +34,36 @@
 #include "moduleclass.h"
 #include "lsyscontext.h"
 #include "lpyrun.h"
+#include "tracker.h"
+
+#include <Python.h>
+
+#include <plantgl/gui/base/application.h>
 
 using namespace boost::python;
 LPY_USING_NAMESPACE
 
-
+void cleanLpy() 
+{
+    // Check if python is still alive before deleting objects
+    if (!Py_IsInitialized()) { 
+        return;
+    }
+    // printf("Clean LPy ... \n");
+#ifdef TRACKER_ENABLED
+    std::cerr << "****** pre-cleaning *******" << std::endl;
+    Tracker::printReport();
+#endif
+    ModuleClassTable::clearModuleClasses ();
+    ViewerApplication::exit ();
+    GlobalContext::cleanup();
+    LsysContext::cleanContexts();
+#ifdef TRACKER_ENABLED
+    std::cerr << "****** post-cleaning ******" << std::endl;
+    Tracker::printReport();
+#endif
+    // printf("Clean LPy ... done\n");
+}
 
 
 BOOST_PYTHON_MODULE(__lpy_kernel__)
@@ -61,5 +86,5 @@ BOOST_PYTHON_MODULE(__lpy_kernel__)
 	export_parser();
     export_StringMatching();
     export_Debugger();
-	// def("cleanLsys",&cleanLsys);
+	def("cleanLpy",&cleanLpy);
 };

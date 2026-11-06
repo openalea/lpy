@@ -1,10 +1,14 @@
 name: lpy_dev
 channels:
   - openalea3
+  - openalea3/label/dev
   - conda-forge
 dependencies:
+  - python
   - openalea.plantgl
   - qtconsole
+  - libboost-devel
+  - libboost-python-devel
   - pip
   - pip:
       - -e .."[doc, test]"

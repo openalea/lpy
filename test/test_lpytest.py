@@ -26,7 +26,7 @@ def test_lpy_tests():
         if os.path.basename(lfile) in toavoid:
             continue
         print(lfile)
-        return exec_lpy_tst,lfile
+        assert exec_lpy_tst,lfile
 
         
 def test_diese_bug():

@@ -32,7 +32,7 @@ class ParamTable:
         if not attname in self.pnames() : return False
         v = self._getattr(attname, self.indexname)
         if len(v) <= uid : return False
-        else : return v[uid] != np.nan
+        else : return np.isnan(v[uid])
 
     def setattr(self, uid, attname, value):
         if attname in self.pnames():

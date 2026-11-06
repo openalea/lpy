@@ -446,6 +446,7 @@ public:
   static boost::python::object getFunctionRepr();
   virtual void clearNamespace();
   static GlobalContext * get();
+  static void cleanup();
 protected:
   GlobalContext();
 

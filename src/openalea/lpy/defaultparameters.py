@@ -18,9 +18,7 @@ class LocalsRetriever:
         elif event == 'return':
             self.depth -= 1
             self.mylocals.update(frame.f_locals)
-        elif event == 'line':
-            pass
-        elif event == 'exception':
+        elif event == 'line' or event == 'exception':
             pass
         else:
             pass

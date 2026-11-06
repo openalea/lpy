@@ -43,34 +43,19 @@ LPY_USING_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
 
-void cleanLpy() 
-{
-    // printf("Clean LPy ... \n");
-#ifdef TRACKER_ENABLED
-    std::cerr << "****** pre-cleaning *******" << std::endl;
-    Tracker::printReport();
-#endif
-    ModuleClassTable::clearModuleClasses ();
-    ViewerApplication::exit ();
-    LsysContext::cleanContexts();
-#ifdef TRACKER_ENABLED
-    std::cerr << "****** post-cleaning ******" << std::endl;
-    Tracker::printReport();
-#endif
-    // printf("Clean LPy ... done\n");
-}
-
-
 void LPY(Lpy_Initialize)()
 {
     if (!Py_IsInitialized()) {
         Py_Initialize();
         // boost::python::object main = boost::python::import("__main__");
         boost::python::object lpy = boost::python::import("openalea.lpy");
+        boost::python::object atexit = boost::python::import("atexit");
+
+        atexit.attr("register")(lpy.attr("cleanLpy"));
     }
     else {
         define_stl_exceptions();
-        Py_AtExit(&cleanLpy);
+        // Py_AtExit(&cleanLpy);
     }
 }
 
