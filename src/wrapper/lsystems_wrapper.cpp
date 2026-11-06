@@ -40,6 +40,7 @@ LPY_USING_NAMESPACE
 
 
 
+void cleanLpy();
 
 BOOST_PYTHON_MODULE(__lpy_kernel__)
 {
@@ -61,5 +62,5 @@ BOOST_PYTHON_MODULE(__lpy_kernel__)
 	export_parser();
     export_StringMatching();
     export_Debugger();
-	// def("cleanLsys",&cleanLsys);
+	def("cleanLpy",&cleanLpy);
 };

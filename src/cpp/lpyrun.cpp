@@ -45,6 +45,10 @@ LPY_USING_NAMESPACE
 
 void cleanLpy() 
 {
+    // Check if python is still alive before deleting objects
+    if (!Py_IsInitialized()) { 
+        return;
+    }
     // printf("Clean LPy ... \n");
 #ifdef TRACKER_ENABLED
     std::cerr << "****** pre-cleaning *******" << std::endl;
@@ -52,6 +56,7 @@ void cleanLpy()
 #endif
     ModuleClassTable::clearModuleClasses ();
     ViewerApplication::exit ();
+    GlobalContext::cleanup();
     LsysContext::cleanContexts();
 #ifdef TRACKER_ENABLED
     std::cerr << "****** post-cleaning ******" << std::endl;
@@ -67,10 +72,13 @@ void LPY(Lpy_Initialize)()
         Py_Initialize();
         // boost::python::object main = boost::python::import("__main__");
         boost::python::object lpy = boost::python::import("openalea.lpy");
+        boost::python::object atexit = boost::python::import("atexit");
+
+        atexit.attr("register")(lpy.attr("cleanLpy"));
     }
     else {
         define_stl_exceptions();
-        Py_AtExit(&cleanLpy);
+        // Py_AtExit(&cleanLpy);
     }
 }
 

@@ -3,6 +3,10 @@ from .__lpy_kernel__ import *
 from .parameterset import *
 from .defaultparameters import *
 
+import atexit
+
+atexit.register(cleanLpy)
+
 def __mod_getattr__(self,name):
     if self.hasParameter(name): return self.getParameter(name)
     else: return self.__getattribute__(name)
@@ -197,7 +201,7 @@ def __lsys_getinitargs__(self):
 from types import ModuleType
 
 def __lsys_getstate__(self):
-    return (str(self), dict([(n,v) for n,v in self.context().locals().items() if not isinstance(v,ModuleType) and not isinstance(v,ModuleClass)]))
+    return (str(self), {n: v for n,v in self.context().locals().items() if not isinstance(v,ModuleType) and not isinstance(v,ModuleClass)})
 
 def __lsys_setstate__(self,state):
     return self.setCode(state[0], state[1])
@@ -213,8 +217,7 @@ ModuleClass.__call__ = generate_module
 del generate_module
 
 def determine_lpymodule_path(fn):
-    if fn.endswith('.lpy'):
-        fn = fn[:-4]
+    fn = fn.removesuffix('.lpy')
     splittedfn = fn.split('.')
     package, modfname = '.'.join(splittedfn[:-1]), splittedfn[-1]+'.lpy'
     import importlib
