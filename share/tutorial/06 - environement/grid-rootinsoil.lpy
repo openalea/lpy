@@ -1,6 +1,6 @@
 import numpy as np
 import openalea.plantgl.all  as pgl
-from imp import reload
+from importlib import reload
 import grid as mgrid; reload(mgrid)
 from math import pi, cos, sin
 
