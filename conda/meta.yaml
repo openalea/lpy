@@ -47,6 +47,7 @@ requirements:
     - pyqglviewer
     # the shell of the lpy GUI; brings ipython, ipykernel and jupyter_client
     - qtconsole
+    - jsonschema
 
 app:
   entry: lpy
