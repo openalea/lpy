@@ -1,27 +1,16 @@
-from openalea.lpy import *
-import os, glob
+import glob
+import os
 
-def get_share_examples():
-    d = os.path.os.path.dirname(__file__)
-    sharepath = os.path.join(d,os.path.pardir,'share','examples')
+import pytest
 
-    lpyfiles = glob.glob(os.path.join(sharepath,'*.lpy'))
-    return lpyfiles
-    
-def exec_share_example(lfile):
-        try:
-            l = Lsystem(lfile)
-            l.iterate()
-        except Exception as e :
-            print('Example file :',lfile)
-            raise e
-    
-    
-def test_share_examples():
+from openalea.lpy import Lsystem
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+EXAMPLES = sorted(glob.glob(os.path.join(HERE, os.path.pardir, 'share', 'examples', '*.lpy')))
+
+
+@pytest.mark.parametrize('lfile', EXAMPLES, ids=os.path.basename)
+def test_share_examples(lfile):
     """ Test all lpy examples from share/ repository """
-    for lfile in get_share_examples():
-        assert exec_share_example, lfile
-
-if __name__ == '__main__':
-    for e,f in test_share_examples():
-        e(f)
+    l = Lsystem(lfile)
+    l.iterate()
