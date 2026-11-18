@@ -1,5 +1,5 @@
 import openalea.lpy.tableparameterset as tp
-from imp import reload
+from importlib import reload
 reload(tp)
 if PARAMETERS == 0:
 	from openalea.lpy.parameterset import ParameterSet

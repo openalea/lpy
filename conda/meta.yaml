@@ -15,47 +15,38 @@ about:
 build:
   string: py{{ PY_VER }}
   number: 0
-  preserve_egg_dir: True
   script:
-    - {{ PYTHON }} -m pip install --prefix={{ PREFIX }} . --no-deps --no-build-isolation -vv
+    - {{ PYTHON }} -m pip install . --no-deps --no-build-isolation -vv
   entry_points:
     - lpy = openalea.lpy.gui.lpystudio:main
     - cpfg2lpy = openalea.lpy.cpfg_compat.cpfg2lpy:main
 
 requirements:
-  host:
-    - python
-    - setuptools
-    - setuptools_scm
-    - scikit-build-core
-    - openalea.plantgl
-    - libboost
-    - libboost-devel
-    - libboost-headers
-    - libboost-python
-    - libboost-python-devel
-    - pyqt
   build:
-    - binutils_impl_linux-64           # [linux]
     - {{ compiler('cxx') }}
     - {{ stdlib('c') }}
-    - python
     - cmake
-    - pkg-config                        # [linux]
     - make                              # [unix]
-    - menuinst                          # [win]
+  host:
+    - python
+    - pip
+    - setuptools-scm
+    - scikit-build-core
+    - openalea.plantgl
+    # libboost-devel and libboost-python-devel add libboost and libboost-python to run
+    # (run_exports), qt-main adds itself (CMake links Qt Core and Concurrent).
+    - libboost-devel
+    - libboost-python-devel
+    - qt-main
   run:
     - python
-    - setuptools
-    - {{ pin_compatible('openalea.plantgl', max_pin='x.x') }}
-    - {{ pin_compatible('libboost', max_pin='x.x') }}
-    - {{ pin_compatible('libboost-headers', max_pin='x.x') }}
-    - {{ pin_compatible('libboost-python', max_pin='x.x') }}
-    - ipython
-    - qtconsole
-    - jupyter_client # <6
+    # pinned to the host version (x.x) by the run_exports of openalea.plantgl
+    - openalea.plantgl
+    # imported at module level by the lpy GUI (also dependencies of openalea.plantgl)
     - pyopengl
     - pyqglviewer
+    # the shell of the lpy GUI; brings ipython, ipykernel and jupyter_client
+    - qtconsole
     - jsonschema
 
 app:
@@ -66,6 +57,7 @@ app:
 test:
   requires:
     - pytest
+    # optional: openalea.lpy.tableparameterset (test/lpytest/tableparameters.lpy)
     - pandas
   imports:
     - openalea.lpy
