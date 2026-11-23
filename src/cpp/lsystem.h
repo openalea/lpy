@@ -71,7 +71,6 @@ public:
 
   /** print */
   std::string str() const ;
-  inline const char * c_str() const { return str().c_str(); }
   std::string code() ;
 
   /** compile */

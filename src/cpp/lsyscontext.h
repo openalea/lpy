@@ -76,7 +76,6 @@ public:
 
   /** string representation */
   std::string str() const ;
-  inline const char * c_str() const { return str().c_str(); }
 
   /** The Start, End, StartEach, EndEach and PostDraw execution */
   boost::python::object start();
