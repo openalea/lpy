@@ -5,7 +5,7 @@ dt = 0.0
 derivation length: 3
 production:
 
-F(x) --> F(x*(1-dl)+dt) +(45) F(2*dl)+(45) F(x) - F(x -2*dt) - F(x) -(45) F(2*dl) -(45) ,(2+getIterationNb()) F(x-2*dl -2*dt),(1) +(45)F(2*dl)+(45) F(x)  + F(x -2 *dt) + F(x) -(45) F(2*dl) -(45) F(x+dt)
+F(x) --> F(x*(1-dl)+dt) +(45) F(2*dl)+(45) F(x) - F(x -2*dt) - F(x) -(45) F(2*dl) -(45) ,(1+getIterationNb()) F(x-2*dl -2*dt),(1) +(45)F(2*dl)+(45) F(x)  + F(x -2 *dt) + F(x) -(45) F(2*dl) -(45) F(x+dt)
 
 
 

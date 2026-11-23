@@ -35,8 +35,8 @@ Here comes the python commands that control the simulation.
 <tr><td><b>def End([lstring,geometries])     </b></td><td> is called at the end of the simulation. One or two arguments can be optionally defined to receive the final lstring and its geometric interpretation. A modified lstring or scene can be returned by the function to change output of the simulation.</td></tr>
 <tr><td><b>def StartEach([lstring]) </b></td><td> is called before each derivation step. One argument can be optionally defined to receive the input lstring. A modified lstring can be returned by the function to modify input lstring of the current iteration.</td></tr>
 <tr><td><b>def EndEach([lstring,geometries]) </b></td><td> is called after each derivation step. One or two arguments can be optionally defined to receive the current lstring and its geometric interpretation. Returning an lstring or (lstring, geometries) will be used for next iterations and display. If frameDisplayed() is False, geometries is None.</td></tr>
-<tr><td><b>def StartInterpretation([turtle])   </b></td><td> is called at the beginning of the interpretation. Interpretable modules can be produced to generate extra graphical elements</td></tr>
-<tr><td><b>def EndInterpretation([turtle])   </b></td><td> is called at the end of the interpretation. Interpretable modules can be produced to generate extra graphical elements</td></tr>
+<tr><td><b>def StartInterpretation([turtle,lstring])   </b></td><td> is called at the beginning of the interpretation. Interpretable modules can be produced to generate extra graphical elements</td></tr>
+<tr><td><b>def EndInterpretation([turtle,lstring])   </b></td><td> is called at the end of the interpretation. Interpretable modules can be produced to generate extra graphical elements</td></tr>
 <tr><td><b>def PostDraw() </b></td><td> is called after drawing the representation of a new lstring.  </td></tr></table>
 
 <H3>Python commands that control the rule application:</H3>
@@ -45,7 +45,7 @@ Here comes the python commands that control the simulation.
 <tr><td><b>forward()     </b></td><td> Next iteration will be done in forward direction.</td></tr>
 <tr><td><b>backward()    </b></td><td> Next iteration will be done in backward direction.</td></tr>
 <tr><td><b>isForward()   </b></td><td> Test whether direction is forward.</td></tr>
-<tr><td><b>getIterationNb() </b></td><td> Return the id of the current iteration.</td></tr>
+<tr><td><b>getIterationNb() </b></td><td> Return the id of the current iteration. By default, axiom decomposition and interpretation correspond to 0. First derivation has id 1; last on has id derivation length. </td></tr>
 <tr><td><b>useGroup(int)    </b></td><td> Next iteration will use rules of given group and default group 0.</td></tr>
 <tr><td><b>getGroup()       </b></td><td> Gives which group will be used.</td></tr>
 <tr><td><b>frameDisplay(bool)</b></td><td> Set whether a frame will be displayed at the end of the iteration. default is True in animation and False except for last iteration in run mode.</td></tr>

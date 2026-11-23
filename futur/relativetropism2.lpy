@@ -1,0 +1,61 @@
+from math import *
+from openalea.plantgl.all import *
+from scipy.special import sici
+
+elasticity = 0.2
+tropism = Vector3(0,0,1)
+
+module Seg, Branch
+
+Axiom: 
+  nb = 11
+  initangle = 180
+  for i in range(1,nb):
+     nproduce [ ,(2) @M(-i,0,0) -(initangle)  nF(10,10/i) ]
+     #nproduce [ @M(-i,0,0) +(initangle)  Branch(10,10/i) B]
+     nproduce [ ,(3) @M(-i,0,0) -(initangle) ElasticityPerLengthUnit(elasticity) Branch2(10,10/i) B]
+
+derivation length: 1
+production:
+
+Branch(l,dl):
+  print()
+  for i in range(0, int(ceil(l/dl))):
+    nproduce Seg(dl) 
+  
+Branch2(l,dl):
+  for i in range(0, int(ceil(l/dl))):
+    nproduce F(dl) @O
+  produce F(1)
+
+
+interpretation:
+
+Seg(dl):
+  h = turtle.getHeading()
+  u = turtle.getUp()
+  l = turtle.getLeft()
+  #print(h)
+  rotvector = cross(h,tropism).normed()
+  #print(rotvector)
+  theta0 = angle(h, tropism, rotvector)
+  print(degrees(theta0))
+  xaxis = cross(rotvector,tropism)
+  
+  theta = theta0*exp(-elasticity*dl)
+  siexp, ciexp = sici(theta)
+  sitheta0, citheta0 = sici(theta0)
+  xs = (siexp-sitheta0)/elasticity
+  ys = - (ciexp-citheta0)/elasticity
+  decal = xs*xaxis+ys*tropism
+  print(degrees(theta0-theta))
+  rotation = Matrix3.axisRotation(rotvector,theta0-theta)
+  nh,nu = rotation*h,rotation*u
+  
+  #produce  @M(turtle.getPosition()+decal) @O() @R(nh,nu) @R(nh,nu)
+  produce  LineRel(decal) @R(nh,nu)
+
+B:
+  print()
+
+endlsystem

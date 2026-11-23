@@ -4,7 +4,7 @@ multiscalemode = None
 
 def StartEach():
     global resinf, ressup, multiscalemode
-    context().options.setSelection('String matching', getIterationNb())
+    context().options.setSelection('String matching', getIterationNb()-1)
     multiscalemode = context().options.find('String matching').currentValue() in ['As Multiscale AxialTree','As Multi-level AxialTree']
     resinf = [0,3]
     ressup = [5 if multiscalemode else 3,2]

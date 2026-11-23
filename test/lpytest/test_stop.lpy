@@ -1,5 +1,5 @@
 def EndEach():
-  assert getIterationNb() <= 101
+  assert getIterationNb() <= 102  # Stop() during iteration 102 (numbered from 1)
 
 
 Axiom: A(0)

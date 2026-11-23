@@ -9,7 +9,7 @@ def EndEach(lstring,scene):
     assert isAnimationEnabled() == animation
     if not isFrameDisplayed(): assert scene is None
     if isAnimationEnabled()  : assert isFrameDisplayed()
-    else : assert isFrameDisplayed() == (getIterationNb() == (nbiter-1))
+    else : assert isFrameDisplayed() == (getIterationNb() == nbiter)
     
 Axiom: A
 derivation length: nbiter

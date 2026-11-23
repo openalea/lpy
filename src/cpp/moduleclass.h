@@ -116,6 +116,7 @@ typedef pgl_hash_map_string<size_t> ParameterNameDict;
 	MACRO(CpfgSurface) \
 	MACRO(PglShape) \
 	MACRO(Elasticity) \
+	MACRO(ElasticityPerLengthUnit) \
 	MACRO(Tropism) \
 	MACRO(SetContour) \
 	MACRO(SectionResolution) \

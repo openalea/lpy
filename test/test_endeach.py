@@ -60,7 +60,7 @@ def test_endeach_with_two_args():
 
 lcode4 = """
 def EndEach(lstring):
-    assert len(lstring) == getIterationNb()+1
+    assert len(lstring) == getIterationNb()
     lstring += 'B'
     global ok
     ok = True

@@ -487,6 +487,7 @@ LsysContext::clear(){
   __paramproductions.clear();
   __early_return = false;
   clearNamespace();
+  pyturtle().attr("clear_parameters")();
 }
 
 bool
@@ -823,11 +824,12 @@ LsysContext::endEach(AxialTree& lstring, const PGL::ScenePtr& scene)
 { return controlMethod("EndEach",lstring,scene); }
 
 AxialTree
-LsysContext::startInterpretation(boost::python::object pyturtle){
+LsysContext::startInterpretation(boost::python::object pyturtle, const AxialTree& workingstring){
     if(hasStartInterpretationFunction()){
           size_t nbargs = func_nb_args(getObject("StartInterpretation"));
           if (nbargs == 0) func("StartInterpretation");
-          else getObject("StartInterpretation")(pyturtle);
+          else if (nbargs == 1) getObject("StartInterpretation")(pyturtle);
+          else getObject("StartInterpretation")(pyturtle, workingstring);
           AxialTree nprod = LsysContext::currentContext()->get_nproduction(); 
           if (nprod.empty())  {
             return AxialTree();
@@ -842,11 +844,12 @@ LsysContext::startInterpretation(boost::python::object pyturtle){
 
 
 AxialTree
-LsysContext::endInterpretation(boost::python::object pyturtle){
+LsysContext::endInterpretation(boost::python::object pyturtle, const AxialTree& workingstring){
     if(hasEndInterpretationFunction()){
           size_t nbargs = func_nb_args(getObject("EndInterpretation"));
           if (nbargs == 0) func("EndInterpretation");
-          else getObject("EndInterpretation")(pyturtle);
+          else if (nbargs == 1) getObject("EndInterpretation")(pyturtle);
+          else getObject("EndInterpretation")(pyturtle, workingstring);
           AxialTree nprod = LsysContext::currentContext()->get_nproduction(); 
           if (nprod.empty())  return AxialTree();
           else { 

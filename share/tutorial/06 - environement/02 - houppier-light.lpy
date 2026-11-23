@@ -59,18 +59,23 @@ def Start():
 def EndEach(lstring,scene):
    if isAnimationEnabled():
       global minl, maxl # read from initial simu
-      Viewer.display(scene) 
+      #Viewer.display(scene) 
       shapes = dict([(sh.id,sh) for sh in scene])
-      res = diffuseInterception(scene)   # compute light from turtle dome
+      res = diffuseInterception(scene, 1)   # compute light from turtle dome
+      print('Interception',res)
       for k,v in res.items(): # res contains pair of id, light level
          if lstring[k].name in 'AB': # check for module A and B
            v /= surface(shapes[k])   # normalized 
            lstring[k][3] = v         # set ligth level into param 4 
+           print(lstring[k][3])
            if minl > v: minl = v
            if maxl < v: maxl = v
-
+         else:
+           print('Pb',lstring[k].name)
+      return lstring
 
 def do_houpppier(p,s,c)   :
+    print(minl, maxl, c)
     seed(s)
     p2 = (p[0],p[1])
     t = norm(p2)/1.8 
@@ -81,8 +86,9 @@ def do_houpppier(p,s,c)   :
     args += [midh+uniform(-0.5,0.5) for i in range(4)]
     args += [(0,0,0),(0,0,maxh)]
     ah = AsymmetricHull(*args)
-    l = 17 if (c < 0 or maxl <= minl) else 2+(11 * ((c-minl)/(maxl-minl)) )   
-    nproduce ,(int(l)) @v f(-midh) @g(ah)
+    l = 17 if (c < 0 or maxl <= minl) else 2+(11 * ((c-minl)/(maxl-minl)) )
+    print(l)   
+    nproduce @Ge ,(int(l)) @v f(-midh) @g(ah)
 
 
 module ROT
@@ -175,7 +181,7 @@ __lpy_code_version__ = 1.1
 
 def __initialiseContext__(context):
 	import openalea.plantgl.all as pgl
-	Color_1 = pgl.Material("Color_1" , ambient = (62,42,13) , diffuse = 1.27419 , specular = (0,0,0) , )
+	Color_1 = pgl.Material("Color_1" , ambient = (62,42,13) , diffuse = 1.27419 , )
 	Color_1.name = "Color_1"
 	context.turtle.setMaterial(1,Color_1)
 	Color_2 = pgl.Material("Color_2" , ambient = (0,0,39) , diffuse = 4.10256 , transparency = 0.11 , )
