@@ -184,6 +184,8 @@ public:
   inline void forward() { __direction = eForward; }
   inline bool isForward() { return __direction == eForward; }
   inline eDirection getDirection() const { return __direction; }
+  inline void setCyclic(bool enabled) { __cyclic = enabled; }
+  inline bool isCyclic() const { return __cyclic; }
 
   /** selection of group of rules */
   inline void useGroup(size_t gid) { __group = gid; }
@@ -361,6 +363,7 @@ protected:
 
   /// next iteration control
   eDirection __direction;
+  bool __cyclic = false;
   size_t __group;
   bool __frameDisplay;
 

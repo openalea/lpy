@@ -259,6 +259,7 @@ LsysContext::pyturtle() {
 
 LsysContext::LsysContext(const LsysContext& lsys):
   __direction(lsys.__direction),
+  __cyclic(lsys.__cyclic),
   __group(lsys.__group),
   // __nproduction(lsys.__nproduction),
   __selection_always_required(lsys.__selection_always_required),
@@ -317,6 +318,7 @@ LsysContext&
 LsysContext::operator=(const LsysContext& lsys)
 {
   __direction = lsys.__direction;
+  __cyclic = lsys.__cyclic;
   __group = lsys.__group;
   // __nproduction.setLocalData(lsys.__nproduction.localData());
   // __nproduction = lsys.__nproduction;
@@ -472,6 +474,7 @@ void LsysContext::init_options()
 void 
 LsysContext::clear(){
   __direction = eForward;
+  __cyclic = false;
   __group = 0;
   __selection_always_required = false;
   __selection_requested = false;

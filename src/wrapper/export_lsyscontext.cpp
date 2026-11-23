@@ -41,6 +41,7 @@ LPY_USING_NAMESPACE
 PGL_USING_NAMESPACE
 
 void py_backward() { LsysContext::currentContext()->backward(); }
+void py_setCyclicLsystem(bool enabled) { LsysContext::currentContext()->setCyclic(enabled); }
 void py_forward() { LsysContext::currentContext()->forward(); }
 bool py_isForward() { return LsysContext::currentContext()->isForward(); }
 
@@ -211,6 +212,8 @@ void export_LsysContext(){
 	def("backward",      &py_backward);
 	def("forward",      &py_forward);
 	def("isForward",      &py_isForward);
+    def("SetCyclicLsystem", &py_setCyclicLsystem, (bp::arg("enabled")),
+        "Enable or disable wrapping during source context matching.");
 	def("nsproduce",  (void (*)(const AxialTree&) )&nproduce);
     def("nsproduce",  (void (*)(const boost::python::list&) )&nproduce);
     def("nsproduce",  (void (*)(const std::string&) )&nproduce);

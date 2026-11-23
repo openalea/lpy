@@ -35,6 +35,8 @@
 #ifndef __lstring_matcher_h__
 #define __lstring_matcher_h__
 
+#include <memory>
+
 LPY_BEGIN_NAMESPACE
 
 /*---------------------------------------------------------------------------*/
@@ -60,7 +62,8 @@ public:
 				   AxialTree::const_iterator _rightpos,
 				   AxialTree::const_iterator _rightlastmatch,
                    const ConsiderFilterPtr filter,
-                   AxialTree::IteratorMap* iteratormap);
+                   AxialTree::IteratorMap* iteratormap,
+                   std::shared_ptr<const AxialTree> cyclicSource = {});
 
 	void set(AxialTree::const_iterator _begin,
 			 AxialTree::const_iterator _end,
@@ -76,6 +79,7 @@ public:
 	bool pInRightContext(size_t patternid, boost::python::dict& args);
 	bool inRightContext(const PatternString& pattern, boost::python::dict& args);
 private:
+    std::shared_ptr<const AxialTree> cyclicSource;
 	void update_returned_args(boost::python::dict& args, const std::vector<std::string>& varnames, const ArgList& values) const;
 };
 

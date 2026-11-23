@@ -128,15 +128,17 @@ public:
 			   AxialTree::const_iterator& endpos,
 			   ArgList& args,
                AxialTree::IteratorMap* itermap = NULL,
-               eDirection direction = eForward) const ;
+               eDirection direction = eForward,
+               std::shared_ptr<const AxialTree>* cyclicCache = nullptr) const;
 
     inline bool reverse_match(const AxialTree& src,
 			   AxialTree::const_iterator pos,
 			   const AxialTree& dest,
 			   AxialTree::const_iterator& endpos,
                ArgList& args,
-               AxialTree::IteratorMap* itermap = NULL) const 
-    { return match(src,pos,dest,endpos,args, itermap, eBackward); }
+               AxialTree::IteratorMap* itermap = NULL,
+               std::shared_ptr<const AxialTree>* cyclicCache = nullptr) const
+    { return match(src,pos,dest,endpos,args, itermap, eBackward, cyclicCache); }
 
 	bool applyTo( AxialTree& dest, 
 				  const ArgList& args, 

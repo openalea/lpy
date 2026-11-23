@@ -115,6 +115,20 @@ the string and ``new_right_context`` from right to left.
 
 These contexts can then be combined.
 
+Cyclic contexts
+~~~~~~~~~~~~~~~
+
+Call ``SetCyclicLsystem(True)`` in a model or ``lsystem.setCyclic(True)`` from
+Python to let left and right context searches wrap around the source string.
+For example, with ``Axiom: A B``, the rule ``B < A --> C`` can use the final
+``B`` as the left context of the first ``A``. This also applies to
+``InLeftContext`` and ``InRightContext``. Each search can traverse at most one
+revolution.
+
+Strict predecessors and new contexts (``<<`` and ``>>``) keep their linear
+matching behavior. Cyclic matching is off by default. Pass ``False`` to either
+command to turn it off again.
+
 Different types of Rules
 ------------------------
 

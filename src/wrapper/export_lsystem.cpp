@@ -149,6 +149,8 @@ void export_Lsystem(){
 	.def("nbDecompositionRules", &Lsystem::nbDecompositionRules, (bp::arg("group")=0))
 	.def("nbInterpretationRules", &Lsystem::nbInterpretationRules, (bp::arg("group")=0))
 	.def("nbTotalRules", &Lsystem::nbTotalRules,"Return total number of rules considering all groups")
+    .def("setCyclic", &Lsystem::setCyclic, (bp::arg("enabled")),
+         "Enable or disable wrapping during source context matching.")
 	.def("nbGroups", &Lsystem::nbGroups,"Return number of groups")
 	.def("productionRule", py_productionRule, return_internal_reference<>(), (bp::arg("ruleid")=0,bp::arg("group")=0))
 	.def("decompositionRule", py_decompositionRule, return_internal_reference<>(), (bp::arg("ruleid")=0,bp::arg("group")=0))

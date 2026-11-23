@@ -191,6 +191,7 @@ public:
   /** context */
   inline LsysContext * context() { return &__context; } 
   inline const LsysContext * context() const { return &__context; } 
+  inline void setCyclic(bool enabled) { __context.setCyclic(enabled); }
   /** make current or disable the context of self */
   inline void makeCurrent() { return __context.makeCurrent(); }
   inline bool isCurrent() const { return __context.isCurrent(); }

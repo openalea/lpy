@@ -221,7 +221,12 @@ public:
 			while(ok && numiter < maxiter) {
 				argtype lp;
 				if((ok = Matcher::match(it,string_beg,string_end,lpattern.begin(),lpattern.end(),last_matched,it,filter,lp, iteratormap)))
-				{  llp.push_back(lp); last_matched = it; ++it; ++numiter; }
+                {
+                    llp.push_back(lp);
+                    last_matched = it;
+                    if (it != string_end) ++it;
+                    ++numiter;
+                }
 			}
 			if (numiter < miniter) {
                 return false;

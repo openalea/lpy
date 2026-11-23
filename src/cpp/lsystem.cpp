@@ -683,6 +683,7 @@ AxialTree Lsystem::__debugStep(AxialTree& workingstring,
 						  bool& matching,
 						  eDirection direction,
 						  Debugger& debugger){
+  std::shared_ptr<const AxialTree> cyclicCache;
   ContextMaintainer c(&__context);
   matching = false;
   if( workingstring.empty()) return workingstring;
@@ -706,7 +707,7 @@ AxialTree Lsystem::__debugStep(AxialTree& workingstring,
                   _it2 != mruleset.end(); _it2++){
 					  ArgList args;
 					  size_t prodlength;
-                      if((*_it2)->match(workingstring,_it,targetstring,_it3,args,&itermap)){
+                      if((*_it2)->match(workingstring,_it,targetstring,_it3,args,&itermap,eForward,&cyclicCache)){
 						  try {
 							match = (*_it2)->applyTo(targetstring,args,&prodlength);
 						  }catch(error_already_set){
@@ -746,7 +747,7 @@ AxialTree Lsystem::__debugStep(AxialTree& workingstring,
               _it2 != mruleset.end();  _it2++){
 				  ArgList args;
 				  size_t prodlength;
-                  if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args,&itermap)){
+                  if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args,&itermap,&cyclicCache)){
 					  try {
 						match = (*_it2)->reverseApplyTo(targetstring,args,&prodlength);
 					  }catch(error_already_set){
@@ -782,6 +783,7 @@ Lsystem::__step(AxialTree& workingstring,
 				bool query,
 				bool& matching,
                 eDirection direction){
+  std::shared_ptr<const AxialTree> cyclicCache;
   if (__context.multicoreProcessing()) { return __parallelStep(workingstring, ruleset, query, matching, direction);  }
   ContextMaintainer c(&__context);
   matching = false;
@@ -807,7 +809,7 @@ Lsystem::__step(AxialTree& workingstring,
               for(RulePtrSet::const_iterator _it2 = mruleset.begin();
                   _it2 != mruleset.end(); _it2++){
 					  ArgList args;
-                      if((*_it2)->match(workingstring,_it,targetstring,_it3,args,itermap)){
+                      if((*_it2)->match(workingstring,_it,targetstring,_it3,args,itermap,eForward,&cyclicCache)){
                           match = (*_it2)->applyTo(targetstring,args);
 						  if(match) { _it = _it3; break; }
                       }
@@ -836,7 +838,7 @@ Lsystem::__step(AxialTree& workingstring,
           for(RulePtrSet::const_iterator _it2 = mruleset.begin();
               _it2 != mruleset.end();  _it2++){
 				  ArgList args;
-                  if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args,itermap)){
+                  if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args,itermap,&cyclicCache)){
                       match = (*_it2)->reverseApplyTo(targetstring,args);
                       if(match) { _it = _it3; break; }
                   }
@@ -868,6 +870,7 @@ AxialTree partialForwardStep(size_t beg,
                              AxialTree& workingstring,
                              const RulePtrMap& ruleset)
 {
+      std::shared_ptr<const AxialTree> cyclicCache;
       AxialTree targetstring;
       targetstring.reserve(size);
 
@@ -888,7 +891,7 @@ AxialTree partialForwardStep(size_t beg,
               for(RulePtrSet::const_iterator _it2 = mruleset.begin();
                   _it2 != mruleset.end(); _it2++){
                       ArgList args;
-                      if((*_it2)->match(workingstring,_it,targetstring,_it3,args,&itermap)){
+                      if((*_it2)->match(workingstring,_it,targetstring,_it3,args,&itermap,eForward,&cyclicCache)){
                           match = (*_it2)->applyTo(targetstring,args);
                           if(match) { _it = _it3; break; }
                       }
@@ -906,6 +909,7 @@ AxialTree partialBackwardStep(size_t beg,
                               AxialTree& workingstring,
                               const RulePtrMap& ruleset)
 {
+      std::shared_ptr<const AxialTree> cyclicCache;
       AxialTree targetstring;
       targetstring.reserve(size);
 
@@ -927,7 +931,7 @@ AxialTree partialBackwardStep(size_t beg,
               for(RulePtrSet::const_iterator _it2 = mruleset.begin();
                   _it2 != mruleset.end(); _it2++){
                       ArgList args;
-                      if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args,&itermap)){
+                      if((*_it2)->reverse_match(workingstring,_it,targetstring,_it3,args,&itermap,&cyclicCache)){
                           match = (*_it2)->reverseApplyTo(targetstring,args);
                           if(match) { _it = _it3; break; }
                       }
@@ -1035,6 +1039,7 @@ Lsystem::__stepWithMatching(AxialTree& workingstring,
 				bool query,
                 StringMatching& matching)
 {
+  std::shared_ptr<const AxialTree> cyclicCache;
   ContextMaintainer c(&__context);
   if( workingstring.empty()) return workingstring;
   AxialTree targetstring;
@@ -1055,7 +1060,7 @@ Lsystem::__stepWithMatching(AxialTree& workingstring,
           for(RulePtrSet::const_iterator _it2 = mruleset.begin();
               _it2 != mruleset.end();  _it2++){
 				  ArgList args;
-                  if((*_it2)->match(workingstring,_it,targetstring,_it3,args,&itermap)){
+                  if((*_it2)->match(workingstring,_it,targetstring,_it3,args,&itermap,eForward,&cyclicCache)){
                       match = (*_it2)->applyTo(targetstring,args,&prodlength);
 					  if (match){
 						matching.append(distance(_it,_it3),prodlength);
@@ -1078,6 +1083,7 @@ Lsystem::__recursiveSteps(AxialTree& workingstring,
 				          const RulePtrMap& ruleset, 
                           size_t maxdepth, bool& matching)
 {
+  std::shared_ptr<const AxialTree> cyclicCache;
   ContextMaintainer c(&__context);
   matching = false;
   if( workingstring.empty()) return workingstring;
@@ -1096,7 +1102,7 @@ Lsystem::__recursiveSteps(AxialTree& workingstring,
           for(RulePtrSet::const_iterator _it2 = mruleset.begin();
               _it2 != mruleset.end(); _it2++){
 				        ArgList args;
-                if((*_it2)->match(workingstring,_it,ltargetstring,_it3,args)){
+                if((*_it2)->match(workingstring,_it,ltargetstring,_it3,args,nullptr,eForward,&cyclicCache)){
                       match = (*_it2)->applyTo(ltargetstring,args);
 					           if(match) { _it = _it3; matching = true; break; }
                 }
@@ -1122,6 +1128,7 @@ AxialTree Lsystem::__gRecursiveInterpretationString(AxialTree& workingstring,
 										 size_t maxdepth,
 										 bool withid)
 {
+  std::shared_ptr<const AxialTree> cyclicCache;
   ContextMaintainer c(&__context);
   if( workingstring.empty()) return workingstring;
   AxialTree::iterator _itn = workingstring.begin();
@@ -1155,7 +1162,7 @@ AxialTree Lsystem::__gRecursiveInterpretationString(AxialTree& workingstring,
           for(RulePtrSet::const_iterator _it2 = mruleset.begin();
               _it2 != mruleset.end(); _it2++){
 				          ArgList args;
-                  if((*_it2)->match(workingstring,_it,ltargetstring,_it3,args)){
+                  if((*_it2)->match(workingstring,_it,ltargetstring,_it3,args,nullptr,eForward,&cyclicCache)){
                       interpreter.parameters(args);
                       match = (*_it2)->applyTo(ltargetstring,args);
                       if (match) {
@@ -1202,6 +1209,7 @@ void Lsystem::__gRecursiveInterpretation(AxialTree& workingstring,
 										 size_t maxdepth,
 										 bool withid)
 {
+  std::shared_ptr<const AxialTree> cyclicCache;
   ContextMaintainer c(&__context);
   if( workingstring.empty()) return ;
   AxialTree::iterator _itn = workingstring.begin();
@@ -1231,7 +1239,7 @@ void Lsystem::__gRecursiveInterpretation(AxialTree& workingstring,
           for(RulePtrSet::const_iterator _it2 = mruleset.begin();
               _it2 != mruleset.end(); _it2++){
 				  ArgList args;
-                  if((*_it2)->match(workingstring,_it,ltargetstring,_it3,args)){
+                  if((*_it2)->match(workingstring,_it,ltargetstring,_it3,args,nullptr,eForward,&cyclicCache)){
                       interpreter.parameters(args);
                       match = (*_it2)->applyTo(ltargetstring,args);
 					  if (match) {

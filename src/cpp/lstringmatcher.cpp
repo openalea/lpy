@@ -41,9 +41,11 @@ LstringMatcher::LstringMatcher(AxialTree::const_iterator _begin,
 				   AxialTree::const_iterator _rightpos,
 				   AxialTree::const_iterator _rightlastmatch,
                    const ConsiderFilterPtr   _filter,
-                   AxialTree::IteratorMap*   _iteratormap):
+                   AxialTree::IteratorMap*   _iteratormap,
+                   std::shared_ptr<const AxialTree> _cyclicSource):
   begin(_begin), end(_end), leftpos(_leftpos), 
-  rightpos(_rightpos), rightlastmatch(_rightlastmatch), filter(_filter), iteratormap(_iteratormap)
+  rightpos(_rightpos), rightlastmatch(_rightlastmatch), iteratormap(_iteratormap), filter(_filter),
+  cyclicSource(_cyclicSource)
 {
 }
 
@@ -58,6 +60,7 @@ LstringMatcher::set(AxialTree::const_iterator _begin,
                      const ConsiderFilterPtr   _filter,
                      AxialTree::IteratorMap*   _iteratormap)
 {
+    cyclicSource.reset();
 	begin    = _begin ; end = _end;
 	leftpos  = _leftpos ; 
 	rightpos = _rightpos ; rightlastmatch = _rightlastmatch ; 
