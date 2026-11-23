@@ -139,11 +139,11 @@ bool MatchingEngine::right_match(AxialTree::const_iterator  matching_start,
 								 AxialTree::const_iterator&  last_matched,
 								 AxialTree::const_iterator& matching_end,
                                  const ConsiderFilterPtr filter,
-								 ArgList& params, AxialTree::IteratorMap* itermap) 
+								 ArgList& params, AxialTree::IteratorMap* itermap, int previous_scale)
 {
 	return (*RightMatchingFunc)(matching_start,string_begin,string_end,
 						        pattern_begin,pattern_end,
-						        last_matched, matching_end,filter,params,itermap);
+						        last_matched, matching_end,filter,params,itermap,previous_scale);
 /*	switch(StringMatchingMethod){
 		case eString:
 				return StringMatcher<GetNext>::
@@ -882,7 +882,7 @@ bool MatchingImplementation::string_right_match(AxialTree::const_iterator  match
 							     AxialTree::const_iterator&  last_matched,
 								 AxialTree::const_iterator& matching_end,
                                  const ConsiderFilterPtr filter,
-								 ArgList& params, AxialTree::IteratorMap* itermap)
+								 ArgList& params, AxialTree::IteratorMap* itermap, int)
 
 {
 	return StringMatcher<GetNext>::
@@ -901,7 +901,7 @@ bool MatchingImplementation::string_left_match(AxialTree::const_iterator matchin
 	matching_start = StringPrevious<AxialTree::const_iterator,PatternString::const_reverse_iterator, AxialTree::IteratorMap>::next(matching_start, pattern_rbegin, string_begin, string_end, filter);
 	bool res = StringReverseMatcher<>::
 		match(matching_start, string_begin, string_end, pattern_rbegin, pattern_rend, matching_end, filter, params);
-    if (res) matching_end = StringNext<AxialTree::const_iterator,PatternString::const_reverse_iterator, AxialTree::IteratorMap>::next(matching_end, pattern_rbegin, string_end, filter);
+    if (res) matching_end = matching_end == string_end ? string_begin : matching_end + 1;
     return res;
 }
 
@@ -913,10 +913,10 @@ bool MatchingImplementation::tree_right_match(AxialTree::const_iterator  matchin
 						         AxialTree::const_iterator&  last_matched,
 								 AxialTree::const_iterator& matching_end,
                                  const ConsiderFilterPtr filter,
-								 ArgList& params, AxialTree::IteratorMap* itermap) 
+								 ArgList& params, AxialTree::IteratorMap* itermap, int previous_scale)
 {
 	return TreeRightMatcher<>::
-		match(matching_start, string_beg, string_end, pattern_begin, pattern_end, last_matched, matching_end, filter, params, itermap);
+		match(matching_start, string_beg, string_end, pattern_begin, pattern_end, last_matched, matching_end, filter, params, itermap, previous_scale);
 
 }
 
@@ -979,10 +979,10 @@ bool MatchingImplementation::mstree_right_match(AxialTree::const_iterator  match
 						         AxialTree::const_iterator&  last_matched,
 								 AxialTree::const_iterator& matching_end,
                                  const ConsiderFilterPtr filter,
-								 ArgList& params, AxialTree::IteratorMap* itermap) 
+								 ArgList& params, AxialTree::IteratorMap* itermap, int previous_scale)
 {
 	return TreeRightMatcher<GetScaleSuccessor>::
-		match(matching_start, string_beg, string_end, pattern_begin, pattern_end, last_matched, matching_end, filter, params, itermap);
+		match(matching_start, string_beg, string_end, pattern_begin, pattern_end, last_matched, matching_end, filter, params, itermap, previous_scale);
 }
 
 bool MatchingImplementation::mltree_right_match(AxialTree::const_iterator  matching_start,
@@ -993,10 +993,10 @@ bool MatchingImplementation::mltree_right_match(AxialTree::const_iterator  match
 						         AxialTree::const_iterator&  last_matched,
 								 AxialTree::const_iterator& matching_end,
                                  const ConsiderFilterPtr filter,
-								 ArgList& params, AxialTree::IteratorMap* itermap) 
+								 ArgList& params, AxialTree::IteratorMap* itermap, int previous_scale)
 {
 	return TreeRightMatcher<GetLevelSuccessor>::
-		match(matching_start, string_beg, string_end, pattern_begin, pattern_end, last_matched, matching_end, filter, params, itermap);
+		match(matching_start, string_beg, string_end, pattern_begin, pattern_end, last_matched, matching_end, filter, params, itermap, previous_scale);
 }
 
 LPY_END_NAMESPACE

@@ -520,7 +520,9 @@ LsysRule::match(const AxialTree& src,
   }
 
   // left context
-  AxialTree::const_iterator endposLeft = (direction == eForward || pos == src.end() ?pos:pos+1);
+  AxialTree::const_iterator endposLeft = pos;
+  if (direction == eBackward)
+      endposLeft = pos == src.const_end() ? src.const_begin() : pos + 1;
   if(!__leftcontext.empty()){
       if(!MatchingEngine::left_match(endposLeft,src.const_begin(),src.const_end(),
 		                              __leftcontext.const_rbegin(),__leftcontext.const_rend(),
@@ -548,15 +550,17 @@ LsysRule::match(const AxialTree& src,
   ArgsCollector::append_args(args,args_pred);
 
   // new right context
-  AxialTree::const_iterator endposNewRight;
-  AxialTree::const_iterator endposNewRightLastMatch = last_match;
-  if(direction == eBackward && !__newrightcontext.empty()){
-	ArgList args_ncd;
-    if(!MatchingEngine::right_match(dest.const_begin(),dest.const_begin(),dest.const_end(),
-		                          __newrightcontext.const_begin(),__newrightcontext.const_end(),
-								  endposNewRightLastMatch,endposNewRight,__consider,args_ncd /*, itermap*/)) return false;
-    							  // last_match,endpos2,args_ncd)) return false;
-	ArgsCollector::append_args(args,args_ncd);
+  if (direction == eBackward && !__newrightcontext.empty()) {
+    ArgList args_ncd;
+    AxialTree::const_iterator endposNewRight;
+    // The predecessor is in src. Carry its scale into dest without its iterator.
+    AxialTree::const_iterator endposNewRightLastMatch = dest.const_end();
+    const int predecessor_scale = last_match == src.const_end() ? -1 : last_match->scale();
+    if (!MatchingEngine::right_match(dest.const_begin(), dest.const_begin(), dest.const_end(),
+                                     __newrightcontext.const_begin(), __newrightcontext.const_end(),
+                                     endposNewRightLastMatch, endposNewRight, __consider, args_ncd,
+                                     nullptr, predecessor_scale)) return false;
+    ArgsCollector::append_args(args, args_ncd);
   }
 
   // right context

@@ -139,7 +139,7 @@ public:
                                 const ConsiderFilterPtr& filter, IteratorMap* iteratormap = NULL) { 
 		return next_module(pos, string_end, false, filter);
 	}
-	static inline Iterator initial_next(Iterator pos, PIterator pattern, Iterator last_matched, Iterator string_end, 
+	static inline Iterator initial_next(Iterator pos, PIterator pattern, int, Iterator string_end,
                                         const ConsiderFilterPtr& filter, IteratorMap* iteratormap = NULL) { 
 		return next_module(pos, string_end, true, filter);
 	}
@@ -173,9 +173,9 @@ public:
         // The -1 is a problem. Here we do not know the scale of the previous matched element.
 	}
 
-	static inline Iterator initial_next(Iterator pos, PIterator pattern, Iterator last_matched, Iterator string_end, 
+	static inline Iterator initial_next(Iterator pos, PIterator pattern, int previous_scale, Iterator string_end,
                                         const ConsiderFilterPtr& filter, IteratorMap* iteratormap = NULL) { 
-		return next_module_at_scale(pos,pattern->scale(),string_end, true, last_matched->scale(), filter);
+		return next_module_at_scale(pos,pattern->scale(),string_end, true, previous_scale, filter);
 	}
 };
 
@@ -186,7 +186,7 @@ public:
                                 const ConsiderFilterPtr& filter, IteratorMap* iteratormap = NULL) { 
 		return next_module_at_level(pos, pattern->scale(), string_end, false, filter);
 	}
-	static inline Iterator initial_next(Iterator pos, PIterator pattern, Iterator last_matched, Iterator string_end, 
+	static inline Iterator initial_next(Iterator pos, PIterator pattern, int, Iterator string_end,
                                         const ConsiderFilterPtr& filter, IteratorMap* iteratormap = NULL) { 
 		return next_module_at_level(pos, pattern->scale(), string_end, true, filter);
 	}
@@ -396,28 +396,7 @@ struct StringReverseMatcher
 		/* matching_start is supposed to be on the first element to test.
 		   matching_end will be on the first not matched element */
 		Iterator it = matching_start;
-        PIterator it2 = pattern_rbegin;
         argtype lp;
-
-        if (it == string_end) {
-            // We test here if we can match nothing with 'None' or some regexp
-            size_t d = distance( pattern_rbegin, pattern_rend);
-            if (d == 0) return true;
-            argtype lp;
-            while (it2 != pattern_rend && it2->isNone()) ++it2;
-            while (it2 != pattern_rend && it2->isRE()){
-                argtype lmp;
-                if(!RegExpMatcher<MType>::reverse_match(it,string_begin,string_end,it2,it,filter,lmp,iteratormap)) 
-                    return false; 
-                ArgsCollector::prepend_args(lp,lmp);
-                ++it2;
-                while (it2 != pattern_rend && it2->isNone()) ++it2;
-            }
-            if (it2 != pattern_rend) return false;
-
-            params = lp;
-            return true;
-        }
 
 		for (PIterator it2 = pattern_rbegin; it2 != pattern_rend; ){
 			if( it2->isRE() ) { 
@@ -425,18 +404,18 @@ struct StringReverseMatcher
 				++it2;
 			}
 			else {
+                if (it == string_end) {
+                    if (!it2->isNone()) return false;
+                    ++it2;
+                    continue;
+                }
 				argtype lmp; 
 				if(it2->isGetModule()){ if(!process_get_module(it2,it,string_begin,string_end,lmp, filter)) return false;  }
 				else if(!MatchingEngine::module_match(*it,*it2,lmp)) return false; 
 				ArgsCollector::prepend_args(lp,lmp);
-				++it2;
-				if (it2 != pattern_rend){
-					it = Previous::next(it,it2,string_begin,string_end,filter,iteratormap);
-					if (it == string_end) return false;
-				}
-				else
-					// dont know what to use as reference to continue
-					it = Previous::next(it,it2-1,string_begin,string_end, filter, iteratormap); 
+                auto matched_pattern = it2++;
+                it = Previous::next(it, it2 == pattern_rend ? matched_pattern : it2,
+                                    string_begin, string_end, filter, iteratormap);
 			}
 		}
 		params = lp;
@@ -477,8 +456,6 @@ struct TreeLeftMatcher
 		// In case of no left context in the string
 		if (it == string_begin) {
 			// We test here if we can match nothing with 'None' or some regexp
-			size_t d = distance( pattern_rbegin, pattern_rend);
-			if (d == 0) return true;
 			argtype lp;
             while (it2 != pattern_rend && it2->isNone()) ++it2;
 			while (it2 != pattern_rend && it2->isRE()){
@@ -492,6 +469,7 @@ struct TreeLeftMatcher
 			if (it2 != pattern_rend) return false;
 
 			params = lp;
+            matching_end = it;
 			return true;
 		}
 
@@ -592,7 +570,7 @@ struct TreeRightMatcher
 					  PIterator pattern_begin, PIterator  pattern_end, 
 					  Iterator& last_matched, Iterator& matching_end, 
                       const ConsiderFilterPtr& filter, argtype& params, 
-                      IteratorMap* iteratormap = NULL)
+                      IteratorMap* iteratormap = NULL, int previous_scale = -1)
 	{
 		Iterator it = matching_start;
 		PIterator it2 = pattern_begin;
@@ -622,7 +600,8 @@ struct TreeRightMatcher
             it = NextElement::next(it,it2,string_end, filter,iteratormap);
         }
 		else { 
-            it = NextElement::initial_next(it, it2, _last_matched, string_end, filter, iteratormap);
+            if (_last_matched != string_end) previous_scale = _last_matched->scale();
+            it = NextElement::initial_next(it, it2, previous_scale, string_end, filter, iteratormap);
         }		
         std::stack<Iterator> bracketstack;
 		bool nextpattern = true;

@@ -74,7 +74,7 @@ private:
 
   typedef bool (*RightMatchingFuncType)(AxialTree::const_iterator, AxialTree::const_iterator, AxialTree::const_iterator,
 										PatternString::const_iterator, PatternString::const_iterator,
-										AxialTree::const_iterator&, AxialTree::const_iterator&, const ConsiderFilterPtr, ArgList&, AxialTree::IteratorMap*);
+										AxialTree::const_iterator&, AxialTree::const_iterator&, const ConsiderFilterPtr, ArgList&, AxialTree::IteratorMap*, int);
 
   static RightMatchingFuncType RightMatchingFunc;
 
@@ -121,7 +121,7 @@ public:
 		AxialTree::const_iterator&  last_matched,
 		AxialTree::const_iterator&  matching_end,
         const ConsiderFilterPtr filter,
-		ArgList& params, AxialTree::IteratorMap* itermap = NULL);
+		ArgList& params, AxialTree::IteratorMap* itermap = NULL, int previous_scale = -1);
 
 	static bool left_match(AxialTree::const_iterator  matching_start,
 			  	    AxialTree::const_iterator  string_begin,
@@ -176,7 +176,7 @@ public:
 							     AxialTree::const_iterator&  last_matched,
 								 AxialTree::const_iterator& matching_end,
                                  const ConsiderFilterPtr filter,
-								 ArgList& params, AxialTree::IteratorMap* itermap = NULL);
+								 ArgList& params, AxialTree::IteratorMap* itermap = NULL, int previous_scale = -1);
 
 	static bool string_left_match(AxialTree::const_iterator matching_start,
 		                             AxialTree::const_iterator  string_begin,
@@ -195,7 +195,7 @@ public:
 							     AxialTree::const_iterator&  last_matched,
 								 AxialTree::const_iterator& matching_end,
                                  const ConsiderFilterPtr filter,
-								 ArgList& params, AxialTree::IteratorMap* itermap = NULL);
+								 ArgList& params, AxialTree::IteratorMap* itermap = NULL, int previous_scale = -1);
 
 	static bool tree_left_match(AxialTree::const_iterator  matching_start,
 		                        AxialTree::const_iterator  string_begin,
@@ -232,7 +232,7 @@ public:
 								 AxialTree::const_iterator&  last_matched,
 								 AxialTree::const_iterator& matching_end,
                                  const ConsiderFilterPtr filter,
-								 ArgList& params, AxialTree::IteratorMap* itermap = NULL);
+								 ArgList& params, AxialTree::IteratorMap* itermap = NULL, int previous_scale = -1);
 
 	static bool mltree_right_match(AxialTree::const_iterator  matching_start,
 								 AxialTree::const_iterator  string_begin,
@@ -242,7 +242,7 @@ public:
 								 AxialTree::const_iterator&  last_matched,
 								 AxialTree::const_iterator& matching_end,
                                  const ConsiderFilterPtr filter,
-								 ArgList& params, AxialTree::IteratorMap* itermap = NULL);
+								 ArgList& params, AxialTree::IteratorMap* itermap = NULL, int previous_scale = -1);
 };
 
 /*---------------------------------------------------------------------------*/

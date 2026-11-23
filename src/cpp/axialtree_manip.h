@@ -599,6 +599,7 @@ Iterator next_module_at_scale(Iterator pos, int scale,
 	previous_scale = pos->scale();
 	pos = next_module(pos, string_end, false, filter);
   }
+  if (pos == string_end) return string_end;
   if (!is_upper_scale(scale,previous_scale)) { // mean that we look for a successor, not a components
 	// Skip successor components
 	while(pos != string_end && is_upper_scale(pos->scale(),scale)){
