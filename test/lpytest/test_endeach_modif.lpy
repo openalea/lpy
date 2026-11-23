@@ -1,5 +1,5 @@
 def EndEach(lstring):
-    assert len(lstring) == getIterationNb()+1
+    assert len(lstring) == getIterationNb()  # iterations are numbered from 1
     lstring += 'B'
     global ok
     ok = True
