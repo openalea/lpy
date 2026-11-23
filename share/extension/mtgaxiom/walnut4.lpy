@@ -1,11 +1,9 @@
 from openalea.plantgl.all import norm,Vector3, dot, angle, direction
-from importlib import reload
+import sys
+sys.path.insert(0,'.')
 
 import mtgimport as mi
-reload(mi)
 
-#import mtgcompare as mc
-#reload(mc)
 
 from openalea.mtg.io import axialtree2mtg
 
@@ -455,7 +453,7 @@ __lpy_code_version__ = 1.1
 
 def __initialiseContext__(context):
 	import openalea.plantgl.all as pgl
-	Color_1 = pgl.Material("Color_1" , ambient = (0,0,0) , diffuse = 3 , specular = (0,0,0) , shininess = 0 , )
+	Color_1 = pgl.Material("Color_1" , ambient = (0,0,0) , diffuse = 3 , shininess = 0 , )
 	Color_1.name = "Color_1"
 	context.turtle.setMaterial(1,Color_1)
 	Color_4 = pgl.Material("Color_4" , ambient = (0,0,127) , diffuse = 1.09449 , )
@@ -464,49 +462,49 @@ def __initialiseContext__(context):
 	Color_5 = pgl.Material("Color_5" , ambient = (60,60,15) , diffuse = 3 , )
 	Color_5.name = "Color_5"
 	context.turtle.setMaterial(5,Color_5)
-	Color_6 = pgl.Material("Color_6" , ambient = (78,0,117) , diffuse = 1.53846 , specular = (0,0,0) , )
+	Color_6 = pgl.Material("Color_6" , ambient = (78,0,117) , diffuse = 1.53846 , )
 	Color_6.name = "Color_6"
 	context.turtle.setMaterial(6,Color_6)
 	Color_7 = pgl.Material("Color_7" , ambient = (65,45,15) , diffuse = 3 , )
 	Color_7.name = "Color_7"
 	context.turtle.setMaterial(7,Color_7)
-	Color_8 = pgl.Material("Color_8" , ambient = (0,0,0) , diffuse = 3 , specular = (0,0,0) , shininess = 0 , )
+	Color_8 = pgl.Material("Color_8" , ambient = (0,0,0) , diffuse = 3 , shininess = 0 , )
 	Color_8.name = "Color_8"
 	context.turtle.setMaterial(8,Color_8)
-	Color_10 = pgl.Material("Color_10" , ambient = (0,0,255) , diffuse = 0 , specular = (0,0,0) , shininess = 0 , )
+	Color_10 = pgl.Material("Color_10" , ambient = (0,0,255) , diffuse = 0 , shininess = 0 , )
 	Color_10.name = "Color_10"
 	context.turtle.setMaterial(10,Color_10)
-	Color_11 = pgl.Material("Color_11" , ambient = (63,63,207) , diffuse = 0 , specular = (0,0,0) , shininess = 0 , )
+	Color_11 = pgl.Material("Color_11" , ambient = (63,63,207) , diffuse = 0 , shininess = 0 , )
 	Color_11.name = "Color_11"
 	context.turtle.setMaterial(11,Color_11)
-	Color_12 = pgl.Material("Color_12" , ambient = (127,127,159) , diffuse = 0 , specular = (0,0,0) , shininess = 0 , )
+	Color_12 = pgl.Material("Color_12" , ambient = (127,127,159) , diffuse = 0 , shininess = 0 , )
 	Color_12.name = "Color_12"
 	context.turtle.setMaterial(12,Color_12)
-	Color_13 = pgl.Material("Color_13" , ambient = (191,191,111) , diffuse = 0 , specular = (0,0,0) , shininess = 0 , )
+	Color_13 = pgl.Material("Color_13" , ambient = (191,191,111) , diffuse = 0 , shininess = 0 , )
 	Color_13.name = "Color_13"
 	context.turtle.setMaterial(13,Color_13)
-	Color_14 = pgl.Material("Color_14" , ambient = (255,255,63) , diffuse = 0 , specular = (0,0,0) , shininess = 0 , )
+	Color_14 = pgl.Material("Color_14" , ambient = (255,255,63) , diffuse = 0 , shininess = 0 , )
 	Color_14.name = "Color_14"
 	context.turtle.setMaterial(14,Color_14)
-	Color_15 = pgl.Material("Color_15" , ambient = (255,212,52) , diffuse = 0 , specular = (0,0,0) , shininess = 0 , )
+	Color_15 = pgl.Material("Color_15" , ambient = (255,212,52) , diffuse = 0 , shininess = 0 , )
 	Color_15.name = "Color_15"
 	context.turtle.setMaterial(15,Color_15)
-	Color_16 = pgl.Material("Color_16" , ambient = (255,170,42) , diffuse = 0 , specular = (0,0,0) , shininess = 0 , )
+	Color_16 = pgl.Material("Color_16" , ambient = (255,170,42) , diffuse = 0 , shininess = 0 , )
 	Color_16.name = "Color_16"
 	context.turtle.setMaterial(16,Color_16)
-	Color_17 = pgl.Material("Color_17" , ambient = (255,127,31) , diffuse = 0 , specular = (0,0,0) , shininess = 0 , )
+	Color_17 = pgl.Material("Color_17" , ambient = (255,127,31) , diffuse = 0 , shininess = 0 , )
 	Color_17.name = "Color_17"
 	context.turtle.setMaterial(17,Color_17)
-	Color_18 = pgl.Material("Color_18" , ambient = (255,85,21) , diffuse = 0 , specular = (0,0,0) , shininess = 0 , )
+	Color_18 = pgl.Material("Color_18" , ambient = (255,85,21) , diffuse = 0 , shininess = 0 , )
 	Color_18.name = "Color_18"
 	context.turtle.setMaterial(18,Color_18)
-	Color_19 = pgl.Material("Color_19" , ambient = (255,42,10) , diffuse = 0 , specular = (0,0,0) , shininess = 0 , )
+	Color_19 = pgl.Material("Color_19" , ambient = (255,42,10) , diffuse = 0 , shininess = 0 , )
 	Color_19.name = "Color_19"
 	context.turtle.setMaterial(19,Color_19)
-	Color_20 = pgl.Material("Color_20" , ambient = (255,0,0) , diffuse = 0 , specular = (0,0,0) , shininess = 0 , )
+	Color_20 = pgl.Material("Color_20" , ambient = (255,0,0) , diffuse = 0 , shininess = 0 , )
 	Color_20.name = "Color_20"
 	context.turtle.setMaterial(20,Color_20)
-	Color_21 = pgl.Material("Color_21" , ambient = (127,255,42) , diffuse = 0 , specular = (0,0,0) , shininess = 0 , )
+	Color_21 = pgl.Material("Color_21" , ambient = (127,255,42) , diffuse = 0 , shininess = 0 , )
 	Color_21.name = "Color_21"
 	context.turtle.setMaterial(21,Color_21)
 	context.options.setSelection('Module inheritance',1)

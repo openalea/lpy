@@ -741,7 +741,7 @@ class LpySimulation (AbstractSimulation):
         timing = time()
         task.result = self.lsystem.derive(dl)
         task.timing = time() - timing
-        task.dl = self.lsystem.getLastIterationNb()+1
+        task.dl = self.lsystem.getLastIterationNb()
 
     def post_run(self,task):
         if hasattr(task,'result'):
@@ -781,7 +781,7 @@ class LpySimulation (AbstractSimulation):
         else:
             task.result = make_animation(dt,dl)
         task.timing = time() - timing
-        task.dl = self.lsystem.getLastIterationNb()+1
+        task.dl = self.lsystem.getLastIterationNb()
 
     def pre_animate(self,task):
         if self.isTextEdited() or self.lsystem.empty() or self.nbiterations == 0 or self.nbiterations >= self.lsystem.derivationLength:
@@ -806,7 +806,7 @@ class LpySimulation (AbstractSimulation):
             timing = time()
             task.result = self.lsystem.derive(self.tree,self.nbiterations,1)
             task.timing = time() - timing
-            task.dl = self.lsystem.getLastIterationNb()+1
+            task.dl = self.lsystem.getLastIterationNb()
         else:
             task.dl = 0
             task.timing = 0
@@ -822,7 +822,7 @@ class LpySimulation (AbstractSimulation):
         timing = time()
         task.result = self.lsystem.derive(self.tree,self.nbiterations,self.iterateStep)        
         task.timing = time() - timing
-        task.dl = self.lsystem.getLastIterationNb()+1
+        task.dl = self.lsystem.getLastIterationNb()
 
     def debug(self):
         self.lsystem.setDebugger(self.lpywidget.debugger)
@@ -890,7 +890,7 @@ class LpySimulation (AbstractSimulation):
         profile.disable()
         task.profile_stats = profile.getstats()
         task.timing = time() - timing
-        task.dl = self.lsystem.getLastIterationNb()+1
+        task.dl = self.lsystem.getLastIterationNb()
 
     def pre_profile(self,task):
         if self.isTextEdited() or self.lsystem.empty() :

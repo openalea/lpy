@@ -95,8 +95,8 @@ public:
 
   void postDraw();
 
-  AxialTree startInterpretation(boost::python::object turtle = boost::python::object());
-  AxialTree endInterpretation(boost::python::object turtle = boost::python::object());
+  AxialTree startInterpretation(boost::python::object turtle = boost::python::object(), const AxialTree& workingstring = AxialTree());
+  AxialTree endInterpretation(boost::python::object turtle = boost::python::object(), const AxialTree& workingstring = AxialTree());
 
   inline bool hasStartFunction() const { return hasObject("Start"); }
   inline bool hasStartEachFunction() const { return hasObject("StartEach"); }

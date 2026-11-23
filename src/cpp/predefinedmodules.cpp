@@ -887,6 +887,21 @@ DeclareModuleBegin(tropism,"Set Tropism. Params : 'tropism' (optional, Vector3, 
 }
 DeclareModuleEnd
 
+DeclareModuleBegin(elasticityPerLengthUnit,"Set Branch Elasticity Per Length Unit. Params : 'elasticityPerLengthUnit' (optional, default= 0.0, should be between [0,1]).",eTropism)
+{
+	size_t nbargs = m.size();
+	switch (nbargs) {
+		case 1:  {
+				real_t val = m._getReal(0);
+				if (val < 0 || val > 1) LsysWarning("Invalid elasticity value");
+				else t.setElasticityPerLengthUnit(val); 
+				 }
+			break;
+		default: t.setElasticityPerLengthUnit(); break;
+	}
+}
+DeclareModuleEnd
+
 DeclareModuleBegin(setcontour,"Set Cross Section of Generalized Cylinder. Params : 'Curve2D [, ccw]'.",ePrimitive)
 {
 	size_t nbargs = m.size();
@@ -1223,6 +1238,7 @@ void ModuleClass::createPredefinedClasses() {
     Frame = new DeclaredModule(Frame)("Frame");
     Arrow = new DeclaredModule(Arrow)("Arrow");
 	Elasticity = new DeclaredModule(elasticity)("@Ts","Elasticity");
+	ElasticityPerLengthUnit = new DeclaredModule(elasticityPerLengthUnit)("@Te","ElasticityPerLengthUnit");
 	Tropism = new DeclaredModule(tropism)("@Tp","Tropism");
 	SetContour = new DeclaredModule(setcontour)("SetContour");
 	SectionResolution = new DeclaredModule(sectionResolution)("SectionResolution");

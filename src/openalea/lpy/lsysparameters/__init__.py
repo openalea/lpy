@@ -67,7 +67,7 @@ class LsystemParameters:
 
         self.categories = OrderedDict()
 
-        self.credits = default_credits
+        self.credits = default_credits.copy()
 
         self.default_category_name = 'default'
 
@@ -82,7 +82,7 @@ class LsystemParameters:
         self.animation_timestep = None
         self.color_list = {}
         self.categories = OrderedDict()
-        self.credits = default_credits
+        self.credits = default_credits.copy()
         self.default_category_name = 'default'
 
     def is_valid(self):
@@ -367,9 +367,9 @@ class LsystemParameters:
         return context.get('__lpy_code_version__',default_lpycode_version)
 
     def _retrieve_credits_from_env(self, context, code_version):
-        credits = {}
-        for  c in default_credits:
-            credits[c] = context.get(c,'')
+        self.credits = {}
+        for  c in default_credits.keys():
+            self.credits[c] = context.get(c,'')
 
     def _retrieve_scalars_from_env(self, context, code_version):
         if code_version == 1.1:

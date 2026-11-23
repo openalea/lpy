@@ -1,5 +1,5 @@
 def End():
-  assert getIterationNb() == 9
+  assert getIterationNb() == 10
 
 Axiom: A(0)
 

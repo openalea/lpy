@@ -14,7 +14,7 @@ subdivsteps = 4
 nbiter = 5 * DERIVATION
 
 def StartEach():
-  if getIterationNb() % 5 == 0 : useGroup(2)
+  if getIterationNb() % 5 == 1 : useGroup(2)
   else : useGroup(1)
 
 Axiom: P(Vector2(0,0),EndPoint) E P(Vector2(0,1),Any) E P(Vector2(1,1),Any) E P(Vector2(1,0),Any) E P(Vector2(2,0),EndPoint)
@@ -51,25 +51,18 @@ __lpy_code_version__ = 1.1
 
 def __initialiseContext__(context):
 	import openalea.plantgl.all as pgl
-	Color_4 = pgl.Material("Color_4" , 		ambient = (0,0,0) , 
-		diffuse = 8.88889 , 
-		specular = (0,0,0) , 
-)
+	Color_4 = pgl.Material("Color_4" , ambient = (0,0,0) , diffuse = 8.88889 , )
 	Color_4.name = "Color_4"
 	context.turtle.setMaterial(4,Color_4)
-	Color_5 = pgl.Material("Color_5" , 		ambient = (30,60,10) , 
-		diffuse = 3 , 
-)
+	Color_5 = pgl.Material("Color_5" , ambient = (30,60,10) , diffuse = 3 , )
 	Color_5.name = "Color_5"
 	context.turtle.setMaterial(5,Color_5)
-	Color_6 = pgl.Material("Color_6" , 		ambient = (60,60,15) , 
-		diffuse = 3 , 
-)
+	Color_6 = pgl.Material("Color_6" , ambient = (60,60,15) , diffuse = 3 , )
 	Color_6.name = "Color_6"
 	context.turtle.setMaterial(6,Color_6)
 	context.animation_timestep = 0.225
-	scalars = [('DERIVATION', 3, 1, 20), ('POINTS', True, False, True)]
+	scalars = [('DERIVATION', 'Integer', 3, 1, 20), ('POINTS', 'Bool', True)]
 	context["__scalars__"] = scalars
-	for n,v,mnv,mxv in scalars:
-		context[n] = v
+	for s in scalars:
+		if not s[1] == "Category" : context[s[0]] = s[2]
 __references__ = 'Przemyslaw Prusinkiewicz, Mitra Shirmohammadi, and Faramarz Samavati. L-systems in Geometric Modeling. Proceedings of the Twelfth Annual Worskshop on Descriptional Complexity of Formal Systems, pp. 3-12, 2010. '

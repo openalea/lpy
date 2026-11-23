@@ -1134,7 +1134,7 @@ AxialTree Lsystem::__gRecursiveInterpretationString(AxialTree& workingstring,
 
   size_t dist = 0;
   if (withid)  {
-      AxialTree initturtle = interpreter.init();
+      AxialTree initturtle = interpreter.init(workingstring);
       for(AxialTree::iterator _itl = initturtle.begin(); _itl != initturtle.end(); ++_itl)
             interpreter.interpret(_itl);  
       interpreter.start();
@@ -1186,7 +1186,7 @@ AxialTree Lsystem::__gRecursiveInterpretationString(AxialTree& workingstring,
       }
   }
   if (withid)  {
-      AxialTree finishturtle = interpreter.finalize();
+      AxialTree finishturtle = interpreter.finalize(workingstring);
       for(AxialTree::iterator _itl = finishturtle.begin(); _itl != finishturtle.end(); ++_itl)
             interpreter.interpret(_itl);  
       interpreter.stop();
@@ -1211,7 +1211,7 @@ void Lsystem::__gRecursiveInterpretation(AxialTree& workingstring,
   AxialTree::const_iterator _endit = workingstring.end();
   size_t dist = 0;
   if (withid)  {
-      AxialTree initturtle = interpreter.init();
+      AxialTree initturtle = interpreter.init(workingstring);
       for(AxialTree::iterator _itl = initturtle.begin(); _itl != initturtle.end(); ++_itl)
             interpreter.interpret(_itl);  
       interpreter.start();
@@ -1260,7 +1260,7 @@ void Lsystem::__gRecursiveInterpretation(AxialTree& workingstring,
       }
   }
   if (withid)  {
-      AxialTree finishturtle = interpreter.finalize();
+      AxialTree finishturtle = interpreter.finalize(workingstring);
       for(AxialTree::iterator _itl = finishturtle.begin(); _itl != finishturtle.end(); ++_itl)
             interpreter.interpret(_itl);  
       interpreter.stop();
@@ -1277,17 +1277,17 @@ void Lsystem::__gRecursiveInterpretation(AxialTree& workingstring,
 
 		static inline bool earlyReturn() { return false; }
 
-        inline AxialTree init() 
+        inline AxialTree init(const AxialTree& workingstring) 
         { 
           turtle.start(); 
           turtle.setNoId(); 
-          return context.startInterpretation(pyturtle);
+          return context.startInterpretation(pyturtle, workingstring);
         }
 
-        inline AxialTree finalize() 
+        inline AxialTree finalize(const AxialTree& workingstring) 
         { 
           turtle.setNoId(); 
-          return context.endInterpretation(pyturtle);
+          return context.endInterpretation(pyturtle, workingstring);
         }
         
         
@@ -1351,11 +1351,11 @@ Lsystem::__recursiveInterpretationString(AxialTree& workingstring,
 
 		inline bool earlyReturn() { return context.isEarlyReturnEnabled(); }
 
-        inline AxialTree init() 
-        { turtle.start(); turtle.setNoId(); return context.startInterpretation(pyturtle); }
+        inline AxialTree init(const AxialTree& workingstring) 
+        { turtle.start(); turtle.setNoId(); return context.startInterpretation(pyturtle, workingstring); }
 
-        inline AxialTree finalize() 
-        { turtle.setNoId(); return context.endInterpretation(pyturtle); }
+        inline AxialTree finalize(const AxialTree& workingstring) 
+        { turtle.setNoId(); return context.endInterpretation(pyturtle, workingstring); }
 
 		inline void start() 
 		{ turtle.setId(0); context.enableEarlyReturn(false); }
@@ -1507,7 +1507,7 @@ Lsystem::__derive( size_t starting_iter ,
   __context.frameDisplay(true);
   AxialTree workstring = wstring;
   if(starting_iter == 0) {
-	__context.setIterationNb(0);
+	__context.setIterationNb(1);
     __apply_pre_process(workstring,false);
   }
   if ( (__rules.empty() || workstring.empty()) && __context.return_if_no_matching ){
@@ -1552,7 +1552,7 @@ Lsystem::__derive( size_t starting_iter ,
 		  }
 		  __lastcomputedscene = ScenePtr();
 		  __context.frameDisplay(i == (nb_iter -1));
-		  __context.setIterationNb(starting_iter+i);
+		  __context.setIterationNb(starting_iter+i+1);
           __apply_pre_process(workstring,true);
 		  eDirection dir = getDirection();
 		  size_t group = __context.getGroup();
@@ -1770,7 +1770,7 @@ AxialTree Lsystem::__homomorphism(AxialTree& wstring){
     else {
         t.start();
         t.setNoId();
-        AxialTree resultstring = __context.startInterpretation(pyturtle);
+        AxialTree resultstring = __context.startInterpretation(pyturtle, wstring);
         for(AxialTree::iterator _itl = resultstring.begin(); _itl != resultstring.end(); ++_itl)
             _itl->interpret(t);  
 
@@ -1779,7 +1779,7 @@ AxialTree Lsystem::__homomorphism(AxialTree& wstring){
         resultstring += wstring;
 
         t.setNoId();
-        AxialTree finalizeturtle = __context.endInterpretation(pyturtle);
+        AxialTree finalizeturtle = __context.endInterpretation(pyturtle, wstring);
         resultstring += finalizeturtle;
         for(AxialTree::iterator _itl = finalizeturtle.begin(); _itl != finalizeturtle.end(); ++_itl)
             _itl->interpret(t); 
@@ -1800,7 +1800,7 @@ Lsystem::__turtle_interpretation(AxialTree& wstring, PGL::Turtle& t, boost::pyth
     else {
         t.start();
         t.setNoId();
-        AxialTree initturtle = __context.startInterpretation(pyturtle);
+        AxialTree initturtle = __context.startInterpretation(pyturtle, wstring);
         for(AxialTree::iterator _itl = initturtle.begin(); _itl != initturtle.end(); ++_itl)
             _itl->interpret(t);  
 
@@ -1808,7 +1808,7 @@ Lsystem::__turtle_interpretation(AxialTree& wstring, PGL::Turtle& t, boost::pyth
   		LPY::turtle_do_interpretation(wstring,t);
 
         t.setNoId();
-        AxialTree finalizeturtle = __context.endInterpretation(pyturtle);
+        AxialTree finalizeturtle = __context.endInterpretation(pyturtle, wstring);
         for(AxialTree::iterator _itl = finalizeturtle.begin(); _itl != finalizeturtle.end(); ++_itl)
             _itl->interpret(t);  
     }

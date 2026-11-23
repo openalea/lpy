@@ -25,12 +25,14 @@ endif("${isSystemDir}" STREQUAL "-1")
 
 
 
-# ---  CXX11 Compilation
+# ---  CXX Compilation
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON) #Optional
 
 # --- (Win32) Multithreaded Compilation
 

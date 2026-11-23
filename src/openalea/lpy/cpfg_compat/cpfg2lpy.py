@@ -500,7 +500,7 @@ def translate_l_code(txt, vlpyinitconfig = None):
         
     return result
 
-import openalea.lpy.simu_environ as se
+#import openalea.lpy.simu_environ as se
 import openalea.lpy.cpfg_compat.data_import as di
 
 def translate_obj(fname):
@@ -600,9 +600,10 @@ def translate_obj(fname):
                 lpytvcode, vlpyinitconfig = vafile.translate_view_file(join(project,vfile),groupofpatches)
                 lpyvcode += lpytvcode
         
+        l = lpy.LsysContext()
+        l["__parameterset__"] = panels
         
         # read material
-        l = lpy.LsysContext()
         materials = []
         if mapfiles: 
             for mapfile in mapfiles:
@@ -633,7 +634,11 @@ def translate_obj(fname):
             lpycode += lpyvcode
         
         # translate environ
-        init_txt = se.getInitialisationCode(l,credits = description, visualparameters=panels)
+        from openalea.lpy.lsysparameters import LsystemParameters
+        params = LsystemParameters(l)
+        params.credits.update(description if description else {})
+        init_txt = params.generate_py_code()
+        # se.getInitialisationCode(l,credits = description, visualparameters=panels)
         return lpycode + init_txt
     else:
         return translate_l_code(open(fname).read())
@@ -643,7 +648,7 @@ def help():
     
 def main():
     import sys
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 2 or '-h' in sys.argv or '--help' in sys.argv:
         print(help())
         return
     lpycode = translate_obj(sys.argv[1])

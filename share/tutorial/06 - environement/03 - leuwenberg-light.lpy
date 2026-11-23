@@ -101,7 +101,6 @@ endlsystem
 
 def Start():
    rd.seed(0)
-   Viewer.camera.setOrthographic()
 
 def StartEach():
   global dotest
@@ -111,7 +110,7 @@ def StartEach():
 def EndEach(lstring,scene):
    if getIterationNb() % test_step == 0:
       #print 'computing star'
-      res = diffuseInterception(scene)
+      res = diffuseInterception(scene, 1)
       for k,v in res.items():
          if lstring[k].name == 'L':
            lstring[k][2] = v

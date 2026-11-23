@@ -1,7 +1,8 @@
 from openalea.plantgl.all import norm,Vector3, dot
+import sys
+sys.path.insert(0,'.')
+
 import mtgimport as mi
-from importlib import reload
-reload(mi)
 
 from  random import randint, seed
 from math import degrees

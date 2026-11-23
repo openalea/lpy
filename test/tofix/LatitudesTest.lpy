@@ -15,7 +15,7 @@ print alphadeg
 h = 2.0*R*sin(alpha)
 
 def StartEach():
-    if getIterationNb() == N-1:
+    if getIterationNb() == N:
         useGroup(1)
 
 def End(lstring):

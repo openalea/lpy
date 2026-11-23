@@ -4,7 +4,7 @@ target = Vector3(5,0,5)
 
 def StartEach():
   useGroup(0)
-  if getIterationNb() == 2:
+  if getIterationNb() == 3:
     useGroup(1)
 
 

@@ -948,8 +948,13 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
                 shared_data_path = os.path.join(os.environ['CONDA_PREFIX'], 'Library','share', 'lpy', 'tutorial')
             else:
                 shared_data_path = os.path.join(os.environ['CONDA_PREFIX'], 'share', 'lpy', 'tutorial')                
-        else:
+        if  shared_data_path is None or not os.path.exists(shared_data_path):
             shared_data_path = shared_data(openalea.lpy, share_path='share/tutorial')
+        if shared_data_path is None or not os.path.exists(shared_data_path):
+                shared_data_path_dev = os.path.realpath(os.path.join(openalea.lpy.__path__[0],os.pardir,os.pardir,os.pardir,'share/tutorial'))
+                if os.path.exists(shared_data_path_dev):
+                    shared_data_path = shared_data_path_dev
+        print("Tutorial path : ", shared_data_path)
         if not shared_data_path is None and os.path.exists(shared_data_path):
             import os
             cpath = os.path.abspath(shared_data_path)
@@ -961,7 +966,7 @@ class LPyWindow(QMainWindow, lsmw.Ui_MainWindow, ComputationTaskManager) :
                csubpath.sort()
                for fname in csubpath:
                     absfname =  os.path.join(cpath,fname)
-                    if os.path.isdir(absfname):
+                    if os.path.isdir(absfname) and not fname.startswith('.') and not fname.startswith('_'):
                         childmenu = cmenu.addMenu(iconfolder,os.path.basename(str(fname)))
                         toprocess.append( (absfname,childmenu) )
                         childmenu.triggered.connect(self.recentMenuAction) 
