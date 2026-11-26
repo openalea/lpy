@@ -155,6 +155,71 @@ bool notOnlySpace(std::string::const_iterator beg, std::string::const_iterator e
 }
 
 /*---------------------------------------------------------------------------*/
+// Read up to a delimiter outside Python strings, comments and nested groups.
+static std::string::const_iterator
+readPythonFragment(std::string::const_iterator it,
+                   std::string::const_iterator end,
+                   const std::string& delimiters,
+                   int lineno = -1)
+{
+    std::vector<char> closing;
+    while (it != end) {
+        const char token = *it;
+        if (closing.empty() && delimiters.find(token) != std::string::npos)
+            return it;
+
+        switch (token) {
+        case '\'':
+        case '"': {
+            ++it;
+            const bool triple = end - it >= 2 && *it == token && *(it + 1) == token;
+            if (triple) it += 2;
+            bool terminated = false;
+            while (it != end) {
+                if (*it == '\\') {
+                    ++it;
+                    if (it != end) ++it;
+                }
+                else if (*it == token &&
+                         (!triple || (end - it >= 3 && *(it + 1) == token && *(it + 2) == token))) {
+                    it += triple ? 3 : 1;
+                    terminated = true;
+                    break;
+                }
+                else ++it;
+            }
+            if (!terminated)
+                LsysSyntaxError("Unterminated string in Python fragment.", "", lineno);
+            continue;
+        }
+        case '#':
+            while (it != end && *it != '\n') ++it;
+            continue;
+        case '(':
+            closing.push_back(')');
+            break;
+        case '[':
+            closing.push_back(']');
+            break;
+        case '{':
+            closing.push_back('}');
+            break;
+        case ')':
+        case ']':
+        case '}':
+            if (closing.empty() || closing.back() != token)
+                LsysSyntaxError("Unexpected closing delimiter in Python fragment.", "", lineno);
+            else closing.pop_back();
+            break;
+        }
+        ++it;
+    }
+    if (!closing.empty())
+        LsysSyntaxError("Unclosed delimiter in Python fragment.", "", lineno);
+    return end;
+}
+
+/*---------------------------------------------------------------------------*/
 std::string::const_iterator next_token(std::string::const_iterator _it2,
 									   std::string::const_iterator end,
 									   bool withbrackets = true)
@@ -1535,44 +1600,32 @@ parseAModule( std::string::const_iterator& _it,
 			}
 		}
 		if(_it != endpos && *_it == '('){
-			// look for parameters
-			++_it;
-			if(_it == endpos) LsysSyntaxError("Invalid syntax in AxialTree","",lineno);
-			_it2 = _it;
-			std::string::const_iterator lastcoma = _it2;
-			int parenthesis = 0;
-			while(_it != endpos && (*_it != ')' || parenthesis > 0)){
-				switch(*_it){
-					case ')': parenthesis--; break;
-					case '(': parenthesis++; break;
-					case '#': while(_it != endpos && *_it != '\n')++_it;break;
-					case '"': while(_it != endpos && *_it != '"')++_it;break;
-					case '\'': while(_it != endpos && *_it != '\'')++_it;break;
-					case ',': lastcoma = _it;break;
-					default: break;
-				}
-				++_it;
-				if(_it == endpos)
-					LsysSyntaxError("Invalid syntax in AxialTree","",lineno);
-			}
-			if(_it != endpos)_it++;
-			bool without_unpacking = true;
-			if(lastcoma!= endpos && production){
-				// Simulation of unpacking of arguments
-				if(*lastcoma == ',')++lastcoma;
-				while(lastcoma != endpos && (*lastcoma == ' ' || *lastcoma == '\t') )++lastcoma;
-				if(*lastcoma == '*'){
-					std::string::const_iterator lit = lastcoma+1;
-                    if(*lit == '*') ++lit;
-					if (LpyParsing::isValidVariableName(lit,_it-1)){
-						mod_args += std::string(_it2,lastcoma);
-						mod_args += "PackedArgs(";
-						mod_args += std::string(lit,_it);
-						without_unpacking = false;
-					}
-				}
-			}
-			if(without_unpacking)  mod_args += std::string(_it2,_it-1);
+            const auto argsBegin = ++_it;
+            auto lastArg = argsBegin;
+            auto argsEnd = readPythonFragment(argsBegin, endpos, ",)", lineno);
+            while (argsEnd != endpos && *argsEnd == ',') {
+                lastArg = argsEnd + 1;
+                argsEnd = readPythonFragment(lastArg, endpos, ",)", lineno);
+            }
+            if (argsEnd == endpos) {
+                _it = endpos;
+                LsysSyntaxError("Invalid syntax in AxialTree: expected ')'.", "", lineno);
+                return {mod_id, mod_args};
+            }
+            _it = argsEnd + 1;
+
+            while (lastArg != argsEnd && (*lastArg == ' ' || *lastArg == '\t')) ++lastArg;
+            if (production && lastArg != argsEnd && *lastArg == '*') {
+                auto variable = lastArg + 1;
+                if (variable != argsEnd && *variable == '*') ++variable;
+                if (variable != argsEnd && LpyParsing::isValidVariableName(variable, argsEnd)) {
+                    mod_args.append(argsBegin, lastArg);
+                    mod_args += "PackedArgs(";
+                    mod_args.append(variable, _it);
+                    return {mod_id, mod_args};
+                }
+            }
+            mod_args.append(argsBegin, argsEnd);
 			has_arg = (mod_args.size() > 0);
 		}
 	}
@@ -1668,10 +1721,13 @@ LpyParsing::parse_moddeclist(std::string::const_iterator& beg,
 			break;
 		case '(':
 			bm = _it+1;
-			_it = next_token(_it,endpos);
-			if(*(_it-1) != ')')
+			_it = readPythonFragment(bm, endpos, ")");
+			if (_it == endpos) {
 				LsysSyntaxError("Invalid syntax in module declaration: Wait for ')'.");
-			result.back().parameters = std::string(bm,_it-1);
+				break;
+			}
+			result.back().parameters = std::string(bm, _it);
+			++_it;
 			break;
 		case ',':
 		default:
@@ -1793,21 +1849,15 @@ std::string LpyParsing::removeSpaces(const std::string& str)
 std::vector<std::string> LpyParsing::parse_arguments(std::string::const_iterator beg,
 										 std::string::const_iterator end)
 {
-	std::vector<std::string> result;
-    std::string::const_iterator _it = beg;
-	std::string::const_iterator _it2 = _it;
-	while(_it2 != end){
-		while(_it2 != end && *_it2 != ',' && *_it2 != ')'){
-			_it2 = next_token(_it2,end);
-		}
-		if(_it != _it2){
-			/// triming name
-			std::string arg = trim(std::string(_it,_it2));
-			if(!arg.empty()) result.push_back(arg);
-		}
-		if (_it2 != end && *_it2 == ',') { ++_it2;_it = _it2; }
-	}
-	return result;
+    std::vector<std::string> result;
+    while (beg != end) {
+        const auto separator = readPythonFragment(beg, end, ",");
+        std::string argument = trim(std::string(beg, separator));
+        if (!argument.empty()) result.push_back(argument);
+        if (separator == end) break;
+        beg = separator + 1;
+    }
+    return result;
 }
 
 bool LpyParsing::isValidVariableName(std::string::const_iterator beg,
