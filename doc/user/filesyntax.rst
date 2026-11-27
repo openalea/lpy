@@ -99,6 +99,23 @@ The check scans candidate rule lines in tracked LPy files without executing
 the models. It reports context forms, terminators and rejected candidates
 with their source locations.
 
+Rule bodies
+===========
+
+A Python rule body can contain LPy productions, module string expressions
+and context queries. The grammar describes these constructs and delegates
+their payloads to the module string and pattern readers.
+
+.. literalinclude:: rule_body.lark
+   :language: text
+
+The C++ translation table is included in the sources. With Lark installed,
+check the table with the following command or add ``--write`` to regenerate it.
+
+.. code-block:: console
+
+    python test/check_rule_body_grammar.py
+
 Module declarations
 ===================
 

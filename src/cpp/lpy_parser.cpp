@@ -255,6 +255,28 @@ SectionLine readSectionLine(SourceIterator afterKeyword, SourceIterator end)
 
 } // namespace
 
+static std::pair<SourceIterator, bool>
+readPythonString(SourceIterator it, SourceIterator end)
+{
+    const char token = *it;
+    ++it;
+    const bool triple = end - it >= 2 && *it == token && *(it + 1) == token;
+    if (triple) it += 2;
+    while (it != end) {
+        if (*it == '\\') {
+            ++it;
+            if (it != end) ++it;
+        }
+        else if (*it == token &&
+                 (!triple || (end - it >= 3 && *(it + 1) == token && *(it + 2) == token))) {
+            it += triple ? 3 : 1;
+            return {it, true};
+        }
+        else ++it;
+    }
+    return {end, false};
+}
+
 // Read up to a delimiter outside Python strings, comments and nested groups.
 static std::string::const_iterator
 readPythonFragment(std::string::const_iterator it,
@@ -271,24 +293,9 @@ readPythonFragment(std::string::const_iterator it,
         switch (token) {
         case '\'':
         case '"': {
-            ++it;
-            const bool triple = end - it >= 2 && *it == token && *(it + 1) == token;
-            if (triple) it += 2;
-            bool terminated = false;
-            while (it != end) {
-                if (*it == '\\') {
-                    ++it;
-                    if (it != end) ++it;
-                }
-                else if (*it == token &&
-                         (!triple || (end - it >= 3 && *(it + 1) == token && *(it + 2) == token))) {
-                    it += triple ? 3 : 1;
-                    terminated = true;
-                    break;
-                }
-                else ++it;
-            }
-            if (!terminated)
+            const auto string = readPythonString(it, end);
+            it = string.first;
+            if (!string.second)
                 LsysSyntaxError("Unterminated string in Python fragment.", "", lineno);
             continue;
         }
@@ -1339,114 +1346,139 @@ void LsysRule::set(const std::string& rule)
 
 /*---------------------------------------------------------------------------*/
 
-std::string 
-LsysRule::getCoreCode() {
+namespace {
+
+enum class RuleBodyKind {
+#define LPY_RULE_BODY(kind, keyword, payload) kind,
+#include "rule_body_syntax.inc"
+#undef LPY_RULE_BODY
+};
+enum class RuleBodyPayload { InlineModules, ModuleString, ContextQuery };
+
+struct RuleBodySyntax {
+    RuleBodyKind kind;
+    std::string keyword;
+    RuleBodyPayload payload;
+};
+
+const RuleBodySyntax* matchRuleBodyConstruct(SourceIterator& it, SourceIterator begin, SourceIterator end)
+{
+    static const RuleBodySyntax constructs[] = {
+#define LPY_RULE_BODY(kind, keyword, payload) {RuleBodyKind::kind, keyword, RuleBodyPayload::payload},
+#include "rule_body_syntax.inc"
+#undef LPY_RULE_BODY
+    };
+    const auto identifier = [](char c) {
+        return c == '_' || isalnum(static_cast<unsigned char>(c)) || static_cast<unsigned char>(c) >= 128;
+    };
+    for (const auto& syntax : constructs) {
+        if (*it != syntax.keyword.front() || end - it < syntax.keyword.size())
+            continue;
+        const auto after = it + syntax.keyword.size();
+        if (syntax.kind != RuleBodyKind::Arrow &&
+            ((it != begin && identifier(*(it - 1))) || (after != end && identifier(*after))))
+            continue;
+        if (std::equal(it, after, syntax.keyword.begin())) {
+            it = after;
+            return &syntax;
+        }
+    }
+    return nullptr;
+}
+
+} // namespace
+
+std::string LsysRule::getCoreCode()
+{
   std::stringstream res;
   int llineno = 0;
   std::string definition;
-  std::string::const_iterator _beg = __definition.begin();
-  std::string::const_iterator _end = __definition.end();
-  std::string::const_iterator _lastit = __definition.begin();
-  std::string::const_iterator _it = _lastit;
-  while( _it != _end){
-	std::string::const_iterator _cit = _it;
-	if (*_it == '\n') { ++llineno; _it++;}
-	else if (*_it == '#') { while(_it != _end && *_it != '\n') _it++; }
-	else if (*_it == '\'') 
-	{ 
-	  _it++;  
-	  while(_it != _end && *_it != '\'') { if (*_it == '\n') { ++llineno; } _it++; } 
-	  if (_it != _end) _it++;  
-	}
-	else if (*_it == '"') 
-	{ 
-		_it++;  
-		while(_it != _end && *_it != '"') { if (*_it == '\n') { ++llineno; } _it++; } 
-	    if (_it != _end) _it++;  
-	}
-	else if (*_it == '-' && std::distance<std::string::const_iterator>(_it,_end)> 3){
-	  if(std::string(_it,_it+3) == "-->"){
-		definition.insert(definition.end(),_lastit,_it);
-		_it += 3;
-		size_t pprod_id;
-		definition += "return ";
-		definition += "pproduce";
-		definition += LpyParsing::lstring2pyparam(_it,_end,'\n',lineno==-1?lineno:lineno+llineno,&pprod_id);
-		_lastit = _it;
-		if (LsysContext::current()->optimizationLevel >= 1 &&!ParametricProduction::get(pprod_id)->hasArgs()) 
-			setStatic();
-	  }
-	  else _it++;
-	}
-	else if (has_keyword_pattern(_it,_beg,_end,"produce") ) {
-		// if (*_it == 'p' && std::distance<std::string::const_iterator>(_it,_end)> 7 && (_it == _beg || !isalnum(*(_it-1)) && *(_it-1) != '_')){
-	    // if(std::string(_it,_it+7) == "produce"){
-		definition.insert(definition.end(),_lastit,_cit);
-		while(_it != _end && (*_it == ' ' || *_it == '\t') )++_it;
-		char endproduction = '\n';
-		if(*_it == '(') { endproduction = ')'; ++_it; }
-		definition += "return ";
-		definition += "pproduce";
-		definition += LpyParsing::lstring2pyparam(_it,_end,endproduction,lineno==-1?lineno:lineno+llineno);
-		if (endproduction == ')') ++_it;
-		_lastit = _it;
-	  // }
-	  // else _it++;
-	}
-	else if(*_it == 'm' && std::distance<std::string::const_iterator>(_it,_end)> 10){
-	  if(std::string(_it,_it+10) == "makestring"){
-		 definition.insert(definition.end(),_lastit,_it);
-		 _it += 10;
-		 while(_it != _end && (*_it == ' ' || *_it == '\t') )++_it;
-		 char endproduction = '\n';
-		 if(*_it == '(') { endproduction = ')'; ++_it; }
-		 definition += "AxialTree(";
-         definition += LpyParsing::lstring2py(_it,_end,endproduction,lineno==-1?lineno:lineno+llineno);
-         definition += ')';
- 		 if (endproduction == ')') ++_it;
-		 _lastit = _it;
-      }
-      else _it++;
+  const auto begin = __definition.cbegin();
+  const auto _end = __definition.cend();
+  auto copied = begin;
+  auto it = begin;
+  while (it != _end) {
+    if (*it == '\n') {
+        ++llineno;
+        ++it;
+        continue;
     }
-	else if(*_it == 'n' && std::distance<std::string::const_iterator>(_it,_end)> 8){
-	  if(std::string(_it,_it+8) == "nproduce"){
-		definition.insert(definition.end(),_lastit,_it);
-		_it += 8;
-		while(_it != _end && (*_it == ' ' || *_it == '\t') )++_it;
-		char endproduction = '\n';
-		if(*_it == '(') { endproduction = ')'; ++_it; }
-		definition += "pproduce";
-		definition += LpyParsing::lstring2pyparam(_it,_end,endproduction,lineno==-1?lineno:lineno+llineno);
-		if (endproduction == ')') ++_it;
-		_lastit = _it;
-	  }
-	  else _it++;
-	}
-    else if (has_keyword_pattern(_it,_beg,_end,"InLeftContext") || has_keyword_pattern(_it,_beg,_end,"InRightContext")){
-		definition.insert(definition.end(),_lastit,_cit);
-		while(_it != _end && (*_it == ' ' || *_it == '\t') )++_it;
-		
-		if(*_it != '(') LsysError("Cannot find opening bracket of InContext","",lineno==-1?lineno:lineno+llineno);
-		std::string::const_iterator eit = next_token(_it,_end);
-		std::string::const_iterator epit = eit-1;
-		while (epit != _it && *epit != ',') {
-			--epit;
-			if (epit != _it && *epit == ')') 
-				while (epit != _it && *epit != '(') --epit;
-		}
-		if (epit == _it){
-			LsysWarning("No parameter dictionnay found in arguments. ","",lineno==-1?lineno:lineno+llineno);
-			epit = eit-1;
-		}
+    if (*it == '#') {
+        it = std::find(it, _end, '\n');
+        continue;
+    }
+    if (*it == '\'' || *it == '"') {
+        const auto endString = readPythonString(it, _end).first;
+        llineno += std::count(it, endString, '\n');
+        it = endString;
+        continue;
+    }
 
-		PatternString q(std::string(_it+1,epit),lineno==-1?lineno:lineno+llineno);
-		size_t pid = PatternStringManager::get().register_pattern(q);
-		definition += std::string("p")+std::string(_cit,_it+1)+TOOLS(number)(pid)+std::string(epit,eit);
-		_lastit = eit;
+    const auto start = it;
+    const auto* syntax = matchRuleBodyConstruct(it, begin, _end);
+    if (!syntax) {
+        ++it;
+        continue;
     }
-	else _it++;
+
+    definition.append(copied, start);
+    const int sourceLine = lineno == -1 ? lineno : lineno + llineno;
+    const auto kind = syntax->kind;
+    if (syntax->payload == RuleBodyPayload::ContextQuery) {
+        while (it != _end && (*it == ' ' || *it == '\t')) ++it;
+        if (it == _end || *it != '(') {
+            LsysError("Cannot find opening bracket of InContext", "", sourceLine);
+            break;
+        }
+        const auto endQuery = next_token(it, _end);
+        if (*(endQuery - 1) != ')') {
+            LsysError("Cannot find closing bracket of InContext", "", sourceLine);
+            break;
+        }
+        auto parameters = endQuery - 1;
+        while (parameters != it && *parameters != ',') {
+            --parameters;
+            if (parameters != it && *parameters == ')')
+                while (parameters != it && *parameters != '(') --parameters;
+        }
+        if (parameters == it) {
+            LsysWarning("No parameter dictionnay found in arguments. ", "", sourceLine);
+            parameters = endQuery - 1;
+        }
+
+        PatternString query(std::string(it + 1, parameters), sourceLine);
+        const size_t id = PatternStringManager::get().register_pattern(query);
+        definition += "p" + std::string(start, it + 1) + TOOLS(number)(id);
+        definition.append(parameters, endQuery);
+        it = endQuery;
+    }
+    else if (syntax->payload == RuleBodyPayload::InlineModules) {
+        size_t productionId;
+        definition += "return pproduce" +
+                      LpyParsing::lstring2pyparam(it, _end, '\n', sourceLine, &productionId);
+        if (LsysContext::current()->optimizationLevel >= 1 &&
+            !ParametricProduction::get(productionId)->hasArgs())
+            setStatic();
+    }
+    else {
+        while (it != _end && (*it == ' ' || *it == '\t')) ++it;
+        char delimiter = '\n';
+        if (it != _end && *it == '(') {
+            delimiter = ')';
+            ++it;
+        }
+        if (kind == RuleBodyKind::Makestring)
+            definition += "AxialTree(" + LpyParsing::lstring2py(it, _end, delimiter, sourceLine) + ")";
+        else {
+            if (kind == RuleBodyKind::Produce) definition += "return ";
+            definition += "pproduce" + LpyParsing::lstring2pyparam(it, _end, delimiter, sourceLine);
+        }
+        if (delimiter == ')' && it != _end) ++it;
+    }
+    llineno += std::count(start, it, '\n');
+    copied = it;
   }
-  if(_lastit!=_it)definition += std::string(_lastit,_it);
+  definition.append(copied, _end);
   if(definition.empty()) res << "\t\tpass\n";
   else {
 	res << definition;

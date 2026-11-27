@@ -1,0 +1,15 @@
+// Recognized constructs within a Python rule body. Payload tokens come
+// from the LPy module, pattern and Python fragment readers.
+start: construct
+construct: "-->" inline_modules               -> arrow
+         | "produce" module_string            -> produce
+         | "nproduce" module_string           -> nproduce
+         | "makestring" module_string         -> makestring
+         | "InLeftContext" context_query      -> left_context
+         | "InRightContext" context_query     -> right_context
+
+inline_modules: MODULE_STRING?
+module_string: MODULE_STRING? | "(" MODULE_STRING? ")"
+context_query: "(" PATTERN ("," PYTHON_EXPRESSION)? ")"
+
+%declare MODULE_STRING PATTERN PYTHON_EXPRESSION
