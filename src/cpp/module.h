@@ -135,8 +135,15 @@ public:
 	inline boost::python::list getPyArgs() const 
 	{ return toPyList(__constargs()); }
 	
-	inline void setPyArgs(const boost::python::list& l) 
-	{ __args() = toParameterList(l); }
+    inline void setPyArgs(const boost::python::list& values)
+    {
+        ParameterList args;
+        const Py_ssize_t size = bp::len(values);
+        args.reserve(size);
+        for (Py_ssize_t i = 0; i < size; ++i)
+            args.push_back(bp::extract<ParameterType>(values[i])());
+        __args().swap(args);
+    }
 
     inline const ParameterType& getAt(size_t i) const 
 	{ lpyassert(size() > i); return __constargs()[i]; }
@@ -312,13 +319,6 @@ protected:
     return result;
   }
 
-  static inline ParameterList toParameterList(const boost::python::object& t){
-	ParameterList result;
-	bp::object iter_obj = bp::object( bp::handle<>( PyObject_GetIter( t.ptr() ) ) );
-	try {  while( 1 ) result.push_back(bp::extract<ParameterType>(iter_obj.attr( "next" )())()); }
-    catch( bp::error_already_set ){ PyErr_Clear(); }
-   return result;
- }
 
 };
 

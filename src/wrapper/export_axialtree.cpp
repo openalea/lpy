@@ -247,6 +247,36 @@ NodeModule py_node(AxialTree * lstring, int i)
 {   return NodeModule::generate(int_to_iter(lstring,i),lstring->const_begin(),lstring->const_end()); }
 
 
+namespace {
+
+struct AxialTreePickle : pickle_suite {
+    static tuple getstate(const AxialTree& tree)
+    {
+        list modules;
+        for (const auto& module : tree)
+            modules.append(bp::make_tuple(module.name(), module.getPyArgs()));
+        return bp::make_tuple(modules);
+    }
+
+    static void setstate(AxialTree& tree, tuple state)
+    {
+        const list modules = extract<list>(state[0]);
+        AxialTree restored;
+        const auto count = len(modules);
+        restored.reserve(count);
+        for (Py_ssize_t i = 0; i < count; ++i) {
+            const tuple entry = extract<tuple>(modules[i]);
+            const std::string name = extract<std::string>(entry[0]);
+            ParamModule module(ModuleClassTable::get().getClass(name), tuple());
+            module.setPyArgs(extract<list>(entry[1]));
+            restored.append(module);
+        }
+        tree = restored;
+    }
+};
+
+} // namespace
+
 void export_AxialTree() {
 
   class_<AxialTree>
@@ -256,6 +286,7 @@ void export_AxialTree() {
 	.def(init<std::string>("AxialTree(string)"))
 	.def(init<const list&>("AxialTree(list)"))
 	.def(init<const tuple&>("AxialTree(tuple)"))
+	.def_pickle(AxialTreePickle())
     .def(lstring_func<AxialTree>())
 	.def("__str__", &AxialTree::str)
 	.def("__repr__",&AxialTree::repr)
