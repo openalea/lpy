@@ -104,6 +104,22 @@ with their source locations.
 L-System specific declaration
 =============================
 
+The declarative grammar describes directive keywords and the shape of their
+payloads. Section transitions and evaluation of payloads are handled by LPy.
+
+.. literalinclude:: lsystem_directives.lark
+   :language: text
+
+The C++ parser uses a table generated from this grammar. The table is checked
+into the source tree and requires no Lark installation when building or using
+LPy. With Lark installed, check the table or regenerate it after grammar
+changes with the following commands.
+
+.. code-block:: console
+
+    python test/check_directive_grammar.py
+    python test/check_directive_grammar.py --write
+
 +----------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 |**module name**             |*Declaration of module name.*                                                                                                                                                                            |
 +----------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+

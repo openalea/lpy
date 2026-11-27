@@ -1,0 +1,40 @@
+// A directive and its payload on one line. The C++ scanner selects the
+// applicable directives according to its current section.
+start: directive
+
+directive: "Axiom" colon_payload                -> axiom
+         | "axiom" colon_payload                -> lowercase_axiom
+         | "derivation length" value_after_colon -> derivation_length
+         | "maximum depth" value_after_colon    -> maximum_depth
+         | "group" value_before_colon           -> group
+         | "consider" colon_payload             -> consider
+         | "ignore" colon_payload               -> ignore
+         | "production" section_header         -> production
+         | "decomposition" section_header      -> decomposition
+         | "homomorphism" section_header       -> homomorphism
+         | "interpretation" section_header     -> interpretation
+         | "endgroup" line_tail                 -> endgroup
+         | "endlsystem" line_tail               -> endlsystem
+         | "module" module_declarations         -> module
+         | "undeclare" module_names             -> undeclare
+         | "lpyimport" named_source             -> lpyimport
+         | "%pastefile" named_source            -> pastefile
+         | "%pastemodule" named_source          -> pastemodule
+         | "produce" axial_payload              -> produce
+         | "nproduce" axial_payload             -> nproduce
+         | "makestring" axial_payload           -> makestring
+
+value_after_colon: ":" VALUE
+value_before_colon: BEFORE_COLON ":"
+colon_payload: ":" VALUE?
+section_header: ":"? VALUE?
+line_tail: VALUE?
+module_declarations: VALUE
+module_names: VALUE
+named_source: VALUE
+axial_payload: VALUE?
+
+// Payloads are handed to the existing LPy or Python reader.
+BEFORE_COLON: /[^:\r\n]*[^:\s][^:\r\n]*/
+VALUE: /[^\r\n]*[^\s][^\r\n]*/
+%ignore /[ \t]+/

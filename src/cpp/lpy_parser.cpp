@@ -148,6 +148,45 @@ namespace {
 
 using SourceIterator = std::string::const_iterator;
 
+enum class Directive {
+#define LPY_DIRECTIVE(id, keyword, payload) id,
+#include "lsystem_directives.inc"
+#undef LPY_DIRECTIVE
+};
+
+enum class DirectivePayload {
+    ColonPayload,
+    ValueAfterColon,
+    ValueBeforeColon,
+    SectionHeader,
+    LineTail,
+    ModuleDeclarations,
+    ModuleNames,
+    NamedSource,
+    AxialPayload
+};
+
+struct DirectiveSyntax {
+    const char* keyword;
+    DirectivePayload payload;
+};
+
+const DirectiveSyntax& directiveSyntax(Directive directive)
+{
+    static constexpr DirectiveSyntax syntax[] = {
+#define LPY_DIRECTIVE(id, keyword, payload) {keyword, DirectivePayload::payload},
+#include "lsystem_directives.inc"
+#undef LPY_DIRECTIVE
+    };
+    return syntax[static_cast<size_t>(directive)];
+}
+
+bool matchDirective(SourceIterator& it, SourceIterator begin, SourceIterator end,
+                    Directive directive)
+{
+    return has_keyword_pattern(it, begin, end, directiveSyntax(directive).keyword);
+}
+
 SourceIterator findDirectiveColon(SourceIterator it, SourceIterator end)
 {
     while (it != end && *it != ':' && *it != '\n') ++it;
@@ -417,7 +456,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
       for(std::string::const_iterator _it = lbeg; _it != _rules.end(); ++_it){
         if (*_it == '%'){
             std::string::const_iterator _it2 = _it;
-            if(has_keyword_pattern(_it,_rules.begin(),_rules.end(),"\%pastefile") ) {
+            if(matchDirective(_it,_rules.begin(),_rules.end(),Directive::Pastefile) ) {
                 _nrules.append(lbeg, _it2);
                 _it++;
                 std::string::const_iterator begname = _it;
@@ -436,7 +475,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
                 else LsysParserSyntaxError("invalid file to paste");
                 lbeg = _it;
             }
-			else if(has_keyword_pattern(_it,_rules.begin(),_rules.end(),"\%pastemodule") ) {
+			else if(matchDirective(_it,_rules.begin(),_rules.end(),Directive::Pastemodule) ) {
                 _nrules.append(lbeg, _it2);
                 _it++;
                 std::string::const_iterator begname = _it;
@@ -513,19 +552,23 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 
   if (initpos != std::string::npos) endpycode = rules.begin()+initpos;
 
-  const auto readValueDirective = [&](const char* name, bool requireValue,
-                                      DirectiveValuePosition position = DirectiveValuePosition::AfterColon) {
+  const auto readValueDirective = [&](Directive id) {
+    const auto& syntax = directiveSyntax(id);
+    const auto position = syntax.payload == DirectivePayload::ValueBeforeColon
+        ? DirectiveValuePosition::BeforeColon : DirectiveValuePosition::AfterColon;
+    const bool requireValue = syntax.payload == DirectivePayload::ValueAfterColon ||
+                              syntax.payload == DirectivePayload::ValueBeforeColon;
     const DirectiveLine directive = readDirectiveLine(_it, endpycode, position);
     if (!directive.hasColon) {
       const std::string expected = position == DirectiveValuePosition::BeforeColon
           ? "Cannot find value and ':' after " : "Cannot find ':' after ";
-      LsysParserSyntaxError(expected + name);
+      LsysParserSyntaxError(expected + syntax.keyword);
     }
     else if (requireValue && !notOnlySpace(directive.valueBegin, directive.valueEnd)) {
       // Values after the colon were diagnosed after consuming the line.
       const bool afterNewline = position == DirectiveValuePosition::AfterColon &&
                                 *(directive.end - 1) == '\n';
-      LsysSyntaxError(std::string("Cannot find value for ") + name, filename, lineno + afterNewline);
+      LsysSyntaxError(std::string("Cannot find value for ") + syntax.keyword, filename, lineno + afterNewline);
     }
     return directive;
   };
@@ -566,7 +609,8 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 		case 'a':
 		case 'A':
 		  _it2 = _it;
-		  if((has_keyword_pattern(_it,begcode,endpycode,"Axiom") || has_keyword_pattern(_it,begcode,endpycode,"axiom")) && 
+		  if((matchDirective(_it, begcode, endpycode, Directive::Axiom) ||
+                  matchDirective(_it, begcode, endpycode, Directive::LowercaseAxiom)) &&
 			 (_it2 == rules.begin() || *(_it2-1) == '\n')){
             code += std::string(beg,_it2);
 			_it = findDirectiveColon(_it, endpycode);
@@ -594,7 +638,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 		  break;
 		case 'n':
 		  _it2 = _it;
-          if(has_keyword_pattern(_it,begcode,endpycode,"nproduce")){
+          if(matchDirective(_it,begcode,endpycode,Directive::Nproduce)){
     		code += std::string(beg,_it2);
 			code += "pproduce";
 		    while(_it != endpycode && (*_it == ' ' || *_it == '\t') )++_it;
@@ -611,7 +655,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 		  break;
 		case 'm':
 		  _it2 = _it;
-          if(has_keyword_pattern(_it,begcode,endpycode,"module")){
+          if(matchDirective(_it,begcode,endpycode,Directive::Module)){
             code+=std::string(beg,_it2);
 			LpyParsing::ModLineDeclaration modules = LpyParsing::parse_moddeclaration_line(_it,endpycode);
 			int scale = ModuleClass::DEFAULT_SCALE;
@@ -700,7 +744,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 			beg = _it;
 			toendlineA(_it,endpycode);
 		  }
-		  else if(has_keyword_pattern(_it,begcode,endpycode,"makestring")){
+		  else if(matchDirective(_it,begcode,endpycode,Directive::Makestring)){
 			code += std::string(beg,_it2) + "AxialTree(";
 		    while(_it != endpycode && (*_it == ' ' || *_it == '\t') )++_it;
 		    char endproduction = '\n';
@@ -718,7 +762,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 		  break;
 		case 'u':
 		  _it2 = _it;
-          if(has_keyword_pattern(_it,begcode,endpycode,"undeclare")){
+          if(matchDirective(_it,begcode,endpycode,Directive::Undeclare)){
             code+=std::string(beg,_it2);
 			LpyParsing::ModNameList modules = LpyParsing::parse_modlist(_it,endpycode,false);
 			code+=" # "+std::string(_it2,_it);
@@ -735,7 +779,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 		  break;
 		case 'p':
 		  _it2 = _it;
-		  if(has_keyword_pattern(_it,begcode,endpycode,"production")){
+		  if(matchDirective(_it,begcode,endpycode,Directive::Production)){
 			// printf("-'%c' '%c'\n",*(_it2-1),*_it);
 			/*if ((_it2 != begcode && *(_it2-1) != '\n') || (_it == *_it != ' ' && *_it != ':' && *_it != '\t')){
 				// We are not in the production statement
@@ -746,7 +790,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 				enterRuleSection(0, "# ");
 			// }
 		  }
-		  else if(has_keyword_pattern(_it,begcode,endpycode,"produce")){
+		  else if(matchDirective(_it,begcode,endpycode,Directive::Produce)){
 			  // LsysWarning("Cannot use 'produce' outside production body. Use 'nproduce' instead.",filename,lineno);
 			code += std::string(beg,_it2);
 			code += "return pproduce";
@@ -764,8 +808,8 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 		  break;
 		case 'd':
 		  _it2 = _it;
-		  if(has_keyword_pattern(_it,begcode,endpycode,"derivation length")){
-            const auto directive = readValueDirective("derivation length", true);
+		  if(matchDirective(_it,begcode,endpycode,Directive::DerivationLength)){
+            const auto directive = readValueDirective(Directive::DerivationLength);
             code.append(beg, _it2);
             max_derivation_lineno = lineno;
             consumeDirective(directive.end);
@@ -776,7 +820,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 		  break;
 		case 'l':
 		  _it2 = _it;
-		  if(has_keyword_pattern(_it,begcode,endpycode,"lpyimport")){
+		  if(matchDirective(_it,begcode,endpycode,Directive::Lpyimport)){
             const auto directive = readImportDirective(_it, endpycode);
             code.append(beg, _it2);
             consumeDirective(directive.end);
@@ -791,8 +835,8 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 		  break;
 		case 'c':
 		  _it2 = _it;
-		  if(has_keyword_pattern(_it,begcode,endpycode,"consider")){
-            const auto directive = readValueDirective("consider", false);
+		  if(matchDirective(_it,begcode,endpycode,Directive::Consider)){
+            const auto directive = readValueDirective(Directive::Consider);
             code.append(beg, _it2);
             consumeDirective(directive.end);
             if (directive.valueBegin == endpycode)
@@ -805,15 +849,15 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 		  break;
 		case 'e':
           _it2 = _it;
-		  if(has_keyword_pattern(_it,begcode,endpycode,"endlsystem")){
+		  if(matchDirective(_it,begcode,endpycode,Directive::Endlsystem)){
             LsysParserSyntaxError("endlsystem found before production statement.");
 		  }
           else toendlineA(_it,endpycode);
 		  break;
 		case 'i':
 		  _it2 = _it;
-		  if(has_keyword_pattern(_it,begcode,endpycode,"ignore")){
-            const auto directive = readValueDirective("ignore", false);
+		  if(matchDirective(_it,begcode,endpycode,Directive::Ignore)){
+            const auto directive = readValueDirective(Directive::Ignore);
             code.append(beg, _it2);
             consumeDirective(directive.end);
             if (directive.valueBegin == endpycode)
@@ -862,7 +906,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 		switch(*_it){
 		case 'e':
           _it2 = _it;
-		  if(has_keyword_pattern(_it,begcode,endpycode,"endlsystem")){
+		  if(matchDirective(_it,begcode,endpycode,Directive::Endlsystem)){
 			if(!rule.empty()){
               PROCESS_RULE(rule,code,addedcode,mode,group,currentConsider)
 			}
@@ -871,7 +915,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 			mode = -1;
             beg = _it;
 		  }
-		  else if(has_keyword_pattern(_it,begcode,endpycode,"endgroup")){
+		  else if(matchDirective(_it,begcode,endpycode,Directive::Endgroup)){
 			if(!rule.empty()){
               PROCESS_RULE(rule,code,addedcode,mode,group,currentConsider)
 			}
@@ -894,13 +938,13 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
               PROCESS_RULE(rule,code,addedcode,mode,group,currentConsider)
 		  }
 		  _it2 = _it;
-		  if(mode == 0 && has_keyword_pattern(_it,begcode,endpycode,"derivation length")){
-            const auto directive = readValueDirective("derivation length", true);
+		  if(mode == 0 && matchDirective(_it,begcode,endpycode,Directive::DerivationLength)){
+            const auto directive = readValueDirective(Directive::DerivationLength);
             max_derivation_lineno = lineno;
             consumeDirective(directive.end);
             code += LsysContext::DerivationLengthVariable + " = " + directive.value();
 		  }
-		  else if(has_keyword_pattern(_it,begcode,endpycode,"decomposition")){
+		  else if(matchDirective(_it,begcode,endpycode,Directive::Decomposition)){
 			enterRuleSection(1, "#");
 		  }
 		  else if(has_keyword_pattern(_it,begcode,endpycode,"def")){
@@ -919,7 +963,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
             PROCESS_RULE(rule,code,addedcode,mode,group,currentConsider)
 		  }
 		  _it2 = _it;
-          if(has_keyword_pattern(_it,begcode,endpycode,"homomorphism")){
+          if(matchDirective(_it,begcode,endpycode,Directive::Homomorphism)){
 			enterRuleSection(2, "# ");
 		  }
 		  else {
@@ -933,8 +977,8 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
               PROCESS_RULE(rule,code,addedcode,mode,group,currentConsider)
 		  }
 		  _it2 = _it;
-		  if(has_keyword_pattern(_it,begcode,endpycode,"group")){
-            const auto directive = readValueDirective("group", true, DirectiveValuePosition::BeforeColon);
+		  if(matchDirective(_it,begcode,endpycode,Directive::Group)){
+            const auto directive = readValueDirective(Directive::Group);
             group = __context.readInt(directive.value());
             if (group < 0) {
                 std::stringstream message;
@@ -955,7 +999,7 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
             PROCESS_RULE(rule,code,addedcode,mode,group,currentConsider)
 		  }
 		  _it2 = _it;
-		  if(has_keyword_pattern(_it,begcode,endpycode,"production")){
+		  if(matchDirective(_it,begcode,endpycode,Directive::Production)){
 			enterRuleSection(0, "# ");
 		  }
 		  else {
@@ -969,8 +1013,8 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
             PROCESS_RULE(rule,code,addedcode,mode,group,currentConsider)
 		  }
 		  _it2 = _it;
-		  if((mode == 1||mode == 2) && has_keyword_pattern(_it,begcode,endpycode,"maximum depth")){
-            const auto directive = readValueDirective("maximum depth", true);
+		  if((mode == 1||mode == 2) && matchDirective(_it,begcode,endpycode,Directive::MaximumDepth)){
+            const auto directive = readValueDirective(Directive::MaximumDepth);
             const bool decomposition = mode == 1;
             (decomposition ? decomposition_max_depth_lineno : homomorphism_max_depth_lineno) = lineno;
             consumeDirective(directive.end);
@@ -989,8 +1033,8 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
             PROCESS_RULE(rule,code,addedcode,mode,group,currentConsider)
 		  }
 		  _it2 = _it;
-		  if(has_keyword_pattern(_it,begcode,endpycode,"consider")){
-            const auto directive = readValueDirective("consider", false);
+		  if(matchDirective(_it,begcode,endpycode,Directive::Consider)){
+            const auto directive = readValueDirective(Directive::Consider);
             consumeDirective(directive.end);
             code += "# " + std::string(_it2, _it);
             if (directive.valueBegin == endpycode) currentConsider = ConsiderFilterPtr();
@@ -1007,14 +1051,14 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
             PROCESS_RULE(rule,code,addedcode,mode,group,currentConsider)
 		  }
 		  _it2 = _it;
-		  if(has_keyword_pattern(_it,begcode,endpycode,"ignore")){
-            const auto directive = readValueDirective("ignore", false);
+		  if(matchDirective(_it,begcode,endpycode,Directive::Ignore)){
+            const auto directive = readValueDirective(Directive::Ignore);
             consumeDirective(directive.end);
             code += "# " + std::string(_it2, _it);
             if (directive.valueBegin == endpycode) currentConsider = ConsiderFilterPtr();
             else currentConsider = ConsiderFilter::ignore(std::string(directive.valueBegin, directive.valueEnd - 1));
 		  }
-		  if(has_keyword_pattern(_it,begcode,endpycode,"interpretation")){
+		  if(matchDirective(_it,begcode,endpycode,Directive::Interpretation)){
 			enterRuleSection(2, "# ");
 		  }
 		  else {

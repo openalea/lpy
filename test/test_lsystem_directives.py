@@ -4,14 +4,15 @@ from openalea.lpy import AxialTree, Lsystem
 
 
 @pytest.mark.parametrize("in_production", [False, True])
-def test_derivation_length_directive_evaluates_python(in_production):
+@pytest.mark.parametrize("axiom_keyword", ["Axiom", "axiom"])
+def test_derivation_length_directive_evaluates_python(in_production, axiom_keyword):
     lsystem = Lsystem()
     directive = "derivation length: steps + 1"
     before = "" if in_production else directive
     after = directive if in_production else ""
     lsystem.setCode(f"""
 steps = 2
-Axiom: A(0)
+{axiom_keyword}: A(0)
 {before}
 production:
 {after}
@@ -114,3 +115,17 @@ B(value) --> C(value + imported_value)
 
     assert lsystem.context()["imported_value"] == 7
     assert lsystem.iterate() == AxialTree("C(9)")
+
+
+def test_pastefile_expands_directives_before_parsing(tmp_path):
+    source = tmp_path / "directives.lpy"
+    source.write_text("Axiom: A(4)\nderivation length: 2\n")
+    lsystem = Lsystem()
+    lsystem.setCode(f"""
+%pastefile {source}
+production:
+A(value) --> A(value + 1)
+""")
+
+    assert lsystem.derivationLength == 2
+    assert lsystem.iterate() == AxialTree("A(6)")
