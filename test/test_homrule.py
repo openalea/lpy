@@ -1,18 +1,20 @@
-from openalea.lpy import *
-from openalea.plantgl.all import Scene
+from openalea.lpy import AxialTree, Lsystem
+
+from testresources import active_context
+
 
 def test_addHomRule():
-    """ Regression around 010708 """
-    s="PANNN[+ANNN][-ANNN]AN"
-    l = Lsystem()
-    tree = AxialTree(s) 
-    l.addInterpretationRule('N --> F', 0)
-    geom_tree = l.interpret(tree)
-    scene = l.sceneInterpretation(geom_tree)
-    assert len(scene) == 10, "len(scene) == %d instead of 10"%len(scene)
-    undeclare('P,A,N')
-    assert len(LsysContext.currentContext().declaredModules()) == 0
+    lsystem = Lsystem()
+    context = lsystem.context()
+    with active_context(context):
+        tree = AxialTree("PANNN[+ANNN][-ANNN]AN")
+    lsystem.addInterpretationRule("N --> F", 0)
+    interpreted = lsystem.interpret(tree)
+    assert len(lsystem.sceneInterpretation(interpreted)) == 10
+    with active_context(context):
+        context.undeclare("P,A,N")
+        assert len(context.declaredModules()) == 0
+
 
 if __name__ == '__main__':
     test_addHomRule()
-

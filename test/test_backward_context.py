@@ -1,6 +1,8 @@
 import pytest
 
-from openalea.lpy import AxialTree, Lsystem
+from openalea.lpy import Lsystem
+
+from testresources import assert_axial_tree
 
 
 @pytest.mark.parametrize("matching_mode", [0, 1])
@@ -22,7 +24,7 @@ A:
     produce M
 """)
 
-    assert lsystem.iterate() == AxialTree(f"{left_context}M")
+    assert_axial_tree(lsystem, lsystem.iterate(), f"{left_context}M")
 
 
 @pytest.mark.parametrize("pattern", ["C x(B, 1) < A", "C x(B, 1) A"])
@@ -37,7 +39,7 @@ production:
 x(B, 1) A --> M
 """)
 
-    assert lsystem.iterate() == AxialTree("M")
+    assert_axial_tree(lsystem, lsystem.iterate(), "M")
 
 
 @pytest.mark.parametrize("matching_mode", [0, 1, 2, 3])
@@ -52,7 +54,7 @@ A >> B(value) --> M(value)
 R --> B(7)
 """)
 
-    assert lsystem.iterate() == AxialTree("M(7) B(7) A")
+    assert_axial_tree(lsystem, lsystem.iterate(), "M(7) B(7) A")
 
 
 def test_backward_multiscale_new_right_context_uses_predecessor_scale():
@@ -70,4 +72,4 @@ A >> B(value) --> M(value)
 R --> I B(7)
 """)
 
-    assert lsystem.iterate() == AxialTree("M(7) I B(7)")
+    assert_axial_tree(lsystem, lsystem.iterate(), "M(7) I B(7)")

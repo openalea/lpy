@@ -1,6 +1,8 @@
 import pytest
 
-from openalea.lpy import AxialTree, Lsystem
+from openalea.lpy import Lsystem
+
+from testresources import assert_axial_tree
 
 
 @pytest.mark.parametrize("matching_mode", [0, 1, 2, 3])
@@ -16,8 +18,7 @@ production:
 C(left) < A(value) --> L(left + value)
 C(value) > A(right) --> R(value + right)
 """)
-
-    assert lsystem.iterate() == AxialTree("L(5) B R(5)")
+    assert_axial_tree(lsystem, lsystem.iterate(), "L(5) B R(5)")
 
 
 def test_set_cyclic_is_local_and_can_be_disabled():
@@ -32,12 +33,12 @@ B > A --> R
     lsystem.setCode(code)
     other.setCode(code)
 
-    assert lsystem.iterate() == AxialTree("A B")
+    assert_axial_tree(lsystem, lsystem.iterate(), "A B")
     lsystem.setCyclic(True)
-    assert lsystem.iterate() == AxialTree("L R")
-    assert other.iterate() == AxialTree("A B")
+    assert_axial_tree(lsystem, lsystem.iterate(), "L R")
+    assert_axial_tree(other, other.iterate(), "A B")
     lsystem.setCyclic(False)
-    assert lsystem.iterate() == AxialTree("A B")
+    assert_axial_tree(lsystem, lsystem.iterate(), "A B")
 
 
 @pytest.mark.parametrize("matching_mode", [0, 1])
@@ -60,8 +61,7 @@ B < A > C:
     assert not InRightContext(C, params)
     produce M
 """)
-
-    assert lsystem.iterate() == AxialTree("B M C")
+    assert_axial_tree(lsystem, lsystem.iterate(), "B M C")
 
 
 @pytest.mark.parametrize("matching_mode", [0, 1])
@@ -76,8 +76,7 @@ A A < A --> X
 A > A A --> Y
 A < A > A --> M
 """)
-
-    assert lsystem.iterate() == AxialTree("M")
+    assert_axial_tree(lsystem, lsystem.iterate(), "M")
 
 
 def test_cyclic_context_keeps_strict_predecessors_linear():
@@ -90,7 +89,7 @@ B A --> X
 B < A B > A --> Y
 """)
 
-    assert lsystem.iterate() == AxialTree("Y")
+    assert_axial_tree(lsystem, lsystem.iterate(), "Y")
 
 
 def test_cyclic_axial_context_skips_branches_at_the_seam():
@@ -103,7 +102,7 @@ C < A --> L
 C > A --> R
 """)
 
-    assert lsystem.iterate() == AxialTree("L R [ I ]")
+    assert_axial_tree(lsystem, lsystem.iterate(), "L R [ I ]")
 
 
 @pytest.mark.parametrize("direction, rule", [
@@ -120,7 +119,7 @@ production:
 {rule}
 """)
 
-    assert lsystem.iterate() == AxialTree("A B")
+    assert_axial_tree(lsystem, lsystem.iterate(), "A B")
 
 
 def test_model_can_disable_cyclic_contexts():
@@ -136,7 +135,7 @@ production:
 B < A --> X
 """)
 
-    assert lsystem.iterate() == AxialTree("A B")
+    assert_axial_tree(lsystem, lsystem.iterate(), "A B")
 
 
 @pytest.mark.parametrize("matching_mode", [0, 1])
@@ -152,4 +151,4 @@ A > x(A, 1) A --> Y
 x(A, 1) < A > x(A, 1) --> M
 """)
 
-    assert lsystem.iterate() == AxialTree("M")
+    assert_axial_tree(lsystem, lsystem.iterate(), "M")

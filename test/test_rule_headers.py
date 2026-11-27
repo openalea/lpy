@@ -1,6 +1,8 @@
 import pytest
 
-from openalea.lpy import AxialTree, Lsystem
+from openalea.lpy import Lsystem
+
+from testresources import assert_axial_tree
 
 
 @pytest.mark.parametrize("direction, first_rule, header, expected", [
@@ -22,7 +24,7 @@ production:
 {header}{body}
 """)
 
-    assert lsystem.iterate() == AxialTree(expected)
+    assert_axial_tree(lsystem, lsystem.iterate(), expected)
 
 
 def test_rule_header_requires_both_original_contexts():
@@ -33,7 +35,7 @@ production:
 A(a) < B(b) > C(c) --> M(a,b,c)
 """)
 
-    assert lsystem.iterate() == AxialTree("A(1) M(1,2,3) C(3) B(4) A(5)")
+    assert_axial_tree(lsystem, lsystem.iterate(), "A(1) M(1,2,3) C(3) B(4) A(5)")
 
 
 @pytest.mark.parametrize("body", [" -static-> M", ": @static\n    produce M"])
@@ -45,7 +47,7 @@ production:
 A < B > C{body}
 """)
 
-    assert lsystem.iterate() == AxialTree("A M C B")
+    assert_axial_tree(lsystem, lsystem.iterate(), "A M C B")
 
 
 def test_new_left_context_can_precede_original_left_context_in_header():
@@ -57,4 +59,4 @@ A(x) --> D(x + 10)
 D(d) << A(a) < B(b) --> M(a,d,b)
 """)
 
-    assert lsystem.iterate() == AxialTree("D(11) M(1,11,2)")
+    assert_axial_tree(lsystem, lsystem.iterate(), "D(11) M(1,11,2)")

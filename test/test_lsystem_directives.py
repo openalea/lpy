@@ -1,6 +1,8 @@
 import pytest
 
-from openalea.lpy import AxialTree, Lsystem
+from openalea.lpy import Lsystem
+
+from testresources import assert_axial_tree
 
 
 @pytest.mark.parametrize("in_production", [False, True])
@@ -20,7 +22,7 @@ A(x) --> A(x + 1)
 """)
 
     assert lsystem.derivationLength == 3
-    assert lsystem.iterate() == AxialTree("A(3)")
+    assert_axial_tree(lsystem, lsystem.iterate(), "A(3)")
 
 
 @pytest.mark.parametrize("section", ["interpretation", "homomorphism"])
@@ -46,8 +48,8 @@ after_rules = 42
 """)
 
     result = lsystem.iterate()
-    assert result == AxialTree("D")
-    assert lsystem.interpret(result) == AxialTree("F")
+    assert_axial_tree(lsystem, result, "D")
+    assert_axial_tree(lsystem, lsystem.interpret(result), "F")
     assert lsystem.context()["after_rules"] == 42
 
 
@@ -66,7 +68,7 @@ endgroup
 B --> E
 """)
 
-    assert lsystem.iterate() == AxialTree("D E")
+    assert_axial_tree(lsystem, lsystem.iterate(), "D E")
 
 
 @pytest.mark.parametrize("directive", ["ignore: X", "consider: A B"])
@@ -81,7 +83,7 @@ A < B --> D
 A < C --> E
 """)
 
-    assert lsystem.iterate() == AxialTree("A X D A X C")
+    assert_axial_tree(lsystem, lsystem.iterate(), "A X D A X C")
 
 
 @pytest.mark.parametrize("directive", ["ignore: X", "consider: A B"])
@@ -94,7 +96,7 @@ production:
 A < B --> C
 """)
 
-    assert lsystem.iterate() == AxialTree("A X C")
+    assert_axial_tree(lsystem, lsystem.iterate(), "A X C")
 
 
 def test_lpyimport_loads_rules_and_python_namespace(tmp_path):
@@ -114,7 +116,7 @@ B(value) --> C(value + imported_value)
 """)
 
     assert lsystem.context()["imported_value"] == 7
-    assert lsystem.iterate() == AxialTree("C(9)")
+    assert_axial_tree(lsystem, lsystem.iterate(), "C(9)")
 
 
 def test_pastefile_expands_directives_before_parsing(tmp_path):
@@ -128,4 +130,4 @@ A(value) --> A(value + 1)
 """)
 
     assert lsystem.derivationLength == 2
-    assert lsystem.iterate() == AxialTree("A(6)")
+    assert_axial_tree(lsystem, lsystem.iterate(), "A(6)")

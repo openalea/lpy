@@ -1,4 +1,6 @@
-from openalea.lpy import AxialTree, Lsystem
+from openalea.lpy import Lsystem
+
+from testresources import assert_axial_tree
 
 
 def test_rule_body_accumulates_production_and_builds_an_axial_tree():
@@ -14,7 +16,7 @@ A(value):
     produce F(value)
 """)
 
-    assert lsystem.iterate() == AxialTree("D(3) E(4) F(2)")
+    assert_axial_tree(lsystem, lsystem.iterate(), "D(3) E(4) F(2)")
 
 
 def test_rule_body_queries_both_contexts_and_binds_parameters():
@@ -29,7 +31,7 @@ B(value):
         produce D(left['a'] + value + right['c'])
 """)
 
-    assert lsystem.iterate() == AxialTree("A(2) D(9) C(4)")
+    assert_axial_tree(lsystem, lsystem.iterate(), "A(2) D(9) C(4)")
 
 
 def test_rule_body_leaves_python_identifiers_and_strings_untouched():
@@ -44,4 +46,4 @@ A:
     produce C(nproduce_value)
 ''')
 
-    assert lsystem.iterate() == AxialTree("C(2)")
+    assert_axial_tree(lsystem, lsystem.iterate(), "C(2)")

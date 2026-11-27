@@ -1,16 +1,18 @@
 from openalea.lpy import *
 
+from testresources import active_context
+
+
 def test_modclasstable():
-    """ Test access to module class table """
-    cl = ModuleClassTable.get().getClasses()
-    ncl = ModuleClassTable.get().getNames()
-    nclnb2 = sum([1+len(m.aliases) for m in cl])
-    assert len(ncl) == nclnb2
-    ids = [i.id for i in ModuleClassTable.get().getClasses()]
-    ids.sort()
-    #cl.sort(lambda x,y : cmp(x.id,y.id))
-    #print cl
-    assert ids == list(range(len(ids))) and "All predefined modules are not registered or other modules are still registered"
+    """Check the names, aliases and IDs exposed by the shared table."""
+    table = ModuleClassTable.get()
+    classes = table.getClasses()
+    names = [name for module in classes for name in [module.name, *module.aliases]]
+    assert sorted(names) == sorted(table.getNames())
+    ids = {module.id for module in classes}
+    assert len(ids) == len(classes)
+    assert {module.id for module in ModuleClass.predefinedClasses} <= ids
+
 
 lcode1 = """
 module BABA
@@ -86,17 +88,17 @@ def test_nodeclaration_withgloballydeclaredmodule():
     """ Test mandatory module declaration with module declared in python namespace """
     lc = LsysContext()
     lc.declare('H')
-    lc.makeCurrent()
-    l = Lsystem()
-    l.context().options.setSelection('Module declaration','Mandatory')
-    try:
-        l.set('Axiom: H')
-        failed = False
-    except:
-        failed = True
-    assert failed and "Mandatory module declaration do not work"
-    #lc.done()
- 
+    with active_context(lc):
+        l = Lsystem()
+        l.context().options.setSelection('Module declaration', 'Mandatory')
+        try:
+            l.set('Axiom: H')
+            failed = False
+        except:
+            failed = True
+        assert failed and "Mandatory module declaration do not work"
+
+
 def test_alias_declared():
     """ Test name of module originally declared as alias """
     a = AxialTree('GetUp')
@@ -107,19 +109,20 @@ def test_alias_declared():
 
 def test_scale_declaration():
     """ Test if we had a scale property declaration to a class """
-    defaultscale = ModuleClass.DEFAULT_SCALE
-    a = AxialTree('T')
-    assert a[0].mclass.scale == defaultscale
-    a[0].mclass.scale = 5
-    assert a[0].mclass.scale == 5
-    l = LsysContext()
-    l.makeCurrent()
-    b = AxialTree('T')
-    assert b[0].mclass.scale == defaultscale
-    l.done()
-    assert b[0].mclass.scale == 5
- 
- 
+    first = LsysContext()
+    second = LsysContext()
+    default_scale = ModuleClass.DEFAULT_SCALE
+    with active_context(first):
+        a = AxialTree('T')
+        assert a[0].mclass.scale == default_scale
+        a[0].mclass.scale = 5
+        assert a[0].mclass.scale == 5
+        with active_context(second):
+            b = AxialTree('T')
+            assert b[0].mclass.scale == default_scale
+        assert b[0].mclass.scale == 5
+
+
 if __name__ == '__main__':
     import traceback as tb
     test_func = [ (n,v) for n,v in list(globals().items()) if 'test' in n]
