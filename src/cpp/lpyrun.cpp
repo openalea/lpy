@@ -51,7 +51,8 @@ void LPY(Lpy_Initialize)()
         boost::python::object lpy = boost::python::import("openalea.lpy");
         boost::python::object atexit = boost::python::import("atexit");
 
-        atexit.attr("register")(lpy.attr("cleanLpy"));
+        boost::python::object cleanup = lpy.attr("cleanLpy");
+        atexit.attr("register")(cleanup);
     }
     else {
         define_stl_exceptions();
