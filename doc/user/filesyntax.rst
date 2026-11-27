@@ -99,6 +99,25 @@ The check scans candidate rule lines in tracked LPy files without executing
 the models. It reports context forms, terminators and rejected candidates
 with their source locations.
 
+Module declarations
+===================
+
+A module declaration can list names, parameter names and aliases. Attributes
+after the colon apply to the whole declaration line. LPy reads nested
+expressions in attribute values with its Python fragment reader.
+
+.. literalinclude:: module_declaration.lark
+   :language: text
+
+The C++ parser shares the generated syntax between the module directive and
+the declaration list accepted by the context API. The verification script
+checks the table and scans tracked LPy sources. With Lark installed, run it
+with ``--write`` to regenerate the table.
+
+.. code-block:: console
+
+    python test/check_module_declaration_grammar.py
+
 .. _FileSyntax_LSystem_Specific_Declaration:
 
 L-System specific declaration

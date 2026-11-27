@@ -1695,62 +1695,86 @@ LpyParsing::parselstring( std::string::const_iterator& beg,
 
 /*---------------------------------------------------------------------------*/
 
-LpyParsing::ModDeclarationList 
-LpyParsing::parse_moddeclist(std::string::const_iterator& beg,
-						  std::string::const_iterator endpos,
-						  char delim)
+namespace {
+
+#include "module_declaration_syntax.inc"
+
+bool isModuleDeclarationEnd(char c, char delimiter)
 {
-  size_t nb = 0;
-  ModDeclarationList result;
-  std::string::const_iterator _it = beg;
-  while(_it != endpos && *_it != delim){
-	  ++nb; 
-	  while (_it != endpos &&(*_it == ' ' || *_it == '\t'))++_it;
-	  if (_it == endpos || *_it == delim || *_it == '\n' || *_it == ':' || *_it == '#') break;
-	  if (nb != 1){
-		  if(*_it != ',') LsysSyntaxError(std::string("Invalid syntax in module declaration: Wait for ','instead of '")+*_it+"'");
-		  ++_it;
-	  }
-	  while (_it != endpos &&(*_it == ' ' || *_it == '\t'))++_it;
-	  if (_it == endpos || *_it == delim || *_it == '\n' || *_it == ':' || *_it == '#') break;
-	  std::string::const_iterator bm = _it;
-	  while(_it != endpos && *_it != ','  && *_it != ' ' && *_it != '\t' 
-		                  && *_it != '\n' && *_it != ':' && *_it != '=' 
-		                  && *_it != '('  && *_it != '#'  && *_it != delim) ++_it;
-	  std::string name(bm,_it);
-	  if(name.empty())  LsysSyntaxError("Invalid empty name in declaration of "+ PGL_NAMESPACE_NAME::number(nb)+" module.");
-	  else { result.push_back(ModDeclaration(name)); }
-	  while (_it != endpos && (*_it == ' ' || *_it == '\t'))++_it;
-	  if(_it == endpos) break;
-	  if(*_it != ',' && *_it != '\n' && *_it != ':' && *_it != '=' && *_it != '(' && *_it != '#')
-		  LsysSyntaxError("Invalid syntax in module declaration: Wait for ',','=',':','(','#'.");
-	  if(*_it == ':' || *_it == '#' || *_it == '\n') break;
-	  switch(*_it){
-		case '=':
-			++_it;
-			while (_it == endpos && (*_it == ' ' || *_it == '\t'))++_it;
-			bm = _it;
-			while (_it != endpos && (*_it == '_' || isalnum(*_it)))++_it;
-			result.back().alias = true;
-			result.back().parameters = std::string(bm,_it);
-			break;
-		case '(':
-			bm = _it+1;
-			_it = readPythonFragment(bm, endpos, ")");
-			if (_it == endpos) {
-				LsysSyntaxError("Invalid syntax in module declaration: Wait for ')'.");
-				break;
-			}
-			result.back().parameters = std::string(bm, _it);
-			++_it;
-			break;
-		case ',':
-		default:
-			break;
-	  }
- }
-  beg = _it;
-  return result;
+    return c == delimiter || c == '\n' || c == ModuleAttributesMarker || c == '#';
+}
+
+} // namespace
+
+LpyParsing::ModDeclarationList
+LpyParsing::parse_moddeclist(std::string::const_iterator& beg,
+                            std::string::const_iterator endpos,
+                            char delim)
+{
+    ModDeclarationList result;
+    auto it = beg;
+    const auto skipSpace = [&] {
+        while (it != endpos && (*it == ' ' || *it == '\t')) ++it;
+    };
+
+    while (it != endpos) {
+        skipSpace();
+        if (it == endpos || isModuleDeclarationEnd(*it, delim)) break;
+        if (!result.empty()) {
+            if (*it != ModuleListSeparator) {
+                LsysSyntaxError(std::string("Invalid syntax in module declaration: Wait for ','instead of '") + *it + "'");
+                break;
+            }
+            ++it;
+            skipSpace();
+            if (it == endpos || isModuleDeclarationEnd(*it, delim)) break;
+        }
+
+        const auto nameBegin = it;
+        while (it != endpos && !isModuleDeclarationEnd(*it, delim) &&
+               *it != ModuleListSeparator && *it != ModuleAssignment &&
+               *it != ModuleParametersBegin && *it != ' ' && *it != '\t')
+            ++it;
+        if (nameBegin == it) {
+            LsysSyntaxError("Invalid empty name in declaration of " +
+                           PGL_NAMESPACE_NAME::number(result.size() + 1) + " module.");
+            break;
+        }
+        result.emplace_back(std::string(nameBegin, it));
+        auto& declaration = result.back();
+        skipSpace();
+        if (it == endpos || isModuleDeclarationEnd(*it, delim)) break;
+
+        switch (moduleSuffix(*it)) {
+        case ModuleSuffix::Alias: {
+            ++it;
+            skipSpace();
+            const auto target = it;
+            while (it != endpos && (*it == '_' || isalnum(static_cast<unsigned char>(*it)))) ++it;
+            declaration.alias = true;
+            declaration.parameters.assign(target, it);
+            break;
+        }
+        case ModuleSuffix::Parameters: {
+            const auto parameters = ++it;
+            it = readPythonFragment(parameters, endpos, std::string(1, ModuleParametersEnd));
+            if (it == endpos) {
+                LsysSyntaxError("Invalid syntax in module declaration: Wait for ')'.");
+                break;
+            }
+            declaration.parameters.assign(parameters, it);
+            ++it;
+            break;
+        }
+        case ModuleSuffix::None:
+            if (*it == ModuleListSeparator) break;
+            LsysSyntaxError("Invalid syntax in module declaration: Wait for ',','=',':','(','#'.");
+            beg = it;
+            return result;
+        }
+    }
+    beg = it;
+    return result;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -1784,44 +1808,43 @@ LpyParsing::parse_modlist(std::string::const_iterator& beg,
 
 /*---------------------------------------------------------------------------*/
 
-LpyParsing::ModLineDeclaration 
+LpyParsing::ModLineDeclaration
 LpyParsing::parse_moddeclaration_line(std::string::const_iterator& beg,
-								 std::string::const_iterator endpos,
-								 char delim)
+                                      std::string::const_iterator endpos,
+                                      char delim)
 {
-  ModLineDeclaration result;
-  std::string::const_iterator _it = beg;
-  result.first = LpyParsing::parse_moddeclist(_it,endpos,delim);
-  MetaModDeclaration metainfo;
-  std::string scalevalue;
-  if (_it != endpos && *_it == ':') {
-	  while (_it != endpos && *_it != delim && *_it != '\n' && *_it != '#') {
-		  ++_it;
-		  std::string key;
-		  while ((*_it == ' ' || *_it == '\t' || *_it == '\n')&& *_it != delim)++_it;
-		  std::string::const_iterator _keybeg = _it;
-		  while ((isalnum(*_it) || *_it == '_')&& *_it != delim)++_it;
-		  key = std::string(_keybeg,_it);
-		  while ((*_it == ' ' || *_it == '\t' || *_it == '\n')&& *_it != delim)++_it;
-		  if (_it == endpos || *_it == delim || *_it != '=')
-			  LsysSyntaxError("Invalid module attribute in module declaration ('=' missing).");
-		  else _it++;
-		  while ((*_it == ' ' || *_it == '\t' || *_it == '\n')&& *_it != delim)++_it;
-		  std::string::const_iterator _valbeg = _it;
-		  while(_it != endpos && *_it != ',' && *_it != '\n' && *_it != '#' && *_it != delim) {
-			  if (*_it == '[' || *_it == '(' || *_it == '{' || *_it == '\'' || *_it == '"') _it = next_token(_it,endpos);
-			  else ++_it;
-		  }
-		  if (_valbeg != _it){
-			  std::string value = std::string(_valbeg,_it);
-			  metainfo[key] = value;
-		  }
-		  else metainfo[key] = "";
-	  }
-  }
-  result.second = metainfo;
-  beg = _it;
-  return result;
+    ModLineDeclaration result;
+    auto it = beg;
+    result.first = parse_moddeclist(it, endpos, delim);
+    if (it != endpos && *it == ModuleAttributesMarker) {
+        const std::string valueDelimiters = std::string("\n#") + ModuleListSeparator + delim;
+        const auto skipSpace = [&] {
+            while (it != endpos && *it != delim && (*it == ' ' || *it == '\t' || *it == '\n'))
+                ++it;
+        };
+
+        do {
+            ++it;
+            skipSpace();
+            const auto keyBegin = it;
+            while (it != endpos && *it != delim &&
+                   (isalnum(static_cast<unsigned char>(*it)) || *it == '_'))
+                ++it;
+            const std::string key(keyBegin, it);
+            skipSpace();
+            if (it == endpos || *it == delim || *it != ModuleAssignment) {
+                LsysSyntaxError("Invalid module attribute in module declaration ('=' missing).");
+                break;
+            }
+            ++it;
+            skipSpace();
+            const auto valueBegin = it;
+            it = readPythonFragment(valueBegin, endpos, valueDelimiters);
+            result.second[key].assign(valueBegin, it);
+        } while (it != endpos && *it != delim && *it == ModuleListSeparator);
+    }
+    beg = it;
+    return result;
 }
 
 

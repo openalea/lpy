@@ -1,0 +1,30 @@
+// The directive keyword is recognized by the Lsystem directive grammar.
+start: declaration_payload
+declaration_payload: declaration_list? attributes? COMMENT?
+
+declaration_list: declaration (COMMA declaration)* COMMA?
+declaration: MODULE_NAME suffix?
+?suffix: parameters | alias
+parameters: OPEN_PAREN fragment* CLOSE_PAREN
+alias: EQUAL IDENTIFIER
+
+attributes: COLON attribute (COMMA attribute)*
+attribute: IDENTIFIER EQUAL attribute_value?
+attribute_value: (VALUE_TEXT | group | STRING)+
+
+?fragment: FRAGMENT_TEXT | group | STRING
+?group: parameters | "[" fragment* "]" | "{" fragment* "}"
+
+COMMA: ","
+COLON: ":"
+EQUAL: "="
+OPEN_PAREN: "("
+CLOSE_PAREN: ")"
+COMMENT: /#[^\r\n]*/
+
+MODULE_NAME: /[^, \t\r\n:=(#]+/
+IDENTIFIER: /[a-zA-Z0-9_]+/
+VALUE_TEXT: /[^,()\[\]{}'"#\r\n \t][^,()\[\]{}'"#\r\n]*/
+FRAGMENT_TEXT: /[^()\[\]{}'"#\r\n]+/
+STRING: /'''(?:\\[^\r\n]|(?!''')[^\\\r\n])*'''|"""(?:\\[^\r\n]|(?!""")[^\\\r\n])*"""|'(?:\\[^\r\n]|[^'\\\r\n])*'|"(?:\\[^\r\n]|[^"\\\r\n])*"/
+%ignore /[ \t]+/
