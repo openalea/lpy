@@ -1,0 +1,116 @@
+import pytest
+
+from openalea.lpy import AxialTree, Lsystem
+
+
+@pytest.mark.parametrize("in_production", [False, True])
+def test_derivation_length_directive_evaluates_python(in_production):
+    lsystem = Lsystem()
+    directive = "derivation length: steps + 1"
+    before = "" if in_production else directive
+    after = directive if in_production else ""
+    lsystem.setCode(f"""
+steps = 2
+Axiom: A(0)
+{before}
+production:
+{after}
+A(x) --> A(x + 1)
+""")
+
+    assert lsystem.derivationLength == 3
+    assert lsystem.iterate() == AxialTree("A(3)")
+
+
+@pytest.mark.parametrize("section", ["interpretation", "homomorphism"])
+def test_section_directives_with_function_axiom_and_depths(section):
+    lsystem = Lsystem()
+    lsystem.setCode(f"""
+Axiom:
+    nproduce A
+derivation length: 1
+production:
+A --> B
+decomposition:
+maximum depth: 1 + 1
+B --> C
+C --> D
+D --> E
+{section}:
+maximum depth: 1
+D --> F
+F --> G
+endlsystem
+after_rules = 42
+""")
+
+    result = lsystem.iterate()
+    assert result == AxialTree("D")
+    assert lsystem.interpret(result) == AxialTree("F")
+    assert lsystem.context()["after_rules"] == 42
+
+
+def test_group_and_endgroup_select_rules():
+    lsystem = Lsystem()
+    lsystem.setCode("""
+def Start():
+    useGroup(2)
+Axiom: A B
+production:
+group 1:
+A --> C
+group 1 + 1:
+A --> D
+endgroup
+B --> E
+""")
+
+    assert lsystem.iterate() == AxialTree("D E")
+
+
+@pytest.mark.parametrize("directive", ["ignore: X", "consider: A B"])
+def test_context_directives_apply_and_reset_per_rule(directive):
+    lsystem = Lsystem()
+    lsystem.setCode(f"""
+Axiom: A X B A X C
+production:
+{directive}
+A < B --> D
+{directive.split(':')[0]}:
+A < C --> E
+""")
+
+    assert lsystem.iterate() == AxialTree("A X D A X C")
+
+
+@pytest.mark.parametrize("directive", ["ignore: X", "consider: A B"])
+def test_context_directives_before_production_apply_to_rules(directive):
+    lsystem = Lsystem()
+    lsystem.setCode(f"""
+Axiom: A X B
+{directive}
+production:
+A < B --> C
+""")
+
+    assert lsystem.iterate() == AxialTree("A X C")
+
+
+def test_lpyimport_loads_rules_and_python_namespace(tmp_path):
+    imported = tmp_path / "imported.lpy"
+    imported.write_text("""
+imported_value = 7
+production:
+A --> B(2)
+""")
+    lsystem = Lsystem()
+    lsystem.setCode(f"""
+lpyimport {imported.with_suffix("")}
+Axiom: A
+derivation length: 2
+production:
+B(value) --> C(value + imported_value)
+""")
+
+    assert lsystem.context()["imported_value"] == 7
+    assert lsystem.iterate() == AxialTree("C(9)")
