@@ -177,7 +177,6 @@ public:
 
 protected:
 
-	void parseHeader( const std::string& name);
 	void parseParameters();
 	void initStaticProduction();
 

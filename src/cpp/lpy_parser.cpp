@@ -1187,62 +1187,131 @@ Lsystem::set( const std::string&   _rules , std::string * pycode,
 
 /*---------------------------------------------------------------------------*/
 
-void LsysRule::set( const std::string& rule ){
-  std::string::const_iterator endheader = rule.begin();
-  std::string::const_iterator startcode = endheader;
-  bool foundendheader = false;
-  bool arrow = false;
-  std::string staticarrowtxt = "-static->";
-  std::string staticmarkertxt = "@static";
-  bool staticrule = false;
-  // count number of lines
-  __codelength = 0;
-  for(std::string::const_iterator it = rule.begin(); it != rule.end(); ++it)
-	  if (*it == '\n') ++__codelength;
-  // identify header
-  while(endheader != rule.end() && !foundendheader){
-	  if(*endheader==':') { 
-		  foundendheader = true; 
-		  startcode = endheader+1; 
-		  std::string::const_iterator marker = startcode;
-		  while (marker!= rule.end() && (*marker == ' ' || *marker == '\t'))++marker;
-		  if(distance(marker,rule.end())>=staticmarkertxt.size() && std::string(marker,marker+staticmarkertxt.size()) == staticmarkertxt){
-			startcode = marker+staticmarkertxt.size();
-			staticrule = true;
-		  }
-	  }
-	  else if(*endheader=='-' && (endheader==rule.begin()|| *(endheader-1)!='-' )){
-		  if(distance(endheader,rule.end())>=2 && *(endheader+1) == '-' && *(endheader+2) == '>'){
-			foundendheader = true;
-			arrow = true;
-			startcode = endheader+3;
-		  }
-		  else if (distance(endheader,rule.end())>=staticarrowtxt.size() && std::string(endheader,endheader+staticarrowtxt.size()) == staticarrowtxt){
-			foundendheader = true;
-			arrow = true;
-			staticrule = true;
-			startcode = endheader+staticarrowtxt.size();
-		  }
-		  else endheader++;
-      } 
-      else endheader++;
-  }
-  if(endheader == rule.end()){
-	LsysError("Ill-formed Rule : unfound delimiter ':' in "+rule,"",lineno);
-  }
-  // identify successor code
-  if (arrow)__definition = " --> "+std::string(startcode,rule.end());
-  else __definition =  std::string(startcode,rule.end());
-  // parse header
-  std::string header(rule.begin(),endheader);
-  parseHeader(header);
+namespace {
+
+struct RuleHeader {
+    std::string predecessor;
+    std::string leftContext;
+    std::string newLeftContext;
+    std::string rightContext;
+    std::string newRightContext;
+    std::string::const_iterator body;
+    bool arrow = false;
+    bool isStatic = false;
+};
+
+// [left <] [new left <<] predecessor [>> new right] [> right]
+RuleHeader readRuleHeader(const std::string& rule, int lineno)
+{
+    RuleHeader header;
+    const auto end = rule.end();
+    header.body = end;
+    auto section = rule.begin();
+    auto it = section;
+    bool readingNewRightContext = false;
+    const std::string staticArrow = "-static->";
+    const std::string staticMarker = "@static";
+
+    while (it != end) {
+        const auto offset = it - rule.begin();
+        if (*it == ':') {
+            header.body = it + 1;
+            auto marker = header.body;
+            while (marker != end && (*marker == ' ' || *marker == '\t')) ++marker;
+            if (rule.compare(marker - rule.begin(), staticMarker.size(), staticMarker) == 0) {
+                header.body = marker + staticMarker.size();
+                header.isStatic = true;
+            }
+            break;
+        }
+        if (*it == '-' && (it == rule.begin() || *(it - 1) != '-')) {
+            if (rule.compare(offset, 3, "-->") == 0) {
+                header.body = it + 3;
+                header.arrow = true;
+                break;
+            }
+            if (rule.compare(offset, staticArrow.size(), staticArrow) == 0) {
+                header.body = it + staticArrow.size();
+                header.arrow = true;
+                header.isStatic = true;
+                break;
+            }
+        }
+        if (*it == '(') {
+            it = readPythonFragment(it + 1, end, ")", lineno);
+            if (it != end) ++it;
+            continue;
+        }
+        if (*it != '<' && *it != '>') {
+            it = next_token(it, end, false);
+            continue;
+        }
+
+        const char separator = *it;
+        const bool doubled = it + 1 != end && *(it + 1) == separator;
+        const std::string pattern(section, it);
+        if (separator == '<') {
+            auto& context = doubled ? header.newLeftContext : header.leftContext;
+            if (!header.predecessor.empty() || !context.empty())
+                LsysError("Ill-formed Rule Header : " + rule, "", lineno);
+            context = pattern;
+        }
+        else if (readingNewRightContext && !doubled) {
+            header.newRightContext = pattern;
+            readingNewRightContext = false;
+        }
+        else {
+            if (doubled && (readingNewRightContext || !header.newRightContext.empty()))
+                LsysError("Ill-formed Rule Header : Two new right contexts found : " + rule, "", lineno);
+            else if (!header.predecessor.empty())
+                LsysError("Ill-formed Rule Header : Two Predecessors found : " + rule, "", lineno);
+            else {
+                header.predecessor = pattern;
+                readingNewRightContext = doubled;
+            }
+            if (header.predecessor.empty())
+                LsysError("Ill-formed Rule Header : No Predecessor found : " + rule, "", lineno);
+        }
+        it += doubled ? 2 : 1;
+        section = it;
+    }
+
+    if (it == end)
+        LsysError("Ill-formed Rule : unfound delimiter ':' in " + rule, "", lineno);
+    if (header.predecessor.empty()) {
+        header.predecessor.assign(section, it);
+        if (header.predecessor.empty())
+            LsysError("Ill-formed Rule Header : No Predecessor found : " + rule, "", lineno);
+    }
+    else if (section != it) {
+        auto& context = readingNewRightContext ? header.newRightContext : header.rightContext;
+        context.assign(section, it);
+    }
+    if (!header.newLeftContext.empty() && !header.newRightContext.empty())
+        LsysError("Ill-formed Rule Header : New left and right contexts found : " + rule, "", lineno);
+    return header;
+}
+
+} // namespace
+
+void LsysRule::set(const std::string& rule)
+{
+  const RuleHeader header = readRuleHeader(rule, lineno);
+  __codelength = std::count(rule.begin(), rule.end(), '\n');
+  __predecessor = PatternString(header.predecessor, lineno);
+  if (!header.leftContext.empty()) __leftcontext = PatternString(header.leftContext, lineno);
+  if (!header.newLeftContext.empty()) __newleftcontext = PatternString(header.newLeftContext, lineno);
+  if (!header.rightContext.empty()) __rightcontext = PatternString(header.rightContext, lineno);
+  if (!header.newRightContext.empty()) __newrightcontext = PatternString(header.newRightContext, lineno);
+  __definition.assign(header.body, rule.end());
+  if (header.arrow) __definition.insert(0, " --> ");
   __hasquery = __predecessor.hasRequestModule() 
 			|| __newleftcontext.hasRequestModule()
 			|| __leftcontext.hasRequestModule()
 			|| __newrightcontext.hasRequestModule()
 			|| __rightcontext.hasRequestModule();
   // check variables
-  if(staticrule) setStatic();
+  if (header.isStatic) setStatic();
   else {
 	if (LsysContext::current()->optimizationLevel >= 2)
 		keepOnlyRelevantVariables();
@@ -1382,78 +1451,6 @@ LsysRule::getCoreCode() {
 
 /*---------------------------------------------------------------------------*/
 	
-// cg < ncg << pred >> ncd > cd
-void 
-LsysRule::parseHeader( const std::string& header){
-  std::string::const_iterator it = header.begin();
-  std::string::const_iterator beg = header.begin();
-  std::string::const_iterator end = header.end();
-  std::string cg;
-  std::string ncg;
-  std::string pred;
-  std::string ncd;
-  std::string cd;
-  bool begncd = false;
-  while(it != end){
-	if(*it == '<'){
-
-	  if(!pred.empty())LsysError("Ill-formed Rule Header : "+header,"",lineno);
-	  if(*(it+1) == '<'){
-		if(ncg.empty())ncg = std::string(beg,it);
-		else LsysError("Ill-formed Rule Header : "+header,"",lineno);
-		it++;
-	  }
-	  else {
-		if(cg.empty()) cg = std::string(beg,it);
-		else LsysError("Ill-formed Rule Header : "+header,"",lineno);
-	  }
-	  beg = it+1;
-	}
-
-	else if(*it == '>'){
-		
-		if(*(it+1) == '>') {
-          if (begncd || !ncd.empty())LsysError("Ill-formed Rule Header : Two new left contexts found : "+header,"",lineno);
-          else { 
-              if(pred.empty()) pred = std::string(beg,it); 
-              else LsysError("Ill-formed Rule Header : Two Predecessors found : "+header,"",lineno);          
-              begncd = true; it++; 
-          }
-      }
-      else {
-          if (begncd) { 
-              ncd = std::string(beg,it); begncd = false;  }
-          else {
-            if(pred.empty()) pred = std::string(beg,it);
-            else LsysError("Ill-formed Rule Header : Two Predecessors found : "+header,"",lineno);
-          }
-      }
-      if(pred.empty())LsysError("Ill-formed Rule Header : No Predecessor found : "+header,"",lineno);
-	  beg = it+1;
-    }
-	it = next_token(it,end,false);
-	// it++;
-  }
-  if(pred.empty()){
-	pred = std::string(beg,it);
-	if(pred.empty()) LsysError("Ill-formed Rule Header : No Predecessor found : "+header,"",lineno);
-  }
-  else if (beg !=end){
-      if (begncd)ncd = std::string(beg,it);
-      else cd = std::string(beg,it);
-  }
-  if (!ncg.empty() && !ncd.empty())LsysError("Ill-formed Rule Header : New left and right contexts found : "+header,"",lineno);
-
-  __predecessor = PatternString(pred,lineno);
-  if(!cg.empty())__leftcontext = PatternString(cg,lineno);
-  if(!ncg.empty())__newleftcontext = PatternString(ncg,lineno);
-  if(!cd.empty())__rightcontext = PatternString(cd,lineno);
-  if(!ncd.empty())__newrightcontext = PatternString(ncd,lineno);
-}
-
-
-/*---------------------------------------------------------------------------*/
-
 std::string LpyParsing::lstring2py(const std::string& lcode,
 				 std::string::const_iterator& beg)
 { return lstring2py(beg,lcode.end()); }
