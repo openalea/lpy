@@ -46,3 +46,15 @@ A < B > C{body}
 """)
 
     assert lsystem.iterate() == AxialTree("A M C B")
+
+
+def test_new_left_context_can_precede_original_left_context_in_header():
+    lsystem = Lsystem()
+    lsystem.setCode("""
+Axiom: A(1) B(2)
+production:
+A(x) --> D(x + 10)
+D(d) << A(a) < B(b) --> M(a,d,b)
+""")
+
+    assert lsystem.iterate() == AxialTree("D(11) M(1,11,2)")

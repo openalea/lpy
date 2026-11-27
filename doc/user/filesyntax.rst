@@ -90,6 +90,11 @@ With Lark installed, run the check from the repository root.
 
     python test/check_rule_header_grammar.py
 
+The C++ parser uses a production table generated from the context rules
+above. It uses LPy's fragment reader and keeps the table in the source tree
+so building LPy requires no Lark installation. After changing the context
+rules, run the same command with ``--write`` to regenerate the table.
+
 The check scans candidate rule lines in tracked LPy files without executing
 the models. It reports context forms, terminators and rejected candidates
 with their source locations.

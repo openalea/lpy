@@ -1,5 +1,6 @@
 """Check the declarative rule-header grammar against tracked LPy sources."""
 
+import argparse
 from collections import Counter
 from pathlib import Path
 import re
@@ -31,8 +32,46 @@ def rule_lines(source):
             yield lineno, line
 
 
-def check_grammar():
-    grammar = Lark.open(ROOT / "doc/user/rule_header.lark", parser="earley")
+HEADER_FIELDS = {
+    "left_context": "leftContext",
+    "new_left_context": "newLeftContext",
+    "predecessor": "predecessor",
+    "new_right_context": "newRightContext",
+    "right_context": "rightContext",
+}
+PRODUCTION_TABLE = ROOT / "src/cpp/rule_header_productions.inc"
+
+
+def generate_production_table(grammar):
+    """Expand the context productions into separator sequences and field bindings."""
+    literals = {terminal.name: terminal.pattern.value for terminal in grammar.terminals}
+    fields = {
+        rule.origin.name: rule.expansion
+        for rule in grammar.rules
+        if rule.origin.name in HEADER_FIELDS
+    }
+    lines = ["// Generated from doc/user/rule_header.lark by test/check_rule_header_grammar.py."]
+    productions = {
+        rule.expansion[0].name for rule in grammar.rules if rule.origin.name == "rule_header"
+    }
+    for rule in grammar.rules:
+        if rule.origin.name not in productions:
+            continue
+        separators = []
+        bindings = []
+        for field in rule.expansion:
+            for symbol in fields[field.name]:
+                if symbol.is_term:
+                    separators.append(f'"{literals[symbol.name]}"')
+                elif symbol.name == "pattern":
+                    bindings.append(f"&RuleHeader::{HEADER_FIELDS[field.name]}")
+                else:
+                    raise ValueError(f"Unexpected rule-header symbol: {symbol.name}")
+        lines.append("    {{" + ", ".join(separators) + "}, {" + ", ".join(bindings) + "}},")
+    return "\n".join(lines) + "\n"
+
+
+def check_grammar(grammar):
     sources = subprocess.check_output(
         ["git", "ls-files", "-z", "*.lpy"], cwd=ROOT
     ).decode().split("\0")[:-1]
@@ -63,4 +102,13 @@ def check_grammar():
 
 
 if __name__ == "__main__":
-    sys.exit(check_grammar())
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--write", action="store_true", help="Regenerate the C++ production table.")
+    options = parser.parse_args()
+    grammar = Lark.open(ROOT / "doc/user/rule_header.lark", parser="earley", keep_all_tokens=True)
+    generated = generate_production_table(grammar)
+    if options.write:
+        PRODUCTION_TABLE.write_text(generated, encoding="utf-8")
+    elif PRODUCTION_TABLE.read_text(encoding="utf-8") != generated:
+        sys.exit("Rule-header production table is stale. Run this script with --write.")
+    sys.exit(check_grammar(grammar))

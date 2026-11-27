@@ -34,6 +34,7 @@
 #include <plantgl/tool/util_string.h>
 #include <plantgl/python/extract_list.h>
 #include <QtCore/QFileInfo>
+#include <initializer_list>
 
 using namespace boost::python;
 TOOLS_USING_NAMESPACE
@@ -1178,7 +1179,17 @@ struct RuleHeader {
     bool isStatic = false;
 };
 
-// [left <] [new left <<] predecessor [>> new right] [> right]
+using RuleHeaderField = std::string RuleHeader::*;
+
+struct RuleHeaderProduction {
+    std::initializer_list<const char*> separators;
+    std::initializer_list<RuleHeaderField> fields;
+};
+
+const RuleHeaderProduction ruleHeaderProductions[] = {
+#include "rule_header_productions.inc"
+};
+
 RuleHeader readRuleHeader(const std::string& rule, int lineno)
 {
     RuleHeader header;
@@ -1186,7 +1197,8 @@ RuleHeader readRuleHeader(const std::string& rule, int lineno)
     header.body = end;
     auto section = rule.begin();
     auto it = section;
-    bool readingNewRightContext = false;
+    std::vector<std::string> separators;
+    std::vector<std::string> patterns;
     const std::string staticArrow = "-static->";
     const std::string staticMarker = "@static";
 
@@ -1227,46 +1239,30 @@ RuleHeader readRuleHeader(const std::string& rule, int lineno)
 
         const char separator = *it;
         const bool doubled = it + 1 != end && *(it + 1) == separator;
-        const std::string pattern(section, it);
-        if (separator == '<') {
-            auto& context = doubled ? header.newLeftContext : header.leftContext;
-            if (!header.predecessor.empty() || !context.empty())
-                LsysError("Ill-formed Rule Header : " + rule, "", lineno);
-            context = pattern;
-        }
-        else if (readingNewRightContext && !doubled) {
-            header.newRightContext = pattern;
-            readingNewRightContext = false;
-        }
-        else {
-            if (doubled && (readingNewRightContext || !header.newRightContext.empty()))
-                LsysError("Ill-formed Rule Header : Two new right contexts found : " + rule, "", lineno);
-            else if (!header.predecessor.empty())
-                LsysError("Ill-formed Rule Header : Two Predecessors found : " + rule, "", lineno);
-            else {
-                header.predecessor = pattern;
-                readingNewRightContext = doubled;
-            }
-            if (header.predecessor.empty())
-                LsysError("Ill-formed Rule Header : No Predecessor found : " + rule, "", lineno);
-        }
+        patterns.emplace_back(section, it);
+        separators.emplace_back(doubled ? 2 : 1, separator);
         it += doubled ? 2 : 1;
         section = it;
     }
 
-    if (it == end)
+    if (it == end) {
         LsysError("Ill-formed Rule : unfound delimiter ':' in " + rule, "", lineno);
-    if (header.predecessor.empty()) {
-        header.predecessor.assign(section, it);
+        return header;
+    }
+
+    patterns.emplace_back(section, it);
+    for (const auto& production : ruleHeaderProductions) {
+        if (!std::equal(separators.begin(), separators.end(),
+                        production.separators.begin(), production.separators.end()))
+            continue;
+        auto pattern = patterns.begin();
+        for (const auto field : production.fields)
+            header.*field = std::move(*pattern++);
         if (header.predecessor.empty())
             LsysError("Ill-formed Rule Header : No Predecessor found : " + rule, "", lineno);
+        return header;
     }
-    else if (section != it) {
-        auto& context = readingNewRightContext ? header.newRightContext : header.rightContext;
-        context.assign(section, it);
-    }
-    if (!header.newLeftContext.empty() && !header.newRightContext.empty())
-        LsysError("Ill-formed Rule Header : New left and right contexts found : " + rule, "", lineno);
+    LsysError("Ill-formed Rule Header : " + rule, "", lineno);
     return header;
 }
 
