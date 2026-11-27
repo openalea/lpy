@@ -1,0 +1,34 @@
+// A rule's first line. The body is opaque from the terminator onward.
+start: rule_header BODY?
+
+rule_header: (ordinary | with_new_left | with_new_right) terminator
+ordinary: left_context? predecessor right_context?
+with_new_left: (left_context? new_left_context | new_left_context left_context) predecessor right_context?
+with_new_right: left_context? predecessor new_right_context right_context?
+
+left_context: pattern "<"
+new_left_context: pattern "<<"
+predecessor: pattern
+new_right_context: ">>" pattern
+right_context: ">" pattern
+
+terminator: STATIC_BLOCK -> static_block
+          | BLOCK        -> block
+          | "-static->"  -> static_arrow
+          | "-->"        -> arrow
+STATIC_BLOCK: /:[ \t]*@static/
+BLOCK: /:(?![ \t]*@static)/
+
+// Module names and symbols depend on the active module table.
+pattern: (MODULE_TEXT | arguments | STRING)+
+MODULE_TEXT: /(?:(?!-->|-static->)[^ \t\r\n()<>:'"#])+/
+
+// The grammar finds fragment boundaries without interpreting their contents.
+arguments: "(" fragment* ")"
+?fragment: PYTHON_TEXT | STRING | arguments
+         | "[" fragment* "]" | "{" fragment* "}"
+PYTHON_TEXT: /[^()\[\]{}'"#\r\n]+/
+
+STRING: /'''(?:\\[^\r\n]|(?!''')[^\\\r\n])*'''|"""(?:\\[^\r\n]|(?!""")[^\\\r\n])*"""|'(?:\\[^\r\n]|[^'\\\r\n])*'|"(?:\\[^\r\n]|[^"\\\r\n])*"/
+BODY: /[^\r\n]+/
+%ignore /[ \t]+/

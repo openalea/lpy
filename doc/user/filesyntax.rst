@@ -65,6 +65,35 @@ Canvas of L-Py file
     # pure python code is again possible
 
 
+Rule headers
+============
+
+A rule header contains a predecessor and may include contexts from the
+original string (< or >) and from the string
+being produced (<< or >>). A header can use a new left context or a new right
+context. For example, A(a) < D(d) << B(b) > C(c) matches B with original left
+context A, newly produced left context D, and original right context C.
+
+The declarative grammar covers the first line of production, decomposition
+and interpretation rules, including block, arrow and static forms.
+
+.. literalinclude:: rule_header.lark
+   :language: text
+
+LPy resolves module names using the active module table and interprets the
+arguments. Angle brackets inside arguments and quoted strings belong to the
+fragment. Square brackets at the top level are LPy branch symbols.
+
+With Lark installed, run the check from the repository root.
+
+.. code-block:: console
+
+    python test/check_rule_header_grammar.py
+
+The check scans candidate rule lines in tracked LPy files without executing
+the models. It reports context forms, terminators and rejected candidates
+with their source locations.
+
 .. _FileSyntax_LSystem_Specific_Declaration:
 
 L-System specific declaration
