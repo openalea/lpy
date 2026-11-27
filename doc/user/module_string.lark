@@ -1,0 +1,28 @@
+// Tokens are supplied by the LPy scanner. MODULE, GET_MODULE and SURFACE
+// denote resolved module classes. Their spelling depends on the active table.
+production_string: production_module*
+pattern_string: pattern_module*
+
+production_module: MODULE                                 -> bare
+                 | MODULE arguments                       -> with_arguments
+                 | GET_MODULE                             -> bare
+                 | GET_MODULE arguments                   -> with_arguments
+                 | GET_MODULE VARIABLE                    -> variable
+                 | SURFACE                                -> bare
+                 | SURFACE arguments                       -> with_arguments
+                 | SURFACE SURFACE_LABEL arguments?        -> surface
+
+pattern_module: MODULE                                    -> bare
+              | MODULE arguments                          -> with_arguments
+              | GET_MODULE                                -> bare
+              | GET_MODULE arguments                      -> with_arguments
+              | GET_MODULE captured_module                -> capture
+              | SURFACE                                   -> bare
+              | SURFACE arguments                         -> with_arguments
+              | SURFACE SURFACE_LABEL arguments?           -> surface
+
+// A capture uses the same scanner to resolve the following module.
+captured_module: CAPTURED_MODULE
+arguments: ARGUMENTS
+
+%declare MODULE GET_MODULE SURFACE ARGUMENTS VARIABLE SURFACE_LABEL CAPTURED_MODULE

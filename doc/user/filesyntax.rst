@@ -118,6 +118,28 @@ with ``--write`` to regenerate the table.
 
     python test/check_module_declaration_grammar.py
 
+Module strings
+==============
+
+Axioms, production successors and matching patterns share the module
+string reader. LPy resolves each module using the longest active name in
+the current module table. The grammar consumes resolved module classes
+and distinguishes ordinary arguments, module capture in a pattern (for
+example, ``$A(captured)``), and variable insertion in a production
+(``$captured``). It also describes the optional label used by the
+CPFG surface shorthand, such as ``~l(2)``.
+
+.. literalinclude:: module_string.lark
+   :language: text
+
+The generated syntax table is part of the C++ sources. With Lark
+installed, run the following command to check the table and the grammar.
+Add ``--write`` to regenerate the table.
+
+.. code-block:: console
+
+    python test/check_module_string_grammar.py
+
 .. _FileSyntax_LSystem_Specific_Declaration:
 
 L-System specific declaration

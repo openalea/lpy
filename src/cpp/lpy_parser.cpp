@@ -1563,92 +1563,97 @@ std::string LpyParsing::lstring2pyparam( std::string::const_iterator& beg,
 /*---------------------------------------------------------------------------*/
 
 
-std::pair<size_t,std::string>
-parseAModule( std::string::const_iterator& _it,
-			  std::string::const_iterator endpos,
-			  bool production,
-			  int lineno)
-{
-	std::string::const_iterator _it2 = _it;
-	bool first = true;
-	size_t mod_id;
-	size_t namesize = 0;
-	std::string mod_args;
-	ModuleClassPtr mod = ModuleClassTable::get().parse(_it,endpos,namesize);
-	if (!mod){
-		LsysSyntaxError(std::string("Invalid symbol '")+*_it+"' in AxialTree.","",lineno);
-		// mod = ModuleClassTable::get().declare(*_it); ++_it; 
-	}
-	else {_it += namesize; }
-	while(_it != endpos && (*_it == ' ' || *_it == '\t'))++_it;
-	mod_id = mod->getId();
-	bool has_arg = false;
-	bool isNewExpression = false; 
-	if (mod == ModuleClass::GetModule  ){
-		if (_it != endpos && *_it != '('){
-			has_arg = true;
-			if (!production){
-				// parse the rest as if it was a module
-				std::pair<size_t,std::string> res = parseAModule(_it,endpos,production,lineno);
-				ModuleClassPtr lmod = ModuleClassTable::get().find(res.first);
-				if (lmod == ModuleClass::GetModule)
-					LsysSyntaxError(std::string("Invalid construction for get module '$")+lmod->name+"'.","",lineno);
-				// args in this case are made of the variable name and the module class name
-				mod_args = std::string(res.second.begin(),res.second.end())+","+lmod->name;
-			}
-			else {
-				  // for production, get variable name after. Should be separated from the rest with a space
-				 _it2 = _it;
-				 // a variable name is made of _ or alpbetic or numeric char 
-				 while(_it != endpos && (*_it == '_' || isalnum(*_it))) ++_it;
-				 mod_args = std::string(_it2,_it);
-			}
-			isNewExpression = true;
-		}
-	}
-	if(!isNewExpression) {
-		if (mod == ModuleClass::CpfgSurface){
-			if (_it != endpos && *_it != '('){
-				has_arg = true;
-				mod_args = std::string("'")+*_it+"',";
-				_it++;
-			}
-		}
-		if(_it != endpos && *_it == '('){
-            const auto argsBegin = ++_it;
-            auto lastArg = argsBegin;
-            auto argsEnd = readPythonFragment(argsBegin, endpos, ",)", lineno);
-            while (argsEnd != endpos && *argsEnd == ',') {
-                lastArg = argsEnd + 1;
-                argsEnd = readPythonFragment(lastArg, endpos, ",)", lineno);
-            }
-            if (argsEnd == endpos) {
-                _it = endpos;
-                LsysSyntaxError("Invalid syntax in AxialTree: expected ')'.", "", lineno);
-                return {mod_id, mod_args};
-            }
-            _it = argsEnd + 1;
+namespace {
 
-            while (lastArg != argsEnd && (*lastArg == ' ' || *lastArg == '\t')) ++lastArg;
-            if (production && lastArg != argsEnd && *lastArg == '*') {
-                auto variable = lastArg + 1;
-                if (variable != argsEnd && *variable == '*') ++variable;
-                if (variable != argsEnd && LpyParsing::isValidVariableName(variable, argsEnd)) {
-                    mod_args.append(argsBegin, lastArg);
-                    mod_args += "PackedArgs(";
-                    mod_args.append(variable, _it);
-                    return {mod_id, mod_args};
-                }
-            }
-            mod_args.append(argsBegin, argsEnd);
-			has_arg = (mod_args.size() > 0);
-		}
-	}
-	std::pair<size_t,std::string> amod;
-	amod.first = mod_id;
-	amod.second = mod_args;
-	return amod;
+enum class ModuleStringMode { Production, Pattern };
+enum class ModuleToken { Module, GetModule, Surface };
+enum class ModuleLookahead { End, Arguments, Other };
+enum class ModuleSyntax { Bare, WithArguments, Variable, Capture, Surface };
+
+constexpr ModuleSyntax moduleStringSyntax[2][3][3] = {
+#include "module_string_syntax.inc"
+};
+
+std::pair<size_t, std::string>
+parseAModule(SourceIterator& it, SourceIterator end, ModuleStringMode mode, int lineno)
+{
+    size_t nameSize = 0;
+    const ModuleClassPtr module = ModuleClassTable::get().parse(it, end, nameSize);
+    if (!module) {
+        LsysSyntaxError(std::string("Invalid symbol '") + *it + "' in AxialTree.", "", lineno);
+        ++it;
+        return {};
+    }
+    it += nameSize;
+    while (it != end && (*it == ' ' || *it == '\t')) ++it;
+
+    ModuleToken token = ModuleToken::Module;
+    if (module == ModuleClass::GetModule) token = ModuleToken::GetModule;
+    else if (module == ModuleClass::CpfgSurface) token = ModuleToken::Surface;
+
+    ModuleLookahead lookahead = ModuleLookahead::End;
+    if (it != end)
+        lookahead = *it == '(' ? ModuleLookahead::Arguments : ModuleLookahead::Other;
+    const auto syntax = moduleStringSyntax[static_cast<size_t>(mode)]
+                                         [static_cast<size_t>(token)]
+                                         [static_cast<size_t>(lookahead)];
+    const size_t moduleId = module->getId();
+    std::string args;
+    switch (syntax) {
+    case ModuleSyntax::Bare:
+        return {moduleId, args};
+    case ModuleSyntax::Variable: {
+        const auto variable = it;
+        while (it != end && (*it == '_' || isalnum(static_cast<unsigned char>(*it)))) ++it;
+        return {moduleId, std::string(variable, it)};
+    }
+    case ModuleSyntax::Capture: {
+        const auto captured = parseAModule(it, end, mode, lineno);
+        const ModuleClassPtr capturedClass = ModuleClassTable::get().find(captured.first);
+        if (!capturedClass) return {moduleId, args};
+        if (capturedClass == ModuleClass::GetModule)
+            LsysSyntaxError("Invalid construction for get module '$" + capturedClass->name + "'.", "", lineno);
+        return {moduleId, captured.second + "," + capturedClass->name};
+    }
+    case ModuleSyntax::Surface:
+        args = std::string("'") + *it + "',";
+        ++it;
+        if (it == end || *it != '(') return {moduleId, args};
+        break;
+    case ModuleSyntax::WithArguments:
+        break;
+    }
+
+    const auto argsBegin = ++it;
+    auto lastArg = argsBegin;
+    auto argsEnd = readPythonFragment(argsBegin, end, ",)", lineno);
+    while (argsEnd != end && *argsEnd == ',') {
+        lastArg = argsEnd + 1;
+        argsEnd = readPythonFragment(lastArg, end, ",)", lineno);
+    }
+    if (argsEnd == end) {
+        it = end;
+        LsysSyntaxError("Invalid syntax in AxialTree: expected ')'.", "", lineno);
+        return {moduleId, args};
+    }
+    it = argsEnd + 1;
+
+    while (lastArg != argsEnd && (*lastArg == ' ' || *lastArg == '\t')) ++lastArg;
+    if (mode == ModuleStringMode::Production && lastArg != argsEnd && *lastArg == '*') {
+        auto variable = lastArg + 1;
+        if (variable != argsEnd && *variable == '*') ++variable;
+        if (variable != argsEnd && LpyParsing::isValidVariableName(variable, argsEnd)) {
+            args.append(argsBegin, lastArg);
+            args += "PackedArgs(";
+            args.append(variable, it);
+            return {moduleId, args};
+        }
+    }
+    args.append(argsBegin, argsEnd);
+    return {moduleId, args};
 }
+
+} // namespace
 
 std::vector<std::pair<size_t,std::string> > 
 LpyParsing::parselstring( std::string::const_iterator& beg,
@@ -1657,7 +1662,7 @@ LpyParsing::parselstring( std::string::const_iterator& beg,
 					  int lineno,
 					  bool production)
 {
-  // std::cerr << "parse '" << std::string(beg,endpos) << "'" << std::endl;
+  const auto mode = production ? ModuleStringMode::Production : ModuleStringMode::Pattern;
   std::vector<std::pair<size_t,std::string> > result;
   std::string::const_iterator _it = beg;
   while(_it != endpos && (*_it == ' ' || *_it == '\t'))_it++;
@@ -1686,7 +1691,7 @@ LpyParsing::parselstring( std::string::const_iterator& beg,
 	}
 #endif
 	else {		
-		result.push_back(parseAModule(_it,endpos,production,lineno));
+		result.push_back(parseAModule(_it,endpos,mode,lineno));
 	}
   } // end while
   beg = _it;
